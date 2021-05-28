@@ -88,7 +88,7 @@ class FlowScanner(
 
     @Scheduled(fixedDelay = 2000L, initialDelay = 2000L)
     fun findItems() {
-        val lastItem = itemRepository.findLatest().blockOptional()
+        val lastItem = itemRepository.findTopByOrderByUpdateTimeDesc().blockOptional()
         if(lastItem.isEmpty) {
             flowTransactionRepository.findAll().map { tx ->
                 val height = tx.blockHeight
