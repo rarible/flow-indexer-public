@@ -2,7 +2,10 @@ package com.rarible.flow.scanner
 
 import com.rarible.flow.scanner.events.*
 import com.rarible.flow.scanner.model.FlowBlock
+import com.rarible.flow.scanner.model.toItem
 import com.rarible.flow.scanner.repo.FlowBlockRepository
+import com.rarible.flow.scanner.repo.FlowTransactionRepository
+import com.rarible.flow.scanner.repo.ItemRepository
 import io.grpc.stub.StreamObserver
 import net.devh.boot.grpc.client.inject.GrpcClient
 import org.bouncycastle.util.encoders.Hex
@@ -26,7 +29,9 @@ import javax.annotation.PostConstruct
 class FlowScanner(
     private val publisher: ApplicationEventPublisher,
     private val blockRepository: FlowBlockRepository,
-    private val messageTemplate: SimpMessagingTemplate
+    private val messageTemplate: SimpMessagingTemplate,
+    private val itemRepository: ItemRepository,
+    private val flowTransactionRepository: FlowTransactionRepository
 ) {
 
     private val log: Logger = LoggerFactory.getLogger(FlowScanner::class.java)
@@ -81,6 +86,18 @@ class FlowScanner(
         )
     }
 
+    @Scheduled(fixedDelay = 2000L, initialDelay = 2000L)
+    fun findItems() {
+        val lastItem = itemRepository.findLatest().blockOptional()
+        if(lastItem.isEmpty) {
+            flowTransactionRepository.findAll().map { tx ->
+                val height = tx.blockHeight
+                val items = tx.events.mapNotNull { it.toItem(height) }
+                itemRepository.saveAll(items)
+            }
+        }
+    }
+
     @EventListener(FlowBlockRangeRequest::class)
     fun blockRangeRequest(event: FlowBlockRangeRequest) {
         val range = LongRange(event.from, event.to)
@@ -91,28 +108,30 @@ class FlowScanner(
 
     @Async
     fun readBlock(height: Long) {
-        client.getBlockByHeight(Access.GetBlockByHeightRequest.newBuilder().setHeight(height).build(), object : StreamObserver<Access.BlockResponse> {
-            override fun onNext(value: Access.BlockResponse) {
-                val block = value.block
-                val fb = FlowBlock(
-                    id = Hex.toHexString(block.id.toByteArray()),
-                    parentId = Hex.toHexString(block.parentId.toByteArray()),
-                    height = block.height,
-                    timestamp = Instant.ofEpochSecond(block.timestamp.seconds),
-                    collectionsCount = block.collectionGuaranteesCount
-                )
-                publisher.publishEvent(FlowBlockReceived(fb))
-            }
+        client.getBlockByHeight(
+            Access.GetBlockByHeightRequest.newBuilder().setHeight(height).build(),
+            object : StreamObserver<Access.BlockResponse> {
+                override fun onNext(value: Access.BlockResponse) {
+                    val block = value.block
+                    val fb = FlowBlock(
+                        id = Hex.toHexString(block.id.toByteArray()),
+                        parentId = Hex.toHexString(block.parentId.toByteArray()),
+                        height = block.height,
+                        timestamp = Instant.ofEpochSecond(block.timestamp.seconds),
+                        collectionsCount = block.collectionGuaranteesCount
+                    )
+                    publisher.publishEvent(FlowBlockReceived(fb))
+                }
 
-            override fun onError(t: Throwable) {
-                log.error(t.message, t)
-            }
+                override fun onError(t: Throwable) {
+                    log.error(t.message, t)
+                }
 
-            override fun onCompleted() {
-                log.info("read block [$height] complete!")
-            }
+                override fun onCompleted() {
+                    log.info("read block [$height] complete!")
+                }
 
-        })
+            })
     }
 
     @EventListener(FlowBlockReceived::class)

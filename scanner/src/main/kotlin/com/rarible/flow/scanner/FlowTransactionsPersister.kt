@@ -3,7 +3,9 @@ package com.rarible.flow.scanner
 import com.rarible.flow.scanner.events.FlowBlockPersisted
 import com.rarible.flow.scanner.model.FlowEvent
 import com.rarible.flow.scanner.model.FlowTransaction
+import com.rarible.flow.scanner.model.toItem
 import com.rarible.flow.scanner.repo.FlowTransactionRepository
+import com.rarible.flow.scanner.repo.ItemRepository
 import io.grpc.stub.StreamObserver
 import net.devh.boot.grpc.client.inject.GrpcClient
 import org.bouncycastle.util.encoders.Hex
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Component
 @Component
 class FlowTransactionsPersister(
     private val repository: FlowTransactionRepository,
+    private val itemRepository: ItemRepository,
     private val messageTemplate: SimpMessagingTemplate
     ) {
 
@@ -55,24 +58,36 @@ class FlowTransactionsPersister(
                                                             blockHeight = event.block.height,
                                                             proposer = Hex.toHexString(value.transaction.proposalKey.address.toByteArray()),
                                                             payer = Hex.toHexString(value.transaction.payer.toByteArray()),
-                                                            authorizers = value.transaction.authorizersList.map { Hex.toHexString(it.toByteArray()) },
+                                                            authorizers = value.transaction.authorizersList.map {
+                                                                Hex.toHexString(
+                                                                    it.toByteArray()
+                                                                )
+                                                            },
                                                             script = value.transaction.script.toStringUtf8()
                                                         )
                                                         client.getTransactionResult(
-                                                            Access.GetTransactionRequest.newBuilder().setId(txId).build(),
+                                                            Access.GetTransactionRequest.newBuilder().setId(txId)
+                                                                .build(),
                                                             object : StreamObserver<Access.TransactionResultResponse> {
                                                                 override fun onNext(value: Access.TransactionResultResponse) {
                                                                     value.eventsList.forEach { e ->
-                                                                        tx.events.add(
-                                                                            FlowEvent(
-                                                                                type = e.type,
-                                                                                data = e.payload.toStringUtf8()
-                                                                            )
+                                                                        val flowEvent = FlowEvent(
+                                                                            type = e.type,
+                                                                            data = e.payload.toStringUtf8()
                                                                         )
+                                                                        tx.events.add(flowEvent)
+
+
+                                                                        flowEvent.toItem(tx.blockHeight)?.let { item ->
+                                                                            itemRepository.save(item)
+                                                                        }
                                                                     }
                                                                     repository.save(tx).subscribe {
                                                                         log.info("Transaction Persisted")
-                                                                        messageTemplate.convertAndSend("/topic/transaction", it)
+                                                                        messageTemplate.convertAndSend(
+                                                                            "/topic/transaction",
+                                                                            it
+                                                                        )
                                                                     }
                                                                 }
 
