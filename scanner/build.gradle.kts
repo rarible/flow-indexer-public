@@ -9,7 +9,7 @@ plugins {
 
 group = "com.rarible.flow"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_16
+java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
     mavenCentral()
@@ -42,10 +42,18 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "16"
+        jvmTarget = "11"
     }
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.register("stage") {
+    dependsOn(tasks["build"], tasks["clean"])
+}
+
+tasks.named("build") {
+    mustRunAfter(tasks["clean"])
 }

@@ -2,7 +2,6 @@ package com.rarible.flow.scanner
 
 import com.rarible.flow.scanner.model.FlowTransaction
 import com.rarible.flow.scanner.repo.FlowTransactionRepository
-import kotlinx.coroutines.flow.Flow
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
