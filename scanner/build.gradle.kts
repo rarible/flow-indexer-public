@@ -51,7 +51,7 @@ tasks.withType<Test> {
 }
 
 tasks.register("stage") {
-    dependsOn(tasks["build"], tasks["clean"])
+    dependsOn(tasks["build"])
 }
 
 tasks.named("build") {
