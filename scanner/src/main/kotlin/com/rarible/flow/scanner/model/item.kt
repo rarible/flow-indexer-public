@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.Instant
 
-inline class Address(val value: String)
+@JvmInline
+value class Address(val value: String)
 
-inline class TxHash(val value: String)
+@JvmInline
+value class TxHash(val value: String)
 
 data class Part(
     val address: Address,
