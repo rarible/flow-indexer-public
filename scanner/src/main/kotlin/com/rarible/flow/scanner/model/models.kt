@@ -27,7 +27,7 @@ data class FlowTransaction(
     val payer: String,
     val authorizers: List<String>,
     val script: String,
-    val events: MutableList<FlowEvent> = mutableListOf()
+    val events: List<FlowEvent>
 )
 
 data class FlowEvent(
