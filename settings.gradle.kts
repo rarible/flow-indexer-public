@@ -1,6 +1,9 @@
 rootProject.name = "flow-nft-indexer"
 include(
     "scanner",
-    "indexer"
+    "backend-api-model",
+    "backend-api",
+    "backend-core",
+    "backend-listener"
 )
 

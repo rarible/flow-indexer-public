@@ -14,20 +14,29 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 
 dependencies { }
 
-
-
-tasks.register("stage") {
-    dependsOn(tasks["build"])
-}
-
-tasks.named("build") {
-    mustRunAfter(tasks["clean"])
-}
-
 allprojects {
+    repositories {
+        mavenCentral()
 
+        maven {
+            url = uri("https://jitpack.io")
+        }
 
-//    val implementation by configurations
+        maven {
+            name = "nexus-snapshots"
+            url = uri("http://10.7.3.6:8081/nexus/content/repositories/snapshots/")
+            isAllowInsecureProtocol = true
+        }
+
+        maven {
+            name = "nexus-maven-public"
+            url = uri("http://nexus.rarible.int/repository/maven-public/")
+            isAllowInsecureProtocol = true
+        }
+    }
+}
+
+subprojects {
 
     apply {
         plugin("java")
