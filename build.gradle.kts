@@ -43,6 +43,12 @@ allprojects {
         maven {
             url = uri("https://jitpack.io")
         }
+
+        /*maven {
+            name = "nexus-maven-public"
+            url = uri("http://nexus.rarible.int/repository/maven-public/")
+            isAllowInsecureProtocol = true
+        }*/
     }
 
     dependencies {
@@ -50,12 +56,14 @@ allprojects {
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
         implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+        implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
         implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 
         implementation("org.springframework.boot:spring-boot-starter-webflux")
         implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
         implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 
+//        implementation("com.rarible.core:rarible-core-kafka:1.2-SNAPSHOT")
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("io.projectreactor:reactor-test")
     }

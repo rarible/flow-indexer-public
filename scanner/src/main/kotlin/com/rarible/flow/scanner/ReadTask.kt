@@ -5,16 +5,16 @@ import com.rarible.flow.scanner.model.FlowEvent
 import com.rarible.flow.scanner.model.FlowTransaction
 import org.bouncycastle.util.encoders.Hex
 import org.onflow.protobuf.access.Access
+import org.onflow.protobuf.access.AccessAPIGrpc
 import java.time.Instant
 import java.util.concurrent.Callable
 
 /**
  * Created by TimochkinEA at 01.06.2021
  */
-class ReadTask(private val blockHeight: Long) : Callable<Pair<FlowBlock, List<FlowTransaction>>> {
+class ReadTask(private val blockHeight: Long, private val client: AccessAPIGrpc.AccessAPIBlockingStub) : Callable<Pair<FlowBlock, List<FlowTransaction>>> {
 
     override fun call(): Pair<FlowBlock, List<FlowTransaction>> {
-        val client = GrpcClients.forBlock(blockHeight).sync
 
         val block = client.getBlockByHeight(
             Access.GetBlockByHeightRequest.newBuilder().setHeight(blockHeight).build()
@@ -40,9 +40,9 @@ class ReadTask(private val blockHeight: Long) : Callable<Pair<FlowBlock, List<Fl
                     transactions.add(FlowTransaction(
                         id = Hex.toHexString(tx.referenceBlockId.toByteArray()),
                         blockHeight = blockHeight,
-                        proposer = tx.proposalKey.address.toStringUtf8(),
-                        payer = tx.payer.toStringUtf8(),
-                        authorizers = tx.authorizersList.map { it.toStringUtf8() },
+                        proposer = Hex.toHexString(tx.proposalKey.address.toByteArray()),
+                        payer = Hex.toHexString(tx.payer.toByteArray()),
+                        authorizers = tx.authorizersList.map { Hex.toHexString(it.toByteArray()) },
                         script = tx.script.toStringUtf8().trimIndent(),
                         events = result.eventsList.map {
                             FlowEvent(

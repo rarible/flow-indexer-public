@@ -34,3 +34,10 @@ data class FlowEvent(
     val type: String,
     val data: String
 )
+
+@Document
+data class RariEvent(
+    @Id
+    val id: String,
+    val data: String
+)
