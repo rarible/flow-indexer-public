@@ -12,9 +12,6 @@ import java.util.concurrent.Executors
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 
-/**
- * Created by TimochkinEA at 22.05.2021
- */
 @Component
 class FlowScanner(
     private val blockRepository: FlowBlockRepository,

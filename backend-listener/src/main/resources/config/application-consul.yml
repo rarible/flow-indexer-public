@@ -1,0 +1,8 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://${mongodb.hosts}
+      database: ${mongodb.database}
+
+flow-indexer-listener:
+  kafka-replica-set: ${kafka.hosts}

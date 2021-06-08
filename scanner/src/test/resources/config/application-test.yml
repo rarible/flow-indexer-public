@@ -1,0 +1,3 @@
+scanner:
+  kafka-replica-set: ${kafka.hosts}
+  environment: test
