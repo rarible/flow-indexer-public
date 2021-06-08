@@ -1,9 +1,9 @@
 pipeline {
   agent any
 
-	options {
-		disableConcurrentBuilds()
-	}
+    options {
+        disableConcurrentBuilds()
+    }
 
   environment {
     SWARM_MANAGER_HOST = credentials('swarm-manager-ip-address')
@@ -22,15 +22,15 @@ pipeline {
         sh './gradlew clean test'
       }
       post {
-		always {
-		  junit allowEmptyResults: true, testResults: '**/test-results/test/*.xml'
-		}
+        always {
+          junit allowEmptyResults: true, testResults: '**/test-results/test/*.xml'
+        }
       }
     }
     stage('package') {
-    	when {
-				branch 'master'
-			}
+      when {
+        branch 'main'
+      }
       steps {
         sh './gradlew clean build -x test'
         script {
@@ -40,9 +40,9 @@ pipeline {
       }
     }
     stage('build images and publish') {
-    	when {
-				branch 'master'
-			}
+      when {
+        branch 'main'
+      }
       steps {
         sh 'docker login -u ${REGISTRY_ACCOUNT} -p ${REGISTRY_PASSWORD}'
 
@@ -84,14 +84,13 @@ pipeline {
       }
     }
     stage('deploy dev') {
-    	when {
-				branch 'master'
-			}
+      when {
+        branch 'main'
+      }
       environment {
         APPLICATION_ENVIRONMENT = 'dev'
       }
       steps {
-				input('Deploy to dev')
         sh '''
           docker login -u ${REGISTRY_ACCOUNT} -p ${REGISTRY_PASSWORD} ${REGISTRY_URL}
           
@@ -106,5 +105,5 @@ pipeline {
         }
       }
     }
-
+  }
 }
