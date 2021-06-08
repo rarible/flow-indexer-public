@@ -11,14 +11,19 @@ import java.util.concurrent.Callable
 
 /**
  * Created by TimochkinEA at 01.06.2021
+ *
+ * Task for read block from Flow Net
+ *
+ * @property blockHeight    block height in net
+ *
  */
 class ReadTask(private val blockHeight: Long, private val client: AccessAPIGrpc.AccessAPIBlockingStub) : Callable<Pair<FlowBlock, List<FlowTransaction>>> {
 
     override fun call(): Pair<FlowBlock, List<FlowTransaction>> {
-
         val block = client.getBlockByHeight(
             Access.GetBlockByHeightRequest.newBuilder().setHeight(blockHeight).build()
         ).block
+
         val fb = FlowBlock(
             id = Hex.toHexString(block.id.toByteArray()),
             parentId = Hex.toHexString(block.parentId.toByteArray()),
