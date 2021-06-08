@@ -1,0 +1,3 @@
+flow-indexer-listener:
+  kafka-replica-set: ${kafka.hosts}
+  environment: test

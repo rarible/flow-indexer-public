@@ -1,14 +1,17 @@
 plugins {
     kotlin("jvm")
     kotlin("plugin.spring")
+    id("org.springframework.boot")
 }
 
 dependencies {
-    implementation("io.grpc:grpc-stub:1.37.0")
-    implementation("io.grpc:grpc-core:1.37.0")
-    implementation("io.grpc:grpc-protobuf:1.37.0")
-    implementation("net.devh:grpc-client-spring-boot-starter:2.12.0.RELEASE")
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("io.projectreactor:reactor-test")
+}
+
+tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    enabled = false
+}
+
+tasks.getByName<Jar>("jar") {
+    enabled = true
 }

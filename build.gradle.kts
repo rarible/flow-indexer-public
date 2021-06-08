@@ -11,10 +11,17 @@ group = "com.rarible.flow"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
-
-dependencies { }
-
 allprojects {
+    val p = this
+
+    logger.warn("Project: [${p.name}]")
+
+    apply {
+        plugin("java")
+        plugin("org.jetbrains.kotlin.jvm")
+        plugin("io.spring.dependency-management")
+    }
+
     repositories {
         mavenCentral()
 
@@ -26,39 +33,27 @@ allprojects {
             name = "nexus-snapshots"
             url = uri("http://10.7.3.6:8081/nexus/content/repositories/snapshots/")
             isAllowInsecureProtocol = true
+            metadataSources {
+                mavenPom()
+                artifact()
+            }
         }
 
         maven {
             name = "nexus-maven-public"
             url = uri("http://nexus.rarible.int/repository/maven-public/")
             isAllowInsecureProtocol = true
+            metadataSources {
+                mavenPom()
+                artifact()
+            }
         }
     }
 }
 
 subprojects {
 
-    apply {
-        plugin("java")
-        plugin("org.jetbrains.kotlin.jvm")
-        plugin("io.spring.dependency-management")
-        plugin("org.springframework.boot")
-        plugin("io.spring.dependency-management")
-    }
 
-    repositories {
-        mavenCentral()
-
-        maven {
-            url = uri("https://jitpack.io")
-        }
-
-        /*maven {
-            name = "nexus-maven-public"
-            url = uri("http://nexus.rarible.int/repository/maven-public/")
-            isAllowInsecureProtocol = true
-        }*/
-    }
 
     dependencies {
         implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -72,9 +67,9 @@ subprojects {
         implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
         implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 
-//        implementation("com.rarible.core:rarible-core-kafka:1.2-SNAPSHOT")
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("io.projectreactor:reactor-test")
+        testImplementation("com.rarible.core:rarible-core-test-common:1.2-SNAPSHOT")
     }
 
     tasks.withType<KotlinCompile> {
@@ -89,6 +84,10 @@ subprojects {
     }
 }
 
-subprojects {
+tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    enabled = false
+}
 
+tasks.getByName<Jar>("jar") {
+    enabled = true
 }

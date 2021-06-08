@@ -2,6 +2,8 @@ package com.rarible.flow.core.domain
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.data.annotation.AccessType
+import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.Instant
 
@@ -24,7 +26,7 @@ data class ItemTransfer(
 
 @Document
 data class Item(
-    val collection: Address,    // maps to `token`
+    val collection: String, //Address,    // maps to `token`
     val tokenId: Int,
     val creator: Address,       // can we have multiple? maps to list of creators with one element
     val royalties: List<Part>,
@@ -33,7 +35,15 @@ data class Item(
     val blockHeight: Long,
     val meta: Map<String, String> = emptyMap()
     //val pending: List<ItemTransfer> = emptyList()
-)
+) {
+
+    @get:Id
+    @get:AccessType(AccessType.Type.PROPERTY)
+    var id: String
+        get() = "$collection:$tokenId"
+        set(_) {}
+
+}
 
 private fun parseEvent(eventType: String, eventData: String, blockHeight: Long): Item? {
     val parts = eventType.split('.')
@@ -48,7 +58,7 @@ private fun parseEvent(eventType: String, eventData: String, blockHeight: Long):
             }.toMap()
 
             Item(
-                Address(contract),
+                contract,
                 Integer.valueOf(fieldValue(fields, "id")),
                 creator,
                 emptyList(),

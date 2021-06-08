@@ -1,8 +1,8 @@
 ﻿version: '3.8'
 
 services:
-  ${APPLICATION_ENVIRONMENT}-${BLOCKCHAIN}-erc20-api:
-    image: rarible/protocol-erc20-api:${VERSION}
+  ${APPLICATION_ENVIRONMENT}-flow-indexer-api:
+    image: rarible/flow-indexer-api:${VERSION}
     logging:
       driver: "json-file"
       options:
@@ -36,16 +36,16 @@ services:
       retries: 3
       start_period: 120s
     environment:
-      - CONSUL_ROOT-PATH=${APPLICATION_ENVIRONMENT}/protocol/${BLOCKCHAIN}/erc20
-      - SPRING_PROFILES_ACTIVE=consul,${BLOCKCHAIN},${APPLICATION_ENVIRONMENT}
+      - CONSUL_ROOT-PATH=${APPLICATION_ENVIRONMENT}/protocol/flow/indexer
+      - SPRING_PROFILES_ACTIVE=consul,flow,${APPLICATION_ENVIRONMENT}
       - APPLICATION_ENVIRONMENT=${APPLICATION_ENVIRONMENT}
       - JAVA_OPTIONS=-Xmx${PROTOCOL_API_HEAP} -Xms${PROTOCOL_API_HEAP}
     networks:
       - ${APPLICATION_ENVIRONMENT}-backend
       - internet
       - proxy
-  ${APPLICATION_ENVIRONMENT}-${BLOCKCHAIN}-erc20-listener:
-    image: rarible/protocol-erc20-listener:${VERSION}
+  ${APPLICATION_ENVIRONMENT}-flow-indexer-listener:
+    image: rarible/protocol-indexer-listener:${VERSION}
     logging:
       driver: "json-file"
       options:
@@ -79,16 +79,16 @@ services:
       retries: 3
       start_period: 120s
     environment:
-      - CONSUL_ROOT-PATH=${APPLICATION_ENVIRONMENT}/protocol/${BLOCKCHAIN}/erc20
-      - SPRING_PROFILES_ACTIVE=consul,${BLOCKCHAIN},${APPLICATION_ENVIRONMENT}
+      - CONSUL_ROOT-PATH=${APPLICATION_ENVIRONMENT}/protocol/flow/indexer
+      - SPRING_PROFILES_ACTIVE=consul,flow,${APPLICATION_ENVIRONMENT}
       - APPLICATION_ENVIRONMENT=${APPLICATION_ENVIRONMENT}
       - JAVA_OPTIONS=-Xmx${PROTOCOL_LISTENER_HEAP} -Xms${PROTOCOL_LISTENER_HEAP} -XX:MaxDirectMemorySize=${PROTOCOL_LISTENER_DIRECT_MEMORY}
     networks:
       - ${APPLICATION_ENVIRONMENT}-backend
       - ${ETHEREUM_NETWORK}-ethereum
       - internet
-  ${APPLICATION_ENVIRONMENT}-${BLOCKCHAIN}-erc20-importer:
-    image: rarible/protocol-erc20-events-importer:${VERSION}
+  ${APPLICATION_ENVIRONMENT}-flow-indexer-scanner:
+    image: rarible/protocol-indexer-scanner:${VERSION}
     logging:
       driver: "json-file"
       options:
@@ -122,8 +122,8 @@ services:
       retries: 3
       start_period: 120s
     environment:
-      - CONSUL_ROOT-PATH=${APPLICATION_ENVIRONMENT}/protocol/${BLOCKCHAIN}/erc20
-      - SPRING_PROFILES_ACTIVE=consul,${BLOCKCHAIN},${APPLICATION_ENVIRONMENT}
+      - CONSUL_ROOT-PATH=${APPLICATION_ENVIRONMENT}/protocol/flow/indexer
+      - SPRING_PROFILES_ACTIVE=consul,flow,${APPLICATION_ENVIRONMENT}
       - APPLICATION_ENVIRONMENT=${APPLICATION_ENVIRONMENT}
       - JAVA_OPTIONS=-Xmx${PROTOCOL_EVENTS_IMPORTER_HEAP} -Xms${PROTOCOL_EVENTS_IMPORTER_HEAP}
     networks:

@@ -1,4 +1,4 @@
-package com.rarible.flow
+package com.rarible.flow.api
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

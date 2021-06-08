@@ -1,18 +1,20 @@
 package com.rarible.flow.scanner
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.rarible.core.kafka.KafkaMessage
+import com.rarible.core.kafka.RaribleKafkaProducer
+import com.rarible.flow.events.EventMessage
 import com.rarible.flow.scanner.model.FlowEvent
 import com.rarible.flow.scanner.model.FlowTransaction
 import com.rarible.flow.scanner.repo.FlowBlockRepository
 import com.rarible.flow.scanner.repo.FlowTransactionRepository
 import com.rarible.flow.scanner.repo.RariEventRepository
+import kotlinx.coroutines.runBlocking
 import net.devh.boot.grpc.client.inject.GrpcClient
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.util.concurrent.ExecutorService
@@ -20,21 +22,16 @@ import java.util.concurrent.Executors
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 
-/**
- * Created by TimochkinEA at 22.05.2021
- */
 @Component
 class FlowScanner(
     private val blockRepository: FlowBlockRepository,
     private val txRepository: FlowTransactionRepository,
-    private val rariEventRepository: RariEventRepository
+    private val rariEventRepository: RariEventRepository,
+    private val kafkaProducer: RaribleKafkaProducer<EventMessage>
 ) {
     private var latestBlockHeight: Long = 0L
 
     private val executorService: ExecutorService = Executors.newCachedThreadPool()
-
-    @Autowired
-    private lateinit var kafkaTemplate: KafkaTemplate<String, String>
 
     @GrpcClient("flow")
     private lateinit var client: AccessAPIGrpc.AccessAPIBlockingStub
@@ -78,18 +75,18 @@ class FlowScanner(
         features.map { it.get() }.forEach {
             blockRepository.save(it.first).subscribe()
             if (it.second.isNotEmpty()) {
-                txRepository.saveAll(it.second).subscribe {
-                    findRariEvents(it)
+                txRepository.saveAll(it.second).subscribe { tx ->
+                    findRariEvents(tx)
                 }
             }
         }
     }
 
-    private fun findRariEvents(tx: FlowTransaction) {
-        tx.events.forEach { flowEvent ->
+    private fun findRariEvents(tx: FlowTransaction) = runBlocking {
+        tx.events.forEachIndexed { index, flowEvent ->
             when {
                 flowEvent.type.contains("1cd85950d20f05b2", true) -> {
-                    parseAndSend(flowEvent)
+                    parseAndSend(flowEvent, tx.id, index)
                 }
                 /*flowEvent.type.contains("9a0766d93b6608b7", true) -> {
                     parseAndSend(flowEvent)
@@ -110,7 +107,7 @@ class FlowScanner(
         }
     }
 
-    private fun parseAndSend(flowEvent: FlowEvent) {
+    private suspend fun parseAndSend(flowEvent: FlowEvent, txId: String, eventIndex: Int) {
         val obj = ObjectMapper().readTree(flowEvent.data)
         val e = obj["value"]
         val id = e["id"].asText()
@@ -123,16 +120,18 @@ class FlowScanner(
             } else {
                 it["value"]["value"]
             }
-           name to value
+           name to value.textValue()
         }.toMap()
         val m = EventMessage(id, fields)
         log.info("$m")
-        // TODO send to kafka
+        kafkaProducer.send(
+            KafkaMessage(
+                key = "$txId.$eventIndex", //todo check collisions
+                value = m,
+                headers = emptyMap(),
+                id = "$txId.$eventIndex"
+            )
+        )
     }
 }
-
-data class EventMessage(
-    val id: String,
-    val fields: Map<String, Any?>
-)
 

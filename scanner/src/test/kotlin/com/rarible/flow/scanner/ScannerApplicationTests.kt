@@ -1,11 +1,10 @@
 package com.rarible.flow.scanner
 
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.SpringBootTest
 
 
-@SpringBootTest
-class ScannerApplicationTests {
+@IntegrationTest
+class ScannerApplicationTests: BaseIntegrationTest() {
 
     @Test
     fun contextLoads() {}

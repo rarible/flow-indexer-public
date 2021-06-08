@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono
 
 
-@Repository
-interface  ItemRepository: ReactiveMongoRepository<Item, String> {
-    fun findTopByOrderByUpdateTimeDesc(): Mono<Item>
-}
+//@Repository
+//interface  ItemRepository: ReactiveMongoRepository<Item, String> {
+//    fun findTopByOrderByUpdateTimeDesc(): Mono<Item>
+//}

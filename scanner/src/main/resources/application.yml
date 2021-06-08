@@ -1,37 +1,17 @@
 spring:
   application:
     name: rari-flow-scaner
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/scanner3
-      database: scanner3
-#  kafka:
-#    bootstrap-servers: localhost:9092
-#    producer:
-#      client-id: ${spring.application.name}
-#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-#      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-#      retries: 2
-#    consumer:
-#      group-id: ${spring.application.name}
-#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-#      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-#      max-poll-records: 1
-#      fetch-max-wait: 36000
-#      enable-auto-commit: false
-#      client-id: ${spring.application.name}
-#    listener:
-#      poll-timeout: 1800000
-#      concurrency: 1
-#      ack-mode: manual_immediate
-#  cloud:
-#    consul:
-#      host: localhost
-#      port: 8500
-#      config:
-#        format: PROPERTIES
-#  config:
-#    import: "optional:consul:"
+
+  jackson:
+    mapper:
+      ACCEPT_CASE_INSENSITIVE_ENUMS: true
+    deserialization:
+      FAIL_ON_UNKNOWN_PROPERTIES: false
+    default-property-inclusion: non_null
+    main:
+      banner-mode: log
+      web-application-type: reactive
+
 grpc:
   client:
     flow:
