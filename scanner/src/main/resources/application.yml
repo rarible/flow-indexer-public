@@ -12,6 +12,10 @@ spring:
       banner-mode: log
       web-application-type: reactive
 
+  batch:
+    job:
+      enabled: false
+
 grpc:
   client:
     flow:

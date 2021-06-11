@@ -1,10 +1,8 @@
 package com.rarible.flow.scanner.config
 
-import com.rarible.core.kafka.RaribleKafkaProducer
-import com.rarible.core.kafka.json.JsonSerializer
-import com.rarible.flow.events.EventMessage
+//import com.rarible.core.kafka.RaribleKafkaProducer
+//import com.rarible.core.kafka.json.JsonSerializer
 import org.springframework.boot.context.properties.EnableConfigurationProperties
-import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 import org.springframework.scheduling.annotation.EnableScheduling
@@ -18,6 +16,9 @@ class Config(
 ) {
     private val clientId = "${scannerProperties.environment}.flow.nft-scanner"
 
+
+
+/*
     @Bean
     fun kafkaProducer(): RaribleKafkaProducer<EventMessage> {
         return RaribleKafkaProducer(
@@ -27,4 +28,5 @@ class Config(
             bootstrapServers = scannerProperties.kafkaReplicaSet
         )
     }
+*/
 }

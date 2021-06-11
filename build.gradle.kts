@@ -29,7 +29,7 @@ allprojects {
             url = uri("https://jitpack.io")
         }
 
-        maven {
+        /*maven {
             name = "nexus-snapshots"
             url = uri("http://10.7.3.6:8081/nexus/content/repositories/snapshots/")
             isAllowInsecureProtocol = true
@@ -47,7 +47,7 @@ allprojects {
                 mavenPom()
                 artifact()
             }
-        }
+        }*/
     }
 }
 

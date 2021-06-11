@@ -4,7 +4,7 @@ import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
-import org.testcontainers.junit.jupiter.Testcontainers
+//import org.testcontainers.junit.jupiter.Testcontainers
 
 @Retention
 @AutoConfigureJson
@@ -19,5 +19,5 @@ import org.testcontainers.junit.jupiter.Testcontainers
 )
 @ActiveProfiles("test")
 @Import(TestPropertiesConfiguration::class)
-@Testcontainers
+//@Testcontainers
 annotation class IntegrationTest

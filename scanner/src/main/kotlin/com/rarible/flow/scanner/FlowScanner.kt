@@ -5,8 +5,14 @@ import com.rarible.flow.scanner.repo.FlowTransactionRepository
 import net.devh.boot.grpc.client.inject.GrpcClient
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
+import org.springframework.batch.core.Job
+import org.springframework.batch.core.JobParametersBuilder
+import org.springframework.batch.core.job.flow.JobFlowExecutor
+import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.beans.factory.annotation.Lookup
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import javax.annotation.PostConstruct
@@ -16,7 +22,9 @@ import javax.annotation.PreDestroy
 class FlowScanner(
     private val blockRepository: FlowBlockRepository,
     private val txRepository: FlowTransactionRepository,
-    private val analyzer: FlowEventAnalyzer
+    private val analyzer: FlowEventAnalyzer,
+    private val jobLauncher: JobLauncher,
+    private val readJob: Job
 ) {
     private var latestBlockHeight: Long = 0L
 
@@ -34,10 +42,16 @@ class FlowScanner(
     fun preDestroy() {
         executorService.shutdown()
     }
+
+    @Scheduled(fixedDelay = 1000L)
+    fun doJob() {
+        jobLauncher.run(readJob, JobParametersBuilder().addDate("launchDate", Date()).toJobParameters())
+    }
+
     /**
      * Request latest block with 2 sec. delay
      */
-    @Scheduled(fixedDelay = 2000L, initialDelay = 2000L)
+//    @Scheduled(fixedDelay = 2000L, initialDelay = 2000L)
     fun scan() {
         val current = latestBlockHeight
         latestBlockHeight = client.getLatestBlockHeader(
@@ -61,7 +75,7 @@ class FlowScanner(
             blockRepository.save(result.first).subscribe()
             if (result.second.isNotEmpty()) {
                 txRepository.saveAll(result.second).subscribe { ft ->
-                    analyzer.analyze(ft)
+//                    analyzer.analyze(ft)
                 }
             }
         }

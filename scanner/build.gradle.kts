@@ -7,7 +7,7 @@ plugins {
 
 dependencies {
     implementation(project(":backend-api-model"))
-    implementation("com.rarible.core:rarible-core-kafka:1.2-SNAPSHOT")
+//    implementation("com.rarible.core:rarible-core-kafka:1.2-SNAPSHOT")
 
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -27,5 +27,9 @@ dependencies {
     implementation("net.devh:grpc-client-spring-boot-starter:2.12.0.RELEASE")
 
     testImplementation(project(":backend-api-model"))
+
+    implementation("org.springframework.boot:spring-boot-starter-batch")
+    runtimeOnly("org.hsqldb:hsqldb")
+    testImplementation("org.springframework.batch:spring-batch-test")
 }
 
