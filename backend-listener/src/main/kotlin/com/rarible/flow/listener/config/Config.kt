@@ -5,6 +5,7 @@ import com.rarible.core.daemon.sequential.ConsumerWorker
 import com.rarible.core.kafka.RaribleKafkaConsumer
 import com.rarible.core.kafka.json.JsonDeserializer
 import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.OwnershipRepo
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.events.NftEvent
 import com.rarible.flow.listener.handler.EventHandler
@@ -32,8 +33,11 @@ class Config(
     }
 
     @Bean
-    fun eventMessageHandler(itemRepository: ItemRepository): ConsumerEventHandler<NftEvent> {
-        return EventHandler(itemRepository)
+    fun eventMessageHandler(
+        itemRepository: ItemRepository,
+        ownershipRepo: OwnershipRepo
+    ): ConsumerEventHandler<NftEvent> {
+        return EventHandler(itemRepository, ownershipRepo)
     }
 
     @Bean

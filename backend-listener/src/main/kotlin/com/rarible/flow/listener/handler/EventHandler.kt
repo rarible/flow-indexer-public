@@ -11,6 +11,7 @@ import org.onflow.sdk.toHex
 import java.time.Instant
 
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.map
 
@@ -53,29 +54,34 @@ class EventHandler(
         }
     }
 
-    suspend fun burn(address: String, tokenId: Int) {
+    suspend fun burn(address: String, tokenId: Int) = coroutineScope{
         val items = async { itemRepository.delete(Item.makeId(address, tokenId)) }
         val ownerships = async {
             ownershipRepo.deleteAllByContractAndTokenId(Address(address), tokenId)
         }
 
-        items + ownerships
+        items.await()
+        ownerships.await()
     }
 
 
-    suspend fun deposit(address: String, id: Int, to: org.onflow.sdk.Address) {
+    suspend fun deposit(address: String, id: Int, to: org.onflow.sdk.Address) = coroutineScope {
         val owner = Address(to.bytes.toHex())
-        async {
+        val items = async {
             itemRepository
                 .findById(Item.makeId(address, id))
                 ?.let {
                     itemRepository.save(it.copy(owner = owner))
                 }
-        } + async {
+        }
+        val ownership = async {
             ownershipRepo.findAllByContractAndTokenId(
                 Address(address), id
-            ).map { it.copy(owner = owner) }.let(ownershipRepo::saveAll)
+            ).map { it.copy(owner = owner) }.let { ownershipRepo.saveAll(it) }
         }
+
+        items.await()
+        ownership.await()
     }
 
 }

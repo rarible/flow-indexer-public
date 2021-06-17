@@ -11,6 +11,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = [
+        "application.environment = dev",
         "spring.cloud.service-registry.auto-registration.enabled = false",
         "spring.cloud.discovery.enabled = false",
         "spring.cloud.consul.config.enabled = false",
