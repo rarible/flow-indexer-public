@@ -1,6 +1,7 @@
 package com.rarible.flow.core.config
 
 import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.OwnershipRepo
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.mongodb.config.EnableMongoAuditing
@@ -17,4 +18,7 @@ data class CoreConfig(
 ) {
     @Bean
     fun itemRepository() = ItemRepository(mongoTemplate)
+
+    @Bean
+    fun ownershipRepo() = OwnershipRepo(mongoTemplate)
 }
