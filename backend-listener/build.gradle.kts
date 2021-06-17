@@ -7,7 +7,9 @@ plugins {
 dependencies {
     implementation(project(":backend-core"))
     implementation(project(":backend-api-model"))
+    implementation("org.onflow:flow-jvm-sdk:0.1.1")
 
-    implementation("com.rarible.core:rarible-core-kafka:1.2-SNAPSHOT")
-    implementation("com.rarible.core:rarible-core-daemon:1.2-SNAPSHOT")
+    implementation("com.rarible.core:rarible-core-kafka:${versions.raribleCore}")
+    implementation("com.rarible.core:rarible-core-daemon:${versions.raribleCore}")
+    implementation("com.rarible.core:rarible-core-telemetry-starter:${versions.raribleCore}")
 }

@@ -4,6 +4,7 @@ include(
     "backend-api-model",
     "backend-api",
     "backend-core",
-    "backend-listener"
+    "backend-listener",
+    "converters"
 )
 

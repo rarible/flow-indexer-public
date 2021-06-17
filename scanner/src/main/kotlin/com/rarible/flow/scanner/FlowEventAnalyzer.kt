@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.rarible.core.kafka.KafkaMessage
 import com.rarible.core.kafka.RaribleKafkaProducer
-import com.rarible.flow.scanner.model.EventMessage
+import com.rarible.flow.events.EventMessage
 import com.rarible.flow.scanner.model.FlowTransaction
 import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger

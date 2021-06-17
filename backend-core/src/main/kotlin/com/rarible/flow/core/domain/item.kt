@@ -26,7 +26,7 @@ data class ItemTransfer(
 
 @Document
 data class Item(
-    val collection: String, //Address,    // maps to `token`
+    val contract: String, //Address,    // maps to `token`
     val tokenId: Int,
     val creator: Address,       // can we have multiple? maps to list of creators with one element
     val royalties: List<Part>,
@@ -40,40 +40,18 @@ data class Item(
     @get:Id
     @get:AccessType(AccessType.Type.PROPERTY)
     var id: String
-        get() = "$collection:$tokenId"
+        get() = makeId(this.contract, this.tokenId)
         set(_) {}
 
-}
-
-private fun parseEvent(eventType: String, eventData: String, blockHeight: Long): Item? {
-    val parts = eventType.split('.')
-    return if(parts.size > 1 && parts.first() == "A" && parts.last() == "Mint") {
-        try {
-            val payload = ObjectMapper().readTree(eventData)
-            val fields = payload["value"]["fields"]
-            val contract = parts[1]
-            val creator = Address(fieldValue(fields, "owner"))
-            val meta = fields.filter { it["name"].textValue() != "id" && it["name"].textValue() != "owner" }.map {
-                it["name"].textValue() to it["value"]["value"].textValue()
-            }.toMap()
-
-            Item(
-                contract,
-                Integer.valueOf(fieldValue(fields, "id")),
-                creator,
-                emptyList(),
-                creator,
-                Instant.now(),
-                blockHeight,
-                meta
-            )
-        } catch (e: Exception) {
-            null
+    companion object {
+        fun makeId(contract: Address, tokenId: Int): String {
+            return "${contract.value}:$tokenId"
         }
-    } else null
-}
 
-private fun fieldValue(fields: JsonNode, fieldName: String): String {
-    return fields.first { it["name"].textValue() == fieldName }["value"]["value"].textValue()
+        fun makeId(contract: String, tokenId: Int): String {
+            return "${contract}:$tokenId"
+        }
+    }
+
 }
 

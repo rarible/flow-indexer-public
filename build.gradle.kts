@@ -12,9 +12,6 @@ version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 allprojects {
-    val p = this
-
-    logger.warn("Project: [${p.name}]")
 
     apply {
         plugin("java")
@@ -59,6 +56,7 @@ subprojects {
         implementation("org.jetbrains.kotlin:kotlin-reflect")
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
         implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
         implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
         implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
@@ -69,7 +67,9 @@ subprojects {
 
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("io.projectreactor:reactor-test")
-        testImplementation("com.rarible.core:rarible-core-test-common:1.2-SNAPSHOT")
+        testImplementation("com.rarible.core:rarible-core-test-common:${versions.raribleCore}")
+        testImplementation("io.kotest:kotest-runner-junit5:${versions.kotest}")
+
     }
 
     tasks.withType<KotlinCompile> {
@@ -91,3 +91,4 @@ tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar
 tasks.getByName<Jar>("jar") {
     enabled = true
 }
+
