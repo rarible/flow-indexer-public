@@ -12,10 +12,10 @@ import java.time.Instant
 @Document
 data class FlowBlock(
     @Id
-    val id: String,
-    val parentId: String,
-    val height: Long,
-    val timestamp: Instant,
+    val id: String = "",
+    val parentId: String = "",
+    val height: Long = 0L,
+    val timestamp: Instant = Instant.now(),
     var collectionsCount: Int = 0,
     var transactionsCount: Int = 0
 )

@@ -2,9 +2,9 @@ package com.rarible.flow.scanner
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-//import com.rarible.core.kafka.KafkaMessage
-//import com.rarible.core.kafka.RaribleKafkaProducer
-import com.rarible.flow.scanner.model.EventMessage
+import com.rarible.core.kafka.KafkaMessage
+import com.rarible.core.kafka.RaribleKafkaProducer
+import com.rarible.flow.events.EventMessage
 import com.rarible.flow.scanner.model.FlowTransaction
 import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service
  */
 @Service
 class FlowEventAnalyzer(
-//    val kafkaProducer: RaribleKafkaProducer<EventMessage>
+    val kafkaProducer: RaribleKafkaProducer<EventMessage>
 ) {
 
     private val log: Logger = LoggerFactory.getLogger(FlowEventAnalyzer::class.java)
@@ -29,7 +29,7 @@ class FlowEventAnalyzer(
     /**
      * Analysis of the transaction for events of interest
      */
-    /*fun analyze(tx: FlowTransaction) {
+    fun analyze(tx: FlowTransaction) {
         val kafkaMessages: List<KafkaMessage<EventMessage>> = tx.events.mapIndexed { eventIndex, event ->
             if (contracts.any { event.type.contains(it, true) }) {
                 val data = mapper.readValue<EventMessage>(event.data)
@@ -49,5 +49,5 @@ class FlowEventAnalyzer(
         runBlocking {
             kafkaProducer.send(kafkaMessages)
         }
-    }*/
+    }
 }
