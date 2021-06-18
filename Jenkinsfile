@@ -19,7 +19,7 @@ pipeline {
   stages {
     stage('test') {
       steps {
-        sh './gradlew clean test'
+        sh './gradlew clean test --debug'
       }
       post {
         always {
@@ -32,7 +32,7 @@ pipeline {
         branch 'main'
       }
       steps {
-        sh './gradlew clean build -x test'
+        sh './gradlew clean build -x test --debug'
         script {
           env.IMAGE_TAG = "1.0.${env.BUILD_NUMBER}"
           env.VERSION = "${env.IMAGE_TAG}"

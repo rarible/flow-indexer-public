@@ -9,12 +9,9 @@ plugins {
 
 group = "com.rarible.flow"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_11
+java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 allprojects {
-    val p = this
-
-    logger.warn("Project: [${p.name}]")
 
     apply {
         plugin("java")
@@ -51,6 +48,11 @@ allprojects {
             }
         }
     }
+
+    tasks.withType<JavaCompile> {
+        sourceCompatibility = JavaVersion.VERSION_1_8.toString()
+        targetCompatibility = JavaVersion.VERSION_1_8.toString()
+    }
 }
 
 subprojects {
@@ -61,9 +63,11 @@ subprojects {
         implementation("org.jetbrains.kotlin:kotlin-reflect")
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
         implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
         implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
         implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
+        implementation("org.onflow:flow-jvm-sdk:0.1.1")
 
         implementation("org.springframework.boot:spring-boot-starter-webflux")
         implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
@@ -71,13 +75,15 @@ subprojects {
 
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("io.projectreactor:reactor-test")
-        testImplementation("com.rarible.core:rarible-core-test-common:1.2-SNAPSHOT")
+        testImplementation("com.rarible.core:rarible-core-test-common:${versions.raribleCore}")
+        testImplementation("io.kotest:kotest-runner-junit5:${versions.kotest}")
+
     }
 
     tasks.withType<KotlinCompile> {
         kotlinOptions {
             freeCompilerArgs = listOf("-Xjsr305=strict")
-            jvmTarget = "11"
+            jvmTarget = "1.8"
         }
     }
 
