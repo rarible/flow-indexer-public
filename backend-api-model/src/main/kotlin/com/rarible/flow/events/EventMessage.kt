@@ -2,7 +2,7 @@ package com.rarible.flow.events
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import org.onflow.sdk.Address
+import org.onflow.sdk.FlowAddress
 
 data class EventMessage(
     val id: String,
@@ -34,11 +34,11 @@ sealed class NftEvent(
     ) : NftEvent(eventId, id)
 
     data class Withdraw(
-        override val eventId: EventId, override val id: Int, val from: Address
+        override val eventId: EventId, override val id: Int, val from: FlowAddress
     ): NftEvent(eventId, id)
 
     data class Deposit(
-        override val eventId: EventId, override val id: Int, val to: Address
+        override val eventId: EventId, override val id: Int, val to: FlowAddress
     ): NftEvent(eventId, id)
 
     data class Burn(

@@ -7,13 +7,13 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepo
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.events.NftEvent
-import org.onflow.sdk.toHex
 import java.time.Instant
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.map
+import org.onflow.sdk.bytesToHex
 
 
 class EventHandler(
@@ -22,7 +22,7 @@ class EventHandler(
 ) : ConsumerEventHandler<NftEvent> {
 
     override suspend fun handle(event: NftEvent) {
-        val address = event.eventId.contractAddress.bytes.toHex()
+        val address = event.eventId.contractAddress.bytes.bytesToHex()
         val tokenId = event.id
         when(event) {
             is NftEvent.Burn -> burn(address, tokenId)
@@ -32,7 +32,7 @@ class EventHandler(
         }
     }
 
-    private fun withdraw(address: String, tokenId: Int, from: org.onflow.sdk.Address) {
+    private fun withdraw(address: String, tokenId: Int, from: org.onflow.sdk.FlowAddress) {
 
     }
 
@@ -65,8 +65,8 @@ class EventHandler(
     }
 
 
-    suspend fun deposit(address: String, id: Int, to: org.onflow.sdk.Address) = coroutineScope {
-        val owner = Address(to.bytes.toHex())
+    suspend fun deposit(address: String, id: Int, to: org.onflow.sdk.FlowAddress) = coroutineScope {
+        val owner = Address(to.bytes.bytesToHex())
         val items = async {
             itemRepository
                 .findById(Item.makeId(address, id))

@@ -1,17 +1,17 @@
 package com.rarible.flow.events
 
-import org.onflow.sdk.Address
-import org.onflow.sdk.toHex
+import org.onflow.sdk.FlowAddress
+import org.onflow.sdk.bytesToHex
 
 
 data class EventId(
     val type: String,
-    val contractAddress: Address,
+    val contractAddress: FlowAddress,
     val contractName: String,
     val eventName: String
 ) {
     override fun toString(): String {
-        return "$type.${contractAddress.bytes.toHex()}.$contractName.$eventName"
+        return "$type.${contractAddress.bytes.bytesToHex()}.$contractName.$eventName"
     }
 
     companion object {
@@ -20,7 +20,7 @@ data class EventId(
             if(parts.size == 4) {
                 return EventId(
                     parts[0],
-                    Address(parts[1]),
+                    FlowAddress(parts[1]),
                     parts[2],
                     parts[3]
                 )

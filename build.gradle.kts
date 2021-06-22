@@ -47,10 +47,10 @@ allprojects {
         }
     }
 
-//    tasks.withType<JavaCompile> {
-//        sourceCompatibility = JavaVersion.VERSION_1_8.toString()
-//        targetCompatibility = JavaVersion.VERSION_1_8.toString()
-//    }
+    tasks.withType<JavaCompile> {
+        sourceCompatibility = JavaVersion.VERSION_1_8.toString()
+        targetCompatibility = JavaVersion.VERSION_1_8.toString()
+    }
 }
 
 subprojects {
@@ -65,7 +65,7 @@ subprojects {
         implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
         implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
         implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-        implementation("org.onflow:flow-jvm-sdk:0.1.1")
+        implementation("com.nftco:flow-jvm-sdk:0.2.4")
 
         implementation("org.springframework.boot:spring-boot-starter-webflux")
         implementation("org.springframework.boot:spring-boot-starter-data-mongodb")

@@ -19,25 +19,20 @@ pipeline {
   stages {
     stage('test') {
       steps {
-        sh 'docker login -u ${REGISTRY_ACCOUNT} -p ${REGISTRY_PASSWORD}'
-        sh 'docker build --target test -t flow-test .'
-        sh '''docker run --rm -v $PWD:$PWD -w $PWD \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            --network="host" \
-            flow-test'''
+        sh './gradlew clean test --no-daemon --stacktrace'
       }
-//       post {
-//         always {
-//           junit allowEmptyResults: true, testResults: '**/test-results/test/*.xml'
-//         }
-//       }
+      post {
+        always {
+          junit allowEmptyResults: true, testResults: '**/test-results/test/*.xml'
+        }
+      }
     }
     stage('package') {
       when {
         branch 'main'
       }
       steps {
-        sh 'docker build --target test -t flow-build .'
+        sh './gradlew build -x test --no-daemon --stacktrace'
         script {
           env.IMAGE_TAG = "1.0.${env.BUILD_NUMBER}"
           env.VERSION = "${env.IMAGE_TAG}"
@@ -55,29 +50,28 @@ pipeline {
           export IMAGE_NAME=flow-indexer-api
           
           docker build \
-           -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG \
-           --target backend-api .
+           -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG backend-api
 
           docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
         '''
 
-//         sh '''
-//           export IMAGE_NAME=flow-indexer-listener
-//
-//           docker build \
-//            -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG listener
-//
-//           docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
-//         '''
-//
-//         sh '''
-//           export IMAGE_NAME=flow-indexer-scanner
-//
-//           docker build \
-//            -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG scanner
-//
-//           docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
-//         '''
+        sh '''
+          export IMAGE_NAME=flow-indexer-listener
+
+          docker build \
+           -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG backend-listener
+
+          docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
+        '''
+
+        sh '''
+          export IMAGE_NAME=flow-indexer-scanner
+
+          docker build \
+           -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG scanner
+
+          docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
+        '''
 
         script {
           env.DOCKER_HOST = "ssh://jenkins@${SWARM_MANAGER_HOST}"

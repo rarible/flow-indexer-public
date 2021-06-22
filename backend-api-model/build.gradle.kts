@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    implementation("org.onflow:flow-jvm-sdk:0.1.1")
+    implementation("com.nftco:flow-jvm-sdk:0.2.4")
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
