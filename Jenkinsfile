@@ -33,7 +33,7 @@ pipeline {
         branch 'main'
       }
       steps {
-        sh './gradlew build -x test --debug --no-daemon'
+        sh 'docker build --target test -t flow-build .'
         script {
           env.IMAGE_TAG = "1.0.${env.BUILD_NUMBER}"
           env.VERSION = "${env.IMAGE_TAG}"

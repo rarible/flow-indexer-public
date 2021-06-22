@@ -3,7 +3,7 @@ WORKDIR /usr/app
 COPY ./ /usr/app
 
 FROM base as test
-RUN ["./gradlew", "clean", "test", "--no-daemon", "--info"]
+CMD ["./gradlew", "clean", "test", "--no-daemon", "--info"]
 RUN ["ls", "/usr/app"]
 
 FROM base as builder
