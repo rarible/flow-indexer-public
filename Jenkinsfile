@@ -22,11 +22,11 @@ pipeline {
         sh 'docker build --target test -t flow-test .'
         sh 'docker run --rm -v $PWD:$PWD -w $PWD -v /var/run/docker.sock:/var/run/docker.sock flow-test'
       }
-      post {
-        always {
-          //junit allowEmptyResults: true, testResults: '**/test-results/test/*.xml'
-        }
-      }
+//       post {
+//         always {
+//           junit allowEmptyResults: true, testResults: '**/test-results/test/*.xml'
+//         }
+//       }
     }
     stage('package') {
       when {
