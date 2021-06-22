@@ -19,7 +19,7 @@ pipeline {
   stages {
     stage('test') {
       steps {
-        sh './gradlew clean test --no-daemon --stacktrace'
+        sh './gradlew test --no-daemon --stacktrace'
       }
 //       post {
 //         always {
