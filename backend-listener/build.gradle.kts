@@ -8,7 +8,7 @@ dependencies {
     implementation(project(":backend-core"))
     implementation(project(":backend-api-model"))
 
-    implementation("com.rarible.core:rarible-core-kafka:${versions.raribleCore}")
-    implementation("com.rarible.core:rarible-core-daemon:${versions.raribleCore}")
+    implementation(libs.rarible.core.kafka)
+    implementation(libs.rarible.core.daemon)
     //implementation("com.rarible.core:rarible-core-telemetry-starter:${versions.raribleCore}")
 }

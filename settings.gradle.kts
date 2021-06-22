@@ -14,7 +14,11 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             version("flow-sdk-ver", "0.2.4")
+            version("rarible-core", "1.2-SNAPSHOT")
+
             alias("flow-sdk").to("com.nftco", "flow-jvm-sdk").versionRef("flow-sdk-ver")
+            alias("rarible-core-kafka").to("com.rarible.core", "rarible-core-kafka").versionRef("rarible-core")
+            alias("rarible-core-daemon").to("com.rarible.core", "rarible-core-daemon").versionRef("rarible-core")
         }
 
         create("testLibs") {
