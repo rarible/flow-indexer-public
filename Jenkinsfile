@@ -24,7 +24,7 @@ pipeline {
       }
       post {
         always {
-          junit allowEmptyResults: true, testResults: '**/test-results/test/*.xml'
+          //junit allowEmptyResults: true, testResults: '**/test-results/test/*.xml'
         }
       }
     }
