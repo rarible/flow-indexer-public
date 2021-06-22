@@ -7,7 +7,7 @@ RUN ["./gradlew", "clean", "test", "--no-daemon", "--info"]
 RUN ["ls", "/usr/app"]
 
 FROM base as builder
-RUN ["./gradlew", "build", "-x", "test", "--no-daemon", "--info"]
+RUN ["./gradlew", "build", "-xtest", "--no-daemon", "--info"]
 RUN ["ls", "/usr/app"]
 
 FROM base as backend-api
