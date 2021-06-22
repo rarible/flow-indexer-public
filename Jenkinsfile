@@ -19,8 +19,12 @@ pipeline {
   stages {
     stage('test') {
       steps {
+        sh 'docker login -u ${REGISTRY_ACCOUNT} -p ${REGISTRY_PASSWORD}'
         sh 'docker build --target test -t flow-test .'
-        sh 'docker run --rm -v $PWD:$PWD -w $PWD -v /var/run/docker.sock:/var/run/docker.sock flow-test'
+        sh '''docker run --rm -v $PWD:$PWD -w $PWD \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            --network="host" -u jenkins:docker
+            flow-test'''
       }
 //       post {
 //         always {
