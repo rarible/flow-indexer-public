@@ -23,7 +23,7 @@ pipeline {
         sh 'docker build --target test -t flow-test .'
         sh '''docker run --rm -v $PWD:$PWD -w $PWD \
             -v /var/run/docker.sock:/var/run/docker.sock \
-            --network="host" -u jenkins:docker \
+            --network="host" \
             flow-test'''
       }
 //       post {
