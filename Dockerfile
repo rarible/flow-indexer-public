@@ -1,11 +1,11 @@
 FROM bellsoft/liberica-openjdk-alpine:16 as base
 
+
+FROM base as test
 WORKDIR /usr/app
-
 COPY ./ /usr/app
-
 CMD ["./gradlew", "test", "--no-daemon", "--info"]
-
+CMD ["ls", "/usr/app"]
 
 
 

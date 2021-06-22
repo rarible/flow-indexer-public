@@ -19,7 +19,7 @@ pipeline {
   stages {
     stage('test') {
       steps {
-        sh 'docker build -t flow-test .'
+        sh 'docker build --target test -t flow-test .'
         sh 'docker run --rm -v $PWD:$PWD -w $PWD -v /var/run/docker.sock:/var/run/docker.sock flow-test'
       }
       post {
