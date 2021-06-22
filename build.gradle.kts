@@ -65,7 +65,7 @@ subprojects {
         implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
         implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
         implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-        implementation("com.nftco:flow-jvm-sdk:0.2.4")
+        implementation(rootProject.libs.flow.sdk)
 
         implementation("org.springframework.boot:spring-boot-starter-webflux")
         implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
@@ -73,8 +73,8 @@ subprojects {
 
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("io.projectreactor:reactor-test")
-        testImplementation("com.rarible.core:rarible-core-test-common:${versions.raribleCore}")
-        testImplementation("io.kotest:kotest-runner-junit5:${versions.kotest}")
+        testImplementation(rootProject.testLibs.rarible.core.test)
+        testImplementation(rootProject.testLibs.kotest)
 
     }
 
