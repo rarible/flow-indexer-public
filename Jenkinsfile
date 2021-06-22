@@ -21,11 +21,11 @@ pipeline {
       steps {
         sh './gradlew clean test --no-daemon --stacktrace'
       }
-      post {
-        always {
-          junit allowEmptyResults: true, testResults: '**/test-results/test/*.xml'
-        }
-      }
+//       post {
+//         always {
+//           junit allowEmptyResults: true, testResults: '**/test-results/test/*.xml'
+//         }
+//       }
     }
     stage('package') {
       when {
