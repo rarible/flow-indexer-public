@@ -33,7 +33,7 @@ pipeline {
         branch 'main'
       }
       steps {
-        sh './gradlew clean build -x test --debug'
+        sh './gradlew build -x test --debug --no-daemon'
         script {
           env.IMAGE_TAG = "1.0.${env.BUILD_NUMBER}"
           env.VERSION = "${env.IMAGE_TAG}"
@@ -51,28 +51,29 @@ pipeline {
           export IMAGE_NAME=flow-indexer-api
           
           docker build \
-           -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG api
+           -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG \
+           --target backend-api .
 
           docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
         '''
 
-        sh '''
-          export IMAGE_NAME=flow-indexer-listener
-          
-          docker build \
-           -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG listener
-
-          docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
-        '''
-
-        sh '''
-          export IMAGE_NAME=flow-indexer-scanner
-          
-          docker build \
-           -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG scanner
-
-          docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
-        '''
+//         sh '''
+//           export IMAGE_NAME=flow-indexer-listener
+//
+//           docker build \
+//            -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG listener
+//
+//           docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
+//         '''
+//
+//         sh '''
+//           export IMAGE_NAME=flow-indexer-scanner
+//
+//           docker build \
+//            -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG scanner
+//
+//           docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
+//         '''
 
         script {
           env.DOCKER_HOST = "ssh://jenkins@${SWARM_MANAGER_HOST}"
