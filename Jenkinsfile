@@ -15,7 +15,7 @@ pipeline {
       stage('test') {
         agent any
         steps {
-          sh './gradlew clean test --no-daemon'
+          sh './gradlew clean test --no-daemon --debug'
         }
         post {
           always {
@@ -26,7 +26,7 @@ pipeline {
       stage('package') {
         agent any
         steps {
-          sh './gradlew build -x test --no-daemon'
+          sh './gradlew build -x test --no-daemon --debug'
         }
       }
       stage('publish docker images') {
