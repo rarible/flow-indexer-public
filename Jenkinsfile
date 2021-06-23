@@ -1,116 +1,61 @@
 @Library('shared-library') _
 
+def prefix = 'flow'
+def stackName = 'protocol-ethereum'
+def credentialsId = 'nexus-ci'
+
 pipeline {
-  agent any
+    agent none
 
     options {
-        disableConcurrentBuilds()
+      disableConcurrentBuilds()
     }
 
-  environment {
-    SWARM_MANAGER_HOST = credentials('swarm-manager-ip-address')
-
-    REGISTRY_ACCOUNT = credentials('registry-login')
-    REGISTRY_PASSWORD = credentials('registry-password')
-
-    STACK_DIR = 'ci-provision'
-
-    BLOCKCHAIN = 'flow'
-    STACK_NAME = 'protocol-ethereum'
-  }
-  stages {
-    stage('test') {
-      steps {
-        //sh 'docker login -u ${REGISTRY_ACCOUNT} -p ${REGISTRY_PASSWORD}'
-        sh 'docker build --target test -t flow-test .'
-        sh '''docker run --rm -v $PWD:$PWD -w $PWD \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            --network="host" \
-            flow-test'''
-      }
-//       post {
-//         always {
-//           junit allowEmptyResults: true, testResults: '**/test-results/test/*.xml'
-//         }
-//       }
-    }
-    stage('package') {
-      when {
-        branch 'main'
-      }
-      steps {
-        sh 'docker build --target builder -t flow-build .'
-        script {
-          env.IMAGE_TAG = "1.0.${env.BUILD_NUMBER}"
-          env.VERSION = "${env.IMAGE_TAG}"
+    stages {
+      stage('test') {
+        agent any
+        steps {
+          sh './gradlew clean test'
+        }
+        post {
+          always {
+            junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
+          }
         }
       }
-    }
-    stage('build images and publish') {
-      when {
-        branch 'main'
-      }
-      steps {
-        sh 'docker login -u ${REGISTRY_ACCOUNT} -p ${REGISTRY_PASSWORD}'
-
-        sh '''
-          export IMAGE_NAME=flow-indexer-api
-
-          docker build \
-           -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG \
-           --target backend-api .
-
-          docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
-        '''
-
-        sh '''
-          export IMAGE_NAME=flow-indexer-listener
-
-          docker build \
-           -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG backend-listener
-
-          docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
-        '''
-
-        sh '''
-          export IMAGE_NAME=flow-indexer-scanner
-
-          docker build \
-           -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG scanner
-
-          docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
-        '''
-
-        script {
-          env.DOCKER_HOST = "ssh://jenkins@${SWARM_MANAGER_HOST}"
+      stage('package') {
+        agent any
+        steps {
+          sh './gradlew build -x test'
         }
       }
-      post {
-        always {
-          sh 'docker logout'
+      stage('publish docker images') {
+        agent any
+        steps {
+          script {
+            env.IMAGE_TAG = "1.0.${env.BUILD_NUMBER}"
+            env.VERSION = "${env.IMAGE_TAG}"
+            env.BRANCH_NAME = "${env.GIT_BRANCH}"
+          }
+          publishDockerImages(prefix, credentialsId, env.IMAGE_TAG)
         }
       }
-    }
-    stage('deploy dev') {
-      when {
-        branch 'main'
-      }
-      environment {
-        APPLICATION_ENVIRONMENT = 'dev'
-      }
-      steps {
-        sh '''
-          test -f ${STACK_DIR}/${APPLICATION_ENVIRONMENT}-variables.env && export $(cat ${STACK_DIR}/${APPLICATION_ENVIRONMENT}-variables.env)
-          envsubst < ${STACK_DIR}/template/docker-stack.tmpl > ${STACK_DIR}/docker-stack.yml
-        '''
-
-        dockerSh 'stack deploy -c ${STACK_DIR}/docker-stack.yml --with-registry-auth ${APPLICATION_ENVIRONMENT}-${STACK_NAME}'
-      }
-      post {
-        always {
-          sh 'docker logout'
+      stage("deploy to dev") {
+        agent any
+        when {
+          allOf {
+            expression {
+              return env.BRANCH_NAME == 'origin/main' || env.BRANCH_NAME == 'main'
+            }
+          }
+          beforeAgent true
+        }
+        environment {
+          APPLICATION_ENVIRONMENT = 'dev'
+        }
+        steps {
+          deployStack("dev", stackName, prefix, env.IMAGE_TAG)
         }
       }
     }
   }
-}

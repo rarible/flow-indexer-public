@@ -12,3 +12,8 @@ dependencies {
     implementation(libs.rarible.core.daemon)
     //implementation("com.rarible.core:rarible-core-telemetry-starter:${versions.raribleCore}")
 }
+
+tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    enabled = true
+    destinationDirectory.set(file("../target/boot"))
+}
