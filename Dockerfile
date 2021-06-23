@@ -19,6 +19,24 @@ RUN ["ls", "-alh"]
 COPY --from=builder /usr/app/backend-api/build/libs/backend-api.jar application.jar
 CMD java $JAVA_OPTIONS -jar application.jar
 
+FROM base as backend-listener
+RUN apk add curl
+RUN addgroup -S rarible && adduser -S rarible -G rarible
+USER rarible:rarible
+WORKDIR /usr/app
+RUN ["ls", "-alh"]
+COPY --from=builder /usr/app/backend-listener/build/libs/backend-listener.jar application.jar
+CMD java $JAVA_OPTIONS -jar application.jar
+
+FROM base as scanner
+RUN apk add curl
+RUN addgroup -S rarible && adduser -S rarible -G rarible
+USER rarible:rarible
+WORKDIR /usr/app
+RUN ["ls", "-alh"]
+COPY --from=builder /usr/app/scanner/build/libs/scanner.jar application.jar
+CMD java $JAVA_OPTIONS -jar application.jar
+
 
 #FROM bellsoft/liberica-openjdk-alpine:11
 #

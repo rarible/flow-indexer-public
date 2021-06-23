@@ -1,3 +1,5 @@
+@Library('shared-library') _
+
 pipeline {
   agent any
 
@@ -61,23 +63,23 @@ pipeline {
           docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
         '''
 
-//         sh '''
-//           export IMAGE_NAME=flow-indexer-listener
-//
-//           docker build \
-//            -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG listener
-//
-//           docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
-//         '''
-//
-//         sh '''
-//           export IMAGE_NAME=flow-indexer-scanner
-//
-//           docker build \
-//            -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG scanner
-//
-//           docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
-//         '''
+        sh '''
+          export IMAGE_NAME=flow-indexer-listener
+
+          docker build \
+           -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG backend-listener
+
+          docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
+        '''
+
+        sh '''
+          export IMAGE_NAME=flow-indexer-scanner
+
+          docker build \
+           -t ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG scanner
+
+          docker push ${REGISTRY_ACCOUNT}/${IMAGE_NAME}:$IMAGE_TAG
+        '''
 
         script {
           env.DOCKER_HOST = "ssh://jenkins@${SWARM_MANAGER_HOST}"
@@ -97,13 +99,13 @@ pipeline {
         APPLICATION_ENVIRONMENT = 'dev'
       }
       steps {
+        docker.
         sh '''
-          docker login -u ${REGISTRY_ACCOUNT} -p ${REGISTRY_PASSWORD} ${REGISTRY_URL}
-          
           test -f ${STACK_DIR}/${APPLICATION_ENVIRONMENT}-variables.env && export $(cat ${STACK_DIR}/${APPLICATION_ENVIRONMENT}-variables.env)
           envsubst < ${STACK_DIR}/template/docker-stack.tmpl > ${STACK_DIR}/docker-stack.yml
-          docker stack deploy -c ${STACK_DIR}/docker-stack.yml --with-registry-auth ${APPLICATION_ENVIRONMENT}-${STACK_NAME}
         '''
+
+        dockerSh 'stack deploy -c ${STACK_DIR}/docker-stack.yml --with-registry-auth ${APPLICATION_ENVIRONMENT}-${STACK_NAME}'
       }
       post {
         always {
