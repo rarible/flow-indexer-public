@@ -99,7 +99,6 @@ pipeline {
         APPLICATION_ENVIRONMENT = 'dev'
       }
       steps {
-        docker.
         sh '''
           test -f ${STACK_DIR}/${APPLICATION_ENVIRONMENT}-variables.env && export $(cat ${STACK_DIR}/${APPLICATION_ENVIRONMENT}-variables.env)
           envsubst < ${STACK_DIR}/template/docker-stack.tmpl > ${STACK_DIR}/docker-stack.yml
