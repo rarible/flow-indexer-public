@@ -12,10 +12,6 @@ spring:
       banner-mode: log
       web-application-type: reactive
 
-grpc:
-  client:
-    flow:
-      address: static://access.devnet.nodes.onflow.org:9000
-      negotiationType: PLAINTEXT
-
-
+  batch:
+    job:
+      enabled: false

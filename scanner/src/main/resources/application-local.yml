@@ -1,5 +1,5 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/scanner3
-      database: scanner3
+      uri: mongodb://localhost:27017/flow-${spring.profiles.active}
+      database: flow-${spring.profiles.active}

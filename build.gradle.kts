@@ -26,6 +26,7 @@ allprojects {
             url = uri("https://jitpack.io")
         }
 
+/*
         maven {
             name = "nexus-snapshots"
             url = uri("http://10.7.3.6:8081/nexus/content/repositories/snapshots/")
@@ -35,6 +36,7 @@ allprojects {
                 artifact()
             }
         }
+*/
 
         maven {
             name = "nexus-maven-public"
@@ -98,4 +100,3 @@ tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar
 tasks.getByName<Jar>("jar") {
     enabled = true
 }
-
