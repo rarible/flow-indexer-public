@@ -86,6 +86,7 @@ subprojects {
         implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
         implementation(rootProject.libs.flow.sdk)
 
+        implementation("org.springframework.boot:spring-boot-autoconfigure")
         implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
         implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 
