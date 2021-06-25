@@ -75,7 +75,8 @@ class ReactiveBlockProcessor(
                                 events = result.eventsList.map {
                                     FlowEvent(
                                         type = it.type,
-                                        data = it.payload.toStringUtf8()
+                                        data = it.payload.toStringUtf8(),
+                                        timestamp = fb.timestamp
                                     )
                                 }
                             ))
@@ -99,6 +100,7 @@ class ReactiveBlockProcessor(
                     }
                 }
             }
+
     }
 
     @PreDestroy

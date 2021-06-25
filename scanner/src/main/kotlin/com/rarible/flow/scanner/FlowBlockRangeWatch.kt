@@ -58,13 +58,13 @@ class FlowBlockRangeWatch(
         lastRead = onChain
     }
 
-    @Scheduled(fixedDelay = 60_000L, initialDelay = 60_000L)
+    @Scheduled(fixedDelay = 60_000L, initialDelay = 20_000L)
     private fun start() {
         val last = blockRepository.maxHeight().blockOptional().orElse(
             client.getLatestBlockHeader(Access.GetLatestBlockHeaderRequest.newBuilder().setIsSealed(true).build()).block.height
         )
-        LongRange(from, last).chunked(1000) {
-            return@chunked Pair(it.first(), it.last())
+        LongRange(from, last).reversed().chunked(1000) {
+            return@chunked Pair(it.last(), it.first())
         }.forEach {
             doRead(it.first, it.second)
         }

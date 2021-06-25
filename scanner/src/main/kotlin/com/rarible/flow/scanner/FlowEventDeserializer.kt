@@ -4,12 +4,13 @@ import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
-import com.rarible.flow.scanner.model.EventMessage
+import com.rarible.flow.events.EventMessage
+import java.time.Instant
 
 /**
  * Created by TimochkinEA at 08.06.2021
  */
-class FlowEventDeserializer: JsonDeserializer<EventMessage>() {
+class FlowEventDeserializer : JsonDeserializer<EventMessage>() {
 
     override fun deserialize(parser: JsonParser, ctx: DeserializationContext): EventMessage {
         val obj: JsonNode = parser.codec.readTree(parser)
@@ -24,8 +25,12 @@ class FlowEventDeserializer: JsonDeserializer<EventMessage>() {
             } else {
                 it["value"]["value"]
             }
-            name to value
+            name to value.asText()
         }
-        return EventMessage(id, fields)
+        return EventMessage(
+            id = id,
+            fields = fields,
+            timestamp = Instant.now()
+        )
     }
 }

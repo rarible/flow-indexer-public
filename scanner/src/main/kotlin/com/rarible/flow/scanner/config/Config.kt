@@ -1,8 +1,12 @@
 package com.rarible.flow.scanner.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.core.kafka.json.JsonSerializer
 import com.rarible.flow.events.EventMessage
+import com.rarible.flow.scanner.FlowEventDeserializer
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -43,5 +47,16 @@ class Config(
             defaultTopic = EventMessage.getTopic(scannerProperties.environment),
             bootstrapServers = scannerProperties.kafkaReplicaSet
         )
+    }
+
+    @Bean
+    fun flowMapper(): ObjectMapper {
+        val mapper = ObjectMapper()
+        mapper.registerKotlinModule()
+
+        val module = SimpleModule()
+        module.addDeserializer(EventMessage::class.java, FlowEventDeserializer())
+        mapper.registerModule(module)
+        return mapper
     }
 }
