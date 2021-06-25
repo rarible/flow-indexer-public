@@ -3,10 +3,12 @@ package com.rarible.flow.events
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import org.onflow.sdk.FlowAddress
+import java.time.Instant
 
 data class EventMessage(
     val id: String,
-    val fields: Map<String, String>
+    val fields: Map<String, String>,
+    var timestamp: Instant
 ) {
     companion object {
         fun getTopic(environment: String) =

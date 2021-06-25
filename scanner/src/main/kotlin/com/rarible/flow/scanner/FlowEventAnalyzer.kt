@@ -7,8 +7,6 @@ import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.scanner.model.FlowTransaction
 import kotlinx.coroutines.runBlocking
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 /**
@@ -16,15 +14,13 @@ import org.springframework.stereotype.Service
  */
 @Service
 class FlowEventAnalyzer(
-    val kafkaProducer: RaribleKafkaProducer<EventMessage>
+    private val kafkaProducer: RaribleKafkaProducer<EventMessage>,
+    private val flowMapper: ObjectMapper
 ) {
-
-    private val log: Logger = LoggerFactory.getLogger(FlowEventAnalyzer::class.java)
 
     //TODO get from config
     private val contracts = listOf("1cd85950d20f05b2", "9a0766d93b6608b7", "0287aa0a33a82d7a", "9837bf0b0b963a4a", "e3750a9bc4137f3f", "f9a15cf06773248c")
 
-    private val mapper = ObjectMapper()
 
     /**
      * Analysis of the transaction for events of interest
@@ -32,9 +28,8 @@ class FlowEventAnalyzer(
     fun analyze(tx: FlowTransaction) {
         val kafkaMessages: List<KafkaMessage<EventMessage>> = tx.events.mapIndexed { eventIndex, event ->
             if (contracts.any { event.type.contains(it, true) }) {
-                val data = mapper.readValue<EventMessage>(event.data)
-                log.info("$data")
-
+                val data = flowMapper.readValue<EventMessage>(event.data)
+                data.timestamp = event.timestamp
                 KafkaMessage(
                     key = "${tx.id}.$eventIndex", //todo check collisions
                     value = data,

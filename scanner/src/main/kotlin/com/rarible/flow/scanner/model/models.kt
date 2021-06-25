@@ -1,7 +1,5 @@
 package com.rarible.flow.scanner.model
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.rarible.flow.scanner.FlowEventDeserializer
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.Instant
@@ -34,7 +32,8 @@ data class FlowTransaction(
 
 data class FlowEvent(
     val type: String,
-    val data: String
+    val data: String,
+    val timestamp: Instant
 )
 
 @Document
@@ -42,10 +41,4 @@ data class RariEvent(
     @Id
     val id: String,
     val data: String
-)
-
-@JsonDeserialize(using = FlowEventDeserializer::class)
-data class EventMessage(
-    val id: String,
-    val fields: Map<String, Any?>
 )
