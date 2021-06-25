@@ -3,6 +3,8 @@ spring:
     mongodb:
       uri: mongodb://${mongodb.hosts}
       database: ${mongodb.database}
+  config:
+    import: "consul:"
 
 flow-indexer-listener:
   kafka-replica-set: ${kafka.hosts}
