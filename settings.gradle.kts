@@ -7,7 +7,9 @@ include(
     "backend-api",
     "backend-core",
     "backend-listener",
-    "converters"
+    "converters",
+    "daemon",
+    "kafka"
 )
 
 dependencyResolutionManagement {
@@ -19,6 +21,9 @@ dependencyResolutionManagement {
             alias("flow-sdk").to("com.nftco", "flow-jvm-sdk").versionRef("flow-sdk-ver")
             alias("rarible-core-kafka").to("com.rarible.core", "rarible-core-kafka").versionRef("rarible-core")
             alias("rarible-core-daemon").to("com.rarible.core", "rarible-core-daemon").versionRef("rarible-core")
+            alias("rarible-core-metrics").to("com.rarible.core", "rarible-core-metrics").versionRef("rarible-core")
+
+            bundle("rarible-core", listOf("rarible-core-metrics"))
         }
 
         create("testLibs") {

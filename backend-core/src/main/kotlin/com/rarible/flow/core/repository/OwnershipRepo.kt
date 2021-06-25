@@ -2,19 +2,16 @@ package com.rarible.flow.core.repository
 
 import com.rarible.flow.core.domain.Address
 import com.rarible.flow.core.domain.Ownership
-import com.rarible.flow.core.domain.OwnershipId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
+
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
 import org.springframework.data.mongodb.core.findAllAndRemove
-import org.springframework.data.mongodb.core.findAndRemove
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.isEqualTo
-import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 
 class OwnershipRepo(

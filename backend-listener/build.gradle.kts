@@ -5,12 +5,15 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":daemon"))
+    implementation(project(":kafka"))
     implementation(project(":backend-core"))
     implementation(project(":backend-api-model"))
+    implementation("org.springframework.boot:spring-boot-actuator")
+    implementation("org.apache.kafka:kafka-clients:2.5.1")
 
-    implementation(libs.rarible.core.kafka)
-    implementation(libs.rarible.core.daemon)
-    //implementation("com.rarible.core:rarible-core-telemetry-starter:${versions.raribleCore}")
+    implementation(rootProject.libs.bundles.rarible.core)
+
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
