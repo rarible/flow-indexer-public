@@ -1,6 +1,2 @@
-org.springframework.boot.env.EnvironmentPostProcessor=\
-com.rarible.flow.core.bootstrap.DefaultBootstrapEnvironmentPostProcessor
-
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.rarible.flow.core.config.CoreConfig,\
-com.rarible.flow.core.consul.ConsulAutoConfiguration
+com.rarible.flow.core.config.CoreConfig

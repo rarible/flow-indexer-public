@@ -1,8 +1,8 @@
 spring:
   data:
     mongodb:
-      uri: "mongodb://10.10.11.22:47017" #${mongodb.hosts}
-      database: dev-flow-scanner #${mongodb.database}
+      uri: mongodb://${mongodb.hosts}
+      database: ${mongodb.database}
   config:
     import: "consul:"
 
@@ -25,4 +25,4 @@ spring:
         prefix:
 
 scanner:
-  kafka-replica-set: "staging-kafka-1:9092" #${kafka.hosts}
+  kafka-replica-set: ${kafka.hosts}

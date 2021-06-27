@@ -5,12 +5,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":daemon"))
-    implementation(project(":kafka"))
     implementation(project(":backend-core"))
     implementation(project(":backend-api-model"))
-    implementation("org.springframework.boot:spring-boot-actuator")
-    implementation("org.apache.kafka:kafka-clients:2.5.1")
 
     implementation(rootProject.libs.bundles.rarible.core)
     implementation(rootProject.libs.rarible.core.kafka)
