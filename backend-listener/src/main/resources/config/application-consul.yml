@@ -1,8 +1,8 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://${mongodb.hosts}
-      database: ${mongodb.database}
+      uri: "mongodb://10.10.11.22:47017" #${mongodb.hosts}
+      database: dev-flow-backend #${mongodb.database}
   config:
     import: "consul:"
 
@@ -25,4 +25,4 @@ spring:
         prefix:
 
 flow-indexer-listener:
-  kafka-replica-set: ${kafka.hosts}
+  kafka-replica-set: "staging-kafka-1:9092" #${kafka.hosts}
