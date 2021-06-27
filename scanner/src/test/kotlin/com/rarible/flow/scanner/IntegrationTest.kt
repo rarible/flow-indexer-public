@@ -6,8 +6,6 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.junit.jupiter.Testcontainers
 
-//import org.testcontainers.junit.jupiter.Testcontainers
-
 @Retention
 @AutoConfigureJson
 @SpringBootTest(
@@ -16,8 +14,9 @@ import org.testcontainers.junit.jupiter.Testcontainers
         "application.environment = test",
         "spring.cloud.service-registry.auto-registration.enabled = false",
         "spring.cloud.discovery.enabled = false",
+        "spring.cloud.config.enabled = false",
         "spring.cloud.consul.config.enabled = false",
-        "logging.logstash.tcp-socket.enabled = false"
+        "logging.logstash.tcp-socket.enabled = false",
     ]
 )
 @ActiveProfiles("test")
