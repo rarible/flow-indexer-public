@@ -12,4 +12,5 @@ spring:
         watch:
           enabled: false
         enabled: true
-        prefixes:
+        prefix:
+        default-context: /dev/flow-indexer
