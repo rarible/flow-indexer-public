@@ -53,6 +53,15 @@ allprojects {
                 artifact()
             }
         }
+
+        maven {
+            name = "github-maven"
+            url = uri("https://maven.pkg.github.com/rariblecom/")
+            metadataSources {
+                mavenPom()
+                artifact()
+            }
+        }
     }
 
     tasks.withType<JavaCompile> {

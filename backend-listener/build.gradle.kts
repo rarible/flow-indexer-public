@@ -13,6 +13,7 @@ dependencies {
     implementation("org.apache.kafka:kafka-clients:2.5.1")
 
     implementation(rootProject.libs.bundles.rarible.core)
+    implementation(rootProject.libs.rarible.core.kafka)
 
 }
 
