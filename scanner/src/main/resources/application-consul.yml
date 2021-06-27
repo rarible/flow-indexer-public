@@ -1,8 +1,8 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://${mongodb.hosts}
-      database: ${mongodb.database}
+      uri: mongodb://mongodb/flow-${spring.profiles.active}
+      database: flow-${spring.profiles.active}
 
 scanner:
-  kafka-replica-set: ${kafka.hosts}
+  kafka-replica-set: PLAINTEXT://staging-kafka-1:9092 #${kafka.hosts}
