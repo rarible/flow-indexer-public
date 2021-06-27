@@ -1,3 +1,5 @@
+application:
+  environment: dev
 scanner:
   environment: dev
   kafka-replica-set: ${kafka.hosts}

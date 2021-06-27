@@ -8,8 +8,6 @@ include(
     "backend-core",
     "backend-listener",
     "converters",
-//    "daemon",
-//    "kafka"
 )
 
 dependencyResolutionManagement {
