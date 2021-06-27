@@ -16,7 +16,7 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             version("flow-sdk-ver", "0.2.4")
-            version("rarible-core", "1.3-SNAPSHOT.spring25")
+            version("rarible-core", "1.3-spring25-SNAPSHOT")
 
             alias("flow-sdk").to("com.nftco", "flow-jvm-sdk").versionRef("flow-sdk-ver")
             alias("rarible-core-kafka").to("com.rarible.core", "rarible-core-kafka").versionRef("rarible-core")
