@@ -4,4 +4,4 @@ spring:
       uri: mongodb://${mongodb.hosts}
       database: ${mongodb.database}
   config:
-    import: "consul:"
+    import: "consul:consul-agent"
