@@ -6,23 +6,5 @@ spring:
   config:
     import: "consul:"
 
-  jmx:
-    enabled: false
-  cloud:
-    service-registry:
-      auto-registration:
-        enabled: true
-    consul:
-      discovery:
-        health-check-path: /_status/ping
-        health-check-critical-timeout: "3m"
-      host: consul-agent
-      port: 8500
-      config:
-        watch:
-          enabled: false
-        enabled: true
-        prefix:
-
 scanner:
   kafka-replica-set: ${kafka.hosts}
