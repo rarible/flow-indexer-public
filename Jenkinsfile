@@ -1,7 +1,7 @@
 @Library('shared-library') _
 
 def prefix = 'flow'
-def stackName = 'protocol-ethereum'
+def stackName = 'protocol-flow'
 def credentialsId = 'nexus-ci'
 
 pipeline {
