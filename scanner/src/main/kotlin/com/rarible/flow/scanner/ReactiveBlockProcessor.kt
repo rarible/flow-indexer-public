@@ -5,12 +5,13 @@ import com.rarible.flow.scanner.model.FlowEvent
 import com.rarible.flow.scanner.model.FlowTransaction
 import com.rarible.flow.scanner.repo.FlowBlockRepository
 import com.rarible.flow.scanner.repo.FlowTransactionRepository
-import net.devh.boot.grpc.client.inject.GrpcClient
 import org.bouncycastle.util.encoders.Hex
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.scheduler.Schedulers
@@ -30,7 +31,8 @@ class ReactiveBlockProcessor(
 
     private val log: Logger = LoggerFactory.getLogger(ReactiveBlockProcessor::class.java)
 
-    @GrpcClient("flow")
+    @Autowired
+    @Qualifier("flowClient")
     private lateinit var client: AccessAPIGrpc.AccessAPIBlockingStub
 
     private val schedulerP = Schedulers.fromExecutor(Executors.newCachedThreadPool())

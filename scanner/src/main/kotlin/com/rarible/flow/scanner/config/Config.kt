@@ -7,6 +7,9 @@ import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.core.kafka.json.JsonSerializer
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.scanner.FlowEventDeserializer
+import io.grpc.ManagedChannelBuilder
+import org.onflow.protobuf.access.AccessAPIGrpc
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -27,7 +30,8 @@ class Config(
 ): WebSocketMessageBrokerConfigurer {
     private val clientId = "${scannerProperties.environment}.flow.nft-scanner"
 
-
+    @Value("\${grpc.client.flow.address}")
+    private lateinit var flowNetAddress: String
 
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
         registry.enableSimpleBroker("/topic")
@@ -58,5 +62,11 @@ class Config(
         module.addDeserializer(EventMessage::class.java, FlowEventDeserializer())
         mapper.registerModule(module)
         return mapper
+    }
+
+    @Bean("flowClient")
+    fun flowClient(): AccessAPIGrpc.AccessAPIBlockingStub {
+        val channel = ManagedChannelBuilder.forTarget(flowNetAddress).usePlaintext().build()
+        return AccessAPIGrpc.newBlockingStub(channel)
     }
 }

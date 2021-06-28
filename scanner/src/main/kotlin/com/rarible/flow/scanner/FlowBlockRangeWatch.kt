@@ -1,9 +1,10 @@
 package com.rarible.flow.scanner
 
 import com.rarible.flow.scanner.repo.FlowBlockRepository
-import net.devh.boot.grpc.client.inject.GrpcClient
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Profile
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -26,7 +27,8 @@ class FlowBlockRangeWatch(
 
     private val from: Long = 33257098L //TODO брать из конфига
 
-    @GrpcClient("flow")
+    @Autowired
+    @Qualifier("flowClient")
     private lateinit var client: AccessAPIGrpc.AccessAPIBlockingStub
 
     @Volatile
