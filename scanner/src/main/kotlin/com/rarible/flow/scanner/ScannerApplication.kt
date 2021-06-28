@@ -1,10 +1,9 @@
 package com.rarible.flow.scanner
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration
 import org.springframework.boot.runApplication
 
-@SpringBootApplication(exclude = [WebMvcAutoConfiguration::class])
+@SpringBootApplication
 class ScannerApplication
 
 
