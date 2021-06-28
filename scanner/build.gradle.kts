@@ -25,6 +25,7 @@ dependencies {
     implementation("io.grpc:grpc-core:1.37.0")
     implementation("io.grpc:grpc-protobuf:1.37.0")
     implementation("com.nftco:flow-jvm-sdk:0.2.4")
+    implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
     implementation(rootProject.libs.bundles.rarible.core)
     implementation(rootProject.libs.rarible.core.kafka)
 
