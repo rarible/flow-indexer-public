@@ -4,6 +4,7 @@ spring:
       uri: mongodb://${mongodb.hosts}
       database: ${mongodb.database}
   config:
+    use-legacy-processing: true
     import: "consul:consul-agent"
 
   cloud:
