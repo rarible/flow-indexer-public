@@ -1,6 +1,6 @@
 spring:
   application:
-    name: rari-flow-scaner
+    name: flow-scanner
 
   jackson:
     mapper:
@@ -11,6 +11,4 @@ spring:
     main:
       banner-mode: log
       web-application-type: reactive
-  config:
-    import: "optional:consul:"
 
