@@ -5,7 +5,7 @@ spring:
       database: ${mongodb.database}
   config:
     use-legacy-processing: true
-    import: "consul:consul-agent"
+    import: "consul:"
 
   cloud:
     bootstrap:
