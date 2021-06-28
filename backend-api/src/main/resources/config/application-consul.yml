@@ -6,5 +6,9 @@ spring:
   config:
     import: "consul:consul-agent"
 
+  cloud:
+    bootstrap:
+      enabled: true
+
 flow-indexer-api:
   kafka-replica-set: ${kafka.hosts}
