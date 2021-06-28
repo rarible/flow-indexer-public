@@ -1,10 +1,19 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://${mongodb.hosts}
-      database: ${mongodb.database}
-  config:
-    import: "consul:consul-agent"
+      uri: mongodb://mongodb/flow-${spring.profiles.active}
+      database: flow-backend--${spring.profiles.active}
 
-flow-indexer-listener:
-  kafka-replica-set: ${kafka.hosts}
+scanner:
+  kafka-replica-set: PLAINTEXT://staging-kafka-1:9092 #${kafka.hosts}
+
+#spring:
+#  data:
+#    mongodb:
+#      uri: mongodb://${mongodb.hosts}
+#      database: ${mongodb.database}
+#  config:
+#    import: "consul:consul-agent"
+#
+#flow-indexer-listener:
+#  kafka-replica-set: ${kafka.hosts}
