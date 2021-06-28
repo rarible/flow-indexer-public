@@ -8,6 +8,7 @@ dependencies {
     implementation(project(":backend-core"))
     implementation(project(":backend-api-model"))
 
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation(rootProject.libs.bundles.rarible.core)
     implementation(rootProject.libs.rarible.core.kafka)
 

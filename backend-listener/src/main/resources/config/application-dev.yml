@@ -1,2 +1,4 @@
+application:
+  environment: dev
 flow-indexer-listener:
   environment: dev
