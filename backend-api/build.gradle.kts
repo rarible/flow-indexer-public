@@ -7,6 +7,8 @@ plugins {
 dependencies {
     implementation(project(":backend-core"))
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.cloud:spring-cloud-starter-consul-config")
+    implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
     implementation(rootProject.libs.bundles.rarible.core)
 }
 

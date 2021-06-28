@@ -3,6 +3,8 @@ spring:
     mongodb:
       uri: mongodb://mongodb/flow-${spring.profiles.active}
       database: flow-backend-${spring.profiles.active}
+  config:
+    import: "consul:"
 
 scanner:
   kafka-replica-set: PLAINTEXT://staging-kafka-1:9092 #${kafka.hosts}
