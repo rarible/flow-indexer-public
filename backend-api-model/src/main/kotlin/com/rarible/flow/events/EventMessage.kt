@@ -3,6 +3,7 @@ package com.rarible.flow.events
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import org.onflow.sdk.FlowAddress
+import java.math.BigDecimal
 import java.time.Instant
 
 data class EventMessage(
@@ -46,4 +47,19 @@ sealed class NftEvent(
     data class Burn(
         override val eventId: EventId, override val id: Int
     ) : NftEvent(eventId, id)
+
+    data class List(
+        override val eventId: EventId, override val id: Int
+    ): NftEvent(eventId, id)
+
+    data class Unlist(
+        override val eventId: EventId, override val id: Int
+    ): NftEvent(eventId, id)
+
+    data class Bid(
+        override val eventId: EventId,
+        override val id: Int,
+        val bidder: FlowAddress,
+        val amount: BigDecimal
+    ): NftEvent(eventId, id)
 }

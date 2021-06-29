@@ -1,6 +1,7 @@
 package com.rarible.flow.core.config
 
 import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepo
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -21,4 +22,7 @@ data class CoreConfig(
 
     @Bean
     fun ownershipRepo() = OwnershipRepo(mongoTemplate)
+
+    @Bean
+    fun orderRepository() = OrderRepository(mongoTemplate)
 }
