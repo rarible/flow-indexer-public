@@ -25,7 +25,7 @@ class FlowBlockRangeWatch(
 )
 {
 
-    private val from: Long = 33257098L //TODO брать из конфига
+    private val from: Long = 36290422L //TODO брать из конфига
 
     @Autowired
     @Qualifier("flowClient")
