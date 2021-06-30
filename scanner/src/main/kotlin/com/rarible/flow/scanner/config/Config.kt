@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.core.kafka.json.JsonSerializer
 import com.rarible.flow.events.EventMessage
+import com.rarible.flow.scanner.FlowEventAnalyzer
 import com.rarible.flow.scanner.FlowEventDeserializer
 import io.grpc.ManagedChannelBuilder
 import org.onflow.protobuf.access.AccessAPIGrpc
@@ -69,4 +70,15 @@ class Config(
         val channel = ManagedChannelBuilder.forTarget(flowNetAddress).usePlaintext().build()
         return AccessAPIGrpc.newBlockingStub(channel)
     }
+
+    @Bean
+    fun flowEventAnalyzer(
+        kafkaProducer: RaribleKafkaProducer<EventMessage>,
+        flowMapper: ObjectMapper
+    ) = FlowEventAnalyzer(
+        kafkaProducer,
+        flowMapper,
+        scannerProperties.trackedContracts
+    )
+
 }

@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-
+    implementation(rootProject.libs.rarible.core.kafka)
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {

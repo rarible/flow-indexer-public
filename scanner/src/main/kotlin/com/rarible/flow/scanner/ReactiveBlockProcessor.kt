@@ -1,5 +1,6 @@
 package com.rarible.flow.scanner
 
+import com.rarible.flow.log.Log
 import com.rarible.flow.scanner.model.FlowBlock
 import com.rarible.flow.scanner.model.FlowEvent
 import com.rarible.flow.scanner.model.FlowTransaction
@@ -28,8 +29,6 @@ class ReactiveBlockProcessor(
     private val txRepository: FlowTransactionRepository,
     private val analyzer: FlowEventAnalyzer
 ) {
-
-    private val log: Logger = LoggerFactory.getLogger(ReactiveBlockProcessor::class.java)
 
     @Autowired
     @Qualifier("flowClient")
@@ -109,5 +108,9 @@ class ReactiveBlockProcessor(
     fun preDestroy() {
         schedulerP.dispose()
         schedulerS.dispose()
+    }
+
+    companion object {
+        val log by Log()
     }
 }

@@ -23,6 +23,7 @@ dependencies {
     implementation(rootProject.libs.rarible.core.kafka)
 
     testImplementation(project(":backend-api-model"))
+    testImplementation(project(":util"))
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {

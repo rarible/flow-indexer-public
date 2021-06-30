@@ -3,3 +3,12 @@ grpc:
     flow:
       address: access.devnet.nodes.onflow.org:9000
       negotiationType: PLAINTEXT
+
+scanner:
+  tracked-contracts:
+    - "1cd85950d20f05b2"
+    - "9a0766d93b6608b7"
+    - "0287aa0a33a82d7a"
+    - "9837bf0b0b963a4a"
+    - "e3750a9bc4137f3f"
+    - "f9a15cf06773248c"
