@@ -6,6 +6,7 @@ import com.rarible.core.kafka.KafkaMessage
 import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.scanner.model.FlowTransaction
+import com.rarible.flow.log.Log
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Service
 
@@ -41,8 +42,15 @@ class FlowEventAnalyzer(
             }
         }.filterNotNull()
 
+        log.info("Sending {} events...", kafkaMessages.size)
+        log.debug("Messages to send: {}", kafkaMessages)
+
         runBlocking {
             kafkaProducer.send(kafkaMessages)
         }
+    }
+
+    companion object {
+        val log by Log()
     }
 }

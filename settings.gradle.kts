@@ -8,6 +8,7 @@ include(
     "backend-core",
     "backend-listener",
     "converters",
+    "util"
 )
 
 dependencyResolutionManagement {

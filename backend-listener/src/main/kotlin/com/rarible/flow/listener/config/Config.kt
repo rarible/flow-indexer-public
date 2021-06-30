@@ -16,8 +16,7 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @EnableConfigurationProperties(ListenerProperties::class)
 class Config(
-    private val listenerProperties: ListenerProperties,
-    //private val meterRegistry: MeterRegistry
+    private val listenerProperties: ListenerProperties
 ) {
 
     @Bean
