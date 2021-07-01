@@ -6,9 +6,13 @@ grpc:
 
 scanner:
   tracked-contracts:
-    - "1cd85950d20f05b2"
-    - "9a0766d93b6608b7"
-    - "0287aa0a33a82d7a"
-    - "9837bf0b0b963a4a"
-    - "e3750a9bc4137f3f"
-    - "f9a15cf06773248c"
+    - "1cd85950d20f05b2" #Rari
+    - "9a0766d93b6608b7" #FungibleToken
+    - "d07a7fa848ee5a9b" #Kibble KittyItems KittyItemsMarket
+    - "9837bf0b0b963a4a" #Versus Auction
+    - "0b601b730796f30e" #Versus Auction (FUSD)
+    - "e3750a9bc4137f3f" #Disrupt Now
+    - "877931736ee77cff" #TopShot
+    - "547f177b243b4d80" #MarketTopShot
+    - "bf7e7e84ad6d8b29" #ChessCombo
+    - "5c9fd048deb56cd4" #Veolet
