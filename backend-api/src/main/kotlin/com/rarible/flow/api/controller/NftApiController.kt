@@ -22,6 +22,11 @@ class NftApiController(
 
     @GetMapping("/byAccount")
     suspend fun findByAccount(address: String): Flow<Item> {
-        return itemRepository.findAllBuAccount(address)
+        return itemRepository.findAllByAccount(address)
+    }
+
+    @GetMapping("/listed")
+    suspend fun findListed(): Flow<Item> {
+        return itemRepository.findAllListed()
     }
 }

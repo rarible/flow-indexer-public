@@ -1,19 +1,19 @@
-package com.rarible.flow.scanner
+package com.rarible.flow.json
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
+import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
+import org.onflow.sdk.FlowEvent
 import java.time.Instant
 
-/**
- * Created by TimochkinEA at 08.06.2021
- */
 class FlowEventDeserializer : JsonDeserializer<EventMessage>() {
 
     override fun deserialize(parser: JsonParser, ctx: DeserializationContext): EventMessage {
         val obj: JsonNode = parser.codec.readTree(parser)
+        FlowEvent
         val e = obj["value"]
         val id = e["id"].asText()
         val fields = e.get("fields").asIterable().associate {

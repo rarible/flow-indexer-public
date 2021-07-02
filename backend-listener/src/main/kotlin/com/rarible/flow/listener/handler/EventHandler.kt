@@ -6,28 +6,34 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
-import com.rarible.flow.core.repository.OwnershipRepo
+import com.rarible.flow.core.repository.OwnershipRepository
+import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.events.NftEvent
+import com.rarible.flow.log.Log
 import java.time.Instant
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.map
 import org.bson.types.ObjectId
 import org.onflow.sdk.FlowAddress
 import org.onflow.sdk.bytesToHex
+import java.lang.IllegalArgumentException
 import java.math.BigDecimal
 
 
 class EventHandler(
     private val itemRepository: ItemRepository,
-    private val ownershipRepo: OwnershipRepo,
+    private val ownershipRepository: OwnershipRepository,
     private val orderRepository: OrderRepository
-) : ConsumerEventHandler<NftEvent> {
+) : ConsumerEventHandler<EventMessage> {
 
-    override suspend fun handle(event: NftEvent) {
+    override suspend fun handle(event: EventMessage) {
+        event.convert()?.let { handle(it) }
+    }
+
+    private suspend fun handle(event: NftEvent) {
         val address = event.eventId.contractAddress.bytes.bytesToHex()
         val tokenId = event.id
         when(event) {
@@ -104,7 +110,7 @@ class EventHandler(
     suspend fun burn(address: String, tokenId: Int) = coroutineScope{
         val items = async { itemRepository.delete(Item.makeId(address, tokenId)) }
         val ownerships = async {
-            ownershipRepo.deleteAllByContractAndTokenId(Address(address), tokenId)
+            ownershipRepository.deleteAllByContractAndTokenId(Address(address), tokenId)
         }
 
         items.await()
@@ -122,13 +128,54 @@ class EventHandler(
                 }
         }
         val ownership = async {
-            ownershipRepo.findAllByContractAndTokenId(
+            ownershipRepository.findAllByContractAndTokenId(
                 Address(address), id
-            ).map { it.copy(owner = owner) }.let { ownershipRepo.saveAll(it) }
+            ).map { it.copy(owner = owner) }.let { ownershipRepository.saveAll(it) }
         }
 
         items.await()
         ownership.await()
     }
 
+
+    fun EventMessage.convert(): NftEvent? {
+        val nftId = fields["id"]
+        val eventId = EventId.of(id)
+        val result = when {
+            nftId == null -> null
+
+            eventId.type.contains("mint", true) ->
+                NftEvent.Mint(eventId, nftId.toInt(), FlowAddress(fields["to"]!!))
+
+            eventId.type.contains("withdraw", true) ->
+                NftEvent.Withdraw(eventId, nftId.toInt(), FlowAddress(fields["from"]!!))
+
+            eventId.type.contains("deposit", true) ->
+                NftEvent.Withdraw(eventId, nftId.toInt(), FlowAddress(fields["to"]!!))
+
+            eventId.type.contains("burn", true) ->
+                NftEvent.Burn(eventId, nftId.toInt())
+
+            eventId.type.contains("list", true) ->
+                NftEvent.List(eventId, nftId.toInt())
+
+            eventId.type.contains("deposit", true) ->
+                NftEvent.Unlist(eventId, nftId.toInt())
+
+            else -> null
+
+        }
+
+        if(result == null) {
+            log.warn(
+                "Failed to convert message [$this] to NftEvent. Probably not NFT event, or contract is not supported."
+            )
+        }
+
+        return result
+    }
+
+    companion object {
+        val log by Log()
+    }
 }

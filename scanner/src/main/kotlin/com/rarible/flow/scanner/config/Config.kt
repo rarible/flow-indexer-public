@@ -7,7 +7,9 @@ import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.core.kafka.json.JsonSerializer
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.scanner.FlowEventAnalyzer
-import com.rarible.flow.scanner.FlowEventDeserializer
+import com.rarible.flow.json.FlowEventDeserializer
+import com.rarible.flow.json.commonMapper
+import com.rarible.flow.json.registerFlowModule
 import io.grpc.ManagedChannelBuilder
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.springframework.beans.factory.annotation.Value
@@ -55,15 +57,7 @@ class Config(
     }
 
     @Bean
-    fun flowMapper(): ObjectMapper {
-        val mapper = ObjectMapper()
-        mapper.registerKotlinModule()
-
-        val module = SimpleModule()
-        module.addDeserializer(EventMessage::class.java, FlowEventDeserializer())
-        mapper.registerModule(module)
-        return mapper
-    }
+    fun flowMapper(): ObjectMapper = commonMapper()
 
     @Bean("flowClient")
     fun flowClient(): AccessAPIGrpc.AccessAPIBlockingStub {

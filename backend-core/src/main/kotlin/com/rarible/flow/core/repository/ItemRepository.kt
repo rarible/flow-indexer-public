@@ -27,10 +27,18 @@ class ItemRepository(
         return findById(Item.makeId(contract, tokenId))
     }
 
-    suspend fun findAllBuAccount(account: String): Flow<Item> {
+    fun findAllByAccount(account: String): Flow<Item> {
         return mongo.find<Item>(
             Query.query(
                 Item::owner isEqualTo Address(account)
+            )
+        ).asFlow()
+    }
+
+    fun findAllListed(): Flow<Item> {
+        return mongo.find<Item>(
+            Query.query(
+                Item::listed isEqualTo true
             )
         ).asFlow()
     }
