@@ -5,7 +5,8 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.rarible.flow.events.EventMessage
-import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 /**
  * Created by TimochkinEA at 08.06.2021
@@ -25,12 +26,12 @@ class FlowEventDeserializer : JsonDeserializer<EventMessage>() {
             } else {
                 it["value"]["value"]
             }
-            name to value.asText()
+            name to value
         }
         return EventMessage(
             id = id,
             fields = fields,
-            timestamp = Instant.now()
+            timestamp = LocalDateTime.now(ZoneOffset.UTC)
         )
     }
 }

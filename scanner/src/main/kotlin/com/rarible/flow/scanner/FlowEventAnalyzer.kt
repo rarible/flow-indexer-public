@@ -16,12 +16,12 @@ class FlowEventAnalyzer(
     private val kafkaProducer: KafkaProducer<EventMessage>,
     private val flowMapper: ObjectMapper,
     private val contracts: List<String>
-) {
+) : IFlowEventAnalyzer {
 
     /**
      * Analysis of the transaction for events of interest
      */
-    fun analyze(tx: FlowTransaction) {
+    override fun analyze(tx: FlowTransaction) {
         val kafkaMessages = makeKafkaMessages(tx.id, tx.events)
         log.info("Sending {} events...", kafkaMessages.size)
 

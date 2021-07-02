@@ -2,7 +2,6 @@ grpc:
   client:
     flow:
       address: access.devnet.nodes.onflow.org:9000
-      negotiationType: PLAINTEXT
 
 scanner:
   tracked-contracts:
@@ -16,3 +15,8 @@ scanner:
     - "547f177b243b4d80" #MarketTopShot
     - "bf7e7e84ad6d8b29" #ChessCombo
     - "5c9fd048deb56cd4" #Veolet
+  sporks:
+    -
+      name: "Devnet24"
+      nodeUrl: "access.devnet.nodes.onflow.org:9000"
+      firstBlockHeight: 36290422
