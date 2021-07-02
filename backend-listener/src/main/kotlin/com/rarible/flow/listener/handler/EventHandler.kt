@@ -30,7 +30,14 @@ class EventHandler(
 ) : ConsumerEventHandler<EventMessage> {
 
     override suspend fun handle(event: EventMessage) {
-        event.convert()?.let { handle(it) }
+        val nftEvent = event.convert()
+        if (nftEvent != null) {
+            handle(nftEvent)
+        } else {
+            log.warn(
+                "Failed to convert message [$this] to NftEvent. Probably not NFT event, or contract is not supported."
+            )
+        }
     }
 
     private suspend fun handle(event: NftEvent) {
@@ -135,44 +142,6 @@ class EventHandler(
 
         items.await()
         ownership.await()
-    }
-
-
-    fun EventMessage.convert(): NftEvent? {
-        val nftId = fields["id"] as String?
-        val eventId = EventId.of(id)
-        val result = when {
-            nftId == null -> null
-
-            eventId.type.contains("mint", true) ->
-                NftEvent.Mint(eventId, nftId.toInt(), FlowAddress(fields["to"]!! as String))
-
-            eventId.type.contains("withdraw", true) ->
-                NftEvent.Withdraw(eventId, nftId.toInt(), FlowAddress(fields["from"]!! as String))
-
-            eventId.type.contains("deposit", true) ->
-                NftEvent.Withdraw(eventId, nftId.toInt(), FlowAddress(fields["to"]!! as String))
-
-            eventId.type.contains("burn", true) ->
-                NftEvent.Burn(eventId, nftId.toInt())
-
-            eventId.type.contains("list", true) ->
-                NftEvent.List(eventId, nftId.toInt())
-
-            eventId.type.contains("unlist", true) ->
-                NftEvent.Unlist(eventId, nftId.toInt())
-
-            else -> null
-
-        }
-
-        if(result == null) {
-            log.warn(
-                "Failed to convert message [$this] to NftEvent. Probably not NFT event, or contract is not supported."
-            )
-        }
-
-        return result
     }
 
     companion object {

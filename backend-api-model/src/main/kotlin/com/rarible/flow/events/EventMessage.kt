@@ -3,7 +3,6 @@ package com.rarible.flow.events
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import org.onflow.sdk.FlowAddress
-import java.lang.IllegalArgumentException
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
@@ -15,6 +14,37 @@ data class EventMessage(
     companion object {
         fun getTopic(environment: String) =
             "protocol.$environment.flow.indexer.nft.item"
+    }
+
+    fun convert(): NftEvent? {
+        val nftId = fields["id"] as String?
+        val eventId = EventId.of(id)
+        val eventName = eventId.eventName
+
+        return when {
+            nftId == null -> null
+
+            eventName.contains("mint", true) ->
+                NftEvent.Mint(eventId, nftId.toInt(), FlowAddress(fields["to"]!! as String))
+
+            eventName.contains("withdraw", true) ->
+                NftEvent.Withdraw(eventId, nftId.toInt(), FlowAddress(fields["from"]!! as String))
+
+            eventName.contains("deposit", true) ->
+                NftEvent.Withdraw(eventId, nftId.toInt(), FlowAddress(fields["to"]!! as String))
+
+            eventName.contains("burn", true) ->
+                NftEvent.Burn(eventId, nftId.toInt())
+
+            eventName.contains("list", true) ->
+                NftEvent.List(eventId, nftId.toInt())
+
+            eventName.contains("unlist", true) ->
+                NftEvent.Unlist(eventId, nftId.toInt())
+
+            else -> null
+
+        }
     }
 }
 
