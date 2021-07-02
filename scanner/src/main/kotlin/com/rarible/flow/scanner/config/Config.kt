@@ -1,15 +1,14 @@
 package com.rarible.flow.scanner.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.module.SimpleModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.core.kafka.json.JsonSerializer
 import com.rarible.flow.events.EventMessage
-import com.rarible.flow.scanner.FlowEventAnalyzer
-import com.rarible.flow.json.FlowEventDeserializer
 import com.rarible.flow.json.commonMapper
-import com.rarible.flow.json.registerFlowModule
+import com.rarible.flow.scanner.FlowEventAnalyzer
+import com.rarible.flow.scanner.IFlowEventAnalyzer
+import com.rarible.flow.scanner.SporkInfo
+import com.rarible.flow.scanner.SporkMonitor
 import io.grpc.ManagedChannelBuilder
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.springframework.beans.factory.annotation.Value
@@ -18,14 +17,12 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
-import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer
 
 @Configuration
 @EnableMongoRepositories(basePackages = ["com.rarible.flow.scanner.repo"])
-@EnableScheduling
 @EnableConfigurationProperties(ScannerProperties::class)
 @EnableWebSocketMessageBroker
 class Config(
@@ -69,10 +66,19 @@ class Config(
     fun flowEventAnalyzer(
         kafkaProducer: RaribleKafkaProducer<EventMessage>,
         flowMapper: ObjectMapper
-    ) = FlowEventAnalyzer(
+    ): IFlowEventAnalyzer = FlowEventAnalyzer(
         kafkaProducer,
         flowMapper,
         scannerProperties.trackedContracts
     )
+
+    @Bean
+    fun sporkMonitors(): List<SporkMonitor> =
+         scannerProperties.sporks.map { spork ->
+            sporkMonitor(spork)
+        }
+
+    @Bean
+    fun sporkMonitor(sporkInfo: SporkInfo) = SporkMonitor(sporkInfo)
 
 }

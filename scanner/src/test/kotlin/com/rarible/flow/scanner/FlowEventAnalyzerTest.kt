@@ -12,6 +12,8 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeSingleton
 import io.kotest.matchers.string.shouldBeEqualIgnoringCase
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 internal class FlowEventAnalyzerTest: FunSpec({
 
@@ -31,13 +33,13 @@ internal class FlowEventAnalyzerTest: FunSpec({
         val event = FlowEvent(
             "A.1cd85950d20f05b2.NFTProvider.Withdraw",
             "",
-            Instant.now()
+            LocalDateTime.now(ZoneOffset.UTC)
         )
 
         val event2 = FlowEvent(
             "A.2cd85950d20f05b2.NFTProvider.Withdraw",
             "",
-            Instant.now()
+            LocalDateTime.now(ZoneOffset.UTC)
         )
 
         analyzer.isEventTracked(event).shouldBeTrue()
@@ -54,7 +56,7 @@ internal class FlowEventAnalyzerTest: FunSpec({
                     "timestamp": "${Instant.now()}"
                 }
             """.trimIndent(),
-            Instant.now()
+            LocalDateTime.now(ZoneOffset.UTC)
         )
 
         val event2 = FlowEvent(
@@ -63,10 +65,10 @@ internal class FlowEventAnalyzerTest: FunSpec({
                 {
                     "id": 2002,
                     "fields": {},
-                    "timestamp": "${Instant.now()}"
+                    "timestamp": "${LocalDateTime.now(ZoneOffset.UTC)}"
                 }
             """.trimIndent(),
-            Instant.now()
+            LocalDateTime.now(ZoneOffset.UTC)
         )
 
         analyzer.makeKafkaMessages("123", listOf(event, event2)).shouldBeSingleton {

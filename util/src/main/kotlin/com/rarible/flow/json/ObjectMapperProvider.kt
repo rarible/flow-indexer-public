@@ -1,7 +1,9 @@
 package com.rarible.flow.json
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
@@ -16,6 +18,8 @@ fun flowModule(): SimpleModule {
     return module
 }
 
-fun ObjectMapper.registerFlowModule() = this.registerModule(flowModule())
-
-fun commonMapper() = ObjectMapper().registerKotlinModule().registerFlowModule()
+fun commonMapper(): ObjectMapper =  ObjectMapper()
+    .registerKotlinModule()
+    .registerModule(flowModule())
+    .registerModule(JavaTimeModule())
+    .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
