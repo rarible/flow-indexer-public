@@ -1,14 +1,14 @@
 package com.rarible.flow.scanner.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.databind.module.SimpleModule
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.core.kafka.json.JsonSerializer
 import com.rarible.flow.events.EventMessage
-import com.rarible.flow.scanner.*
+import com.rarible.flow.json.commonMapper
+import com.rarible.flow.scanner.FlowEventAnalyzer
+import com.rarible.flow.scanner.IFlowEventAnalyzer
+import com.rarible.flow.scanner.SporkInfo
+import com.rarible.flow.scanner.SporkMonitor
 import io.grpc.ManagedChannelBuilder
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.springframework.beans.factory.annotation.Value
@@ -54,17 +54,7 @@ class Config(
     }
 
     @Bean
-    fun flowMapper(): ObjectMapper {
-        val mapper = ObjectMapper()
-        mapper.registerKotlinModule()
-
-        val module = SimpleModule()
-        module.addDeserializer(EventMessage::class.java, FlowEventDeserializer())
-        mapper.registerModule(module)
-        mapper.registerModule(JavaTimeModule())
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-        return mapper
-    }
+    fun flowMapper(): ObjectMapper = commonMapper()
 
     @Bean("flowClient")
     fun flowClient(): AccessAPIGrpc.AccessAPIBlockingStub {

@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.isEqualTo
 
 
-class OwnershipRepo(
+class OwnershipRepository(
     private val mongo: ReactiveMongoTemplate
 ) {
     suspend fun deleteAllByContractAndTokenId(contract: Address, tokenId: Int): Flow<Ownership> {
