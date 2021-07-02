@@ -139,19 +139,19 @@ class EventHandler(
 
 
     fun EventMessage.convert(): NftEvent? {
-        val nftId = fields["id"]
+        val nftId = fields["id"] as String?
         val eventId = EventId.of(id)
         val result = when {
             nftId == null -> null
 
             eventId.type.contains("mint", true) ->
-                NftEvent.Mint(eventId, nftId.toInt(), FlowAddress(fields["to"]!!))
+                NftEvent.Mint(eventId, nftId.toInt(), FlowAddress(fields["to"]!! as String))
 
             eventId.type.contains("withdraw", true) ->
-                NftEvent.Withdraw(eventId, nftId.toInt(), FlowAddress(fields["from"]!!))
+                NftEvent.Withdraw(eventId, nftId.toInt(), FlowAddress(fields["from"]!! as String))
 
             eventId.type.contains("deposit", true) ->
-                NftEvent.Withdraw(eventId, nftId.toInt(), FlowAddress(fields["to"]!!))
+                NftEvent.Withdraw(eventId, nftId.toInt(), FlowAddress(fields["to"]!! as String))
 
             eventId.type.contains("burn", true) ->
                 NftEvent.Burn(eventId, nftId.toInt())
@@ -159,7 +159,7 @@ class EventHandler(
             eventId.type.contains("list", true) ->
                 NftEvent.List(eventId, nftId.toInt())
 
-            eventId.type.contains("deposit", true) ->
+            eventId.type.contains("unlist", true) ->
                 NftEvent.Unlist(eventId, nftId.toInt())
 
             else -> null
