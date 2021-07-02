@@ -1,11 +1,8 @@
 package com.rarible.flow.scanner
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.rarible.flow.events.EventMessage
-import com.rarible.flow.json.FlowEventDeserializer
+import com.rarible.flow.json.commonMapper
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -24,10 +21,7 @@ class EventMessageDeserializerTest {
         ]
     )
     fun deserializeEventWithFieldsTest(source: String) {
-        val module = SimpleModule()
-        module.addDeserializer(EventMessage::class.java, FlowEventDeserializer())
-        val mapper = ObjectMapper().registerKotlinModule()
-        mapper.registerModule(module)
+        val mapper = commonMapper()
         val raw = mapper.readTree(source)
         val expectedId = raw["value"]["id"].asText()
         val message = mapper.readValue<EventMessage>(source)

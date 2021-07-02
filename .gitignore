@@ -92,3 +92,4 @@ fabric.properties
 
 build/
 data/
+**/target/**
