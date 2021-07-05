@@ -21,6 +21,7 @@ dependencyResolutionManagement {
             alias("rarible-core-kafka").to("com.rarible.core", "rarible-core-kafka").versionRef("rarible-core")
             alias("rarible-core-daemon").to("com.rarible.core", "rarible-core-daemon").versionRef("rarible-core")
             alias("rarible-core-telemetry").to("com.rarible.core", "rarible-core-telemetry-starter").versionRef("rarible-core")
+            alias("rarible-core-starter").to("com.rarible.core", "rarible-core-starter").versionRef("rarible-core")
 
             bundle("rarible-core", listOf("rarible-core-daemon", "rarible-core-telemetry"))
         }

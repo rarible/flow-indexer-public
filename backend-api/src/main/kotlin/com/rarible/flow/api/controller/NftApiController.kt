@@ -5,7 +5,6 @@ import com.rarible.flow.core.repository.ItemRepository
 import kotlinx.coroutines.flow.Flow
 import org.springframework.web.bind.annotation.*
 
-@CrossOrigin
 @RestController
 @RequestMapping(value = [
     "/v0.1/items"

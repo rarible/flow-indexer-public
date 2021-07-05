@@ -8,3 +8,9 @@ spring:
       discovery:
         tags:
           - web:flow-api-dev.rarible.com
+
+rarible:
+  core:
+    filter:
+      cors:
+        enabled: true
