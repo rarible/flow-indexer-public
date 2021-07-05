@@ -4,10 +4,9 @@ import com.rarible.flow.core.domain.Address
 import com.rarible.flow.core.domain.Item
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
-
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.data.mongodb.core.*
-import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.isEqualTo
 
@@ -20,7 +19,7 @@ class ItemRepository(
     }
 
     suspend fun findById(id: String): Item? {
-        return mongo.findById<Item>(id).awaitFirst()
+        return mongo.findById<Item>(id).awaitFirstOrNull()
     }
 
     suspend fun findById(contract: Address, tokenId: Int): Item? {
@@ -48,7 +47,7 @@ class ItemRepository(
             Query.query(
                 Item::id isEqualTo id
             )
-        ).awaitFirst()
+        ).awaitFirstOrNull()
     }
 
     suspend fun save(item: Item): Item? {

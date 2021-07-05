@@ -22,8 +22,8 @@ class EventMessageConverterTest: FunSpec({
         )
         val nftMessage = message.convert()
         nftMessage.shouldNotBe(null)
-        nftMessage.should {
-            nftMessage!!.eventId.eventName shouldBe "Mint"
+        nftMessage!!.should {
+            it.eventId.eventName shouldBe "Mint"
         }
     }
 
