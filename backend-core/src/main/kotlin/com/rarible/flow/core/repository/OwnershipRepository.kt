@@ -5,6 +5,7 @@ import com.rarible.flow.core.domain.Ownership
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
@@ -27,6 +28,10 @@ class OwnershipRepository(
         return mongo.find<Ownership>(
             byContractAndTokenId(contract, tokenId)
         ).asFlow()
+    }
+
+    suspend fun save(ownership: Ownership): Ownership? {
+        return mongo.save(ownership).awaitFirstOrNull()
     }
 
     suspend fun saveAll(ownerships: Flow<Ownership>) {

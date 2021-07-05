@@ -7,6 +7,7 @@ import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.data.mongodb.core.*
+import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.isEqualTo
 
@@ -29,7 +30,7 @@ class ItemRepository(
     fun findAllByAccount(account: String): Flow<Item> {
         return mongo.find<Item>(
             Query.query(
-                Item::owner isEqualTo Address(account)
+                Criteria("owner").isEqualTo(account)
             )
         ).asFlow()
     }

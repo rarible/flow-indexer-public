@@ -4,10 +4,10 @@ import com.rarible.core.daemon.sequential.ConsumerEventHandler
 import com.rarible.flow.core.domain.Address
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepository
-import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.events.NftEvent
 import com.rarible.flow.log.Log
@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.map
 import org.bson.types.ObjectId
 import org.onflow.sdk.FlowAddress
 import org.onflow.sdk.bytesToHex
-import java.lang.IllegalArgumentException
 import java.math.BigDecimal
 
 
@@ -46,7 +45,7 @@ class EventHandler(
         when(event) {
             is NftEvent.Burn -> burn(address, tokenId)
             is NftEvent.Deposit -> deposit(address, tokenId, event.to)
-            is NftEvent.Mint -> mint(address, tokenId)
+            is NftEvent.Mint -> mint(address, tokenId, event.to)
             is NftEvent.Withdraw -> withdraw(address, tokenId, event.from)
             is NftEvent.Bid -> bid(address, tokenId, event.bidder, event.amount)
             is NftEvent.List -> list(address, tokenId)
@@ -83,19 +82,27 @@ class EventHandler(
 
     }
 
-    private suspend fun mint(address: String, tokenId: Int) {
-        val existingEvent = itemRepository.findById(Item.makeId(address, tokenId))
+    private suspend fun mint(contract: String, tokenId: Int, to: FlowAddress) {
+        val existingEvent = itemRepository.findById(Item.makeId(contract, tokenId))
         if (existingEvent == null) {
             itemRepository.save(
                 Item(
-                    address,
+                    contract,
                     tokenId,
-                    Address(address),
+                    Address(to.formatted),
                     emptyList(),
-                    Address(address),
+                    Address(to.formatted),
                     Instant.now(),
-                    1000, //TODO fix
                     emptyMap()
+                )
+            )
+
+            ownershipRepository.save(
+                Ownership(
+                    Address(contract),
+                    tokenId,
+                    Address(to.formatted),
+                    Instant.now()
                 )
             )
         }

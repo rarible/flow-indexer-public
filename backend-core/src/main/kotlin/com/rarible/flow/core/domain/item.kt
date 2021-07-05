@@ -32,7 +32,6 @@ data class Item(
     val royalties: List<Part>,
     val owner: Address,
     val date: Instant,
-    val blockHeight: Long,
     val meta: Map<String, String> = emptyMap(),
     val listed: Boolean = false
     //val pending: List<ItemTransfer> = emptyList()
