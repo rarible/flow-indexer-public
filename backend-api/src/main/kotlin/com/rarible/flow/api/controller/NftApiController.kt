@@ -3,14 +3,12 @@ package com.rarible.flow.api.controller
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.repository.ItemRepository
 import kotlinx.coroutines.flow.Flow
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @CrossOrigin(
-    origins = ["https://testflowproject.herokuapp.com"],
-    maxAge = 60L
+    origins = ["https://testflowproject.herokuapp.com/"],
+    maxAge = 3600L,
+    methods = [RequestMethod.GET, RequestMethod.HEAD, RequestMethod.OPTIONS]
 )
 @RestController
 @RequestMapping(value = [
