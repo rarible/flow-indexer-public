@@ -1,0 +1,8 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/flow-indexer-api
+      database: flow-indexer-api
+
+flow-indexer-api:
+  kafka-replica-set: PLAINTEXT://staging-kafka-1:9092
