@@ -5,11 +5,7 @@ import com.rarible.flow.core.repository.ItemRepository
 import kotlinx.coroutines.flow.Flow
 import org.springframework.web.bind.annotation.*
 
-@CrossOrigin(
-    origins = ["https://testflowproject.herokuapp.com/"],
-    maxAge = 3600L,
-    methods = [RequestMethod.GET, RequestMethod.HEAD, RequestMethod.OPTIONS]
-)
+@CrossOrigin
 @RestController
 @RequestMapping(value = [
     "/v0.1/items"
