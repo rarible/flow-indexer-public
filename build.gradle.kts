@@ -32,18 +32,6 @@ allprojects {
             url = uri("https://jitpack.io")
         }
 
-/*
-        maven {
-            name = "nexus-snapshots"
-            url = uri("http://10.7.3.6:8081/nexus/content/repositories/snapshots/")
-            isAllowInsecureProtocol = true
-            metadataSources {
-                mavenPom()
-                artifact()
-            }
-        }
-*/
-
         maven {
             name = "nexus-maven-public"
             url = uri("http://nexus.rarible.int/repository/maven-public/")
@@ -102,7 +90,7 @@ subprojects {
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("io.projectreactor:reactor-test")
         testImplementation(rootProject.testLibs.rarible.core.test)
-        testImplementation(rootProject.testLibs.kotest)
+        testImplementation(rootProject.testLibs.bundles.kotest)
 
     }
 

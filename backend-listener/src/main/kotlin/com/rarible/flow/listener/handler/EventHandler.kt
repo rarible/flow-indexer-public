@@ -78,7 +78,7 @@ class EventHandler(
         }
     }
 
-    private fun withdraw(address: String, tokenId: Int, from: org.onflow.sdk.FlowAddress) {
+    private fun withdraw(address: String, tokenId: Int, from: FlowAddress) {
 
     }
 
@@ -132,7 +132,7 @@ class EventHandler(
     }
 
 
-    suspend fun deposit(address: String, id: Int, to: org.onflow.sdk.FlowAddress) = coroutineScope {
+    suspend fun deposit(address: String, id: Int, to: FlowAddress) = coroutineScope {
         val owner = Address(to.bytes.bytesToHex())
         val items = async {
             itemRepository

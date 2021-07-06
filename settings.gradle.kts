@@ -30,8 +30,12 @@ dependencyResolutionManagement {
             version("kotest", "4.6.0")
             version("rarible-core", "1.3-SNAPSHOT.spring25")
 
-            alias("kotest").to("io.kotest", "kotest-runner-junit5").versionRef("kotest")
+            alias("kotest-runner").to("io.kotest", "kotest-runner-junit5").versionRef("kotest")
+            alias("kotest-spring").to("io.kotest", "kotest-extensions-spring").versionRef("kotest")
+            alias("kotest-test-containers").to("io.kotest", "kotest-extensions-testcontainers").version("kotest")
             alias("rarible-core-test").to("com.rarible.core", "rarible-core-test-common").versionRef("rarible-core")
+
+            bundle("kotest", listOf("kotest-runner"))
         }
     }
 }

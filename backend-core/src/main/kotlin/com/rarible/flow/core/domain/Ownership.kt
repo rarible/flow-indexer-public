@@ -3,15 +3,16 @@ package com.rarible.flow.core.domain
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Transient
+import org.springframework.data.mongodb.core.mapping.Unwrapped
 import java.lang.IllegalArgumentException
 import java.time.Instant
 
 
 
 data class OwnershipId(
-    val contract: Address,
+    @Unwrapped(onEmpty = Unwrapped.OnEmpty.USE_EMPTY) val contract: Address,
     val tokenId: Int,
-    val owner: Address
+    @Unwrapped(onEmpty = Unwrapped.OnEmpty.USE_EMPTY) val owner: Address
 ) {
 
     override fun toString(): String {

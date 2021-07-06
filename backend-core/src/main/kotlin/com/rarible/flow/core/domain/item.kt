@@ -1,17 +1,17 @@
 package com.rarible.flow.core.domain
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.core.mapping.Unwrapped
 import java.time.Instant
 
-@JvmInline
-value class Address(val value: String)
+//@JvmInline
+//todo use value class
+data class Address(val value: String)
 
-@JvmInline
-value class TxHash(val value: String)
+//@JvmInline
+data class TxHash(val value: String)
 
 data class Part(
     val address: Address,
