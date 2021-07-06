@@ -34,7 +34,7 @@ class EventHandler(
             handle(nftEvent)
         } else {
             log.warn(
-                "Failed to convert message [$this] to NftEvent. Probably not NFT event, or contract is not supported."
+                "Failed to convert message [$event] to NftEvent. Probably not NFT event, or contract is not supported."
             )
         }
     }
