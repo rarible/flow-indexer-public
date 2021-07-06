@@ -5,7 +5,10 @@ import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Address
 import com.rarible.flow.core.domain.Item
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -39,6 +42,18 @@ internal class ItemRepositoryTest {
         val read = itemRepository.findById(item.id)
         read shouldNotBe null
         read!! shouldBeEqualToComparingFields item
+    }
+
+    @Test
+    fun `should save and find by account`() = runBlocking<Unit> {
+        val item = createItem()
+        itemRepository.save(item)
+        val read = itemRepository.findAllByAccount("2")
+
+        read.count() shouldBe 1
+        read.collect {
+            it shouldBeEqualToComparingFields item
+        }
     }
 
     fun createItem(tokenId: Int = 42) = Item(

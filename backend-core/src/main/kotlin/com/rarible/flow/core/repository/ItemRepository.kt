@@ -30,7 +30,7 @@ class ItemRepository(
     fun findAllByAccount(account: String): Flow<Item> {
         return mongo.find<Item>(
             Query.query(
-                Criteria("owner").isEqualTo(account)
+                Item::owner isEqualTo Address(account)
             )
         ).asFlow()
     }
