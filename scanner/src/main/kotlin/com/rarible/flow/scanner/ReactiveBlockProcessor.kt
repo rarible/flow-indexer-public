@@ -70,7 +70,7 @@ class ReactiveBlockProcessor(
                             val result = client.getTransactionResult(request)
 
                             transactions.add(FlowTransaction(
-                                id = UUID.randomUUID().toString().replace("-", "").lowercase(),
+                                id = Hex.toHexString(txId.toByteArray()),
                                 referenceBlockId = Hex.toHexString(tx.referenceBlockId.toByteArray()),
                                 blockHeight = fb.height,
                                 proposer = Hex.toHexString(tx.proposalKey.address.toByteArray()),
