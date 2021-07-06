@@ -15,6 +15,9 @@ scanner:
     - "547f177b243b4d80" #MarketTopShot
     - "bf7e7e84ad6d8b29" #ChessCombo
     - "5c9fd048deb56cd4" #Veolet
+    - "2695ea898b04f0c0" #marketplace unknown
+    - "a6f77977aca4f3ac" #MotoGP
+    - "e4e5f90bf7e2a25f" #Rari_v2
   sporks:
     -
       name: "Devnet24"
