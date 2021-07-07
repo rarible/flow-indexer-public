@@ -95,11 +95,21 @@ sealed class NftEvent(
         override val eventId: EventId, override val id: Int
     ): NftEvent(eventId, id)
 
-    //todo document as part of FB-112
+    /**
+     * events for making bids, conforming the structure of com.rarible.flow.core.domain.Order
+     */
     data class Bid(
         override val eventId: EventId,
         override val id: Int,
         val bidder: FlowAddress,
         val amount: BigDecimal
+    ): NftEvent(eventId, id)
+
+    data class BidNft(
+        override val eventId: EventId,
+        override val id: Int,
+        val bidder: FlowAddress,
+        val offeredNftAddress: FlowAddress,
+        val offeredNftId: Int
     ): NftEvent(eventId, id)
 }
