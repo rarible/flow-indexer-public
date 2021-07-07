@@ -17,6 +17,12 @@ dependencyManagement {
     }
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
 allprojects {
 
     apply {

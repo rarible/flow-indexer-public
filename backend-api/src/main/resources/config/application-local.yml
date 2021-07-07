@@ -3,6 +3,20 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/flow-indexer-api
       database: flow-indexer-api
+  cloud:
+    service-registry:
+      auto-registration:
+        enabled: false
+    discovery:
+      enabled: false
+    consul:
+      config:
+        enabled: false
+
+logging:
+  logstash:
+    tcp-socket:
+      enabled: false
 
 flow-indexer-api:
-  kafka-replica-set: PLAINTEXT://staging-kafka-1:9092
+  kafka-replica-set: PLAINTEXT://localhost:9092
