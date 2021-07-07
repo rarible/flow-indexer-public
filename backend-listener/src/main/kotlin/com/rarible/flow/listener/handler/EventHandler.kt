@@ -50,6 +50,29 @@ class EventHandler(
             is NftEvent.Bid -> bid(address, tokenId, event.bidder, event.amount)
             is NftEvent.List -> list(address, tokenId)
             is NftEvent.Unlist -> unlist(address, tokenId)
+            is NftEvent.BidNft -> bidNft(address, tokenId, event.bidder, event.offeredNftAddress, event.offeredNftId)
+        }
+    }
+
+    private suspend fun bidNft(
+        address: String,
+        tokenId: Int,
+        bidder: FlowAddress,
+        offeredNftAddress: FlowAddress,
+        offeredNftId: Int
+    ) {
+        withItem(address, tokenId) { myNft ->
+            withItem(offeredNftAddress.formatted, offeredNftId) { theirNft ->
+                orderRepository.save(
+                    Order(
+                        ObjectId(),
+                        Item.makeId(address, tokenId),
+                        Address(bidder.bytes.bytesToHex()),
+                        1.toBigDecimal(),
+                        theirNft.id
+                    )
+                )
+            }
         }
     }
 
