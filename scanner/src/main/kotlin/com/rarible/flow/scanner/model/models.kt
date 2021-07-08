@@ -43,10 +43,10 @@ data class FlowEvent(
 )
 
 @Document
-data class RariEvent(
-    @Id
-    val id: String,
-    val data: String
+data class RariEventMessage(
+    @MongoId
+    val messageId: String,
+    val event: EventMessage
 )
 
 /**
