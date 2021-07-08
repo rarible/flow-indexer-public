@@ -28,19 +28,15 @@ class ItemRepository(
     }
 
     fun findAllByAccount(account: String): Flow<Item> {
-        return mongo.find<Item>(
-            Query.query(
-                Item::owner isEqualTo Address(account)
-            )
-        ).asFlow()
+        return findAll(
+            Item::owner isEqualTo Address(account)
+        )
     }
 
     fun findAllListed(): Flow<Item> {
-        return mongo.find<Item>(
-            Query.query(
-                Item::listed isEqualTo true
-            )
-        ).asFlow()
+        return findAll(
+            Item::listed isEqualTo true
+        )
     }
 
     suspend fun delete(id: String): Item? {
@@ -53,5 +49,17 @@ class ItemRepository(
 
     suspend fun save(item: Item): Item? {
         return mongo.save(item).awaitFirst();
+    }
+
+    fun findAllByCreator(address: String): Flow<Item> {
+        return findAll(
+            Item::creator isEqualTo Address(address)
+        )
+    }
+
+    private fun findAll(criteria: Criteria): Flow<Item> {
+        return mongo.find<Item>(
+            Query.query(criteria)
+        ).asFlow()
     }
 }

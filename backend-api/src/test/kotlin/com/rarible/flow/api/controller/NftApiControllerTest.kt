@@ -101,6 +101,42 @@ internal class NftApiControllerTest(
     }
 
     @Test
+    fun `should return items by creator`() {
+        val items = listOf(
+            createItem(),
+            createItem(tokenId = 43).copy(creator = Address("2"))
+        )
+        val addressSlot = slot<String>()
+        coEvery {
+            itemRepository.findAllByCreator(capture(addressSlot))
+        } answers {
+            items.filter { it.creator.value == addressSlot.captured }.asFlow()
+        }
+
+        client
+            .get()
+            .uri("/v0.1/items/byCreator?address={address}", mapOf("address" to "1"))
+            .exchange()
+            .expectStatus().isOk
+            .expectBodyList<Item>().hasSize(1).contains(items[0])
+
+        client
+            .get()
+            .uri("/v0.1/items/byCreator?address={address}", mapOf("address" to "2"))
+            .exchange()
+            .expectStatus().isOk
+            .expectBodyList<Item>().hasSize(1).contains(items[1])
+
+        client
+            .get()
+            .uri("/v0.1/items/byCreator?address={address}", mapOf("address" to "4"))
+            .exchange()
+            .expectStatus().isOk
+            .expectBodyList<Item>().hasSize(0)
+
+    }
+
+    @Test
     fun `should create meta and return link`() {
         coEvery {
             itemMetaRepository.findByItemId(any())
