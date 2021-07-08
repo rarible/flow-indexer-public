@@ -31,6 +31,11 @@ class NftApiController(
         return itemRepository.findAllByAccount(address)
     }
 
+    @GetMapping("/byCreator")
+    suspend fun findByCreator(address: String): Flow<Item> {
+        return itemRepository.findAllByCreator(address)
+    }
+
     @GetMapping("/listed")
     suspend fun findListed(): Flow<Item> {
         return itemRepository.findAllListed()
