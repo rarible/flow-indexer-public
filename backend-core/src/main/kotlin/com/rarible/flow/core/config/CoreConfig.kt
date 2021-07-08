@@ -1,5 +1,6 @@
 package com.rarible.flow.core.config
 
+import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepository
@@ -25,4 +26,7 @@ data class CoreConfig(
 
     @Bean
     fun orderRepository() = OrderRepository(mongoTemplate)
+
+    @Bean
+    fun itemMetaRepository() = ItemMetaRepository(mongoTemplate)
 }

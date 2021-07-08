@@ -4,8 +4,12 @@ import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.api.IntegrationTest
 import com.rarible.flow.core.domain.Address
 import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemMeta
+import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
+import com.rarible.flow.form.MetaForm
+import com.rarible.flow.log.Log
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.coEvery
 import io.mockk.slot
@@ -17,7 +21,9 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.test.web.reactive.server.expectBodyList
+import java.net.URI
 import java.time.Instant
 
 //@IntegrationTest
@@ -37,6 +43,9 @@ internal class NftApiControllerTest(
 ) {
     @MockkBean
     lateinit var itemRepository: ItemRepository
+
+    @MockkBean
+    lateinit var itemMetaRepository: ItemMetaRepository
 
     @Test
     fun `should return all items`() {
@@ -91,6 +100,25 @@ internal class NftApiControllerTest(
 
     }
 
+    @Test
+    fun `should create meta and return link`() {
+        coEvery {
+            itemMetaRepository.findByItemId(any())
+        } returns null
+
+        coEvery {
+            itemMetaRepository.save(any())
+        } returnsArgument 0
+
+        client
+            .post()
+            .uri("/v0.1/items/meta/1234")
+            .bodyValue(MetaForm("title", "description", URI.create("https://keyassets.timeincuk.net/inspirewp/live/wp-content/uploads/sites/34/2021/03/pouring-wine-zachariah-hagy-8_tZ-eu32LA-unsplash-1-920x609.jpg")))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<String>().isEqualTo("/v0.1/items/meta/1234")
+    }
+
     fun createItem(tokenId: Int = 42) = Item(
         "1234",
         tokenId,
@@ -99,4 +127,8 @@ internal class NftApiControllerTest(
         Address("2"),
         Instant.now()
     )
+
+    companion object {
+        val log by Log()
+    }
 }
