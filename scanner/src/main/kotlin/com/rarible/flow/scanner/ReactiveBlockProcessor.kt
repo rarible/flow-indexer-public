@@ -13,8 +13,8 @@ import org.onflow.sdk.asLocalDateTime
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
-import reactor.core.publisher.Flux
 import reactor.core.scheduler.Schedulers
+import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 import java.util.*
 import javax.annotation.PreDestroy
@@ -27,7 +27,7 @@ import javax.annotation.PreDestroy
 class ReactiveBlockProcessor(
     private val blockRepository: FlowBlockRepository,
     private val txRepository: FlowTransactionRepository,
-    private val analyzer: IFlowEventAnalyzer
+    private val analyzer: FlowTxAnalyzer
 ) {
 
     private val schedulerP = Schedulers.newBoundedElastic(256, 256, UUID.randomUUID().toString())
@@ -43,12 +43,11 @@ class ReactiveBlockProcessor(
      */
     fun doRead(client: AccessAPIGrpc.AccessAPIBlockingStub, ids: List<Long>) {
         log.info("Do read ${ids.size} ids from chain!")
-        Flux.fromIterable(ids)
-            .map { id ->
-                log.info("\tBlock with height received!")
+        ids.toFlux()
+            .flatMap { id ->
                 client.getBlockByHeight(Access.GetBlockByHeightRequest.newBuilder().setHeight(id).build())
-            }
-            .flatMap { blockResponse ->
+                    .toMono()
+            }.flatMap { blockResponse ->
                 val block = blockResponse.block
                 log.info("\tRead transactions for block [${block.height}]")
                 val fb = FlowBlock(
@@ -58,7 +57,6 @@ class ReactiveBlockProcessor(
                     timestamp = block.timestamp.asLocalDateTime(),
                     collectionsCount = block.collectionGuaranteesCount
                 )
-
                 val transactions = mutableListOf<FlowTransaction>()
                 if (fb.collectionsCount > 0) {
                     block.collectionGuaranteesList.forEach { cgl ->
@@ -101,10 +99,11 @@ class ReactiveBlockProcessor(
 
     private fun process(blockInfo: Pair<FlowBlock, List<FlowTransaction>>) {
         log.info("Save Block [${blockInfo.first}]")
-        blockRepository.save(blockInfo.first).subscribe()
-        if (blockInfo.second.isNotEmpty()) {
-            txRepository.saveAll(blockInfo.second).subscribe { tx ->
-                analyzer.analyze(tx)
+        blockRepository.save(blockInfo.first).subscribe {
+            if (blockInfo.second.isNotEmpty()) {
+                txRepository.saveAll(blockInfo.second).subscribe { tx ->
+                    analyzer.analyze(tx)
+                }
             }
         }
     }

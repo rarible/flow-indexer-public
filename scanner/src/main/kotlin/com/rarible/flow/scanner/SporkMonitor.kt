@@ -8,6 +8,8 @@ import kotlinx.coroutines.runBlocking
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.event.EventListener
 import reactor.core.publisher.Flux
 import reactor.core.scheduler.Schedulers
 import java.time.Duration
@@ -37,8 +39,8 @@ class SporkMonitor(private val sporkInfo: SporkInfo) {
     }
 
 
-    @PostConstruct
-    private fun monitor() {
+    @EventListener(ApplicationReadyEvent::class)
+    fun monitor() {
         Flux.interval(Duration.ZERO, Duration.ofMinutes(1L), Schedulers.newParallel(sporkInfo.name)).retry(5L)
             .subscribe {
                 log.info("Start watch ${sporkInfo.name} at ${LocalDateTime.now()}")
