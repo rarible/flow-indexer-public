@@ -21,9 +21,9 @@ class FlowEventDeserializer : JsonDeserializer<EventMessage>() {
             val type = it["value"]["type"].asText()
 
             val value = if ("Optional" == type) {
-                it["value"]["value"]["value"]
+                it["value"]["value"]["value"]?.asText("")
             } else {
-                it["value"]["value"]
+                it["value"]["value"]?.asText("")
             }
             name to value
         }

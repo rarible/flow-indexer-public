@@ -1,21 +1,18 @@
 package com.rarible.flow.scanner
 
 import com.rarible.flow.scanner.repo.FlowBlockRepository
-import kotlinx.coroutines.runBlocking
 import org.onflow.protobuf.access.Access
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.onflow.sdk.asLocalDateTime
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.context.annotation.Profile
-import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.scheduler.Schedulers
 import java.time.Duration
-import java.time.Instant
 import java.time.temporal.ChronoUnit
-import javax.annotation.PostConstruct
 
 /**
  * Created by TimochkinEA at 15.06.2021
@@ -35,8 +32,8 @@ class FlowForwardReader(
     @Volatile
     private var lastRead: Long = 0L
 
-    @PostConstruct
-    private fun postCreate() {
+    @EventListener(ApplicationReadyEvent::class)
+    fun doWork() {
         val lastBlockInDB = blockRepository.findTopByOrderByHeightDesc().block()
         val lastBlockOnChain = client.getLatestBlockHeader(Access.GetLatestBlockHeaderRequest.newBuilder().setIsSealed(true).build()).block
 

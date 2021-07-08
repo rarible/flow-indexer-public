@@ -5,8 +5,6 @@ import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.core.kafka.json.JsonSerializer
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.json.commonMapper
-import com.rarible.flow.scanner.FlowEventAnalyzer
-import com.rarible.flow.scanner.IFlowEventAnalyzer
 import com.rarible.flow.scanner.SporkInfo
 import com.rarible.flow.scanner.SporkMonitor
 import io.grpc.ManagedChannelBuilder
@@ -15,6 +13,9 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.event.ApplicationEventMulticaster
+import org.springframework.context.event.SimpleApplicationEventMulticaster
+import org.springframework.core.task.SimpleAsyncTaskExecutor
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
@@ -63,16 +64,6 @@ class Config(
     }
 
     @Bean
-    fun flowEventAnalyzer(
-        kafkaProducer: RaribleKafkaProducer<EventMessage>,
-        flowMapper: ObjectMapper
-    ): IFlowEventAnalyzer = FlowEventAnalyzer(
-        kafkaProducer,
-        flowMapper,
-        scannerProperties.trackedContracts
-    )
-
-    @Bean
     fun sporkMonitors(): List<SporkMonitor> =
          scannerProperties.sporks.map { spork ->
             sporkMonitor(spork)
@@ -81,4 +72,9 @@ class Config(
     @Bean
     fun sporkMonitor(sporkInfo: SporkInfo) = SporkMonitor(sporkInfo)
 
+    @Bean(name = ["applicationEventMulticaster"])
+    fun simpleApplicationEventMulticaster(): ApplicationEventMulticaster =
+        SimpleApplicationEventMulticaster().apply {
+            setTaskExecutor(SimpleAsyncTaskExecutor())
+        }
 }

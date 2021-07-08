@@ -1,6 +1,7 @@
 package com.rarible.flow.scanner.model
 
-import org.springframework.data.annotation.Id
+import com.rarible.flow.events.EventMessage
+import org.springframework.context.ApplicationEvent
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.MongoId
@@ -42,8 +43,13 @@ data class FlowEvent(
 )
 
 @Document
-data class RariEvent(
-    @Id
-    val id: String,
-    val data: String
+data class RariEventMessage(
+    @MongoId
+    val messageId: String,
+    val event: EventMessage
 )
+
+/**
+ * In-app event for process rari events
+ */
+data class RariEventMessageCaught(val message: RariEventMessage): ApplicationEvent(message)
