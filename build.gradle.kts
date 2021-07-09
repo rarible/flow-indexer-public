@@ -21,6 +21,10 @@ buildscript {
     repositories {
         mavenCentral()
     }
+
+    dependencies {
+        classpath("org.openapitools:openapi-generator-gradle-plugin:5.0.0")
+    }
 }
 
 allprojects {

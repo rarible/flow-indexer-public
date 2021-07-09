@@ -22,13 +22,34 @@ paths:
                   $ref: '#/components/schemas/Item'
   '/v0.1/items/byAccount':
     get:
-      summary: Returns a list of all items.
+      summary: Returns a list of all items filtered by address of an owner.
       description: ""
       operationId: getItemsByAccount
       parameters:
         - name: address
           in: query
           description: address of NFT owner
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+  '/v0.1/items/byCreator':
+    get:
+      summary: Returns a list of all items filtered by address of a creator.
+      description: ""
+      operationId: getItemsByCreator
+      parameters:
+        - name: address
+          in: query
+          description: address of NFT creator
           required: true
           schema:
             type: string
@@ -64,13 +85,13 @@ components:
         id:
           type: string
         contract:
-          type: string
+          $ref: '#/components/schemas/Address'
         tokenId:
           type: integer
         creator:
-          type: string
+          $ref: '#/components/schemas/Address'
         owner:
-          type: string
+          $ref: '#/components/schemas/Address'
         meta:
           type: string
         date:
@@ -79,6 +100,9 @@ components:
           description: ISO date time
         listed:
           type: boolean
+    Address:
+      type: string
+      example: "0xe3750a9bc4137f3f"
 
 
 
