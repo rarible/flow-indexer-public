@@ -1,0 +1,108 @@
+openapi: 3.0.1
+info:
+  title: NFT API
+  description: NFT indexer API
+  version: 0.1.0
+servers:
+  - url: 'https://flow-api-dev.rarible.com/'
+paths:
+  '/v0.1/items/':
+    get:
+      summary: Returns a list of all items.
+      description: ""
+      operationId: getAllItems
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+  '/v0.1/items/byAccount':
+    get:
+      summary: Returns a list of all items filtered by address of an owner.
+      description: ""
+      operationId: getItemsByAccount
+      parameters:
+        - name: address
+          in: query
+          description: address of NFT owner
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+  '/v0.1/items/byCreator':
+    get:
+      summary: Returns a list of all items filtered by address of a creator.
+      description: ""
+      operationId: getItemsByCreator
+      parameters:
+        - name: address
+          in: query
+          description: address of NFT creator
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+  '/v0.1/items/listed':
+    get:
+      summary: Returns a list of listed items.
+      description: ""
+      operationId: getListedItems
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+
+components:
+  schemas:
+    Item:
+      type: object
+      properties:
+        id:
+          type: string
+        contract:
+          $ref: '#/components/schemas/Address'
+        tokenId:
+          type: integer
+        creator:
+          $ref: '#/components/schemas/Address'
+        owner:
+          $ref: '#/components/schemas/Address'
+        meta:
+          type: string
+        date:
+          type: string
+          format: date-time
+          description: ISO date time
+        listed:
+          type: boolean
+    Address:
+      type: string
+      example: "0xe3750a9bc4137f3f"
+
+
+
