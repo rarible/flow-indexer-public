@@ -6,9 +6,6 @@ import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.form.MetaForm
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactor.awaitSingle
-import org.springframework.hateoas.server.reactive.WebFluxLinkBuilder.linkTo
-import org.springframework.hateoas.server.reactive.WebFluxLinkBuilder.methodOn
 import org.springframework.web.bind.annotation.*
 
 @CrossOrigin
@@ -23,7 +20,7 @@ class NftApiController(
 
     @GetMapping("/")
     suspend fun findAll(): Flow<Item> {
-        return itemRepository.findAll();
+        return itemRepository.findAll()
     }
 
     @GetMapping("/byAccount")
@@ -47,7 +44,7 @@ class NftApiController(
         @RequestBody form: MetaForm
     ): String? {
         val existing = itemMetaRepository.findByItemId(itemId)
-        val meta = if(existing == null) {
+        if(existing == null) {
             itemMetaRepository.save(
                 ItemMeta(itemId, form.title, form.description, form.uri)
             )
