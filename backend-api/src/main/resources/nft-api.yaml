@@ -8,7 +8,7 @@ servers:
 paths:
   '/v0.1/items/':
     get:
-      summary: Returns a list of all items.
+      summary: All items.
       description: ""
       operationId: getAllItems
       responses:
@@ -22,7 +22,7 @@ paths:
                   $ref: '#/components/schemas/Item'
   '/v0.1/items/byAccount':
     get:
-      summary: Returns a list of all items filtered by address of an owner.
+      summary: All items filtered by address of an owner.
       description: ""
       operationId: getItemsByAccount
       parameters:
@@ -43,7 +43,7 @@ paths:
                   $ref: '#/components/schemas/Item'
   '/v0.1/items/byCreator':
     get:
-      summary: Returns a list of all items filtered by address of a creator.
+      summary: All items filtered by address of a creator.
       description: ""
       operationId: getItemsByCreator
       parameters:
@@ -64,7 +64,7 @@ paths:
                   $ref: '#/components/schemas/Item'
   '/v0.1/items/listed':
     get:
-      summary: Returns a list of listed items.
+      summary: Listed items.
       description: ""
       operationId: getListedItems
       responses:
@@ -76,6 +76,23 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Item'
+  '/v0.1/meta/{itemId}':
+    post:
+      summary: Save item's meta information.
+      description: ""
+      operationId: saveItemsMeta
+      parameters:
+        - name: itemId
+          in: path
+      requestBody:
+        $ref: '#/components/requestBodies/MetaForm'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
 
 components:
   schemas:
@@ -103,6 +120,20 @@ components:
     Address:
       type: string
       example: "0xe3750a9bc4137f3f"
+
+  requestBodies:
+    MetaForm:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+              description:
+                type: string
+              uri:
+                type: string
 
 
 
