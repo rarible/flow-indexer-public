@@ -76,7 +76,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Item'
-  '/v0.1/meta/{itemId}':
+  '/v0.1/items/meta/{itemId}':
     post:
       summary: Save item's meta information.
       description: ""
