@@ -139,6 +139,14 @@ internal class NftApiControllerTest(
     @Test
     fun `should create meta and return link`() {
         coEvery {
+            itemRepository.findById(any())
+        } returns createItem()
+
+        coEvery {
+            itemRepository.save(any())
+        } returnsArgument 0
+
+        coEvery {
             itemMetaRepository.findByItemId(any())
         } returns null
 

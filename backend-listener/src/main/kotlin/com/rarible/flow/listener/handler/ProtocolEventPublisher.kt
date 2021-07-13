@@ -2,10 +2,8 @@ package com.rarible.flow.listener.handler
 
 import com.rarible.core.kafka.KafkaMessage
 import com.rarible.core.kafka.RaribleKafkaProducer
-import com.rarible.flow.core.domain.Address
 import com.rarible.flow.core.domain.Item
 import com.rarible.protocol.dto.*
-import sun.jvm.hotspot.debugger.windbg.AddressDataSource
 
 
 class ProtocolEventPublisher(
@@ -22,7 +20,7 @@ class ProtocolEventPublisher(
                     FlowNftItemDto(
                         item.id,
                         item.contract,
-                        item.tokenId,
+                        item.tokenId.toInt(),
                         item.creator.value,
                         item.owner.value,
                         item.meta,
@@ -44,7 +42,7 @@ class ProtocolEventPublisher(
                     FlowNftDeletedItemDto(
                         item.id,
                         item.contract,
-                        item.tokenId
+                        item.tokenId.toInt()
                     )
                 )
             )
