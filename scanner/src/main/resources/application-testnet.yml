@@ -18,6 +18,7 @@ scanner:
     - "2695ea898b04f0c0" #marketplace unknown
     - "a6f77977aca4f3ac" #MotoGP
     - "e4e5f90bf7e2a25f" #Rari_v2
+
   sporks:
     -
       name: "Devnet24"

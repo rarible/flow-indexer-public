@@ -11,7 +11,7 @@ import java.time.Instant
 
 data class OwnershipId(
     @Unwrapped(onEmpty = Unwrapped.OnEmpty.USE_EMPTY) val contract: Address,
-    val tokenId: Int,
+    val tokenId: ULong,
     @Unwrapped(onEmpty = Unwrapped.OnEmpty.USE_EMPTY) val owner: Address
 ) {
 
@@ -25,7 +25,7 @@ data class OwnershipId(
             if(parts.size == 3) {
                 return OwnershipId(
                     Address(parts[0]),
-                    parts[1].toInt(),
+                    parts[1].toULong(),
                     Address(parts[2])
                 )
             } else {
@@ -37,7 +37,7 @@ data class OwnershipId(
 
 data class Ownership(
     val contract: Address,
-    val tokenId: Int,
+    val tokenId: ULong,
     val owner: Address,
     val date: Instant
 ) {
