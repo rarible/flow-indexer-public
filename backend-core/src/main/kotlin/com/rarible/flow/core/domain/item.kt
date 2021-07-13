@@ -3,7 +3,6 @@ package com.rarible.flow.core.domain
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
-import org.springframework.data.mongodb.core.mapping.Unwrapped
 import java.time.Instant
 
 //@JvmInline
@@ -32,7 +31,7 @@ data class Item(
     val royalties: List<Part>,
     val owner: Address,
     val date: Instant,
-    val meta: Map<String, String> = emptyMap(),
+    val meta: String? = null,
     val listed: Boolean = false
     //val pending: List<ItemTransfer> = emptyList()
 ) {

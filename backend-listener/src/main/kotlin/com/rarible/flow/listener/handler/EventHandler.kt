@@ -25,7 +25,8 @@ import java.math.BigDecimal
 class EventHandler(
     private val itemRepository: ItemRepository,
     private val ownershipRepository: OwnershipRepository,
-    private val orderRepository: OrderRepository
+    private val orderRepository: OrderRepository,
+    private val protocolEventPublisher: ProtocolEventPublisher
 ) : ConsumerEventHandler<EventMessage> {
 
     override suspend fun handle(event: EventMessage) {
@@ -116,9 +117,10 @@ class EventHandler(
                     emptyList(),
                     Address(to.formatted),
                     Instant.now(),
-                    emptyMap()
+                    ""
                 )
-            )
+            )?.let { protocolEventPublisher.onItemUpdate(it) }
+
 
             ownershipRepository.save(
                 Ownership(
@@ -133,7 +135,11 @@ class EventHandler(
 
     suspend fun update(address: String, tokenId: Int, fn: suspend (Item) -> Item) {
         withItem(address, tokenId) {
-            itemRepository.save(fn(it))
+            itemRepository
+                .save(fn(it))
+                ?.let { saved ->
+                    protocolEventPublisher.onItemUpdate(saved)
+                }
         }
     }
 
@@ -150,7 +156,9 @@ class EventHandler(
             ownershipRepository.deleteAllByContractAndTokenId(Address(address), tokenId)
         }
 
-        items.await()
+        items.await()?.let { deleted ->
+            protocolEventPublisher.onItemDelete(deleted)
+        }
         ownerships.await()
     }
 

@@ -58,7 +58,16 @@ class NftApiController(
             )
         }
 
-        return "/v0.1/items/meta/$itemId"
+        val metaLink = "/v0.1/items/meta/$itemId"
+        itemRepository
+            .findById(itemId)
+            ?.let {
+                itemRepository.save(
+                    it.copy(meta = metaLink)
+                )
+            }
+
+        return metaLink
     }
 
     @GetMapping("/meta/{itemId}")
