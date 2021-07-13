@@ -15,10 +15,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-hateoas")
     implementation(rootProject.libs.bundles.rarible.core)
     implementation(rootProject.libs.rarible.core.starter)
+    implementation("org.springframework.boot:spring-boot-starter-websocket")
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     enabled = true
     destinationDirectory.set(file("./target/boot"))
 }
-

@@ -2,6 +2,7 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017
-      database: flow-${spring.profiles.active}
-scanner:
+      database: flow-listener
+
+flow-indexer-listener:
   kafka-replica-set: PLAINTEXT://localhost:29092

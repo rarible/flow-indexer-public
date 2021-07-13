@@ -1,3 +1,5 @@
 logging:
   level:
     org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG
+    org.springframework.web.reactive.HandlerMapping.Mapping: DEBUG
+    org.springframework.web.reactive.handler.SimpleUrlHandlerMapping: DEBUG
