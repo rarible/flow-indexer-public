@@ -11,6 +11,8 @@ dependencies {
     implementation(project(":backend-core"))
     implementation(project(":util"))
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("com.rarible.protocol:flow-protocol-model-nft:2.0.0-SNAPSHOT")
+    implementation("com.rarible.protocol:flow-protocol-api-nft:2.0.0-SNAPSHOT")
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
     implementation("org.springframework.boot:spring-boot-starter-hateoas")
     implementation(rootProject.libs.bundles.rarible.core)

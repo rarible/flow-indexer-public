@@ -2,6 +2,7 @@ package com.rarible.flow.listener.handler
 
 import com.rarible.core.kafka.KafkaMessage
 import com.rarible.core.kafka.RaribleKafkaProducer
+import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.protocol.dto.*
 
@@ -17,16 +18,8 @@ class ProtocolEventPublisher(
                 FlowNftItemUpdateEventDto(
                     eventId = item.id,
                     itemId = item.id,
-                    FlowNftItemDto(
-                        item.id,
-                        item.contract,
-                        item.tokenId.toInt(),
-                        item.creator.value,
-                        item.owner.value,
-                        item.meta,
-                        item.date,
-                        false
-                    )
+                    ItemToDtoConverter.convert(item)
+
                 )
             )
         )
