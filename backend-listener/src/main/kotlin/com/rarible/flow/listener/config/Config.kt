@@ -78,7 +78,7 @@ class Config(
         return RaribleKafkaProducer(
             clientId = "${listenerProperties.environment}.flow.protocol-erc20-events-importer",
             valueSerializerClass = JsonSerializer::class.java,
-            defaultTopic = FlowNftItemEventTopicProvider.getTopic(listenerProperties.environment, "flow"),
+            defaultTopic = FlowNftItemEventTopicProvider.getTopic(listenerProperties.environment),
             bootstrapServers = listenerProperties.kafkaReplicaSet
         )
     }
