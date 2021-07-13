@@ -76,7 +76,7 @@ class Config(
     @Bean
     fun gatewayEventsProducer(): RaribleKafkaProducer<FlowNftItemEventDto> {
         return RaribleKafkaProducer(
-            clientId = "${listenerProperties.environment}.flow.protocol-erc20-events-importer",
+            clientId = "${listenerProperties.environment}.flow.nft-events-importer",
             valueSerializerClass = JsonSerializer::class.java,
             defaultTopic = FlowNftItemEventTopicProvider.getTopic(listenerProperties.environment),
             bootstrapServers = listenerProperties.kafkaReplicaSet

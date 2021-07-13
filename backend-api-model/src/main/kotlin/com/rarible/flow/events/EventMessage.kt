@@ -13,7 +13,7 @@ data class EventMessage(
 ) {
     companion object {
         fun getTopic(environment: String) =
-            "protocol.$environment.flow.indexer.nft.item"
+            "protocol.$environment.flow.scanner.nft.item"
     }
 
     fun convert(): NftEvent? {
@@ -44,6 +44,12 @@ data class EventMessage(
                 )
 
             eventName.contains("regularsaleorder.orderwithdraw", true) ->
+                NftEvent.OrderWithdraw(
+                    eventId = eventId,
+                    id = nftId.toULong()
+                )
+
+            eventName.contains("regularsaleorder.orderassigned", true) ->
                 NftEvent.OrderWithdraw(
                     eventId = eventId,
                     id = nftId.toULong()
