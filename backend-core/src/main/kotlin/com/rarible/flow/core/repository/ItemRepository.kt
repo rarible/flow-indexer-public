@@ -23,10 +23,6 @@ class ItemRepository(
         return mongo.findById<Item>(id).awaitFirstOrNull()
     }
 
-    suspend fun findById(contract: Address, tokenId: Int): Item? {
-        return findById(Item.makeId(contract, tokenId))
-    }
-
     fun findAllByAccount(account: String): Flow<Item> {
         return findAll(
             Item::owner isEqualTo Address(account)

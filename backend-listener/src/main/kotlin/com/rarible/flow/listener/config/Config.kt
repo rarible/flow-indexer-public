@@ -5,18 +5,19 @@ import com.rarible.core.daemon.sequential.ConsumerEventHandler
 import com.rarible.core.daemon.sequential.ConsumerWorker
 import com.rarible.core.kafka.RaribleKafkaConsumer
 import com.rarible.core.kafka.json.JsonDeserializer
-import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.OrderRepository
-import com.rarible.flow.core.repository.OwnershipRepository
+import com.rarible.flow.core.config.CoreConfig
+import com.rarible.flow.core.repository.*
 import com.rarible.flow.events.EventMessage
-import com.rarible.flow.events.NftEvent
 import com.rarible.flow.json.commonMapper
 import com.rarible.flow.listener.handler.EventHandler
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 
 @Configuration
+@Import(CoreConfig::class)
 @EnableConfigurationProperties(ListenerProperties::class)
 class Config(
     private val listenerProperties: ListenerProperties
@@ -38,9 +39,17 @@ class Config(
     fun eventMessageHandler(
         itemRepository: ItemRepository,
         ownershipRepository: OwnershipRepository,
-        orderRepository: OrderRepository
+        orderRepository: OrderRepository,
+        itemReactiveRepository: ItemReactiveRepository,
+        orderReactiveRepository: OrderReactiveRepository
     ): ConsumerEventHandler<EventMessage> {
-        return EventHandler(itemRepository, ownershipRepository, orderRepository)
+        return EventHandler(
+            itemRepository,
+            itemReactiveRepository,
+            ownershipRepository,
+            orderRepository,
+            orderReactiveRepository
+        )
     }
 
     @Bean

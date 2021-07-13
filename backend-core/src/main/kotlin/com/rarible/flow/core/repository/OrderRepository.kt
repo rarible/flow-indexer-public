@@ -33,7 +33,7 @@ class OrderRepository(
     fun findAllByAccount(account: String): Flow<Order> {
         return mongo.find<Order>(
             Query.query(
-                Order::bidder isEqualTo Address(account)
+                Order::taker isEqualTo Address(account)
             )
         ).asFlow()
     }

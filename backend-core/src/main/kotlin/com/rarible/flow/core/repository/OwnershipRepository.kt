@@ -18,13 +18,13 @@ import org.springframework.data.mongodb.core.query.isEqualTo
 class OwnershipRepository(
     private val mongo: ReactiveMongoTemplate
 ) {
-    fun deleteAllByContractAndTokenId(contract: Address, tokenId: Int): Flow<Ownership> {
+    fun deleteAllByContractAndTokenId(contract: Address, tokenId: ULong): Flow<Ownership> {
         return mongo.findAllAndRemove<Ownership>(
             byContractAndTokenId(contract, tokenId)
         ).asFlow()
     }
 
-    fun findAllByContractAndTokenId(contract: Address, tokenId: Int): Flow<Ownership> {
+    fun findAllByContractAndTokenId(contract: Address, tokenId: ULong): Flow<Ownership> {
         return mongo.find<Ownership>(
             byContractAndTokenId(contract, tokenId)
         ).asFlow()
@@ -42,7 +42,7 @@ class OwnershipRepository(
 
     private fun byContractAndTokenId(
         contract: Address,
-        tokenId: Int
+        tokenId: ULong
     ) = Query(
         Criteria().andOperator(
             Ownership::contract isEqualTo contract,

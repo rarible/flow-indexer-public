@@ -1,14 +1,12 @@
 package com.rarible.flow.listener
 
 import com.rarible.flow.events.EventMessage
-import com.rarible.flow.listener.handler.EventHandler
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import java.time.Instant
 import java.time.LocalDateTime
 
 
