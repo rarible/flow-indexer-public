@@ -57,7 +57,7 @@ data class EventMessage(
 
 
             eventName.contains("mint", true) ->
-                NftEvent.Mint(eventId, nftId.toULong(), FlowAddress(fields["to"]!! as String))
+                NftEvent.Mint(eventId, nftId.toULong(), FlowAddress(fields["creator"]!! as String))
 
             eventName.contains("withdraw", true) ->
                 NftEvent.Withdraw(eventId, nftId.toULong(), FlowAddress(fields["from"]!! as String))
