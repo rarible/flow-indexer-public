@@ -1,59 +1,69 @@
 package com.rarible.flow.api.controller
 
+import com.rarible.flow.core.converter.ItemMetaToDtoConverter
+import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.form.MetaForm
+import com.rarible.protocol.dto.FlowItemMetaDto
+import com.rarible.protocol.dto.FlowItemMetaFormDto
+import com.rarible.protocol.dto.FlowNftItemDto
+import com.rarible.protocol.flow.nft.api.controller.FlowNftItemControllerApi
 import kotlinx.coroutines.flow.Flow
-import org.springframework.web.bind.annotation.*
+import kotlinx.coroutines.flow.map
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.RestController
+import java.net.URI
 
 @CrossOrigin
 @RestController
-@RequestMapping(value = [
-    "/v0.1/items"
-])
 class NftApiController(
     private val itemRepository: ItemRepository,
     private val itemMetaRepository: ItemMetaRepository
-) {
+) : FlowNftItemControllerApi {
 
-    @GetMapping("/")
-    suspend fun findAll(): Flow<Item> {
-        return itemRepository.findAll()
+    override fun getAllItems(): ResponseEntity<Flow<FlowNftItemDto>> {
+        return ResponseEntity.ok(toDtoFlow(itemRepository.findAll()))
     }
 
-    @GetMapping("/byAccount")
-    suspend fun findByAccount(address: String): Flow<Item> {
-        return itemRepository.findAllByAccount(address)
+    override suspend fun getItemMeta(itemId: String): ResponseEntity<FlowItemMetaDto> {
+        val itemMeta = itemMetaRepository.findByItemId(itemId)
+        if (itemMeta == null) {
+            return ResponseEntity.status(404).build()
+        } else {
+            return ResponseEntity.ok(ItemMetaToDtoConverter.convert(itemMeta))
+        }
     }
 
-    @GetMapping("/byCreator")
-    suspend fun findByCreator(address: String): Flow<Item> {
-        return itemRepository.findAllByCreator(address)
+    override fun getItemsByAccount(address: String): ResponseEntity<Flow<FlowNftItemDto>> {
+        return ResponseEntity.ok(toDtoFlow(itemRepository.findAllByAccount(address)))
     }
 
-    @GetMapping("/listed")
-    suspend fun findListed(): Flow<Item> {
-        return itemRepository.findAllListed()
+    override fun getItemsByCreator(address: String): ResponseEntity<Flow<FlowNftItemDto>> {
+        return ResponseEntity.ok(toDtoFlow(itemRepository.findAllByCreator(address)))
     }
 
-    @PostMapping("/meta/{itemId}")
-    suspend fun createMeta(
-        @PathVariable("itemId") itemId: String,
-        @RequestBody form: MetaForm
-    ): String? {
+    override fun getListedItems(): ResponseEntity<Flow<FlowNftItemDto>> {
+        return ResponseEntity.ok(toDtoFlow(itemRepository.findAllListed()))
+    }
+
+    override suspend fun saveItemsMeta(
+        itemId: String,
+        form: FlowItemMetaFormDto?
+    ): ResponseEntity<String> {
         val existing = itemMetaRepository.findByItemId(itemId)
-        if(existing == null) {
+        if (existing == null) {
             itemMetaRepository.save(
-                ItemMeta(itemId, form.title, form.description, form.uri)
+                ItemMeta(itemId, form!!.title!!, form.description!!, URI.create(form.uri))
             )
         } else {
             itemMetaRepository.save(
                 existing.copy(
-                    title = form.title,
-                    description = form.description,
-                    uri = form.uri
+                    title = form!!.title!!,
+                    description = form.description!!,
+                    uri = URI.create(form.uri)
                 )
             )
         }
@@ -67,13 +77,11 @@ class NftApiController(
                 )
             }
 
-        return metaLink
+        return ResponseEntity.ok(metaLink)
     }
 
-    @GetMapping("/meta/{itemId}")
-    suspend fun getMeta(
-        @PathVariable("itemId") itemId: String,
-    ): ItemMeta? {
-        return itemMetaRepository.findByItemId(itemId)
+    private fun toDtoFlow(items: Flow<Item>): Flow<FlowNftItemDto> {
+        return items.map { ItemToDtoConverter.convert(it) }
     }
+
 }
