@@ -44,7 +44,7 @@ class EventHandler(
         when(event) {
             is NftEvent.Destroy -> burn(address, tokenId)
             is NftEvent.Deposit -> deposit(address, tokenId, event.to)
-            is NftEvent.Mint -> mint(address, tokenId, event.to)
+            is NftEvent.Mint -> mint(address, tokenId, event.to, event.metadata)
             is NftEvent.Withdraw -> withdraw(address, tokenId, event.from)
             is NftEvent.Bid -> bid(address, tokenId, event.bidder, event.amount)
             is NftEvent.List -> list(address, tokenId)
@@ -151,7 +151,7 @@ class EventHandler(
 
     }
 
-    private suspend fun mint(contract: String, tokenId: Long, to: FlowAddress) {
+    private suspend fun mint(contract: String, tokenId: Long, to: FlowAddress, metadata: String) {
         val existingEvent = itemRepository.findById(Item.makeId(contract, tokenId))
         if (existingEvent == null) {
             itemRepository.save(
@@ -162,7 +162,7 @@ class EventHandler(
                     emptyList(),
                     Address(to.formatted),
                     Instant.now(),
-                    ""
+                    metadata
                 )
             )?.let { protocolEventPublisher.onItemUpdate(it) }
 
