@@ -57,7 +57,7 @@ data class EventMessage(
 
 
             eventName.contains("mint", true) ->
-                NftEvent.Mint(eventId, nftId.toLong(), FlowAddress(fields["creator"]!! as String), fields["metadata"]!! as String)
+                NftEvent.Mint(eventId, nftId.toLong(), FlowAddress(fields["creator"]!! as String), fields["metadata"]!! as Map<String, String>)
 
             eventName.contains("withdraw", true) ->
                 NftEvent.Withdraw(eventId, nftId.toLong(), FlowAddress(fields["from"]!! as String))
@@ -104,7 +104,7 @@ sealed class NftEvent(
 ) {
 
     data class Mint(
-        override val eventId: EventId, override val id: Long, val to: FlowAddress, val metadata: String
+        override val eventId: EventId, override val id: Long, val to: FlowAddress, val metadata: Map<String, String>
     ) : NftEvent(eventId, id)
 
     data class Withdraw(

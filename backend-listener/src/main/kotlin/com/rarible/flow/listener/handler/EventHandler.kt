@@ -1,10 +1,7 @@
 package com.rarible.flow.listener.handler
 
 import com.rarible.core.daemon.sequential.ConsumerEventHandler
-import com.rarible.flow.core.domain.Address
-import com.rarible.flow.core.domain.Item
-import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.*
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.events.NftEvent
@@ -15,6 +12,7 @@ import kotlinx.coroutines.flow.map
 import org.onflow.sdk.FlowAddress
 import org.onflow.sdk.bytesToHex
 import java.math.BigDecimal
+import java.net.URI
 import java.time.Instant
 
 
@@ -24,7 +22,8 @@ class EventHandler(
     private val ownershipRepository: OwnershipRepository,
     private val orderRepository: OrderRepository,
     private val orderReactiveRepository: OrderReactiveRepository,
-    private val protocolEventPublisher: ProtocolEventPublisher
+    private val protocolEventPublisher: ProtocolEventPublisher,
+    private val itemMetaRepository: ItemMetaRepository
 ) : ConsumerEventHandler<EventMessage> {
 
     override suspend fun handle(event: EventMessage) {
@@ -39,7 +38,7 @@ class EventHandler(
     }
 
     private suspend fun handle(event: NftEvent) {
-        val address = event.eventId.contractAddress.bytes.bytesToHex()
+        val address = event.eventId.contractAddress.formatted
         val tokenId = event.id
         when(event) {
             is NftEvent.Destroy -> burn(address, tokenId)
@@ -151,19 +150,25 @@ class EventHandler(
 
     }
 
-    private suspend fun mint(contract: String, tokenId: Long, to: FlowAddress, metadata: String) {
+    //todo handle metadata
+    private suspend fun mint(contract: String, tokenId: Long, to: FlowAddress, metadata: Map<String, String>) {
         val existingEvent = itemRepository.findById(Item.makeId(contract, tokenId))
         if (existingEvent == null) {
+            val item = Item(
+                contract,
+                tokenId,
+                Address(to.formatted),
+                emptyList(),
+                Address(to.formatted),
+                Instant.now(),
+                ""
+            )
+            itemMetaRepository.save(
+                ItemMeta(item.id, metadata["title"] ?: "", metadata["description"] ?: "", URI.create(metadata["uri"] ?: ""))
+            )
+
             itemRepository.save(
-                Item(
-                    contract,
-                    tokenId,
-                    Address(to.formatted),
-                    emptyList(),
-                    Address(to.formatted),
-                    Instant.now(),
-                    metadata
-                )
+                item.copy(meta = "/v0.1/items/meta/${item.id}")
             )?.let {
                 val result = protocolEventPublisher.onItemUpdate(it)
                 log.info("item update message is sent: $result")

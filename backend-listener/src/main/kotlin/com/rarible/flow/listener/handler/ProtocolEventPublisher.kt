@@ -6,6 +6,7 @@ import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.protocol.dto.*
+import java.util.*
 
 
 class ProtocolEventPublisher(
@@ -17,7 +18,7 @@ class ProtocolEventPublisher(
             KafkaMessage(
                 item.id,
                 FlowNftItemUpdateEventDto(
-                    eventId = item.id,
+                    eventId = "${item.id}.${UUID.randomUUID()}",
                     itemId = item.id,
                     ItemToDtoConverter.convert(item)
 
@@ -31,7 +32,7 @@ class ProtocolEventPublisher(
             KafkaMessage(
                 item.id,
                 FlowNftItemDeleteEventDto(
-                    eventId = item.id,
+                    eventId = "${item.id}.${UUID.randomUUID()}",
                     itemId = item.id,
                     FlowNftDeletedItemDto(
                         item.id,
