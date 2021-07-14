@@ -164,7 +164,10 @@ class EventHandler(
                     Instant.now(),
                     metadata
                 )
-            )?.let { protocolEventPublisher.onItemUpdate(it) }
+            )?.let {
+                val result = protocolEventPublisher.onItemUpdate(it)
+                log.info("item update message is sent: $result")
+            }
 
 
             ownershipRepository.save(
