@@ -1,24 +1,20 @@
 package com.rarible.flow.api.controller
 
 import com.ninjasquad.springmockk.MockkBean
-import com.rarible.flow.api.IntegrationTest
 import com.rarible.flow.core.domain.Address
 import com.rarible.flow.core.domain.Item
-import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.form.MetaForm
 import com.rarible.flow.log.Log
-import io.kotest.core.spec.style.FunSpec
+import com.rarible.protocol.dto.FlowNftItemDto
+import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.slot
 import kotlinx.coroutines.flow.asFlow
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
@@ -54,12 +50,15 @@ internal class NftApiControllerTest(
             itemRepository.findAll()
         } returns items.asFlow()
 
-        client
+        var item = client
             .get()
             .uri("/v0.1/items/")
             .exchange()
             .expectStatus().isOk
-            .expectBodyList<Item>().hasSize(1).contains(items[0])
+            .expectBodyList<FlowNftItemDto>().hasSize(1)
+            .returnResult().responseBody!![0]
+
+        item.owner shouldBe items[0].owner.value
 
     }
 
@@ -76,28 +75,31 @@ internal class NftApiControllerTest(
             items.filter { it.owner.value == addressSlot.captured }.asFlow()
         }
 
-        client
+        var item = client
             .get()
             .uri("/v0.1/items/byAccount?address={address}", mapOf("address" to "2"))
             .exchange()
             .expectStatus().isOk
-            .expectBodyList<Item>().hasSize(1).contains(items[0])
+            .expectBodyList<FlowNftItemDto>().hasSize(1)
+            .returnResult().responseBody!![0]
+        item.owner shouldBe items[0].owner.value
 
-        client
+        item = client
             .get()
             .uri("/v0.1/items/byAccount?address={address}", mapOf("address" to "3"))
             .exchange()
             .expectStatus().isOk
-            .expectBodyList<Item>().hasSize(1).contains(items[1])
+            .expectBodyList<FlowNftItemDto>()
+            .hasSize(1)
+            .returnResult().responseBody!![0]
+        item.owner shouldBe items[1].owner.value
 
         client
             .get()
             .uri("/v0.1/items/byAccount?address={address}", mapOf("address" to "4"))
             .exchange()
             .expectStatus().isOk
-            .expectBodyList<Item>().hasSize(0)
-
-
+            .expectBodyList<FlowNftItemDto>().hasSize(0)
     }
 
     @Test
@@ -113,26 +115,30 @@ internal class NftApiControllerTest(
             items.filter { it.creator.value == addressSlot.captured }.asFlow()
         }
 
-        client
+        var item = client
             .get()
             .uri("/v0.1/items/byCreator?address={address}", mapOf("address" to "1"))
             .exchange()
             .expectStatus().isOk
-            .expectBodyList<Item>().hasSize(1).contains(items[0])
+            .expectBodyList<FlowNftItemDto>().hasSize(1)
+            .returnResult().responseBody!![0]
+        item.owner shouldBe items[0].owner.value
 
         client
             .get()
             .uri("/v0.1/items/byCreator?address={address}", mapOf("address" to "2"))
             .exchange()
             .expectStatus().isOk
-            .expectBodyList<Item>().hasSize(1).contains(items[1])
+            .expectBodyList<FlowNftItemDto>().hasSize(1)
+            .returnResult().responseBody!![0]
+        item.owner shouldBe items[1].owner.value
 
         client
             .get()
             .uri("/v0.1/items/byCreator?address={address}", mapOf("address" to "4"))
             .exchange()
             .expectStatus().isOk
-            .expectBodyList<Item>().hasSize(0)
+            .expectBodyList<FlowNftItemDto>().hasSize(0)
 
     }
 
