@@ -30,7 +30,7 @@ class Config(
     @Bean
     fun eventConsumer(): RaribleKafkaConsumer<EventMessage> {
         return RaribleKafkaConsumer(
-            clientId = "${listenerProperties.environment}.flow.nft-scanner.nft-indexer-item-events-consumer",
+            clientId = "${listenerProperties.environment}.flow.nft-listener",
             valueDeserializerClass = JsonDeserializer::class.java,
             valueClass = EventMessage::class.java,
             consumerGroup = "flow-listener",
