@@ -10,7 +10,6 @@ import com.rarible.flow.core.repository.*
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.json.commonMapper
 import com.rarible.flow.listener.handler.EventHandler
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

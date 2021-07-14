@@ -1,6 +1,8 @@
 package com.rarible.flow.api.config
 
+import com.rarible.flow.core.config.CoreConfig
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.springframework.messaging.converter.MappingJackson2MessageConverter
 import org.springframework.messaging.converter.MessageConverter
 import org.springframework.messaging.converter.StringMessageConverter
@@ -11,6 +13,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
+@Import(CoreConfig::class)
 class Config: WebSocketMessageBrokerConfigurer {
 
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {

@@ -3,10 +3,13 @@ package com.rarible.flow.api.controller
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.repository.ItemMetaRepository
+import com.rarible.flow.core.repository.ItemReactiveRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.form.MetaForm
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Mono
 
 @CrossOrigin
 @RestController
@@ -15,6 +18,8 @@ import org.springframework.web.bind.annotation.*
 ])
 class NftApiController(
     private val itemRepository: ItemRepository,
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
+    private val itemReactiveRepository: ItemReactiveRepository,
     private val itemMetaRepository: ItemMetaRepository
 ) {
 
@@ -67,4 +72,8 @@ class NftApiController(
     ): ItemMeta? {
         return itemMetaRepository.findByItemId(itemId)
     }
+
+    @GetMapping("/getNftItemById/{itemId}")
+    suspend fun getNftItemById(@PathVariable itemId: String): Item? =
+        itemReactiveRepository.findById(itemId).awaitSingleOrNull()
 }

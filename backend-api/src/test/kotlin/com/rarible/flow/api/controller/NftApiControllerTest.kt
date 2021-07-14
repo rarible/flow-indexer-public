@@ -1,16 +1,14 @@
 package com.rarible.flow.api.controller
 
 import com.ninjasquad.springmockk.MockkBean
-import com.rarible.flow.api.IntegrationTest
+import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Address
 import com.rarible.flow.core.domain.Item
-import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.repository.ItemMetaRepository
+import com.rarible.flow.core.repository.ItemReactiveRepository
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.form.MetaForm
 import com.rarible.flow.log.Log
-import io.kotest.core.spec.style.FunSpec
 import io.mockk.coEvery
 import io.mockk.slot
 import kotlinx.coroutines.flow.asFlow
@@ -18,11 +16,12 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.test.web.reactive.server.expectBodyList
+import reactor.core.publisher.Mono
 import java.net.URI
 import java.time.Instant
 
@@ -46,6 +45,9 @@ internal class NftApiControllerTest(
 
     @MockkBean
     lateinit var itemMetaRepository: ItemMetaRepository
+
+    @MockkBean
+    lateinit var itemReactiveRepository: ItemReactiveRepository
 
     @Test
     fun `should return all items`() {
@@ -155,9 +157,44 @@ internal class NftApiControllerTest(
             .expectBody<String>().isEqualTo("/v0.1/items/meta/1234")
     }
 
-    fun createItem(tokenId: Int = 42) = Item(
+    @Test
+    fun `should return item by id`() {
+        val items = listOf(
+            createItem(),
+            createItem(tokenId = 43).copy(creator = Address("2"))
+        )
+        val itemIdSlot = slot<String>()
+        coEvery {
+            itemReactiveRepository.findById(capture(itemIdSlot))
+        } answers {
+            Mono.justOrEmpty(items.find { it.id == itemIdSlot.captured })
+        }
+
+        client
+            .get()
+            .uri("/v0.1/items/getNftItemById/{itemId}", mapOf("itemId" to "1234:42"))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<Item>().isEqualTo(items[0])
+
+        client
+            .get()
+            .uri("/v0.1/items/getNftItemById/{itemId}", mapOf("itemId" to "1234:43"))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<Item>().isEqualTo(items[1])
+
+        client
+            .get()
+            .uri("/v0.1/items/getNftItemById/{itemId}", mapOf("itemId" to "1234:44"))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody().isEmpty
+    }
+
+    private fun createItem(tokenId: Int = 42) = Item(
         "1234",
-        tokenId,
+        tokenId.toULong(),
         Address("1"),
         emptyList(),
         Address("2"),
