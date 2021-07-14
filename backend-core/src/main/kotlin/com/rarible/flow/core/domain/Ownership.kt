@@ -41,11 +41,11 @@ data class Ownership(
     val owner: Address,
     val date: Instant
 ) {
-    private val _id: OwnershipId = OwnershipId(contract, tokenId, owner)
+    private val _id: String = OwnershipId(contract, tokenId, owner).toString()
 
     @get:Id
     @get:AccessType(AccessType.Type.PROPERTY)
-    var id: OwnershipId
+    var id: String
         get() = _id
         set(_) {}
 }
