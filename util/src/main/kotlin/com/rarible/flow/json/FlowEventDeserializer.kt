@@ -16,21 +16,27 @@ class FlowEventDeserializer : JsonDeserializer<EventMessage>() {
         FlowEvent
         val e = obj["value"]
         val id = e["id"].asText()
-        val fields = e.get("fields").asIterable().associate {
-            val name = it["name"].asText()
-            val type = it["value"]["type"].asText()
-
-            val value = if ("Optional" == type) {
-                it["value"]["value"]["value"]?.asText("")
-            } else {
-                it["value"]["value"]?.asText("")
-            }
-            name to value
-        }
+        val fields = parseFields(e.get("fields"))
         return EventMessage(
             id = id,
             fields = fields,
             timestamp = LocalDateTime.now(ZoneOffset.UTC)
         )
+    }
+
+    private fun parseFields(e: JsonNode): Map<String, Any?> = e.asIterable().associate {
+        val name:String = it["name"].asText()
+        val type = it["value"]["type"].asText()
+
+        val value: Any? = if ("Optional" == type) {
+            it["value"]["value"]["value"]?.asText("")
+        } else if ("Struct" == type) {
+            val struct = it["value"]
+            parseFields(struct["fields"])
+
+        } else {
+            it["value"]["value"]?.asText("")
+        }
+        name to value
     }
 }
