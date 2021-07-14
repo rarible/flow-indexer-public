@@ -10,9 +10,9 @@ import java.time.Instant
 
 
 data class OwnershipId(
-    @Unwrapped(onEmpty = Unwrapped.OnEmpty.USE_EMPTY) val contract: Address,
+    val contract: Address,
     val tokenId: Long,
-    @Unwrapped(onEmpty = Unwrapped.OnEmpty.USE_EMPTY) val owner: Address
+    val owner: Address
 ) {
 
     override fun toString(): String {
@@ -41,7 +41,6 @@ data class Ownership(
     val owner: Address,
     val date: Instant
 ) {
-    @Transient
     private val _id: OwnershipId = OwnershipId(contract, tokenId, owner)
 
     @get:Id
