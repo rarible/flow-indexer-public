@@ -183,7 +183,8 @@ class EventHandler(
             itemRepository
                 .save(fn(it))
                 ?.let { saved ->
-                    protocolEventPublisher.onItemUpdate(saved)
+                    val result = protocolEventPublisher.onItemUpdate(saved)
+                    log.info("item update message is sent: $result")
                 }
         }
     }
@@ -202,7 +203,9 @@ class EventHandler(
         }
 
         items.await()?.let { deleted ->
-            protocolEventPublisher.onItemDelete(deleted)
+            val result = protocolEventPublisher.onItemDelete(deleted)
+            log.info("item delete message is sent: $result")
+
         }
         ownerships.await()
     }
