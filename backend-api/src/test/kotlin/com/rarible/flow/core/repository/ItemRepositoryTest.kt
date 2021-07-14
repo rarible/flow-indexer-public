@@ -29,7 +29,6 @@ import java.time.Instant
 ])
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
-@Disabled("Comparing dates is failed!")
 internal class ItemRepositoryTest {
     @Autowired
     lateinit var mongo: ReactiveMongoTemplate
@@ -60,7 +59,7 @@ internal class ItemRepositoryTest {
 
     fun createItem(tokenId: Int = 42) = Item(
         "1234",
-        tokenId.toULong(),
+        tokenId.toLong(),
         Address("1"),
         emptyList(),
         Address("2"),

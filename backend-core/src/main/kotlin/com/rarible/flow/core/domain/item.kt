@@ -26,7 +26,7 @@ data class ItemTransfer(
 @Document
 data class Item(
     val contract: String, //Address,    // maps to `token`
-    val tokenId: ULong,
+    val tokenId: Long,
     val creator: Address,       // can we have multiple? maps to list of creators with one element
     val royalties: List<Part>,
     val owner: Address,
@@ -43,11 +43,11 @@ data class Item(
         set(_) {}
 
     companion object {
-        fun makeId(contract: Address, tokenId: ULong): String {
+        fun makeId(contract: Address, tokenId: Long): String {
             return "${contract.value}:$tokenId"
         }
 
-        fun makeId(contract: String, tokenId: ULong): String {
+        fun makeId(contract: String, tokenId: Long): String {
             return "${contract}:$tokenId"
         }
     }
