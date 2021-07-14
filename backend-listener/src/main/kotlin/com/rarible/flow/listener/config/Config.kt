@@ -46,7 +46,8 @@ class Config(
         orderRepository: OrderRepository,
         itemReactiveRepository: ItemReactiveRepository,
         orderReactiveRepository: OrderReactiveRepository,
-        protocolEventPublisher: ProtocolEventPublisher
+        protocolEventPublisher: ProtocolEventPublisher,
+        itemMetaRepository: ItemMetaRepository
     ): ConsumerEventHandler<EventMessage> {
         return EventHandler(
             itemRepository,
@@ -54,7 +55,8 @@ class Config(
             ownershipRepository,
             orderRepository,
             orderReactiveRepository,
-            protocolEventPublisher
+            protocolEventPublisher,
+            itemMetaRepository
         )
     }
 
