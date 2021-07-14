@@ -102,7 +102,7 @@ class EventHandler(
 
     private suspend fun bidNft(
         address: String,
-        tokenId: ULong,
+        tokenId: Long,
         bidder: FlowAddress,
         offeredNftAddress: FlowAddress,
         offeredNftId: Int
@@ -122,19 +122,19 @@ class EventHandler(
         }*/
     }
 
-    private suspend fun unlist(address: String, tokenId: ULong) {
+    private suspend fun unlist(address: String, tokenId: Long) {
         update(address, tokenId) {
             it.copy(listed = false)
         }
     }
 
-    private suspend fun list(address: String, tokenId: ULong) {
+    private suspend fun list(address: String, tokenId: Long) {
         update(address, tokenId) {
             it.copy(listed = true)
         }
     }
 
-    private suspend fun bid(address: String, tokenId: ULong, bidder: FlowAddress, amount: BigDecimal) {
+    private suspend fun bid(address: String, tokenId: Long, bidder: FlowAddress, amount: BigDecimal) {
         /*withItem(address, tokenId) {
             orderRepository.save(
                 Order(
@@ -147,11 +147,11 @@ class EventHandler(
         }*/
     }
 
-    private fun withdraw(address: String, tokenId: ULong, from: FlowAddress) {
+    private fun withdraw(address: String, tokenId: Long, from: FlowAddress) {
 
     }
 
-    private suspend fun mint(contract: String, tokenId: ULong, to: FlowAddress) {
+    private suspend fun mint(contract: String, tokenId: Long, to: FlowAddress) {
         val existingEvent = itemRepository.findById(Item.makeId(contract, tokenId))
         if (existingEvent == null) {
             itemRepository.save(
@@ -178,7 +178,7 @@ class EventHandler(
         }
     }
 
-    suspend fun update(address: String, tokenId: ULong, fn: suspend (Item) -> Item) {
+    suspend fun update(address: String, tokenId: Long, fn: suspend (Item) -> Item) {
         withItem(address, tokenId) {
             itemRepository
                 .save(fn(it))
@@ -188,14 +188,14 @@ class EventHandler(
         }
     }
 
-    suspend fun <T> withItem(address: String, tokenId: ULong, fn: suspend (Item) -> T) {
+    suspend fun <T> withItem(address: String, tokenId: Long, fn: suspend (Item) -> T) {
         val existingEvent = itemRepository.findById(Item.makeId(address, tokenId))
         if(existingEvent != null) {
             fn(existingEvent)
         }
     }
 
-    suspend fun burn(address: String, tokenId: ULong) = coroutineScope{
+    suspend fun burn(address: String, tokenId: Long) = coroutineScope{
         val items = async { itemRepository.delete(Item.makeId(address, tokenId)) }
         val ownerships = async {
             ownershipRepository.deleteAllByContractAndTokenId(Address(address), tokenId)
@@ -208,7 +208,7 @@ class EventHandler(
     }
 
 
-    suspend fun deposit(address: String, id: ULong, to: FlowAddress) = coroutineScope {
+    suspend fun deposit(address: String, id: Long, to: FlowAddress) = coroutineScope {
         val owner = Address(to.bytes.bytesToHex())
         val items = async {
             itemRepository

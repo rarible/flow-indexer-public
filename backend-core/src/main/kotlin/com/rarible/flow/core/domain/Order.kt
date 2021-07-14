@@ -19,7 +19,7 @@ import java.math.BigDecimal
 @Document
 data class Order(
     @MongoId
-    val id: ULong,
+    val id: Long,
     val itemId: String,
     val maker: Address,
     val taker: Address? = null,

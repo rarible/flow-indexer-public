@@ -8,4 +8,4 @@ import org.springframework.stereotype.Repository
  * Created by TimochkinEA at 13.07.2021
  */
 @Repository
-interface OrderReactiveRepository: ReactiveMongoRepository<Order, ULong>
+interface OrderReactiveRepository: ReactiveMongoRepository<Order, Long>
