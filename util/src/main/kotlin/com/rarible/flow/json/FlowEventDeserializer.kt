@@ -32,7 +32,7 @@ class FlowEventDeserializer : JsonDeserializer<EventMessage>() {
             it["value"]["value"]["value"]?.asText("")
         } else if ("Struct" == type) {
             val struct = it["value"]
-            parseFields(struct["fields"])
+            parseFields(struct["value"]["fields"])
 
         } else {
             it["value"]["value"]?.asText("")
