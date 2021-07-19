@@ -6,9 +6,9 @@ import org.springframework.core.convert.converter.Converter
 
 object ItemMetaToDtoConverter : Converter<ItemMeta, FlowItemMetaDto> {
 
-    override fun convert(source: ItemMeta): FlowItemMetaDto? {
+    override fun convert(source: ItemMeta): FlowItemMetaDto {
         return FlowItemMetaDto(
-            itemId = source.itemId,
+            itemId = source.itemId.toString(),
             description = source.description,
             title = source.title,
             uri = source.uri.toString()

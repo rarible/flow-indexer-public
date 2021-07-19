@@ -45,7 +45,7 @@ pipeline {
         when {
           allOf {
             expression {
-              return env.BRANCH_NAME == 'origin/hackathon-turkey-2021' || env.BRANCH_NAME == 'hackathon-turkey-2021'
+              return env.BRANCH_NAME == 'origin/main' || env.BRANCH_NAME == 'main'
             }
           }
           beforeAgent true

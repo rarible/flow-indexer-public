@@ -2,7 +2,6 @@ package com.rarible.flow.core.repository
 
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
-import com.rarible.flow.core.domain.Address
 import com.rarible.flow.core.domain.Item
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.shouldBe
@@ -10,8 +9,8 @@ import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.onflow.sdk.FlowAddress
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
@@ -42,27 +41,27 @@ internal class ItemRepositoryTest {
         itemRepository.save(item)
         val read = itemRepository.findById(item.id)
         read shouldNotBe null
-        read!! shouldBeEqualToComparingFields item
+        read!!.id shouldBe item.id
     }
 
     @Test
     fun `should save and find by account`() = runBlocking<Unit> {
         val item = createItem()
         itemRepository.save(item)
-        val read = itemRepository.findAllByAccount("2")
+        val read = itemRepository.findAllByAccount(FlowAddress("0x02"))
 
         read.count() shouldBe 1
         read.collect {
-            it shouldBeEqualToComparingFields item
+            it.id shouldBeEqualToComparingFields item.id
         }
     }
 
     fun createItem(tokenId: Int = 42) = Item(
-        "1234",
-        tokenId.toLong(),
-        Address("1"),
+        FlowAddress("0x01"),
+        tokenId.toBigInteger(),
+        FlowAddress("0x01"),
         emptyList(),
-        Address("2"),
+        FlowAddress("0x02"),
         Instant.now()
     )
 }

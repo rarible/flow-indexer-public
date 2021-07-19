@@ -1,11 +1,12 @@
 package com.rarible.flow.core.repository
 
-import com.rarible.flow.core.domain.Address
 import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import org.onflow.sdk.FlowAddress
 import org.springframework.data.mongodb.core.*
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
@@ -23,9 +24,13 @@ class ItemRepository(
         return mongo.findById<Item>(id).awaitFirstOrNull()
     }
 
-    fun findAllByAccount(account: String): Flow<Item> {
+    suspend fun findById(id: ItemId): Item? {
+        return mongo.findById<Item>(id).awaitFirstOrNull()
+    }
+
+    fun findAllByAccount(account: FlowAddress): Flow<Item> {
         return findAll(
-            Item::owner isEqualTo Address(account)
+            Item::owner isEqualTo account
         )
     }
 
@@ -35,7 +40,7 @@ class ItemRepository(
         )
     }
 
-    suspend fun delete(id: String): Item? {
+    suspend fun delete(id: ItemId): Item? {
         return mongo.findAndRemove<Item>(
             Query.query(
                 Item::id isEqualTo id
@@ -47,9 +52,9 @@ class ItemRepository(
         return mongo.save(item).awaitFirst()
     }
 
-    fun findAllByCreator(address: String): Flow<Item> {
+    fun findAllByCreator(address: FlowAddress): Flow<Item> {
         return findAll(
-            Item::creator isEqualTo Address(address)
+            Item::creator isEqualTo address
         )
     }
 

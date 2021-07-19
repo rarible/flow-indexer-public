@@ -16,18 +16,18 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport
 import java.lang.reflect.Type
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.TimeUnit
-//
-//@SpringBootTest(
-//    properties = [
-//        "application.environment = dev",
-//        "spring.cloud.service-registry.auto-registration.enabled = false",
-//        "spring.cloud.discovery.enabled = false",
-//        "spring.cloud.consul.config.enabled = false",
-//        "logging.logstash.tcp-socket.enabled = false",
-//    ],
-//    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-//)
-//@ActiveProfiles("test")
+
+@SpringBootTest(
+    properties = [
+        "application.environment = dev",
+        "spring.cloud.service-registry.auto-registration.enabled = false",
+        "spring.cloud.discovery.enabled = false",
+        "spring.cloud.consul.config.enabled = false",
+        "logging.logstash.tcp-socket.enabled = false",
+    ],
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+)
+@ActiveProfiles("test")
 internal class EchoWSControllerTest {
 
     @LocalServerPort
@@ -35,7 +35,7 @@ internal class EchoWSControllerTest {
 
     private val msg = "some small msg"
 
-    //@Test
+    @Test
     fun test() {
         val queue1 = ArrayBlockingQueue<String>(1)
         val queue2 = ArrayBlockingQueue<String>(1)

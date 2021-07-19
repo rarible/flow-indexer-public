@@ -16,10 +16,10 @@ class ProtocolEventPublisher(
     suspend fun onItemUpdate(item: Item): KafkaSendResult {
         return gatewayKafkaProducer.send(
             KafkaMessage(
-                item.id,
+                item.id.toString(),
                 FlowNftItemUpdateEventDto(
                     eventId = "${item.id}.${UUID.randomUUID()}",
-                    itemId = item.id,
+                    itemId = item.id.toString(),
                     ItemToDtoConverter.convert(item)
 
                 )
@@ -30,13 +30,13 @@ class ProtocolEventPublisher(
     suspend fun onItemDelete(item: Item): KafkaSendResult {
         return gatewayKafkaProducer.send(
             KafkaMessage(
-                item.id,
+                item.id.toString(),
                 FlowNftItemDeleteEventDto(
                     eventId = "${item.id}.${UUID.randomUUID()}",
-                    itemId = item.id,
+                    itemId = item.id.toString(),
                     FlowNftDeletedItemDto(
-                        item.id,
-                        item.contract,
+                        item.id.toString(),
+                        item.contract.formatted,
                         item.tokenId.toInt()
                     )
                 )

@@ -44,17 +44,13 @@ class Config(
         itemRepository: ItemRepository,
         ownershipRepository: OwnershipRepository,
         orderRepository: OrderRepository,
-        itemReactiveRepository: ItemReactiveRepository,
-        orderReactiveRepository: OrderReactiveRepository,
         protocolEventPublisher: ProtocolEventPublisher,
         itemMetaRepository: ItemMetaRepository
     ): ConsumerEventHandler<EventMessage> {
         return EventHandler(
             itemRepository,
-            itemReactiveRepository,
             ownershipRepository,
             orderRepository,
-            orderReactiveRepository,
             protocolEventPublisher,
             itemMetaRepository
         )

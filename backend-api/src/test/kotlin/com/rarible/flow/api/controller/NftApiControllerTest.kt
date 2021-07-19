@@ -1,8 +1,8 @@
 package com.rarible.flow.api.controller
 
 import com.ninjasquad.springmockk.MockkBean
-import com.rarible.flow.core.domain.Address
 import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.form.MetaForm
@@ -13,6 +13,7 @@ import io.mockk.coEvery
 import io.mockk.slot
 import kotlinx.coroutines.flow.asFlow
 import org.junit.jupiter.api.Test
+import org.onflow.sdk.FlowAddress
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.test.context.ActiveProfiles
@@ -22,7 +23,6 @@ import org.springframework.test.web.reactive.server.expectBodyList
 import java.net.URI
 import java.time.Instant
 
-//@IntegrationTest
 @WebFluxTest(
     controllers = [NftApiController::class],
     properties = [
@@ -58,7 +58,7 @@ internal class NftApiControllerTest(
             .expectBodyList<FlowNftItemDto>().hasSize(1)
             .returnResult().responseBody!![0]
 
-        item.owner shouldBe items[0].owner.value
+        item.owner shouldBe items[0].owner.formatted
 
     }
 
@@ -66,37 +66,37 @@ internal class NftApiControllerTest(
     fun `should return items by owner`() {
         val items = listOf(
             createItem(),
-            createItem(tokenId = 43).copy(owner = Address("3"))
+            createItem(tokenId = 43).copy(owner = FlowAddress("0x03"))
         )
-        val addressSlot = slot<String>()
+        val addressSlot = slot<FlowAddress>()
         coEvery {
             itemRepository.findAllByAccount(capture(addressSlot))
         } answers {
-            items.filter { it.owner.value == addressSlot.captured }.asFlow()
+            items.filter { it.owner == addressSlot.captured }.asFlow()
         }
 
         var item = client
             .get()
-            .uri("/v0.1/items/byAccount?address={address}", mapOf("address" to "2"))
+            .uri("/v0.1/items/byAccount?address={address}", mapOf("address" to "0x02"))
             .exchange()
             .expectStatus().isOk
             .expectBodyList<FlowNftItemDto>().hasSize(1)
             .returnResult().responseBody!![0]
-        item.owner shouldBe items[0].owner.value
+        item.owner shouldBe items[0].owner.formatted
 
         item = client
             .get()
-            .uri("/v0.1/items/byAccount?address={address}", mapOf("address" to "3"))
+            .uri("/v0.1/items/byAccount?address={address}", mapOf("address" to "0x03"))
             .exchange()
             .expectStatus().isOk
             .expectBodyList<FlowNftItemDto>()
             .hasSize(1)
             .returnResult().responseBody!![0]
-        item.owner shouldBe items[1].owner.value
+        item.owner shouldBe items[1].owner.formatted
 
         client
             .get()
-            .uri("/v0.1/items/byAccount?address={address}", mapOf("address" to "4"))
+            .uri("/v0.1/items/byAccount?address={address}", mapOf("address" to "0x04"))
             .exchange()
             .expectStatus().isOk
             .expectBodyList<FlowNftItemDto>().hasSize(0)
@@ -106,36 +106,36 @@ internal class NftApiControllerTest(
     fun `should return items by creator`() {
         val items = listOf(
             createItem(),
-            createItem(tokenId = 43).copy(creator = Address("2"))
+            createItem(tokenId = 43).copy(creator = FlowAddress("0x02"))
         )
-        val addressSlot = slot<String>()
+        val addressSlot = slot<FlowAddress>()
         coEvery {
             itemRepository.findAllByCreator(capture(addressSlot))
         } answers {
-            items.filter { it.creator.value == addressSlot.captured }.asFlow()
+            items.filter { it.creator == addressSlot.captured }.asFlow()
         }
 
         var item = client
             .get()
-            .uri("/v0.1/items/byCreator?address={address}", mapOf("address" to "1"))
+            .uri("/v0.1/items/byCreator?address={address}", mapOf("address" to "0x01"))
             .exchange()
             .expectStatus().isOk
             .expectBodyList<FlowNftItemDto>().hasSize(1)
             .returnResult().responseBody!![0]
-        item.owner shouldBe items[0].owner.value
+        item.owner shouldBe items[0].owner.formatted
 
         client
             .get()
-            .uri("/v0.1/items/byCreator?address={address}", mapOf("address" to "2"))
+            .uri("/v0.1/items/byCreator?address={address}", mapOf("address" to "0x02"))
             .exchange()
             .expectStatus().isOk
             .expectBodyList<FlowNftItemDto>().hasSize(1)
             .returnResult().responseBody!![0]
-        item.owner shouldBe items[1].owner.value
+        item.owner shouldBe items[1].owner.formatted
 
         client
             .get()
-            .uri("/v0.1/items/byCreator?address={address}", mapOf("address" to "4"))
+            .uri("/v0.1/items/byCreator?address={address}", mapOf("address" to "0x04"))
             .exchange()
             .expectStatus().isOk
             .expectBodyList<FlowNftItemDto>().hasSize(0)
@@ -145,7 +145,7 @@ internal class NftApiControllerTest(
     @Test
     fun `should create meta and return link`() {
         coEvery {
-            itemRepository.findById(any())
+            itemRepository.findById(any<String>())
         } returns createItem()
 
         coEvery {
@@ -162,19 +162,19 @@ internal class NftApiControllerTest(
 
         client
             .post()
-            .uri("/v0.1/items/meta/1234")
+            .uri("/v0.1/items/meta/0x01:1")
             .bodyValue(MetaForm("title", "description", URI.create("https://keyassets.timeincuk.net/inspirewp/live/wp-content/uploads/sites/34/2021/03/pouring-wine-zachariah-hagy-8_tZ-eu32LA-unsplash-1-920x609.jpg")))
             .exchange()
             .expectStatus().isOk
-            .expectBody<String>().isEqualTo("/v0.1/items/meta/1234")
+            .expectBody<String>().isEqualTo("/v0.1/items/meta/0x01:1")
     }
 
     fun createItem(tokenId: Int = 42) = Item(
-        "1234",
-        tokenId.toLong(),
-        Address("1"),
+        FlowAddress("0x01"),
+        tokenId.toBigInteger(),
+        FlowAddress("0x01"),
         emptyList(),
-        Address("2"),
+        FlowAddress("0x02"),
         Instant.now()
     )
 

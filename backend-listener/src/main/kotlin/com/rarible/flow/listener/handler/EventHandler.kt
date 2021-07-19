@@ -9,19 +9,18 @@ import com.rarible.flow.log.Log
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.map
+import org.bson.types.ObjectId
 import org.onflow.sdk.FlowAddress
-import org.onflow.sdk.bytesToHex
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.net.URI
 import java.time.Instant
 
 
 class EventHandler(
     private val itemRepository: ItemRepository,
-    private val itemReactiveRepository: ItemReactiveRepository,
     private val ownershipRepository: OwnershipRepository,
     private val orderRepository: OrderRepository,
-    private val orderReactiveRepository: OrderReactiveRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
     private val itemMetaRepository: ItemMetaRepository
 ) : ConsumerEventHandler<EventMessage> {
@@ -38,70 +37,59 @@ class EventHandler(
     }
 
     private suspend fun handle(event: NftEvent) {
-        val address = event.eventId.contractAddress.formatted
+        val contract = event.eventId.contractAddress
         val tokenId = event.id
         when(event) {
-            is NftEvent.Destroy -> burn(address, tokenId)
-            is NftEvent.Deposit -> deposit(address, tokenId, event.to)
-            is NftEvent.Mint -> mint(address, tokenId, event.to, event.metadata)
-            is NftEvent.Withdraw -> withdraw(address, tokenId, event.from)
-            is NftEvent.Bid -> bid(address, tokenId, event.bidder, event.amount)
-            is NftEvent.List -> list(address, tokenId)
-            is NftEvent.Unlist -> unlist(address, tokenId)
-            is NftEvent.BidNft -> bidNft(address, tokenId, event.bidder, event.offeredNftAddress, event.offeredNftId)
-            is NftEvent.OrderOpened -> orderOpened(event, address)
-            is NftEvent.OrderClosed -> orderClosed(event, address)
-            is NftEvent.OrderWithdraw -> orderWithdraw(event, address)
-            is NftEvent.OrderAssigned -> orderAssigned(event, address)
+            is NftEvent.Destroy -> burn(contract, tokenId)
+            is NftEvent.Deposit -> deposit(contract, tokenId, event.to)
+            is NftEvent.Mint -> mint(contract, tokenId, event.to, event.metadata)
+            is NftEvent.Withdraw -> withdraw(contract, tokenId, event.from)
+            is NftEvent.Bid -> bid(contract, tokenId, event.bidder, event.amount)
+            is NftEvent.List -> list(contract, tokenId)
+            is NftEvent.Unlist -> unlist(contract, tokenId)
+            is NftEvent.BidNft -> bidNft(contract, tokenId, event.bidder, event.offeredNftAddress, event.offeredNftId)
+            is NftEvent.OrderOpened -> orderOpened(event, contract)
+            is NftEvent.OrderClosed -> orderClosed(event, contract)
+            is NftEvent.OrderWithdraw -> orderWithdraw(event, contract)
+            is NftEvent.OrderAssigned -> orderAssigned(event, contract)
         }
     }
 
-    private fun orderAssigned(event: NftEvent.OrderAssigned, address: String) {
-        orderReactiveRepository.findById(event.id).subscribe {
-            orderReactiveRepository.save(
-                it.copy(taker = Address(event.to.formatted))
-            )
+    private suspend fun orderAssigned(event: NftEvent.OrderAssigned, address: FlowAddress) {
+        val order = orderRepository.findByItemId(address, event.id)
+        if(order != null) {
+            orderRepository.save(order.copy(taker = event.to))
         }
     }
 
-    private suspend fun orderWithdraw(event: NftEvent.OrderWithdraw, address: String) {
+    private suspend fun orderWithdraw(event: NftEvent.OrderWithdraw, address: FlowAddress) {
     }
 
-    private fun orderClosed(event: NftEvent.OrderClosed, address: String) {
-        orderReactiveRepository.findById(event.id).subscribe {
-            orderReactiveRepository.save(
-                it.copy(
-                    fill = 1
-                )
-            )
+    private suspend fun orderClosed(event: NftEvent.OrderClosed, address: FlowAddress) {
+        val order = orderRepository.findByItemId(address, event.id)
+        if(order != null) {
+            orderRepository.save(order.copy(fill = 1))
         }
     }
 
-    private fun orderOpened(event: NftEvent.OrderOpened, address: String) {
-        orderReactiveRepository.save(
+    private suspend fun orderOpened(event: NftEvent.OrderOpened, address: FlowAddress) {
+        orderRepository.save(
             Order(
-                id = event.id,
-                itemId = Item.makeId(address, event.askId),
-                maker = Address(event.maker.formatted),
+                id = ObjectId.get(),
+                itemId = ItemId(address, event.askId),
+                maker = event.maker,
                 amount = event.bidAmount
             )
-        ).subscribe { order ->
-            itemReactiveRepository.findById(order.itemId).subscribe { item ->
-                itemReactiveRepository.save(
-                    item.copy(
-                        listed = true
-                    )
-                )
-            }
+        )
+
+        update(address, event.id) { item ->
+            item.copy(listed = true)
         }
-
-
-
     }
 
     private suspend fun bidNft(
-        address: String,
-        tokenId: Long,
+        address: FlowAddress,
+        tokenId: BigInteger,
         bidder: FlowAddress,
         offeredNftAddress: FlowAddress,
         offeredNftId: Int
@@ -121,19 +109,19 @@ class EventHandler(
         }*/
     }
 
-    private suspend fun unlist(address: String, tokenId: Long) {
+    private suspend fun unlist(address: FlowAddress, tokenId: BigInteger) {
         update(address, tokenId) {
             it.copy(listed = false)
         }
     }
 
-    private suspend fun list(address: String, tokenId: Long) {
+    private suspend fun list(address: FlowAddress, tokenId: BigInteger) {
         update(address, tokenId) {
             it.copy(listed = true)
         }
     }
 
-    private suspend fun bid(address: String, tokenId: Long, bidder: FlowAddress, amount: BigDecimal) {
+    private suspend fun bid(address: FlowAddress, tokenId: BigInteger, bidder: FlowAddress, amount: BigDecimal) {
         /*withItem(address, tokenId) {
             orderRepository.save(
                 Order(
@@ -146,20 +134,20 @@ class EventHandler(
         }*/
     }
 
-    private fun withdraw(address: String, tokenId: Long, from: FlowAddress) {
+    private fun withdraw(address: FlowAddress, tokenId: BigInteger, from: FlowAddress) {
 
     }
 
     //todo handle metadata
-    private suspend fun mint(contract: String, tokenId: Long, to: FlowAddress, metadata: Map<String, String>) {
-        val existingEvent = itemRepository.findById(Item.makeId(contract, tokenId))
+    private suspend fun mint(contract: FlowAddress, tokenId: BigInteger, to: FlowAddress, metadata: Map<String, String>) {
+        val existingEvent = itemRepository.findById(ItemId(contract, tokenId))
         if (existingEvent == null) {
             val item = Item(
                 contract,
                 tokenId,
-                Address(to.formatted),
+                to,
                 emptyList(),
-                Address(to.formatted),
+                to,
                 Instant.now(),
                 ""
             )
@@ -177,16 +165,16 @@ class EventHandler(
 
             ownershipRepository.save(
                 Ownership(
-                    Address(contract),
+                    contract,
                     tokenId,
-                    Address(to.formatted),
+                    to,
                     Instant.now()
                 )
             )
         }
     }
 
-    suspend fun update(address: String, tokenId: Long, fn: suspend (Item) -> Item) {
+    suspend fun update(address: FlowAddress, tokenId: BigInteger, fn: suspend (Item) -> Item) {
         withItem(address, tokenId) {
             itemRepository
                 .save(fn(it))
@@ -197,17 +185,17 @@ class EventHandler(
         }
     }
 
-    suspend fun <T> withItem(address: String, tokenId: Long, fn: suspend (Item) -> T) {
-        val existingEvent = itemRepository.findById(Item.makeId(address, tokenId))
+    suspend fun <T> withItem(address: FlowAddress, tokenId: BigInteger, fn: suspend (Item) -> T) {
+        val existingEvent = itemRepository.findById(ItemId(address, tokenId))
         if(existingEvent != null) {
             fn(existingEvent)
         }
     }
 
-    suspend fun burn(address: String, tokenId: Long) = coroutineScope{
-        val items = async { itemRepository.delete(Item.makeId(address, tokenId)) }
+    suspend fun burn(address: FlowAddress, tokenId: BigInteger) = coroutineScope{
+        val items = async { itemRepository.delete(ItemId(address, tokenId)) }
         val ownerships = async {
-            ownershipRepository.deleteAllByContractAndTokenId(Address(address), tokenId)
+            ownershipRepository.deleteAllByContractAndTokenId(address, tokenId)
         }
 
         items.await()?.let { deleted ->
@@ -219,19 +207,18 @@ class EventHandler(
     }
 
 
-    suspend fun deposit(address: String, id: Long, to: FlowAddress) = coroutineScope {
-        val owner = Address(to.bytes.bytesToHex())
+    suspend fun deposit(address: FlowAddress, id: BigInteger, to: FlowAddress) = coroutineScope {
         val items = async {
             itemRepository
-                .findById(Item.makeId(address, id))
+                .findById(ItemId(address, id))
                 ?.let {
-                    itemRepository.save(it.copy(owner = owner))
+                    itemRepository.save(it.copy(owner = to))
                 }
         }
         val ownership = async {
             ownershipRepository.findAllByContractAndTokenId(
-                Address(address), id
-            ).map { it.copy(owner = owner) }.let { ownershipRepository.saveAll(it) }
+                address, id
+            ).map { it.copy(owner = to) }.let { ownershipRepository.saveAll(it) }
         }
 
         items.await()

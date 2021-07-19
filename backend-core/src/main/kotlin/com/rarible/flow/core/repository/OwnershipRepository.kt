@@ -1,30 +1,30 @@
 package com.rarible.flow.core.repository
 
-import com.rarible.flow.core.domain.Address
 import com.rarible.flow.core.domain.Ownership
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
-
+import org.onflow.sdk.FlowAddress
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
 import org.springframework.data.mongodb.core.findAllAndRemove
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.isEqualTo
+import java.math.BigInteger
 
 
 class OwnershipRepository(
     private val mongo: ReactiveMongoTemplate
 ) {
-    fun deleteAllByContractAndTokenId(contract: Address, tokenId: Long): Flow<Ownership> {
+    fun deleteAllByContractAndTokenId(contract: FlowAddress, tokenId: BigInteger): Flow<Ownership> {
         return mongo.findAllAndRemove<Ownership>(
             byContractAndTokenId(contract, tokenId)
         ).asFlow()
     }
 
-    fun findAllByContractAndTokenId(contract: Address, tokenId: Long): Flow<Ownership> {
+    fun findAllByContractAndTokenId(contract: FlowAddress, tokenId: BigInteger): Flow<Ownership> {
         return mongo.find<Ownership>(
             byContractAndTokenId(contract, tokenId)
         ).asFlow()
@@ -41,8 +41,8 @@ class OwnershipRepository(
     }
 
     private fun byContractAndTokenId(
-        contract: Address,
-        tokenId: Long
+        contract: FlowAddress,
+        tokenId: BigInteger
     ) = Query(
         Criteria().andOperator(
             Ownership::contract isEqualTo contract,

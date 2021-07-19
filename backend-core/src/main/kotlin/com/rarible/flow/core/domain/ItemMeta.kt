@@ -1,5 +1,6 @@
 package com.rarible.flow.core.domain
 
+import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.net.URI
 
@@ -12,7 +13,8 @@ import java.net.URI
  */
 @Document
 data class ItemMeta(
-    val itemId: String,
+    @Id
+    val itemId: ItemId,
     val title: String,
     val description: String,
     val uri: URI

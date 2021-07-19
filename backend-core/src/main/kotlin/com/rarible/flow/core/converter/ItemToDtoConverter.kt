@@ -8,11 +8,11 @@ object ItemToDtoConverter : Converter<Item, FlowNftItemDto> {
 
     override fun convert(item: Item): FlowNftItemDto {
         return FlowNftItemDto(
-            item.id,
-            item.contract,
+            item.id.toString(),
+            item.contract.formatted,
             item.tokenId.toInt(),
-            item.creator.value,
-            item.owner.value,
+            item.creator.formatted,
+            item.owner.formatted,
             item.meta,
             item.date,
             false

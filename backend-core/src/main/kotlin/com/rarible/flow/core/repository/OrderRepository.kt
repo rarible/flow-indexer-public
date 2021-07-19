@@ -1,14 +1,16 @@
 package com.rarible.flow.core.repository
 
-import com.rarible.flow.core.domain.Address
+import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import org.onflow.sdk.FlowAddress
 import org.springframework.data.mongodb.core.*
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.isEqualTo
+import java.math.BigInteger
 
 
 class OrderRepository(
@@ -22,18 +24,18 @@ class OrderRepository(
         return mongo.findById<Order>(id).awaitFirstOrNull()
     }
 
-    fun findByItemId(id: String): Flow<Order> {
+    suspend fun findByItemId(contract: FlowAddress, tokenId: BigInteger): Order? {
         return mongo.find<Order>(
             Query.query(
-                Order::itemId isEqualTo id
+                Order::itemId isEqualTo ItemId(contract, tokenId)
             )
-        ).asFlow()
+        ).awaitFirstOrNull()
     }
 
-    fun findAllByAccount(account: String): Flow<Order> {
+    fun findAllByAccount(account: FlowAddress): Flow<Order> {
         return mongo.find<Order>(
             Query.query(
-                Order::taker isEqualTo Address(account)
+                Order::taker isEqualTo account
             )
         ).asFlow()
     }
