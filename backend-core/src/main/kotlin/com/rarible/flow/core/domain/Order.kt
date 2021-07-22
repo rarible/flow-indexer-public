@@ -1,6 +1,7 @@
 package com.rarible.flow.core.domain
 
 import org.bson.types.ObjectId
+import org.onflow.sdk.FlowAddress
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.MongoId
 import java.math.BigDecimal
@@ -19,10 +20,10 @@ import java.math.BigDecimal
 @Document
 data class Order(
     @MongoId
-    val id: ULong,
-    val itemId: String,
-    val maker: Address,
-    val taker: Address? = null,
+    val id: ObjectId,
+    val itemId: ItemId,
+    val maker: FlowAddress,
+    val taker: FlowAddress? = null,
     val amount: BigDecimal,
     val offeredNftId: String? = null,
     val fill: Int = 0,

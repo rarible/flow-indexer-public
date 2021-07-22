@@ -17,9 +17,6 @@ import java.lang.reflect.Type
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.TimeUnit
 
-/**
- * Created by TimochkinEA at 08.07.2021
- */
 @SpringBootTest(
     properties = [
         "application.environment = dev",

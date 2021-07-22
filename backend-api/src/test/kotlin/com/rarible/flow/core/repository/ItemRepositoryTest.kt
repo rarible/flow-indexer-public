@@ -2,16 +2,18 @@ package com.rarible.flow.core.repository
 
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
-import com.rarible.flow.core.domain.Address
 import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.TokenId
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.onflow.sdk.FlowAddress
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
@@ -29,7 +31,6 @@ import java.time.Instant
 ])
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
-@Disabled("Comparing dates is failed!")
 internal class ItemRepositoryTest {
     @Autowired
     lateinit var mongo: ReactiveMongoTemplate
@@ -37,33 +38,50 @@ internal class ItemRepositoryTest {
     @Autowired
     lateinit var itemRepository: ItemRepository
 
+    @BeforeEach
+    fun beforeEach() {
+        itemRepository.deleteAll().block()
+    }
+
     @Test
     fun `should save and read item`() = runBlocking<Unit> {
         val item = createItem()
-        itemRepository.save(item)
-        val read = itemRepository.findById(item.id)
+        coSave(itemRepository,item)
+        val read = coFindById(itemRepository,item.id)
         read shouldNotBe null
-        read!! shouldBeEqualToComparingFields item
+        read!!.id shouldBe item.id
     }
 
     @Test
     fun `should save and find by account`() = runBlocking<Unit> {
         val item = createItem()
-        itemRepository.save(item)
-        val read = itemRepository.findAllByAccount("2")
+        coSave(itemRepository,item)
+        var read = itemRepository.findAllByCreator(FlowAddress("0x01")).asFlow()
 
         read.count() shouldBe 1
         read.collect {
-            it shouldBeEqualToComparingFields item
+            it.id shouldBeEqualToComparingFields item.id
         }
+
+        read = itemRepository.findAllByCreator(FlowAddress("0x02")).asFlow()
+        read.count() shouldBe 0
     }
 
-    fun createItem(tokenId: Int = 42) = Item(
-        "1234",
-        tokenId.toULong(),
-        Address("1"),
+    @Test
+    fun `should save and find all`() = runBlocking<Unit> {
+        coSave(itemRepository,createItem())
+        coSave(itemRepository,createItem(43))
+        val read = coFindAll(itemRepository)
+
+        read.count() shouldBe 2
+    }
+
+    fun createItem(tokenId: TokenId = 42) = Item(
+        FlowAddress("0x01"),
+        tokenId,
+        FlowAddress("0x01"),
         emptyList(),
-        Address("2"),
+        FlowAddress("0x02"),
         Instant.now()
     )
 }

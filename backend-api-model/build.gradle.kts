@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    implementation("com.nftco:flow-jvm-sdk:0.2.4")
+    implementation(rootProject.libs.flow.sdk)
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {

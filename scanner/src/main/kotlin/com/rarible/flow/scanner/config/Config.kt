@@ -24,7 +24,6 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 class Config(
     private val scannerProperties: ScannerProperties,
 ) {
-    private val clientId = "${scannerProperties.environment}.flow.nft-scanner"
 
     @Value("\${grpc.client.flow.address}")
     private lateinit var flowNetAddress: String
@@ -32,7 +31,7 @@ class Config(
     @Bean
     fun kafkaProducer(): RaribleKafkaProducer<EventMessage> {
         return RaribleKafkaProducer(
-            clientId = clientId,
+            clientId = "${scannerProperties.environment}.flow.nft-scanner",
             valueSerializerClass = JsonSerializer::class.java,
             defaultTopic = EventMessage.getTopic(scannerProperties.environment),
             bootstrapServers = scannerProperties.kafkaReplicaSet

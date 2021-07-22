@@ -1,10 +1,14 @@
 package com.rarible.flow.core.config
 
-import com.rarible.flow.core.repository.*
+import com.rarible.flow.core.converter.FlowConversions
+import com.rarible.flow.core.converter.ItemIdConversions
+import com.rarible.flow.core.converter.OwnershipIdConversions
+import com.rarible.flow.core.repository.OrderRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.mongodb.config.EnableMongoAuditing
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.convert.MongoCustomConversions
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories
 
 @Configuration
@@ -12,18 +16,15 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
 @EnableReactiveMongoRepositories(basePackages = [
     "com.rarible.flow.core.repository"
 ])
-data class CoreConfig(
-    val mongoTemplate: ReactiveMongoTemplate
-) {
-    @Bean
-    fun itemRepository() = ItemRepository(mongoTemplate)
+class CoreConfig {
 
     @Bean
-    fun ownershipRepo() = OwnershipRepository(mongoTemplate)
+    fun orderRepository(mongoTemplate: ReactiveMongoTemplate) = OrderRepository(mongoTemplate)
 
     @Bean
-    fun orderRepository() = OrderRepository(mongoTemplate)
-
-    @Bean
-    fun itemMetaRepository() = ItemMetaRepository(mongoTemplate)
+    fun mongoCustomConversions(): MongoCustomConversions {
+        return MongoCustomConversions(
+            FlowConversions + ItemIdConversions + OwnershipIdConversions
+        )
+    }
 }

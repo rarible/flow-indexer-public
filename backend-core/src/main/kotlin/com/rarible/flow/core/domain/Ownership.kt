@@ -1,18 +1,16 @@
 package com.rarible.flow.core.domain
 
+import org.onflow.sdk.FlowAddress
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
-import org.springframework.data.annotation.Transient
-import org.springframework.data.mongodb.core.mapping.Unwrapped
-import java.lang.IllegalArgumentException
+import org.springframework.data.mongodb.core.mapping.MongoId
 import java.time.Instant
 
 
-
 data class OwnershipId(
-    @Unwrapped(onEmpty = Unwrapped.OnEmpty.USE_EMPTY) val contract: Address,
-    val tokenId: ULong,
-    @Unwrapped(onEmpty = Unwrapped.OnEmpty.USE_EMPTY) val owner: Address
+    val contract: FlowAddress,
+    val tokenId: TokenId,
+    val owner: FlowAddress
 ) {
 
     override fun toString(): String {
@@ -20,33 +18,30 @@ data class OwnershipId(
     }
 
     companion object {
-        fun of(str: String): OwnershipId {
+        fun parse(str: String): OwnershipId {
             val parts = str.split(':')
             if(parts.size == 3) {
                 return OwnershipId(
-                    Address(parts[0]),
-                    parts[1].toULong(),
-                    Address(parts[2])
+                    FlowAddress(parts[0]),
+                    parts[1].toLong(),
+                    FlowAddress(parts[2])
                 )
             } else {
-                throw IllegalArgumentException("Failed to parse OwnershipId from $str")
+                throw IllegalArgumentException("Failed to parse OwnershipId from [$str]")
             }
         }
     }
 }
 
 data class Ownership(
-    val contract: Address,
-    val tokenId: ULong,
-    val owner: Address,
+    val contract: FlowAddress,
+    val tokenId: TokenId,
+    val owner: FlowAddress,
     val date: Instant
 ) {
-    @Transient
-    private val _id: OwnershipId = OwnershipId(contract, tokenId, owner)
-
     @get:Id
     @get:AccessType(AccessType.Type.PROPERTY)
     var id: OwnershipId
-        get() = _id
+        get() = OwnershipId(contract, tokenId, owner)
         set(_) {}
 }
