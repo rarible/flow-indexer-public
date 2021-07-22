@@ -1,6 +1,5 @@
 package com.rarible.flow.core.domain
 
-import org.bson.types.ObjectId
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.MongoId
 import java.math.BigDecimal
@@ -15,6 +14,8 @@ import java.math.BigDecimal
  * @property offeredNftId   - nft id for nft-nft exchange
  * @property fill           - TODO add  doc
  * @property canceled       - order canceled
+ * @property buyerFee       - fee for buyer
+ * @property sellerFee      - fee for seller
  */
 @Document
 data class Order(
@@ -26,5 +27,7 @@ data class Order(
     val amount: BigDecimal,
     val offeredNftId: String? = null,
     val fill: Int = 0,
-    val canceled: Boolean = false
+    val canceled: Boolean = false,
+    val buyerFee: BigDecimal,
+    val sellerFee: BigDecimal
 )

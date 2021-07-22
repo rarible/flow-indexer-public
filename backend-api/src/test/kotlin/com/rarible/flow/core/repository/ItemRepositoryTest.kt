@@ -60,7 +60,7 @@ internal class ItemRepositoryTest {
 
     fun createItem(tokenId: Int = 42) = Item(
         "1234",
-        tokenId,
+        tokenId.toULong(),
         Address("1"),
         emptyList(),
         Address("2"),

@@ -83,7 +83,9 @@ class EventHandler(
                 id = event.id,
                 itemId = Item.makeId(address, event.askId),
                 maker = Address(event.maker.formatted),
-                amount = event.bidAmount
+                amount = event.bidAmount,
+                buyerFee = event.buyerFee,
+                sellerFee = event.sellerFee
             )
         ).subscribe { order ->
             itemReactiveRepository.findById(order.itemId).subscribe { item ->
