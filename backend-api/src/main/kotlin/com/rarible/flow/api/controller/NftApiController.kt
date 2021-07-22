@@ -5,14 +5,16 @@ import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
-import com.rarible.flow.core.repository.ItemMetaRepository
-import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.*
 import com.rarible.protocol.dto.FlowItemMetaDto
 import com.rarible.protocol.dto.FlowItemMetaFormDto
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftItemControllerApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.onflow.sdk.FlowAddress
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -27,11 +29,12 @@ class NftApiController(
 ) : FlowNftItemControllerApi {
 
     override fun getAllItems(): ResponseEntity<Flow<FlowNftItemDto>> {
-        return ok(itemRepository.findAll())
+        val items: Flow<Item> = coFindAll(itemRepository)
+        return ok(items)
     }
 
     override suspend fun getItemMeta(itemId: String): ResponseEntity<FlowItemMetaDto> {
-        val itemMeta = itemMetaRepository.findByItemId(itemId)
+        val itemMeta = coFindById(itemMetaRepository, ItemId.parse(itemId))
         return if (itemMeta == null) {
             ResponseEntity.status(404).build()
         } else {
@@ -40,16 +43,18 @@ class NftApiController(
     }
 
     override fun getItemsByAccount(address: String): ResponseEntity<Flow<FlowNftItemDto>> {
-        val items = itemRepository.findAllByAccount(FlowAddress(address))
+        val items = itemRepository.findAllByOwner(FlowAddress(address)).asFlow()
         return ok(items)
     }
 
     override fun getItemsByCreator(address: String): ResponseEntity<Flow<FlowNftItemDto>> {
-        return ok(itemRepository.findAllByCreator(FlowAddress(address)))
+        val items = itemRepository.findAllByCreator(FlowAddress(address)).asFlow()
+        return ok(items)
     }
 
     override fun getListedItems(): ResponseEntity<Flow<FlowNftItemDto>> {
-        return ok(itemRepository.findAllListed())
+        val items = itemRepository.findAllByListedIsTrue().asFlow()
+        return ok(items)
     }
 
     private fun ok(items: Flow<Item>) =
@@ -59,26 +64,27 @@ class NftApiController(
         itemId: String,
         flowItemMetaFormDto: FlowItemMetaFormDto?
     ): ResponseEntity<String> {
-        val existing = itemMetaRepository.findByItemId(itemId)
-        if (existing == null) {
-            itemMetaRepository.save(
-                ItemMeta(ItemId.parse(itemId), flowItemMetaFormDto!!.title!!, flowItemMetaFormDto.description!!, URI.create(flowItemMetaFormDto.uri))
+        val id = ItemId.parse(itemId)
+        val existing: ItemMeta? = itemMetaRepository.findById(id).awaitSingleOrNull()
+        itemMetaRepository.save(
+            existing?.copy(
+                title = flowItemMetaFormDto!!.title!!,
+                description = flowItemMetaFormDto.description!!,
+                uri = URI.create(flowItemMetaFormDto.uri)
             )
-        } else {
-            itemMetaRepository.save(
-                existing.copy(
-                    title = flowItemMetaFormDto!!.title!!,
-                    description = flowItemMetaFormDto.description!!,
-                    uri = URI.create(flowItemMetaFormDto.uri)
+                ?: ItemMeta(
+                    id,
+                    flowItemMetaFormDto!!.title!!,
+                    flowItemMetaFormDto.description!!,
+                    URI.create(flowItemMetaFormDto.uri)
                 )
-            )
-        }
+        ).awaitSingle()
 
         val metaLink = "/v0.1/items/meta/$itemId"
-        itemRepository
-            .findById(itemId)
+        coFindById(itemRepository, id)
             ?.let {
-                itemRepository.save(
+                coSave(
+                    itemRepository,
                     it.copy(meta = metaLink)
                 )
             }

@@ -13,7 +13,7 @@ class FlowEventDeserializer : JsonDeserializer<EventMessage>() {
 
     override fun deserialize(parser: JsonParser, ctx: DeserializationContext): EventMessage {
         val obj: JsonNode = parser.codec.readTree(parser)
-        FlowEvent
+
         val e = obj["value"]
         val id = e["id"].asText()
         val fields = parseFields(e.get("fields"))

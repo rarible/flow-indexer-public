@@ -8,11 +8,11 @@ import com.rarible.flow.events.NftEvent
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactor.awaitSingle
 import org.bson.types.ObjectId
 import org.onflow.sdk.FlowAddress
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.net.URI
 import java.time.Instant
 
@@ -89,7 +89,7 @@ class EventHandler(
 
     private suspend fun bidNft(
         address: FlowAddress,
-        tokenId: BigInteger,
+        tokenId: TokenId,
         bidder: FlowAddress,
         offeredNftAddress: FlowAddress,
         offeredNftId: Int
@@ -109,19 +109,19 @@ class EventHandler(
         }*/
     }
 
-    private suspend fun unlist(address: FlowAddress, tokenId: BigInteger) {
+    private suspend fun unlist(address: FlowAddress, tokenId: TokenId) {
         update(address, tokenId) {
             it.copy(listed = false)
         }
     }
 
-    private suspend fun list(address: FlowAddress, tokenId: BigInteger) {
+    private suspend fun list(address: FlowAddress, tokenId: TokenId) {
         update(address, tokenId) {
             it.copy(listed = true)
         }
     }
 
-    private suspend fun bid(address: FlowAddress, tokenId: BigInteger, bidder: FlowAddress, amount: BigDecimal) {
+    private suspend fun bid(address: FlowAddress, tokenId: TokenId, bidder: FlowAddress, amount: BigDecimal) {
         /*withItem(address, tokenId) {
             orderRepository.save(
                 Order(
@@ -134,13 +134,13 @@ class EventHandler(
         }*/
     }
 
-    private fun withdraw(address: FlowAddress, tokenId: BigInteger, from: FlowAddress) {
+    private fun withdraw(address: FlowAddress, tokenId: TokenId, from: FlowAddress) {
 
     }
 
     //todo handle metadata
-    private suspend fun mint(contract: FlowAddress, tokenId: BigInteger, to: FlowAddress, metadata: Map<String, String>) {
-        val existingEvent = itemRepository.findById(ItemId(contract, tokenId))
+    private suspend fun mint(contract: FlowAddress, tokenId: TokenId, to: FlowAddress, metadata: Map<String, String>) {
+        val existingEvent = coFindById(itemRepository, ItemId(contract, tokenId))
         if (existingEvent == null) {
             val item = Item(
                 contract,
@@ -151,11 +151,12 @@ class EventHandler(
                 Instant.now(),
                 ""
             )
-            itemMetaRepository.save(
+            coSave(
+                itemMetaRepository,
                 ItemMeta(item.id, metadata["title"] ?: "", metadata["description"] ?: "", URI.create(metadata["uri"] ?: ""))
             )
 
-            itemRepository.save(
+            coSave(itemRepository,
                 item.copy(meta = "/v0.1/items/meta/${item.id}")
             )?.let {
                 val result = protocolEventPublisher.onItemUpdate(it)
@@ -163,7 +164,8 @@ class EventHandler(
             }
 
 
-            ownershipRepository.save(
+            coSave(
+                ownershipRepository,
                 Ownership(
                     contract,
                     tokenId,
@@ -174,10 +176,9 @@ class EventHandler(
         }
     }
 
-    suspend fun update(address: FlowAddress, tokenId: BigInteger, fn: suspend (Item) -> Item) {
+    suspend fun update(address: FlowAddress, tokenId: TokenId, fn: suspend (Item) -> Item) {
         withItem(address, tokenId) {
-            itemRepository
-                .save(fn(it))
+                coSave(itemRepository, fn(it))
                 ?.let { saved ->
                     val result = protocolEventPublisher.onItemUpdate(saved)
                     log.info("item update message is sent: $result")
@@ -185,21 +186,24 @@ class EventHandler(
         }
     }
 
-    suspend fun <T> withItem(address: FlowAddress, tokenId: BigInteger, fn: suspend (Item) -> T) {
-        val existingEvent = itemRepository.findById(ItemId(address, tokenId))
+    suspend fun <T> withItem(address: FlowAddress, tokenId: TokenId, fn: suspend (Item) -> T) {
+        val existingEvent = coFindById(itemRepository, ItemId(address, tokenId))
         if(existingEvent != null) {
             fn(existingEvent)
         }
     }
 
-    suspend fun burn(address: FlowAddress, tokenId: BigInteger) = coroutineScope{
-        val items = async { itemRepository.delete(ItemId(address, tokenId)) }
+    suspend fun burn(address: FlowAddress, tokenId: TokenId) = coroutineScope{
+        val itemId = ItemId(address, tokenId)
+        val items = async {
+            itemRepository.deleteById(itemId).awaitSingle()
+        }
         val ownerships = async {
-            ownershipRepository.deleteAllByContractAndTokenId(address, tokenId)
+            ownershipRepository.deleteAllByContractAndTokenId(address, tokenId).awaitSingle()
         }
 
         items.await()?.let { deleted ->
-            val result = protocolEventPublisher.onItemDelete(deleted)
+            val result = protocolEventPublisher.onItemDelete(itemId)
             log.info("item delete message is sent: $result")
 
         }
@@ -207,18 +211,17 @@ class EventHandler(
     }
 
 
-    suspend fun deposit(address: FlowAddress, id: BigInteger, to: FlowAddress) = coroutineScope {
+    suspend fun deposit(address: FlowAddress, id: TokenId, to: FlowAddress) = coroutineScope {
         val items = async {
-            itemRepository
-                .findById(ItemId(address, id))
+                coFindById(itemRepository, ItemId(address, id))
                 ?.let {
-                    itemRepository.save(it.copy(owner = to))
+                    coSave(itemRepository, it.copy(owner = to))
                 }
         }
         val ownership = async {
             ownershipRepository.findAllByContractAndTokenId(
                 address, id
-            ).map { it.copy(owner = to) }.let { ownershipRepository.saveAll(it) }
+            ).map { it.copy(owner = to) }.let { ownershipRepository.saveAll(it).asFlow() }
         }
 
         items.await()

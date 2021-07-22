@@ -3,23 +3,28 @@ package com.rarible.flow.api.controller
 import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.repository.ItemMetaRepository
-import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.domain.ItemMeta
+import com.rarible.flow.core.domain.TokenId
+import com.rarible.flow.core.repository.*
 import com.rarible.flow.form.MetaForm
 import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.FlowNftItemDto
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.slot
 import kotlinx.coroutines.flow.asFlow
 import org.junit.jupiter.api.Test
 import org.onflow.sdk.FlowAddress
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.test.web.reactive.server.expectBodyList
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.net.URI
 import java.time.Instant
 
@@ -33,6 +38,7 @@ import java.time.Instant
         "logging.logstash.tcp-socket.enabled = false"
     ]
 )
+@AutoConfigureWebTestClient(timeout = "60000")
 @ActiveProfiles("test")
 internal class NftApiControllerTest(
     @Autowired val client: WebTestClient
@@ -46,9 +52,9 @@ internal class NftApiControllerTest(
     @Test
     fun `should return all items`() {
         val items = listOf(createItem())
-        coEvery {
+        every {
             itemRepository.findAll()
-        } returns items.asFlow()
+        } returns Flux.fromIterable(items)
 
         var item = client
             .get()
@@ -69,10 +75,10 @@ internal class NftApiControllerTest(
             createItem(tokenId = 43).copy(owner = FlowAddress("0x03"))
         )
         val addressSlot = slot<FlowAddress>()
-        coEvery {
-            itemRepository.findAllByAccount(capture(addressSlot))
+        every {
+            itemRepository.findAllByOwner(capture(addressSlot))
         } answers {
-            items.filter { it.owner == addressSlot.captured }.asFlow()
+            Flux.fromIterable(items.filter { it.owner == addressSlot.captured } )
         }
 
         var item = client
@@ -109,10 +115,10 @@ internal class NftApiControllerTest(
             createItem(tokenId = 43).copy(creator = FlowAddress("0x02"))
         )
         val addressSlot = slot<FlowAddress>()
-        coEvery {
+        every {
             itemRepository.findAllByCreator(capture(addressSlot))
         } answers {
-            items.filter { it.creator == addressSlot.captured }.asFlow()
+            Flux.fromIterable(items.filter { it.creator == addressSlot.captured })
         }
 
         var item = client
@@ -144,21 +150,27 @@ internal class NftApiControllerTest(
 
     @Test
     fun `should create meta and return link`() {
-        coEvery {
-            itemRepository.findById(any<String>())
-        } returns createItem()
+        every {
+            itemRepository.findById(any<ItemId>())
+        } returns Mono.just(createItem())
 
-        coEvery {
-            itemRepository.save(any())
-        } returnsArgument 0
+        val itemCapture = slot<Item>()
+        every {
+            itemRepository.save(capture(itemCapture))
+        } answers {
+            Mono.just(itemCapture.captured)
+        }
 
-        coEvery {
-            itemMetaRepository.findByItemId(any())
-        } returns null
+        every {
+            itemMetaRepository.findById(any<ItemId>())
+        } returns Mono.empty()
 
-        coEvery {
-            itemMetaRepository.save(any())
-        } returnsArgument 0
+        val metaCapture = slot<ItemMeta>()
+        every {
+            itemMetaRepository.save(capture(metaCapture))
+        } answers {
+            Mono.just(metaCapture.captured)
+        }
 
         client
             .post()
@@ -169,9 +181,9 @@ internal class NftApiControllerTest(
             .expectBody<String>().isEqualTo("/v0.1/items/meta/0x01:1")
     }
 
-    fun createItem(tokenId: Int = 42) = Item(
+    fun createItem(tokenId: TokenId = 42) = Item(
         FlowAddress("0x01"),
-        tokenId.toBigInteger(),
+        tokenId,
         FlowAddress("0x01"),
         emptyList(),
         FlowAddress("0x02"),

@@ -2,6 +2,7 @@ package com.rarible.flow.core.repository
 
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.TokenId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirst
@@ -24,7 +25,7 @@ class OrderRepository(
         return mongo.findById<Order>(id).awaitFirstOrNull()
     }
 
-    suspend fun findByItemId(contract: FlowAddress, tokenId: BigInteger): Order? {
+    suspend fun findByItemId(contract: FlowAddress, tokenId: TokenId): Order? {
         return mongo.find<Order>(
             Query.query(
                 Order::itemId isEqualTo ItemId(contract, tokenId)

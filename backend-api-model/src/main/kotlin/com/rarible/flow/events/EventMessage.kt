@@ -7,6 +7,8 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.LocalDateTime
 
+typealias TokenId = Long
+
 data class EventMessage(
     val id: String,
     val fields: Map<String, Any?>,
@@ -25,14 +27,14 @@ data class EventMessage(
             val eventId = EventId.of(id)
             val eventName = eventId.eventName
 
-            val tokenId = nftId.toBigInteger()
+            val tokenId = nftId.toLong()
             return when {
                 eventName.contains("regularsaleorder.orderopened", true) ->
                     NftEvent.OrderOpened(
                         eventId = eventId,
                         id = tokenId,
                         askType = fields["askType"] as String,
-                        askId = (fields["askId"] as String).toBigInteger(),
+                        askId = (fields["askId"] as String).toLong(),
                         bidType = fields["bidType"] as String,
                         bidAmount = (fields["bidAmount"] as String).toBigDecimal(),
                         buyerFee = (fields["buyerFee"] as String).toBigDecimal(),
@@ -109,31 +111,31 @@ data class EventMessage(
 )
 sealed class NftEvent(
     open val eventId: EventId,
-    open val id: BigInteger
+    open val id: TokenId
 ) {
 
     data class Mint(
-        override val eventId: EventId, override val id: BigInteger, val to: FlowAddress, val metadata: Map<String, String>
+        override val eventId: EventId, override val id: TokenId, val to: FlowAddress, val metadata: Map<String, String>
     ) : NftEvent(eventId, id)
 
     data class Withdraw(
-        override val eventId: EventId, override val id: BigInteger, val from: FlowAddress
+        override val eventId: EventId, override val id: TokenId, val from: FlowAddress
     ): NftEvent(eventId, id)
 
     data class Deposit(
-        override val eventId: EventId, override val id: BigInteger, val to: FlowAddress
+        override val eventId: EventId, override val id: TokenId, val to: FlowAddress
     ): NftEvent(eventId, id)
 
     data class Destroy(
-        override val eventId: EventId, override val id: BigInteger
+        override val eventId: EventId, override val id: TokenId
     ) : NftEvent(eventId, id)
 
     data class List(
-        override val eventId: EventId, override val id: BigInteger
+        override val eventId: EventId, override val id: TokenId
     ): NftEvent(eventId, id)
 
     data class Unlist(
-        override val eventId: EventId, override val id: BigInteger
+        override val eventId: EventId, override val id: TokenId
     ): NftEvent(eventId, id)
 
     /**
@@ -141,14 +143,14 @@ sealed class NftEvent(
      */
     data class Bid(
         override val eventId: EventId,
-        override val id: BigInteger,
+        override val id: TokenId,
         val bidder: FlowAddress,
         val amount: BigDecimal
     ): NftEvent(eventId, id)
 
     data class BidNft(
         override val eventId: EventId,
-        override val id: BigInteger,
+        override val id: TokenId,
         val bidder: FlowAddress,
         val offeredNftAddress: FlowAddress,
         val offeredNftId: Int
@@ -156,9 +158,9 @@ sealed class NftEvent(
 
     data class OrderOpened(
         override val eventId: EventId,
-        override val id: BigInteger,
+        override val id: TokenId,
         val askType: String,
-        val askId: BigInteger,
+        val askId: TokenId,
         val bidType: String,
         val bidAmount: BigDecimal,
         val buyerFee: BigDecimal,
@@ -168,17 +170,17 @@ sealed class NftEvent(
 
     data class OrderClosed(
         override val eventId: EventId,
-        override val id: BigInteger,
+        override val id: TokenId,
     ): NftEvent(eventId, id)
 
     data class OrderWithdraw(
         override val eventId: EventId,
-        override val id: BigInteger,
+        override val id: TokenId,
     ): NftEvent(eventId, id)
 
     data class OrderAssigned(
         override val eventId: EventId,
-        override val id: BigInteger,
+        override val id: TokenId,
         val to: FlowAddress
     ): NftEvent(eventId, id)
 }

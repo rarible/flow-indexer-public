@@ -5,12 +5,13 @@ import com.rarible.core.kafka.KafkaSendResult
 import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemId
 import com.rarible.protocol.dto.*
 import java.util.*
 
 
 class ProtocolEventPublisher(
-    val gatewayKafkaProducer: RaribleKafkaProducer<FlowNftItemEventDto>
+    private val gatewayKafkaProducer: RaribleKafkaProducer<FlowNftItemEventDto>
 ) {
 
     suspend fun onItemUpdate(item: Item): KafkaSendResult {
@@ -27,17 +28,17 @@ class ProtocolEventPublisher(
         )
     }
 
-    suspend fun onItemDelete(item: Item): KafkaSendResult {
+    suspend fun onItemDelete(itemId: ItemId): KafkaSendResult {
         return gatewayKafkaProducer.send(
             KafkaMessage(
-                item.id.toString(),
+                itemId.toString(),
                 FlowNftItemDeleteEventDto(
-                    eventId = "${item.id}.${UUID.randomUUID()}",
-                    itemId = item.id.toString(),
+                    eventId = "${itemId}.${UUID.randomUUID()}",
+                    itemId = itemId.toString(),
                     FlowNftDeletedItemDto(
-                        item.id.toString(),
-                        item.contract.formatted,
-                        item.tokenId.toInt()
+                        itemId.toString(),
+                        itemId.contract.formatted,
+                        itemId.tokenId.toInt() //todo long
                     )
                 )
             )

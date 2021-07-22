@@ -3,17 +3,13 @@ package com.rarible.flow.core.domain
 import org.onflow.sdk.FlowAddress
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
-import org.springframework.data.annotation.Transient
-import org.springframework.data.mongodb.core.mapping.Unwrapped
-import java.lang.IllegalArgumentException
-import java.math.BigInteger
+import org.springframework.data.mongodb.core.mapping.MongoId
 import java.time.Instant
-
 
 
 data class OwnershipId(
     val contract: FlowAddress,
-    val tokenId: BigInteger,
+    val tokenId: TokenId,
     val owner: FlowAddress
 ) {
 
@@ -27,7 +23,7 @@ data class OwnershipId(
             if(parts.size == 3) {
                 return OwnershipId(
                     FlowAddress(parts[0]),
-                    BigInteger(parts[1]),
+                    parts[1].toLong(),
                     FlowAddress(parts[2])
                 )
             } else {
@@ -39,7 +35,7 @@ data class OwnershipId(
 
 data class Ownership(
     val contract: FlowAddress,
-    val tokenId: BigInteger,
+    val tokenId: TokenId,
     val owner: FlowAddress,
     val date: Instant
 ) {

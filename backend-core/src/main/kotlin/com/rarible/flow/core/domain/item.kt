@@ -4,6 +4,7 @@ import org.onflow.sdk.FlowAddress
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
+import java.io.Serializable
 import java.math.BigInteger
 import java.time.Instant
 
@@ -12,7 +13,7 @@ data class Part(
     val fee: Int
 )
 
-data class ItemId(val contract: FlowAddress, val tokenId: BigInteger) {
+data class ItemId(val contract: FlowAddress, val tokenId: TokenId): Serializable {
     override fun toString(): String {
         return "${contract.formatted}:$tokenId"
     }
@@ -22,17 +23,19 @@ data class ItemId(val contract: FlowAddress, val tokenId: BigInteger) {
             val parts = source.split(':')
             if(parts.size == 2) {
                 val contract = FlowAddress(parts[0])
-                val tokenId = BigInteger(parts[1])
+                val tokenId = parts[1].toLong()
                 return ItemId(contract, tokenId)
             } else throw IllegalArgumentException("Failed to parse ItemId from [$source]")
         }
     }
 }
 
+typealias TokenId = Long
+
 @Document
 data class Item(
     val contract: FlowAddress,
-    val tokenId: BigInteger,
+    val tokenId: TokenId,
     val creator: FlowAddress,
     val royalties: List<Part>,
     val owner: FlowAddress,

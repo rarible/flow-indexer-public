@@ -5,6 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version "1.5.0"
     kotlin("plugin.spring") version "1.5.0"
+    kotlin("plugin.serialization") version "1.5.0"
 }
 
 group = "com.rarible.flow"
@@ -24,6 +25,7 @@ buildscript {
 
     dependencies {
         classpath("org.openapitools:openapi-generator-gradle-plugin:5.0.0")
+        classpath("org.jetbrains.kotlin:kotlin-serialization:1.5.0")
     }
 }
 
