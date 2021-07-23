@@ -45,11 +45,6 @@ class Config(
 
     @Bean
     fun eventMessageHandler(
-        itemRepository: ItemRepository,
-        ownershipRepository: OwnershipRepository,
-        orderRepository: OrderRepository,
-        protocolEventPublisher: ProtocolEventPublisher,
-        itemMetaRepository: ItemMetaRepository,
         smartContractEventHandlers: Map<String, SmartContractEventHandler<*>>
     ): ConsumerEventHandler<EventMessage> {
         return EventHandler(
