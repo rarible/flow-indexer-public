@@ -14,6 +14,8 @@ data class EventId(
         return "$type.${contractAddress.bytes.bytesToHex()}.$contractName.$eventName"
     }
 
+    fun contractEvent(): String = "$contractName.$eventName"
+
     companion object {
         fun of(str: String): EventId {
             val parts = str.split('.')
