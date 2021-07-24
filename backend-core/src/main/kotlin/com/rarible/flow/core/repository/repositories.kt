@@ -6,17 +6,11 @@ import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 
-@JvmName("coSave_1")
-suspend fun <T : Any> coSave(repo: ReactiveMongoRepository<T, *>, entity: T): T =
-    repo.save(entity).awaitSingle()
+fun <T: Any> ReactiveMongoRepository<T, *>.coSaveAll(entities: Iterable<T>): Flow<T> =
+    this.saveAll(entities).asFlow()
 
 suspend fun <T : Any> ReactiveMongoRepository<T, *>.coSave(entity: T): T =
     this.save(entity).awaitSingle()
-
-
-@JvmName("coFindById1")
-suspend fun <T, ID : Any> coFindById(repo: ReactiveMongoRepository<T, ID>, id: ID): T? =
-    repo.findById(id).awaitSingleOrNull()
 
 suspend fun <T, ID : Any> ReactiveMongoRepository<T, ID>.coFindById(id: ID): T? =
     this.findById(id).awaitSingleOrNull()

@@ -8,10 +8,6 @@ import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.core.kafka.json.JsonDeserializer
 import com.rarible.core.kafka.json.JsonSerializer
 import com.rarible.flow.core.config.CoreConfig
-import com.rarible.flow.core.repository.ItemMetaRepository
-import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.OrderRepository
-import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.json.commonMapper
 import com.rarible.flow.listener.handler.EventHandler

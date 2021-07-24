@@ -24,7 +24,7 @@ class MintListener(
         val metadata = (fields["metadata"] ?: emptyMap<String, String>()) as Map<String, String>
         val to = FlowAddress(fields["creator"]!! as String)
 
-        val existingEvent = coFindById(itemRepository, ItemId(contract, tokenId))
+        val existingEvent = itemRepository.coFindById(ItemId(contract, tokenId))
         if (existingEvent == null) {
             val item = Item(
                 contract,
@@ -35,12 +35,11 @@ class MintListener(
                 Instant.now(),
                 ""
             )
-            coSave(
-                itemMetaRepository,
+            itemMetaRepository.coSave(
                 ItemMeta(item.id, metadata["title"] ?: "", metadata["description"] ?: "", URI.create(metadata["uri"] ?: ""))
             )
 
-            coSave(itemRepository,
+            itemRepository.coSave(
                 item.copy(meta = "/v0.1/items/meta/${item.id}")
             ).let {
                 val result = protocolEventPublisher.onItemUpdate(it)
@@ -48,8 +47,7 @@ class MintListener(
             }
 
 
-            coSave(
-                ownershipRepository,
+            ownershipRepository.coSave(
                 Ownership(
                     contract,
                     tokenId,

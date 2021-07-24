@@ -6,7 +6,6 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
-import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -24,9 +23,9 @@ class DepositListener(
         val to = FlowAddress(fields["to"]!! as String)
 
         val items = async {
-            coFindById(itemRepository, ItemId(contract, tokenId))
+            itemRepository.coFindById(ItemId(contract, tokenId))
                 ?.let {
-                    coSave(itemRepository, it.copy(owner = to))
+                    itemRepository.coSave(it.copy(owner = to))
                 }
         }
         val ownership = async {

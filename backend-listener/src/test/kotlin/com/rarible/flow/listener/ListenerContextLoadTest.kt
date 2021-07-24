@@ -1,7 +1,6 @@
 package com.rarible.flow.listener
 
-import com.rarible.flow.listener.handler.listeners.MintListener
-import com.rarible.flow.listener.handler.listeners.SmartContractEventHandler
+import com.rarible.flow.listener.handler.listeners.*
 import io.kotest.matchers.shouldNot
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test
@@ -20,6 +19,13 @@ class ListenerContextLoadTest: BaseIntegrationTest() {
     @Test
     fun loadsEventHandlers() {
         handlers.size shouldNotBe 0
+        handlers[DepositListener.ID] shouldNotBe null
+        handlers[DestroyListener.ID] shouldNotBe null
         handlers[MintListener.ID] shouldNotBe null
+        handlers[OrderAssigned.ID] shouldNotBe null
+        handlers[OrderClosedListener.ID] shouldNotBe null
+        handlers[OrderOpenedListener.ID] shouldNotBe null
+        handlers[OrderWithdrawn.ID] shouldNotBe null
+        handlers[WithdrawListener.ID] shouldNotBe null
     }
 }

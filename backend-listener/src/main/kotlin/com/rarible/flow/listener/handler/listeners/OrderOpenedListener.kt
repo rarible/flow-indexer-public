@@ -3,11 +3,12 @@ package com.rarible.flow.listener.handler.listeners
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.TokenId
-import com.rarible.flow.core.repository.*
+import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.OrderRepositoryR
+import com.rarible.flow.core.repository.coFindById
+import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.listener.handler.EventHandler
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
-import com.rarible.flow.log.Log
-import kotlinx.coroutines.coroutineScope
 import org.bson.types.ObjectId
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component
 @Component(OrderOpenedListener.ID)
 class OrderOpenedListener(
     private val itemRepository: ItemRepository,
-    private val orderRepository: OrderRepository,
+    private val orderRepository: OrderRepositoryR,
     private val protocolEventPublisher: ProtocolEventPublisher
 ) : SmartContractEventHandler<Unit> {
 
@@ -29,7 +30,7 @@ class OrderOpenedListener(
         val maker = FlowAddress(fields["maker"] as String)
 
         val itemId = ItemId(contract, askId)
-        orderRepository.save(
+        orderRepository.coSave(
             Order(
                 id = ObjectId.get(),
                 itemId = itemId,
