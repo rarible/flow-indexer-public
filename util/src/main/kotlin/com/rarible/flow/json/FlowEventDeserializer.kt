@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
+import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
-import org.onflow.sdk.FlowEvent
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -18,7 +18,7 @@ class FlowEventDeserializer : JsonDeserializer<EventMessage>() {
         val id = e["id"].asText()
         val fields = parseFields(e.get("fields"))
         return EventMessage(
-            id = id,
+            eventId = EventId.of(id),
             fields = fields,
             timestamp = LocalDateTime.now(ZoneOffset.UTC)
         )

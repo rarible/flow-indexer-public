@@ -28,7 +28,7 @@ class EventMessageDeserializerTest {
         val expectedId = raw["value"]["id"].asText()
         val message = mapper.readValue<EventMessage>(source)
         assertNotNull(message)
-        assertEquals(expectedId, message.id, "ID not equals!")
+        assertEquals(expectedId, message.eventId, "ID not equals!")
         assertTrue(message.fields.isNotEmpty())
     }
 }
