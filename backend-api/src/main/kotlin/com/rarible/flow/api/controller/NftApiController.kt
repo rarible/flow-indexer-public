@@ -33,6 +33,17 @@ class NftApiController(
         return ok(items)
     }
 
+    override suspend fun getNftItemById(itemId: String): ResponseEntity<FlowNftItemDto> {
+        val item = itemRepository.coFindById(ItemId.parse(itemId))
+        return if(item == null) {
+            ResponseEntity.notFound().build()
+        } else {
+            ResponseEntity.ok(
+                ItemToDtoConverter.convert(item)
+            )
+        }
+    }
+
     override suspend fun getItemMeta(itemId: String): ResponseEntity<FlowItemMetaDto> {
         val itemMeta = itemMetaRepository.coFindById(ItemId.parse(itemId))
         return if (itemMeta == null) {
