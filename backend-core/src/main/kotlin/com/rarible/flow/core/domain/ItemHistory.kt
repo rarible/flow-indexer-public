@@ -53,7 +53,7 @@ fun  FlowNftActivity.toDto(id: String, date: LocalDateTime): FlowNftActivityDto 
         is BurnActivity -> BurnDto(
             id = id,
             date = date.toInstant(ZoneOffset.UTC),
-            owner = this.owner.formatted,
+            owner = "",
             contract = this.contract.formatted,
             value = this.value.toString(),
             tokenId = this.tokenId.toString(),

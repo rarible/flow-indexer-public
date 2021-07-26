@@ -7,6 +7,7 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepositoryR
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
+import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.listener.handler.EventHandler
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import org.bson.types.ObjectId
@@ -20,7 +21,12 @@ class OrderOpenedListener(
     private val protocolEventPublisher: ProtocolEventPublisher
 ) : SmartContractEventHandler<Unit> {
 
-    override suspend fun handle(contract: FlowAddress, tokenId: TokenId, fields: Map<String, Any?>) {
+    override suspend fun handle(
+        contract: FlowAddress,
+        tokenId: TokenId,
+        fields: Map<String, Any?>,
+        blockInfo: BlockInfo
+    ): Unit {
         val askType = fields["askType"] as String
         val askId = (fields["askId"] as String).toLong()
         val bidType = fields["bidType"] as String

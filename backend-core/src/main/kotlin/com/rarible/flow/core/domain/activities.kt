@@ -18,7 +18,7 @@ import org.onflow.sdk.FlowAddress
  */
 sealed class FlowNftActivity {
     abstract val type: FlowActivityType
-    abstract val owner: FlowAddress
+    abstract val owner: FlowAddress?
     abstract val contract: FlowAddress
     abstract val tokenId: TokenId
     abstract val value: Long
@@ -35,7 +35,7 @@ data class MintActivity(
     override val owner: FlowAddress,
     override val contract: FlowAddress,
     override val tokenId: TokenId,
-    override val value: Long,
+    override val value: Long = 1L,
     override val transactionHash: String,
     override val blockHash: String,
     override val blockNumber: Long,
@@ -46,10 +46,10 @@ data class MintActivity(
  */
 data class BurnActivity(
     override val type: FlowActivityType = FlowActivityType.BURN,
-    override val owner: FlowAddress,
+    override val owner: FlowAddress? = null,
     override val contract: FlowAddress,
     override val tokenId: TokenId,
-    override val value: Long,
+    override val value: Long = 1L,
     override val transactionHash: String,
     override val blockHash: String,
     override val blockNumber: Long
