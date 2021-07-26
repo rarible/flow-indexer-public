@@ -17,10 +17,10 @@ data class ItemHistory(
     @MongoId
     val id: String,
     val date: LocalDateTime,
-    val activity: FlowNftActivity
+    val activity: FlowActivity
 )
 
-fun  FlowNftActivity.toDto(id: String, date: LocalDateTime): FlowNftActivityDto  =
+fun FlowActivity.toDto(id: String, date: LocalDateTime): FlowActivityDto  =
     when(this) {
         is MintActivity -> MintDto(
             id = id,
@@ -61,6 +61,47 @@ fun  FlowNftActivity.toDto(id: String, date: LocalDateTime): FlowNftActivityDto 
             blockHash = this.blockHash,
             blockNumber = this.blockNumber,
             logIndex = -1,
+        )
+
+        is FlowNftOrderActivitySell -> FlowNftOrderActivitySellDto(
+            id = id,
+            date = date.toInstant(ZoneOffset.UTC),
+            left = OrderActivityMatchSideDto(
+                maker = this.left.maker.formatted,
+                asset = FlowAssetNFTDto(
+                    contract = this.left.asset.contract.formatted,
+                    value = this.left.asset.value.toString(),
+                    tokenId = (this.left.asset as FlowAssetNFT).tokenId.toString()
+                )
+            ),
+            right = OrderActivityMatchSideDto(
+                maker = this.right.maker.formatted,
+                asset = FlowAssetFungibleDto(
+                    contract = this.right.asset.contract.formatted,
+                    value = this.right.asset.value.toString()
+                )
+            ),
+            price = this.price.toString(),
+            transactionHash = this.transactionHash,
+            blockHash = this.blockHash,
+            blockNumber = this.blockNumber,
+            logIndex = -1
+        )
+        is FlowNftOrderActivityList -> FlowNftOrderActivityListDto(
+            id = id,
+            date = date.toInstant(ZoneOffset.UTC),
+            hash = this.hash,
+            maker = this.maker.formatted,
+            make = FlowAssetNFTDto(
+                contract = this.make.contract.formatted,
+                value = this.make.value.toString(),
+                tokenId = (this.make as FlowAssetNFT).tokenId.toString()
+            ),
+            take = FlowAssetFungibleDto(
+                contract = this.take.contract.formatted,
+                value = this.take.value.toString()
+            ),
+            price = this.price.toString()
         )
     }
 

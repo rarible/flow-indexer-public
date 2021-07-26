@@ -31,6 +31,7 @@ class ItemHistoryRepositoryTest {
 
     private val testAddress = "0x5c075acc71f2f41c"
 
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private lateinit var repo: ItemHistoryRepository
 
@@ -197,39 +198,39 @@ class ItemHistoryRepositoryTest {
         StepVerifier.create(repo.getNftOrderActivitiesByItem(listOf(FlowActivityType.MINT), FlowAddress(testAddress), 1L))
             .assertNext {
                 Assertions.assertNotNull(it)
-                Assertions.assertEquals(FlowActivityType.MINT, it.activity.type, "Type is incorrect!")
-                Assertions.assertEquals(1L, it.activity.tokenId, "TokenId is incorrect!")
                 Assertions.assertTrue(it.activity is MintActivity, "Activity is not Mint Activity!")
+                Assertions.assertEquals(FlowActivityType.MINT, (it.activity as MintActivity).type, "Type is incorrect!")
+                Assertions.assertEquals(1L, (it.activity as MintActivity).tokenId, "TokenId is incorrect!")
             }
             .verifyComplete()
 
         StepVerifier.create(repo.getNftOrderActivitiesByItem(listOf(FlowActivityType.MINT, FlowActivityType.BURN, FlowActivityType.TRANSFER), FlowAddress(testAddress), 1L))
             .assertNext {
                 Assertions.assertNotNull(it)
-                Assertions.assertEquals(FlowActivityType.MINT, it.activity.type, "Type is incorrect!")
-                Assertions.assertEquals(1L, it.activity.tokenId, "TokenId is incorrect!")
                 Assertions.assertTrue(it.activity is MintActivity, "Activity is not Mint Activity!")
+                Assertions.assertEquals(FlowActivityType.MINT, (it.activity as MintActivity).type, "Type is incorrect!")
+                Assertions.assertEquals(1L, (it.activity as MintActivity).tokenId, "TokenId is incorrect!")
             }
             .assertNext {
                 Assertions.assertNotNull(it)
-                Assertions.assertEquals(FlowActivityType.TRANSFER, it.activity.type, "Type is incorrect!")
-                Assertions.assertEquals(1L, it.activity.tokenId, "TokenId is incorrect!")
                 Assertions.assertTrue(it.activity is TransferActivity, "Activity is not Transfer Activity!")
+                Assertions.assertEquals(FlowActivityType.TRANSFER, (it.activity as TransferActivity).type, "Type is incorrect!")
+                Assertions.assertEquals(1L, (it.activity as TransferActivity).tokenId, "TokenId is incorrect!")
             }
             .assertNext {
                 Assertions.assertNotNull(it)
-                Assertions.assertEquals(FlowActivityType.BURN, it.activity.type, "Type is incorrect!")
-                Assertions.assertEquals(1L, it.activity.tokenId, "TokenId is incorrect!")
                 Assertions.assertTrue(it.activity is BurnActivity, "Activity is not Burn Activity!")
+                Assertions.assertEquals(FlowActivityType.BURN, (it.activity as BurnActivity).type, "Type is incorrect!")
+                Assertions.assertEquals(1L, (it.activity as BurnActivity).tokenId, "TokenId is incorrect!")
             }
             .verifyComplete()
 
         StepVerifier.create(repo.getNftOrderActivitiesByItem(listOf(FlowActivityType.MINT, FlowActivityType.BURN, FlowActivityType.TRANSFER), FlowAddress(testAddress), 2L))
             .assertNext {
                 Assertions.assertNotNull(it)
-                Assertions.assertEquals(FlowActivityType.MINT, it.activity.type, "Type is incorrect!")
-                Assertions.assertEquals(2L, it.activity.tokenId, "TokenId is incorrect!")
                 Assertions.assertTrue(it.activity is MintActivity, "Activity is not Mint Activity!")
+                Assertions.assertEquals(FlowActivityType.MINT, (it.activity as MintActivity).type, "Type is incorrect!")
+                Assertions.assertEquals(2L, (it.activity as MintActivity).tokenId, "TokenId is incorrect!")
 
             }
             .verifyComplete()

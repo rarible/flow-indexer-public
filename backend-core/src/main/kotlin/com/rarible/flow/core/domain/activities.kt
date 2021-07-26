@@ -1,8 +1,9 @@
 package com.rarible.flow.core.domain
 
 import org.onflow.sdk.FlowAddress
+import java.math.BigDecimal
 
-
+sealed interface FlowActivity
 
 /**
  * Base NFT Activity
@@ -16,7 +17,7 @@ import org.onflow.sdk.FlowAddress
  * @property blockHash          block ID (UUID)
  * @property blockNumber        block height
  */
-sealed class FlowNftActivity {
+sealed class FlowNftActivity: FlowActivity {
     abstract val type: FlowActivityType
     abstract val owner: FlowAddress?
     abstract val contract: FlowAddress
@@ -26,6 +27,30 @@ sealed class FlowNftActivity {
     abstract val blockHash: String
     abstract val blockNumber: Long
 }
+
+sealed class FlowNftOrderActivity: FlowActivity {
+    abstract val type: FlowActivityType
+    abstract val price: BigDecimal
+}
+
+data class FlowNftOrderActivitySell(
+    override val type: FlowActivityType = FlowActivityType.SELL,
+    override val price: BigDecimal,
+    val left: OrderActivityMatchSide,
+    val right: OrderActivityMatchSide,
+    val transactionHash: String,
+    val blockHash: String,
+    val blockNumber: Long,
+): FlowNftOrderActivity()
+
+data class FlowNftOrderActivityList(
+    override val type: FlowActivityType = FlowActivityType.LIST,
+    override val price: BigDecimal,
+    val hash: String,
+    val maker: FlowAddress,
+    val make: FlowAsset,
+    val take: FlowAsset,
+): FlowNftOrderActivity()
 
 /**
  * Mint Activity
@@ -61,7 +86,6 @@ data class BurnActivity(
  */
 data class TransferActivity(
     override val type: FlowActivityType = FlowActivityType.TRANSFER,
-    val from: FlowAddress,
     override val owner: FlowAddress,
     override val contract: FlowAddress,
     override val tokenId: TokenId,
@@ -69,6 +93,7 @@ data class TransferActivity(
     override val transactionHash: String,
     override val blockHash: String,
     override val blockNumber: Long,
+    val from: FlowAddress,
 ): FlowNftActivity()
 
 
@@ -103,6 +128,22 @@ enum class FlowActivityType {
     TRANSFER
 }
 
+sealed class FlowAsset {
+    abstract val contract: FlowAddress
+    abstract val value: Long
+}
 
+data class FlowAssetNFT(
+    override val contract: FlowAddress,
+    override val value: Long,
+    val tokenId: TokenId
+): FlowAsset()
+
+data class FlowAssetFungible(
+    override val contract: FlowAddress,
+    override val value: Long,
+): FlowAsset()
+
+data class OrderActivityMatchSide(val maker: FlowAddress, val asset: FlowAsset)
 
 
