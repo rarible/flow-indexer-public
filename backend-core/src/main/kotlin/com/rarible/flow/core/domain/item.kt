@@ -1,57 +1,53 @@
 package com.rarible.flow.core.domain
 
+import org.onflow.sdk.FlowAddress
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
-import org.springframework.data.mongodb.core.mapping.Unwrapped
+import java.io.Serializable
+import java.math.BigInteger
 import java.time.Instant
 
-//@JvmInline
-//todo use value class
-data class Address(val value: String)
-
-//@JvmInline
-data class TxHash(val value: String)
-
 data class Part(
-    val address: Address,
+    val address: FlowAddress,
     val fee: Int
 )
 
-data class ItemTransfer(
-    val from: Address,
-    val to: Address,
-    val txHash: TxHash
-)
+data class ItemId(val contract: FlowAddress, val tokenId: TokenId): Serializable {
+    override fun toString(): String {
+        return "${contract.formatted}:$tokenId"
+    }
+
+    companion object {
+        fun parse(source: String): ItemId {
+            val parts = source.split(':')
+            if(parts.size == 2) {
+                val contract = FlowAddress(parts[0])
+                val tokenId = parts[1].toLong()
+                return ItemId(contract, tokenId)
+            } else throw IllegalArgumentException("Failed to parse ItemId from [$source]")
+        }
+    }
+}
+
+typealias TokenId = Long
 
 @Document
 data class Item(
-    val contract: String, //Address,    // maps to `token`
-    val tokenId: ULong,
-    val creator: Address,       // can we have multiple? maps to list of creators with one element
+    val contract: FlowAddress,
+    val tokenId: TokenId,
+    val creator: FlowAddress,
     val royalties: List<Part>,
-    val owner: Address,
+    val owner: FlowAddress,
     val date: Instant,
-    val meta: Map<String, String> = emptyMap(),
+    val meta: String? = null,
     val listed: Boolean = false
-    //val pending: List<ItemTransfer> = emptyList()
 ) {
 
     @get:Id
     @get:AccessType(AccessType.Type.PROPERTY)
-    var id: String
-        get() = makeId(this.contract, this.tokenId)
+    var id: ItemId
+        get() = ItemId(this.contract, this.tokenId)
         set(_) {}
-
-    companion object {
-        fun makeId(contract: Address, tokenId: ULong): String {
-            return "${contract.value}:$tokenId"
-        }
-
-        fun makeId(contract: String, tokenId: ULong): String {
-            return "${contract}:$tokenId"
-        }
-    }
-
 }
 

@@ -14,10 +14,10 @@ include(
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            version("flow-sdk-ver", "0.2.4")
+            version("flow-sdk-ver", "0.3.0")
             version("rarible-core", "1.3-spring25-SNAPSHOT")
 
-            alias("flow-sdk").to("com.nftco", "flow-jvm-sdk").versionRef("flow-sdk-ver")
+            alias("flow-sdk").to("org.onflow", "flow-jvm-sdk").versionRef("flow-sdk-ver")
             alias("rarible-core-kafka").to("com.rarible.core", "rarible-core-kafka").versionRef("rarible-core")
             alias("rarible-core-daemon").to("com.rarible.core", "rarible-core-daemon").versionRef("rarible-core")
             alias("rarible-core-telemetry").to("com.rarible.core", "rarible-core-telemetry-starter").versionRef("rarible-core")

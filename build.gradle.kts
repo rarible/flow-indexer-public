@@ -5,10 +5,11 @@ plugins {
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version "1.5.0"
     kotlin("plugin.spring") version "1.5.0"
+    kotlin("plugin.serialization") version "1.5.0"
 }
 
 group = "com.rarible.flow"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.2-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 dependencyManagement {
@@ -24,6 +25,7 @@ buildscript {
 
     dependencies {
         classpath("org.openapitools:openapi-generator-gradle-plugin:5.0.0")
+        classpath("org.jetbrains.kotlin:kotlin-serialization:1.5.0")
     }
 }
 
@@ -36,6 +38,8 @@ allprojects {
     }
 
     repositories {
+        mavenLocal()
+
         mavenCentral()
 
         maven {
@@ -46,15 +50,6 @@ allprojects {
             name = "nexus-maven-public"
             url = uri("http://nexus.rarible.int/repository/maven-public/")
             isAllowInsecureProtocol = true
-            metadataSources {
-                mavenPom()
-                artifact()
-            }
-        }
-
-        maven {
-            name = "github-maven"
-            url = uri("https://maven.pkg.github.com/rariblecom/service-core/")
             metadataSources {
                 mavenPom()
                 artifact()

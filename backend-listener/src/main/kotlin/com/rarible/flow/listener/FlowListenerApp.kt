@@ -2,7 +2,6 @@ package com.rarible.flow.listener
 
 import com.rarible.core.daemon.sequential.ConsumerWorker
 import com.rarible.flow.events.EventMessage
-import com.rarible.flow.events.NftEvent
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
