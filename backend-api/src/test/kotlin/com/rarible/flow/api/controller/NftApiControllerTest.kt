@@ -9,11 +9,14 @@ import com.rarible.flow.core.repository.*
 import com.rarible.flow.form.MetaForm
 import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.FlowNftItemDto
+import com.rarible.protocol.dto.FlowNftItemsDto
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.slot
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.onflow.sdk.FlowAddress
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,11 +25,10 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
-import org.springframework.test.web.reactive.server.expectBodyList
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.net.URI
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 @WebFluxTest(
     controllers = [NftApiController::class],
@@ -50,21 +52,33 @@ internal class NftApiControllerTest(
     lateinit var itemMetaRepository: ItemMetaRepository
 
     @Test
-    fun `should return all items`() {
-        val items = listOf(createItem())
-        every {
-            itemRepository.findAll()
-        } returns Flux.fromIterable(items)
+    fun `should return all items and stop`() = runBlocking<Unit> {
+        val items = listOf(
+            createItem(),
+            createItem(43).copy(date = Instant.now().minus(1, ChronoUnit.DAYS))
+        )
+        coEvery {
+            itemRepository.search(any(), any(), any())
+        } returns items.asFlow()
 
-        var item = client
+        val cont = Continuation(Instant.now(), ItemId(FlowAddress("0x01"), 42))
+        var response = client
             .get()
-            .uri("/v0.1/items/")
+            .uri("/v0.1/items/?continuation=$cont")
             .exchange()
             .expectStatus().isOk
-            .expectBodyList<FlowNftItemDto>().hasSize(1)
-            .returnResult().responseBody!![0]
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        response.items shouldHaveSize 2
 
-        item.owner shouldBe items[0].owner.formatted
+        response = client
+            .get()
+            .uri("/v0.1/items/?continuation=$cont&size=2")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        response.items shouldHaveSize 2
 
     }
 
@@ -105,38 +119,43 @@ internal class NftApiControllerTest(
             createItem(),
             createItem(tokenId = 43).copy(owner = FlowAddress("0x03"))
         )
-        val addressSlot = slot<FlowAddress>()
-        every {
-            itemRepository.findAllByOwner(capture(addressSlot))
-        } answers {
-            Flux.fromIterable(items.filter { it.owner == addressSlot.captured } )
+        val captured = slot<ItemFilter.ByOwner>()
+        coEvery {
+            itemRepository.search(capture(captured), null, any())
+        } coAnswers {
+            items.filter { it.owner == captured.captured.owner }.asFlow()
         }
 
-        var item = client
+
+        var response = client
             .get()
             .uri("/v0.1/items/byAccount?address={address}", mapOf("address" to "0x02"))
             .exchange()
             .expectStatus().isOk
-            .expectBodyList<FlowNftItemDto>().hasSize(1)
-            .returnResult().responseBody!![0]
-        item.owner shouldBe items[0].owner.formatted
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        response.items shouldHaveSize 1
+        response.items[0].owner shouldBe items[0].owner.formatted
 
-        item = client
+        response = client
             .get()
             .uri("/v0.1/items/byAccount?address={address}", mapOf("address" to "0x03"))
             .exchange()
             .expectStatus().isOk
-            .expectBodyList<FlowNftItemDto>()
-            .hasSize(1)
-            .returnResult().responseBody!![0]
-        item.owner shouldBe items[1].owner.formatted
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        response.items shouldHaveSize 1
+        response.items[0].owner shouldBe items[1].owner.formatted
 
-        client
+        response = client
             .get()
             .uri("/v0.1/items/byAccount?address={address}", mapOf("address" to "0x04"))
             .exchange()
             .expectStatus().isOk
-            .expectBodyList<FlowNftItemDto>().hasSize(0)
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        response.items shouldHaveSize 0
+
     }
 
     @Test
@@ -145,37 +164,42 @@ internal class NftApiControllerTest(
             createItem(),
             createItem(tokenId = 43).copy(creator = FlowAddress("0x02"))
         )
-        val addressSlot = slot<FlowAddress>()
-        every {
-            itemRepository.findAllByCreator(capture(addressSlot))
-        } answers {
-            Flux.fromIterable(items.filter { it.creator == addressSlot.captured })
+        val captured = slot<ItemFilter.ByCreator>()
+        coEvery {
+            itemRepository.search(capture(captured), null, any())
+        } coAnswers {
+            items.filter { it.creator == captured.captured.creator }.asFlow()
         }
 
-        var item = client
+        var respose = client
             .get()
             .uri("/v0.1/items/byCreator?address={address}", mapOf("address" to "0x01"))
             .exchange()
             .expectStatus().isOk
-            .expectBodyList<FlowNftItemDto>().hasSize(1)
-            .returnResult().responseBody!![0]
-        item.owner shouldBe items[0].owner.formatted
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        respose.items shouldHaveSize 1
+        respose.items[0].owner shouldBe items[0].owner.formatted
 
-        client
+        respose = client
             .get()
             .uri("/v0.1/items/byCreator?address={address}", mapOf("address" to "0x02"))
             .exchange()
             .expectStatus().isOk
-            .expectBodyList<FlowNftItemDto>().hasSize(1)
-            .returnResult().responseBody!![0]
-        item.owner shouldBe items[1].owner.formatted
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        respose.items shouldHaveSize 1
+        respose.items[0].owner shouldBe items[1].owner.formatted
 
-        client
+        respose = client
             .get()
             .uri("/v0.1/items/byCreator?address={address}", mapOf("address" to "0x04"))
             .exchange()
             .expectStatus().isOk
-            .expectBodyList<FlowNftItemDto>().hasSize(0)
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        respose.items shouldHaveSize 0
+
 
     }
 
@@ -206,7 +230,13 @@ internal class NftApiControllerTest(
         client
             .post()
             .uri("/v0.1/items/meta/0x01:1")
-            .bodyValue(MetaForm("title", "description", URI.create("https://keyassets.timeincuk.net/inspirewp/live/wp-content/uploads/sites/34/2021/03/pouring-wine-zachariah-hagy-8_tZ-eu32LA-unsplash-1-920x609.jpg")))
+            .bodyValue(
+                MetaForm(
+                    "title",
+                    "description",
+                    URI.create("https://keyassets.timeincuk.net/inspirewp/live/wp-content/uploads/sites/34/2021/03/pouring-wine-zachariah-hagy-8_tZ-eu32LA-unsplash-1-920x609.jpg")
+                )
+            )
             .exchange()
             .expectStatus().isOk
             .expectBody<String>().isEqualTo("/v0.1/items/meta/0x01:1")

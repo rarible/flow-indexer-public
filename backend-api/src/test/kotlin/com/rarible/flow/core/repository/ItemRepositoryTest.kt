@@ -71,7 +71,7 @@ internal class ItemRepositoryTest {
     fun `should save and find all`() = runBlocking<Unit> {
         itemRepository.coSave(createItem())
         itemRepository.coSave(createItem(43))
-        val read = coFindAll(itemRepository)
+        val read = itemRepository.coFindAll()
 
         read.count() shouldBe 2
     }
