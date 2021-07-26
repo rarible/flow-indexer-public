@@ -29,9 +29,9 @@ class EventHandler(
         }
     }
 
+
     companion object {
         val log by Log()
-
         class NoOpHandler(val eventId: EventId): SmartContractEventHandler<Unit> {
             override suspend fun handle(
                 contract: FlowAddress,
