@@ -46,8 +46,8 @@ internal class ItemRepositoryTest {
     @Test
     fun `should save and read item`() = runBlocking<Unit> {
         val item = createItem()
-        coSave(itemRepository,item)
-        val read = coFindById(itemRepository,item.id)
+        itemRepository.coSave(item)
+        val read = itemRepository.coFindById(item.id)
         read shouldNotBe null
         read!!.id shouldBe item.id
     }
@@ -55,7 +55,7 @@ internal class ItemRepositoryTest {
     @Test
     fun `should save and find by account`() = runBlocking<Unit> {
         val item = createItem()
-        coSave(itemRepository,item)
+        itemRepository.coSave(item)
         var read = itemRepository.findAllByCreator(FlowAddress("0x01")).asFlow()
 
         read.count() shouldBe 1
@@ -69,8 +69,8 @@ internal class ItemRepositoryTest {
 
     @Test
     fun `should save and find all`() = runBlocking<Unit> {
-        coSave(itemRepository,createItem())
-        coSave(itemRepository,createItem(43))
+        itemRepository.coSave(createItem())
+        itemRepository.coSave(createItem(43))
         val read = coFindAll(itemRepository)
 
         read.count() shouldBe 2

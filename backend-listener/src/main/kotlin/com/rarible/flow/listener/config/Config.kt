@@ -8,11 +8,11 @@ import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.core.kafka.json.JsonDeserializer
 import com.rarible.core.kafka.json.JsonSerializer
 import com.rarible.flow.core.config.CoreConfig
-import com.rarible.flow.core.repository.*
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.json.commonMapper
 import com.rarible.flow.listener.handler.EventHandler
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
+import com.rarible.flow.listener.handler.listeners.SmartContractEventHandler
 import com.rarible.protocol.dto.FlowNftItemEventDto
 import com.rarible.protocol.dto.FlowNftItemEventTopicProvider
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -41,18 +41,10 @@ class Config(
 
     @Bean
     fun eventMessageHandler(
-        itemRepository: ItemRepository,
-        ownershipRepository: OwnershipRepository,
-        orderRepository: OrderRepository,
-        protocolEventPublisher: ProtocolEventPublisher,
-        itemMetaRepository: ItemMetaRepository
+        smartContractEventHandlers: Map<String, SmartContractEventHandler<*>>
     ): ConsumerEventHandler<EventMessage> {
         return EventHandler(
-            itemRepository,
-            ownershipRepository,
-            orderRepository,
-            protocolEventPublisher,
-            itemMetaRepository
+            smartContractEventHandlers
         )
     }
 

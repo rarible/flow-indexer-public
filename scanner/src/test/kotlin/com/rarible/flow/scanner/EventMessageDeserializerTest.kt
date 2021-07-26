@@ -1,6 +1,7 @@
 package com.rarible.flow.scanner
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.json.commonMapper
 import org.junit.jupiter.api.Assertions.*
@@ -25,10 +26,10 @@ class EventMessageDeserializerTest {
     fun deserializeEventWithFieldsTest(source: String) {
         val mapper = commonMapper()
         val raw = mapper.readTree(source)
-        val expectedId = raw["value"]["id"].asText()
+        val expectedId = EventId.of(raw["value"]["id"].asText())
         val message = mapper.readValue<EventMessage>(source)
         assertNotNull(message)
-        assertEquals(expectedId, message.id, "ID not equals!")
+        assertEquals(expectedId, message.eventId, "ID not equals!")
         assertTrue(message.fields.isNotEmpty())
     }
 }

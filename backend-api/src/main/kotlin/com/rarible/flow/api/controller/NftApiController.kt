@@ -33,8 +33,19 @@ class NftApiController(
         return ok(items)
     }
 
+    override suspend fun getNftItemById(itemId: String): ResponseEntity<FlowNftItemDto> {
+        val item = itemRepository.coFindById(ItemId.parse(itemId))
+        return if(item == null) {
+            ResponseEntity.notFound().build()
+        } else {
+            ResponseEntity.ok(
+                ItemToDtoConverter.convert(item)
+            )
+        }
+    }
+
     override suspend fun getItemMeta(itemId: String): ResponseEntity<FlowItemMetaDto> {
-        val itemMeta = coFindById(itemMetaRepository, ItemId.parse(itemId))
+        val itemMeta = itemMetaRepository.coFindById(ItemId.parse(itemId))
         return if (itemMeta == null) {
             ResponseEntity.status(404).build()
         } else {
@@ -66,7 +77,7 @@ class NftApiController(
     ): ResponseEntity<String> {
         val id = ItemId.parse(itemId)
         val existing: ItemMeta? = itemMetaRepository.findById(id).awaitSingleOrNull()
-        itemMetaRepository.save(
+        itemMetaRepository.coSave(
             existing?.copy(
                 title = flowItemMetaFormDto!!.title!!,
                 description = flowItemMetaFormDto.description!!,
@@ -78,13 +89,12 @@ class NftApiController(
                     flowItemMetaFormDto.description!!,
                     URI.create(flowItemMetaFormDto.uri)
                 )
-        ).awaitSingle()
+        )
 
         val metaLink = "/v0.1/items/meta/$itemId"
-        coFindById(itemRepository, id)
+        itemRepository.coFindById(id)
             ?.let {
-                coSave(
-                    itemRepository,
+                itemRepository.coSave(
                     it.copy(meta = metaLink)
                 )
             }
