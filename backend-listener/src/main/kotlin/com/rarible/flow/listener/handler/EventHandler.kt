@@ -28,9 +28,9 @@ class EventHandler(
         }
     }
 
+
     companion object {
         val log by Log()
-
         class NoOpHandler(val eventId: EventId): SmartContractEventHandler<Unit> {
             override suspend fun handle(contract: FlowAddress, tokenId: TokenId, fields: Map<String, Any?>) {
                 log.info("Skipping unknown or untracked event [$eventId] for [$contract.$tokenId] with fields [${fields}]")
