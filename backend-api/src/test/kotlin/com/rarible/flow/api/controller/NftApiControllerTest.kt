@@ -69,6 +69,37 @@ internal class NftApiControllerTest(
     }
 
     @Test
+    fun `should return item by id`() {
+        every {
+            itemRepository.findById(any<ItemId>())
+        } returns Mono.just(createItem())
+
+        var item = client
+            .get()
+            .uri("/v0.1/items/{itemId}", mapOf("itemId" to "0x01:42"))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemDto>()
+            .returnResult().responseBody!!
+        item.id shouldBe "0x01:42"
+        item.creator shouldBe "0x01"
+        item.owner shouldBe "0x02"
+    }
+
+    @Test
+    fun `should return 404 by id`() {
+        every {
+            itemRepository.findById(any<ItemId>())
+        } returns Mono.empty()
+
+        client
+            .get()
+            .uri("/v0.1/items/{itemId}", mapOf("itemId" to "0x01:43"))
+            .exchange()
+            .expectStatus().isNotFound
+    }
+
+    @Test
     fun `should return items by owner`() {
         val items = listOf(
             createItem(),
