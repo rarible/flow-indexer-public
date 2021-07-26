@@ -3,11 +3,6 @@ package com.rarible.flow.core.domain
 import org.onflow.sdk.FlowAddress
 
 
-/**
- * Base activity
- *
- */
-sealed interface FlowActivity
 
 /**
  * Base NFT Activity
@@ -20,9 +15,8 @@ sealed interface FlowActivity
  * @property transactionHash    transaction ID (UUID)
  * @property blockHash          block ID (UUID)
  * @property blockNumber        block height
- * @property logIndex           unused (just for capability with gateway API)
  */
-sealed class FlowNftActivity: FlowActivity {
+sealed class FlowNftActivity {
     abstract val type: FlowActivityType
     abstract val owner: FlowAddress
     abstract val contract: FlowAddress
@@ -31,7 +25,6 @@ sealed class FlowNftActivity: FlowActivity {
     abstract val transactionHash: String
     abstract val blockHash: String
     abstract val blockNumber: Long
-    private val logIndex: Long = -1
 }
 
 /**
@@ -109,5 +102,7 @@ enum class FlowActivityType {
      */
     TRANSFER
 }
+
+
 
 

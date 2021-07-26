@@ -152,4 +152,87 @@ class ItemHistoryRepositoryTest {
             }
             .verifyComplete()
     }
+
+    @Test
+    fun `should return activities by item`() {
+        val mintActivity = MintActivity(
+            owner = FlowAddress(testAddress),
+            contract = FlowAddress(testAddress),
+            tokenId = 1L,
+            value = 1L,
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = 1000L,
+        )
+
+        val transferActivity = TransferActivity(
+            from = FlowAddress(testAddress),
+            owner = FlowAddress(testAddress),
+            contract = FlowAddress(testAddress),
+            tokenId = 1L,
+            value = 1L,
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = 1001L,
+        )
+
+        val burnActivity = BurnActivity(
+            owner = FlowAddress(testAddress),
+            contract = FlowAddress(testAddress),
+            tokenId = 1L,
+            value = 1L,
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = 1002L,
+        )
+
+        val history = listOf(
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now(), mintActivity),
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now(), mintActivity.copy(tokenId = 2L)),
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now(), transferActivity),
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now(), burnActivity),
+        )
+
+        repo.saveAll(history).then().block()
+        StepVerifier.create(repo.getNftOrderActivitiesByItem(listOf(FlowActivityType.MINT), FlowAddress(testAddress), 1L))
+            .assertNext {
+                Assertions.assertNotNull(it)
+                Assertions.assertEquals(FlowActivityType.MINT, it.activity.type, "Type is incorrect!")
+                Assertions.assertEquals(1L, it.activity.tokenId, "TokenId is incorrect!")
+                Assertions.assertTrue(it.activity is MintActivity, "Activity is not Mint Activity!")
+            }
+            .verifyComplete()
+
+        StepVerifier.create(repo.getNftOrderActivitiesByItem(listOf(FlowActivityType.MINT, FlowActivityType.BURN, FlowActivityType.TRANSFER), FlowAddress(testAddress), 1L))
+            .assertNext {
+                Assertions.assertNotNull(it)
+                Assertions.assertEquals(FlowActivityType.MINT, it.activity.type, "Type is incorrect!")
+                Assertions.assertEquals(1L, it.activity.tokenId, "TokenId is incorrect!")
+                Assertions.assertTrue(it.activity is MintActivity, "Activity is not Mint Activity!")
+            }
+            .assertNext {
+                Assertions.assertNotNull(it)
+                Assertions.assertEquals(FlowActivityType.TRANSFER, it.activity.type, "Type is incorrect!")
+                Assertions.assertEquals(1L, it.activity.tokenId, "TokenId is incorrect!")
+                Assertions.assertTrue(it.activity is TransferActivity, "Activity is not Transfer Activity!")
+            }
+            .assertNext {
+                Assertions.assertNotNull(it)
+                Assertions.assertEquals(FlowActivityType.BURN, it.activity.type, "Type is incorrect!")
+                Assertions.assertEquals(1L, it.activity.tokenId, "TokenId is incorrect!")
+                Assertions.assertTrue(it.activity is BurnActivity, "Activity is not Burn Activity!")
+            }
+            .verifyComplete()
+
+        StepVerifier.create(repo.getNftOrderActivitiesByItem(listOf(FlowActivityType.MINT, FlowActivityType.BURN, FlowActivityType.TRANSFER), FlowAddress(testAddress), 2L))
+            .assertNext {
+                Assertions.assertNotNull(it)
+                Assertions.assertEquals(FlowActivityType.MINT, it.activity.type, "Type is incorrect!")
+                Assertions.assertEquals(2L, it.activity.tokenId, "TokenId is incorrect!")
+                Assertions.assertTrue(it.activity is MintActivity, "Activity is not Mint Activity!")
+
+            }
+            .verifyComplete()
+
+    }
 }
