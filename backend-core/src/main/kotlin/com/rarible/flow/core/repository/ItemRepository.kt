@@ -2,6 +2,7 @@ package com.rarible.flow.core.repository
 
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.log.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.reactive.asFlow
@@ -16,6 +17,7 @@ import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.mongodb.core.query.lt
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
+
 
 interface ItemRepository: ReactiveMongoRepository<Item, ItemId>, ItemRepositoryCustom {
     fun findAllByOwner(owner: FlowAddress): Flux<Item>
@@ -41,9 +43,10 @@ class ItemRepositoryCustomImpl(
 
         val query = Query.query(criteria).with(
             mongoSort(filter.sort)
-        ).limit(limit ?: Companion.DEFAULT_LIMIT)
+        ).limit(limit ?: DEFAULT_LIMIT)
 
         val result = mongo.find<Item>(query).collectList().awaitFirstOrDefault(emptyList())
+        log.info("Found {} items by filter {} with continuation {} and limit {}", result.size, filter, cont, limit)
         return result.asFlow()
     }
 
@@ -82,5 +85,6 @@ class ItemRepositoryCustomImpl(
 
     companion object {
         const val DEFAULT_LIMIT: Int = 50
+        val log by Log()
     }
 }
