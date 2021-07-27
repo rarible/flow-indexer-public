@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
+import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import java.time.LocalDateTime
@@ -20,21 +21,25 @@ class FlowEventDeserializer : JsonDeserializer<EventMessage>() {
         return EventMessage(
             eventId = EventId.of(id),
             fields = fields,
-            timestamp = LocalDateTime.now(ZoneOffset.UTC)
+            timestamp = LocalDateTime.now(ZoneOffset.UTC),
+            BlockInfo()
         )
     }
 
     private fun parseFields(e: JsonNode): Map<String, Any?> = e.asIterable().associate {
         val name:String = it["name"].asText()
-        val type = it["value"]["type"].asText()
 
-        val value: Any? = if ("Optional" == type) {
-            it["value"]["value"]["value"]?.asText("")
-        } else if ("Struct" == type) {
-            val struct = it["value"]
-            parseFields(struct["value"]["fields"])
-        } else {
-            it["value"]["value"]?.asText("")
+        val value: Any? = when (it["value"]["type"].asText()) {
+            "Optional" -> {
+                it["value"]["value"]["value"]?.asText("")
+            }
+            "Struct" -> {
+                val struct = it["value"]
+                parseFields(struct["value"]["fields"])
+            }
+            else -> {
+                it["value"]["value"]?.asText("")
+            }
         }
         name to value
     }

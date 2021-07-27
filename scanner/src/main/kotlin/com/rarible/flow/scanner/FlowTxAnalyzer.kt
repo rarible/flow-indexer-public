@@ -2,6 +2,7 @@ package com.rarible.flow.scanner
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.scanner.config.ScannerProperties
 import com.rarible.flow.scanner.model.FlowEvent
@@ -32,7 +33,13 @@ class FlowTxAnalyzer(
             if (isEventTracked(flowEvent)) {
                 val msg = flowMapper.readValue<EventMessage>(flowEvent.data).apply {
                     timestamp = flowEvent.timestamp
+                    blockInfo = BlockInfo(
+                        transactionId = tx.id,
+                        blockHeight = tx.blockHeight,
+                        blockId = tx.referenceBlockId
+                    )
                 }
+
                 publisher.publishEvent(
                     RariEventMessageCaught(
                         RariEventMessage(
