@@ -135,6 +135,7 @@ internal class ItemRepositoryPaginationTest(
         read.collect {
             it.id shouldBe item2.id
         }
+        log.info("Step 1 done")
 
         //read next and the last
         read = itemRepository.search(ItemFilter.All, Continuation(item2.date, item2.id), 1)
@@ -142,10 +143,12 @@ internal class ItemRepositoryPaginationTest(
         read.collect {
             it.id shouldBe item1.id
         }
+        log.info("Step 2 done")
 
         //try to read more
         read = itemRepository.search(ItemFilter.All, Continuation(item1.date, item1.id), 1)
         read.count() shouldBe 0
+        log.info("Step 3 done")
     }
 
     fun createItem(tokenId: TokenId = 42) = Item(
