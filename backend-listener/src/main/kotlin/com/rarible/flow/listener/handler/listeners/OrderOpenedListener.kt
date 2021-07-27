@@ -36,6 +36,8 @@ class OrderOpenedListener(
                 itemId = itemId,
                 maker = maker,
                 amount = bidAmount,
+                buyerFee = buyerFee,
+                sellerFee = sellerFee
             )
         )
 
