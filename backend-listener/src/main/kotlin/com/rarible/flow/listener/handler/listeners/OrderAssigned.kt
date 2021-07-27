@@ -6,6 +6,7 @@ import com.rarible.flow.events.BlockInfo
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
+import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
@@ -41,7 +42,7 @@ class OrderAssigned(
                                 maker = order.maker,
                                 asset = FlowAssetNFT(
                                     contract = item.contract,
-                                    value = 1L,
+                                    value = BigDecimal.valueOf(1L),
                                     tokenId = tokenId
                                 )
                             ),
@@ -49,7 +50,7 @@ class OrderAssigned(
                                 maker = taker,
                                 asset = FlowAssetFungible(
                                     contract = FlowAddress("0x1654653399040a61"), //TODO get from config
-                                    value = order.amount.toLong()
+                                    value = order.amount
                                 )
                             ),
                             transactionHash = blockInfo.transactionId,

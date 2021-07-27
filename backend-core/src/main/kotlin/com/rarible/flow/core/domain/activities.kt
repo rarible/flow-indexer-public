@@ -130,18 +130,18 @@ enum class FlowActivityType {
 
 sealed class FlowAsset {
     abstract val contract: FlowAddress
-    abstract val value: Long
+    abstract val value: BigDecimal
 }
 
 data class FlowAssetNFT(
     override val contract: FlowAddress,
-    override val value: Long,
+    override val value: BigDecimal,
     val tokenId: TokenId
 ): FlowAsset()
 
 data class FlowAssetFungible(
     override val contract: FlowAddress,
-    override val value: Long,
+    override val value: BigDecimal,
 ): FlowAsset()
 
 data class OrderActivityMatchSide(val maker: FlowAddress, val asset: FlowAsset)

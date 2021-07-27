@@ -8,6 +8,7 @@ import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import org.bson.types.ObjectId
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
+import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
@@ -66,12 +67,12 @@ class OrderOpenedListener(
                     maker = maker,
                     make = FlowAssetNFT(
                         contract = contract,
-                        value = 1L,
+                        value = BigDecimal.valueOf(1L),
                         tokenId = tokenId
                     ),
                     take = FlowAssetFungible(
                         contract = FlowAddress(bidType),
-                        value = bidAmount.toLong()
+                        value = bidAmount
                     )
                 )
             )
