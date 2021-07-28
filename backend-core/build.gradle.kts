@@ -11,6 +11,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
     implementation("com.rarible.protocol:flow-protocol-model-nft:2.0.0-SNAPSHOT")
+//    implementation("com.rarible.protocol:flow-protocol-model-common:2.0.1-SNAPSHOT")
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
