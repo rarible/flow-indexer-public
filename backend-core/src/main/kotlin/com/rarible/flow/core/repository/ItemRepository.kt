@@ -5,34 +5,43 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrDefault
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.onflow.sdk.FlowAddress
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
-import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.core.query.isEqualTo
-import org.springframework.data.mongodb.core.query.lt
+import org.springframework.data.mongodb.core.findById
+import org.springframework.data.mongodb.core.query.*
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
 
 
 interface ItemRepository: ReactiveMongoRepository<Item, ItemId>, ItemRepositoryCustom {
-    fun findAllByOwner(owner: FlowAddress): Flux<Item>
 
     fun findAllByCreator(creator: FlowAddress): Flux<Item>
 
     fun findAllByListedIsTrue(): Flux<Item>
+
 }
 
-interface ItemRepositoryCustom: ContinuationRepositoryCustom<Item, ItemFilter>
+interface ItemRepositoryCustom: ContinuationRepositoryCustom<Item, ItemFilter> {
+    suspend fun markDeleted(itemId: ItemId): Item?
+}
 
 @Suppress("unused")
 class ItemRepositoryCustomImpl(
     private val mongo: ReactiveMongoTemplate
 ): ItemRepositoryCustom {
+
+    override suspend fun markDeleted(itemId: ItemId): Item? {
+        return mongo
+            .findById<Item>(itemId)
+            .awaitFirstOrNull()
+            ?.let { item ->
+                mongo.save(item.markDeleted()).awaitFirstOrNull()
+            }
+    }
 
     override suspend fun search(filter: ItemFilter, cont: Continuation?, limit: Int?): Flow<Item> {
         val criteria = when (filter) {
@@ -50,14 +59,14 @@ class ItemRepositoryCustomImpl(
         return result.asFlow()
     }
 
-    private fun all(): Criteria = Criteria()
+    private fun all(): Criteria = Item::deleted isEqualTo false
 
     private fun byOwner(owner: FlowAddress): Criteria {
-        return Item::owner isEqualTo owner
+        return (Item::owner isEqualTo owner).andOperator(all())
     }
 
     private fun byCreator(creator: FlowAddress): Criteria {
-        return Item::creator isEqualTo creator
+        return (Item::creator isEqualTo creator).andOperator(all())
     }
 
     private fun mongoSort(sort: ItemFilter.Sort?): Sort {

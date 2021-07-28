@@ -4,12 +4,15 @@ import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.TokenId
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -74,6 +77,23 @@ internal class ItemRepositoryTest {
         val read = itemRepository.coFindAll()
 
         read.count() shouldBe 2
+    }
+
+    @Test
+    fun `should mark item as deleted`() = runBlocking<Unit> {
+        var item = createItem()
+        itemRepository.coSave(item)
+
+        var items = itemRepository.search(ItemFilter.All, null, null).toList()
+        items shouldHaveSize 1
+
+        itemRepository.markDeleted(item.id)
+
+        item = itemRepository.findById(item.id).awaitFirst()
+        item.deleted shouldBe true
+
+        items = itemRepository.search(ItemFilter.All, null, null).toList()
+        items shouldHaveSize 0
     }
 
     fun createItem(tokenId: TokenId = 42) = Item(
