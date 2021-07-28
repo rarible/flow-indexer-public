@@ -1,26 +1,33 @@
 package com.rarible.flow.listener.handler.listeners
 
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.domain.TokenId
-import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.OrderRepositoryR
-import com.rarible.flow.core.repository.coFindById
-import com.rarible.flow.core.repository.coSave
+import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.repository.*
+import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.listener.handler.EventHandler
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import org.bson.types.ObjectId
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
+import java.math.BigDecimal
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.util.*
 
 @Component(OrderOpenedListener.ID)
 class OrderOpenedListener(
     private val itemRepository: ItemRepository,
     private val orderRepository: OrderRepositoryR,
-    private val protocolEventPublisher: ProtocolEventPublisher
+    private val protocolEventPublisher: ProtocolEventPublisher,
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
+    private val itemHistoryRepository: ItemHistoryRepository
 ) : SmartContractEventHandler<Unit> {
 
-    override suspend fun handle(contract: FlowAddress, tokenId: TokenId, fields: Map<String, Any?>) {
+    override suspend fun handle(
+        contract: FlowAddress,
+        tokenId: TokenId,
+        fields: Map<String, Any?>,
+        blockInfo: BlockInfo
+    ): Unit {
         val askType = fields["askType"] as String
         val askId = (fields["askId"] as String).toLong()
         val bidType = fields["bidType"] as String
@@ -50,6 +57,26 @@ class OrderOpenedListener(
                 val result = protocolEventPublisher.onItemUpdate(saved)
                 EventHandler.log.info("item update message is sent: $result")
             }
+        itemHistoryRepository.coSave(
+            ItemHistory(
+                id = UUID.randomUUID().toString(),
+                date = LocalDateTime.now(ZoneOffset.UTC),
+                activity = FlowNftOrderActivityList(
+                    price = bidAmount,
+                    hash = UUID.randomUUID().toString(), //todo delete hash
+                    maker = maker,
+                    make = FlowAssetNFT(
+                        contract = contract,
+                        value = BigDecimal.valueOf(1L),
+                        tokenId = tokenId
+                    ),
+                    take = FlowAssetFungible(
+                        contract = FlowAddress(bidType),
+                        value = bidAmount
+                    )
+                )
+            )
+        )
     }
 
 
@@ -58,3 +85,4 @@ class OrderOpenedListener(
     }
 
 }
+

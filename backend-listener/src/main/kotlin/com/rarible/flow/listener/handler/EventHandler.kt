@@ -2,6 +2,7 @@ package com.rarible.flow.listener.handler
 
 import com.rarible.core.daemon.sequential.ConsumerEventHandler
 import com.rarible.flow.core.domain.TokenId
+import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.handler.listeners.SmartContractEventHandler
@@ -24,7 +25,7 @@ class EventHandler(
             smartContractEventHandlers.getOrDefault(
                 event.eventId.contractEvent(),
                 NoOpHandler(event.eventId)
-            ).handle(contract, tokenId, event.fields)
+            ).handle(contract, tokenId, event.fields, event.blockInfo)
         }
     }
 
@@ -32,7 +33,12 @@ class EventHandler(
     companion object {
         val log by Log()
         class NoOpHandler(val eventId: EventId): SmartContractEventHandler<Unit> {
-            override suspend fun handle(contract: FlowAddress, tokenId: TokenId, fields: Map<String, Any?>) {
+            override suspend fun handle(
+                contract: FlowAddress,
+                tokenId: TokenId,
+                fields: Map<String, Any?>,
+                blockInfo: BlockInfo
+            ): Unit {
                 log.info("Skipping unknown or untracked event [$eventId] for [$contract.$tokenId] with fields [${fields}]")
             }
         }
