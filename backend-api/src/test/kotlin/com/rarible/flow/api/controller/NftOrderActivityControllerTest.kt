@@ -1,9 +1,11 @@
 package com.rarible.flow.api.controller
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemHistoryRepository
-import com.rarible.protocol.dto.*
+import com.rarible.protocol.dto.BurnDto
+import com.rarible.protocol.dto.FlowActivitiesDto
+import com.rarible.protocol.dto.MintDto
+import com.rarible.protocol.dto.TransferDto
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -13,9 +15,9 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.expectBodyList
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils
 import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
 
@@ -33,6 +35,7 @@ import java.util.*
 @ActiveProfiles("test")
 class NftOrderActivityControllerTest {
 
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private lateinit var repo: ItemHistoryRepository
 
@@ -45,7 +48,7 @@ class NftOrderActivityControllerTest {
     }
 
     @Test
-    fun `should return all activities`() {
+    fun `should return all activities by item`() {
         val expectedTokenId = RandomUtils.nextLong().toULong().toLong()
         val expectedContract = randomAddress()
 
@@ -141,7 +144,7 @@ class NftOrderActivityControllerTest {
     private fun randomAddress() = "0x${RandomStringUtils.random(16, "0123456789ABCDEF")}".lowercase(Locale.ENGLISH)
 
     @Test
-    fun `should return 1 activity`() {
+    fun `should return 1 activity by item`() {
         val mintActivity = MintActivity(
             owner = FlowAddress(randomAddress()),
             contract = FlowAddress(randomAddress()),
@@ -205,5 +208,93 @@ class NftOrderActivityControllerTest {
         Assertions.assertEquals(expected.tokenId.toString(), activity.tokenId, "Token ids are not equals!")
         Assertions.assertEquals(expected.owner.formatted, activity.owner, "Owner's addresses are not equals!")
         Assertions.assertEquals(expected.contract.formatted, activity.contract, "Contract's addresses are not equals!")
+    }
+
+    @Test
+    fun `should return 1 activity by userFrom and 3 activities for userTo`() {
+        val userFrom = FlowAddress(randomAddress())
+        val userTo = FlowAddress(randomAddress())
+
+        val mintActivity = MintActivity(
+            owner = userTo,
+            contract = FlowAddress(randomAddress()),
+            tokenId = RandomUtils.nextLong().toULong().toLong(),
+            value = RandomUtils.nextLong().toULong().toLong(),
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = RandomUtils.nextLong().toULong().toLong(),
+        )
+
+        val transferActivity = TransferActivity(
+            from = userFrom,
+            owner = userTo,
+            contract = FlowAddress(randomAddress()),
+            tokenId = RandomUtils.nextLong().toULong().toLong(),
+            value = RandomUtils.nextLong().toULong().toLong(),
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = RandomUtils.nextLong().toULong().toLong(),
+        )
+
+        val burnActivity = BurnActivity(
+            owner = userTo,
+            contract = FlowAddress(randomAddress()),
+            tokenId = RandomUtils.nextLong().toULong().toLong(),
+            value = RandomUtils.nextLong().toULong().toLong(),
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = RandomUtils.nextLong().toULong().toLong(),
+        )
+
+        val expectedTokenId = RandomUtils.nextLong().toULong().toLong()
+        val expectedContract = randomAddress()
+        val expected = mintActivity.copy(tokenId = expectedTokenId, contract = FlowAddress(expectedContract), owner = userFrom)
+
+        val history = listOf(
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now() + Duration.ofSeconds(1L), mintActivity),
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now() + Duration.ofSeconds(3L), expected),
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now() + Duration.ofSeconds(6L), transferActivity),
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now() + Duration.ofSeconds(9L), burnActivity),
+        )
+
+        repo.saveAll(history).then().block()
+
+        var activities = client.get()
+            .uri("/v0.1/activities/byUser?type=TRANSFER_FROM&user=${userFrom.formatted}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(FlowActivitiesDto::class.java)
+            .returnResult().responseBody!!
+
+        Assertions.assertNotNull(activities)
+        Assertions.assertTrue(activities.items.isNotEmpty())
+        Assertions.assertTrue(activities.items.size == 1)
+        Assertions.assertTrue(activities.items[0] is TransferDto)
+        val item = activities.items[0] as TransferDto
+        Assertions.assertEquals(item.from, userFrom.formatted, "Users is not equals!")
+
+
+        activities = client.get()
+            .uri("/v0.1/activities/byUser?type=MINT,BURN,TRANSFER_TO&user=${userTo.formatted}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(FlowActivitiesDto::class.java)
+            .returnResult().responseBody!!
+
+        Assertions.assertNotNull(activities)
+        Assertions.assertTrue(activities.items.isNotEmpty())
+        Assertions.assertTrue(activities.items.size == 3)
+
+        Assertions.assertTrue(activities.items[0] is MintDto)
+        Assertions.assertTrue(activities.items[1] is TransferDto)
+        Assertions.assertTrue(activities.items[2] is BurnDto)
+
+        val mint = activities.items[0] as MintDto
+        val transfer = activities.items[1] as TransferDto
+        val burn = activities.items[2] as BurnDto
+
+        Assertions.assertEquals(mint.owner, mintActivity.owner.formatted, "Mint activity: owners are not equals!")
+        Assertions.assertEquals(transfer.owner, transferActivity.owner.formatted, "Transfer activity: owners are not equals!")
+        Assertions.assertNotEquals(burn.owner, burnActivity.owner?.formatted.orEmpty(), "Burn activity: owners are equals! Returned owner must be null!")
     }
 }
