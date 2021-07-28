@@ -83,4 +83,6 @@ class OrderOpenedListener(
     companion object {
         const val ID = "RegularSaleOrder.OrderOpened"
     }
+
 }
+

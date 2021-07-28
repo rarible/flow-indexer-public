@@ -4,6 +4,7 @@ import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.TokenId
+import com.rarible.flow.log.Log
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
@@ -28,10 +29,9 @@ import java.time.temporal.ChronoUnit
 ])
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
-internal class ItemRepositoryPaginationTest {
-
-    @Autowired
-    lateinit var itemRepository: ItemRepository
+internal class ItemRepositoryPaginationTest(
+    @Autowired val itemRepository: ItemRepository
+) {
 
     @BeforeEach
     fun beforeEach() {
@@ -40,6 +40,8 @@ internal class ItemRepositoryPaginationTest {
 
     @Test
     fun `should save and find by account`() = runBlocking<Unit> {
+        log.info("Starting...")
+
         val item1Owner1 = createItem().copy(date = Instant.now().minus(1, ChronoUnit.DAYS))
         itemRepository.coSave(item1Owner1)
 
@@ -48,35 +50,45 @@ internal class ItemRepositoryPaginationTest {
 
         val item1Owner2 = createItem(44).copy(owner = FlowAddress("0x0300"))
         itemRepository.coSave(item1Owner2)
+        log.info("Set up items.")
 
         //owner1 - read the latest
         var read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner), null, 1)
+        log.info("Search done")
         read.count() shouldBe 1
         read.collect {
             it.id shouldBe item2Owner1.id
         }
+        log.info("Step 1 done")
 
         //owner1 - read next and the last
         read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner), Continuation(item2Owner1.date, item2Owner1.id), 1)
+        log.info("Search done")
         read.count() shouldBe 1
         read.collect {
             it.id shouldBe item1Owner1.id
         }
+        log.info("Step 2 done")
 
         //owner1 - try to read more
         read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner), Continuation(item1Owner1.date, item1Owner1.id), 1)
+        log.info("Search done")
         read.count() shouldBe 0
+        log.info("Step 3 done")
 
         //another owner
         read = itemRepository.search(ItemFilter.ByOwner(item1Owner2.owner), null, 100)
+        log.info("Search done")
         read.count() shouldBe 1
         read.collect {
             it.id shouldBe item1Owner2.id
         }
+        log.info("Step 4 done")
     }
 
     @Test
     fun `should save and find by creator`() = runBlocking<Unit> {
+        log.info("Starting...")
         val item1 = createItem().copy(date = Instant.now().minus(1, ChronoUnit.DAYS))
         itemRepository.coSave(item1)
 
@@ -85,6 +97,7 @@ internal class ItemRepositoryPaginationTest {
 
         val anotherCreator = createItem(44).copy(creator = FlowAddress("0x0300"))
         itemRepository.coSave(anotherCreator)
+        log.info("Set up items.")
 
         //owner1 - read the latest
         var read = itemRepository.search(ItemFilter.ByCreator(item1.creator), null, 1)
@@ -126,6 +139,7 @@ internal class ItemRepositoryPaginationTest {
         read.collect {
             it.id shouldBe item2.id
         }
+        log.info("Step 1 done")
 
         //read next and the last
         read = itemRepository.search(ItemFilter.All, Continuation(item2.date, item2.id), 1)
@@ -133,10 +147,12 @@ internal class ItemRepositoryPaginationTest {
         read.collect {
             it.id shouldBe item1.id
         }
+        log.info("Step 2 done")
 
         //try to read more
         read = itemRepository.search(ItemFilter.All, Continuation(item1.date, item1.id), 1)
         read.count() shouldBe 0
+        log.info("Step 3 done")
     }
 
     fun createItem(tokenId: TokenId = 42) = Item(
@@ -147,4 +163,8 @@ internal class ItemRepositoryPaginationTest {
         FlowAddress("0x02"),
         Instant.now()
     )
+
+    companion object {
+        val log by Log()
+    }
 }

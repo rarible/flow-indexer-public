@@ -15,7 +15,7 @@ class OpenApiController() {
     )
     fun openapiYaml(): InputStreamResource {
         return InputStreamResource(
-            OpenApiController::class.java.getResourceAsStream("/nft-api.yaml")
+            OpenApiController::class.java.getResourceAsStream("/openapi.yaml")
         )
     }
 

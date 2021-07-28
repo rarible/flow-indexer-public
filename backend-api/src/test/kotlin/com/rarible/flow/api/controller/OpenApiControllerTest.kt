@@ -31,7 +31,7 @@ internal class OpenApiControllerTest(
             .exchange()
             .expectStatus().isOk
             .expectBody<String>().consumeWith {
-                it.responseBody shouldContain "title: NFT API"
+                it.responseBody shouldContain "title: \"OpenAPI definition\""
             }
     }
 
