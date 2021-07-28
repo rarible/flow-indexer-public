@@ -41,7 +41,8 @@ data class Item(
     val owner: FlowAddress,
     val date: Instant,
     val meta: String? = null,
-    val listed: Boolean = false
+    val listed: Boolean = false,
+    val deleted: Boolean = false
 ) {
 
     @get:Id
@@ -49,5 +50,9 @@ data class Item(
     var id: ItemId
         get() = ItemId(this.contract, this.tokenId)
         set(_) {}
+
+    fun markDeleted(): Item {
+        return copy(deleted = true)
+    }
 }
 

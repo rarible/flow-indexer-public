@@ -9,6 +9,7 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.events.BlockInfo
+import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.listener.handler.EventHandler
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
@@ -54,7 +55,7 @@ class DestroyListener(
         )
 
         val items = async {
-            itemRepository.deleteById(itemId).awaitSingle()
+            itemRepository.markDeleted(itemId)
         }
         val ownerships = async {
             ownershipRepository.deleteAllByContractAndTokenId(contract, tokenId).awaitSingle()
@@ -62,8 +63,7 @@ class DestroyListener(
 
         items.await()?.let { _ ->
             val result = protocolEventPublisher.onItemDelete(itemId)
-            EventHandler.log.info("item delete message is sent: $result")
-
+            log.info("item delete message is sent: $result")
         }
         ownerships.await()
 
