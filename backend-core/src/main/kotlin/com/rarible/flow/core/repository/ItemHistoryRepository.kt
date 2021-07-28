@@ -26,8 +26,4 @@ interface ItemHistoryRepository: ReactiveMongoRepository<ItemHistory, String> {
 
     @Query("{\$and: [{'activity.type': {\$eq: 'TRANSFER'}}, {'activity.from': {\$in: ?0}}]}", sort = "{'activity.date': -1}")
     fun getNftOrderTransferFromActivitiesByUser(user: List<FlowAddress>): Flux<ItemHistory>
-
-    @Query("{\$and: [{'activity.type': {\$in: ?0}}, {'activity.owner': {\$in:  ?1}}]}", sort = "{'activity.date': -1}")
-    fun getNftOrderActivitiesByCollection(types: List<FlowActivityType>, user: List<FlowAddress>): Flux<ItemHistory>
-
 }
