@@ -4,6 +4,7 @@ import com.rarible.flow.core.domain.FlowActivityType
 import com.rarible.flow.core.domain.toDto
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.protocol.dto.*
+import org.onflow.sdk.Flow
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
@@ -73,6 +74,15 @@ class ActivitiesService(
                 continuation = continuation
             ).toMono()
         }
+    }
+
+    fun getNfdOrderActivitiesByCollection(
+        type: List<String>,
+        collection: String,
+        continuation: String?,
+        size: Int?
+    ): Mono<FlowActivitiesDto> {
+        TODO("Need realize! Or switch to PostgreSQL!")
     }
 
 

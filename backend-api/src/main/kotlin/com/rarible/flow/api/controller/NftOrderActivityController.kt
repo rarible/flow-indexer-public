@@ -11,6 +11,15 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @CrossOrigin
 class NftOrderActivityController(private val service: ActivitiesService): FlowNftOrderActivityControllerApi {
+
+    override suspend fun getNftOrderActivitiesByCollection(
+        type: List<String>,
+        collection: String,
+        continuation: String?,
+        size: Int?
+    ): ResponseEntity<FlowActivitiesDto> =
+        ResponseEntity.ok(service.getNfdOrderActivitiesByCollection(type, collection, continuation, size).awaitFirst())
+
     override suspend fun getNftOrderActivitiesByItem(
         type: List<String>,
         contract: String,
