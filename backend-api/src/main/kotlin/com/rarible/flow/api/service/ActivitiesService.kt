@@ -75,6 +75,21 @@ class ActivitiesService(
         }
     }
 
+    fun getNftOrderAllActivities(type: List<String>, continuation: String?, size: Int?): Mono<FlowActivitiesDto> {
+        val types = if (type.isEmpty()) {
+            FlowActivityType.values().toList()
+        } else {
+            type.map { FlowActivityType.valueOf(it) }.toList()
+        }
+
+        return itemHistoryRepository.getAllActivities(types).collectList().flatMap {
+            FlowActivitiesDto(
+                items = it.map { it.activity.toDto(it.id, it.date) },
+                continuation = continuation
+            ).toMono()
+        }
+    }
+
 
 }
 

@@ -297,4 +297,72 @@ class NftOrderActivityControllerTest {
         Assertions.assertEquals(transfer.owner, transferActivity.owner.formatted, "Transfer activity: owners are not equals!")
         Assertions.assertNotEquals(burn.owner, burnActivity.owner?.formatted.orEmpty(), "Burn activity: owners are equals! Returned owner must be null!")
     }
+
+    @Test
+    fun `should return all activities`() {
+        val userFrom = FlowAddress(randomAddress())
+        val userTo = FlowAddress(randomAddress())
+
+        val mintActivity = MintActivity(
+            owner = userTo,
+            contract = FlowAddress(randomAddress()),
+            tokenId = RandomUtils.nextLong().toULong().toLong(),
+            value = RandomUtils.nextLong().toULong().toLong(),
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = RandomUtils.nextLong().toULong().toLong(),
+        )
+
+        val transferActivity = TransferActivity(
+            from = userFrom,
+            owner = userTo,
+            contract = FlowAddress(randomAddress()),
+            tokenId = RandomUtils.nextLong().toULong().toLong(),
+            value = RandomUtils.nextLong().toULong().toLong(),
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = RandomUtils.nextLong().toULong().toLong(),
+        )
+
+        val burnActivity = BurnActivity(
+            owner = userTo,
+            contract = FlowAddress(randomAddress()),
+            tokenId = RandomUtils.nextLong().toULong().toLong(),
+            value = RandomUtils.nextLong().toULong().toLong(),
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = RandomUtils.nextLong().toULong().toLong(),
+        )
+
+        val history = listOf(
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now() + Duration.ofSeconds(1L), mintActivity),
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now() + Duration.ofSeconds(6L), transferActivity),
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now() + Duration.ofSeconds(9L), burnActivity),
+        )
+        repo.saveAll(history).then().block()
+
+        val activities = client.get()
+            .uri("/v0.1/activities/all?type=")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(FlowActivitiesDto::class.java)
+            .returnResult().responseBody!!
+
+        Assertions.assertNotNull(activities)
+        Assertions.assertTrue(activities.items.isNotEmpty())
+        Assertions.assertTrue(activities.items.size == 3)
+
+        Assertions.assertTrue(activities.items[0] is MintDto)
+        Assertions.assertTrue(activities.items[1] is TransferDto)
+        Assertions.assertTrue(activities.items[2] is BurnDto)
+
+        val mint = activities.items[0] as MintDto
+        val transfer = activities.items[1] as TransferDto
+        val burn = activities.items[2] as BurnDto
+
+        Assertions.assertEquals(mint.owner, mintActivity.owner.formatted, "Mint activity: owners are not equals!")
+        Assertions.assertEquals(transfer.owner, transferActivity.owner.formatted, "Transfer activity: owners are not equals!")
+        Assertions.assertNotEquals(burn.owner, burnActivity.owner?.formatted.orEmpty(), "Burn activity: owners are equals! Returned owner must be null!")
+
+    }
 }
