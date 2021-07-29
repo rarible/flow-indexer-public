@@ -2,6 +2,7 @@ package com.rarible.flow.api.controller
 
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemHistoryRepository
+import com.rarible.flow.randomAddress
 import com.rarible.protocol.dto.BurnDto
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.MintDto
@@ -15,7 +16,6 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils
 import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils
 import java.time.Duration
 import java.time.LocalDateTime
@@ -141,7 +141,7 @@ class NftOrderActivityControllerTest {
 
     }
 
-    private fun randomAddress() = "0x${RandomStringUtils.random(16, "0123456789ABCDEF")}".lowercase(Locale.ENGLISH)
+
 
     @Test
     fun `should return 1 activity by item`() {
