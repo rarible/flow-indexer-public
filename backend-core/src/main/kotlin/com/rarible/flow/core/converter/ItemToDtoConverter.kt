@@ -12,7 +12,7 @@ object ItemToDtoConverter : Converter<Item, FlowNftItemDto> {
             item.contract.formatted,
             item.tokenId.toInt(),
             item.creator.formatted,
-            item.owner.formatted,
+            item.owner?.formatted,
             item.meta,
             item.date,
             false
