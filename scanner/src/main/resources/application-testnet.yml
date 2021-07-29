@@ -17,10 +17,10 @@ scanner:
     - "5c9fd048deb56cd4" #Veolet
     - "2695ea898b04f0c0" #marketplace unknown
     - "a6f77977aca4f3ac" #MotoGP
-    - "e4e5f90bf7e2a25f" #Rari_v2
+    - "fcfb23c627a63d40" #Rari_v3
 
   sporks:
     -
-      name: "Devnet24"
+      name: "Devnet25"
       nodeUrl: "access.devnet.nodes.onflow.org:9000"
-      firstBlockHeight: 36290422
+      firstBlockHeight: 39272449
