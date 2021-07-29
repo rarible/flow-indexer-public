@@ -14,7 +14,7 @@ data class OwnershipId(
 ) {
 
     override fun toString(): String {
-        return "$contract:$tokenId:$owner"
+        return "${contract.formatted}:$tokenId:${owner.formatted}"
     }
 
     companion object {

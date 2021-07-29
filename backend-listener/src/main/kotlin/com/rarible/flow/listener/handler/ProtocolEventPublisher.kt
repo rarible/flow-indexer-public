@@ -4,18 +4,21 @@ import com.rarible.core.kafka.KafkaMessage
 import com.rarible.core.kafka.KafkaSendResult
 import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.flow.core.converter.ItemToDtoConverter
+import com.rarible.flow.core.converter.OwnershipToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Ownership
 import com.rarible.protocol.dto.*
 import java.util.*
 
 
 class ProtocolEventPublisher(
-    private val gatewayKafkaProducer: RaribleKafkaProducer<FlowNftItemEventDto>
+    private val items: RaribleKafkaProducer<FlowNftItemEventDto>,
+    private val ownerships: RaribleKafkaProducer<FlowOwnershipEventDto>
 ) {
 
     suspend fun onItemUpdate(item: Item): KafkaSendResult {
-        return gatewayKafkaProducer.send(
+        return items.send(
             KafkaMessage(
                 item.id.toString(),
                 FlowNftItemUpdateEventDto(
@@ -28,8 +31,21 @@ class ProtocolEventPublisher(
         )
     }
 
+    suspend fun onUpdate(ownership: Ownership): KafkaSendResult {
+        return ownerships.send(
+            KafkaMessage(
+                ownership.id.toString(),
+                FlowNftOwnershipUpdateEventDto(
+                    eventId = "${ownership.id}.${UUID.randomUUID()}",
+                    ownershipId = ownership.id.toString(),
+                    OwnershipToDtoConverter.convert(ownership)
+                )
+            )
+        )
+    }
+
     suspend fun onItemDelete(itemId: ItemId): KafkaSendResult {
-        return gatewayKafkaProducer.send(
+        return items.send(
             KafkaMessage(
                 itemId.toString(),
                 FlowNftItemDeleteEventDto(
