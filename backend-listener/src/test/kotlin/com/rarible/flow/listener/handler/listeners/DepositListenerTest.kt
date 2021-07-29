@@ -27,7 +27,7 @@ internal class DepositListenerTest: FunSpec({
         },
 
         mockk() {
-            val ownerships = listOf(Ownership(item.contract, item.tokenId, item.owner, item.date))
+            val ownerships = listOf(Ownership(item.contract, item.tokenId, item.owner!!, item.date))
             every { findAllByContractAndTokenId(any(), any()) } returns
                     Flux.fromIterable(ownerships)
             every { saveAll(any<Iterable<Ownership>>()) } returns Flux.fromIterable(ownerships)
