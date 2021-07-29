@@ -8,6 +8,7 @@ import com.rarible.flow.log.Log
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

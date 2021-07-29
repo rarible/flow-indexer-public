@@ -5,6 +5,8 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrDefault
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.onflow.sdk.FlowAddress
@@ -43,7 +45,7 @@ class ItemRepositoryCustomImpl(
             }
     }
 
-    override suspend fun search(filter: ItemFilter, cont: Continuation?, limit: Int?): Flow<Item> {
+    override fun search(filter: ItemFilter, cont: Continuation?, limit: Int?): Flow<Item> {
         val criteria = when (filter) {
             is ItemFilter.All -> all()
             is ItemFilter.ByCreator -> byCreator(filter.creator)
@@ -54,9 +56,7 @@ class ItemRepositoryCustomImpl(
             mongoSort(filter.sort)
         ).limit(limit ?: DEFAULT_LIMIT)
 
-        val result = mongo.find<Item>(query).collectList().awaitFirstOrDefault(emptyList())
-        log.info("Found {} items by filter {} with continuation {} and limit {}", result.size, filter, cont, limit)
-        return result.asFlow()
+        return mongo.find<Item>(query).asFlow()
     }
 
     private fun all(): Criteria = Item::deleted isEqualTo false
