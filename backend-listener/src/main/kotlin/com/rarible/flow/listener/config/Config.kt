@@ -15,6 +15,8 @@ import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.listener.handler.listeners.SmartContractEventHandler
 import com.rarible.protocol.dto.FlowNftItemEventDto
 import com.rarible.protocol.dto.FlowNftItemEventTopicProvider
+import com.rarible.protocol.dto.FlowNftOwnershipEventTopicProvider
+import com.rarible.protocol.dto.FlowOwnershipEventDto
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -64,7 +66,7 @@ class Config(
     fun objectMapper(): ObjectMapper = commonMapper()
 
     @Bean
-    fun gatewayEventsProducer(): RaribleKafkaProducer<FlowNftItemEventDto> {
+    fun gatewayItemEventsProducer(): RaribleKafkaProducer<FlowNftItemEventDto> {
         return RaribleKafkaProducer(
             clientId = "${listenerProperties.environment}.flow.nft-events-importer",
             valueSerializerClass = JsonSerializer::class.java,
@@ -74,9 +76,23 @@ class Config(
     }
 
     @Bean
+    fun gatewayOwnershipEventsProducer(): RaribleKafkaProducer<FlowOwnershipEventDto> {
+        return RaribleKafkaProducer(
+            clientId = "${listenerProperties.environment}.flow.ownership-events-importer",
+            valueSerializerClass = JsonSerializer::class.java,
+            defaultTopic = FlowNftOwnershipEventTopicProvider.getTopic(listenerProperties.environment),
+            bootstrapServers = listenerProperties.kafkaReplicaSet
+        )
+    }
+
+    @Bean
     fun protocolEventPublisher(
-        gatewayEventsProducer: RaribleKafkaProducer<FlowNftItemEventDto>
-    ) = ProtocolEventPublisher(gatewayEventsProducer)
+        gatewayItemEventsProducer: RaribleKafkaProducer<FlowNftItemEventDto>,
+        gatewayOwnershipEventsProducer: RaribleKafkaProducer<FlowOwnershipEventDto>
+    ) = ProtocolEventPublisher(
+        gatewayItemEventsProducer,
+        gatewayOwnershipEventsProducer
+    )
 
 }
 
