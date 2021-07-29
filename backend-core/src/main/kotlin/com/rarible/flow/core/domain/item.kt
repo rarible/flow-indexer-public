@@ -38,7 +38,7 @@ data class Item(
     val tokenId: TokenId,
     val creator: FlowAddress,
     val royalties: List<Part>,
-    val owner: FlowAddress,
+    val owner: FlowAddress?,
     val date: Instant,
     val meta: String? = null,
     val listed: Boolean = false,
@@ -52,7 +52,10 @@ data class Item(
         set(_) {}
 
     fun markDeleted(): Item {
-        return copy(deleted = true)
+        return copy(
+            deleted = true,
+            owner = null
+        )
     }
 }
 
