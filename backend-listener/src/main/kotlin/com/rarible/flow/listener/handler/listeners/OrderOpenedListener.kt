@@ -37,14 +37,17 @@ class OrderOpenedListener(
         val maker = FlowAddress(fields["maker"] as String)
 
         val itemId = ItemId(contract, askId)
+        val item = itemRepository.coFindById(itemId)!!
         orderRepository.coSave(
             Order(
                 id = ObjectId.get(),
                 itemId = itemId,
                 maker = maker,
+                make = FlowAssetNFT(contract = item.contract, value = 1.toBigDecimal(), tokenId = item.tokenId),
+                data = OrderData(listOf(), listOf()), //TODO calculate all payouts and fees
                 amount = bidAmount,
                 buyerFee = buyerFee,
-                sellerFee = sellerFee
+                sellerFee = sellerFee,
             )
         )
 
