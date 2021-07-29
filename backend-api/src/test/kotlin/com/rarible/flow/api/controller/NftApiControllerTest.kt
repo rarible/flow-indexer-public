@@ -135,7 +135,7 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 1
-        response.items[0].owner shouldBe items[0].owner.formatted
+        response.items[0].owner shouldBe items[0].owner!!.formatted
 
         response = client
             .get()
@@ -145,7 +145,7 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 1
-        response.items[0].owner shouldBe items[1].owner.formatted
+        response.items[0].owner shouldBe items[1].owner!!.formatted
 
         response = client
             .get()
@@ -179,7 +179,7 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         respose.items shouldHaveSize 1
-        respose.items[0].owner shouldBe items[0].owner.formatted
+        respose.items[0].owner shouldBe items[0].owner!!.formatted
 
         respose = client
             .get()
@@ -189,7 +189,7 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         respose.items shouldHaveSize 1
-        respose.items[0].owner shouldBe items[1].owner.formatted
+        respose.items[0].owner shouldBe items[1].owner!!.formatted
 
         respose = client
             .get()

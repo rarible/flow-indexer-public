@@ -54,7 +54,7 @@ internal class ItemRepositoryPaginationTest(
         log.info("Set up items.")
 
         //owner1 - read the latest
-        var read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner), null, 1)
+        var read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner!!), null, 1)
         log.info("Search done")
         read.count() shouldBe 1
         read.collect {
@@ -63,7 +63,7 @@ internal class ItemRepositoryPaginationTest(
         log.info("Step 1 done")
 
         //owner1 - read next and the last
-        read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner), Continuation(item2Owner1.date, item2Owner1.id), 1)
+        read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner!!), Continuation(item2Owner1.date, item2Owner1.id), 1)
         log.info("Search done")
         read.count() shouldBe 1
         read.collect {
@@ -72,13 +72,13 @@ internal class ItemRepositoryPaginationTest(
         log.info("Step 2 done")
 
         //owner1 - try to read more
-        read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner), Continuation(item1Owner1.date, item1Owner1.id), 1)
+        read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner!!), Continuation(item1Owner1.date, item1Owner1.id), 1)
         log.info("Search done")
         read.count() shouldBe 0
         log.info("Step 3 done")
 
         //another owner
-        read = itemRepository.search(ItemFilter.ByOwner(item1Owner2.owner), null, 100)
+        read = itemRepository.search(ItemFilter.ByOwner(item1Owner2.owner!!), null, 100)
         log.info("Search done")
         read.count() shouldBe 1
         read.collect {
