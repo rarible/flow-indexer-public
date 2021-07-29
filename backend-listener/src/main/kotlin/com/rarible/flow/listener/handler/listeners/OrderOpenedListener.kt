@@ -5,6 +5,7 @@ import com.rarible.flow.core.repository.*
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.listener.handler.EventHandler
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
+import com.rarible.flow.log.Log
 import org.bson.types.ObjectId
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
@@ -27,8 +28,8 @@ class OrderOpenedListener(
         tokenId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
-    ): Unit {
-        val askType = fields["askType"] as String
+    ) {
+        val askType = fields["askType"] as String?
         val askId = (fields["askId"] as String).toLong()
         val bidType = fields["bidType"] as String
         val bidAmount = (fields["bidAmount"] as String).toBigDecimal()
@@ -58,7 +59,7 @@ class OrderOpenedListener(
             }
             ?.let { saved ->
                 val result = protocolEventPublisher.onItemUpdate(saved)
-                EventHandler.log.info("item update message is sent: $result")
+                log.info("item update message is sent: $result")
             }
         itemHistoryRepository.coSave(
             ItemHistory(
@@ -85,6 +86,7 @@ class OrderOpenedListener(
 
     companion object {
         const val ID = "RegularSaleOrder.OrderOpened"
+        val log by Log()
     }
 
 }
