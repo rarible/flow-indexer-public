@@ -70,7 +70,7 @@ class DestroyListener(
     }
 
     companion object {
-        const val ID = "NFTProvider.Destroy"
+        const val ID = "CommonNFT.Destroy"
         val log by Log()
     }
 }

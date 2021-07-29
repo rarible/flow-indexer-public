@@ -85,7 +85,7 @@ class MintListener(
     }
 
     companion object {
-        const val ID =  "NFTProvider.Mint"
+        const val ID =  "CommonNFT.Mint"
 
         val log by Log()
     }

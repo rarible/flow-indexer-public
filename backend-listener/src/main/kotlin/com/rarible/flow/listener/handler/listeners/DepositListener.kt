@@ -46,7 +46,7 @@ class DepositListener(
     }
 
     companion object {
-        const val ID = "NFTProvider.Deposit"
+        const val ID = "CommonNFT.Deposit"
         val log by Log()
     }
 }
