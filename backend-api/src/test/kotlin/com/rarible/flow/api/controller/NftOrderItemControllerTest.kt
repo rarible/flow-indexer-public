@@ -108,4 +108,68 @@ class NftOrderItemControllerTest {
         Assertions.assertTrue(response.items.size == 1)
     }
 
+    @Test
+    fun `should return all items on sale`() {
+        val nftContract = FlowAddress(randomAddress())
+        val nftOwner = FlowAddress(randomAddress())
+        val tokenId = 42L
+        val nftId = ItemId(nftContract, tokenId)
+        val item = Item(
+            contract = nftContract,
+            tokenId = tokenId,
+            creator = nftOwner,
+            royalties = listOf(),
+            owner = nftOwner,
+            date = Instant.now()
+        )
+
+        itemRepository.saveAll(
+            listOf(item, item.copy(tokenId = 500L), item.copy(tokenId = 600L))
+        ).then().block()
+
+        val order = Order(
+            id = ObjectId.get(),
+            itemId = nftId,
+            maker = nftOwner,
+            make = FlowAssetNFT(
+                contract = nftContract,
+                value = 1.toBigDecimal(),
+                tokenId = tokenId
+            ),
+            amount = 1000.toBigDecimal(),
+            sellerFee = 0.toBigDecimal(),
+            buyerFee = 0.toBigDecimal(),
+            data = OrderData(
+                payouts = listOf(), originalFees = listOf()
+            )
+        )
+
+        orderRepositoryR.saveAll(
+            listOf(
+                order,
+                order.copy(
+                    id = ObjectId.get(),
+                    taker = FlowAddress(randomAddress()),
+                ),
+                order.copy(
+                    id = ObjectId.get(),
+                    maker = FlowAddress(randomAddress()),
+                    itemId = ItemId(contract = nftContract, tokenId = 500L)
+                )
+            )
+        ).collectList().block()
+
+        val response = client.get()
+            .uri("/v0.1/items/all")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(FlowNftItemsDto::class.java)
+            .returnResult().responseBody!!
+
+        Assertions.assertNotNull(response)
+        Assertions.assertTrue(response.items.isNotEmpty())
+        Assertions.assertTrue(response.items.size == 2)
+
+    }
+
 }

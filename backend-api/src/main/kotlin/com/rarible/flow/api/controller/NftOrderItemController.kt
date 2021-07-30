@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RestController
 class NftOrderItemController(
     private val orderItemService: OrderItemService
 ): FlowNftOrderItemControllerApi {
+    override suspend fun getNftOrderAllItems(continuation: String?, size: Int?): ResponseEntity<FlowNftItemsDto> =
+        ResponseEntity.ok(orderItemService.allOnSale(continuation, size).awaitSingle())
+
     override suspend fun getNftOrderItemsByOwner(
         owner: String,
         continuation: String?,
