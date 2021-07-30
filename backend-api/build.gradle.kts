@@ -16,6 +16,7 @@ dependencies {
     implementation("com.rarible.protocol:flow-protocol-api-nft-order:2.0.0-SNAPSHOT")
     implementation("com.rarible.protocol:flow-protocol-api-order:2.0.0-SNAPSHOT")
     implementation("com.rarible.protocol:flow-protocol-model-order:2.0.0-SNAPSHOT")
+    implementation("com.rarible.protocol:flow-api:2.0.0-SNAPSHOT")
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
     implementation("org.springframework.boot:spring-boot-starter-hateoas")
     implementation(rootProject.libs.bundles.rarible.core)

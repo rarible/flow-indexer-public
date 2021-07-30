@@ -25,6 +25,8 @@ interface ItemRepository: ReactiveMongoRepository<Item, ItemId>, ItemRepositoryC
 
     fun findAllByListedIsTrue(): Flux<Item>
 
+    fun findAllByIdIn(ids: List<ItemId>): Flux<Item>
+
 }
 
 interface ItemRepositoryCustom: ContinuationRepositoryCustom<Item, ItemFilter> {
