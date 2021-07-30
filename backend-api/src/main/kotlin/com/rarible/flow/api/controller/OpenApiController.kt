@@ -1,5 +1,6 @@
 package com.rarible.flow.api.controller
 
+import com.rarible.protocol.flow.api.FlowOpenapiReader
 import org.springframework.core.io.InputStreamResource
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -13,18 +14,13 @@ class OpenApiController() {
         value = ["/openapi.yaml"],
         produces = ["text/yaml"]
     )
-    fun openapiYaml(): InputStreamResource {
-        return InputStreamResource(
-            OpenApiController::class.java.getResourceAsStream("/openapi.yaml")
-        )
-    }
+    fun openapiYaml(): InputStreamResource = InputStreamResource(FlowOpenapiReader.getOpenapi())
+
 
     @GetMapping(
         value = ["/doc"],
         produces = ["text/html"]
     )
-    fun doc(): InputStreamResource {
-        val file = OpenApiController::class.java.getResourceAsStream("/redoc.html")
-        return InputStreamResource(file)
-    }
+    fun doc(): InputStreamResource = InputStreamResource(OpenApiController::class.java.getResourceAsStream("/redoc.html")!!)
+
 }

@@ -31,7 +31,7 @@ internal class OpenApiControllerTest(
             .exchange()
             .expectStatus().isOk
             .expectBody<String>().consumeWith {
-                it.responseBody shouldContain "title: \"OpenAPI definition\""
+                it.responseBody shouldContain "title: \"flow-protocol-api-nft\""
             }
     }
 
