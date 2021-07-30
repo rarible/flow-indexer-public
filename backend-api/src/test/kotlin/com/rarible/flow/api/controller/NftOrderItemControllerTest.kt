@@ -58,7 +58,8 @@ class NftOrderItemControllerTest {
             creator = nftOwner,
             royalties = listOf(),
             owner = nftOwner,
-            date = Instant.now()
+            date = Instant.now(),
+            collection = "collection"
         )
 
         itemRepository.saveAll(
@@ -120,7 +121,8 @@ class NftOrderItemControllerTest {
             creator = nftOwner,
             royalties = listOf(),
             owner = nftOwner,
-            date = Instant.now()
+            date = Instant.now(),
+            collection = "collection"
         )
 
         itemRepository.saveAll(

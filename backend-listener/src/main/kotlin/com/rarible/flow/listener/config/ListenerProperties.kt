@@ -7,5 +7,6 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConfigurationProperties("flow-indexer-listener")
 data class ListenerProperties(
     val kafkaReplicaSet: String,
-    val environment: String
+    val environment: String,
+    val defaultItemCollection: ItemCollectionProperty
 )
