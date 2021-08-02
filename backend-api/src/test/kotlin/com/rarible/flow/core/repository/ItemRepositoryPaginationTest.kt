@@ -8,7 +8,6 @@ import com.rarible.flow.log.Log
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -63,7 +62,7 @@ internal class ItemRepositoryPaginationTest(
         log.info("Step 1 done")
 
         //owner1 - read next and the last
-        read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner!!), Continuation(item2Owner1.date, item2Owner1.id), 1)
+        read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner!!), NftItemContinuation(item2Owner1.date, item2Owner1.id), 1)
         log.info("Search done")
         read.count() shouldBe 1
         read.collect {
@@ -72,7 +71,7 @@ internal class ItemRepositoryPaginationTest(
         log.info("Step 2 done")
 
         //owner1 - try to read more
-        read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner!!), Continuation(item1Owner1.date, item1Owner1.id), 1)
+        read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner!!), NftItemContinuation(item1Owner1.date, item1Owner1.id), 1)
         log.info("Search done")
         read.count() shouldBe 0
         log.info("Step 3 done")
@@ -108,14 +107,14 @@ internal class ItemRepositoryPaginationTest(
         }
 
         //creator1 - read next and the last
-        read = itemRepository.search(ItemFilter.ByCreator(item1.creator), Continuation(item2.date, item2.id), 1)
+        read = itemRepository.search(ItemFilter.ByCreator(item1.creator), NftItemContinuation(item2.date, item2.id), 1)
         read.count() shouldBe 1
         read.collect {
             it.id shouldBe item1.id
         }
 
         //creator1 - try to read more
-        read = itemRepository.search(ItemFilter.ByCreator(item1.creator), Continuation(item1.date, item1.id), 1)
+        read = itemRepository.search(ItemFilter.ByCreator(item1.creator), NftItemContinuation(item1.date, item1.id), 1)
         read.count() shouldBe 0
 
         //another creator
@@ -143,7 +142,7 @@ internal class ItemRepositoryPaginationTest(
         log.info("Step 1 done")
 
         //read next and the last
-        read = itemRepository.search(ItemFilter.All, Continuation(item2.date, item2.id), 1)
+        read = itemRepository.search(ItemFilter.All, NftItemContinuation(item2.date, item2.id), 1)
         read.count() shouldBe 1
         read.collect {
             it.id shouldBe item1.id
@@ -151,7 +150,7 @@ internal class ItemRepositoryPaginationTest(
         log.info("Step 2 done")
 
         //try to read more
-        read = itemRepository.search(ItemFilter.All, Continuation(item1.date, item1.id), 1)
+        read = itemRepository.search(ItemFilter.All, NftItemContinuation(item1.date, item1.id), 1)
         read.count() shouldBe 0
         log.info("Step 3 done")
     }

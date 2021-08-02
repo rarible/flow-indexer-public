@@ -3,7 +3,9 @@ package com.rarible.flow.api.controller
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.randomAddress
+import com.rarible.flow.randomLong
 import com.rarible.protocol.dto.FlowNftOwnershipDto
+import com.rarible.protocol.dto.FlowNftOwnershipsDto
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -69,5 +71,42 @@ class OwnershipsApiControllerTest {
                 Assertions.assertEquals(tokenId, ownershipDto.tokenId.toLong(), "Token ID is not equals!")
 
             }
+    }
+
+    @Test
+    internal fun `should return all ownerships`() {
+        ownershipRepository.saveAll(
+            listOf(
+                Ownership(
+                    contract = FlowAddress(randomAddress()),
+                    tokenId = randomLong(),
+                    owner = FlowAddress(randomAddress()),
+                    date = Instant.now()
+                ),
+                Ownership(
+                    contract = FlowAddress(randomAddress()),
+                    tokenId = randomLong(),
+                    owner = FlowAddress(randomAddress()),
+                    date = Instant.now()
+                ),
+                Ownership(
+                    contract = FlowAddress(randomAddress()),
+                    tokenId = randomLong(),
+                    owner = FlowAddress(randomAddress()),
+                    date = Instant.now()
+                ),
+            )
+        ).collectList().block()
+
+        client.get().uri("/v0.1/ownerships/all")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftOwnershipsDto>()
+            .consumeWith {
+                val list = it.responseBody!!
+                Assertions.assertTrue(list.ownerships.isNotEmpty())
+                Assertions.assertTrue(list.ownerships.size == 3)
+            }
+
     }
 }
