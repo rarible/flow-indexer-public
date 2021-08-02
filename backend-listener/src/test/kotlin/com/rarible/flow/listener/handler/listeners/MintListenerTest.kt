@@ -5,6 +5,8 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
+import com.rarible.flow.listener.config.ItemCollectionProperty
+import com.rarible.flow.listener.config.ListenerProperties
 import com.rarible.flow.listener.handler.EventHandler
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.coEvery
@@ -35,7 +37,8 @@ internal class MintListenerTest: FunSpec({
 
         mockk() {
             every { save(any()) } returns Mono.just(mockk())
-        }
+        },
+        ListenerProperties(kafkaReplicaSet = "kafka", environment = "test", defaultItemCollection = ItemCollectionProperty(id = "ID", owner = "0x01", name = "TestCollection", symbol = "TC"))
     )
 
     val eventHandler = EventHandler(

@@ -3,7 +3,10 @@ package com.rarible.flow.core.domain
 import org.onflow.sdk.FlowAddress
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.core.mapping.FieldType
+import org.springframework.data.mongodb.core.mapping.MongoId
 import java.io.Serializable
 import java.math.BigInteger
 import java.time.Instant
@@ -42,7 +45,8 @@ data class Item(
     val date: Instant,
     val meta: String? = null,
     val listed: Boolean = false,
-    val deleted: Boolean = false
+    val deleted: Boolean = false,
+    val collection: String
 ) {
 
     @get:Id
@@ -58,4 +62,13 @@ data class Item(
         )
     }
 }
+
+@Document
+data class ItemCollection(
+    @MongoId
+    val id: String,
+    val owner: FlowAddress,
+    val name: String,
+    val symbol: String
+)
 
