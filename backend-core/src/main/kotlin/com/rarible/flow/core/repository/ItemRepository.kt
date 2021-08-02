@@ -4,20 +4,19 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitFirstOrDefault
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.onflow.sdk.FlowAddress
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
 import org.springframework.data.mongodb.core.findById
-import org.springframework.data.mongodb.core.query.*
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.lt
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
-
 
 interface ItemRepository: ReactiveMongoRepository<Item, ItemId>, ItemRepositoryCustom {
 
@@ -26,7 +25,6 @@ interface ItemRepository: ReactiveMongoRepository<Item, ItemId>, ItemRepositoryC
     fun findAllByListedIsTrue(): Flux<Item>
 
     fun findAllByIdIn(ids: List<ItemId>): Flux<Item>
-
 }
 
 interface ItemRepositoryCustom: ContinuationRepositoryCustom<Item, ItemFilter> {
@@ -52,6 +50,7 @@ class ItemRepositoryCustomImpl(
             is ItemFilter.All -> all()
             is ItemFilter.ByCreator -> byCreator(filter.creator)
             is ItemFilter.ByOwner -> byOwner(filter.owner)
+            is ItemFilter.ByCollection -> byCollection(filter.collectionId)
         } scrollTo cont
 
         val query = Query.query(criteria).with(
@@ -70,6 +69,9 @@ class ItemRepositoryCustomImpl(
     private fun byCreator(creator: FlowAddress): Criteria {
         return (Item::creator isEqualTo creator).andOperator(all())
     }
+
+    private fun byCollection(collectionId: String): Criteria =
+        (Item::collection isEqualTo collectionId).andOperator(all())
 
     private fun mongoSort(sort: ItemFilter.Sort?): Sort {
         return when (sort) {

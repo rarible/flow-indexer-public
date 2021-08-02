@@ -14,7 +14,6 @@ import reactor.core.publisher.Flux
 import reactor.core.scheduler.Schedulers
 import java.time.Duration
 import java.time.LocalDateTime
-import javax.annotation.PostConstruct
 
 /**
  * Created by TimochkinEA at 01.07.2021
