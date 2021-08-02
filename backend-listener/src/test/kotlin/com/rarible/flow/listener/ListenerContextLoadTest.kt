@@ -1,7 +1,6 @@
 package com.rarible.flow.listener
 
 import com.rarible.flow.listener.handler.listeners.*
-import io.kotest.matchers.shouldNot
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

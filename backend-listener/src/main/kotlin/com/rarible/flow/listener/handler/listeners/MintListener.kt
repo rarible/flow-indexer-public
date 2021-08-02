@@ -3,12 +3,13 @@ package com.rarible.flow.listener.handler.listeners
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.*
 import com.rarible.flow.events.BlockInfo
+import com.rarible.flow.listener.config.ListenerProperties
 import com.rarible.flow.listener.handler.EventHandler
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
 import org.onflow.sdk.FlowAddress
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import java.net.URI
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
@@ -20,7 +21,8 @@ class MintListener(
     private val ownershipRepository: OwnershipRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
-    private val itemHistoryRepository: ItemHistoryRepository
+    private val itemHistoryRepository: ItemHistoryRepository,
+    private val props: ListenerProperties
 ): SmartContractEventHandler<Unit> {
 
     override suspend fun handle(
@@ -33,6 +35,7 @@ class MintListener(
 
         val metadata = (fields["metadata"] ?: "") as String
         val to = FlowAddress(fields["creator"]!! as String)
+        val collection = (fields.getOrDefault("collection", props.defaultItemCollection.id) as String)
 
         val existingEvent = itemRepository.coFindById(ItemId(contract, tokenId))
         if (existingEvent == null) {
@@ -43,7 +46,8 @@ class MintListener(
                 emptyList(),
                 to,
                 Instant.now(),
-                ""
+                "",
+                collection = collection
             )
             //TODO return later
 //            itemMetaRepository.coSave(

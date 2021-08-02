@@ -162,7 +162,8 @@ internal class ItemRepositoryPaginationTest(
         FlowAddress("0x01"),
         emptyList(),
         FlowAddress("0x02"),
-        Instant.now()
+        Instant.now(),
+        collection = "collection"
     )
 
     companion object {
