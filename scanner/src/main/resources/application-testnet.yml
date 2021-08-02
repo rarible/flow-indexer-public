@@ -5,7 +5,6 @@ grpc:
 
 scanner:
   tracked-contracts:
-    - "1cd85950d20f05b2" #Rari
     - "9a0766d93b6608b7" #FungibleToken
     - "d07a7fa848ee5a9b" #Kibble KittyItems KittyItemsMarket
     - "9837bf0b0b963a4a" #Versus Auction
@@ -17,7 +16,7 @@ scanner:
     - "5c9fd048deb56cd4" #Veolet
     - "2695ea898b04f0c0" #marketplace unknown
     - "a6f77977aca4f3ac" #MotoGP
-    - "fcfb23c627a63d40" #Rari_v3
+    - "ff1201e3a53ee578" #Rari
 
   sporks:
     -
