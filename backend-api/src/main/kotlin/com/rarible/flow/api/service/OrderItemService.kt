@@ -35,6 +35,7 @@ class OrderItemService(
         }
     }
 
+
     suspend fun allOnSale(continuation: String?, size: Int?): Mono<FlowNftItemsDto> = Mono.create { sink ->
         orderRepositoryR.findAllByTakerIsNull().collectList().subscribe { orders ->
             itemRepository.findAllByIdIn(orders.map { it.itemId }).collectList().subscribe { items ->
@@ -51,4 +52,5 @@ class OrderItemService(
             }
         }
     }
+
 }

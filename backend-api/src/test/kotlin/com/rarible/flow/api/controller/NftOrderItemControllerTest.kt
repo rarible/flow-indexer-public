@@ -108,6 +108,7 @@ class NftOrderItemControllerTest {
         Assertions.assertTrue(response.items.size == 1)
     }
 
+
     @Test
     fun `should return all items on sale`() {
         val nftContract = FlowAddress(randomAddress())
@@ -171,5 +172,6 @@ class NftOrderItemControllerTest {
         Assertions.assertTrue(response.items.size == 2)
 
     }
+
 
 }
