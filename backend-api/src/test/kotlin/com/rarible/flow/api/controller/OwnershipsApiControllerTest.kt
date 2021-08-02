@@ -1,0 +1,73 @@
+package com.rarible.flow.api.controller
+
+import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.repository.OwnershipRepository
+import com.rarible.flow.randomAddress
+import com.rarible.protocol.dto.FlowNftOwnershipDto
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.onflow.sdk.FlowAddress
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
+import java.time.Instant
+import kotlin.random.Random
+
+@SpringBootTest(
+    properties = [
+        "application.environment = dev",
+        "spring.cloud.service-registry.auto-registration.enabled = false",
+        "spring.cloud.discovery.enabled = false",
+        "spring.cloud.consul.config.enabled = false",
+        "logging.logstash.tcp-socket.enabled = false",
+    ],
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+)
+@AutoConfigureWebTestClient(timeout = "60000")
+@ActiveProfiles("test")
+class OwnershipsApiControllerTest {
+
+    @Autowired
+    private lateinit var ownershipRepository: OwnershipRepository
+
+    @Autowired
+    private lateinit var client: WebTestClient
+
+    @BeforeEach
+    internal fun setUp() {
+        ownershipRepository.deleteAll().block()
+    }
+
+    @Test
+    internal fun `should return ownership by id`() {
+        val contract = FlowAddress(randomAddress())
+        val owner = FlowAddress(randomAddress())
+        val tokenId = Random.Default.nextLong(0L, Long.MAX_VALUE)
+        val ownership = Ownership(
+            contract = contract,
+            tokenId = tokenId,
+            owner = owner,
+            date = Instant.now()
+        )
+
+        ownershipRepository.save(ownership).block()
+
+        client.get()
+            .uri("/v0.1/ownerships/{ownershipId}", mapOf("ownershipId" to ownership.id.toString()))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftOwnershipDto>()
+            .consumeWith {
+                Assertions.assertNotNull(it.responseBody)
+                val ownershipDto = it.responseBody!!
+                Assertions.assertEquals(contract.formatted, ownershipDto.token, "Token is not equals!")
+                Assertions.assertEquals(owner.formatted, ownershipDto.owner, "Owner is not equals!")
+                Assertions.assertEquals(tokenId, ownershipDto.tokenId.toLong(), "Token ID is not equals!")
+
+            }
+    }
+}
