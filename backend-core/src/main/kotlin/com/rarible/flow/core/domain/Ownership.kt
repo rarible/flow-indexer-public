@@ -3,7 +3,7 @@ package com.rarible.flow.core.domain
 import org.onflow.sdk.FlowAddress
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
-import org.springframework.data.mongodb.core.mapping.MongoId
+import java.io.Serializable
 import java.time.Instant
 
 
@@ -11,7 +11,7 @@ data class OwnershipId(
     val contract: FlowAddress,
     val tokenId: TokenId,
     val owner: FlowAddress
-) {
+): Serializable {
 
     override fun toString(): String {
         return "${contract.formatted}:$tokenId:${owner.formatted}"
@@ -38,7 +38,7 @@ data class Ownership(
     val tokenId: TokenId,
     val owner: FlowAddress,
     val date: Instant
-) {
+): Serializable {
     @get:Id
     @get:AccessType(AccessType.Type.PROPERTY)
     var id: OwnershipId
