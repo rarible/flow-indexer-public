@@ -17,4 +17,7 @@ interface OwnershipRepository : ReactiveMongoRepository<Ownership, OwnershipId> 
     fun findAllByContractAndTokenId(address: FlowAddress, id: TokenId): Flux<Ownership>
 
     fun findAllByDateAfter(after: Instant): Flux<Ownership>
+
+    fun findAllByContractAndTokenIdAndDateAfter(contract: FlowAddress, tokenId: TokenId /* = kotlin.Long */, afterDate: Instant): Flux<Ownership>
+
 }
