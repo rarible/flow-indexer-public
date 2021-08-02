@@ -7,16 +7,11 @@ import com.rarible.flow.log.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrDefault
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.onflow.sdk.FlowAddress
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
-import org.springframework.data.mongodb.core.findById
-import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.core.query.isEqualTo
-import org.springframework.data.mongodb.core.query.lt
+import org.springframework.data.mongodb.core.query.*
 import org.springframework.data.mongodb.core.updateFirst
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
