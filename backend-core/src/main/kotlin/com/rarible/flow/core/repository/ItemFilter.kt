@@ -13,4 +13,6 @@ sealed class ItemFilter(open val sort: Sort = Sort.LAST_UPDATE) {
 
     data class ByCreator(val creator: FlowAddress): ItemFilter()
 
+    data class ByCollection(val collectionId: String): ItemFilter()
+
 }

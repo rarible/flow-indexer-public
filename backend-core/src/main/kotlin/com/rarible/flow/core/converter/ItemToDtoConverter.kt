@@ -15,7 +15,8 @@ object ItemToDtoConverter : Converter<Item, FlowNftItemDto> {
             item.owner?.formatted,
             item.meta,
             item.date,
-            false
+            false,
+            item.collection
         )
     }
 }

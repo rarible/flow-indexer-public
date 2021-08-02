@@ -93,3 +93,4 @@ fabric.properties
 build/
 data/
 **/target/**
+.run/
