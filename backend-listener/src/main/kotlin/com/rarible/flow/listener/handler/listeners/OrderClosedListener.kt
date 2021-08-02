@@ -2,7 +2,7 @@ package com.rarible.flow.listener.handler.listeners
 
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.TokenId
-import com.rarible.flow.core.repository.OrderRepositoryR
+import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.events.BlockInfo
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 
 @Component(OrderClosedListener.ID)
 class OrderClosedListener(
-    private val orderRepository: OrderRepositoryR,
+    private val orderRepository: OrderRepository,
 ) : SmartContractEventHandler<Unit> {
 
     override suspend fun handle(

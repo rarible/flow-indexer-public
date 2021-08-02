@@ -61,7 +61,7 @@ class DestroyListener(
             ownershipRepository.deleteAllByContractAndTokenId(contract, tokenId).awaitSingle()
         }
 
-        items.await()?.let { _ ->
+        items.await()?.let {
             val result = protocolEventPublisher.onItemDelete(itemId)
             log.info("item delete message is sent: $result")
         }

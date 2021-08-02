@@ -16,6 +16,8 @@ dependencies {
     implementation(rootProject.libs.rarible.core.kafka)
 
     implementation("com.rarible.protocol:flow-protocol-model-nft:2.0.0-SNAPSHOT")
+    implementation("com.rarible.protocol:flow-protocol-model-order:2.0.0-SNAPSHOT")
+
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {

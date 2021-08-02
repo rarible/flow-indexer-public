@@ -96,6 +96,20 @@ internal class ItemRepositoryTest {
         items shouldHaveSize 0
     }
 
+    @Test
+    fun `should mark item as unlisted`() = runBlocking<Unit> {
+        var item = createItem().copy(listed = true)
+        itemRepository.coSave(item)
+
+        var items = itemRepository.search(ItemFilter.All, null, null).toList()
+        items shouldHaveSize 1
+
+        itemRepository.unlist(item.id)
+
+        item = itemRepository.findById(item.id).awaitFirst()
+        item.listed shouldBe false
+    }
+
     fun createItem(tokenId: TokenId = 42) = Item(
         FlowAddress("0x01"),
         tokenId,
