@@ -93,7 +93,7 @@ class NftOrderActivityControllerTest {
         repo.saveAll(history).then().block()
 
         val activities = client.get()
-            .uri("/v0.1/activities/byItem?type=&contract=${expectedContract}&tokenId=$expectedTokenId")
+            .uri("/v0.1/order/activities/byItem?type=&contract=${expectedContract}&tokenId=$expectedTokenId")
             .exchange()
             .expectStatus().isOk
             .expectBody(FlowActivitiesDto::class.java)
@@ -190,7 +190,7 @@ class NftOrderActivityControllerTest {
         repo.saveAll(history).then().block()
 
         val activities = client.get()
-            .uri("/v0.1/activities/byItem?type=MINT&contract=${expectedContract}&tokenId=${expectedTokenId}")
+            .uri("/v0.1/order/activities/byItem?type=MINT&contract=${expectedContract}&tokenId=${expectedTokenId}")
             .exchange()
             .expectStatus().isOk
             .expectBody(FlowActivitiesDto::class.java)
@@ -260,7 +260,7 @@ class NftOrderActivityControllerTest {
         repo.saveAll(history).then().block()
 
         var activities = client.get()
-            .uri("/v0.1/activities/byUser?type=TRANSFER_FROM&user=${userFrom.formatted}")
+            .uri("/v0.1/order/activities/byUser?type=TRANSFER_FROM&user=${userFrom.formatted}")
             .exchange()
             .expectStatus().isOk
             .expectBody(FlowActivitiesDto::class.java)
@@ -275,7 +275,7 @@ class NftOrderActivityControllerTest {
 
 
         activities = client.get()
-            .uri("/v0.1/activities/byUser?type=MINT,BURN,TRANSFER_TO&user=${userTo.formatted}")
+            .uri("/v0.1/order/activities/byUser?type=MINT,BURN,TRANSFER_TO&user=${userTo.formatted}")
             .exchange()
             .expectStatus().isOk
             .expectBody(FlowActivitiesDto::class.java)
@@ -342,7 +342,7 @@ class NftOrderActivityControllerTest {
         repo.saveAll(history).then().block()
 
         val activities = client.get()
-            .uri("/v0.1/activities/all?type=")
+            .uri("/v0.1/order/activities/all?type=")
             .exchange()
             .expectStatus().isOk
             .expectBody(FlowActivitiesDto::class.java)

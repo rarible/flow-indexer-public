@@ -21,4 +21,5 @@ interface OrderRepository: ReactiveMongoRepository<Order, ObjectId> {
     fun deleteByItemId(itemId: ItemId): Mono<Order>
     fun findAllByMakerAndTakerIsNull(maker: FlowAddress): Flux<Order>
     fun findAllByTakerIsNull(): Flux<Order>
+    fun findAllByTakerIsNullAndCollection(collection: String): Flux<Order>
 }

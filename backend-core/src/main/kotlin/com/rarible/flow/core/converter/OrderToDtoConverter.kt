@@ -53,6 +53,7 @@ object OrderToDtoConverter: Converter<Order, FlowOrderDto> {
                     value = "${it.value}"
                 ) }
             ),
-            amountUsd = 0.toBigDecimal() //TODO get currencies course
+            amountUsd = 0.toBigDecimal(), //TODO get currencies course
+            collection = source.collection
         )
 }
