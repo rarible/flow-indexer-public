@@ -38,7 +38,7 @@ class OrderOpenedListener(
 
         val itemId = ItemId(contract, askId)
         val item = itemRepository.coFindById(itemId)!!
-        orderRepository.coSave(
+        val order = orderRepository.coSave(
             Order(
                 id = ObjectId.get(),
                 itemId = itemId,
@@ -50,6 +50,8 @@ class OrderOpenedListener(
                 sellerFee = sellerFee,
             )
         )
+        protocolEventPublisher.onUpdate(order)
+
 
         itemRepository
             .coFindById(itemId)
