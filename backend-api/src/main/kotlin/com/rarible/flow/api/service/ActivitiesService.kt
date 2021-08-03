@@ -31,11 +31,11 @@ class ActivitiesService(
 
         return itemHistoryRepository.getNftOrderActivitiesByItem(types, contract = FlowAddress(contract), tokenId)
             .collectList().flatMap {
-            FlowActivitiesDto(
-                items = it.map { it.activity.toDto(it.id, it.date) },
-                continuation = continuation
-            ).toMono()
-        }
+                FlowActivitiesDto(
+                    items = it.map { it.activity.toDto(it.id, it.date) },
+                    continuation = continuation
+                ).toMono()
+            }
 
     }
 
@@ -97,7 +97,16 @@ class ActivitiesService(
         continuation: String?,
         size: Int?
     ): Mono<FlowActivitiesDto> {
-        TODO("Need realize! Or switch to PostgreSQL!")
+        val types =
+            if (type.isEmpty()) FlowActivityType.values().toList() else type.map { FlowActivityType.valueOf(it) }
+
+        return itemHistoryRepository.getAllActivitiesByItemCollection(types, collection).collectList()
+            .flatMap { history ->
+                FlowActivitiesDto(
+                    continuation = continuation,
+                    items = history.map { it.activity.toDto(it.id, it.date) }
+                ).toMono()
+            }
     }
 
 

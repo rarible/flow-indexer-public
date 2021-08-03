@@ -50,6 +50,7 @@ class ItemHistoryRepositoryTest {
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
             blockNumber = 1000L,
+            collection = "NFT"
         )
 
         val entity = ItemHistory(
@@ -86,6 +87,7 @@ class ItemHistoryRepositoryTest {
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
             blockNumber = 1000L,
+            collection = "NFT"
         )
 
         val entity = ItemHistory(
@@ -123,6 +125,7 @@ class ItemHistoryRepositoryTest {
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
             blockNumber = 1000L,
+            collection = "NFT"
         )
 
         val entity = ItemHistory(
@@ -164,6 +167,7 @@ class ItemHistoryRepositoryTest {
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
             blockNumber = 1000L,
+            collection = "NFT"
         )
 
         val transferActivity = TransferActivity(
@@ -175,6 +179,7 @@ class ItemHistoryRepositoryTest {
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
             blockNumber = 1001L,
+            collection = "NFT"
         )
 
         val burnActivity = BurnActivity(
@@ -185,6 +190,7 @@ class ItemHistoryRepositoryTest {
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
             blockNumber = 1002L,
+            collection = "NFT"
         )
 
         val history = listOf(

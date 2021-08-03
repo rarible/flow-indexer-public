@@ -29,4 +29,7 @@ interface ItemHistoryRepository: ReactiveMongoRepository<ItemHistory, String> {
 
     @Query("{'activity.type': {\$in: ?0}}", sort = "{'activity.date': -1}")
     fun getAllActivities(types: List<FlowActivityType>): Flux<ItemHistory>
+
+    @Query("{\$and: [{'activity.type': {\$in: ?0}}, {'activity.collection': {\$eq: ?1}}]}", sort = "{'activity.date': -1}")
+    fun getAllActivitiesByItemCollection(types: List<FlowActivityType>, collection: String): Flux<ItemHistory>
 }

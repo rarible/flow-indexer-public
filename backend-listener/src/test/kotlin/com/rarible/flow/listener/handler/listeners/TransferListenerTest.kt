@@ -1,20 +1,14 @@
 package com.rarible.flow.listener.handler.listeners
 
-import com.rarible.core.kafka.KafkaSendResult
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemHistory
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
-import com.rarible.flow.listener.createItem
 import com.rarible.flow.listener.handler.EventHandler
 import io.kotest.core.spec.style.FunSpec
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.Assertions.*
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 
@@ -24,6 +18,8 @@ internal class TransferListenerTest: FunSpec({
             every { save(any()) } answers {
                 Mono.just(it.invocation.args[0] as ItemHistory)
             }
+        },
+        mockk() {
         }
     )
 

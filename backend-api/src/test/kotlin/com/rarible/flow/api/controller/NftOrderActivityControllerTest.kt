@@ -3,6 +3,7 @@ package com.rarible.flow.api.controller
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.randomAddress
+import com.rarible.flow.randomLong
 import com.rarible.protocol.dto.BurnDto
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.MintDto
@@ -16,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
 import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils
 import java.time.Duration
 import java.time.LocalDateTime
@@ -49,7 +51,7 @@ class NftOrderActivityControllerTest {
 
     @Test
     fun `should return all activities by item`() {
-        val expectedTokenId = RandomUtils.nextLong().toULong().toLong()
+        val expectedTokenId = randomLong()
         val expectedContract = randomAddress()
 
         val mintActivity = MintActivity(
@@ -60,6 +62,7 @@ class NftOrderActivityControllerTest {
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
             blockNumber = RandomUtils.nextLong(),
+            collection = "NFT"
         )
 
         val transferActivity = TransferActivity(
@@ -71,6 +74,7 @@ class NftOrderActivityControllerTest {
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
             blockNumber = RandomUtils.nextLong(),
+            collection = "NFT"
         )
 
         val burnActivity = BurnActivity(
@@ -81,6 +85,7 @@ class NftOrderActivityControllerTest {
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
             blockNumber = RandomUtils.nextLong(),
+            collection = "NFT"
         )
 
         val history = listOf(
@@ -148,35 +153,38 @@ class NftOrderActivityControllerTest {
         val mintActivity = MintActivity(
             owner = FlowAddress(randomAddress()),
             contract = FlowAddress(randomAddress()),
-            tokenId = RandomUtils.nextLong().toULong().toLong(),
-            value = RandomUtils.nextLong().toULong().toLong(),
+            tokenId = randomLong(),
+            value = randomLong(),
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
-            blockNumber = RandomUtils.nextLong().toULong().toLong(),
+            blockNumber = randomLong(),
+            collection = "NFT"
         )
 
         val transferActivity = TransferActivity(
             from = FlowAddress(randomAddress()),
             owner = FlowAddress(randomAddress()),
             contract = FlowAddress(randomAddress()),
-            tokenId = RandomUtils.nextLong().toULong().toLong(),
-            value = RandomUtils.nextLong().toULong().toLong(),
+            tokenId = randomLong(),
+            value = randomLong(),
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
-            blockNumber = RandomUtils.nextLong().toULong().toLong(),
+            blockNumber = randomLong(),
+            collection = "NFT"
         )
 
         val burnActivity = BurnActivity(
             owner = FlowAddress(randomAddress()),
             contract = FlowAddress(randomAddress()),
-            tokenId = RandomUtils.nextLong().toULong().toLong(),
-            value = RandomUtils.nextLong().toULong().toLong(),
+            tokenId = randomLong(),
+            value = randomLong(),
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
-            blockNumber = RandomUtils.nextLong().toULong().toLong(),
+            blockNumber = randomLong(),
+            collection = "NFT"
         )
 
-        val expectedTokenId = RandomUtils.nextLong().toULong().toLong()
+        val expectedTokenId = randomLong()
         val expectedContract = randomAddress()
         val expected = mintActivity.copy(tokenId = expectedTokenId, contract = FlowAddress(expectedContract))
 
@@ -218,35 +226,38 @@ class NftOrderActivityControllerTest {
         val mintActivity = MintActivity(
             owner = userTo,
             contract = FlowAddress(randomAddress()),
-            tokenId = RandomUtils.nextLong().toULong().toLong(),
-            value = RandomUtils.nextLong().toULong().toLong(),
+            tokenId = randomLong(),
+            value = randomLong(),
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
-            blockNumber = RandomUtils.nextLong().toULong().toLong(),
+            blockNumber = randomLong(),
+            collection = "NFT"
         )
 
         val transferActivity = TransferActivity(
             from = userFrom,
             owner = userTo,
             contract = FlowAddress(randomAddress()),
-            tokenId = RandomUtils.nextLong().toULong().toLong(),
-            value = RandomUtils.nextLong().toULong().toLong(),
+            tokenId = randomLong(),
+            value = randomLong(),
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
-            blockNumber = RandomUtils.nextLong().toULong().toLong(),
+            blockNumber = randomLong(),
+            collection = "NFT"
         )
 
         val burnActivity = BurnActivity(
             owner = userTo,
             contract = FlowAddress(randomAddress()),
-            tokenId = RandomUtils.nextLong().toULong().toLong(),
-            value = RandomUtils.nextLong().toULong().toLong(),
+            tokenId = randomLong(),
+            value = randomLong(),
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
-            blockNumber = RandomUtils.nextLong().toULong().toLong(),
+            blockNumber = randomLong(),
+            collection = "NFT"
         )
 
-        val expectedTokenId = RandomUtils.nextLong().toULong().toLong()
+        val expectedTokenId = randomLong()
         val expectedContract = randomAddress()
         val expected = mintActivity.copy(tokenId = expectedTokenId, contract = FlowAddress(expectedContract), owner = userFrom)
 
@@ -306,32 +317,35 @@ class NftOrderActivityControllerTest {
         val mintActivity = MintActivity(
             owner = userTo,
             contract = FlowAddress(randomAddress()),
-            tokenId = RandomUtils.nextLong().toULong().toLong(),
-            value = RandomUtils.nextLong().toULong().toLong(),
+            tokenId = randomLong(),
+            value = randomLong(),
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
-            blockNumber = RandomUtils.nextLong().toULong().toLong(),
+            blockNumber = randomLong(),
+            collection = "NFT"
         )
 
         val transferActivity = TransferActivity(
             from = userFrom,
             owner = userTo,
             contract = FlowAddress(randomAddress()),
-            tokenId = RandomUtils.nextLong().toULong().toLong(),
-            value = RandomUtils.nextLong().toULong().toLong(),
+            tokenId = randomLong(),
+            value = randomLong(),
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
-            blockNumber = RandomUtils.nextLong().toULong().toLong(),
+            blockNumber = randomLong(),
+            collection = "NFT"
         )
 
         val burnActivity = BurnActivity(
             owner = userTo,
             contract = FlowAddress(randomAddress()),
-            tokenId = RandomUtils.nextLong().toULong().toLong(),
-            value = RandomUtils.nextLong().toULong().toLong(),
+            tokenId = randomLong(),
+            value = randomLong(),
             transactionHash = UUID.randomUUID().toString(),
             blockHash = UUID.randomUUID().toString(),
-            blockNumber = RandomUtils.nextLong().toULong().toLong(),
+            blockNumber = randomLong(),
+            collection = "NFT"
         )
 
         val history = listOf(
@@ -363,6 +377,65 @@ class NftOrderActivityControllerTest {
         Assertions.assertEquals(mint.owner, mintActivity.owner.formatted, "Mint activity: owners are not equals!")
         Assertions.assertEquals(transfer.owner, transferActivity.owner.formatted, "Transfer activity: owners are not equals!")
         Assertions.assertNotEquals(burn.owner, burnActivity.owner?.formatted.orEmpty(), "Burn activity: owners are equals! Returned owner must be null!")
+
+    }
+
+    @Test
+    internal fun `should return all activities by collection`() {
+        val mintActivity = MintActivity(
+            owner = FlowAddress(randomAddress()),
+            contract = FlowAddress(randomAddress()),
+            tokenId = randomLong(),
+            value = randomLong(),
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = randomLong(),
+            collection = "NFT"
+        )
+
+        val transferActivity = TransferActivity(
+            from = FlowAddress(randomAddress()),
+            owner = FlowAddress(randomAddress()),
+            contract = FlowAddress(randomAddress()),
+            tokenId = randomLong(),
+            value = randomLong(),
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = randomLong(),
+            collection = "NFT"
+        )
+
+        val burnActivity = BurnActivity(
+            owner = FlowAddress(randomAddress()),
+            contract = FlowAddress(randomAddress()),
+            tokenId = randomLong(),
+            value = randomLong(),
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = randomLong(),
+            collection = "NFT"
+        )
+
+        val history = listOf(
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now() + Duration.ofSeconds(1L), mintActivity),
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now() + Duration.ofSeconds(6L), transferActivity),
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now() + Duration.ofSeconds(9L), burnActivity),
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now() + Duration.ofSeconds(12L), burnActivity.copy(collection = "NonNFT")),
+        )
+        repo.saveAll(history).then().block()
+
+        client.get().uri("/v0.1/order/activities/byCollection?collection=NFT&type=")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowActivitiesDto>()
+            .consumeWith {
+                Assertions.assertNotNull(it.responseBody)
+                val activities = it.responseBody!!.items
+
+                Assertions.assertNotNull(activities)
+                Assertions.assertTrue(activities.isNotEmpty())
+                Assertions.assertTrue(activities.size == 3)
+            }
 
     }
 }

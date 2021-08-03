@@ -8,7 +8,6 @@ import com.rarible.flow.core.repository.ItemFilter
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.toList
@@ -60,17 +59,17 @@ internal class ItemServiceTest() {
         var item = createItem()
         itemRepository.coSave(item)
 
-        var items = itemRepository.search(ItemFilter.All, null, null).toList()
-        items shouldHaveSize 1
+            var items = itemRepository.search(ItemFilter.All, null, null).toList()
+            items shouldHaveSize 1
 
-        itemService.markDeleted(item.id)
+            itemService.markDeleted(item.id)
 
-        item = itemRepository.coFindById(item.id)!!
-        item.deleted shouldBe true
+            item = itemRepository.coFindById(item.id)!!
+            item.deleted shouldBe true
 
-        items = itemRepository.search(ItemFilter.All, null, null).toList()
-        items shouldHaveSize 0
-    }
+            items = itemRepository.search(ItemFilter.All, null, null).toList()
+            items shouldHaveSize 0
+        }
 
     @Test
     fun `should mark as unlisted`() = runBlocking {
@@ -78,13 +77,12 @@ internal class ItemServiceTest() {
         var item = createItem().copy(listed = true)
         itemRepository.coSave(item)
 
-        var items = itemRepository.search(ItemFilter.All, null, null).toList()
-        items shouldHaveSize 1
+            val items = itemRepository.search(ItemFilter.All, null, null).toList()
+            items shouldHaveSize 1
 
-        itemService.unlist(item.id)
+            itemService.unlist(item.id)
 
-        item = itemRepository.findById(item.id).awaitFirst()
-        item.listed shouldBe false
+            item = itemRepository.findById(item.id).awaitFirst()
+            item.listed shouldBe false
+        }
     }
-
-}
