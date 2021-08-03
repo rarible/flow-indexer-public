@@ -46,6 +46,7 @@ class ItemRepositoryCustomImpl(
     }
 
     override fun search(filter: ItemFilter, cont: Continuation?, limit: Int?): Flow<Item> {
+        cont as NftItemContinuation?
         val criteria = when (filter) {
             is ItemFilter.All -> all()
             is ItemFilter.ByCreator -> byCreator(filter.creator)
@@ -83,7 +84,7 @@ class ItemRepositoryCustomImpl(
         }
     }
 
-    private infix fun Criteria.scrollTo(continuation: Continuation?): Criteria =
+    private infix fun Criteria.scrollTo(continuation: NftItemContinuation?): Criteria =
         if (continuation == null) {
             this
         } else {

@@ -61,7 +61,7 @@ internal class NftApiControllerTest(
             itemRepository.search(any(), any(), any())
         } returns items.asFlow()
 
-        val cont = Continuation(Instant.now(), ItemId(FlowAddress("0x01"), 42))
+        val cont = NftItemContinuation(Instant.now(), ItemId(FlowAddress("0x01"), 42))
         var response = client
             .get()
             .uri("/v0.1/items/?continuation=$cont")
