@@ -50,6 +50,10 @@ internal class OrderOpenedListenerTest: FunSpec({
             coEvery {
                 onItemUpdate(any())
             } returns KafkaSendResult.Success("1")
+
+            coEvery {
+                onUpdate(any<Order>())
+            } returns KafkaSendResult.Success("1")
         },
 
         mockk() {
@@ -64,7 +68,7 @@ internal class OrderOpenedListenerTest: FunSpec({
         )
     )
 
-    test("should handle deposit") {
+    test("should handle order opened") {
         val event = EventMessage(
             EventId.of("A.fcfb23c627a63d40.RegularSaleOrder.OrderOpened"),
             mapOf(

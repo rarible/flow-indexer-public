@@ -13,7 +13,11 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.onflow.sdk.FlowAddress
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
@@ -30,25 +34,29 @@ fun createItem(tokenId: TokenId = 42) = Item(
 )
 
 @MongoTest
-@DataMongoTest(properties = [
-    "application.environment = dev",
-    "spring.cloud.service-registry.auto-registration.enabled = false",
-    "spring.cloud.discovery.enabled = false",
-    "spring.cloud.consul.config.enabled = false",
-    "logging.logstash.tcp-socket.enabled = false"
-])
+@DataMongoTest(
+    properties = [
+        "application.environment = dev",
+        "spring.cloud.service-registry.auto-registration.enabled = false",
+        "spring.cloud.discovery.enabled = false",
+        "spring.cloud.consul.config.enabled = false",
+        "logging.logstash.tcp-socket.enabled = false"
+    ]
+)
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
-internal class ItemRepositoryTest(
-    private val itemRepository: ItemRepository,
-    private val itemService: ItemService
-): FunSpec ({
+internal class ItemServiceTest() {
+    @Autowired
+    lateinit var itemRepository: ItemRepository
 
-    beforeEach() {
+    @BeforeEach
+    fun beforeEach() {
         itemRepository.deleteAll().block()
     }
 
-    test("should mark as deleted") {
+    @Test
+    fun `should mark as deleted`() = runBlocking {
+        val itemService = ItemService(itemRepository)
         var item = createItem()
         itemRepository.coSave(item)
 
@@ -64,7 +72,9 @@ internal class ItemRepositoryTest(
         items shouldHaveSize 0
     }
 
-    test("should mark as unlisted") {
+    @Test
+    fun `should mark as unlisted`() = runBlocking {
+        val itemService = ItemService(itemRepository)
         var item = createItem().copy(listed = true)
         itemRepository.coSave(item)
 
@@ -76,4 +86,5 @@ internal class ItemRepositoryTest(
         item = itemRepository.findById(item.id).awaitFirst()
         item.listed shouldBe false
     }
-})
+
+}

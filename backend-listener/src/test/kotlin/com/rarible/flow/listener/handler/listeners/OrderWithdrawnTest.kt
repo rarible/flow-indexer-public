@@ -2,6 +2,7 @@ package com.rarible.flow.listener.handler.listeners
 
 import com.rarible.core.kafka.KafkaSendResult
 import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderData
 import com.rarible.flow.events.BlockInfo
@@ -33,12 +34,15 @@ internal class OrderWithdrawnTest: FunSpec({
         item.id.toString(),
         buyerFee = BigDecimal.ZERO,
         sellerFee = BigDecimal.ZERO,
-        data = OrderData(emptyList(), emptyList())
+        data = OrderData(emptyList(), emptyList()),
+        collection = "ABC"
     )
 
     val listener = OrderWithdrawn(
         mockk("orderRepository") {
             every { deleteByItemId(any()) } returns Mono.just(order)
+            every { findByItemId(any<ItemId>()) } returns Mono.just(order)
+            every { save(any()) } returns Mono.just(order)
         },
 
 
@@ -60,7 +64,7 @@ internal class OrderWithdrawnTest: FunSpec({
         )
     )
 
-    test("should handle deposit") {
+    test("should handle order withdrawn") {
         val event = EventMessage(
             EventId.of("A.fcfb23c627a63d40.RegularSaleOrder.OrderWithdrawn"),
             mapOf(
