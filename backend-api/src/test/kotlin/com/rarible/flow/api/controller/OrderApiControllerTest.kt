@@ -71,6 +71,7 @@ class OrderApiControllerTest {
             ),
             buyerFee = BigDecimal.valueOf(1L),
             sellerFee = BigDecimal.valueOf(1L),
+            collection = "collection"
         )
 
         repo.save(order).block()

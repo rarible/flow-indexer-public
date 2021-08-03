@@ -49,6 +49,7 @@ class OrderOpenedListener(
                 amount = bidAmount,
                 buyerFee = buyerFee,
                 sellerFee = sellerFee,
+                collection = item.collection
             )
         )
 

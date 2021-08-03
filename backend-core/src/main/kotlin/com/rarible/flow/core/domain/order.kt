@@ -22,6 +22,7 @@ import java.time.ZoneOffset
  * @property canceled       - order canceled
  * @property buyerFee       - fee for buyer
  * @property sellerFee      - fee for seller
+ * @property collection     - item collection
  */
 @Document
 data class Order(
@@ -42,7 +43,8 @@ data class Order(
     val amountUsd: BigDecimal = 0.toBigDecimal(),
     val createdAt: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC),
     @field:LastModifiedDate
-    var lastUpdatedAt: LocalDateTime? = null
+    var lastUpdatedAt: LocalDateTime? = null,
+    val collection: String
 )
 
 data class OrderData(

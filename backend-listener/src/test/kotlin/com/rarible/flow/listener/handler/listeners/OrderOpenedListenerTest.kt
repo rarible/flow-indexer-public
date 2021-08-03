@@ -31,7 +31,8 @@ internal class OrderOpenedListenerTest: FunSpec({
         item.id.toString(),
         buyerFee = BigDecimal.ZERO,
         sellerFee = BigDecimal.ZERO,
-        data = OrderData(emptyList(), emptyList())
+        data = OrderData(emptyList(), emptyList()),
+        collection = item.collection
     )
 
     val listener = OrderOpenedListener(
