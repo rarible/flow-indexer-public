@@ -61,7 +61,7 @@ internal class NftApiControllerTest(
             itemRepository.search(any(), any(), any())
         } returns items.asFlow()
 
-        val cont = Continuation(Instant.now(), ItemId(FlowAddress("0x01"), 42))
+        val cont = NftItemContinuation(Instant.now(), ItemId(FlowAddress("0x01"), 42))
         var response = client
             .get()
             .uri("/v0.1/items/?continuation=$cont")
@@ -135,7 +135,7 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 1
-        response.items[0].owner shouldBe items[0].owner.formatted
+        response.items[0].owner shouldBe items[0].owner!!.formatted
 
         response = client
             .get()
@@ -145,7 +145,7 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 1
-        response.items[0].owner shouldBe items[1].owner.formatted
+        response.items[0].owner shouldBe items[1].owner!!.formatted
 
         response = client
             .get()
@@ -179,7 +179,7 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         respose.items shouldHaveSize 1
-        respose.items[0].owner shouldBe items[0].owner.formatted
+        respose.items[0].owner shouldBe items[0].owner!!.formatted
 
         respose = client
             .get()
@@ -189,7 +189,7 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         respose.items shouldHaveSize 1
-        respose.items[0].owner shouldBe items[1].owner.formatted
+        respose.items[0].owner shouldBe items[1].owner!!.formatted
 
         respose = client
             .get()
@@ -242,14 +242,60 @@ internal class NftApiControllerTest(
             .expectBody<String>().isEqualTo("/v0.1/items/meta/0x01:1")
     }
 
+    @Test
+    fun `should return items by collection`() {
+        val items = listOf(
+            createItem(),
+            createItem(tokenId = 43).copy(collection = "different collection")
+        )
+        val captured = slot<ItemFilter.ByCollection>()
+        coEvery {
+            itemRepository.search(capture(captured), null, any())
+        } coAnswers {
+            items.filter { it.collection == captured.captured.collectionId }.asFlow()
+        }
 
-    fun createItem(tokenId: TokenId = 42) = Item(
+        var response = client
+            .get()
+            .uri("/v0.1/items/byCollection?collection={collection}", mapOf("collection" to "collection"))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        response.items shouldHaveSize 1
+        response.items[0].collection shouldBe "collection"
+
+        response = client
+            .get()
+            .uri("/v0.1/items/byCollection?collection={collection}", mapOf("collection" to "different collection"))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        response.items shouldHaveSize 1
+        response.items[0].collection shouldBe "different collection"
+
+        response = client
+            .get()
+            .uri("/v0.1/items/byCollection?collection={collection}", mapOf("collection" to "unsupported collection"))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        response.items shouldHaveSize 0
+
+
+    }
+
+
+    private fun createItem(tokenId: TokenId = 42) = Item(
         FlowAddress("0x01"),
         tokenId,
         FlowAddress("0x01"),
         emptyList(),
         FlowAddress("0x02"),
-        Instant.now()
+        Instant.now(),
+        collection = "collection"
     )
 
     companion object {

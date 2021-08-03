@@ -18,6 +18,6 @@ class WithdrawListener : SmartContractEventHandler<Unit> {
     }
 
     companion object {
-        const val ID = "NFTProvider.Withdraw"
+        const val ID = "CommonNFT.Withdraw"
     }
 }

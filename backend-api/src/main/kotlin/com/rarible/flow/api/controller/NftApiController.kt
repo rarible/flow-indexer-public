@@ -31,7 +31,7 @@ class NftApiController(
 
     override suspend fun getAllItems(continuation: String?, size: Int?): ResponseEntity<FlowNftItemsDto> {
         val items: Flow<Item> = itemRepository.search(
-            ItemFilter.All, Continuation.parse(continuation), size
+            ItemFilter.All, NftItemContinuation.parse(continuation), size
         )
 
         return ResponseEntity.ok(convert(items))
@@ -39,13 +39,22 @@ class NftApiController(
 
     override suspend fun getNftItemById(itemId: String): ResponseEntity<FlowNftItemDto> {
         val item = itemRepository.coFindById(ItemId.parse(itemId))
-        return if(item == null) {
+        return if (item == null) {
             ResponseEntity.notFound().build()
         } else {
             ResponseEntity.ok(
                 ItemToDtoConverter.convert(item)
             )
         }
+    }
+
+    override suspend fun getNftItemsByCollection(
+        collection: String,
+        continuation: String?,
+        size: Int?
+    ): ResponseEntity<FlowNftItemsDto> {
+        val items = itemRepository.search(ItemFilter.ByCollection(collection), NftItemContinuation.parse(continuation), size)
+        return ResponseEntity.ok(convert(items))
     }
 
     override suspend fun getItemMeta(itemId: String): ResponseEntity<FlowItemMetaDto> {
@@ -63,7 +72,7 @@ class NftApiController(
         size: Int?
     ): ResponseEntity<FlowNftItemsDto> {
         val items: Flow<Item> = itemRepository.search(
-            ItemFilter.ByOwner(FlowAddress(address)), Continuation.parse(continuation), size
+            ItemFilter.ByOwner(FlowAddress(address)), NftItemContinuation.parse(continuation), size
         )
 
         return ResponseEntity.ok(convert(items))
@@ -75,7 +84,7 @@ class NftApiController(
         size: Int?
     ): ResponseEntity<FlowNftItemsDto> {
         val items: Flow<Item> = itemRepository.search(
-            ItemFilter.ByCreator(FlowAddress(address)), Continuation.parse(continuation), size
+            ItemFilter.ByCreator(FlowAddress(address)), NftItemContinuation.parse(continuation), size
         )
 
         return ResponseEntity.ok(convert(items))
@@ -134,10 +143,10 @@ class NftApiController(
     }
 
     private fun nextCursor(items: List<Item>): String? {
-        return if(items.isEmpty()) {
+        return if (items.isEmpty()) {
             null
         } else {
-            Continuation(items.last().date, items.last().id).toString()
+            NftItemContinuation(items.last().date, items.last().id).toString()
         }
     }
 

@@ -1,0 +1,6 @@
+flow-indexer-listener:
+  default-item-collection:
+      id: "A.e4e5f90bf7e2a25f.NFTProvider.NFT"
+      owner: "0xe4e5f90bf7e2a25f"
+      name: "NFTProvider"
+      symbol: "NFTP"

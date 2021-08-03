@@ -13,7 +13,7 @@ import java.util.*
 
 @Component(OrderAssigned.ID)
 class OrderAssigned(
-    private val orderRepository: OrderRepositoryR,
+    private val orderRepository: OrderRepository,
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository,
     private val itemRepository: ItemRepository

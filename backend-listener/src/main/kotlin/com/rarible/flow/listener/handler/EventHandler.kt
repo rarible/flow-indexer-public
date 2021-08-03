@@ -16,7 +16,7 @@ class EventHandler(
 
     override suspend fun handle(event: EventMessage) {
         val contract = event.eventId.contractAddress
-        val tokenId = event.fields["id"] as TokenId?
+        val tokenId = tokenId(event)
 
         if(tokenId == null) {
             log.warn("Event [${event.eventId}] has no tokenId")
@@ -26,6 +26,14 @@ class EventHandler(
                 event.eventId.contractEvent(),
                 NoOpHandler(event.eventId)
             ).handle(contract, tokenId, event.fields, event.blockInfo)
+        }
+    }
+
+    private fun tokenId(event: EventMessage): TokenId? {
+        return when(val id = event.fields["id"]) {
+            is String -> id.toLong()
+            is Number -> id.toLong()
+            else -> null
         }
     }
 

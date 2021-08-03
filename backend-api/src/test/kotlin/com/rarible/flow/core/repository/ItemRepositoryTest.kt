@@ -35,8 +35,6 @@ import java.time.Instant
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
 internal class ItemRepositoryTest {
-    @Autowired
-    lateinit var mongo: ReactiveMongoTemplate
 
     @Autowired
     lateinit var itemRepository: ItemRepository
@@ -79,29 +77,13 @@ internal class ItemRepositoryTest {
         read.count() shouldBe 2
     }
 
-    @Test
-    fun `should mark item as deleted`() = runBlocking<Unit> {
-        var item = createItem()
-        itemRepository.coSave(item)
-
-        var items = itemRepository.search(ItemFilter.All, null, null).toList()
-        items shouldHaveSize 1
-
-        itemRepository.markDeleted(item.id)
-
-        item = itemRepository.findById(item.id).awaitFirst()
-        item.deleted shouldBe true
-
-        items = itemRepository.search(ItemFilter.All, null, null).toList()
-        items shouldHaveSize 0
-    }
-
     fun createItem(tokenId: TokenId = 42) = Item(
         FlowAddress("0x01"),
         tokenId,
         FlowAddress("0x01"),
         emptyList(),
         FlowAddress("0x02"),
-        Instant.now()
+        Instant.now(),
+        collection = "collection"
     )
 }

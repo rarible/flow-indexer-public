@@ -7,17 +7,20 @@ import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.events.BlockInfo
-import com.rarible.flow.log.Log
+import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirstOrDefault
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
 
 @Component(DepositListener.ID)
 class DepositListener(
     private val itemRepository: ItemRepository,
-    private val ownershipRepository: OwnershipRepository
+    private val ownershipRepository: OwnershipRepository,
+    private val protocolEventPublisher: ProtocolEventPublisher
 ) : SmartContractEventHandler<Unit> {
 
     override suspend fun handle(
@@ -35,18 +38,23 @@ class DepositListener(
                 }
         }
         val ownership = async {
-            ownershipRepository.findAllByContractAndTokenId(
-                contract, tokenId
-            ).map { it.copy(owner = to) }.let { ownershipRepository.saveAll(it).asFlow() }
+            ownershipRepository
+                .findAllByContractAndTokenId(contract, tokenId)
+                .collectList()
+                .awaitFirstOrDefault(emptyList())
+                .map { it.copy(owner = to) }
+                .let {
+                    ownershipRepository.saveAll(it).asFlow().collect { updatedOwnership ->
+                        protocolEventPublisher.onUpdate(updatedOwnership)
+                    }
+                }
         }
 
         items.await()
         ownership.await()
-        return@coroutineScope
     }
 
     companion object {
-        const val ID = "NFTProvider.Deposit"
-        val log by Log()
+        const val ID = "CommonNFT.Deposit"
     }
 }
