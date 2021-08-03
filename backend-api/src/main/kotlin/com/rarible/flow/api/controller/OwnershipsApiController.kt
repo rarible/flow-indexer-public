@@ -29,5 +29,4 @@ class OwnershipsApiController(
         size: Int?
     ): ResponseEntity<FlowNftOwnershipsDto> =
         ResponseEntity.ok(service.byItem(FlowAddress(contract), tokenId.toLong(), continuation, size).awaitSingle())
-
 }
