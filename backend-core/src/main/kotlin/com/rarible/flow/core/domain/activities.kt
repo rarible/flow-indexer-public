@@ -26,6 +26,7 @@ sealed class FlowNftActivity: FlowActivity {
     abstract val transactionHash: String
     abstract val blockHash: String
     abstract val blockNumber: Long
+    abstract val collection: String
 }
 
 sealed class FlowNftOrderActivity: FlowActivity {
@@ -64,6 +65,7 @@ data class MintActivity(
     override val transactionHash: String,
     override val blockHash: String,
     override val blockNumber: Long,
+    override val collection: String
 ): FlowNftActivity()
 
 /**
@@ -77,7 +79,8 @@ data class BurnActivity(
     override val value: Long = 1L,
     override val transactionHash: String,
     override val blockHash: String,
-    override val blockNumber: Long
+    override val blockNumber: Long,
+    override val collection: String
 ): FlowNftActivity()
 
 /**
@@ -93,6 +96,7 @@ data class TransferActivity(
     override val transactionHash: String,
     override val blockHash: String,
     override val blockNumber: Long,
+    override val collection: String,
     val from: FlowAddress,
 ): FlowNftActivity()
 

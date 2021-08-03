@@ -55,10 +55,4 @@ class Config(
 
     @Bean
     fun sporkMonitor(sporkInfo: SporkInfo) = SporkMonitor(sporkInfo)
-
-    @Bean(name = ["applicationEventMulticaster"])
-    fun simpleApplicationEventMulticaster(): ApplicationEventMulticaster =
-        SimpleApplicationEventMulticaster().apply {
-            setTaskExecutor(SimpleAsyncTaskExecutor())
-        }
 }

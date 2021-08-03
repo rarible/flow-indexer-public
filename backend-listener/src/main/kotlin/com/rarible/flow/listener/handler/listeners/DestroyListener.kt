@@ -39,6 +39,7 @@ class DestroyListener(
         val itemId = ItemId(contract, tokenId)
         log.info("Burning item [{}]...", itemId)
 
+        val item = itemService.byId(itemId).awaitSingle()
         itemHistoryRepository.coSave(
             ItemHistory(
                 id = UUID.randomUUID().toString(),
@@ -48,7 +49,8 @@ class DestroyListener(
                     tokenId = tokenId,
                     transactionHash = blockInfo.transactionId,
                     blockHash = blockInfo.blockId,
-                    blockNumber = blockInfo.blockHeight
+                    blockNumber = blockInfo.blockHeight,
+                    collection = item.collection
                 )
             )
         )

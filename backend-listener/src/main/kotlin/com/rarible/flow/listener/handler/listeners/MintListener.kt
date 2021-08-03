@@ -82,7 +82,8 @@ class MintListener(
                         value = 1L,
                         transactionHash = blockInfo.transactionId,
                         blockHash = blockInfo.blockId,
-                        blockNumber = blockInfo.blockHeight
+                        blockNumber = blockInfo.blockHeight,
+                        collection = item.collection
                     )
                 )
             )

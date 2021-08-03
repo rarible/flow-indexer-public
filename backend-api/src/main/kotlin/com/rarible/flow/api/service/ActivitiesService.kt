@@ -4,6 +4,7 @@ import com.rarible.flow.core.domain.FlowActivityType
 import com.rarible.flow.core.domain.toDto
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.protocol.dto.*
+import org.onflow.sdk.Flow
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
@@ -30,11 +31,11 @@ class ActivitiesService(
 
         return itemHistoryRepository.getNftOrderActivitiesByItem(types, contract = FlowAddress(contract), tokenId)
             .collectList().flatMap {
-            FlowActivitiesDto(
-                items = it.map { it.activity.toDto(it.id, it.date) },
-                continuation = continuation
-            ).toMono()
-        }
+                FlowActivitiesDto(
+                    items = it.map { it.activity.toDto(it.id, it.date) },
+                    continuation = continuation
+                ).toMono()
+            }
 
     }
 
@@ -88,6 +89,24 @@ class ActivitiesService(
                 continuation = continuation
             ).toMono()
         }
+    }
+
+    fun getNfdOrderActivitiesByCollection(
+        type: List<String>,
+        collection: String,
+        continuation: String?,
+        size: Int?
+    ): Mono<FlowActivitiesDto> {
+        val types =
+            if (type.isEmpty()) FlowActivityType.values().toList() else type.map { FlowActivityType.valueOf(it) }
+
+        return itemHistoryRepository.getAllActivitiesByItemCollection(types, collection).collectList()
+            .flatMap { history ->
+                FlowActivitiesDto(
+                    continuation = continuation,
+                    items = history.map { it.activity.toDto(it.id, it.date) }
+                ).toMono()
+            }
     }
 
 
