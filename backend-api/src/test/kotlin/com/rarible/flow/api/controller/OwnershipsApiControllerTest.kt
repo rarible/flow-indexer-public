@@ -3,7 +3,9 @@ package com.rarible.flow.api.controller
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.randomAddress
+import com.rarible.flow.randomLong
 import com.rarible.protocol.dto.FlowNftOwnershipDto
+import com.rarible.protocol.dto.FlowNftOwnershipsDto
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -14,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
+import java.time.Clock
 import java.time.Instant
 import kotlin.random.Random
 
@@ -70,4 +73,95 @@ class OwnershipsApiControllerTest {
 
             }
     }
+
+    @Test
+    internal fun `should return all ownerships`() {
+        ownershipRepository.saveAll(
+            listOf(
+                Ownership(
+                    contract = FlowAddress(randomAddress()),
+                    tokenId = randomLong(),
+                    owner = FlowAddress(randomAddress()),
+                    date = Instant.now()
+                ),
+                Ownership(
+                    contract = FlowAddress(randomAddress()),
+                    tokenId = randomLong(),
+                    owner = FlowAddress(randomAddress()),
+                    date = Instant.now()
+                ),
+                Ownership(
+                    contract = FlowAddress(randomAddress()),
+                    tokenId = randomLong(),
+                    owner = FlowAddress(randomAddress()),
+                    date = Instant.now()
+                ),
+            )
+        ).collectList().block()
+
+        client.get().uri("/v0.1/ownerships/all")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftOwnershipsDto>()
+            .consumeWith {
+                val list = it.responseBody!!
+                Assertions.assertTrue(list.ownerships.isNotEmpty())
+                Assertions.assertTrue(list.ownerships.size == 3)
+            }
+
+    }
+
+
+    @Test
+    internal fun `should return all ownerships by item`() {
+        val tokenId = randomLong()
+        val contract = FlowAddress(randomAddress())
+
+        ownershipRepository.saveAll(
+            listOf(
+                Ownership(
+                    contract = contract,
+                    tokenId = tokenId,
+                    owner = FlowAddress(randomAddress()),
+                    date = Instant.now(Clock.systemUTC())
+                ),
+                Ownership(
+                    contract = contract,
+                    tokenId = tokenId,
+                    owner = FlowAddress(randomAddress()),
+                    date = Instant.now(Clock.systemUTC())
+                ),
+                Ownership(
+                    contract = FlowAddress(randomAddress()),
+                    tokenId = tokenId,
+                    owner = FlowAddress(randomAddress()),
+                    date = Instant.now(Clock.systemUTC())
+                ),
+                Ownership(
+                    contract = contract,
+                    tokenId = randomLong(),
+                    owner = FlowAddress(randomAddress()),
+                    date = Instant.now(Clock.systemUTC())
+                ),
+
+            )
+        ).collectList().block()
+
+        client.get().uri("/v0.1/ownerships/byItem?contract={contract}&tokenId={tokenId}", mapOf("contract" to contract.formatted, "tokenId" to tokenId))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftOwnershipsDto>()
+            .consumeWith {
+                Assertions.assertNotNull(it.responseBody?.ownerships)
+                val response = it.responseBody!!
+                Assertions.assertTrue(response.ownerships.isNotEmpty())
+                Assertions.assertTrue(response.ownerships.size == 2)
+                response.ownerships.forEach {
+                    Assertions.assertEquals(contract.formatted, it.token)
+                    Assertions.assertEquals(tokenId, it.tokenId.toLong())
+                }
+            }
+    }
+
+
 }
