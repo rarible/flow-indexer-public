@@ -34,7 +34,7 @@ import java.time.Instant
 ])
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
-internal class ItemRepositoryTest {
+class ItemRepositoryTest {
 
     @Autowired
     lateinit var itemRepository: ItemRepository
