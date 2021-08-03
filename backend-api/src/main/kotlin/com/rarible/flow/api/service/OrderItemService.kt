@@ -52,7 +52,7 @@ class OrderItemService(
     }
 
     suspend fun onSaleByCollection(collection: String, continuation: String?, size: Int?): Mono<FlowNftItemsDto> = Mono.create { sink ->
-        orderRepositoryR.findAllByTakerIsNullAndCollection(collection).collectList().subscribe { orders ->
+        orderRepository.findAllByTakerIsNullAndCollection(collection).collectList().subscribe { orders ->
             itemRepository.findAllByIdIn(orders.map { it.itemId }).collectList().subscribe { items ->
                 val data = if (size != null) {
                     items.take(size)

@@ -226,7 +226,7 @@ class NftOrderItemControllerTest {
             data = OrderData(payouts = listOf(), originalFees = listOf())
         )
 
-        orderRepositoryR.saveAll(
+        orderRepository.saveAll(
             listOf(
                 order,
                 order.copy(id = ObjectId.get(), itemId = itemId2),

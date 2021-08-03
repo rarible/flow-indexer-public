@@ -31,7 +31,8 @@ internal class OrderClosedListenerTest: FunSpec({
         item.id.toString(),
         buyerFee = BigDecimal.ZERO,
         sellerFee = BigDecimal.ZERO,
-        data = OrderData(emptyList(), emptyList())
+        data = OrderData(emptyList(), emptyList()),
+        collection = "ABC"
     )
 
     val listener = OrderClosedListener(
@@ -43,6 +44,7 @@ internal class OrderClosedListenerTest: FunSpec({
 
         mockk() {
             every { save(any()) } returns Mono.just(item)
+            every { findById(any<ItemId>()) } returns Mono.just(item)
         },
 
         mockk() {
