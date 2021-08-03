@@ -4,6 +4,7 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
+import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -26,10 +27,11 @@ class OrderWithdrawn(
         val itemId = ItemId(contract, tokenId)
         itemRepository.unlist(itemId)
         orderRepository
-            .deleteByItemId(itemId)
+            .findByItemId(itemId)
             .awaitSingleOrNull()
             ?.let { order ->
-                protocolEventPublisher.onUpdate(order)
+                val cancelled = orderRepository.coSave(order.copy(canceled = true))
+                protocolEventPublisher.onUpdate(cancelled)
             }
     }
 
