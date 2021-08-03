@@ -50,6 +50,7 @@ class OrderOpenedListener(
                 sellerFee = sellerFee,
             )
         )
+
         protocolEventPublisher.onUpdate(order)
 
 
