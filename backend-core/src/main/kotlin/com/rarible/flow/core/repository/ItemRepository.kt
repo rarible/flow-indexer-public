@@ -26,8 +26,7 @@ interface ItemRepository: ReactiveMongoRepository<Item, ItemId>, ItemRepositoryC
 }
 
 interface ItemRepositoryCustom: ContinuationRepositoryCustom<Item, ItemFilter> {
-    suspend fun markDeleted(itemId: ItemId): UpdateResult?
-    suspend fun unlist(itemId: ItemId): UpdateResult
+    suspend fun updateById(itemId: ItemId, update: Update): UpdateResult
 }
 
 @Suppress("unused")
@@ -35,15 +34,8 @@ class ItemRepositoryCustomImpl(
     private val mongo: ReactiveMongoTemplate
 ): ItemRepositoryCustom {
 
-    override suspend fun markDeleted(itemId: ItemId): UpdateResult {
-        return update(itemId, Update().set(Item::deleted.name, true))
-    }
-
-    override suspend fun unlist(itemId: ItemId): UpdateResult {
-        return update(itemId, Update().set(Item::listed.name, false))
-    }
-
     override fun search(filter: ItemFilter, cont: Continuation?, limit: Int?): Flow<Item> {
+        cont as NftItemContinuation?
         val criteria = when (filter) {
             is ItemFilter.All -> all()
             is ItemFilter.ByCreator -> byCreator(filter.creator)
@@ -81,7 +73,7 @@ class ItemRepositoryCustomImpl(
         }
     }
 
-    private infix fun Criteria.scrollTo(continuation: Continuation?): Criteria =
+    private infix fun Criteria.scrollTo(continuation: NftItemContinuation?): Criteria =
         if (continuation == null) {
             this
         } else {
@@ -94,7 +86,7 @@ class ItemRepositoryCustomImpl(
             )
         }
 
-    private suspend fun update(
+    override suspend fun updateById(
         itemId: ItemId,
         update: Update
     ): UpdateResult {
