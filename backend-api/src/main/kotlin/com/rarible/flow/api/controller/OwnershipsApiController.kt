@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 class OwnershipsApiController(
     private val service: OwnershipsService
 ) : FlowNftOwnershipControllerApi {
+
     override suspend fun getNftAllOwnerships(continuation: String?, size: Int?): ResponseEntity<FlowNftOwnershipsDto> =
         ResponseEntity.ok(service.all(continuation, size).awaitSingle())
 

@@ -3,7 +3,6 @@ package com.rarible.flow.listener.handler.listeners
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.*
 import com.rarible.flow.events.BlockInfo
-import com.rarible.flow.listener.handler.EventHandler
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
 import org.bson.types.ObjectId
@@ -17,7 +16,7 @@ import java.util.*
 @Component(OrderOpenedListener.ID)
 class OrderOpenedListener(
     private val itemRepository: ItemRepository,
-    private val orderRepository: OrderRepositoryR,
+    private val orderRepository: OrderRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository

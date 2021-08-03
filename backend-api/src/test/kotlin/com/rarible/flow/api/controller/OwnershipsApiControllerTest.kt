@@ -74,7 +74,6 @@ class OwnershipsApiControllerTest {
             }
     }
 
-
     @Test
     internal fun `should return all ownerships`() {
         ownershipRepository.saveAll(
@@ -111,6 +110,7 @@ class OwnershipsApiControllerTest {
             }
 
     }
+
 
     @Test
     internal fun `should return all ownerships by item`() {
@@ -162,5 +162,6 @@ class OwnershipsApiControllerTest {
                 }
             }
     }
+
 
 }

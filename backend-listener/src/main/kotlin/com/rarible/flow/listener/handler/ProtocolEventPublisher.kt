@@ -4,9 +4,11 @@ import com.rarible.core.kafka.KafkaMessage
 import com.rarible.core.kafka.KafkaSendResult
 import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.flow.core.converter.ItemToDtoConverter
+import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.converter.OwnershipToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.protocol.dto.*
 import java.util.*
@@ -14,7 +16,8 @@ import java.util.*
 
 class ProtocolEventPublisher(
     private val items: RaribleKafkaProducer<FlowNftItemEventDto>,
-    private val ownerships: RaribleKafkaProducer<FlowOwnershipEventDto>
+    private val ownerships: RaribleKafkaProducer<FlowOwnershipEventDto>,
+    private val orders: RaribleKafkaProducer<FlowOrderEventDto>
 ) {
 
     suspend fun onItemUpdate(item: Item): KafkaSendResult {
@@ -39,6 +42,20 @@ class ProtocolEventPublisher(
                     eventId = "${ownership.id}.${UUID.randomUUID()}",
                     ownershipId = ownership.id.toString(),
                     OwnershipToDtoConverter.convert(ownership)
+                )
+            )
+        )
+    }
+
+    suspend fun onUpdate(order: Order): KafkaSendResult {
+        val orderId = order.id.toHexString()
+        return orders.send(
+            KafkaMessage(
+                orderId,
+                FlowOrderUpdateEventDto(
+                    eventId = "$orderId.${UUID.randomUUID()}",
+                    orderId = orderId,
+                    OrderToDtoConverter.convert(order)
                 )
             )
         )

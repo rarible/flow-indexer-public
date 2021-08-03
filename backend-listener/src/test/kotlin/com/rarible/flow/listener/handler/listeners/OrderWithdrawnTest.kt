@@ -1,8 +1,9 @@
 package com.rarible.flow.listener.handler.listeners
 
 import com.rarible.core.kafka.KafkaSendResult
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderData
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
@@ -12,46 +13,58 @@ import io.kotest.core.spec.style.FunSpec
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import reactor.core.publisher.Flux
+import org.bson.types.ObjectId
+import org.onflow.sdk.FlowAddress
 import reactor.core.publisher.Mono
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
-internal class DepositListenerTest: FunSpec({
+internal class OrderWithdrawnTest: FunSpec({
 
     val item = createItem()
+    val order = Order(
+        ObjectId.get(),
+        item.id,
+        FlowAddress("0x1000"),
+        null,
+        FlowAssetNFT(item.contract, 1.toBigDecimal(), item.tokenId),
+        null,
+        1.toBigDecimal(),
+        item.id.toString(),
+        buyerFee = BigDecimal.ZERO,
+        sellerFee = BigDecimal.ZERO,
+        data = OrderData(emptyList(), emptyList())
+    )
 
-    val listener = DepositListener(
-        mockk() {
-            every { save(any()) } returns Mono.just(item)
-            every { findById(any<ItemId>()) } returns Mono.just(item)
+    val listener = OrderWithdrawn(
+        mockk("orderRepository") {
+            every { deleteByItemId(any()) } returns Mono.just(order)
         },
 
-        mockk() {
-            val ownerships = listOf(Ownership(item.contract, item.tokenId, item.owner!!, item.date))
-            every { findAllByContractAndTokenId(any(), any()) } returns
-                    Flux.fromIterable(ownerships)
-            every { saveAll(any<Iterable<Ownership>>()) } returns Flux.fromIterable(ownerships)
+
+        mockk("itemRepository") {
+            coEvery { unlist(any()) } returns mockk("unlistResultMock")
         },
 
-        mockk() {
+        mockk("protocolEventPublisher") {
             coEvery {
-                onUpdate(any<Ownership>())
+                onUpdate(any<Order>())
             } returns KafkaSendResult.Success("1")
         }
-    )
+
+        )
 
     val eventHandler = EventHandler(
         mapOf(
-            DepositListener.ID to listener
+            OrderWithdrawn.ID to listener
         )
     )
 
     test("should handle deposit") {
         val event = EventMessage(
-            EventId.of("A.fcfb23c627a63d40.CommonNFT.Deposit"),
+            EventId.of("A.fcfb23c627a63d40.RegularSaleOrder.OrderWithdrawn"),
             mapOf(
-                "id" to 12,
-                "to" to "0xfcfb23c627a63d40",
+                "id" to 12
             ),
             LocalDateTime.parse("2021-07-29T05:59:58.425384445"),
             BlockInfo(

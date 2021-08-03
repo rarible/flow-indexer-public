@@ -2,7 +2,7 @@ package com.rarible.flow.api.controller
 
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.OrderRepositoryR
+import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.randomAddress
 import com.rarible.flow.randomLong
 import com.rarible.protocol.dto.FlowNftItemsDto
@@ -43,12 +43,12 @@ class NftOrderItemControllerTest {
     private lateinit var itemRepository: ItemRepository
 
     @Autowired
-    private lateinit var orderRepositoryR: OrderRepositoryR
+    private lateinit var orderRepository: OrderRepository
 
     @BeforeEach
     internal fun setUp() {
         itemRepository.deleteAll().block()
-        orderRepositoryR.deleteAll().block()
+        orderRepository.deleteAll().block()
     }
 
     @Test
@@ -89,7 +89,7 @@ class NftOrderItemControllerTest {
             collection = item.collection
         )
 
-        orderRepositoryR.saveAll(
+        orderRepository.saveAll(
             listOf(
                 order,
                 order.copy(
@@ -154,7 +154,7 @@ class NftOrderItemControllerTest {
             collection = item.collection
         )
 
-        orderRepositoryR.saveAll(
+        orderRepository.saveAll(
             listOf(
                 order,
                 order.copy(

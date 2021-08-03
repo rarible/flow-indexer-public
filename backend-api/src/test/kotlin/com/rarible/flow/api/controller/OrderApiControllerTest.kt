@@ -1,7 +1,7 @@
 package com.rarible.flow.api.controller
 
 import com.rarible.flow.core.domain.*
-import com.rarible.flow.core.repository.OrderRepositoryR
+import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.randomAddress
 import com.rarible.protocol.dto.FlowOrderDto
 import org.bson.types.ObjectId
@@ -33,7 +33,7 @@ class OrderApiControllerTest {
 
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
-    private lateinit var repo: OrderRepositoryR
+    private lateinit var repo: OrderRepository
 
     @Autowired
     lateinit var client: WebTestClient

@@ -5,12 +5,10 @@ import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.ItemHistoryRepository
-import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.repository.coSave
+import com.rarible.flow.core.service.ItemService
 import com.rarible.flow.events.BlockInfo
-import com.rarible.flow.core.repository.coFindById
-import com.rarible.flow.listener.handler.EventHandler
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.async
@@ -24,11 +22,11 @@ import java.util.*
 
 @Component(DestroyListener.ID)
 class DestroyListener(
-    private val itemRepository: ItemRepository,
+    private val itemService: ItemService,
     private val ownershipRepository: OwnershipRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
-    private val itemHistoryRepository: ItemHistoryRepository
+    private val itemHistoryRepository: ItemHistoryRepository,
 ): SmartContractEventHandler<Void> {
 
     override suspend fun handle(
@@ -55,13 +53,13 @@ class DestroyListener(
         )
 
         val items = async {
-            itemRepository.markDeleted(itemId)
+            itemService.markDeleted(itemId)
         }
         val ownerships = async {
             ownershipRepository.deleteAllByContractAndTokenId(contract, tokenId).awaitSingle()
         }
 
-        items.await()?.let { _ ->
+        items.await().let {
             val result = protocolEventPublisher.onItemDelete(itemId)
             log.info("item delete message is sent: $result")
         }

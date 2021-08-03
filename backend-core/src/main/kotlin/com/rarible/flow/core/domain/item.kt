@@ -61,6 +61,10 @@ data class Item(
             owner = null
         )
     }
+
+    fun unlist(): Item {
+        return copy(listed = false)
+    }
 }
 
 @Document

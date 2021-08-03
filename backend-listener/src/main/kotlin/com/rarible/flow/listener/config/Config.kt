@@ -13,10 +13,7 @@ import com.rarible.flow.json.commonMapper
 import com.rarible.flow.listener.handler.EventHandler
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.listener.handler.listeners.SmartContractEventHandler
-import com.rarible.protocol.dto.FlowNftItemEventDto
-import com.rarible.protocol.dto.FlowNftItemEventTopicProvider
-import com.rarible.protocol.dto.FlowNftOwnershipEventTopicProvider
-import com.rarible.protocol.dto.FlowOwnershipEventDto
+import com.rarible.protocol.dto.*
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -86,12 +83,24 @@ class Config(
     }
 
     @Bean
+    fun gatewayOrderEventsProducer(): RaribleKafkaProducer<FlowOrderEventDto> {
+        return RaribleKafkaProducer(
+            clientId = "${listenerProperties.environment}.flow.order-events-importer",
+            valueSerializerClass = JsonSerializer::class.java,
+            defaultTopic = FlowOrderEventTopicProvider.getTopic(listenerProperties.environment),
+            bootstrapServers = listenerProperties.kafkaReplicaSet
+        )
+    }
+
+    @Bean
     fun protocolEventPublisher(
         gatewayItemEventsProducer: RaribleKafkaProducer<FlowNftItemEventDto>,
-        gatewayOwnershipEventsProducer: RaribleKafkaProducer<FlowOwnershipEventDto>
+        gatewayOwnershipEventsProducer: RaribleKafkaProducer<FlowOwnershipEventDto>,
+        gatewayOrderEventsProducer: RaribleKafkaProducer<FlowOrderEventDto>,
     ) = ProtocolEventPublisher(
         gatewayItemEventsProducer,
-        gatewayOwnershipEventsProducer
+        gatewayOwnershipEventsProducer,
+        gatewayOrderEventsProducer
     )
 
 }

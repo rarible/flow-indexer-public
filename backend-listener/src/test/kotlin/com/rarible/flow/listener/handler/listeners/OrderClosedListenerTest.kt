@@ -1,8 +1,7 @@
 package com.rarible.flow.listener.handler.listeners
 
 import com.rarible.core.kafka.KafkaSendResult
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
@@ -12,46 +11,63 @@ import io.kotest.core.spec.style.FunSpec
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import reactor.core.publisher.Flux
+import org.bson.types.ObjectId
+import org.onflow.sdk.FlowAddress
 import reactor.core.publisher.Mono
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
-internal class DepositListenerTest: FunSpec({
+internal class OrderClosedListenerTest: FunSpec({
 
     val item = createItem()
+    val order = Order(
+        ObjectId.get(),
+        item.id,
+        FlowAddress("0x1000"),
+        null,
+        FlowAssetNFT(item.contract, 1.toBigDecimal(), item.tokenId),
+        null,
+        1.toBigDecimal(),
+        item.id.toString(),
+        buyerFee = BigDecimal.ZERO,
+        sellerFee = BigDecimal.ZERO,
+        data = OrderData(emptyList(), emptyList())
+    )
 
-    val listener = DepositListener(
+    val listener = OrderClosedListener(
         mockk() {
-            every { save(any()) } returns Mono.just(item)
-            every { findById(any<ItemId>()) } returns Mono.just(item)
+            every { save(any()) } returns Mono.just(order)
+            every { findByItemId(any<ItemId>()) } returns Mono.just(order)
         },
 
+
         mockk() {
-            val ownerships = listOf(Ownership(item.contract, item.tokenId, item.owner!!, item.date))
-            every { findAllByContractAndTokenId(any(), any()) } returns
-                    Flux.fromIterable(ownerships)
-            every { saveAll(any<Iterable<Ownership>>()) } returns Flux.fromIterable(ownerships)
+            every { save(any()) } returns Mono.just(item)
         },
 
         mockk() {
             coEvery {
-                onUpdate(any<Ownership>())
+                onItemUpdate(any())
             } returns KafkaSendResult.Success("1")
+
+            coEvery {
+                onUpdate(any<Order>())
+            } returns KafkaSendResult.Success("2")
         }
+
     )
 
     val eventHandler = EventHandler(
         mapOf(
-            DepositListener.ID to listener
+            OrderClosedListener.ID to listener
         )
     )
 
     test("should handle deposit") {
         val event = EventMessage(
-            EventId.of("A.fcfb23c627a63d40.CommonNFT.Deposit"),
+            EventId.of("A.fcfb23c627a63d40.RegularSaleOrder.OrderClosed"),
             mapOf(
-                "id" to 12,
-                "to" to "0xfcfb23c627a63d40",
+                "id" to 12
             ),
             LocalDateTime.parse("2021-07-29T05:59:58.425384445"),
             BlockInfo(

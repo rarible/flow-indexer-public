@@ -23,7 +23,6 @@ class OwnershipsService(
             }
         }
 
-
     suspend fun all(continuation: String?, size: Int?): Mono<FlowNftOwnershipsDto> =
         Mono.create { sink ->
             val flux = if (continuation != null) {
@@ -44,6 +43,7 @@ class OwnershipsService(
                 )
             }
         }
+
 
     suspend fun byItem(contract: FlowAddress, tokenId: TokenId, continuation: String?, size: Int?): Mono<FlowNftOwnershipsDto> =
         Mono.create { sink ->
