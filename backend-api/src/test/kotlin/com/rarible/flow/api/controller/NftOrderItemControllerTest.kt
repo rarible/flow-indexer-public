@@ -4,6 +4,7 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.randomAddress
+import com.rarible.flow.randomLong
 import com.rarible.protocol.dto.FlowNftItemsDto
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.Assertions
@@ -15,7 +16,11 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
+import java.math.BigDecimal
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @SpringBootTest(
     properties = [
@@ -80,7 +85,8 @@ class NftOrderItemControllerTest {
             buyerFee = 0.toBigDecimal(),
             data = OrderData(
                 payouts = listOf(), originalFees = listOf()
-            )
+            ),
+            collection = item.collection
         )
 
         orderRepository.saveAll(
@@ -98,7 +104,7 @@ class NftOrderItemControllerTest {
         ).collectList().block()
 
         val response = client.get()
-            .uri("/v0.1/items/byOwner?owner=${nftOwner.formatted}")
+            .uri("/v0.1/order/items/byOwner?owner=${nftOwner.formatted}")
             .exchange()
             .expectStatus().isOk
             .expectBody(FlowNftItemsDto::class.java)
@@ -144,7 +150,8 @@ class NftOrderItemControllerTest {
             buyerFee = 0.toBigDecimal(),
             data = OrderData(
                 payouts = listOf(), originalFees = listOf()
-            )
+            ),
+            collection = item.collection
         )
 
         orderRepository.saveAll(
@@ -163,7 +170,7 @@ class NftOrderItemControllerTest {
         ).collectList().block()
 
         val response = client.get()
-            .uri("/v0.1/items/all")
+            .uri("/v0.1/order/items/all")
             .exchange()
             .expectStatus().isOk
             .expectBody(FlowNftItemsDto::class.java)
@@ -176,4 +183,67 @@ class NftOrderItemControllerTest {
     }
 
 
+    @Test
+    internal fun `should return all items by collection`() {
+        val itemId1 = ItemId(contract = FlowAddress(randomAddress()), tokenId = randomLong())
+        val itemId2 = ItemId(contract = FlowAddress(randomAddress()), tokenId = randomLong())
+        val itemId3 = ItemId(contract = FlowAddress(randomAddress()), tokenId = randomLong())
+
+        val item = Item(
+            contract = itemId1.contract,
+            tokenId = itemId1.tokenId,
+            creator = FlowAddress(randomAddress()),
+            royalties = listOf(),
+            owner = FlowAddress(randomAddress()),
+            date = Instant.now(),
+            collection = "CollectionNFT"
+        )
+
+        itemRepository.saveAll(
+            listOf(
+                item,
+                item.copy(contract = itemId2.contract, tokenId = itemId2.tokenId),
+                item.copy(contract = itemId3.contract, tokenId = itemId3.tokenId),
+                item.copy(contract = FlowAddress(randomAddress()), tokenId = randomLong(), collection = "DIFF")
+            )
+        ).then().block()
+
+
+        val order = Order(
+            id = ObjectId.get(),
+            itemId = item.id,
+            maker = FlowAddress(randomAddress()),
+            make = FlowAssetNFT(
+                contract = FlowAddress(randomAddress()),
+                BigDecimal.valueOf(1L),
+                tokenId = randomLong()
+            ),
+            buyerFee = BigDecimal.valueOf(1L),
+            sellerFee = BigDecimal.valueOf(1L),
+            collection = item.collection,
+            amount = BigDecimal.valueOf(100L),
+            createdAt = LocalDateTime.now(ZoneOffset.UTC),
+            data = OrderData(payouts = listOf(), originalFees = listOf())
+        )
+
+        orderRepositoryR.saveAll(
+            listOf(
+                order,
+                order.copy(id = ObjectId.get(), itemId = itemId2),
+                order.copy(id = ObjectId.get(), itemId = itemId3),
+                order.copy(id = ObjectId.get(), itemId = ItemId(contract = FlowAddress(randomAddress()), tokenId = randomLong()),collection = "DIFF"),
+            )
+        ).then().block()
+
+        client.get().uri("/v0.1/order/items/byCollection?collection={collection}", mapOf("collection" to item.collection))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemsDto>()
+            .consumeWith {
+                Assertions.assertNotNull(it.responseBody)
+                val items = it.responseBody!!.items
+                Assertions.assertTrue(items.isNotEmpty())
+                Assertions.assertTrue(items.size == 3)
+            }
+    }
 }

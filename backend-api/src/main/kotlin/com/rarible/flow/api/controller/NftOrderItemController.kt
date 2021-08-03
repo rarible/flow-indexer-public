@@ -17,6 +17,12 @@ class NftOrderItemController(
     override suspend fun getNftOrderAllItems(continuation: String?, size: Int?): ResponseEntity<FlowNftItemsDto> =
         ResponseEntity.ok(orderItemService.allOnSale(continuation, size).awaitSingle())
 
+    override suspend fun getNftOrderItemsByCollection(
+        collection: String,
+        continuation: String?,
+        size: Int?
+    ): ResponseEntity<FlowNftItemsDto> = ResponseEntity.ok(orderItemService.onSaleByCollection(collection, continuation, size).awaitSingle())
+
     override suspend fun getNftOrderItemsByOwner(
         owner: String,
         continuation: String?,
