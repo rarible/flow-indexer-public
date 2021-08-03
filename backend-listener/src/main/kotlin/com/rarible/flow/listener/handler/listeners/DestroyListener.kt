@@ -37,6 +37,8 @@ class DestroyListener(
     ): Void = coroutineScope {
 
         val itemId = ItemId(contract, tokenId)
+        log.info("Burning item [{}]...", itemId)
+
         val item = itemService.byId(itemId).awaitSingle()
         itemHistoryRepository.coSave(
             ItemHistory(
@@ -52,6 +54,7 @@ class DestroyListener(
                 )
             )
         )
+        log.info("Burning item [{}] - saved history", itemId)
 
         val items = async {
             itemService.markDeleted(itemId)
