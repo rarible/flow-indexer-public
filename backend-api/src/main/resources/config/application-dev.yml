@@ -8,7 +8,6 @@ spring:
       discovery:
         tags:
           - web-api:flow-api-dev.rarible.com
-          - api-location:/flow/api
 
 rarible:
   core:
