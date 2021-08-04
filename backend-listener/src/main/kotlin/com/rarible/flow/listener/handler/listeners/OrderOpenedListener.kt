@@ -34,56 +34,58 @@ class OrderOpenedListener(
         val bidAmount = (fields["bidAmount"] as String).toBigDecimal()
         val buyerFee = (fields["buyerFee"] as String).toBigDecimal()
         val sellerFee = (fields["sellerFee"] as String).toBigDecimal()
-        val maker = FlowAddress(fields["maker"] as String)
 
         val itemId = ItemId(contract, askId)
-        val item = itemRepository.coFindById(itemId)!!
-        val order = orderRepository.coSave(
-            Order(
-                id = ObjectId.get(),
-                itemId = itemId,
-                maker = maker,
-                make = FlowAssetNFT(contract = item.contract, value = 1.toBigDecimal(), tokenId = item.tokenId),
-                data = OrderData(listOf(), listOf()), //TODO calculate all payouts and fees
-                amount = bidAmount,
-                buyerFee = buyerFee,
-                sellerFee = sellerFee,
-                collection = item.collection
+        val item = itemRepository.coFindById(itemId)
+        if(item?.owner != null) {
+            val order = orderRepository.coSave(
+                Order(
+                    id = ObjectId.get(),
+                    itemId = itemId,
+                    maker = item.owner!!,
+                    make = FlowAssetNFT(contract = item.contract, value = 1.toBigDecimal(), tokenId = item.tokenId),
+                    data = OrderData(listOf(), listOf()), //TODO calculate all payouts and fees
+                    amount = bidAmount,
+                    buyerFee = buyerFee,
+                    sellerFee = sellerFee,
+                    collection = item.collection
+                )
             )
-        )
 
-        protocolEventPublisher.onUpdate(order)
+            protocolEventPublisher.onUpdate(order)
 
-
-        itemRepository
-            .coFindById(itemId)
-            ?.let {
-                itemRepository.coSave(it.copy(listed = true))
-            }
-            ?.let { saved ->
-                val result = protocolEventPublisher.onItemUpdate(saved)
-                log.info("item update message is sent: $result")
-            }
-        itemHistoryRepository.coSave(
-            ItemHistory(
-                id = UUID.randomUUID().toString(),
-                date = LocalDateTime.now(ZoneOffset.UTC),
-                activity = FlowNftOrderActivityList(
-                    price = bidAmount,
-                    hash = UUID.randomUUID().toString(), //todo delete hash
-                    maker = maker,
-                    make = FlowAssetNFT(
-                        contract = contract,
-                        value = BigDecimal.valueOf(1L),
-                        tokenId = tokenId
-                    ),
-                    take = FlowAssetFungible(
-                        contract = FlowAddress(bidType),
-                        value = bidAmount
+            itemRepository
+                .coFindById(itemId)
+                ?.let {
+                    itemRepository.coSave(it.copy(listed = true))
+                }
+                ?.let { saved ->
+                    val result = protocolEventPublisher.onItemUpdate(saved)
+                    log.info("item update message is sent: $result")
+                }
+            itemHistoryRepository.coSave(
+                ItemHistory(
+                    id = UUID.randomUUID().toString(),
+                    date = LocalDateTime.now(ZoneOffset.UTC),
+                    activity = FlowNftOrderActivityList(
+                        price = bidAmount,
+                        hash = UUID.randomUUID().toString(), //todo delete hash
+                        maker = item.owner!!,
+                        make = FlowAssetNFT(
+                            contract = contract,
+                            value = BigDecimal.valueOf(1L),
+                            tokenId = tokenId
+                        ),
+                        take = FlowAssetFungible(
+                            contract = FlowAddress(bidType),
+                            value = bidAmount
+                        )
                     )
                 )
             )
-        )
+        } else {
+            log.warn("Trying to sell deleted or non-existing item [{}]", itemId)
+        }
     }
 
 
