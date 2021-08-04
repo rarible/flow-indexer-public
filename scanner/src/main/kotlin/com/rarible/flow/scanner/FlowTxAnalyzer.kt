@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventMessage
+import com.rarible.flow.log.Log
 import com.rarible.flow.scanner.config.ScannerProperties
 import com.rarible.flow.scanner.model.FlowEvent
 import com.rarible.flow.scanner.model.FlowTransaction
@@ -31,6 +32,7 @@ class FlowTxAnalyzer(
     fun analyze(tx: FlowTransaction) {
         tx.events.forEachIndexed { index, flowEvent ->
             if (isEventTracked(flowEvent)) {
+                log.info("Received Flow event [{}]", flowEvent.type)
                 val msg = flowMapper.readValue<EventMessage>(flowEvent.data).apply {
                     timestamp = flowEvent.timestamp
                     blockInfo = BlockInfo(
@@ -54,4 +56,9 @@ class FlowTxAnalyzer(
 
     private fun isEventTracked(event: FlowEvent) =
         scannerProperties.trackedContracts.any { contract -> event.type.contains(contract, true) }
+
+    companion object {
+        val log by Log()
+    }
+
 }

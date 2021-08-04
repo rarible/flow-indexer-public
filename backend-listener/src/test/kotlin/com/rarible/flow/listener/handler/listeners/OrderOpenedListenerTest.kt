@@ -72,14 +72,13 @@ internal class OrderOpenedListenerTest: FunSpec({
         val event = EventMessage(
             EventId.of("A.fcfb23c627a63d40.RegularSaleOrder.OrderOpened"),
             mapOf(
-                "id" to 12,
-                "to" to "0xfcfb23c627a63d40",
-                "askId" to "12",
-                "bidType" to "0x01",
-                "bidAmount" to "1",
-                "buyerFee" to "0.0",
-                "sellerFee" to "0.0",
-                "maker" to "0x02"
+                "id" to "10859892",
+                "askType" to "A.fcfb23c627a63d40.CommonNFT.NFT",
+                "askId" to "54",
+                "bidType" to "A.7e60df042a9c0868.FlowToken.Vault",
+                "bidAmount" to "10.12300000",
+                "buyerFee" to "2.50000000",
+                "sellerFee" to "2.50000000"
             ),
             LocalDateTime.parse("2021-07-29T05:59:58.425384445"),
             BlockInfo(
