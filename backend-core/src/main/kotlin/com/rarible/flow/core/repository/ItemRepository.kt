@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.query.*
 import org.springframework.data.mongodb.core.updateFirst
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
 interface ItemRepository: ReactiveMongoRepository<Item, ItemId>, ItemRepositoryCustom {
 
@@ -23,6 +24,8 @@ interface ItemRepository: ReactiveMongoRepository<Item, ItemId>, ItemRepositoryC
     fun findAllByListedIsTrue(): Flux<Item>
 
     fun findAllByIdIn(ids: List<ItemId>): Flux<Item>
+
+    fun findByIdAndOwnerIsNotNull(itemId: ItemId): Mono<Item>
 }
 
 interface ItemRepositoryCustom: ContinuationRepositoryCustom<Item, ItemFilter> {

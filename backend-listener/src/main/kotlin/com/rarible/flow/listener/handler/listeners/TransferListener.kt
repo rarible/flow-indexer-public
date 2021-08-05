@@ -32,24 +32,27 @@ class TransferListener(
         val from = FlowAddress(fields["from"]!! as String)
         val to = FlowAddress(fields["to"]!! as String)
 
-        val item = itemService.byId(ItemId(contract, tokenId)).awaitSingle()
-        itemHistoryRepository.coSave(
-            ItemHistory(
-                id = UUID.randomUUID().toString(),
-                date = LocalDateTime.now(),
-                activity = TransferActivity(
-                    owner = to,
-                    contract = contract,
-                    tokenId = tokenId,
-                    value = 1L,
-                    transactionHash = blockInfo.transactionId,
-                    blockHash = blockInfo.blockId,
-                    blockNumber = blockInfo.blockHeight,
-                    from = from,
-                    collection = item.collection
+        val item = itemService.byId(ItemId(contract, tokenId))
+        // check if item exists and is not transferred yet
+        if(item != null && item.owner != to) {
+            itemHistoryRepository.coSave(
+                ItemHistory(
+                    id = UUID.randomUUID().toString(),
+                    date = LocalDateTime.now(),
+                    activity = TransferActivity(
+                        owner = to,
+                        contract = contract,
+                        tokenId = tokenId,
+                        value = 1L,
+                        transactionHash = blockInfo.transactionId,
+                        blockHash = blockInfo.blockId,
+                        blockNumber = blockInfo.blockHeight,
+                        from = from,
+                        collection = item.collection
+                    )
                 )
             )
-        )
+        }
     }
 
     companion object {

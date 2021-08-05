@@ -61,7 +61,6 @@ class MintListener(
                 EventHandler.log.info("item update message is sent: $result")
             }
 
-
             ownershipRepository.coSave(
                 Ownership(
                     contract,
