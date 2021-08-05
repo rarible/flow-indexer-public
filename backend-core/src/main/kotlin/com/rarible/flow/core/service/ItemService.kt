@@ -4,9 +4,9 @@ import com.mongodb.client.result.UpdateResult
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.repository.ItemRepository
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 
 @Service
 class ItemService(
@@ -20,6 +20,9 @@ class ItemService(
         return itemRepository.updateById(itemId, Update().set(Item::listed.name, false))
     }
 
-    suspend fun byId(itemId: ItemId): Mono<Item> = itemRepository.findById(itemId)
+    suspend fun byId(itemId: ItemId): Item? = itemRepository.findById(itemId).awaitSingleOrNull()
+
+    suspend fun findAliveById(itemId: ItemId): Item? =
+        itemRepository.findByIdAndOwnerIsNotNull(itemId).awaitSingleOrNull()
 
 }

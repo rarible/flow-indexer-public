@@ -1,9 +1,6 @@
 package com.rarible.flow.listener.handler.listeners
 
-import com.rarible.flow.core.domain.BurnActivity
-import com.rarible.flow.core.domain.ItemHistory
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.TokenId
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.repository.coSave
@@ -27,19 +24,45 @@ class DestroyListener(
     private val protocolEventPublisher: ProtocolEventPublisher,
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository,
-): SmartContractEventHandler<Void> {
+): SmartContractEventHandler<Unit> {
 
     override suspend fun handle(
         contract: FlowAddress,
         tokenId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
-    ): Void = coroutineScope {
-
+    ): Unit = coroutineScope {
         val itemId = ItemId(contract, tokenId)
-        log.info("Burning item [{}]...", itemId)
+        val item = itemService.findAliveById(itemId)
+        if(item != null) {
+            log.info("Burning item [{}]...", itemId)
+            saveHistory(contract, tokenId, blockInfo, item)
+            log.debug("Burning item [{}] - saved history", itemId)
 
-        val item = itemService.byId(itemId).awaitSingle()
+            val items = async {
+                itemService.markDeleted(itemId)
+                log.debug("Burning item [{}] - marked as deleted", itemId)
+                val result = protocolEventPublisher.onItemDelete(itemId)
+                log.debug("Burning item [{}] - delete message is sent: [{}]", itemId, result)
+            }
+            val ownerships = async {
+                ownershipRepository.deleteAllByContractAndTokenId(contract, tokenId).awaitSingle()
+                log.debug("Burning item [{}] - ownership is removed", itemId)
+            }
+
+            items.await()
+            ownerships.await()
+            log.info("Item [{}] is burnt.", itemId)
+        }
+
+    }
+
+    private suspend fun saveHistory(
+        contract: FlowAddress,
+        tokenId: TokenId,
+        blockInfo: BlockInfo,
+        item: Item
+    ) {
         itemHistoryRepository.coSave(
             ItemHistory(
                 id = UUID.randomUUID().toString(),
@@ -54,21 +77,6 @@ class DestroyListener(
                 )
             )
         )
-        log.info("Burning item [{}] - saved history", itemId)
-
-        val items = async {
-            itemService.markDeleted(itemId)
-        }
-        val ownerships = async {
-            ownershipRepository.deleteAllByContractAndTokenId(contract, tokenId).awaitSingle()
-        }
-
-        items.await().let {
-            val result = protocolEventPublisher.onItemDelete(itemId)
-            log.info("item delete message is sent: $result")
-        }
-        ownerships.await()
-
     }
 
     companion object {
