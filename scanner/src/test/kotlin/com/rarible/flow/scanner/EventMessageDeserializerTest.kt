@@ -4,14 +4,16 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.json.commonMapper
-import org.junit.jupiter.api.Assertions.*
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-/**
- * Created by TimochkinEA at 08.06.2021
- */
+
 class EventMessageDeserializerTest {
+
+    private val mapper = commonMapper()
 
     @ParameterizedTest
     @ValueSource(
@@ -24,12 +26,25 @@ class EventMessageDeserializerTest {
         ]
     )
     fun deserializeEventWithFieldsTest(source: String) {
-        val mapper = commonMapper()
         val raw = mapper.readTree(source)
         val expectedId = EventId.of(raw["value"]["id"].asText())
         val message = mapper.readValue<EventMessage>(source)
-        assertNotNull(message)
-        assertEquals(expectedId, message.eventId, "ID not equals!")
-        assertTrue(message.fields.isNotEmpty())
+        message shouldNotBe null
+        message.eventId shouldBe expectedId
+        message.fields.size shouldNotBe 0
+    }
+
+    @Test
+    fun shouldParseRoyalties() {
+        val str = """
+            {"type":"Event","value":{"id":"A.e91e497115b9731b.CommonNFT.Mint","fields":[{"name":"id","value":{"type":"UInt64","value":"14"}},{"name":"collection","value":{"type":"String","value":"A.e91e497115b9731b.CommonNFT.NFT"}},{"name":"creator","value":{"type":"Address","value":"0x7ec498ace78086cb"}},{"name":"metadata","value":{"type":"String","value":"url://abc"}},{"name":"royalties","value":{"type":"Array","value":[{"type":"Struct","value":{"id":"A.e91e497115b9731b.CommonNFT.Royalties","fields":[{"name":"address","value":{"type":"Address","value":"0x9aa32171f67a8614"}},{"name":"fee","value":{"type":"UFix64","value":"2.00000000"}}]}},{"type":"Struct","value":{"id":"A.e91e497115b9731b.CommonNFT.Royalties","fields":[{"name":"address","value":{"type":"Address","value":"0xe91e497115b9731b"}},{"name":"fee","value":{"type":"UFix64","value":"5.00000000"}}]}}]}}]}}
+        """.trimIndent()
+        val message = mapper.readValue<EventMessage>(str)
+        message shouldNotBe null
+        val royalties = message.fields["royalties"] as List<Map<String, String>>
+        royalties[0]["address"] shouldBe "0x9aa32171f67a8614"
+        royalties[0]["fee"]?.toDouble() shouldBe 2.0
+        royalties[1]["address"] shouldBe "0xe91e497115b9731b"
+        royalties[1]["fee"]?.toDouble() shouldBe 5.0
     }
 }
