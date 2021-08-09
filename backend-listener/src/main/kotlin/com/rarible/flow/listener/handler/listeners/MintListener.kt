@@ -38,25 +38,20 @@ class MintListener(
         val collection = (fields.getOrDefault("collection", props.defaultItemCollection.id) as String)
 
         val existingEvent = itemRepository.coFindById(ItemId(contract, tokenId))
+        val royalties = getRoyalties(fields["royalties"])
         if (existingEvent == null) {
             val item = Item(
                 contract,
                 tokenId,
                 to,
-                emptyList(),
+                royalties,
                 to,
                 Instant.now(),
-                "",
+                metadata,
                 collection = collection
             )
-            //TODO return later
-//            itemMetaRepository.coSave(
-//                ItemMeta(item.id, metadata["title"] ?: "", metadata["description"] ?: "", URI.create(metadata["uri"] ?: ""))
-//            )
 
-            itemRepository.coSave(
-                item.copy(meta = metadata)
-            ).let {
+            itemRepository.coSave(item).let {
                 val result = protocolEventPublisher.onItemUpdate(it)
                 EventHandler.log.info("item update message is sent: $result")
             }
@@ -86,6 +81,17 @@ class MintListener(
                     )
                 )
             )
+        }
+    }
+
+    private fun getRoyalties(royalties: Any?): List<Part> {
+        return if(royalties == null) {
+            emptyList()
+        } else {
+            royalties as List<Map<String, String>>
+            royalties.map { r ->
+                Part(FlowAddress(r["address"] as String), r["fee"]?.toInt() ?: 0)
+            }
         }
     }
 

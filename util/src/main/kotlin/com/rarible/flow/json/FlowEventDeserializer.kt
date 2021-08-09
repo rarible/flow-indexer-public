@@ -29,18 +29,25 @@ class FlowEventDeserializer : JsonDeserializer<EventMessage>() {
     private fun parseFields(e: JsonNode): Map<String, Any?> = e.asIterable().associate {
         val name:String = it["name"].asText()
 
-        val value: Any? = when (it["value"]["type"].asText()) {
-            "Optional" -> {
-                it["value"]["value"]["value"]?.asText("")
-            }
-            "Struct" -> {
-                val struct = it["value"]
-                parseFields(struct["value"]["fields"])
-            }
-            else -> {
-                it["value"]["value"]?.asText("")
-            }
-        }
+        val value: Any? = parseValue(it["value"])
         name to value
+    }
+
+    private fun parseValue(json: JsonNode): Any? = when (json["type"].asText()) {
+        "Optional" -> {
+            json["value"]["value"]?.asText("")
+        }
+        "Struct" -> {
+            val struct = json["value"]
+            parseFields(struct["fields"])
+        }
+        "Array" -> {
+            json["value"].map { element ->
+                parseValue(element)
+            }.toList()
+        }
+        else -> {
+            json["value"]?.asText("")
+        }
     }
 }
