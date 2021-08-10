@@ -3,6 +3,7 @@ package com.rarible.flow.listener.handler.listeners
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.OrderRepository
+import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.service.ItemService
 import com.rarible.flow.events.BlockInfo
@@ -20,17 +21,15 @@ class OrderWithdrawn(
 
     override suspend fun handle(
         contract: FlowAddress,
-        tokenId: TokenId,
+        orderId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
     ) {
-        val itemId = ItemId(contract, tokenId)
-        itemService.unlist(itemId)
         orderRepository
-            .findByItemId(itemId)
-            .awaitSingleOrNull()
+            .coFindById(orderId)
             ?.let { order ->
                 val cancelled = orderRepository.coSave(order.copy(canceled = true))
+                itemService.unlist(order.itemId)
                 protocolEventPublisher.onUpdate(cancelled)
             }
     }

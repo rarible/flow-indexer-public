@@ -21,7 +21,7 @@ internal class OrderClosedListenerTest: FunSpec({
 
     val item = createItem()
     val order = Order(
-        ObjectId.get(),
+        1L,
         item.id,
         FlowAddress("0x1000"),
         null,
@@ -39,6 +39,7 @@ internal class OrderClosedListenerTest: FunSpec({
         mockk() {
             every { save(any()) } returns Mono.just(order)
             every { findByItemId(any<ItemId>()) } returns Mono.just(order)
+            every { findById(any<Long>()) } returns Mono.just(order)
         },
 
 

@@ -15,5 +15,5 @@ class OrderApiController(
 ): FlowOrderControllerApi {
 
     override suspend fun getOrderByOrderId(orderId: String): ResponseEntity<FlowOrderDto> =
-        ResponseEntity.ok(service.orderById(orderId).awaitFirst())
+        ResponseEntity.ok(service.orderById(orderId.toLong()).awaitFirst())
 }

@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-interface OrderRepository: ReactiveMongoRepository<Order, ObjectId> {
+interface OrderRepository: ReactiveMongoRepository<Order, Long> {
     fun findByItemId(itemId: ItemId): Mono<Order>
     fun deleteByItemId(itemId: ItemId): Mono<Order>
     fun findAllByMakerAndTakerIsNull(maker: FlowAddress): Flux<Order>

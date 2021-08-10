@@ -25,7 +25,7 @@ class OrderOpenedListener(
 
     override suspend fun handle(
         contract: FlowAddress,
-        tokenId: TokenId,
+        orderId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
     ) {
@@ -41,7 +41,7 @@ class OrderOpenedListener(
         if(item?.owner != null) {
             val order = orderRepository.coSave(
                 Order(
-                    id = ObjectId.get(),
+                    id = orderId,
                     itemId = itemId,
                     maker = item.owner!!,
                     make = FlowAssetNFT(contract = item.contract, value = 1.toBigDecimal(), tokenId = item.tokenId),
@@ -75,7 +75,7 @@ class OrderOpenedListener(
                         make = FlowAssetNFT(
                             contract = contract,
                             value = BigDecimal.valueOf(1L),
-                            tokenId = tokenId
+                            tokenId = orderId
                         ),
                         take = FlowAssetFungible(
                             contract = EventId.of(bidType).contractAddress,

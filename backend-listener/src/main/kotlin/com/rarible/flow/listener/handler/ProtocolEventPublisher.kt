@@ -48,13 +48,13 @@ class ProtocolEventPublisher(
     }
 
     suspend fun onUpdate(order: Order): KafkaSendResult {
-        val orderId = order.id.toHexString()
+        val orderId = order.id
         return orders.send(
             KafkaMessage(
-                orderId,
+                orderId.toString(),
                 FlowOrderUpdateEventDto(
                     eventId = "$orderId.${UUID.randomUUID()}",
-                    orderId = orderId,
+                    orderId = orderId.toString(),
                     OrderToDtoConverter.convert(order)
                 )
             )

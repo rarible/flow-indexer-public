@@ -23,14 +23,13 @@ class OrderClosedListener(
 
     override suspend fun handle(
         contract: FlowAddress,
-        tokenId: TokenId,
+        orderId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
     ) = coroutineScope<Unit> {
-        val itemId = ItemId(contract, tokenId)
+        val itemId = ItemId(contract, orderId)
         orderRepository
-            .findByItemId(ItemId(contract, tokenId))
-            .awaitSingleOrNull()
+            .coFindById(orderId)
             ?.let { order ->
                 val orderUpdate = async {
                     val savedOrder = orderRepository.coSave(order.copy(fill = 1))
