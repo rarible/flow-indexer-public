@@ -32,7 +32,7 @@ class FlowTxAnalyzer(
     fun analyze(tx: FlowTransaction) {
         tx.events.forEachIndexed { index, flowEvent ->
             if (isEventTracked(flowEvent)) {
-                log.info("Received Flow event [{}]", flowEvent.type)
+                log.info("Received Flow event [{}]", flowEvent.data)
                 val msg = flowMapper.readValue<EventMessage>(flowEvent.data).apply {
                     timestamp = flowEvent.timestamp
                     blockInfo = BlockInfo(
@@ -42,6 +42,7 @@ class FlowTxAnalyzer(
                     )
                 }
 
+                log.debug("Publishing event message: {}", msg)
                 publisher.publishEvent(
                     RariEventMessageCaught(
                         RariEventMessage(

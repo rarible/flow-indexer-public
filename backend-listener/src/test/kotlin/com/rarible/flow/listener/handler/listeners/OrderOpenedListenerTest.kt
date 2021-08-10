@@ -21,7 +21,7 @@ internal class OrderOpenedListenerTest: FunSpec({
 
     val item = createItem()
     val order = Order(
-        ObjectId.get(),
+        1L,
         item.id,
         FlowAddress("0x1000"),
         null,

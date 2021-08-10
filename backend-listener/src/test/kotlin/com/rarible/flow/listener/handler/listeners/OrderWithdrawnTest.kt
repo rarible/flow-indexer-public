@@ -24,7 +24,7 @@ internal class OrderWithdrawnTest: FunSpec({
 
     val item = createItem()
     val order = Order(
-        ObjectId.get(),
+        1L,
         item.id,
         FlowAddress("0x1000"),
         null,
@@ -42,6 +42,7 @@ internal class OrderWithdrawnTest: FunSpec({
         mockk("orderRepository") {
             every { deleteByItemId(any()) } returns Mono.just(order)
             every { findByItemId(any<ItemId>()) } returns Mono.just(order)
+            every { findById(any<Long>()) } returns Mono.just(order)
             every { save(any()) } returns Mono.just(order)
         },
 

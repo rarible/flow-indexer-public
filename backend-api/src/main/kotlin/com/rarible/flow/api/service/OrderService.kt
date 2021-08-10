@@ -15,8 +15,8 @@ class OrderService(
     private val orderRepository: OrderRepository
 ) {
 
-    suspend fun orderById(orderId: String): Mono<FlowOrderDto> {
-        val order = orderRepository.findById(ObjectId(orderId)).awaitFirst()
+    suspend fun orderById(orderId: Long): Mono<FlowOrderDto> {
+        val order = orderRepository.findById(orderId).awaitFirst()
         return OrderToDtoConverter.convert(order).toMono()
     }
 }

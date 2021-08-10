@@ -27,7 +27,7 @@ import java.time.ZoneOffset
 @Document
 data class Order(
     @MongoId
-    val id: ObjectId,
+    val id: Long,
     val itemId: ItemId,
     val maker: FlowAddress,
     val taker: FlowAddress? = null,

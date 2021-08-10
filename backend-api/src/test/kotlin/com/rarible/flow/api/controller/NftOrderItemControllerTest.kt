@@ -72,7 +72,7 @@ class NftOrderItemControllerTest {
         ).then().block()
 
         val order = Order(
-            id = ObjectId.get(),
+            id = 1L,
             itemId = nftId,
             maker = nftOwner,
             make = FlowAssetNFT(
@@ -93,11 +93,11 @@ class NftOrderItemControllerTest {
             listOf(
                 order,
                 order.copy(
-                    id = ObjectId.get(),
+                    id = 2L,
                     taker = FlowAddress(randomAddress()),
                 ),
                 order.copy(
-                    id = ObjectId.get(),
+                    id = 3L,
                     maker = FlowAddress(randomAddress())
                 )
             )
@@ -137,7 +137,7 @@ class NftOrderItemControllerTest {
         ).then().block()
 
         val order = Order(
-            id = ObjectId.get(),
+            id = 1L,
             itemId = nftId,
             maker = nftOwner,
             make = FlowAssetNFT(
@@ -158,11 +158,11 @@ class NftOrderItemControllerTest {
             listOf(
                 order,
                 order.copy(
-                    id = ObjectId.get(),
+                    id = 2L,
                     taker = FlowAddress(randomAddress()),
                 ),
                 order.copy(
-                    id = ObjectId.get(),
+                    id = 3L,
                     maker = FlowAddress(randomAddress()),
                     itemId = ItemId(contract = nftContract, tokenId = 500L)
                 )
@@ -210,7 +210,7 @@ class NftOrderItemControllerTest {
 
 
         val order = Order(
-            id = ObjectId.get(),
+            id = 1L,
             itemId = item.id,
             maker = FlowAddress(randomAddress()),
             make = FlowAssetNFT(
@@ -229,9 +229,9 @@ class NftOrderItemControllerTest {
         orderRepository.saveAll(
             listOf(
                 order,
-                order.copy(id = ObjectId.get(), itemId = itemId2),
-                order.copy(id = ObjectId.get(), itemId = itemId3),
-                order.copy(id = ObjectId.get(), itemId = ItemId(contract = FlowAddress(randomAddress()), tokenId = randomLong()),collection = "DIFF"),
+                order.copy(id = 2L, itemId = itemId2),
+                order.copy(id = 3L, itemId = itemId3),
+                order.copy(id = 4L, itemId = ItemId(contract = FlowAddress(randomAddress()), tokenId = randomLong()),collection = "DIFF"),
             )
         ).then().block()
 
