@@ -7,11 +7,16 @@ import org.onflow.sdk.FlowAddress
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.time.LocalDateTime
 
 interface OrderRepository: ReactiveMongoRepository<Order, Long> {
     fun findByItemId(itemId: ItemId): Mono<Order>
     fun deleteByItemId(itemId: ItemId): Mono<Order>
-    fun findAllByMakerAndTakerIsNull(maker: FlowAddress): Flux<Order>
-    fun findAllByTakerIsNull(): Flux<Order>
-    fun findAllByTakerIsNullAndCollection(collection: String): Flux<Order>
+
+    fun findAllByMakerAndTakerIsNullOrderByCreatedAtDesc(maker: FlowAddress): Flux<Order>
+    fun findAllByMakerAndCreatedAtAfterAndTakerIsNullAndIdAfterOrderByCreatedAtDesc(maker: FlowAddress, createdAt: LocalDateTime, id: Long): Flux<Order>
+    fun findAllByTakerIsNullOrderByCreatedAtDesc(): Flux<Order>
+    fun findAllByTakerIsNullAndCreatedAtAfterAndIdGreaterThanOrderByCreatedAtDesc(createdAt: LocalDateTime, id: Long): Flux<Order>
+    fun findAllByTakerIsNullAndCollectionOrderByCreatedAtDesc(collection: String): Flux<Order>
+    fun findAllByTakerIsNullAndCollectionAndCreatedAtAfterAndIdAfterOrderByCreatedAtDesc(collection: String, afterDateTime: LocalDateTime, id: Long): Flux<Order>
 }

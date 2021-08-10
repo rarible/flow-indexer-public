@@ -1,15 +1,17 @@
 package com.rarible.flow.api.service
 
 import com.rarible.flow.core.domain.FlowActivityType
+import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.toDto
+import com.rarible.flow.core.repository.ActivityContinuation
 import com.rarible.flow.core.repository.ItemHistoryRepository
-import com.rarible.protocol.dto.*
-import org.onflow.sdk.Flow
+import com.rarible.protocol.dto.FlowActivitiesDto
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
+import java.time.ZoneOffset
 
 @Service
 class ActivitiesService(
@@ -29,11 +31,25 @@ class ActivitiesService(
             types = FlowActivityType.values().toList()
         }
 
-        return itemHistoryRepository.getNftOrderActivitiesByItem(types, contract = FlowAddress(contract), tokenId)
+        val cont = ActivityContinuation.of(continuation)
+
+        val flux = if (continuation == null) {
+            itemHistoryRepository.getNftOrderActivitiesByItem(types = types, contract = FlowAddress(contract), tokenId)
+        } else {
+            itemHistoryRepository.getNftOrderActivitiesByItemAfterDate(
+                types = types,
+                contract = FlowAddress(contract),
+                tokenId,
+                cont!!.afterDate
+            )
+        }
+
+        return flux
             .collectList().flatMap {
                 FlowActivitiesDto(
-                    items = it.map { it.activity.toDto(it.id, it.date) },
-                    continuation = continuation
+                    items = it.map { h -> h.activity.toDto(h.id, h.date) },
+                    total = it.size,
+                    continuation = "${ActivityContinuation(it.last().date.toInstant(ZoneOffset.UTC))}"
                 ).toMono()
             }
 
@@ -55,22 +71,34 @@ class ActivitiesService(
             type.filter { "TRANSFER_TO" != it && "TRANSFER_FROM" != it }.map { FlowActivityType.valueOf(it) }
         }
         val users = user.map { FlowAddress(it) }
-        val activities = itemHistoryRepository.getNftOrderActivitiesByUser(types, users)
-        val transferFromActivities = if (haveTransferFrom) {
-            itemHistoryRepository.getNftOrderTransferFromActivitiesByUser(users)
-        } else {
-            Flux.empty()
-        }
+        val cont = ActivityContinuation.of(continuation)
 
-        val transferToActivities = if (haveTransferTo) {
-            itemHistoryRepository.getNfrOrderTransferToActivitiesByUser(users)
-        } else {
-            Flux.empty()
-        }
+        val activities: Flux<ItemHistory>
+        val transferFromActivities: Flux<ItemHistory>
+        val transferToActivities: Flux<ItemHistory>
+        if (cont == null) {
+            activities = itemHistoryRepository.getNftOrderActivitiesByUser(types, users)
+            transferFromActivities = if (haveTransferFrom) {
+                itemHistoryRepository.getNftOrderTransferFromActivitiesByUser(users)
+            } else Flux.empty()
 
+            transferToActivities = if (haveTransferTo) {
+                itemHistoryRepository.getNfrOrderTransferToActivitiesByUser(users)
+            } else Flux.empty()
+        } else {
+            activities = itemHistoryRepository.getNftOrderActivitiesByUserAfterDate(types, users, cont.afterDate)
+            transferFromActivities = if (haveTransferFrom) {
+                itemHistoryRepository.getNftOrderTransferFromActivitiesByUserAfterDate(users, cont.afterDate)
+            } else Flux.empty()
+
+            transferToActivities = if (haveTransferTo) {
+                itemHistoryRepository.getNfrOrderTransferToActivitiesByUserAfterDate(users, cont.afterDate)
+            } else Flux.empty()
+        }
         return Flux.concat(activities, transferFromActivities, transferToActivities).collectList().flatMap {
             FlowActivitiesDto(
-                items = it.sortedBy { it.date }.map { it.activity.toDto(it.id, it.date) },
+                items = it.sortedBy(ItemHistory::date).map { h -> h.activity.toDto(h.id, h.date) },
+                total = it.size,
                 continuation = continuation
             ).toMono()
         }
@@ -83,10 +111,26 @@ class ActivitiesService(
             type.map { FlowActivityType.valueOf(it) }.toList()
         }
 
-        return itemHistoryRepository.getAllActivities(types).collectList().flatMap {
+        val cont = ActivityContinuation.of(continuation)
+        val flux = if (cont == null) {
+            if (size == null) {
+                itemHistoryRepository.getAllActivities(types)
+            } else {
+                itemHistoryRepository.getAllActivities(types).take(size.toLong(), true)
+            }
+        } else {
+            if (size == null) {
+                itemHistoryRepository.getAllActivitiesAfterDate(types, cont.afterDate)
+            } else {
+                itemHistoryRepository.getAllActivitiesAfterDate(types, cont.afterDate).take(size.toLong(), true)
+            }
+        }
+
+        return flux.collectList().flatMap {
             FlowActivitiesDto(
-                items = it.map { it.activity.toDto(it.id, it.date) },
-                continuation = continuation
+                items = it.map { h -> h.activity.toDto(h.id, h.date) },
+                continuation = "${ActivityContinuation(it.last().date.toInstant(ZoneOffset.UTC))}",
+                total = it.size
             ).toMono()
         }
     }
@@ -100,10 +144,27 @@ class ActivitiesService(
         val types =
             if (type.isEmpty()) FlowActivityType.values().toList() else type.map { FlowActivityType.valueOf(it) }
 
-        return itemHistoryRepository.getAllActivitiesByItemCollection(types, collection).collectList()
+        val cont = ActivityContinuation.of(continuation)
+
+        val flux = if (cont == null) {
+            if (size == null) {
+                itemHistoryRepository.getAllActivitiesByItemCollection(types, collection)
+            } else {
+                itemHistoryRepository.getAllActivitiesByItemCollection(types, collection).take(size.toLong(), true)
+            }
+        } else {
+            if (size == null) {
+                itemHistoryRepository.getAllActivitiesByItemCollectionAfterDate(types, collection, cont.afterDate)
+            } else {
+                itemHistoryRepository.getAllActivitiesByItemCollectionAfterDate(types, collection, cont.afterDate).take(size.toLong(), true)
+            }
+        }
+
+        return flux.collectList()
             .flatMap { history ->
                 FlowActivitiesDto(
-                    continuation = continuation,
+                    total = history.size,
+                    continuation = "${ActivityContinuation(history.last().date.toInstant(ZoneOffset.UTC))}",
                     items = history.map { it.activity.toDto(it.id, it.date) }
                 ).toMono()
             }

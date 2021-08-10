@@ -14,10 +14,10 @@ interface OwnershipRepository : ReactiveMongoRepository<Ownership, OwnershipId> 
 
     fun deleteAllByContractAndTokenId(address: FlowAddress, tokenId: TokenId): Mono<Void>
 
-    fun findAllByContractAndTokenId(address: FlowAddress, id: TokenId): Flux<Ownership>
+    fun findAllByContractAndTokenIdOrderByDateDesc(address: FlowAddress, id: TokenId): Flux<Ownership>
 
-    fun findAllByDateAfter(after: Instant): Flux<Ownership>
+    fun findAllByDateAfterAndIdNotOrderByDateDesc(after: Instant, id: OwnershipId): Flux<Ownership>
 
-    fun findAllByContractAndTokenIdAndDateAfter(contract: FlowAddress, tokenId: TokenId /* = kotlin.Long */, afterDate: Instant): Flux<Ownership>
+    fun findAllByContractAndTokenIdAndDateAfterAndIdNotOrderByDateDesc(contract: FlowAddress, tokenId: TokenId /* = kotlin.Long */, afterDate: Instant, id: OwnershipId): Flux<Ownership>
 
 }
