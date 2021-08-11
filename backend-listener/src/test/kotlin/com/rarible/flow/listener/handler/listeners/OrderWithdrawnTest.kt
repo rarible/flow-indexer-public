@@ -1,10 +1,7 @@
 package com.rarible.flow.listener.handler.listeners
 
 import com.rarible.core.kafka.KafkaSendResult
-import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.domain.OrderData
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
@@ -55,6 +52,12 @@ internal class OrderWithdrawnTest: FunSpec({
             coEvery {
                 onUpdate(any<Order>())
             } returns KafkaSendResult.Success("1")
+        },
+
+        mockk {
+            every { save(any()) } answers {
+                Mono.just(it.invocation.args[0] as ItemHistory)
+            }
         }
 
         )

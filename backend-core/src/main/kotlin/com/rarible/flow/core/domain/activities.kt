@@ -45,6 +45,15 @@ data class FlowNftOrderActivitySell(
 ): FlowNftOrderActivity()
 
 data class FlowNftOrderActivityList(
+    override val type: FlowActivityType = FlowActivityType.CANCEL_LIST,
+    override val price: BigDecimal,
+    val hash: String,
+    val maker: FlowAddress,
+    val make: FlowAsset,
+    val take: FlowAsset,
+): FlowNftOrderActivity()
+
+data class FlowNftOrderActivityCancelList(
     override val type: FlowActivityType = FlowActivityType.LIST,
     override val price: BigDecimal,
     val hash: String,
@@ -129,7 +138,12 @@ enum class FlowActivityType {
     /**
      * NFT transferred
      */
-    TRANSFER
+    TRANSFER,
+
+    /**
+     * Cancel listing
+     */
+    CANCEL_LIST
 }
 
 sealed class FlowAsset {

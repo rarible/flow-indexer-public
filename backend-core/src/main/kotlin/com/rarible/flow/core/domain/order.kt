@@ -35,7 +35,7 @@ data class Order(
     val take: FlowAsset? = null,
     val amount: BigDecimal,
     val offeredNftId: String? = null,
-    val fill: Int = 0,
+    val fill: BigDecimal = BigDecimal.ZERO,
     val canceled: Boolean = false,
     val buyerFee: BigDecimal,
     val sellerFee: BigDecimal,
