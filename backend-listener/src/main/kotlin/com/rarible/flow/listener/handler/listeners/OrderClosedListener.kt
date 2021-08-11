@@ -1,11 +1,9 @@
 package com.rarible.flow.listener.handler.listeners
 
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.TokenId
-import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.OrderRepository
-import com.rarible.flow.core.repository.coFindById
-import com.rarible.flow.core.repository.coSave
+import com.rarible.flow.core.repository.*
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import kotlinx.coroutines.async
@@ -14,11 +12,13 @@ import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
+import java.time.Instant
 
 @Component(OrderClosedListener.ID)
 class OrderClosedListener(
     private val orderRepository: OrderRepository,
     private val itemRepository: ItemRepository,
+    private val ownershipRepository: OwnershipRepository,
     private val protocolEventPublisher: ProtocolEventPublisher
 ) : SmartContractEventHandler<Unit> {
 
@@ -40,12 +40,17 @@ class OrderClosedListener(
 
                 val itemUpdate = async {
                     itemRepository.coFindById(itemId)?.let { item ->
-                        itemRepository.coSave(item.copy(owner = order.taker))
-                    }?.let { item ->
+                        itemRepository.coSave(item.copy(owner = order.taker, listed = false))
+                        ownershipRepository.deleteAllByContractAndTokenId(item.contract, item.tokenId).awaitSingleOrNull()
+                        ownershipRepository.coSave(
+                            Ownership(item.contract, item.tokenId, order.taker!!, Instant.now())
+                        )
+
                         protocolEventPublisher.onItemUpdate(item)
                     }
-
                 }
+
+
 
                 orderUpdate.await()
                 itemUpdate.await()

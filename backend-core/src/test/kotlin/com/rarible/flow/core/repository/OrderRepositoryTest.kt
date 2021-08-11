@@ -44,7 +44,7 @@ internal class OrderRepositoryTest(
     fun `should return only active orders`() {
         val active = createOrder()
         val cancelled = active.copy(canceled = true, id = 2L)
-        val filled = active.copy(fill = 1, id = 3L)
+        val filled = active.copy(fill = 1.toBigDecimal(), id = 3L)
         orderRepository.saveAll(listOf(active, cancelled, filled))
 
         orderRepository.findActiveById(1L).subscribe {
