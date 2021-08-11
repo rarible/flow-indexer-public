@@ -13,6 +13,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
+import java.math.BigDecimal
 
 @Component(OrderClosedListener.ID)
 class OrderClosedListener(
@@ -29,10 +30,11 @@ class OrderClosedListener(
     ) = coroutineScope<Unit> {
         val itemId = ItemId(contract, orderId)
         orderRepository
-            .coFindById(orderId)
+            .findActiveById(orderId)
+            .awaitSingleOrNull()
             ?.let { order ->
                 val orderUpdate = async {
-                    val savedOrder = orderRepository.coSave(order.copy(fill = 1))
+                    val savedOrder = orderRepository.coSave(order.copy(fill = order.take?.value ?: BigDecimal.ZERO))
                     protocolEventPublisher.onUpdate(savedOrder)
                 }
 

@@ -4,6 +4,8 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import org.bson.types.ObjectId
 import org.onflow.sdk.FlowAddress
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -14,4 +16,9 @@ interface OrderRepository: ReactiveMongoRepository<Order, Long> {
     fun findAllByMakerAndTakerIsNull(maker: FlowAddress): Flux<Order>
     fun findAllByTakerIsNull(): Flux<Order>
     fun findAllByTakerIsNullAndCollection(collection: String): Flux<Order>
+
+    @Query("""
+        {"_id": ?0, "cancelled": false, "fill": 0}
+    """)
+    fun findActiveById(id: Long): Mono<Order>
 }
