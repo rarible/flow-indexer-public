@@ -1,11 +1,13 @@
 package com.rarible.flow.api.controller
 
-import com.rarible.flow.core.converter.ItemMetaToDtoConverter
+import com.rarible.flow.api.service.NftItemService
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
-import com.rarible.flow.core.repository.*
+import com.rarible.flow.core.repository.ItemMetaRepository
+import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.coFindById
 import com.rarible.protocol.dto.FlowItemMetaDto
 import com.rarible.protocol.dto.FlowItemMetaFormDto
 import com.rarible.protocol.dto.FlowNftItemDto
@@ -13,10 +15,8 @@ import com.rarible.protocol.dto.FlowNftItemsDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftItemControllerApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-import org.onflow.sdk.FlowAddress
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController
@@ -26,25 +26,19 @@ import java.net.URI
 @RestController
 class NftApiController(
     private val itemRepository: ItemRepository,
-    private val itemMetaRepository: ItemMetaRepository
+    private val itemMetaRepository: ItemMetaRepository,
+    private val nftItemService: NftItemService
 ) : FlowNftItemControllerApi {
 
-    override suspend fun getAllItems(continuation: String?, size: Int?): ResponseEntity<FlowNftItemsDto> {
-        val items: Flow<Item> = itemRepository.search(
-            ItemFilter.All, NftItemContinuation.parse(continuation), size
-        )
-
-        return ResponseEntity.ok(convert(items))
-    }
+    override suspend fun getAllItems(continuation: String?, size: Int?): ResponseEntity<FlowNftItemsDto> =
+        ResponseEntity.ok(nftItemService.getAllItems(continuation, size))
 
     override suspend fun getNftItemById(itemId: String): ResponseEntity<FlowNftItemDto> {
-        val item = itemRepository.coFindById(ItemId.parse(itemId))
+        val item = nftItemService.getItemById(itemId)
         return if (item == null) {
             ResponseEntity.notFound().build()
         } else {
-            ResponseEntity.ok(
-                ItemToDtoConverter.convert(item)
-            )
+            ResponseEntity.ok(item)
         }
     }
 
@@ -53,16 +47,15 @@ class NftApiController(
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowNftItemsDto> {
-        val items = itemRepository.search(ItemFilter.ByCollection(collection), NftItemContinuation.parse(continuation), size)
-        return ResponseEntity.ok(convert(items))
+        return ResponseEntity.ok(nftItemService.byCollection(collection, continuation, size))
     }
 
     override suspend fun getItemMeta(itemId: String): ResponseEntity<FlowItemMetaDto> {
-        val itemMeta = itemMetaRepository.coFindById(ItemId.parse(itemId))
+        val itemMeta = nftItemService.itemMeta(itemId)
         return if (itemMeta == null) {
             ResponseEntity.status(404).build()
         } else {
-            ResponseEntity.ok(ItemMetaToDtoConverter.convert(itemMeta))
+            ResponseEntity.ok(itemMeta)
         }
     }
 
@@ -71,11 +64,7 @@ class NftApiController(
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowNftItemsDto> {
-        val items: Flow<Item> = itemRepository.search(
-            ItemFilter.ByOwner(FlowAddress(address)), NftItemContinuation.parse(continuation), size
-        )
-
-        return ResponseEntity.ok(convert(items))
+        return ResponseEntity.ok(nftItemService.byAccount(address, continuation, size))
     }
 
     override suspend fun getItemsByCreator(
@@ -83,11 +72,7 @@ class NftApiController(
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowNftItemsDto> {
-        val items: Flow<Item> = itemRepository.search(
-            ItemFilter.ByCreator(FlowAddress(address)), NftItemContinuation.parse(continuation), size
-        )
-
-        return ResponseEntity.ok(convert(items))
+        return ResponseEntity.ok(nftItemService.byCreator(address, continuation, size))
     }
 
     override fun getListedItems(): ResponseEntity<Flow<FlowNftItemDto>> {
@@ -108,13 +93,13 @@ class NftApiController(
             existing?.copy(
                 title = flowItemMetaFormDto!!.title!!,
                 description = flowItemMetaFormDto.description!!,
-                uri = URI.create(flowItemMetaFormDto.uri)
+                uri = URI.create(flowItemMetaFormDto.uri!!)
             )
                 ?: ItemMeta(
                     id,
                     flowItemMetaFormDto!!.title!!,
                     flowItemMetaFormDto.description!!,
-                    URI.create(flowItemMetaFormDto.uri)
+                    URI.create(flowItemMetaFormDto.uri!!)
                 )
         )
 
@@ -131,23 +116,6 @@ class NftApiController(
 
     private fun toDtoFlow(items: Flow<Item>): Flow<FlowNftItemDto> {
         return items.map { ItemToDtoConverter.convert(it) }
-    }
-
-    private suspend fun convert(items: Flow<Item>): FlowNftItemsDto {
-        val result = items.toList()
-
-        return FlowNftItemsDto(
-            nextCursor(result),
-            result.map { ItemToDtoConverter.convert(it) }
-        )
-    }
-
-    private fun nextCursor(items: List<Item>): String? {
-        return if (items.isEmpty()) {
-            null
-        } else {
-            NftItemContinuation(items.last().date, items.last().id).toString()
-        }
     }
 
 }

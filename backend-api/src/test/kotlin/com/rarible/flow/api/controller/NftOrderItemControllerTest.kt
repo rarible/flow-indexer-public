@@ -112,7 +112,7 @@ class NftOrderItemControllerTest {
 
         Assertions.assertNotNull(response)
         Assertions.assertTrue(response.items.isNotEmpty())
-        Assertions.assertTrue(response.items.size == 1)
+        Assertions.assertTrue(response.items.size == 3)
     }
 
 
@@ -178,7 +178,7 @@ class NftOrderItemControllerTest {
 
         Assertions.assertNotNull(response)
         Assertions.assertTrue(response.items.isNotEmpty())
-        Assertions.assertTrue(response.items.size == 2)
+        Assertions.assertTrue(response.items.size == 3)
 
     }
 

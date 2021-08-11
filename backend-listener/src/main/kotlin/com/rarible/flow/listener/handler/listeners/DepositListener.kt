@@ -39,7 +39,7 @@ class DepositListener(
         }
         val ownership = async {
             ownershipRepository
-                .findAllByContractAndTokenId(contract, tokenId)
+                .findAllByContractAndTokenIdOrderByDateDesc(contract, tokenId)
                 .collectList()
                 .awaitFirstOrDefault(emptyList())
                 .map { it.copy(owner = to) }
