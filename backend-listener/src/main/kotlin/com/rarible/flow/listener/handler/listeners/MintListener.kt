@@ -17,7 +17,6 @@ import java.util.*
 @Component(MintListener.ID)
 class MintListener(
     private val itemRepository: ItemRepository,
-    private val itemMetaRepository: ItemMetaRepository,
     private val ownershipRepository: OwnershipRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
@@ -90,7 +89,7 @@ class MintListener(
         } else {
             royalties as List<Map<String, String>>
             royalties.map { r ->
-                Part(FlowAddress(r["address"] as String), r["fee"]?.toInt() ?: 0)
+                Part(FlowAddress(r["address"] as String), r["fee"]?.toDouble() ?: 0.0)
             }
         }
     }

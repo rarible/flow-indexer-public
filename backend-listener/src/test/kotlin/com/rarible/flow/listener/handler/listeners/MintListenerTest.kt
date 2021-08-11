@@ -28,10 +28,6 @@ internal class MintListenerTest: FunSpec({
         },
 
         mockk() {
-            every { save(any()) } returns Mono.just(mockk())
-        },
-
-        mockk() {
             coEvery { onItemUpdate(any()) } returns KafkaSendResult.Success("1")
         },
 
@@ -56,7 +52,9 @@ internal class MintListenerTest: FunSpec({
                 "collection" to "A.fcfb23c627a63d40.CommonNFT.NFT",
                 "creator" to "0xfcfb23c627a63d40",
                 "metadata" to "url://",
-                "royalties" to null
+                "royalties" to listOf(
+                    mapOf("address" to "0x2ec081d566da0184", "fee" to "25.0000")
+                )
             ),
             LocalDateTime.parse("2021-07-29T05:59:58.425384445"),
             BlockInfo(

@@ -13,7 +13,7 @@ import java.time.Instant
 
 data class Part(
     val address: FlowAddress,
-    val fee: Int
+    val fee: Double
 )
 
 data class ItemId(val contract: FlowAddress, val tokenId: TokenId): Serializable {
