@@ -15,8 +15,8 @@ dependencies {
     implementation(rootProject.libs.bundles.rarible.core)
     implementation(rootProject.libs.rarible.core.kafka)
 
-    implementation("com.rarible.protocol:flow-protocol-model-nft:2.0.1-SNAPSHOT")
-    implementation("com.rarible.protocol:flow-protocol-model-order:2.0.1-SNAPSHOT")
+    implementation("com.rarible.protocol:flow-protocol-model-nft:2.0.2-SNAPSHOT")
+    implementation("com.rarible.protocol:flow-protocol-model-order:2.0.2-SNAPSHOT")
 
 }
 

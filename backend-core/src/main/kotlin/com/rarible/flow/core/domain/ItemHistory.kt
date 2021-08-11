@@ -103,5 +103,21 @@ fun FlowActivity.toDto(id: String, date: LocalDateTime): FlowActivityDto  =
             ),
             price = this.price.toString()
         )
+        is FlowNftOrderActivityCancelList -> FlowNftOrderActivityListDto(
+            id = id,
+            date = date.toInstant(ZoneOffset.UTC),
+            hash = this.hash,
+            maker = this.maker.formatted,
+            make = FlowAssetNFTDto(
+                contract = this.make.contract.formatted,
+                value = this.make.value.toString(),
+                tokenId = (this.make as FlowAssetNFT).tokenId.toString()
+            ),
+            take = FlowAssetFungibleDto(
+                contract = this.take.contract.formatted,
+                value = this.take.value.toString()
+            ),
+            price = this.price.toString()
+        )
     }
 

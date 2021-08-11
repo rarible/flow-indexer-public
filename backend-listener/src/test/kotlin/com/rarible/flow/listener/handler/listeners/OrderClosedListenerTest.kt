@@ -24,7 +24,7 @@ internal class OrderClosedListenerTest: FunSpec({
         1L,
         item.id,
         FlowAddress("0x1000"),
-        null,
+        FlowAddress("0x1001"),
         FlowAssetNFT(item.contract, 1.toBigDecimal(), item.tokenId),
         null,
         1.toBigDecimal(),
@@ -40,12 +40,20 @@ internal class OrderClosedListenerTest: FunSpec({
             every { save(any()) } returns Mono.just(order)
             every { findByItemId(any<ItemId>()) } returns Mono.just(order)
             every { findById(any<Long>()) } returns Mono.just(order)
+            every { findActiveById(any()) } returns Mono.just(order)
         },
 
 
         mockk() {
             every { save(any()) } returns Mono.just(item)
             every { findById(any<ItemId>()) } returns Mono.just(item)
+        },
+
+        mockk() {
+            every { deleteAllByContractAndTokenId(any(), any()) } returns Mono.empty()
+            every { save(any()) } answers {
+                Mono.just(it.invocation.args[0] as Ownership)
+            }
         },
 
         mockk() {

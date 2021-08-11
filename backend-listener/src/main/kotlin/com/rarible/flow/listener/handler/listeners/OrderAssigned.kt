@@ -21,17 +21,17 @@ class OrderAssigned(
 
     override suspend fun handle(
         contract: FlowAddress,
-        tokenId: TokenId,
+        orderId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
-    ): Unit {
+    ) {
         orderRepository
-            .findByItemId(ItemId(contract, tokenId))
+            .findActiveById(orderId)
             .awaitSingleOrNull()
             ?.let { order ->
                 val taker = FlowAddress(fields["to"]!! as String)
                 orderRepository.coSave(order.copy(taker = taker))
-                val item = itemRepository.coFindById(ItemId(contract, tokenId))!!
+                val item = itemRepository.coFindById(order.itemId)!!
                 itemHistoryRepository.coSave(
                     ItemHistory(
                         id = UUID.randomUUID().toString(),
@@ -43,7 +43,7 @@ class OrderAssigned(
                                 asset = FlowAssetNFT(
                                     contract = item.contract,
                                     value = BigDecimal.valueOf(1L),
-                                    tokenId = tokenId
+                                    tokenId = order.itemId.tokenId
                                 )
                             ),
                             right = OrderActivityMatchSide(
