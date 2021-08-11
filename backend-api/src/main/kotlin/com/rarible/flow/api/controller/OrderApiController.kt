@@ -4,6 +4,7 @@ import com.rarible.flow.api.service.OrderService
 import com.rarible.protocol.dto.FlowOrderDto
 import com.rarible.protocol.flow.nft.api.controller.FlowOrderControllerApi
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController
@@ -14,6 +15,12 @@ class OrderApiController(
     private val service: OrderService
 ): FlowOrderControllerApi {
 
-    override suspend fun getOrderByOrderId(orderId: String): ResponseEntity<FlowOrderDto> =
-        ResponseEntity.ok(service.orderById(orderId.toLong()).awaitFirst())
+    override suspend fun getOrderByOrderId(orderId: String): ResponseEntity<FlowOrderDto> {
+        val order = service.orderById(orderId.toLong()).awaitFirstOrNull()
+        return if(order == null) {
+            ResponseEntity.notFound().build()
+        } else {
+            ResponseEntity.ok(order)
+        }
+    }
 }

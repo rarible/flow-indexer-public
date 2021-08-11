@@ -46,6 +46,7 @@ internal class OrderWithdrawnTest: FunSpec({
 
         mockk("itemRepository") {
             coEvery { unlist(any()) } returns mockk("unlistResultMock")
+            coEvery { byId(any()) } returns item
         },
 
         mockk("protocolEventPublisher") {
