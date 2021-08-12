@@ -45,7 +45,7 @@ data class FlowNftOrderActivitySell(
 ): FlowNftOrderActivity()
 
 data class FlowNftOrderActivityList(
-    override val type: FlowActivityType = FlowActivityType.CANCEL_LIST,
+    override val type: FlowActivityType = FlowActivityType.LIST,
     override val price: BigDecimal,
     val hash: String,
     val maker: FlowAddress,
@@ -54,7 +54,7 @@ data class FlowNftOrderActivityList(
 ): FlowNftOrderActivity()
 
 data class FlowNftOrderActivityCancelList(
-    override val type: FlowActivityType = FlowActivityType.LIST,
+    override val type: FlowActivityType = FlowActivityType.CANCEL_LIST,
     override val price: BigDecimal,
     val hash: String,
     val maker: FlowAddress,

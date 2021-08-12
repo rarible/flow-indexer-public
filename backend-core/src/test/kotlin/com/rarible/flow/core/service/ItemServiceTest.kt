@@ -3,16 +3,15 @@ package com.rarible.flow.core.service
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.TokenId
-import com.rarible.flow.core.repository.ItemFilter
-import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.coFindById
-import com.rarible.flow.core.repository.coSave
+import com.rarible.flow.core.repository.*
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrDefault
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -49,14 +48,19 @@ internal class ItemServiceTest() {
     @Autowired
     lateinit var itemRepository: ItemRepository
 
+    @Autowired
+    lateinit var ownershipRepository: OwnershipRepository
+
     @BeforeEach
     fun beforeEach() {
-        itemRepository.deleteAll().block()
+        itemRepository.deleteAll().zipWith(
+            ownershipRepository.deleteAll()
+        ).subscribe()
     }
 
     @Test
     fun `should mark as deleted`() = runBlocking {
-        val itemService = ItemService(itemRepository)
+        val itemService = ItemService(itemRepository, ownershipRepository)
         var item = createItem()
         itemRepository.coSave(item)
 
@@ -74,7 +78,7 @@ internal class ItemServiceTest() {
 
     @Test
     fun `should mark as unlisted`() = runBlocking {
-        val itemService = ItemService(itemRepository)
+        val itemService = ItemService(itemRepository, ownershipRepository)
         var item = createItem().copy(listed = true)
         itemRepository.coSave(item)
 
@@ -89,7 +93,7 @@ internal class ItemServiceTest() {
 
     @Test
     fun `should find alive items`() = runBlocking {
-        val itemService = ItemService(itemRepository)
+        val itemService = ItemService(itemRepository, ownershipRepository)
         val item1 = createItem().copy(owner = null)
         itemRepository.coSave(item1)
 
@@ -98,5 +102,28 @@ internal class ItemServiceTest() {
 
         itemService.findAliveById(item1.id) shouldBe null
         itemService.findAliveById(item2.id) shouldNotBe null
+    }
+
+    @Test
+    fun `should transfer NFT`() = runBlocking {
+        val itemService = ItemService(itemRepository, ownershipRepository)
+        val before = createItem().copy(listed = true)
+        itemRepository.coSave(before)
+        ownershipRepository.coSave(Ownership(before.contract, before.tokenId, before.owner!!, Instant.now()))
+
+        val newOwner = FlowAddress("0x1111")
+        val result = itemService.transferNft(before.id, newOwner)
+        result shouldNotBe null
+
+        val item = result!!.first
+        item.owner shouldBe newOwner
+        item.listed shouldBe false
+
+        val ownerships = ownershipRepository
+            .findAllByContractAndTokenIdOrderByDateDesc(item.contract, item.tokenId)
+            .collectList().awaitFirstOrDefault(emptyList())
+        ownerships shouldHaveSize 1
+        ownerships[0].owner shouldBe newOwner
+
     }
 }

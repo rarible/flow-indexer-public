@@ -65,6 +65,13 @@ data class Item(
     fun unlist(): Item {
         return copy(listed = false)
     }
+
+    /**
+     * Transfer implies de-listing
+     */
+    fun transfer(to: FlowAddress): Item {
+        return unlist().copy(owner = to)
+    }
 }
 
 @Document

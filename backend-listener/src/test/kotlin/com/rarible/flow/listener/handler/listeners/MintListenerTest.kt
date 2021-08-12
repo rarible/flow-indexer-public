@@ -53,7 +53,8 @@ internal class MintListenerTest: FunSpec({
                 "creator" to "0xfcfb23c627a63d40",
                 "metadata" to "url://",
                 "royalties" to listOf(
-                    mapOf("address" to "0x2ec081d566da0184", "fee" to "25.0000")
+                    mapOf("address" to "0x2ec081d566da0184", "fee" to "25.00000000"),
+                    mapOf("address" to "0xe91e497115b9731b", "fee" to "5.00000000"),
                 )
             ),
             LocalDateTime.parse("2021-07-29T05:59:58.425384445"),
@@ -63,8 +64,6 @@ internal class MintListenerTest: FunSpec({
                 "469c76f0a6050c0ff0e5dcee1f8aa3d4244498ff26ce47aeab7e6e695c4d7811"
             )
         )
-
-
 
         eventHandler.handle(event)
     }

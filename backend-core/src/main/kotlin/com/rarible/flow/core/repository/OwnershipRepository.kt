@@ -12,7 +12,7 @@ import java.time.Instant
 
 interface OwnershipRepository : ReactiveMongoRepository<Ownership, OwnershipId> {
 
-    fun deleteAllByContractAndTokenId(address: FlowAddress, tokenId: TokenId): Mono<Void>
+    fun deleteAllByContractAndTokenId(address: FlowAddress, tokenId: TokenId): Flux<Ownership>
 
     fun findAllByContractAndTokenIdOrderByDateDesc(address: FlowAddress, id: TokenId): Flux<Ownership>
 

@@ -7,6 +7,7 @@ import com.rarible.flow.listener.config.ListenerProperties
 import com.rarible.flow.listener.handler.EventHandler
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
+import kotlinx.coroutines.runBlocking
 import org.onflow.sdk.FlowAddress
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -29,7 +30,7 @@ class MintListener(
         tokenId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
-    ) {
+    ) = runBlocking {
         log.info("Handling [$ID] at [$contract.$tokenId] with fields [${fields}]")
 
         val metadata = (fields["metadata"] ?: "") as String
