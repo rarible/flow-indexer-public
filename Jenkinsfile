@@ -1,4 +1,4 @@
-@Library('shared-library@flow-lib') _
+@Library('shared-library') _
 
 def prefix = 'flow'
 def stackName = 'protocol-flow'
