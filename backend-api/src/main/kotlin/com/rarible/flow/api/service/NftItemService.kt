@@ -20,12 +20,11 @@ import java.time.Instant
 class NftItemService(
     private val itemRepository: ItemRepository,
     private val itemMetaRepository: ItemMetaRepository,
-    private val ownershipRepository: OwnershipRepository
 ) {
 
-    suspend fun getAllItems(continuation: String?, size: Int?): FlowNftItemsDto {
+    suspend fun getAllItems(continuation: String?, size: Int?, showDeleted: Boolean): FlowNftItemsDto {
         val items: Flow<Item> = itemRepository.search(
-            ItemFilter.All, NftItemContinuation.parse(continuation), size
+            ItemFilter.All(showDeleted), NftItemContinuation.parse(continuation), size
         )
         return convert(items)
     }
@@ -41,8 +40,9 @@ class NftItemService(
     }
 
     suspend fun itemMeta(itemId: String): FlowItemMetaDto? {
-        val itemMeta = itemMetaRepository.coFindById(ItemId.parse(itemId)) ?: return null
-        return ItemMetaToDtoConverter.convert(itemMeta)
+        return itemMetaRepository.coFindById(ItemId.parse(itemId))?.let {
+            ItemMetaToDtoConverter.convert(it)
+        }
     }
 
     private suspend fun convert(items: Flow<Item>): FlowNftItemsDto {

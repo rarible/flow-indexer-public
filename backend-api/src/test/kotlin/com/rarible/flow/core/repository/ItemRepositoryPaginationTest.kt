@@ -133,8 +133,11 @@ internal class ItemRepositoryPaginationTest(
         val item2 = createItem(43)
         itemRepository.coSave(item2)
 
+        val item3 = createItem(44).copy(owner = null)
+        itemRepository.coSave(item3)
+
         //read the latest
-        var read = itemRepository.search(ItemFilter.All, null, 1)
+        var read = itemRepository.search(ItemFilter.All(), null, 1)
         read.count() shouldBe 1
         read.collect {
             it.id shouldBe item2.id
@@ -142,7 +145,7 @@ internal class ItemRepositoryPaginationTest(
         log.info("Step 1 done")
 
         //read next and the last
-        read = itemRepository.search(ItemFilter.All, NftItemContinuation(item2.date, item2.id), 1)
+        read = itemRepository.search(ItemFilter.All(), NftItemContinuation(item2.date, item2.id), 1)
         read.count() shouldBe 1
         read.collect {
             it.id shouldBe item1.id
@@ -150,9 +153,15 @@ internal class ItemRepositoryPaginationTest(
         log.info("Step 2 done")
 
         //try to read more
-        read = itemRepository.search(ItemFilter.All, NftItemContinuation(item1.date, item1.id), 1)
+        read = itemRepository.search(ItemFilter.All(), NftItemContinuation(item1.date, item1.id), 1)
         read.count() shouldBe 0
         log.info("Step 3 done")
+
+        read = itemRepository.search(ItemFilter.All(), null, null)
+        read.count() shouldBe 2
+
+        read = itemRepository.search(ItemFilter.All(true), null, null)
+        read.count() shouldBe 3
     }
 
     fun createItem(tokenId: TokenId = 42) = Item(

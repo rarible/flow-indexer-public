@@ -45,7 +45,6 @@ data class Item(
     val date: Instant,
     val meta: String? = null,
     val listed: Boolean = false,
-    val deleted: Boolean = false,
     val collection: String
 ) {
 
@@ -55,12 +54,6 @@ data class Item(
         get() = ItemId(this.contract, this.tokenId)
         set(_) {}
 
-    fun markDeleted(): Item {
-        return copy(
-            deleted = true,
-            owner = null
-        )
-    }
 
     fun unlist(): Item {
         return copy(listed = false)
