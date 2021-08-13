@@ -8,6 +8,14 @@ import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.createItem
 import com.rarible.flow.listener.handler.EventHandler
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.Matcher
+import io.kotest.matchers.MatcherResult
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.equality.shouldBeEqualToComparingFields
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -90,4 +98,57 @@ internal class OrderOpenedListenerTest: FunSpec({
 
         eventHandler.handle(event)
     }
-})
+
+    test("should calculate order data correctly") {
+        val orderData = listener.orderData(
+            200.toBigDecimal(),
+            mockk {
+                every { royalties } answers {
+                    listOf(
+                        Part(FlowAddress("0x01"), 1.0),
+                        Part(FlowAddress("0x02"), 2.0),
+                        Part(FlowAddress("0x03"), 3.0),
+                    )
+                }
+
+                every {
+                    owner
+                } answers { FlowAddress("0x1111") }
+            }
+        )
+
+        orderData.originalFees should {
+            it shouldHaveSize 3
+
+            it[0] should PayoutMatcher(FlowAddress("0x01"), 1.toBigDecimal())
+            it[1] should PayoutMatcher(FlowAddress("0x02"), 2.toBigDecimal())
+            it[2] should PayoutMatcher(FlowAddress("0x03"), 3.toBigDecimal())
+
+        }
+
+        orderData.payouts should {
+            it shouldHaveSize 4
+
+            it[0] should PayoutMatcher(FlowAddress("0x01"), 2.toBigDecimal())
+            it[1] should PayoutMatcher(FlowAddress("0x02"), 4.toBigDecimal())
+            it[2] should PayoutMatcher(FlowAddress("0x03"), 6.toBigDecimal())
+            it[3] should PayoutMatcher(FlowAddress("0x1111"), 188.toBigDecimal())
+        }
+
+
+    }
+
+}) {
+    companion object {
+        class PayoutMatcher(val address: FlowAddress, val amount: BigDecimal): Matcher<Payout>{
+            override fun test(value: Payout): MatcherResult {
+                return MatcherResult.invoke(
+                    value.account == address && value.value.toDouble() == amount.toDouble(),
+                    { "Expected Payout(${address.formatted}, $amount), got: $value" },
+                    { "" }
+                )
+
+            }
+        }
+    }
+}

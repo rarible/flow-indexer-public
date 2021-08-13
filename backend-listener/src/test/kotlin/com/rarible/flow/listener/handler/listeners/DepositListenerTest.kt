@@ -1,7 +1,6 @@
 package com.rarible.flow.listener.handler.listeners
 
 import com.rarible.core.kafka.KafkaSendResult
-import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
@@ -10,10 +9,7 @@ import com.rarible.flow.listener.createItem
 import com.rarible.flow.listener.handler.EventHandler
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.mockk
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 
 internal class DepositListenerTest: FunSpec({
@@ -22,21 +18,19 @@ internal class DepositListenerTest: FunSpec({
 
     val listener = DepositListener(
         mockk() {
-            every { save(any()) } returns Mono.just(item)
-            every { findById(any<ItemId>()) } returns Mono.just(item)
-        },
-
-        mockk() {
-            val ownerships = listOf(Ownership(item.contract, item.tokenId, item.owner!!, item.date))
-            every { findAllByContractAndTokenIdOrderByDateDesc(any(), any()) } returns
-                    Flux.fromIterable(ownerships)
-            every { saveAll(any<Iterable<Ownership>>()) } returns Flux.fromIterable(ownerships)
+            coEvery { transferNft(any(), any()) } answers {
+                item.copy(owner = arg(1)) to Ownership(item.contract, item.tokenId, arg(1))
+            }
         },
 
         mockk() {
             coEvery {
                 onUpdate(any<Ownership>())
             } returns KafkaSendResult.Success("1")
+
+            coEvery {
+                onItemUpdate(any())
+            } returns KafkaSendResult.Success("2")
         }
     )
 

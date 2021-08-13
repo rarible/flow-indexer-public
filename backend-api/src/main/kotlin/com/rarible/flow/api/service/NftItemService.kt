@@ -4,19 +4,23 @@ import com.rarible.flow.core.converter.ItemMetaToDtoConverter
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.repository.*
 import com.rarible.protocol.dto.FlowItemMetaDto
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemsDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Service
+import java.time.Instant
 
 @Service
 class NftItemService(
     private val itemRepository: ItemRepository,
-    private val itemMetaRepository: ItemMetaRepository
+    private val itemMetaRepository: ItemMetaRepository,
+    private val ownershipRepository: OwnershipRepository
 ) {
 
     suspend fun getAllItems(continuation: String?, size: Int?): FlowNftItemsDto {
@@ -73,6 +77,5 @@ class NftItemService(
 
         return convert(items)
     }
-
 
 }

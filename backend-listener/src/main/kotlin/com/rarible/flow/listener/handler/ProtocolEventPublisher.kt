@@ -47,6 +47,19 @@ class ProtocolEventPublisher(
         )
     }
 
+    suspend fun onDelete(ownership: Ownership): KafkaSendResult {
+        return ownerships.send(
+            KafkaMessage(
+                ownership.id.toString(),
+                FlowNftOwnershipDeleteEventDto(
+                    eventId = "${ownership.id}.${UUID.randomUUID()}",
+                    ownershipId = ownership.id.toString(),
+                    OwnershipToDtoConverter.convert(ownership)
+                )
+            )
+        )
+    }
+
     suspend fun onUpdate(order: Order): KafkaSendResult {
         val orderId = order.id
         return orders.send(

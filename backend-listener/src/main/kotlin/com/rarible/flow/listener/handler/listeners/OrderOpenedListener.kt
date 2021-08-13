@@ -6,6 +6,7 @@ import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
+import kotlinx.coroutines.runBlocking
 import org.bson.types.ObjectId
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
@@ -28,7 +29,7 @@ class OrderOpenedListener(
         orderId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
-    ) {
+    ) = runBlocking<Unit> {
         val askType = fields["askType"] as String?
         val askId = (fields["askId"] as String).toLong()
         val bidType = fields["bidType"] as String
@@ -39,13 +40,21 @@ class OrderOpenedListener(
         val itemId = ItemId(contract, askId)
         val item = itemRepository.coFindById(itemId)
         if(item?.owner != null) {
+            val take = FlowAssetFungible(
+                contract = EventId.of(bidType).contractAddress,
+                value = bidAmount
+            )
+            val make = FlowAssetNFT(
+                contract = item.contract, value = 1.toBigDecimal(), tokenId = item.tokenId
+            )
             val order = orderRepository.coSave(
                 Order(
                     id = orderId,
                     itemId = itemId,
                     maker = item.owner!!,
-                    make = FlowAssetNFT(contract = item.contract, value = 1.toBigDecimal(), tokenId = item.tokenId),
-                    data = OrderData(listOf(), listOf()), //TODO calculate all payouts and fees
+                    make = make,
+                    take = take,
+                    data = orderData(bidAmount, item),
                     amount = bidAmount,
                     buyerFee = buyerFee,
                     sellerFee = sellerFee,
@@ -55,15 +64,10 @@ class OrderOpenedListener(
 
             protocolEventPublisher.onUpdate(order)
 
-            itemRepository
-                .coFindById(itemId)
-                ?.let {
-                    itemRepository.coSave(it.copy(listed = true))
-                }
-                ?.let { saved ->
-                    val result = protocolEventPublisher.onItemUpdate(saved)
-                    log.info("item update message is sent: $result")
-                }
+            val saved = itemRepository.coSave(item.copy(listed = true))
+            val result = protocolEventPublisher.onItemUpdate(saved)
+            log.debug("Item update message is sent: $result")
+
             itemHistoryRepository.coSave(
                 ItemHistory(
                     id = UUID.randomUUID().toString(),
@@ -72,21 +76,28 @@ class OrderOpenedListener(
                         price = bidAmount,
                         hash = UUID.randomUUID().toString(), //todo delete hash
                         maker = item.owner!!,
-                        make = FlowAssetNFT(
-                            contract = contract,
-                            value = BigDecimal.valueOf(1L),
-                            tokenId = orderId
-                        ),
-                        take = FlowAssetFungible(
-                            contract = EventId.of(bidType).contractAddress,
-                            value = bidAmount
-                        )
+                        make = make,
+                        take = take
                     )
                 )
             )
         } else {
             log.warn("Trying to sell deleted or non-existing item [{}]", itemId)
         }
+    }
+
+    fun orderData(fill: BigDecimal, item: Item): OrderData {
+        val feesPaid = item.royalties.map { r ->
+            Payout(r.address, fill * (r.fee / 100).toBigDecimal())
+        }
+        val sellerProfit = fill - feesPaid.foldRight(BigDecimal.ZERO) { payout, acc ->
+            acc + payout.value
+        }
+
+        return OrderData(
+            feesPaid + Payout(item.owner!!, sellerProfit),
+            item.royalties.map { Payout(it.address, it.fee.toBigDecimal()) }
+        )
     }
 
 

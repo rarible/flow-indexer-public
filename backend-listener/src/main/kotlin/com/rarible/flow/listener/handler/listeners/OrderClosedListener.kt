@@ -1,25 +1,26 @@
 package com.rarible.flow.listener.handler.listeners
 
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Ownership
-import com.rarible.flow.core.domain.TokenId
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.*
+import com.rarible.flow.core.service.ItemService
 import com.rarible.flow.events.BlockInfo
+import com.rarible.flow.events.EventId
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import kotlinx.coroutines.runBlocking
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
-import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.util.*
 
 @Component(OrderClosedListener.ID)
 class OrderClosedListener(
+    private val itemService: ItemService,
     private val orderRepository: OrderRepository,
-    private val itemRepository: ItemRepository,
-    private val ownershipRepository: OwnershipRepository,
-    private val protocolEventPublisher: ProtocolEventPublisher
+    private val protocolEventPublisher: ProtocolEventPublisher,
+    private val itemHistoryRepository: ItemHistoryRepository
 ) : SmartContractEventHandler<Unit> {
 
     override suspend fun handle(
@@ -27,34 +28,47 @@ class OrderClosedListener(
         orderId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
-    ) = coroutineScope<Unit> {
+    ) = runBlocking {
         val itemId = ItemId(contract, orderId)
-        orderRepository
+        val order = orderRepository
             .findActiveById(orderId)
             .awaitSingleOrNull()
-            ?.let { order ->
-                val orderUpdate = async {
-                    val savedOrder = orderRepository.coSave(order.copy(fill = order.take?.value ?: BigDecimal.ZERO))
-                    protocolEventPublisher.onUpdate(savedOrder)
-                }
+        if (order?.taker != null) {
+            itemService
+                .transferNft(itemId, order.taker!!)
+                ?.let { (item, ownership) ->
+                    protocolEventPublisher.onItemUpdate(item)
+                    protocolEventPublisher.onUpdate(ownership)
 
-                val itemUpdate = async {
-                    itemRepository.coFindById(itemId)?.let { item ->
-                        itemRepository.coSave(item.copy(owner = order.taker, listed = false))
-                        ownershipRepository.deleteAllByContractAndTokenId(item.contract, item.tokenId).awaitSingleOrNull()
-                        ownershipRepository.coSave(
-                            Ownership(item.contract, item.tokenId, order.taker!!, Instant.now())
+                    val fill = order.take?.value ?: BigDecimal.ZERO
+                    val savedOrder = orderRepository.coSave(
+                        order.copy(
+                            fill = fill
                         )
+                    )
+                    protocolEventPublisher.onUpdate(savedOrder)
 
-                        protocolEventPublisher.onItemUpdate(item)
-                    }
+                    itemHistoryRepository.save(
+                        ItemHistory(
+                            id = UUID.randomUUID().toString(),
+                            date = LocalDateTime.now(ZoneOffset.UTC),
+                            activity = FlowNftOrderActivitySell(
+                                price = order.take?.value ?: BigDecimal.ZERO,
+                                left = OrderActivityMatchSide(
+                                    order.maker, order.make
+                                ),
+                                right = OrderActivityMatchSide(
+                                    order.taker!!, order.take!!
+                                ),
+                                blockHash = blockInfo.blockId,
+                                blockNumber = blockInfo.blockHeight,
+                                transactionHash = blockInfo.transactionId
+                            )
+                        )
+                    )
                 }
 
-
-
-                orderUpdate.await()
-                itemUpdate.await()
-            }
+        }
     }
 
 

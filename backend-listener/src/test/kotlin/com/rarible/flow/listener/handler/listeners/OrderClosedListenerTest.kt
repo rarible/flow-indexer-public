@@ -11,10 +11,10 @@ import io.kotest.core.spec.style.FunSpec
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import org.bson.types.ObjectId
 import org.onflow.sdk.FlowAddress
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
+import java.time.Instant
 import java.time.LocalDateTime
 
 internal class OrderClosedListenerTest: FunSpec({
@@ -26,7 +26,7 @@ internal class OrderClosedListenerTest: FunSpec({
         FlowAddress("0x1000"),
         FlowAddress("0x1001"),
         FlowAssetNFT(item.contract, 1.toBigDecimal(), item.tokenId),
-        null,
+        FlowAssetFungible(FlowAddress("0x1234"), 10000.toBigDecimal()),
         1.toBigDecimal(),
         item.id.toString(),
         buyerFee = BigDecimal.ZERO,
@@ -36,27 +36,20 @@ internal class OrderClosedListenerTest: FunSpec({
     )
 
     val listener = OrderClosedListener(
-        mockk() {
+        mockk("itemService") {
+            coEvery { transferNft(any<ItemId>(), any<FlowAddress>()) } answers {
+                item.copy(owner = arg(1)) to Ownership(item.contract, item.tokenId, arg(1), Instant.now())
+            }
+        },
+
+        mockk("orderRepository") {
             every { save(any()) } returns Mono.just(order)
             every { findByItemId(any<ItemId>()) } returns Mono.just(order)
             every { findById(any<Long>()) } returns Mono.just(order)
             every { findActiveById(any()) } returns Mono.just(order)
         },
 
-
-        mockk() {
-            every { save(any()) } returns Mono.just(item)
-            every { findById(any<ItemId>()) } returns Mono.just(item)
-        },
-
-        mockk() {
-            every { deleteAllByContractAndTokenId(any(), any()) } returns Mono.empty()
-            every { save(any()) } answers {
-                Mono.just(it.invocation.args[0] as Ownership)
-            }
-        },
-
-        mockk() {
+        mockk("protocolEventPublisher") {
             coEvery {
                 onItemUpdate(any())
             } returns KafkaSendResult.Success("1")
@@ -64,6 +57,14 @@ internal class OrderClosedListenerTest: FunSpec({
             coEvery {
                 onUpdate(any<Order>())
             } returns KafkaSendResult.Success("2")
+
+            coEvery {
+                onUpdate(any<Ownership>())
+            } returns KafkaSendResult.Success("3")
+        },
+
+        mockk("itemHistoryRepository") {
+            every { save(any()) } answers { Mono.just(arg(0)) }
         }
 
     )
@@ -74,7 +75,7 @@ internal class OrderClosedListenerTest: FunSpec({
         )
     )
 
-    test("should handle deposit") {
+    test("should handle buy event") {
         val event = EventMessage(
             EventId.of("A.fcfb23c627a63d40.RegularSaleOrder.OrderClosed"),
             mapOf(

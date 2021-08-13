@@ -10,7 +10,10 @@ import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.reactive.awaitFirstOrDefault
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
+import kotlinx.coroutines.runBlocking
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
@@ -31,27 +34,24 @@ class DestroyListener(
         tokenId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
-    ): Unit = coroutineScope {
+    ): Unit = runBlocking {
         val itemId = ItemId(contract, tokenId)
         val item = itemService.findAliveById(itemId)
         if(item != null) {
             log.info("Burning item [{}]...", itemId)
             saveHistory(contract, tokenId, blockInfo, item)
-            log.debug("Burning item [{}] - saved history", itemId)
+            itemService.markDeleted(itemId)
+            protocolEventPublisher.onItemDelete(itemId)
 
-            val items = async {
-                itemService.markDeleted(itemId)
-                log.debug("Burning item [{}] - marked as deleted", itemId)
-                val result = protocolEventPublisher.onItemDelete(itemId)
-                log.debug("Burning item [{}] - delete message is sent: [{}]", itemId, result)
-            }
-            val ownerships = async {
-                ownershipRepository.deleteAllByContractAndTokenId(contract, tokenId).awaitSingle()
-                log.debug("Burning item [{}] - ownership is removed", itemId)
-            }
+            ownershipRepository
+                .deleteAllByContractAndTokenId(contract, tokenId)
+                .collectList()
+                .awaitFirstOrDefault(emptyList())
+                .forEach {
+                    protocolEventPublisher.onDelete(it)
+                }
 
-            items.await()
-            ownerships.await()
+
             log.info("Item [{}] is burnt.", itemId)
         }
 

@@ -10,6 +10,7 @@ import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import kotlinx.coroutines.runBlocking
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
@@ -30,7 +31,7 @@ class OrderWithdrawn(
         orderId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
-    ) {
+    ) = runBlocking {
         val order = orderRepository.coFindById(orderId)
         if(order != null) {
             val cancelled = orderRepository.coSave(order.copy(canceled = true))
@@ -42,7 +43,7 @@ class OrderWithdrawn(
                 ItemHistory(
                     id = UUID.randomUUID().toString(),
                     date = LocalDateTime.now(ZoneOffset.UTC),
-                    activity = FlowNftOrderActivityList(
+                    activity = FlowNftOrderActivityCancelList(
                         price = order.amount,
                         hash = UUID.randomUUID().toString(), //todo delete hash
                         maker = item?.owner!!,
