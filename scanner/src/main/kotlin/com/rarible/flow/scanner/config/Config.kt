@@ -53,6 +53,6 @@ class Config(
             sporkMonitor(spork)
         }
 
-    @Bean
+    //@Bean
     fun sporkMonitor(sporkInfo: SporkInfo) = SporkMonitor(sporkInfo)
 }

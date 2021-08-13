@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 
 
 @IntegrationTest
-@Disabled
+//@Disabled
 class ContextLoadTest: BaseIntegrationTest() {
 
     @Test
