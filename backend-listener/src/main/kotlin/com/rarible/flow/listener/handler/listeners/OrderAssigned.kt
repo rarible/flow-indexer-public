@@ -56,7 +56,8 @@ class OrderAssigned(
                             ),
                             transactionHash = blockInfo.transactionId,
                             blockNumber = blockInfo.blockHeight,
-                            blockHash = blockInfo.blockId
+                            blockHash = blockInfo.blockId,
+                            collection = item.collection
                         )
                     )
                 )

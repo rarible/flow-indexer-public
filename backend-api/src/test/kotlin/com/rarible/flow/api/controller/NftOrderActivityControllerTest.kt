@@ -19,6 +19,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils
+import java.math.BigDecimal
 import java.time.Clock
 import java.time.Duration
 import java.time.LocalDateTime
@@ -454,6 +455,22 @@ class NftOrderActivityControllerTest {
             collection = "NFT"
         )
 
+        val listActivity = FlowNftOrderActivityList(
+            price = BigDecimal.TEN,
+            hash = UUID.randomUUID().toString(),
+            maker = FlowAddress(randomAddress()),
+            make = FlowAssetNFT(
+                contract = FlowAddress(randomAddress()),
+                value = BigDecimal.ONE,
+                tokenId = randomLong()
+            ),
+            take = FlowAssetFungible(
+                contract = FlowAddress(randomAddress()),
+                value = BigDecimal.TEN
+            ),
+            collection = "NFT"
+        )
+
         val burnActivity = BurnActivity(
             owner = FlowAddress(randomAddress()),
             contract = FlowAddress(randomAddress()),
@@ -468,6 +485,7 @@ class NftOrderActivityControllerTest {
         val history = listOf(
             ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now() + Duration.ofSeconds(1L), mintActivity),
             ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now() + Duration.ofSeconds(6L), transferActivity),
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now() + Duration.ofSeconds(6L), listActivity),
             ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now() + Duration.ofSeconds(9L), burnActivity),
             ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now() + Duration.ofSeconds(12L), burnActivity.copy(collection = "NonNFT")),
         )
@@ -483,7 +501,7 @@ class NftOrderActivityControllerTest {
 
                 Assertions.assertNotNull(activities)
                 Assertions.assertTrue(activities.isNotEmpty())
-                Assertions.assertTrue(activities.size == 3)
+                Assertions.assertTrue(activities.size == 4)
             }
 
     }
