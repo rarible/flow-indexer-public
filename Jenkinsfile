@@ -1,4 +1,4 @@
-@Library('shared-library@flow-lib') _
+@Library('shared-library@FB-225-timochkinea') _
 
 def prefix = 'flow'
 def stackName = 'protocol-flow'
@@ -37,7 +37,7 @@ pipeline {
             env.VERSION = "${env.IMAGE_TAG}"
             env.BRANCH_NAME = "${env.GIT_BRANCH}"
           }
-          publishDockerImages(prefix, credentialsId, env.IMAGE_TAG)
+          publishDockerImages(prefix, credentialsId, env.IMAGE_TAG, [[name: 'backend-api', path: './backend-api'], [name: 'backend-listener', path: './backend-listener'], [name: 'scanner', path: './scanner']])
         }
       }
       stage("deploy to dev") {
