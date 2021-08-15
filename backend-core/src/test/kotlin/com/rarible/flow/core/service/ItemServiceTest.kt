@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
+import java.time.Clock
 import java.time.Instant
 
 fun createItem(tokenId: TokenId = 42) = Item(
@@ -109,7 +110,7 @@ internal class ItemServiceTest() {
         val itemService = ItemService(itemRepository, ownershipRepository)
         val before = createItem().copy(listed = true)
         itemRepository.coSave(before)
-        ownershipRepository.coSave(Ownership(before.contract, before.tokenId, before.owner!!, Instant.now()))
+        ownershipRepository.coSave(Ownership(before.contract, before.tokenId, before.owner!!, Instant.now(Clock.systemUTC()), listOf()))
 
         val newOwner = FlowAddress("0x1111")
         val result = itemService.transferNft(before.id, newOwner)

@@ -11,6 +11,8 @@ import kotlinx.coroutines.runBlocking
 import org.onflow.sdk.FlowAddress
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import java.math.BigDecimal
+import java.time.Clock
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
@@ -61,7 +63,8 @@ class MintListener(
                     contract,
                     tokenId,
                     to,
-                    Instant.now()
+                    Instant.now(Clock.systemUTC()),
+                    creators = listOf(Payout(account = item.creator, value = BigDecimal.ONE))
                 )
             )
 
