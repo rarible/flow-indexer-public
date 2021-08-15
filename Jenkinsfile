@@ -3,6 +3,7 @@
 def prefix = 'flow'
 def stackName = 'protocol-flow'
 def credentialsId = 'nexus-ci'
+def services = [[name: 'backend-api', path: './backend-api'], [name: 'backend-listener', path: './backend-listener'], [name: 'scanner', path: './scanner']]
 
 pipeline {
     agent none
@@ -37,7 +38,7 @@ pipeline {
             env.VERSION = "${env.IMAGE_TAG}"
             env.BRANCH_NAME = "${env.GIT_BRANCH}"
           }
-          publishDockerImages(prefix, credentialsId, env.IMAGE_TAG, [[name: 'backend-api', path: './backend-api'], [name: 'backend-listener', path: './backend-listener'], [name: 'scanner', path: './scanner']])
+          publishDockerImages(prefix, credentialsId, env.IMAGE_TAG, services)
         }
       }
       stage("deploy to dev") {
@@ -54,7 +55,7 @@ pipeline {
           APPLICATION_ENVIRONMENT = 'dev'
         }
         steps {
-          deployStack("dev", stackName, prefix, env.IMAGE_TAG)
+          deployStack("dev", stackName, prefix, env.IMAGE_TAG, services)
         }
       }
     }
