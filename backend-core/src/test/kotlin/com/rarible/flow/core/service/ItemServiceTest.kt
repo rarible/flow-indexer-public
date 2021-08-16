@@ -65,15 +65,15 @@ internal class ItemServiceTest() {
         var item = createItem()
         itemRepository.coSave(item)
 
-        var items = itemRepository.search(ItemFilter.All, null, null).toList()
+        var items = itemRepository.search(ItemFilter.All(), null, null).toList()
         items shouldHaveSize 1
 
         itemService.markDeleted(item.id)
 
         item = itemRepository.coFindById(item.id)!!
-        item.deleted shouldBe true
+        item.owner shouldBe null
 
-        items = itemRepository.search(ItemFilter.All, null, null).toList()
+        items = itemRepository.search(ItemFilter.All(), null, null).toList()
         items shouldHaveSize 0
     }
 
@@ -83,7 +83,7 @@ internal class ItemServiceTest() {
         var item = createItem().copy(listed = true)
         itemRepository.coSave(item)
 
-        val items = itemRepository.search(ItemFilter.All, null, null).toList()
+        val items = itemRepository.search(ItemFilter.All(), null, null).toList()
         items shouldHaveSize 1
 
         itemService.unlist(item.id)

@@ -9,10 +9,7 @@ dependencies {
     implementation(project(":backend-api-model"))
     implementation(project(":util"))
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
-    implementation("com.rarible.protocol:flow-protocol-model-nft:2.0.3-SNAPSHOT")
-    implementation("com.rarible.protocol:flow-protocol-model-order:2.0.3-SNAPSHOT")
-    implementation("com.rarible.protocol:flow-protocol-model-common:2.0.3-SNAPSHOT")
+    implementation(rootProject.libs.bundles.flow.models)
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {

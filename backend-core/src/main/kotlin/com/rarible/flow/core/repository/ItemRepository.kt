@@ -17,7 +17,7 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-interface ItemRepository: ReactiveMongoRepository<Item, ItemId>, ItemRepositoryCustom {
+interface ItemRepository : ReactiveMongoRepository<Item, ItemId>, ItemRepositoryCustom {
 
     fun findAllByCreator(creator: FlowAddress): Flux<Item>
 
@@ -28,19 +28,19 @@ interface ItemRepository: ReactiveMongoRepository<Item, ItemId>, ItemRepositoryC
     fun findByIdAndOwnerIsNotNull(itemId: ItemId): Mono<Item>
 }
 
-interface ItemRepositoryCustom: ContinuationRepositoryCustom<Item, ItemFilter> {
+interface ItemRepositoryCustom : ContinuationRepositoryCustom<Item, ItemFilter> {
     suspend fun updateById(itemId: ItemId, update: Update): UpdateResult
 }
 
 @Suppress("unused")
 class ItemRepositoryCustomImpl(
     private val mongo: ReactiveMongoTemplate
-): ItemRepositoryCustom {
+) : ItemRepositoryCustom {
 
     override fun search(filter: ItemFilter, cont: Continuation?, limit: Int?): Flow<Item> {
         cont as NftItemContinuation?
         val criteria = when (filter) {
-            is ItemFilter.All -> all()
+            is ItemFilter.All -> all(filter.showDeleted)
             is ItemFilter.ByCreator -> byCreator(filter.creator)
             is ItemFilter.ByOwner -> byOwner(filter.owner)
             is ItemFilter.ByCollection -> byCollection(filter.collectionId)
@@ -53,18 +53,19 @@ class ItemRepositoryCustomImpl(
         return mongo.find<Item>(query).asFlow()
     }
 
-    private fun all(): Criteria = Item::deleted isEqualTo false
+    private fun all(showDeleted: Boolean): Criteria =
+        if (showDeleted) Criteria() else Item::owner exists true
 
     private fun byOwner(owner: FlowAddress): Criteria {
-        return (Item::owner isEqualTo owner).andOperator(all())
+        return Item::owner isEqualTo owner
     }
 
     private fun byCreator(creator: FlowAddress): Criteria {
-        return (Item::creator isEqualTo creator).andOperator(all())
+        return (Item::creator isEqualTo creator).andOperator(all(false))
     }
 
     private fun byCollection(collectionId: String): Criteria =
-        (Item::collection isEqualTo collectionId).andOperator(all())
+        (Item::collection isEqualTo collectionId).andOperator(all(false))
 
     private fun mongoSort(sort: ItemFilter.Sort?): Sort {
         return when (sort) {

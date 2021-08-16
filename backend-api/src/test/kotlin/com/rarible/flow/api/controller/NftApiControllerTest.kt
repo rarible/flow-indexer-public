@@ -70,7 +70,7 @@ internal class NftApiControllerTest(
 
 
         coEvery {
-            nftItemService.getAllItems(any(), any())
+            nftItemService.getAllItems(any(), any(), any())
         } returns FlowNftItemsDto(
             total = items.size,
             continuation = "",

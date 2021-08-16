@@ -25,7 +25,7 @@ class ItemService(
     private val ownershipRepository: OwnershipRepository
 ) {
     suspend fun markDeleted(itemId: ItemId): UpdateResult {
-        return itemRepository.updateById(itemId, Update().set(Item::deleted.name, true))
+        return itemRepository.updateById(itemId, Update().set(Item::owner.name, null))
     }
 
     suspend fun unlist(itemId: ItemId): UpdateResult {

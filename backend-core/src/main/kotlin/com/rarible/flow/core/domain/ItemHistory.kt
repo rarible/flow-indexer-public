@@ -103,7 +103,7 @@ fun FlowActivity.toDto(id: String, date: LocalDateTime): FlowActivityDto  =
             ),
             price = this.price.toString()
         )
-        is FlowNftOrderActivityCancelList -> FlowNftOrderActivityListDto(
+        is FlowNftOrderActivityCancelList -> FlowNftOrderActivityCancelListDto(
             id = id,
             date = date.toInstant(ZoneOffset.UTC),
             hash = this.hash,

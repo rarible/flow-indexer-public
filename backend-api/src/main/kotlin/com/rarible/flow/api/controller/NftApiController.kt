@@ -8,6 +8,7 @@ import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coFindById
+import com.rarible.flow.core.repository.coSave
 import com.rarible.protocol.dto.FlowItemMetaDto
 import com.rarible.protocol.dto.FlowItemMetaFormDto
 import com.rarible.protocol.dto.FlowNftItemDto
@@ -30,16 +31,11 @@ class NftApiController(
     private val nftItemService: NftItemService
 ) : FlowNftItemControllerApi {
 
-    override suspend fun getAllItems(continuation: String?, size: Int?): ResponseEntity<FlowNftItemsDto> =
-        ResponseEntity.ok(nftItemService.getAllItems(continuation, size))
+    override suspend fun getNftAllItems(continuation: String?, size: Int?, showDeleted: Boolean?): ResponseEntity<FlowNftItemsDto> =
+        ResponseEntity.ok(nftItemService.getAllItems(continuation, size, showDeleted ?: false))
 
     override suspend fun getNftItemById(itemId: String): ResponseEntity<FlowNftItemDto> {
-        val item = nftItemService.getItemById(itemId)
-        return if (item == null) {
-            ResponseEntity.notFound().build()
-        } else {
-            ResponseEntity.ok(item)
-        }
+        return nftItemService.getItemById(itemId).okOr404IfNull()
     }
 
     override suspend fun getNftItemsByCollection(
@@ -50,16 +46,11 @@ class NftApiController(
         return ResponseEntity.ok(nftItemService.byCollection(collection, continuation, size))
     }
 
-    override suspend fun getItemMeta(itemId: String): ResponseEntity<FlowItemMetaDto> {
-        val itemMeta = nftItemService.itemMeta(itemId)
-        return if (itemMeta == null) {
-            ResponseEntity.status(404).build()
-        } else {
-            ResponseEntity.ok(itemMeta)
-        }
+    override suspend fun getNftItemMetaById(itemId: String): ResponseEntity<FlowItemMetaDto> {
+        return nftItemService.itemMeta(itemId).okOr404IfNull()
     }
 
-    override suspend fun getItemsByAccount(
+    override suspend fun getNftItemsByOwner(
         address: String,
         continuation: String?,
         size: Int?
@@ -67,7 +58,7 @@ class NftApiController(
         return ResponseEntity.ok(nftItemService.byAccount(address, continuation, size))
     }
 
-    override suspend fun getItemsByCreator(
+    override suspend fun getNftItemsByCreator(
         address: String,
         continuation: String?,
         size: Int?
@@ -89,7 +80,7 @@ class NftApiController(
     ): ResponseEntity<String> {
         val id = ItemId.parse(itemId)
         val existing: ItemMeta? = itemMetaRepository.findById(id).awaitSingleOrNull()
-        itemMetaRepository.save(
+        itemMetaRepository.coSave(
             existing?.copy(
                 title = flowItemMetaFormDto!!.title!!,
                 description = flowItemMetaFormDto.description!!,
