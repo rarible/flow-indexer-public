@@ -19,6 +19,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils
+import java.time.Clock
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
@@ -50,7 +51,55 @@ class NftOrderActivityControllerTest {
     }
 
     @Test
-    fun `should return all activities by item`() {
+    internal fun `should return only 1 burn activity`() {
+        val expectedTokenId = randomLong()
+        val expectedContract = randomAddress()
+
+        val mintActivity = MintActivity(
+            owner = FlowAddress(randomAddress()),
+            contract = FlowAddress(expectedContract),
+            tokenId = expectedTokenId,
+            value = RandomUtils.nextLong(),
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = RandomUtils.nextLong(),
+            collection = "NFT"
+        )
+
+        val burnActivity = BurnActivity(
+            owner = null,
+            contract = FlowAddress(expectedContract),
+            tokenId = expectedTokenId,
+            value = RandomUtils.nextLong(),
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = RandomUtils.nextLong(),
+            collection = "NFT"
+        )
+
+        val history = listOf(
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now(Clock.systemUTC()), activity = mintActivity),
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now(Clock.systemUTC()), activity = burnActivity),
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now(Clock.systemUTC()), activity = burnActivity.copy(tokenId = randomLong())),
+            ItemHistory(id = UUID.randomUUID().toString(), date = LocalDateTime.now(Clock.systemUTC()), activity = burnActivity.copy(collection = "Other")),
+        )
+
+        repo.saveAll(history).then().block()
+
+        client.get().uri("/v0.1/order/activities/byItem?type=BURN&size=1&contract=${expectedContract}&tokenId=${expectedTokenId}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowActivitiesDto>()
+            .consumeWith { response ->
+                val activitiesDto = response.responseBody
+                Assertions.assertNotNull(activitiesDto)
+                Assertions.assertNotNull(activitiesDto?.items)
+                Assertions.assertEquals(1, activitiesDto?.items?.size)
+            }
+    }
+
+    @Test
+    internal fun `should return all activities by item`() {
         val expectedTokenId = randomLong()
         val expectedContract = randomAddress()
 

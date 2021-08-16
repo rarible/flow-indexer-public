@@ -33,7 +33,7 @@ class ActivitiesService(
 
         val cont = ActivityContinuation.of(continuation)
 
-        val flux = if (continuation == null) {
+        var flux = if (continuation == null) {
             itemHistoryRepository.getNftOrderActivitiesByItem(types = types, contract = FlowAddress(contract), tokenId)
         } else {
             itemHistoryRepository.getNftOrderActivitiesByItemAfterDate(
@@ -44,6 +44,9 @@ class ActivitiesService(
             )
         }
 
+        if (size != null) {
+            flux = flux.take(size.toLong())
+        }
         return flux
             .collectList().flatMap {
                 FlowActivitiesDto(
@@ -95,7 +98,11 @@ class ActivitiesService(
                 itemHistoryRepository.getNfrOrderTransferToActivitiesByUserAfterDate(users, cont.afterDate)
             } else Flux.empty()
         }
-        return Flux.concat(activities, transferFromActivities, transferToActivities).collectList().flatMap {
+
+        val concat = Flux.concat(activities, transferFromActivities, transferToActivities)
+        val resultFlux = if (size == null) concat else concat.take(size.toLong())
+
+        return resultFlux.collectList().flatMap {
             FlowActivitiesDto(
                 items = it.sortedBy(ItemHistory::date).map { h -> h.activity.toDto(h.id, h.date) },
                 total = it.size,
@@ -112,18 +119,14 @@ class ActivitiesService(
         }
 
         val cont = ActivityContinuation.of(continuation)
-        val flux = if (cont == null) {
-            if (size == null) {
-                itemHistoryRepository.getAllActivities(types)
-            } else {
-                itemHistoryRepository.getAllActivities(types).take(size.toLong(), true)
-            }
+        var flux = if (cont == null) {
+            itemHistoryRepository.getAllActivities(types)
         } else {
-            if (size == null) {
-                itemHistoryRepository.getAllActivitiesAfterDate(types, cont.afterDate)
-            } else {
-                itemHistoryRepository.getAllActivitiesAfterDate(types, cont.afterDate).take(size.toLong(), true)
-            }
+            itemHistoryRepository.getAllActivitiesAfterDate(types, cont.afterDate)
+        }
+
+        if (size != null) {
+            flux = flux.take(size.toLong())
         }
 
         return flux.collectList().flatMap {
@@ -146,18 +149,14 @@ class ActivitiesService(
 
         val cont = ActivityContinuation.of(continuation)
 
-        val flux = if (cont == null) {
-            if (size == null) {
-                itemHistoryRepository.getAllActivitiesByItemCollection(types, collection)
-            } else {
-                itemHistoryRepository.getAllActivitiesByItemCollection(types, collection).take(size.toLong(), true)
-            }
+        var flux = if (cont == null) {
+            itemHistoryRepository.getAllActivitiesByItemCollection(types, collection)
         } else {
-            if (size == null) {
-                itemHistoryRepository.getAllActivitiesByItemCollectionAfterDate(types, collection, cont.afterDate)
-            } else {
-                itemHistoryRepository.getAllActivitiesByItemCollectionAfterDate(types, collection, cont.afterDate).take(size.toLong(), true)
-            }
+            itemHistoryRepository.getAllActivitiesByItemCollectionAfterDate(types, collection, cont.afterDate)
+        }
+
+        if (size != null) {
+            flux = flux.take(size.toLong())
         }
 
         return flux.collectList()
