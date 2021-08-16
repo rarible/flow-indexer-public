@@ -35,7 +35,7 @@ class NftApiController(
         ResponseEntity.ok(nftItemService.getAllItems(continuation, size, showDeleted ?: false))
 
     override suspend fun getNftItemById(itemId: String): ResponseEntity<FlowNftItemDto> {
-        return nftItemService.getItemById(itemId).okOr404()
+        return nftItemService.getItemById(itemId).okOr404IfNull()
     }
 
     override suspend fun getNftItemsByCollection(
@@ -47,7 +47,7 @@ class NftApiController(
     }
 
     override suspend fun getItemMeta(itemId: String): ResponseEntity<FlowItemMetaDto> {
-        return nftItemService.itemMeta(itemId).okOr404()
+        return nftItemService.itemMeta(itemId).okOr404IfNull()
     }
 
     override suspend fun getItemsByAccount(
