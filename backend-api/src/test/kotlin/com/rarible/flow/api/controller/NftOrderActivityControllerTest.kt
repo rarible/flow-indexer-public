@@ -330,6 +330,7 @@ class NftOrderActivityControllerTest {
         Assertions.assertNotNull(activities)
         Assertions.assertTrue(activities.items.isNotEmpty())
         Assertions.assertTrue(activities.items.size == 1)
+        Assertions.assertNotNull(activities.continuation)
         Assertions.assertTrue(activities.items[0] is TransferDto)
         val item = activities.items[0] as TransferDto
         Assertions.assertEquals(item.from, userFrom.formatted, "Users is not equals!")

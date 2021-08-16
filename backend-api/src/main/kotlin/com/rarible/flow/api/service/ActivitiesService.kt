@@ -106,7 +106,7 @@ class ActivitiesService(
             FlowActivitiesDto(
                 items = it.sortedBy(ItemHistory::date).map { h -> h.activity.toDto(h.id, h.date) },
                 total = it.size,
-                continuation = continuation
+                continuation = "${ActivityContinuation(it.last().date.toInstant(ZoneOffset.UTC))}"
             ).toMono()
         }
     }
