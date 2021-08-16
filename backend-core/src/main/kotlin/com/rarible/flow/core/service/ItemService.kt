@@ -4,6 +4,7 @@ import com.mongodb.client.result.UpdateResult
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.Payout
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.repository.coFindById
@@ -14,6 +15,8 @@ import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.onflow.sdk.FlowAddress
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
+import java.time.Clock
 import java.time.Instant
 
 @Service
@@ -42,7 +45,7 @@ class ItemService(
                 .deleteAllByContractAndTokenId(item.contract, item.tokenId)
                 .collectList().awaitFirstOrDefault(emptyList())
             val ownership = ownershipRepository.coSave(
-                Ownership(item.contract, item.tokenId, to, Instant.now())
+                Ownership(item.contract, item.tokenId, to, Instant.now(Clock.systemUTC()), listOf(Payout(account = item.creator, value = BigDecimal.ONE)))
             )
             item to ownership
         } ?: run {

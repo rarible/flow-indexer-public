@@ -37,7 +37,8 @@ data class Ownership(
     val contract: FlowAddress,
     val tokenId: TokenId,
     val owner: FlowAddress,
-    val date: Instant = Instant.now()
+    val date: Instant = Instant.now(),
+    val creators: List<Payout> = listOf()
 ): Serializable {
     @get:Id
     @get:AccessType(AccessType.Type.PROPERTY)

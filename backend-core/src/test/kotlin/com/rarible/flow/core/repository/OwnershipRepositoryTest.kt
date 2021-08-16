@@ -14,6 +14,8 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils
 import java.math.BigDecimal
+import java.time.Clock
+import java.time.Instant
 import java.util.*
 import kotlin.random.Random
 
@@ -64,8 +66,10 @@ internal class OwnershipRepositoryTest(
     private fun createOwnership(contract: FlowAddress = randomAddress(), owner: FlowAddress = randomAddress()) = Ownership(
         contract,
         Random.nextLong(),
-        owner
+        owner,
+        date = Instant.now(Clock.systemUTC()),
+        creators = listOf(Payout(account = randomAddress(), value = BigDecimal.ONE))
     )
 
-    fun randomAddress() = FlowAddress("0x${RandomStringUtils.random(16, "0123456789ABCDEF")}".lowercase(Locale.ENGLISH))
+    private fun randomAddress() = FlowAddress("0x${RandomStringUtils.random(16, "0123456789ABCDEF")}".lowercase(Locale.ENGLISH))
 }
