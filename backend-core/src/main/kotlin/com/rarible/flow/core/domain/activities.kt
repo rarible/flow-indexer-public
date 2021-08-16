@@ -32,11 +32,13 @@ sealed class FlowNftActivity: FlowActivity {
 sealed class FlowNftOrderActivity: FlowActivity {
     abstract val type: FlowActivityType
     abstract val price: BigDecimal
+    abstract val collection: String
 }
 
 data class FlowNftOrderActivitySell(
     override val type: FlowActivityType = FlowActivityType.SELL,
     override val price: BigDecimal,
+    override val collection: String,
     val left: OrderActivityMatchSide,
     val right: OrderActivityMatchSide,
     val transactionHash: String,
@@ -47,6 +49,7 @@ data class FlowNftOrderActivitySell(
 data class FlowNftOrderActivityList(
     override val type: FlowActivityType = FlowActivityType.LIST,
     override val price: BigDecimal,
+    override val collection: String,
     val hash: String,
     val maker: FlowAddress,
     val make: FlowAsset,
@@ -56,6 +59,7 @@ data class FlowNftOrderActivityList(
 data class FlowNftOrderActivityCancelList(
     override val type: FlowActivityType = FlowActivityType.CANCEL_LIST,
     override val price: BigDecimal,
+    override val collection: String,
     val hash: String,
     val maker: FlowAddress,
     val make: FlowAsset,

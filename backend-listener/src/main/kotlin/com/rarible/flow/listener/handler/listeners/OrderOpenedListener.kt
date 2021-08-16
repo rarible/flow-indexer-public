@@ -77,7 +77,8 @@ class OrderOpenedListener(
                         hash = UUID.randomUUID().toString(), //todo delete hash
                         maker = item.owner!!,
                         make = make,
-                        take = take
+                        take = take,
+                        collection = saved.collection
                     )
                 )
             )

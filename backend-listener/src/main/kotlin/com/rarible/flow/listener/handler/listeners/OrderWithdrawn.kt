@@ -55,7 +55,8 @@ class OrderWithdrawn(
                         take = FlowAssetFungible(
                             contract = order.take?.contract ?: FlowAddress("0x00"),
                             value = order.amount
-                        )
+                        ),
+                        collection = item.collection
                     )
                 )
             )

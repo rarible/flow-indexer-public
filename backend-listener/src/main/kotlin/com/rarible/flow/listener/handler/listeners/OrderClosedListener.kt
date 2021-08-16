@@ -62,7 +62,8 @@ class OrderClosedListener(
                                 ),
                                 blockHash = blockInfo.blockId,
                                 blockNumber = blockInfo.blockHeight,
-                                transactionHash = blockInfo.transactionId
+                                transactionHash = blockInfo.transactionId,
+                                collection = item.collection
                             )
                         )
                     )
