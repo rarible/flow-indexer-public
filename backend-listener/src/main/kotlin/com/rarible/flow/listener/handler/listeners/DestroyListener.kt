@@ -8,16 +8,11 @@ import com.rarible.flow.core.service.ItemService
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.reactive.awaitFirstOrDefault
-import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
-import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.Clock
+import java.time.Instant
 import java.util.*
 
 @Component(DestroyListener.ID)
@@ -30,7 +25,7 @@ class DestroyListener(
 ): SmartContractEventHandler<Unit> {
 
     override suspend fun handle(
-        contract: FlowAddress,
+        contract: String,
         tokenId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
@@ -58,7 +53,7 @@ class DestroyListener(
     }
 
     private suspend fun saveHistory(
-        contract: FlowAddress,
+        contract: String,
         tokenId: TokenId,
         blockInfo: BlockInfo,
         item: Item
@@ -66,7 +61,7 @@ class DestroyListener(
         itemHistoryRepository.coSave(
             ItemHistory(
                 id = UUID.randomUUID().toString(),
-                date = LocalDateTime.now(ZoneOffset.UTC),
+                date = Instant.now(Clock.systemUTC()),
                 activity = BurnActivity(
                     contract = contract,
                     tokenId = tokenId,

@@ -1,10 +1,11 @@
 package com.rarible.flow.core.domain
 
 import com.rarible.protocol.dto.*
+import org.springframework.data.mongodb.core.index.IndexDirection
+import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.MongoId
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.Instant
 
 /**
  * NFT Item history (item and order activities)
@@ -16,17 +17,18 @@ import java.time.ZoneOffset
 data class ItemHistory(
     @MongoId
     val id: String,
-    val date: LocalDateTime,
+    @Indexed(direction = IndexDirection.DESCENDING)
+    val date: Instant,
     val activity: FlowActivity
 )
 
-fun FlowActivity.toDto(id: String, date: LocalDateTime): FlowActivityDto  =
+fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
     when(this) {
         is MintActivity -> MintDto(
             id = id,
-            date = date.toInstant(ZoneOffset.UTC),
+            date = date,
             owner = this.owner.formatted,
-            contract = this.contract.formatted,
+            contract = this.contract,
             value = this.value.toString(),
             tokenId = this.tokenId.toString(),
             transactionHash = this.transactionHash,
@@ -37,10 +39,10 @@ fun FlowActivity.toDto(id: String, date: LocalDateTime): FlowActivityDto  =
 
         is TransferActivity -> TransferDto(
             id = id,
-            date = date.toInstant(ZoneOffset.UTC),
+            date = date,
             from = this.from.formatted,
             owner = this.owner.formatted,
-            contract = this.contract.formatted,
+            contract = this.contract,
             value = this.value.toString(),
             tokenId = this.tokenId.toString(),
             transactionHash = this.transactionHash,
@@ -52,9 +54,9 @@ fun FlowActivity.toDto(id: String, date: LocalDateTime): FlowActivityDto  =
 
         is BurnActivity -> BurnDto(
             id = id,
-            date = date.toInstant(ZoneOffset.UTC),
+            date = date,
             owner = "",
-            contract = this.contract.formatted,
+            contract = this.contract,
             value = this.value.toString(),
             tokenId = this.tokenId.toString(),
             transactionHash = this.transactionHash,
@@ -65,11 +67,11 @@ fun FlowActivity.toDto(id: String, date: LocalDateTime): FlowActivityDto  =
 
         is FlowNftOrderActivitySell -> FlowNftOrderActivitySellDto(
             id = id,
-            date = date.toInstant(ZoneOffset.UTC),
+            date = date,
             left = OrderActivityMatchSideDto(
                 maker = this.left.maker.formatted,
                 asset = FlowAssetNFTDto(
-                    contract = this.left.asset.contract.formatted,
+                    contract = this.left.asset.contract,
                     value = this.left.asset.value.toString(),
                     tokenId = (this.left.asset as FlowAssetNFT).tokenId.toString()
                 )
@@ -77,7 +79,7 @@ fun FlowActivity.toDto(id: String, date: LocalDateTime): FlowActivityDto  =
             right = OrderActivityMatchSideDto(
                 maker = this.right.maker.formatted,
                 asset = FlowAssetFungibleDto(
-                    contract = this.right.asset.contract.formatted,
+                    contract = this.right.asset.contract,
                     value = this.right.asset.value.toString()
                 )
             ),
@@ -89,32 +91,32 @@ fun FlowActivity.toDto(id: String, date: LocalDateTime): FlowActivityDto  =
         )
         is FlowNftOrderActivityList -> FlowNftOrderActivityListDto(
             id = id,
-            date = date.toInstant(ZoneOffset.UTC),
+            date = date,
             hash = this.hash,
             maker = this.maker.formatted,
             make = FlowAssetNFTDto(
-                contract = this.make.contract.formatted,
+                contract = this.make.contract,
                 value = this.make.value.toString(),
                 tokenId = (this.make as FlowAssetNFT).tokenId.toString()
             ),
             take = FlowAssetFungibleDto(
-                contract = this.take.contract.formatted,
+                contract = this.take.contract,
                 value = this.take.value.toString()
             ),
             price = this.price.toString()
         )
         is FlowNftOrderActivityCancelList -> FlowNftOrderActivityCancelListDto(
             id = id,
-            date = date.toInstant(ZoneOffset.UTC),
+            date = date,
             hash = this.hash,
             maker = this.maker.formatted,
             make = FlowAssetNFTDto(
-                contract = this.make.contract.formatted,
+                contract = this.make.contract,
                 value = this.make.value.toString(),
                 tokenId = (this.make as FlowAssetNFT).tokenId.toString()
             ),
             take = FlowAssetFungibleDto(
-                contract = this.take.contract.formatted,
+                contract = this.take.contract,
                 value = this.take.value.toString()
             ),
             price = this.price.toString()

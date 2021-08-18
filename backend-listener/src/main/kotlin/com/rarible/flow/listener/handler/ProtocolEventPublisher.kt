@@ -83,7 +83,7 @@ class ProtocolEventPublisher(
                     itemId = itemId.toString(),
                     FlowNftDeletedItemDto(
                         itemId.toString(),
-                        itemId.contract.formatted,
+                        itemId.contract,
                         itemId.tokenId.toInt() //todo long
                     )
                 )

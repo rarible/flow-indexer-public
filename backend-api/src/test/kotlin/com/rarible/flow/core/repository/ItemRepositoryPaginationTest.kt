@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
+import java.time.Clock
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -39,10 +40,10 @@ internal class ItemRepositoryPaginationTest(
     }
 
     @Test
-    fun `should save and find by account`() = runBlocking<Unit> {
+    fun `should save and find by account`() = runBlocking {
         log.info("Starting...")
 
-        val item1Owner1 = createItem().copy(date = Instant.now().minus(1, ChronoUnit.DAYS))
+        val item1Owner1 = createItem().copy(date = Instant.now(Clock.systemUTC()).minus(1, ChronoUnit.DAYS))
         itemRepository.coSave(item1Owner1)
 
         val item2Owner1 = createItem(43)
@@ -87,9 +88,9 @@ internal class ItemRepositoryPaginationTest(
     }
 
     @Test
-    fun `should save and find by creator`() = runBlocking<Unit> {
+    fun `should save and find by creator`() = runBlocking {
         log.info("Starting...")
-        val item1 = createItem().copy(date = Instant.now().minus(1, ChronoUnit.DAYS))
+        val item1 = createItem().copy(date = Instant.now(Clock.systemUTC()).minus(1, ChronoUnit.DAYS))
         itemRepository.coSave(item1)
 
         val item2 = createItem(43)
@@ -126,8 +127,8 @@ internal class ItemRepositoryPaginationTest(
     }
 
     @Test
-    fun `should save and find all`() = runBlocking<Unit> {
-        val item1 = createItem().copy(date = Instant.now().minus(1, ChronoUnit.DAYS))
+    fun `should save and find all`() = runBlocking {
+        val item1 = createItem().copy(date = Instant.now(Clock.systemUTC()).minus(1, ChronoUnit.DAYS))
         itemRepository.coSave(item1)
 
         val item2 = createItem(43)
@@ -164,13 +165,13 @@ internal class ItemRepositoryPaginationTest(
         read.count() shouldBe 3
     }
 
-    fun createItem(tokenId: TokenId = 42) = Item(
-        FlowAddress("0x01"),
+    private fun createItem(tokenId: TokenId = 42) = Item(
+        "0x01",
         tokenId,
         FlowAddress("0x01"),
         emptyList(),
         FlowAddress("0x02"),
-        Instant.now(),
+        Instant.now(Clock.systemUTC()),
         collection = "collection"
     )
 

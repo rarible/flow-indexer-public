@@ -1,1 +1,5 @@
 application.environment: dev
+spring:
+  data:
+    mongodb:
+      auto-index-creation: true

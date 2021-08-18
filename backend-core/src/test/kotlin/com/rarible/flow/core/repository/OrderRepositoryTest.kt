@@ -63,13 +63,13 @@ internal class OrderRepositoryTest(
 
     private fun createOrder() = Order(
         1L,
-        ItemId(FlowAddress("0x01"), 1),
+        ItemId("0x01", 1),
         FlowAddress("0x1000"),
         null,
-        FlowAssetNFT(FlowAddress("0x01"), 1.toBigDecimal(), 1),
+        FlowAssetNFT("0x01", 1.toBigDecimal(), 1),
         null,
         1.toBigDecimal(),
-        ItemId(FlowAddress("0x01"), 1).toString(),
+        ItemId("0x01", 1).toString(),
         buyerFee = BigDecimal.ZERO,
         sellerFee = BigDecimal.ZERO,
         data = OrderData(emptyList(), emptyList()),

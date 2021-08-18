@@ -3,21 +3,18 @@ package com.rarible.flow.core.repository
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.OwnershipId
 import com.rarible.flow.core.domain.TokenId
-import org.onflow.sdk.FlowAddress
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
+import org.springframework.data.querydsl.ReactiveQuerydslPredicateExecutor
+import org.springframework.stereotype.Repository
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import java.time.Instant
 
 
-interface OwnershipRepository : ReactiveMongoRepository<Ownership, OwnershipId> {
+@Repository
+interface OwnershipRepository : ReactiveMongoRepository<Ownership, OwnershipId>,
+    ReactiveQuerydslPredicateExecutor<Ownership> {
 
-    fun deleteAllByContractAndTokenId(address: FlowAddress, tokenId: TokenId): Flux<Ownership>
+    fun deleteAllByContractAndTokenId(contract: String, tokenId: TokenId /* = kotlin.Long */): Flux<Ownership>
 
-    fun findAllByContractAndTokenIdOrderByDateDesc(address: FlowAddress, id: TokenId): Flux<Ownership>
-
-    fun findAllByDateAfterAndIdNotOrderByDateDesc(after: Instant, id: OwnershipId): Flux<Ownership>
-
-    fun findAllByContractAndTokenIdAndDateAfterAndIdNotOrderByDateDesc(contract: FlowAddress, tokenId: TokenId /* = kotlin.Long */, afterDate: Instant, id: OwnershipId): Flux<Ownership>
-
+    fun findAllByContractAndTokenIdOrderByDateDescContractDescTokenIdDesc(address: String, id: TokenId): Flux<Ownership>
 }

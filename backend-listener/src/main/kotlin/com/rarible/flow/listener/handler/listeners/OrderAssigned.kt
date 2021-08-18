@@ -8,8 +8,8 @@ import kotlinx.coroutines.runBlocking
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.Clock
+import java.time.Instant
 import java.util.*
 
 @Component(OrderAssigned.ID)
@@ -21,7 +21,7 @@ class OrderAssigned(
 ) : SmartContractEventHandler<Unit> {
 
     override suspend fun handle(
-        contract: FlowAddress,
+        contract: String,
         orderId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
@@ -36,7 +36,7 @@ class OrderAssigned(
                 itemHistoryRepository.coSave(
                     ItemHistory(
                         id = UUID.randomUUID().toString(),
-                        date = LocalDateTime.now(ZoneOffset.UTC),
+                        date = Instant.now(Clock.systemUTC()),
                         activity = FlowNftOrderActivitySell(
                             price = order.amount,
                             left = OrderActivityMatchSide(
@@ -50,14 +50,15 @@ class OrderAssigned(
                             right = OrderActivityMatchSide(
                                 maker = taker,
                                 asset = FlowAssetFungible(
-                                    contract = FlowAddress("0x1654653399040a61"), //TODO get from config
+                                    contract = "0x1654653399040a61", //TODO get from config
                                     value = order.amount
                                 )
                             ),
                             transactionHash = blockInfo.transactionId,
                             blockNumber = blockInfo.blockHeight,
                             blockHash = blockInfo.blockId,
-                            collection = item.collection
+                            collection = item.collection,
+                            tokenId = order.id
                         )
                     )
                 )

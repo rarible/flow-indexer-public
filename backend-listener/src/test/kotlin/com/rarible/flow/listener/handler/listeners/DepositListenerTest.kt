@@ -19,7 +19,12 @@ internal class DepositListenerTest: FunSpec({
     val listener = DepositListener(
         mockk() {
             coEvery { transferNft(any(), any()) } answers {
-                item.copy(owner = arg(1)) to Ownership(item.contract, item.tokenId, arg(1))
+                item.copy(owner = arg(1)) to Ownership(
+                    contract = item.contract,
+                    tokenId = item.tokenId,
+                    owner = arg(1),
+                    date = item.date
+                )
             }
         },
 

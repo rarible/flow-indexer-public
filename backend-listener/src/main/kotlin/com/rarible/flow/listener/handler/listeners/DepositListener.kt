@@ -16,7 +16,7 @@ class DepositListener(
 ) : SmartContractEventHandler<Unit> {
 
     override suspend fun handle(
-        contract: FlowAddress,
+        contract: String,
         tokenId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo

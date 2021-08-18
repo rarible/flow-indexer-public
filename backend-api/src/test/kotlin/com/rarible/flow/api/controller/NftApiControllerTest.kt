@@ -32,7 +32,9 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 import java.net.URI
+import java.time.Clock
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -65,7 +67,7 @@ internal class NftApiControllerTest(
     fun `should return all items and stop`() = runBlocking<Unit> {
         val items = listOf(
             createItem(),
-            createItem(43).copy(date = Instant.now().minus(1, ChronoUnit.DAYS))
+            createItem(43).copy(date = Instant.now(Clock.systemUTC()).minus(1, ChronoUnit.DAYS))
         )
 
 
@@ -75,9 +77,9 @@ internal class NftApiControllerTest(
             total = items.size,
             continuation = "",
             items = items.map(ItemToDtoConverter::convert)
-        )
+        ).toMono()
 
-        val cont = NftItemContinuation(Instant.now(), ItemId(FlowAddress("0x01"), 42))
+        val cont = NftItemContinuation(Instant.now(Clock.systemUTC()), ItemId("0x01", 42))
         var response = client
             .get()
             .uri("/v0.1/items/?continuation=$cont")
@@ -313,12 +315,12 @@ internal class NftApiControllerTest(
 
 
     private fun createItem(tokenId: TokenId = 42) = Item(
-        FlowAddress("0x01"),
+        "0x01",
         tokenId,
         FlowAddress("0x01"),
         emptyList(),
         FlowAddress("0x02"),
-        Instant.now(),
+        Instant.now(Clock.systemUTC()),
         collection = "collection"
     )
 

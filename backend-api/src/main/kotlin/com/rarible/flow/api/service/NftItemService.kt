@@ -4,17 +4,17 @@ import com.rarible.flow.core.converter.ItemMetaToDtoConverter
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.repository.*
 import com.rarible.protocol.dto.FlowItemMetaDto
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemsDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.onflow.sdk.FlowAddress
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
-import java.time.Instant
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
 @Service
 class NftItemService(
@@ -22,11 +22,34 @@ class NftItemService(
     private val itemMetaRepository: ItemMetaRepository,
 ) {
 
-    suspend fun getAllItems(continuation: String?, size: Int?, showDeleted: Boolean): FlowNftItemsDto {
-        val items: Flow<Item> = itemRepository.search(
-            ItemFilter.All(showDeleted), NftItemContinuation.parse(continuation), size
-        )
-        return convert(items)
+    suspend fun getAllItems(continuation: String?, size: Int?, showDeleted: Boolean): Mono<FlowNftItemsDto> {
+        return Mono.create { sink ->
+            val cont = NftItemContinuation.parse(continuation)
+            var items: Flux<Item> = if (cont != null) {
+                if (showDeleted) {
+                    itemRepository.findAllByDateBeforeAndIdNotOrderByDateDescIdDesc(cont.afterDate, cont.afterId)
+                } else {
+                    itemRepository.findAllByDateBeforeAndIdNotAndOwnerIsNotNullOrderByDateDescIdDesc(cont.afterDate, cont.afterId)
+                }
+            } else if (showDeleted) {
+                itemRepository.findAllByOwnerIsNullOrderByDateDescIdDesc()
+            } else {
+                itemRepository.findAll(
+                    Sort.by(
+                        Sort.Order.desc(Item::date.name),
+                        Sort.Order.desc(Item::tokenId.name)
+                    )
+                )
+            }
+
+            if (size != null) {
+                items = items.take(size.toLong(), true)
+            }
+
+            items.collectList().subscribe {
+                sink.success(convert(it))
+            }
+        }
     }
 
     suspend fun getItemById(itemId: String): FlowNftItemDto? {
@@ -45,14 +68,17 @@ class NftItemService(
         }
     }
 
-    private suspend fun convert(items: Flow<Item>): FlowNftItemsDto {
-        val result = items.toList()
-
-        return FlowNftItemsDto(
-            continuation = nextCursor(result),
-            items = result.map { ItemToDtoConverter.convert(it) },
-            total = result.size
+    private fun convert(items: List<Item>): FlowNftItemsDto =
+        FlowNftItemsDto(
+            continuation = nextCursor(items),
+            items = items.map(ItemToDtoConverter::convert),
+            total = items.size
         )
+
+    private suspend fun convert(items: Flow<Item>): FlowNftItemsDto {
+        val result = mutableListOf<Item>()
+        items.toList(result)
+        return convert(result.toList())
     }
 
     private fun nextCursor(items: List<Item>): String? {

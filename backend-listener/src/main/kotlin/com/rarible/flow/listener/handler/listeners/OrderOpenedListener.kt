@@ -7,12 +7,10 @@ import com.rarible.flow.events.EventId
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.runBlocking
-import org.bson.types.ObjectId
-import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.Clock
+import java.time.Instant
 import java.util.*
 
 @Component(OrderOpenedListener.ID)
@@ -25,7 +23,7 @@ class OrderOpenedListener(
 ) : SmartContractEventHandler<Unit> {
 
     override suspend fun handle(
-        contract: FlowAddress,
+        contract: String,
         orderId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
@@ -41,7 +39,7 @@ class OrderOpenedListener(
         val item = itemRepository.coFindById(itemId)
         if(item?.owner != null) {
             val take = FlowAssetFungible(
-                contract = EventId.of(bidType).contractAddress,
+                contract = EventId.of(bidType).contractName,
                 value = bidAmount
             )
             val make = FlowAssetNFT(
@@ -71,14 +69,15 @@ class OrderOpenedListener(
             itemHistoryRepository.coSave(
                 ItemHistory(
                     id = UUID.randomUUID().toString(),
-                    date = LocalDateTime.now(ZoneOffset.UTC),
+                    date = Instant.now(Clock.systemUTC()),
                     activity = FlowNftOrderActivityList(
                         price = bidAmount,
                         hash = UUID.randomUUID().toString(), //todo delete hash
                         maker = item.owner!!,
                         make = make,
                         take = take,
-                        collection = saved.collection
+                        collection = saved.collection,
+                        tokenId = order.id
                     )
                 )
             )

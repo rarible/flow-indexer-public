@@ -4,24 +4,21 @@ import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.TokenId
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.onflow.sdk.FlowAddress
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
+import java.time.Clock
 import java.time.Instant
 
 @MongoTest
@@ -34,7 +31,7 @@ import java.time.Instant
 ])
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
-class ItemRepositoryTest {
+class ItemRepositoryTestOld {
 
     @Autowired
     lateinit var itemRepository: ItemRepository
@@ -78,12 +75,12 @@ class ItemRepositoryTest {
     }
 
     fun createItem(tokenId: TokenId = 42) = Item(
-        FlowAddress("0x01"),
+        "0x01",
         tokenId,
         FlowAddress("0x01"),
         emptyList(),
         FlowAddress("0x02"),
-        Instant.now(),
+        Instant.now(Clock.systemUTC()),
         collection = "collection"
     )
 }

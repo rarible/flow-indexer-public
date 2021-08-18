@@ -4,7 +4,6 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.randomAddress
 import com.rarible.protocol.dto.FlowOrderDto
-import org.bson.types.ObjectId
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -53,7 +52,7 @@ class OrderApiControllerTest {
 
     @Test
     fun `should return order by id`() {
-        val itemId = ItemId(FlowAddress("0x1a2b3c4d"), 25L)
+        val itemId = ItemId("0x1a2b3c4d", 25L)
         val order = Order(
             id = 1L,
             itemId = itemId,
@@ -66,8 +65,8 @@ class OrderApiControllerTest {
             amount = BigDecimal.valueOf(100L),
             amountUsd = BigDecimal.valueOf(100L),
             data = OrderData(
-                payouts = listOf(Payout(itemId.contract, BigDecimal.valueOf(1L))),
-                originalFees = listOf(Payout(itemId.contract, BigDecimal.valueOf(1L)))
+                payouts = listOf(Payout(FlowAddress(randomAddress()), BigDecimal.valueOf(1L))),
+                originalFees = listOf(Payout(FlowAddress(randomAddress()), BigDecimal.valueOf(1L)))
             ),
             buyerFee = BigDecimal.valueOf(1L),
             sellerFee = BigDecimal.valueOf(1L),

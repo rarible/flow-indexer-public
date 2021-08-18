@@ -1,94 +1,89 @@
 package com.rarible.flow.api.service
 
+import com.querydsl.core.BooleanBuilder
+import com.querydsl.core.types.OrderSpecifier
 import com.rarible.flow.core.converter.OwnershipToDtoConverter
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.OwnershipId
+import com.rarible.flow.core.domain.QOwnership
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.OwnershipContinuation
 import com.rarible.flow.core.repository.OwnershipRepository
+import com.rarible.flow.core.repository.coFindById
 import com.rarible.protocol.dto.FlowNftOwnershipDto
 import com.rarible.protocol.dto.FlowNftOwnershipsDto
-import org.onflow.sdk.FlowAddress
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
-import reactor.core.publisher.MonoSink
 
 @Service
 class OwnershipsService(
     private val ownershipRepository: OwnershipRepository
 ) {
 
-    suspend fun byId(id: String): Mono<FlowNftOwnershipDto> =
-        Mono.create { sink ->
-            ownershipRepository.findById(OwnershipId.parse(id)).subscribe {
-                sink.success(OwnershipToDtoConverter.convert(it))
-            }
-        }
+    suspend fun byId(id: String): FlowNftOwnershipDto? {
+        val ownership = ownershipRepository.coFindById(OwnershipId.parse(id))
+        return if (ownership == null) null else OwnershipToDtoConverter.convert(ownership)
+    }
 
-    suspend fun all(continuation: String?, size: Int?): Mono<FlowNftOwnershipsDto> =
-        Mono.create { sink ->
-            val cont = OwnershipContinuation.of(continuation)
-            var flux = if (cont != null) {
-               ownershipRepository.findAllByDateAfterAndIdNotOrderByDateDesc(cont.afterDate, cont.afterId)
-            } else {
-               ownershipRepository.findAll()
-            }
-
-            if (size != null) {
-                flux = flux.take(size.toLong(), true)
-            }
-
-            flux.collectList().subscribe {
-                doAnswer(
-                    items = it,
-                    sink = sink
-                )
-            }
-        }
+    suspend fun all(continuation: String?, size: Int?): FlowNftOwnershipsDto {
+        val predicate = BooleanBuilder(byContinuation(OwnershipContinuation.of(continuation)))
+        val flow = ownershipRepository.findAll(predicate, *defaultOrder()).asFlow()
+        return flowNftOwnershipsDto(flow, size)
+    }
 
     suspend fun byItem(
-        contract: FlowAddress,
+        contract: String,
         tokenId: TokenId,
         continuation: String?,
         size: Int?
-    ): Mono<FlowNftOwnershipsDto> =
-        Mono.create { sink ->
-            val cont = OwnershipContinuation.of(continuation)
-            var flux = if (cont != null) {
-                    ownershipRepository.findAllByContractAndTokenIdAndDateAfterAndIdNotOrderByDateDesc(
-                        contract,
-                        tokenId,
-                        cont.afterDate,
-                        cont.afterId
-                    )
-            } else {
-                ownershipRepository.findAllByContractAndTokenIdOrderByDateDesc(contract, tokenId)
-            }
+    ): FlowNftOwnershipsDto {
+        val predicate = BooleanBuilder(byContinuation(OwnershipContinuation.of(continuation)))
+        predicate.and(byContractAndTokenId(contract, tokenId))
+        val flow = ownershipRepository.findAll(predicate).asFlow()
+        return flowNftOwnershipsDto(flow, size)
+    }
 
-            if (size != null) {
-                flux = flux.take(size.toLong(), true)
-            }
+    private fun defaultOrder(): Array<OrderSpecifier<*>> = arrayOf(
+        QOwnership.ownership.date.desc(),
+        QOwnership.ownership.id.contract.desc(),
+        QOwnership.ownership.id.tokenId.desc()
+    )
 
-            flux.collectList().subscribe {
-                doAnswer(
-                    items = it,
-                    sink = sink
-                )
-            }
+    private suspend fun flowNftOwnershipsDto(
+        flow: Flow<Ownership>,
+        size: Int?
+    ): FlowNftOwnershipsDto {
+        var result = flow
+        if (size != null) {
+            result = result.take(size)
         }
 
-    private fun doAnswer(
-        items: List<Ownership>,
-        sink: MonoSink<FlowNftOwnershipsDto>
-    ) {
-        val answerContinuation = OwnershipContinuation(items.last().date, items.last().id)
-        sink.success(
-            FlowNftOwnershipsDto(
-                total = items.size,
-                continuation = "$answerContinuation",
-                ownerships = items.map(OwnershipToDtoConverter::convert)
-            )
+        val items = result.toList()
+
+        return FlowNftOwnershipsDto(
+            total = items.size,
+            ownerships = items.map(OwnershipToDtoConverter::convert),
+            continuation = answerContinuation(items)
         )
     }
 
+    private fun answerContinuation(items: List<Ownership>): String? = if (items.isEmpty()) null else "${
+        OwnershipContinuation(
+            beforeDate = items.last().date,
+            beforeId = items.last().id
+        )
+    }"
+
+    private fun byContractAndTokenId(contract: String, tokenId: TokenId): BooleanBuilder {
+        val q = QOwnership.ownership
+        return BooleanBuilder(q.contract.eq(contract)).and(q.tokenId.eq(tokenId))
+    }
+
+    private fun byContinuation(cont: OwnershipContinuation?): BooleanBuilder {
+        val q = QOwnership.ownership
+        return if (cont == null) BooleanBuilder() else BooleanBuilder(q.date.before(cont.beforeDate)).and(q.id.ne(cont.beforeId))
+    }
 }

@@ -14,6 +14,7 @@ import io.mockk.mockk
 import org.onflow.sdk.FlowAddress
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
+import java.time.Clock
 import java.time.Instant
 import java.time.LocalDateTime
 
@@ -26,7 +27,7 @@ internal class OrderClosedListenerTest: FunSpec({
         FlowAddress("0x1000"),
         FlowAddress("0x1001"),
         FlowAssetNFT(item.contract, 1.toBigDecimal(), item.tokenId),
-        FlowAssetFungible(FlowAddress("0x1234"), 10000.toBigDecimal()),
+        FlowAssetFungible("0x1234", 10000.toBigDecimal()),
         1.toBigDecimal(),
         item.id.toString(),
         buyerFee = BigDecimal.ZERO,
@@ -38,7 +39,7 @@ internal class OrderClosedListenerTest: FunSpec({
     val listener = OrderClosedListener(
         mockk("itemService") {
             coEvery { transferNft(any<ItemId>(), any<FlowAddress>()) } answers {
-                item.copy(owner = arg(1)) to Ownership(item.contract, item.tokenId, arg(1), Instant.now())
+                item.copy(owner = arg(1)) to Ownership(item.contract, item.tokenId, arg(1), Instant.now(Clock.systemUTC()))
             }
         },
 
