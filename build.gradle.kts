@@ -64,7 +64,7 @@ allprojects {
 
     tasks.withType<KotlinCompile> {
         kotlinOptions {
-            freeCompilerArgs = freeCompilerArgs + listOf("-progressive", "-Xskip-metadata-version-check")
+            freeCompilerArgs += listOf("-progressive", "-Xskip-metadata-version-check")
         }
 
     }
