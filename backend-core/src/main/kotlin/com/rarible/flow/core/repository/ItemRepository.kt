@@ -1,8 +1,10 @@
 package com.rarible.flow.core.repository
 
 import com.mongodb.client.result.UpdateResult
+import com.querydsl.core.types.OrderSpecifier
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
@@ -14,18 +16,24 @@ import org.springframework.data.mongodb.core.find
 import org.springframework.data.mongodb.core.query.*
 import org.springframework.data.mongodb.core.updateFirst
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
+import org.springframework.data.querydsl.ReactiveQuerydslPredicateExecutor
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.time.Instant
 
-interface ItemRepository : ReactiveMongoRepository<Item, ItemId>, ItemRepositoryCustom {
+interface ItemRepository : ReactiveMongoRepository<Item, ItemId>, ItemRepositoryCustom, ReactiveQuerydslPredicateExecutor<Item> {
 
     fun findAllByCreator(creator: FlowAddress): Flux<Item>
 
     fun findAllByListedIsTrue(): Flux<Item>
 
-    fun findAllByIdIn(ids: List<ItemId>): Flux<Item>
+    fun findByIdAndOwnerIsNotNullOrderByDateDescTokenIdDesc(itemId: ItemId): Mono<Item>
 
-    fun findByIdAndOwnerIsNotNull(itemId: ItemId): Mono<Item>
+    fun findAllByDateBeforeAndIdNotAndOwnerIsNotNullOrderByDateDescIdDesc(dateBefore: Instant, idBefore: ItemId): Flux<Item>
+
+    fun findAllByDateBeforeAndIdNotOrderByDateDescIdDesc(dateBefore: Instant, idBefore: ItemId): Flux<Item>
+
+    fun findAllByOwnerIsNullOrderByDateDescIdDesc(): Flux<Item>
 }
 
 interface ItemRepositoryCustom : ContinuationRepositoryCustom<Item, ItemFilter> {

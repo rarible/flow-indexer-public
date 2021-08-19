@@ -1,30 +1,31 @@
 package com.rarible.flow.api.service
 
-import com.rarible.flow.core.domain.FlowActivityType
-import com.rarible.flow.core.domain.ItemHistory
-import com.rarible.flow.core.domain.toDto
+import com.querydsl.core.BooleanBuilder
+import com.querydsl.core.types.OrderSpecifier
+import com.querydsl.core.types.dsl.BooleanExpression
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ActivityContinuation
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.protocol.dto.FlowActivitiesDto
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactive.asFlow
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
-import java.time.ZoneOffset
 
+@FlowPreview
 @Service
 class ActivitiesService(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository
 ) {
-    fun getNftOrderActivitiesByItem(
+    suspend fun getNftOrderActivitiesByItem(
         type: List<String>,
         contract: String,
         tokenId: Long,
         continuation: String?,
         size: Int?
-    ): Mono<FlowActivitiesDto> {
+    ): FlowActivitiesDto {
         var types = type.map { FlowActivityType.valueOf(it) }
 
         if (types.isEmpty()) {
@@ -33,38 +34,23 @@ class ActivitiesService(
 
         val cont = ActivityContinuation.of(continuation)
 
-        var flux = if (continuation == null) {
-            itemHistoryRepository.getNftOrderActivitiesByItem(types = types, contract = FlowAddress(contract), tokenId)
-        } else {
-            itemHistoryRepository.getNftOrderActivitiesByItemAfterDate(
-                types = types,
-                contract = FlowAddress(contract),
-                tokenId,
-                cont!!.afterDate
-            )
+        val order = defaultOrder()
+        var predicate = byTypes(types).and(byContractAndTokenPredicate(contract, tokenId))
+
+        if (cont != null) {
+            predicate = predicate.and(byContinuation(cont))
         }
 
-        if (size != null) {
-            flux = flux.take(size.toLong())
-        }
-        return flux
-            .collectList().flatMap {
-                FlowActivitiesDto(
-                    items = it.map { h -> h.activity.toDto(h.id, h.date) },
-                    total = it.size,
-                    continuation = "${ActivityContinuation(it.last().date.toInstant(ZoneOffset.UTC))}"
-                ).toMono()
-            }
-
+        val flow = itemHistoryRepository.findAll(predicate, *order).asFlow()
+        return flowActivitiesDto(flow, size)
     }
 
-    fun getNftOrderActivitiesByUser(
+    suspend fun getNftOrderActivitiesByUser(
         type: List<String>,
         user: List<String>,
         continuation: String?,
         size: Int?
-    ): Mono<FlowActivitiesDto> {
-
+    ): FlowActivitiesDto {
         val haveTransferTo = type.isEmpty() || type.contains("TRANSFER_TO")
         val haveTransferFrom = type.isEmpty() || type.contains("TRANSFER_FROM")
 
@@ -76,42 +62,44 @@ class ActivitiesService(
         val users = user.map { FlowAddress(it) }
         val cont = ActivityContinuation.of(continuation)
 
-        val activities: Flux<ItemHistory>
-        val transferFromActivities: Flux<ItemHistory>
-        val transferToActivities: Flux<ItemHistory>
-        if (cont == null) {
-            activities = itemHistoryRepository.getNftOrderActivitiesByUser(types, users)
-            transferFromActivities = if (haveTransferFrom) {
-                itemHistoryRepository.getNftOrderTransferFromActivitiesByUser(users)
-            } else Flux.empty()
-
-            transferToActivities = if (haveTransferTo) {
-                itemHistoryRepository.getNfrOrderTransferToActivitiesByUser(users)
-            } else Flux.empty()
-        } else {
-            activities = itemHistoryRepository.getNftOrderActivitiesByUserAfterDate(types, users, cont.afterDate)
-            transferFromActivities = if (haveTransferFrom) {
-                itemHistoryRepository.getNftOrderTransferFromActivitiesByUserAfterDate(users, cont.afterDate)
-            } else Flux.empty()
-
-            transferToActivities = if (haveTransferTo) {
-                itemHistoryRepository.getNfrOrderTransferToActivitiesByUserAfterDate(users, cont.afterDate)
-            } else Flux.empty()
+        val order = defaultOrder()
+        val predicate = BooleanBuilder(byTypes(types))
+        if (cont != null) {
+            predicate.and(byContinuation(cont))
         }
 
-        val concat = Flux.concat(activities, transferFromActivities, transferToActivities)
-        val resultFlux = if (size == null) concat else concat.take(size.toLong())
+        val activities: Flow<ItemHistory> = itemHistoryRepository.findAll(predicate.and(byOwner(users)), *order).asFlow()
+        val transferFromActivities: Flow<ItemHistory> = if (haveTransferFrom) {
+            itemHistoryRepository.findAll(transferFromPredicate(users), *order).asFlow()
+        } else emptyFlow()
 
-        return resultFlux.collectList().flatMap {
-            FlowActivitiesDto(
-                items = it.sortedBy(ItemHistory::date).map { h -> h.activity.toDto(h.id, h.date) },
-                total = it.size,
-                continuation = "${ActivityContinuation(it.last().date.toInstant(ZoneOffset.UTC))}"
-            ).toMono()
-        }
+
+        val transferToActivities: Flow<ItemHistory> = if (haveTransferTo) {
+            itemHistoryRepository.findAll(transferToPredicate(users)).asFlow()
+        } else emptyFlow()
+
+        return flowActivitiesDto(flowOf(activities, transferFromActivities, transferToActivities).flattenConcat(), size)
     }
 
-    fun getNftOrderAllActivities(type: List<String>, continuation: String?, size: Int?): Mono<FlowActivitiesDto> {
+    private suspend fun flowActivitiesDto(
+        flow: Flow<ItemHistory>,
+        size: Int?
+    ): FlowActivitiesDto {
+        var result = flow
+        if (size != null) {
+            result = result.take(size)
+        }
+
+        val items = result.toList()
+
+        return FlowActivitiesDto(
+            items = items.map { h -> h.activity.toDto(h.id, h.date) },
+            total = items.size,
+            continuation = "${answerContinuation(items)}"
+        )
+    }
+
+    suspend fun getNftOrderAllActivities(type: List<String>, continuation: String?, size: Int?): FlowActivitiesDto {
         val types = if (type.isEmpty()) {
             FlowActivityType.values().toList()
         } else {
@@ -119,56 +107,83 @@ class ActivitiesService(
         }
 
         val cont = ActivityContinuation.of(continuation)
-        var flux = if (cont == null) {
-            itemHistoryRepository.getAllActivities(types)
-        } else {
-            itemHistoryRepository.getAllActivitiesAfterDate(types, cont.afterDate)
-        }
+        val order = defaultOrder()
+        val predicate = byTypes(types)
 
-        if (size != null) {
-            flux = flux.take(size.toLong())
+        if (cont != null) {
+            predicate.and(byContinuation(cont))
         }
-
-        return flux.collectList().flatMap {
-            FlowActivitiesDto(
-                items = it.map { h -> h.activity.toDto(h.id, h.date) },
-                continuation = "${ActivityContinuation(it.last().date.toInstant(ZoneOffset.UTC))}",
-                total = it.size
-            ).toMono()
-        }
+        return flowActivitiesDto(itemHistoryRepository.findAll(predicate, *order).asFlow(), size)
     }
 
-    fun getNfdOrderActivitiesByCollection(
+    suspend fun getNfdOrderActivitiesByCollection(
         type: List<String>,
         collection: String,
         continuation: String?,
         size: Int?
-    ): Mono<FlowActivitiesDto> {
+    ): FlowActivitiesDto {
         val types =
             if (type.isEmpty()) FlowActivityType.values().toList() else type.map { FlowActivityType.valueOf(it) }
 
         val cont = ActivityContinuation.of(continuation)
 
-        var flux = if (cont == null) {
-            itemHistoryRepository.getAllActivitiesByItemCollection(types, collection)
-        } else {
-            itemHistoryRepository.getAllActivitiesByItemCollectionAfterDate(types, collection, cont.afterDate)
-        }
+        val predicateBuilder = BooleanBuilder(byTypes(types)).and(byCollection(collection))
 
-        if (size != null) {
-            flux = flux.take(size.toLong())
+        if (cont != null) {
+            predicateBuilder.and(byContinuation(cont))
         }
+        val flow = itemHistoryRepository.findAll(predicateBuilder, *defaultOrder()).asFlow()
 
-        return flux.collectList()
-            .flatMap { history ->
-                FlowActivitiesDto(
-                    total = history.size,
-                    continuation = "${ActivityContinuation(history.last().date.toInstant(ZoneOffset.UTC))}",
-                    items = history.map { it.activity.toDto(it.id, it.date) }
-                ).toMono()
-            }
+        return flowActivitiesDto(flow, size)
     }
 
+    private fun byCollection(collection: String): BooleanExpression {
+        val q = QItemHistory.itemHistory
+        return q.activity.`as`(QFlowNftActivity::class.java).collection.eq(collection)
+    }
 
+    private fun byContinuation(cont: ActivityContinuation): BooleanExpression {
+        val q = QItemHistory.itemHistory
+        return q.date.before(cont.beforeDate).and(q.id.loe(cont.beforeId))
+    }
+
+    private fun byTypes(types: List<FlowActivityType>): BooleanExpression {
+        val qItemHistory = QItemHistory.itemHistory
+        return qItemHistory.activity.`as`(QBaseActivity::class.java).type.`in`(types)
+    }
+
+    private fun byContractAndTokenPredicate(contract: String, tokenId: Long): BooleanExpression {
+        val qItemHistory = QItemHistory.itemHistory
+        return qItemHistory.activity.`as`(QFlowNftActivity::class.java).contract.eq(contract)
+            .and(qItemHistory.activity.`as`(QBaseActivity::class.java).tokenId.eq(tokenId))
+    }
+
+    private fun transferFromPredicate(users: List<FlowAddress>): BooleanExpression {
+        val q = QItemHistory.itemHistory
+        return q.activity.`as`(QBaseActivity::class.java).type.eq(FlowActivityType.TRANSFER)
+            .and(q.activity.`as`(QTransferActivity::class.java).from.`in`(*users.toTypedArray()))
+    }
+
+    private fun transferToPredicate(users: List<FlowAddress>): BooleanBuilder {
+        val q = QItemHistory.itemHistory
+        return BooleanBuilder(q.activity.`as`(QBaseActivity::class.java).type.eq(FlowActivityType.TRANSFER))
+            .and(q.activity.`as`(QTransferActivity::class.java).owner.`in`(users))
+    }
+
+    private fun byOwner(users: List<FlowAddress>): BooleanBuilder {
+        val q = QItemHistory.itemHistory
+        return BooleanBuilder(q.activity.`as`(QFlowNftActivity::class.java).owner.isNotNull.and(q.activity.`as`(QFlowNftActivity::class.java).owner.`in`(users)))
+    }
+
+    private fun defaultOrder(): Array<OrderSpecifier<*>> {
+        val q = QItemHistory.itemHistory
+        return arrayOf(
+            q.date.desc(),
+            q.id.desc()
+        )
+    }
+
+    private fun answerContinuation(items: List<ItemHistory>): ActivityContinuation? =
+        if (items.isEmpty()) null else ActivityContinuation(beforeDate = items.last().date, beforeId = items.last().id)
 }
 

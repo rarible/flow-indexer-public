@@ -14,11 +14,11 @@ import java.time.LocalDateTime
 
 internal class EventHandlerTest: FunSpec({
 
-    val handledEvents = mutableListOf<Pair<FlowAddress, TokenId>>()
+    val handledEvents = mutableListOf<Pair<String, TokenId>>()
     val eventHandler = EventHandler(
         mapOf<String, SmartContractEventHandler<*>>(
             "SomeShot.Withdraw" to object : SmartContractEventHandler<Unit> {
-                override suspend fun handle(contract: FlowAddress, tokenId: TokenId, fields: Map<String, Any?>, blockInfo: BlockInfo) {
+                override suspend fun handle(contract: String, tokenId: TokenId, fields: Map<String, Any?>, blockInfo: BlockInfo) {
                     handledEvents.add(
                         contract to tokenId
                     )
@@ -42,7 +42,7 @@ internal class EventHandlerTest: FunSpec({
         )
 
         handledEvents shouldHaveSize 1
-        handledEvents[0].first shouldBe FlowAddress("0x877931736ee77123")
+        handledEvents[0].first shouldBe "SomeShot" //todo need strict format
         handledEvents[0].second shouldBe 6497086
     }
 

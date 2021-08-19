@@ -2,7 +2,6 @@ package com.rarible.flow.core.repository
 
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.OwnershipId
-import com.rarible.flow.core.domain.TokenId
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -37,12 +36,12 @@ data class NftItemContinuation(
 }
 
 data class OwnershipContinuation(
-    val afterDate: Instant,
-    val afterId: OwnershipId
+    val beforeDate: Instant,
+    val beforeId: OwnershipId
 ) : Continuation {
 
     override fun toString(): String {
-        return "${afterDate.epochSecond}_${afterId}"
+        return "${beforeDate.epochSecond}_${beforeId}"
     }
 
     companion object {
@@ -58,8 +57,8 @@ data class OwnershipContinuation(
             return if (continuation.contains("_")) {
                 val (dateStr, ownershipId) = continuation.split("_")
                 OwnershipContinuation(
-                    afterDate = Instant.ofEpochSecond(dateStr.toLong()),
-                    afterId = OwnershipId.parse(ownershipId)
+                    beforeDate = Instant.ofEpochSecond(dateStr.toLong()),
+                    beforeId = OwnershipId.parse(ownershipId)
                 )
             } else {
                 null
@@ -68,33 +67,23 @@ data class OwnershipContinuation(
     }
 }
 
-data class ActivityContinuation(val afterDate: Instant) {
+data class ActivityContinuation(val beforeDate: Instant, val beforeId: String) {
 
-    override fun toString(): String = "${afterDate.epochSecond}"
-
-    companion object {
-
-        fun of(continuation: String?): ActivityContinuation? =
-            if (continuation.isNullOrEmpty()) null else ActivityContinuation(Instant.ofEpochSecond(continuation.toLong()))
-    }
-}
-
-data class OrderContinuation(val afterDate: LocalDateTime, val afterId: Long) {
-
-    override fun toString(): String = "${afterDate.toEpochSecond(ZoneOffset.UTC)}_$afterId"
+    override fun toString(): String = "${beforeDate.epochSecond}_$beforeId"
 
     companion object {
 
-        fun of(continuation: String?): OrderContinuation? {
-            if (continuation.isNullOrEmpty()) return null
+        fun of(continuation: String?): ActivityContinuation? {
+            if (continuation.isNullOrEmpty()) {
+                return null
+            }
 
-            if (!continuation.contains("_")) return null
-
-            val (afterDateStr, afterIdStr) = continuation.split("_")
-            return OrderContinuation(
-                afterDate = LocalDateTime.ofEpochSecond(afterDateStr.toLong(), 0, ZoneOffset.UTC),
-                afterId = afterIdStr.toLong()
-            )
+            return if (continuation.contains("_")) {
+                val (dateStr, activityId) = continuation.split("_")
+                ActivityContinuation(beforeDate = Instant.ofEpochSecond(dateStr.toLong()), beforeId = activityId)
+            } else {
+                null
+            }
         }
     }
 }

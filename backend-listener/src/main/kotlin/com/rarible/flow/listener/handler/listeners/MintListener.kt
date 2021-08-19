@@ -9,12 +9,10 @@ import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.runBlocking
 import org.onflow.sdk.FlowAddress
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.Clock
 import java.time.Instant
-import java.time.LocalDateTime
 import java.util.*
 
 @Component(MintListener.ID)
@@ -28,7 +26,7 @@ class MintListener(
 ): SmartContractEventHandler<Unit> {
 
     override suspend fun handle(
-        contract: FlowAddress,
+        contract: String,
         tokenId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
@@ -48,7 +46,7 @@ class MintListener(
                 to,
                 royalties,
                 to,
-                Instant.now(),
+                Instant.now(Clock.systemUTC()),
                 metadata,
                 collection = collection
             )
@@ -71,7 +69,7 @@ class MintListener(
             itemHistoryRepository.coSave(
                 ItemHistory(
                     id = UUID.randomUUID().toString(),
-                    date = LocalDateTime.now(),
+                    date = Instant.now(Clock.systemUTC()),
                     activity = MintActivity(
                         owner = to,
                         contract = contract,

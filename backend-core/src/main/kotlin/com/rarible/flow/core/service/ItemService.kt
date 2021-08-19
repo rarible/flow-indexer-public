@@ -35,7 +35,7 @@ class ItemService(
     suspend fun byId(itemId: ItemId): Item? = itemRepository.findById(itemId).awaitSingleOrNull()
 
     suspend fun findAliveById(itemId: ItemId): Item? =
-        itemRepository.findByIdAndOwnerIsNotNull(itemId).awaitSingleOrNull()
+        itemRepository.findByIdAndOwnerIsNotNullOrderByDateDescTokenIdDesc(itemId).awaitSingleOrNull()
 
     suspend fun transferNft(itemId: ItemId, to: FlowAddress): Pair<Item, Ownership>? {
         return itemRepository.coFindById(itemId)?.let { item ->

@@ -2,9 +2,9 @@ package com.rarible.flow.core.repository
 
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.Payout
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
-import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.onflow.sdk.FlowAddress
@@ -64,7 +64,7 @@ internal class OwnershipRepositoryTest(
 
 
     private fun createOwnership(contract: FlowAddress = randomAddress(), owner: FlowAddress = randomAddress()) = Ownership(
-        contract,
+        contract.formatted,
         Random.nextLong(),
         owner,
         date = Instant.now(Clock.systemUTC()),

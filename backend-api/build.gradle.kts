@@ -19,10 +19,11 @@ dependencies {
     implementation(rootProject.libs.rarible.core.starter)
     implementation(rootProject.libs.rarible.core.logging)
     implementation("org.springframework.boot:spring-boot-starter-websocket")
+    api("com.querydsl:querydsl-mongodb:5.0.0")
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     enabled = true
     destinationDirectory.set(file("./target/boot"))
-    duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.EXCLUDE
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

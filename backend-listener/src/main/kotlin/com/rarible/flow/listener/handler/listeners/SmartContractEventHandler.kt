@@ -12,5 +12,5 @@ import org.onflow.sdk.FlowAddress
  * All handlers are supposed to be autowired as Map of (eventName) -> (handlerInstance)
  */
 interface SmartContractEventHandler<T> {
-    suspend fun handle(contract: FlowAddress, tokenId: TokenId, fields: Map<String, Any?>, blockInfo: BlockInfo): T
+    suspend fun handle(contract: String, tokenId: TokenId, fields: Map<String, Any?>, blockInfo: BlockInfo): T
 }

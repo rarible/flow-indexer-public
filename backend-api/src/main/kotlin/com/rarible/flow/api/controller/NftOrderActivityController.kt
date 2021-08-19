@@ -3,11 +3,12 @@ package com.rarible.flow.api.controller
 import com.rarible.flow.api.service.ActivitiesService
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftOrderActivityControllerApi
-import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.FlowPreview
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController
 
+@FlowPreview
 @RestController
 @CrossOrigin
 class NftOrderActivityController(private val service: ActivitiesService): FlowNftOrderActivityControllerApi {
@@ -18,7 +19,7 @@ class NftOrderActivityController(private val service: ActivitiesService): FlowNf
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowActivitiesDto> =
-        ResponseEntity.ok(service.getNfdOrderActivitiesByCollection(type, collection, continuation, size).awaitFirst())
+        ResponseEntity.ok(service.getNfdOrderActivitiesByCollection(type, collection, continuation, size))
 
     override suspend fun getNftOrderActivitiesByItem(
         type: List<String>,
@@ -27,7 +28,7 @@ class NftOrderActivityController(private val service: ActivitiesService): FlowNf
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowActivitiesDto> =
-        ResponseEntity.ok(service.getNftOrderActivitiesByItem(type, contract, tokenId, continuation, size).awaitFirst())
+        ResponseEntity.ok(service.getNftOrderActivitiesByItem(type, contract, tokenId, continuation, size))
 
     override suspend fun getNftOrderActivitiesByUser(
         type: List<String>,
@@ -35,12 +36,12 @@ class NftOrderActivityController(private val service: ActivitiesService): FlowNf
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowActivitiesDto> =
-        ResponseEntity.ok(service.getNftOrderActivitiesByUser(type, user, continuation, size).awaitFirst())
+        ResponseEntity.ok(service.getNftOrderActivitiesByUser(type, user, continuation, size))
 
     override suspend fun getNftOrderAllActivities(
         type: List<String>,
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowActivitiesDto> =
-        ResponseEntity.ok(service.getNftOrderAllActivities(type, continuation, size).awaitFirst())
+        ResponseEntity.ok(service.getNftOrderAllActivities(type, continuation, size))
 }

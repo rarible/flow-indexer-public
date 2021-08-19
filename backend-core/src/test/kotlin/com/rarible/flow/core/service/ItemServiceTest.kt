@@ -24,12 +24,12 @@ import java.time.Clock
 import java.time.Instant
 
 fun createItem(tokenId: TokenId = 42) = Item(
-    FlowAddress("0x01"),
+    contract = "A.${com.rarible.flow.core.repository.randomAddress()}",
     tokenId,
     FlowAddress("0x01"),
     emptyList(),
     FlowAddress("0x02"),
-    Instant.now(),
+    Instant.now(Clock.systemUTC()),
     collection = "collection"
 )
 
@@ -45,7 +45,7 @@ fun createItem(tokenId: TokenId = 42) = Item(
 )
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
-internal class ItemServiceTest() {
+internal class ItemServiceTest {
     @Autowired
     lateinit var itemRepository: ItemRepository
 
@@ -65,7 +65,7 @@ internal class ItemServiceTest() {
         var item = createItem()
         itemRepository.coSave(item)
 
-        var items = itemRepository.search(ItemFilter.All(), null, null).toList()
+        var items = itemRepository.findAll().collectList().awaitFirst()
         items shouldHaveSize 1
 
         itemService.markDeleted(item.id)
@@ -110,7 +110,15 @@ internal class ItemServiceTest() {
         val itemService = ItemService(itemRepository, ownershipRepository)
         val before = createItem().copy(listed = true)
         itemRepository.coSave(before)
-        ownershipRepository.coSave(Ownership(before.contract, before.tokenId, before.owner!!, Instant.now(Clock.systemUTC()), listOf()))
+        ownershipRepository.coSave(
+            Ownership(
+                contract = before.contract,
+                tokenId = before.tokenId,
+                owner = before.owner!!,
+                date = Instant.now(Clock.systemUTC()),
+                creators = listOf()
+            )
+        )
 
         val newOwner = FlowAddress("0x1111")
         val result = itemService.transferNft(before.id, newOwner)
@@ -121,7 +129,7 @@ internal class ItemServiceTest() {
         item.listed shouldBe false
 
         val ownerships = ownershipRepository
-            .findAllByContractAndTokenIdOrderByDateDesc(item.contract, item.tokenId)
+            .findAllByContractAndTokenIdOrderByDateDescContractDescTokenIdDesc(item.contract, item.tokenId)
             .collectList().awaitFirstOrDefault(emptyList())
         ownerships shouldHaveSize 1
         ownerships[0].owner shouldBe newOwner

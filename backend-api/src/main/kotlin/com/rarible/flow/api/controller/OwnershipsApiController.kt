@@ -5,7 +5,6 @@ import com.rarible.protocol.dto.FlowNftOwnershipDto
 import com.rarible.protocol.dto.FlowNftOwnershipsDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftOwnershipControllerApi
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.onflow.sdk.FlowAddress
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -18,10 +17,10 @@ class OwnershipsApiController(
 ) : FlowNftOwnershipControllerApi {
 
     override suspend fun getNftAllOwnerships(continuation: String?, size: Int?): ResponseEntity<FlowNftOwnershipsDto> =
-        ResponseEntity.ok(service.all(continuation, size).awaitSingle())
+        ResponseEntity.ok(service.all(continuation, size))
 
     override suspend fun getNftOwnershipById(ownershipId: String): ResponseEntity<FlowNftOwnershipDto> =
-        ResponseEntity.ok(service.byId(id = ownershipId).awaitSingleOrNull())
+        service.byId(id = ownershipId).okOr404IfNull()
 
     override suspend fun getNftOwnershipsByItem(
         contract: String,
@@ -29,5 +28,5 @@ class OwnershipsApiController(
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowNftOwnershipsDto> =
-        ResponseEntity.ok(service.byItem(FlowAddress(contract), tokenId.toLong(), continuation, size).awaitSingle())
+        ResponseEntity.ok(service.byItem(contract, tokenId.toLong(), continuation, size))
 }

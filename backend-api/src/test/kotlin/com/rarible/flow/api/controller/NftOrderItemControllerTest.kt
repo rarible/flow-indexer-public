@@ -1,12 +1,14 @@
 package com.rarible.flow.api.controller
 
+import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.NftItemContinuation
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.randomAddress
 import com.rarible.flow.randomLong
+import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemsDto
-import org.bson.types.ObjectId
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -18,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import java.math.BigDecimal
+import java.time.Clock
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -33,6 +36,7 @@ import java.time.ZoneOffset
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @AutoConfigureWebTestClient(timeout = "60000")
+@MongoTest
 @ActiveProfiles("test")
 class NftOrderItemControllerTest {
 
@@ -52,8 +56,117 @@ class NftOrderItemControllerTest {
     }
 
     @Test
+    internal fun `continuation test`() {
+        val nftContract = randomAddress()
+        val nftOwner = FlowAddress(randomAddress())
+        var tokenId = 42L
+        val item = Item(
+            contract = nftContract,
+            tokenId = tokenId,
+            creator = nftOwner,
+            royalties = listOf(),
+            owner = nftOwner,
+            date = Instant.now(Clock.systemUTC()),
+            collection = "collection"
+        )
+
+        itemRepository.saveAll(
+            listOf(
+                item,
+                item.copy(tokenId = ++tokenId, date = Instant.now(Clock.systemUTC()).plusMillis(1000L)),
+                item.copy(tokenId = ++tokenId, date = Instant.now(Clock.systemUTC()).plusMillis(2000L))
+            )
+        ).then().block()
+
+        client.get()
+            .uri("/v0.1/order/items/all")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemsDto>()
+            .consumeWith { response ->
+                val itemsDto = response.responseBody
+                Assertions.assertNotNull(itemsDto)
+                itemsDto as FlowNftItemsDto
+                Assertions.assertNotNull(itemsDto.items)
+                Assertions.assertTrue(itemsDto.items.isNotEmpty())
+                Assertions.assertTrue(itemsDto.items.size == 3)
+
+                val sorted = itemsDto.items.sortedByDescending(FlowNftItemDto::date).sortedByDescending(FlowNftItemDto::id)
+                    .toList()
+                Assertions.assertArrayEquals(sorted.toTypedArray(), itemsDto.items.toTypedArray())
+            }
+
+        client.get().uri("/v0.1/order/items/all?size=1")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemsDto>()
+            .consumeWith { response ->
+                val itemsDto = response.responseBody
+                Assertions.assertNotNull(itemsDto)
+                itemsDto as FlowNftItemsDto
+                Assertions.assertNotNull(itemsDto.items)
+                Assertions.assertTrue(itemsDto.items.isNotEmpty())
+                Assertions.assertNotNull(itemsDto.total)
+                Assertions.assertEquals(1, itemsDto.total)
+                Assertions.assertNotNull(itemsDto.continuation)
+                val lastItem = itemsDto.items.last()
+
+                Assertions.assertEquals(44L, lastItem.tokenId!!.toLong())
+
+                val cont = NftItemContinuation(
+                    afterDate = lastItem.date!!,
+                    afterId = ItemId.parse(lastItem.id!!)
+                )
+
+                Assertions.assertEquals(cont.toString(), itemsDto.continuation)
+
+                client.get().uri("/v0.1/order/items/all?size=1&continuation={continuation}", mapOf("continuation" to itemsDto.continuation))
+                    .exchange()
+                    .expectStatus().isOk
+                    .expectBody<FlowNftItemsDto>()
+                    .consumeWith { nextResponse ->
+                        val nextItemsDto = nextResponse.responseBody
+                        Assertions.assertNotNull(nextItemsDto)
+                        nextItemsDto as FlowNftItemsDto
+                        Assertions.assertNotNull(nextItemsDto.total)
+                        Assertions.assertNotNull(nextItemsDto.continuation)
+
+                        Assertions.assertEquals(1, nextItemsDto.total)
+
+                        val nextLastItem = nextItemsDto.items.last()
+
+                        Assertions.assertEquals(43L, nextLastItem.tokenId!!.toLong())
+                        Assertions.assertTrue(lastItem.date!!.isAfter(nextLastItem.date!!))
+                        Assertions.assertTrue(lastItem.tokenId!! > nextLastItem.tokenId!!)
+                    }
+
+                client.get().uri("/v0.1/order/items/all?size=2&continuation={continuation}", mapOf("continuation" to itemsDto.continuation))
+                    .exchange()
+                    .expectStatus().isOk
+                    .expectBody<FlowNftItemsDto>()
+                    .consumeWith { nextResponse ->
+                        val nextItemsDto = nextResponse.responseBody
+                        Assertions.assertNotNull(nextItemsDto)
+                        nextItemsDto as FlowNftItemsDto
+                        Assertions.assertNotNull(nextItemsDto.total)
+                        Assertions.assertNotNull(nextItemsDto.continuation)
+
+                        Assertions.assertEquals(2, nextItemsDto.total)
+
+                        val nextLastItem = nextItemsDto.items.last()
+
+                        Assertions.assertEquals(42L, nextLastItem.tokenId!!.toLong())
+                        Assertions.assertTrue(lastItem.date!!.isAfter(nextLastItem.date!!))
+                        Assertions.assertTrue(lastItem.tokenId!! -  nextLastItem.tokenId!! == 2)
+                    }
+            }
+
+
+    }
+
+    @Test
     fun `should return 1 item by owner`() {
-        val nftContract = FlowAddress(randomAddress())
+        val nftContract = randomAddress()
         val nftOwner = FlowAddress(randomAddress())
         val tokenId = 42L
         val nftId = ItemId(nftContract, tokenId)
@@ -63,7 +176,7 @@ class NftOrderItemControllerTest {
             creator = nftOwner,
             royalties = listOf(),
             owner = nftOwner,
-            date = Instant.now(),
+            date = Instant.now(Clock.systemUTC()),
             collection = "collection"
         )
 
@@ -118,7 +231,7 @@ class NftOrderItemControllerTest {
 
     @Test
     fun `should return all items on sale`() {
-        val nftContract = FlowAddress(randomAddress())
+        val nftContract = randomAddress()
         val nftOwner = FlowAddress(randomAddress())
         val tokenId = 42L
         val nftId = ItemId(nftContract, tokenId)
@@ -128,7 +241,7 @@ class NftOrderItemControllerTest {
             creator = nftOwner,
             royalties = listOf(),
             owner = nftOwner,
-            date = Instant.now(),
+            date = Instant.now(Clock.systemUTC()),
             collection = "collection"
         )
 
@@ -185,9 +298,9 @@ class NftOrderItemControllerTest {
 
     @Test
     internal fun `should return all items by collection`() {
-        val itemId1 = ItemId(contract = FlowAddress(randomAddress()), tokenId = randomLong())
-        val itemId2 = ItemId(contract = FlowAddress(randomAddress()), tokenId = randomLong())
-        val itemId3 = ItemId(contract = FlowAddress(randomAddress()), tokenId = randomLong())
+        val itemId1 = ItemId(contract = randomAddress(), tokenId = randomLong())
+        val itemId2 = ItemId(contract = randomAddress(), tokenId = randomLong())
+        val itemId3 = ItemId(contract = randomAddress(), tokenId = randomLong())
 
         val item = Item(
             contract = itemId1.contract,
@@ -195,7 +308,7 @@ class NftOrderItemControllerTest {
             creator = FlowAddress(randomAddress()),
             royalties = listOf(),
             owner = FlowAddress(randomAddress()),
-            date = Instant.now(),
+            date = Instant.now(Clock.systemUTC()),
             collection = "CollectionNFT"
         )
 
@@ -204,7 +317,7 @@ class NftOrderItemControllerTest {
                 item,
                 item.copy(contract = itemId2.contract, tokenId = itemId2.tokenId),
                 item.copy(contract = itemId3.contract, tokenId = itemId3.tokenId),
-                item.copy(contract = FlowAddress(randomAddress()), tokenId = randomLong(), collection = "DIFF")
+                item.copy(contract = randomAddress(), tokenId = randomLong(), collection = "DIFF")
             )
         ).then().block()
 
@@ -214,7 +327,7 @@ class NftOrderItemControllerTest {
             itemId = item.id,
             maker = FlowAddress(randomAddress()),
             make = FlowAssetNFT(
-                contract = FlowAddress(randomAddress()),
+                contract = randomAddress(),
                 BigDecimal.valueOf(1L),
                 tokenId = randomLong()
             ),
@@ -231,11 +344,16 @@ class NftOrderItemControllerTest {
                 order,
                 order.copy(id = 2L, itemId = itemId2),
                 order.copy(id = 3L, itemId = itemId3),
-                order.copy(id = 4L, itemId = ItemId(contract = FlowAddress(randomAddress()), tokenId = randomLong()),collection = "DIFF"),
+                order.copy(
+                    id = 4L,
+                    itemId = ItemId(contract = randomAddress(), tokenId = randomLong()),
+                    collection = "DIFF"
+                ),
             )
         ).then().block()
 
-        client.get().uri("/v0.1/order/items/byCollection?collection={collection}", mapOf("collection" to item.collection))
+        client.get()
+            .uri("/v0.1/order/items/byCollection?collection={collection}", mapOf("collection" to item.collection))
             .exchange()
             .expectStatus().isOk
             .expectBody<FlowNftItemsDto>()

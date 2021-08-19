@@ -15,24 +15,24 @@ object OrderToDtoConverter: Converter<Order, FlowOrderDto> {
             taker = source.taker?.formatted,
             make = when (source.make) {
                 is FlowAssetNFT -> FlowAssetNFTDto(
-                    contract = source.make.contract.formatted,
+                    contract = source.make.contract,
                     value = "${source.make.value}",
                     tokenId = "${source.itemId.tokenId}"
                 )
                 is FlowAssetFungible -> FlowAssetFungibleDto(
-                    contract = source.make.contract.formatted,
+                    contract = source.make.contract,
                     value = "${source.make.value}",
                 )
             },
             take = when (source.take) {
                 null -> null
                 is FlowAssetNFT -> FlowAssetNFTDto(
-                    contract = source.make.contract.formatted,
+                    contract = source.make.contract,
                     value = "${source.make.value}",
                     tokenId = "${source.itemId.tokenId}"
                 )
                 is FlowAssetFungible -> FlowAssetFungibleDto(
-                    contract = source.make.contract.formatted,
+                    contract = source.make.contract,
                     value = "${source.make.value}",
                 )
 

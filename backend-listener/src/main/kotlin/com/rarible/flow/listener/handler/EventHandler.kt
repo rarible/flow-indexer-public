@@ -7,7 +7,6 @@ import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.handler.listeners.SmartContractEventHandler
 import com.rarible.flow.log.Log
-import org.onflow.sdk.FlowAddress
 
 
 class EventHandler(
@@ -15,7 +14,7 @@ class EventHandler(
 ) : ConsumerEventHandler<EventMessage> {
 
     override suspend fun handle(event: EventMessage) {
-        val contract = event.eventId.contractAddress
+        val contract = event.eventId.contractName
         val tokenId = tokenId(event)
 
         if(tokenId == null) {
@@ -42,7 +41,7 @@ class EventHandler(
         val log by Log()
         class NoOpHandler(val eventId: EventId): SmartContractEventHandler<Unit> {
             override suspend fun handle(
-                contract: FlowAddress,
+                contract: String,
                 tokenId: TokenId,
                 fields: Map<String, Any?>,
                 blockInfo: BlockInfo

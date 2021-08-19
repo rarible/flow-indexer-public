@@ -1,3 +1,6 @@
 spring:
   application:
     name: flow-nft-indexer-api
+  data:
+    mongodb:
+      auto-index-creation: true

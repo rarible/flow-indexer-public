@@ -1,18 +1,18 @@
 package com.rarible.flow.listener.handler.listeners
 
-import com.rarible.flow.core.domain.*
-import com.rarible.flow.core.repository.*
+import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.TokenId
+import com.rarible.flow.core.domain.TransferActivity
+import com.rarible.flow.core.repository.ItemHistoryRepository
+import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.service.ItemService
 import com.rarible.flow.events.BlockInfo
-import com.rarible.flow.listener.handler.EventHandler
-import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
-import kotlinx.coroutines.reactive.awaitSingle
 import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
-import java.net.URI
+import java.time.Clock
 import java.time.Instant
-import java.time.LocalDateTime
 import java.util.*
 
 @Component(TransferListener.ID)
@@ -22,7 +22,7 @@ class TransferListener(
 ) : SmartContractEventHandler<Unit> {
 
     override suspend fun handle(
-        contract: FlowAddress,
+        contract: String,
         tokenId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
@@ -38,7 +38,7 @@ class TransferListener(
             itemHistoryRepository.coSave(
                 ItemHistory(
                     id = UUID.randomUUID().toString(),
-                    date = LocalDateTime.now(),
+                    date = Instant.now(Clock.systemUTC()),
                     activity = TransferActivity(
                         owner = to,
                         contract = contract,

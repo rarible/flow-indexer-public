@@ -4,15 +4,13 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.*
 import com.rarible.flow.core.service.ItemService
 import com.rarible.flow.events.BlockInfo
-import com.rarible.flow.events.EventId
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
-import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.Clock
+import java.time.Instant
 import java.util.*
 
 @Component(OrderClosedListener.ID)
@@ -24,7 +22,7 @@ class OrderClosedListener(
 ) : SmartContractEventHandler<Unit> {
 
     override suspend fun handle(
-        contract: FlowAddress,
+        contract: String,
         orderId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
@@ -51,7 +49,7 @@ class OrderClosedListener(
                     itemHistoryRepository.save(
                         ItemHistory(
                             id = UUID.randomUUID().toString(),
-                            date = LocalDateTime.now(ZoneOffset.UTC),
+                            date = Instant.now(Clock.systemUTC()),
                             activity = FlowNftOrderActivitySell(
                                 price = order.take?.value ?: BigDecimal.ZERO,
                                 left = OrderActivityMatchSide(
@@ -63,7 +61,8 @@ class OrderClosedListener(
                                 blockHash = blockInfo.blockId,
                                 blockNumber = blockInfo.blockHeight,
                                 transactionHash = blockInfo.transactionId,
-                                collection = item.collection
+                                collection = item.collection,
+                                tokenId = savedOrder.id
                             )
                         )
                     )

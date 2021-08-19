@@ -7,15 +7,12 @@ import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.service.ItemService
 import com.rarible.flow.events.BlockInfo
-import com.rarible.flow.events.EventId
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
-import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.Clock
+import java.time.Instant
 import java.util.*
 
 @Component(OrderWithdrawn.ID)
@@ -27,7 +24,7 @@ class OrderWithdrawn(
 ) : SmartContractEventHandler<Unit> {
 
     override suspend fun handle(
-        contract: FlowAddress,
+        contract: String,
         orderId: TokenId,
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
@@ -42,7 +39,7 @@ class OrderWithdrawn(
             itemHistoryRepository.save(
                 ItemHistory(
                     id = UUID.randomUUID().toString(),
-                    date = LocalDateTime.now(ZoneOffset.UTC),
+                    date = Instant.now(Clock.systemUTC()),
                     activity = FlowNftOrderActivityCancelList(
                         price = order.amount,
                         hash = UUID.randomUUID().toString(), //todo delete hash
@@ -53,10 +50,11 @@ class OrderWithdrawn(
                             tokenId = orderId
                         ),
                         take = FlowAssetFungible(
-                            contract = order.take?.contract ?: FlowAddress("0x00"),
+                            contract = order.take?.contract.orEmpty(), //todo take can be empty?
                             value = order.amount
                         ),
-                        collection = item.collection
+                        collection = item.collection,
+                        tokenId = order.id
                     )
                 )
             )
