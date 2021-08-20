@@ -20,11 +20,15 @@ class EventHandler(
         if(tokenId == null) {
             log.warn("Event [${event.eventId}] has no tokenId")
         } else {
-            log.info("Handling [${event.eventId.contractEvent()}] at [$contract.$tokenId] with fields [${event.fields}]")
-            smartContractEventHandlers.getOrDefault(
-                event.eventId.contractEvent(),
-                NoOpHandler(event.eventId)
-            ).handle(contract, tokenId, event.fields, event.blockInfo)
+            try {
+                log.info("Handling [${event.eventId.contractEvent()}] at [$contract.$tokenId] with fields [${event.fields}]")
+                smartContractEventHandlers.getOrDefault(
+                    event.eventId.contractEvent(),
+                    NoOpHandler(event.eventId)
+                ).handle(contract, tokenId, event.fields, event.blockInfo)
+            } catch (e: Exception) {
+                log.error("Failed to handle message: {}", event, e)
+            }
         }
     }
 
@@ -45,7 +49,7 @@ class EventHandler(
                 tokenId: TokenId,
                 fields: Map<String, Any?>,
                 blockInfo: BlockInfo
-            ): Unit {
+            ) {
                 log.info("Skipping unknown or untracked event [$eventId] for [$contract.$tokenId] with fields [${fields}]")
             }
         }

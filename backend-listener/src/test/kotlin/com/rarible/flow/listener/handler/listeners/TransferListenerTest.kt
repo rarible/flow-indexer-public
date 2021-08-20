@@ -1,38 +1,48 @@
 package com.rarible.flow.listener.handler.listeners
 
-import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.core.domain.TransferActivity
+import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
+import com.rarible.flow.listener.createItem
 import com.rarible.flow.listener.handler.EventHandler
 import io.kotest.core.spec.style.FunSpec
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import org.onflow.sdk.FlowAddress
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 
 internal class TransferListenerTest: FunSpec({
-    val listener = TransferListener(
-        mockk() {
+
+    test("should handle transfer") {
+        val itemHistoryRepository = mockk<ItemHistoryRepository>() {
             every { save(any()) } answers {
                 Mono.just(it.invocation.args[0] as ItemHistory)
             }
-        },
-        mockk() {
         }
-    )
-
-    val eventHandler = EventHandler(
-        mapOf(
-            TransferListener.ID to listener
+        val listener = TransferListener(
+            itemHistoryRepository,
+            mockk() {
+                coEvery {
+                    byId(any())
+                } returns createItem(123)
+            }
         )
-    )
 
-    test("should handle transfer") {
+        val eventHandler = EventHandler(
+            mapOf(
+                TransferListener.ID to listener
+            )
+        )
         val event = EventMessage(
             EventId.of("A.fcfb23c627a63d40.CommonNFT.Transfer"),
             mapOf(
+                "id" to 123,
                 "from" to "0xfcfb23c627a63d00",
                 "to" to "0xfcfb23c627a63d40",
             ),
@@ -45,5 +55,15 @@ internal class TransferListenerTest: FunSpec({
         )
 
         eventHandler.handle(event)
+
+        verify(exactly = 1) {
+            itemHistoryRepository.save(match {
+                (it.activity as TransferActivity).run {
+                    from == FlowAddress("0xfcfb23c627a63d00") &&
+                        owner == FlowAddress("0xfcfb23c627a63d40") &&
+                        tokenId == 123L
+                }
+            })
+        }
     }
 })

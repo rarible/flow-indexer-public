@@ -34,7 +34,7 @@ class TransferListener(
 
         val item = itemService.byId(ItemId(contract, tokenId))
         // check if item exists and is not transferred yet
-        if(item != null && item.owner != to) {
+        if(item != null) {
             itemHistoryRepository.coSave(
                 ItemHistory(
                     id = UUID.randomUUID().toString(),

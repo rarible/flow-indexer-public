@@ -8,7 +8,8 @@ include(
     "backend-core",
     "backend-listener",
     "converters",
-    "util"
+    "util",
+    "e2e"
 )
 
 dependencyResolutionManagement {
@@ -52,4 +53,3 @@ dependencyResolutionManagement {
         }
     }
 }
-

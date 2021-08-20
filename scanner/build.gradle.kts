@@ -15,10 +15,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
 
-    implementation("io.grpc:grpc-stub:1.37.0")
-    implementation("io.grpc:grpc-core:1.37.0")
-    implementation("io.grpc:grpc-protobuf:1.37.0")
-    implementation("com.nftco:flow-jvm-sdk:0.2.4")
+    implementation(rootProject.libs.flow.sdk)
     implementation(rootProject.libs.bundles.rarible.core) {
         exclude("org.springframework.boot:spring-boot-starter-web")
     }

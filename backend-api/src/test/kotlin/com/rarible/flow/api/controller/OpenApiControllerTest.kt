@@ -1,6 +1,7 @@
 package com.rarible.flow.api.controller
 
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
@@ -34,6 +35,7 @@ internal class OpenApiControllerTest(
                 it.responseBody shouldContain "OpenAPI definition"
                 it.responseBody shouldContain "FlowNftItem:"
                 it.responseBody shouldContain "/v0.1/items/all:"
+                it.responseBody shouldNotContain "summary:"
             }
     }
 
