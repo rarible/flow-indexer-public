@@ -12,5 +12,9 @@ spring:
     bootstrap:
       enabled: true
 
+    loadbalancer:
+      cache:
+        enabled: false
+
 scanner:
   kafka-replica-set: ${kafka.hosts}

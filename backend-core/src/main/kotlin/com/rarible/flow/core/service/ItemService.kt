@@ -45,7 +45,7 @@ class ItemService(
                 .deleteAllByContractAndTokenId(item.contract, item.tokenId)
                 .collectList().awaitFirstOrDefault(emptyList())
             val ownership = ownershipRepository.coSave(
-                Ownership(item.contract, item.tokenId, to, Instant.now(Clock.systemUTC()), listOf(Payout(account = item.creator, value = BigDecimal.ONE)))
+                Ownership(item.contract, item.tokenId, to, Instant.now(), listOf(Payout(account = item.creator, value = BigDecimal.ONE)))
             )
             item to ownership
         } ?: run {

@@ -7,6 +7,7 @@ import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.*
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.flow.toList
@@ -110,15 +111,14 @@ internal class ItemServiceTest {
         val itemService = ItemService(itemRepository, ownershipRepository)
         val before = createItem().copy(listed = true)
         itemRepository.coSave(before)
-        ownershipRepository.coSave(
-            Ownership(
-                contract = before.contract,
-                tokenId = before.tokenId,
-                owner = before.owner!!,
-                date = Instant.now(Clock.systemUTC()),
-                creators = listOf()
-            )
+        val oldOwnership = Ownership(
+            contract = before.contract,
+            tokenId = before.tokenId,
+            owner = before.owner!!,
+            date = Instant.now(),
+            creators = listOf()
         )
+        ownershipRepository.coSave(oldOwnership)
 
         val newOwner = FlowAddress("0x1111")
         val result = itemService.transferNft(before.id, newOwner)
@@ -133,6 +133,7 @@ internal class ItemServiceTest {
             .collectList().awaitFirstOrDefault(emptyList())
         ownerships shouldHaveSize 1
         ownerships[0].owner shouldBe newOwner
+        ownerships[0].date shouldBeAfter oldOwnership.date
 
     }
 }

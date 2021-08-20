@@ -7,7 +7,7 @@ scanner:
   tracked-contracts:
     - "ff1201e3a53ee578" #Rari
     - "fcfb23c627a63d40" #Rari 1-phase mint
-    - "665b9acf64dfdfdb" #Rari
+    - "e91e497115b9731b" #Rari
 
   sporks:
     -

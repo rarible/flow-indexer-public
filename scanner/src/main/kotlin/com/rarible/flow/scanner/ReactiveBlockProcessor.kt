@@ -6,11 +6,9 @@ import com.rarible.flow.scanner.model.FlowEvent
 import com.rarible.flow.scanner.model.FlowTransaction
 import com.rarible.flow.scanner.repo.FlowBlockRepository
 import com.rarible.flow.scanner.repo.FlowTransactionRepository
-import org.bouncycastle.util.encoders.Hex
-import org.onflow.protobuf.access.Access
-import org.onflow.protobuf.access.AccessAPIGrpc
-import org.onflow.sdk.asLocalDateTime
+import org.onflow.sdk.FlowAccessApi
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
+import org.springframework.context.annotation.Profile
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import reactor.core.scheduler.Schedulers
@@ -19,75 +17,68 @@ import reactor.kotlin.core.publisher.toMono
 import java.util.*
 import javax.annotation.PreDestroy
 
-/**
- * Created by TimochkinEA at 17.06.2021
- */
 @Component
+@Profile("!test")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 class ReactiveBlockProcessor(
     private val blockRepository: FlowBlockRepository,
     private val txRepository: FlowTransactionRepository,
-    private val analyzer: FlowTxAnalyzer
+    private val analyzer: FlowTxAnalyzer,
+    private val flowApi: FlowAccessApi
 ) {
 
     private val schedulerP = Schedulers.newBoundedElastic(256, 256, UUID.randomUUID().toString())
     private val schedulerS = Schedulers.newBoundedElastic(256, 256, UUID.randomUUID().toString())
 
-    private val log by Log()
-
     /**
      * Read list of blocks (sealed)
      *
-     * @param client    Access API Client
-     * @param ids       list of block's height for read
+     * @param heights       list of block's height for read
      */
-    fun doRead(client: AccessAPIGrpc.AccessAPIBlockingStub, ids: List<Long>) {
-        log.info("Do read ${ids.size} ids from chain!")
-        ids.toFlux()
-            .flatMap { id ->
-                client.getBlockByHeight(Access.GetBlockByHeightRequest.newBuilder().setHeight(id).build())
-                    .toMono()
-            }.flatMap { blockResponse ->
-                val block = blockResponse.block
+    fun doRead(heights: List<Long>) {
+        log.info("Do read ${heights.size} ids from chain!")
+        heights.toFlux()
+            .flatMap { height ->
+                flowApi.getBlockByHeight(height).toMono()
+            }.flatMap { block ->
                 log.info("\tRead transactions for block [${block.height}]")
                 val fb = FlowBlock(
-                    id = Hex.toHexString(block.id.toByteArray()),
-                    parentId = Hex.toHexString(block.parentId.toByteArray()),
+                    id = block.id.base16Value,
+                    parentId = block.parentId.base16Value,
                     height = block.height,
-                    timestamp = block.timestamp.asLocalDateTime(),
-                    collectionsCount = block.collectionGuaranteesCount
+                    timestamp = block.timestamp,
+                    collectionsCount = block.collectionGuarantees.size
                 )
                 val transactions = mutableListOf<FlowTransaction>()
                 if (fb.collectionsCount > 0) {
-                    block.collectionGuaranteesList.forEach { cgl ->
-                        client.getCollectionByID(
-                            Access.GetCollectionByIDRequest.newBuilder().setId(cgl.collectionId).build()
-                        ).collection.transactionIdsList.forEach { txId ->
-                            val request = Access.GetTransactionRequest.newBuilder().setId(txId).build()
-                            val tx = client.getTransaction(request).transaction
-                            val result = client.getTransactionResult(request)
+                    block.collectionGuarantees.forEach { cgl ->
+                        flowApi.getCollectionById(cgl.id)?.transactionIds?.forEach { txId ->
+                            val tx = flowApi.getTransactionById(txId)
+                            val result = flowApi.getTransactionResultById(txId)
 
-                            transactions.add(FlowTransaction(
-                                id = Hex.toHexString(txId.toByteArray()),
-                                referenceBlockId = Hex.toHexString(tx.referenceBlockId.toByteArray()),
-                                blockHeight = fb.height,
-                                proposer = Hex.toHexString(tx.proposalKey.address.toByteArray()),
-                                payer = Hex.toHexString(tx.payer.toByteArray()),
-                                authorizers = tx.authorizersList.map { Hex.toHexString(it.toByteArray()) },
-                                script = tx.script.toStringUtf8().trimIndent(),
-                                events = result.eventsList.map {
-                                    FlowEvent(
-                                        type = it.type,
-                                        data = it.payload.toStringUtf8(),
-                                        timestamp = fb.timestamp
-                                    )
-                                }
-                            ))
+                            if (tx != null && result != null) {
+                                transactions.add(FlowTransaction(
+                                    id = txId.base16Value,
+                                    referenceBlockId = tx.referenceBlockId.base16Value,
+                                    blockHeight = fb.height,
+                                    proposer = tx.proposalKey.address.formatted,
+                                    payer = tx.payerAddress.formatted,
+                                    authorizers = tx.authorizers.map { it.formatted },
+                                    script = tx.script.stringValue.trimIndent(),
+                                    events = result.events.map {
+                                        FlowEvent(
+                                            type = it.type,
+                                            data = it.payload.stringValue,
+                                            timestamp = fb.timestamp
+                                        )
+                                    }
+                                ))
+                            }
                         }
                     }
                 }
                 fb.transactionsCount = transactions.size
-                log.info("Block prepared to save!")
+                log.info("Block {} prepared to save!", block.height)
                 Pair(fb, transactions.toList()).toMono()
             }
             .publishOn(schedulerP)
@@ -112,5 +103,9 @@ class ReactiveBlockProcessor(
     fun preDestroy() {
         schedulerP.dispose()
         schedulerS.dispose()
+    }
+
+    companion object {
+        private val log by Log()
     }
 }

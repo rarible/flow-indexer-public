@@ -9,13 +9,12 @@ import com.rarible.flow.scanner.SporkInfo
 import com.rarible.flow.scanner.SporkMonitor
 import io.grpc.ManagedChannelBuilder
 import org.onflow.protobuf.access.AccessAPIGrpc
+import org.onflow.sdk.FlowAccessApi
+import org.onflow.sdk.impl.FlowAccessApiImpl
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.event.ApplicationEventMulticaster
-import org.springframework.context.event.SimpleApplicationEventMulticaster
-import org.springframework.core.task.SimpleAsyncTaskExecutor
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 
 @Configuration
@@ -41,18 +40,18 @@ class Config(
     @Bean
     fun flowMapper(): ObjectMapper = commonMapper()
 
-    @Bean("flowClient")
-    fun flowClient(): AccessAPIGrpc.AccessAPIBlockingStub {
+    @Bean("flowApi")
+    fun flowApi(): FlowAccessApi {
         val channel = ManagedChannelBuilder.forTarget(flowNetAddress).usePlaintext().build()
-        return AccessAPIGrpc.newBlockingStub(channel)
+        return FlowAccessApiImpl(AccessAPIGrpc.newBlockingStub(channel))
     }
 
     @Bean
-    fun sporkMonitors(): List<SporkMonitor> =
+    fun sporkMonitors(flowApi: FlowAccessApi): List<SporkMonitor> =
          scannerProperties.sporks.map { spork ->
-            sporkMonitor(spork)
+            sporkMonitor(spork, flowApi)
         }
 
     @Bean
-    fun sporkMonitor(sporkInfo: SporkInfo) = SporkMonitor(sporkInfo)
+    fun sporkMonitor(sporkInfo: SporkInfo, flowApi: FlowAccessApi) = SporkMonitor(sporkInfo, flowApi)
 }

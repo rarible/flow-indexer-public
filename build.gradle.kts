@@ -119,3 +119,11 @@ tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar
 tasks.getByName<Jar>("jar") {
     enabled = true
 }
+
+project("e2e") {
+    tasks.withType<Test> {
+        onlyIf {
+            project.hasProperty("runE2e")
+        }
+    }
+}
