@@ -35,6 +35,33 @@ data class NftItemContinuation(
     }
 }
 
+data class NftCollectionContinuation(
+    val afterDate: Instant,
+    val afterId: String
+) : Continuation {
+    override fun toString(): String {
+        return "${afterDate.epochSecond}$SEPARATOR$afterId"
+    }
+
+    companion object {
+        const val SEPARATOR = '_'
+
+        fun parse(str: String?): NftCollectionContinuation? {
+            return if (str == null || str.isEmpty()) {
+                null
+            } else {
+
+                if (str.contains(SEPARATOR)) {
+                    val (dateStr, idStr) = str.split(SEPARATOR)
+                    NftCollectionContinuation(Instant.ofEpochSecond(dateStr.toLong()), idStr)
+                } else {
+                    null
+                }
+            }
+        }
+    }
+}
+
 data class OwnershipContinuation(
     val beforeDate: Instant,
     val beforeId: OwnershipId

@@ -85,6 +85,7 @@ data class ItemCollection(
     val id: String,
     val owner: FlowAddress,
     val name: String,
-    val symbol: String
+    val symbol: String,
+    val createdDate: Instant = Instant.now()
 )
 
