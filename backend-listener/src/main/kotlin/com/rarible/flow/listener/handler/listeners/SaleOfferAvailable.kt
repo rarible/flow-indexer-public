@@ -13,12 +13,11 @@ import java.time.Clock
 import java.time.Instant
 import java.util.*
 
-@Component(OrderOpenedListener.ID)
-class OrderOpenedListener(
+@Component(SaleOfferAvailable.ID)
+class SaleOfferAvailable(
     private val itemRepository: ItemRepository,
     private val orderRepository: OrderRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
-    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository
 ) : SmartContractEventHandler<Unit> {
 
@@ -28,14 +27,14 @@ class OrderOpenedListener(
         fields: Map<String, Any?>,
         blockInfo: BlockInfo
     ) = runBlocking<Unit> {
-        val askType = fields["askType"] as String?
-        val askId = (fields["askId"] as String).toLong()
-        val bidType = fields["bidType"] as String
-        val bidAmount = (fields["bidAmount"] as String).toBigDecimal()
-        val buyerFee = (fields["buyerFee"] as String).toBigDecimal()
-        val sellerFee = (fields["sellerFee"] as String).toBigDecimal()
+        val nftType = fields["nftType"] as String?
+        val nftId = (fields["nftID"] as String).toLong()
+        val bidType = fields["ftVaultType"] as String
+        val bidAmount = (fields["price"] as String).toBigDecimal()
+        val buyerFee = (fields.getOrDefault("buyerFee", "0.0") as String).toBigDecimal()
+        val sellerFee = (fields.getOrDefault("sellerFee", "0.0") as String).toBigDecimal()
 
-        val itemId = ItemId(contract, askId)
+        val itemId = ItemId(contract, nftId)
         val item = itemRepository.coFindById(itemId)
         if(item?.owner != null) {
             val take = FlowAssetFungible(
@@ -102,7 +101,7 @@ class OrderOpenedListener(
 
 
     companion object {
-        const val ID = "RegularSaleOrder.OrderOpened"
+        const val ID = "NFTStorefront.SaleOfferAvailable"
         val log by Log()
     }
 

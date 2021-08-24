@@ -9,7 +9,9 @@ import com.rarible.flow.listener.createItem
 import com.rarible.flow.listener.handler.EventHandler
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
+import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 
 internal class DepositListenerTest: FunSpec({
@@ -36,6 +38,14 @@ internal class DepositListenerTest: FunSpec({
             coEvery {
                 onItemUpdate(any())
             } returns KafkaSendResult.Success("2")
+        },
+
+        mockk() {
+            every {
+                save(any())
+            } answers {
+                Mono.just(arg(0))
+            }
         }
     )
 

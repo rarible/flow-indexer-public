@@ -36,7 +36,7 @@ internal class OrderClosedListenerTest: FunSpec({
         collection = "ABC"
     )
 
-    val listener = OrderClosedListener(
+    val listener = SaleOfferCompleteListener(
         mockk("itemService") {
             coEvery { transferNft(any<ItemId>(), any<FlowAddress>()) } answers {
                 item.copy(owner = arg(1)) to Ownership(item.contract, item.tokenId, arg(1), Instant.now(Clock.systemUTC()))
@@ -72,7 +72,7 @@ internal class OrderClosedListenerTest: FunSpec({
 
     val eventHandler = EventHandler(
         mapOf(
-            OrderClosedListener.ID to listener
+            SaleOfferCompleteListener.ID to listener
         )
     )
 

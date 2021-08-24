@@ -33,7 +33,8 @@ class EventHandler(
     }
 
     private fun tokenId(event: EventMessage): TokenId? {
-        return when(val id = event.fields["id"]) {
+        //todo replace with Flow unmarshalling
+        return when(val id = event.fields["id"] ?: event.fields["saleOfferResourceID"]) {
             is String -> id.toLong()
             is Number -> id.toLong()
             else -> null

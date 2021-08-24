@@ -6,10 +6,7 @@ import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.log.Log
 import com.rarible.flow.scanner.config.ScannerProperties
-import com.rarible.flow.scanner.model.FlowEvent
-import com.rarible.flow.scanner.model.FlowTransaction
-import com.rarible.flow.scanner.model.RariEventMessage
-import com.rarible.flow.scanner.model.RariEventMessageCaught
+import com.rarible.flow.scanner.model.*
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Scope
