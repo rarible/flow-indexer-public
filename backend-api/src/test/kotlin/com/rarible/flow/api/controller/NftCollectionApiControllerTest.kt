@@ -4,6 +4,9 @@ import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.randomAddress
 import com.rarible.protocol.dto.FlowNftCollectionDto
+import com.rarible.protocol.dto.FlowNftCollectionsDto
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -47,7 +50,9 @@ class NftCollectionApiControllerTest {
 
         repo.saveAll(
             listOf(
-                collection, collection.copy(id = "ID2"), collection.copy(id = "ID4")
+                collection,
+                collection.copy(id = "ID2", owner = FlowAddress("0x01")),
+                collection.copy(id = "ID4", owner = FlowAddress("0x02"))
             )
         ).then().block()
     }
@@ -61,7 +66,41 @@ class NftCollectionApiControllerTest {
             .expectBody(FlowNftCollectionDto::class.java)
             .returnResult().responseBody!!
 
-        Assertions.assertNotNull(collection)
-        Assertions.assertEquals("ID4", collection.id, "bad ID")
+        collection.id shouldBe "ID4"
+    }
+
+    @Test
+    fun `should return all collections`() {
+        val response = client.get()
+            .uri("/v0.1/collections/all")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(FlowNftCollectionsDto::class.java)
+            .returnResult().responseBody!!
+
+        response.total shouldBe 3
+    }
+
+    @Test
+    fun `should return collections by owner`() {
+        var response = client.get()
+            .uri("/v0.1/collections/byOwner?owner=0x01")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(FlowNftCollectionsDto::class.java)
+            .returnResult().responseBody!!
+
+        response.total shouldBe 1
+        response.data[0].owner shouldBe "0x01"
+
+        response = client.get()
+            .uri("/v0.1/collections/byOwner?owner=0x02")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(FlowNftCollectionsDto::class.java)
+            .returnResult().responseBody!!
+
+        response.total shouldBe 1
+        response.data[0].owner shouldBe "0x02"
     }
 }
