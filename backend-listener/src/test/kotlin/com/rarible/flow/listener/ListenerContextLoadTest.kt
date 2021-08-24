@@ -22,9 +22,8 @@ class ListenerContextLoadTest: BaseIntegrationTest() {
         handlers[DestroyListener.ID] shouldNotBe null
         handlers[MintListener.ID] shouldNotBe null
         handlers[OrderAssigned.ID] shouldNotBe null
-        handlers[OrderClosedListener.ID] shouldNotBe null
-        handlers[OrderOpenedListener.ID] shouldNotBe null
-        handlers[OrderWithdrawn.ID] shouldNotBe null
+        handlers[SaleOfferCompleteListener.ID] shouldNotBe null
+        handlers[SaleOfferAvailable.ID] shouldNotBe null
         handlers[WithdrawListener.ID] shouldNotBe null
     }
 }

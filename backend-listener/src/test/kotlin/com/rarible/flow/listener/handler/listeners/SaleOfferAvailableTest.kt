@@ -10,22 +10,17 @@ import com.rarible.flow.listener.handler.EventHandler
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.Matcher
 import io.kotest.matchers.MatcherResult
-import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.should
-import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import org.bson.types.ObjectId
 import org.onflow.sdk.FlowAddress
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
-internal class OrderOpenedListenerTest: FunSpec({
+internal class SaleOfferAvailableTest: FunSpec({
 
     val item = createItem()
     val order = Order(
@@ -43,7 +38,7 @@ internal class OrderOpenedListenerTest: FunSpec({
         collection = item.collection
     )
 
-    val listener = OrderOpenedListener(
+    val listener = SaleOfferAvailable(
         mockk() {
             every { save(any()) } returns Mono.just(item)
             every { findById(any<ItemId>()) } returns Mono.just(item)
@@ -72,7 +67,7 @@ internal class OrderOpenedListenerTest: FunSpec({
 
     val eventHandler = EventHandler(
         mapOf(
-            OrderOpenedListener.ID to listener
+            SaleOfferAvailable.ID to listener
         )
     )
 
@@ -81,10 +76,10 @@ internal class OrderOpenedListenerTest: FunSpec({
             EventId.of("A.fcfb23c627a63d40.RegularSaleOrder.OrderOpened"),
             mapOf(
                 "id" to "10859892",
-                "askType" to "A.fcfb23c627a63d40.CommonNFT.NFT",
-                "askId" to "54",
+                "nftType" to "A.fcfb23c627a63d40.CommonNFT.NFT",
+                "nftID" to "54",
                 "bidType" to "A.7e60df042a9c0868.FlowToken.Vault",
-                "bidAmount" to "10.12300000",
+                "price" to "10.12300000",
                 "buyerFee" to "2.50000000",
                 "sellerFee" to "2.50000000"
             ),
