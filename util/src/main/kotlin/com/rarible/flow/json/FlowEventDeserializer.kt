@@ -46,6 +46,9 @@ class FlowEventDeserializer : JsonDeserializer<EventMessage>() {
                 parseValue(element)
             }.toList()
         }
+        "Type" -> {
+            json["value"]["staticType"]
+        }
         else -> {
             json["value"]?.asText("")
         }
