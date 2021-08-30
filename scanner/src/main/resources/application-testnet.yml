@@ -13,4 +13,4 @@ scanner:
     -
       name: "Devnet25"
       nodeUrl: "access.devnet.nodes.onflow.org:9000"
-      firstBlockHeight: 39272449
+      firstBlockHeight: 41567027

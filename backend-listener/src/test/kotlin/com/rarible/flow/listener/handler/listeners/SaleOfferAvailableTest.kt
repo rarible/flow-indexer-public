@@ -2,11 +2,15 @@ package com.rarible.flow.listener.handler.listeners
 
 import com.rarible.core.kafka.KafkaSendResult
 import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.repository.ItemHistoryRepository
+import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.createItem
 import com.rarible.flow.listener.handler.EventHandler
+import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.Matcher
 import io.kotest.matchers.MatcherResult
@@ -15,6 +19,7 @@ import io.kotest.matchers.should
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.onflow.sdk.FlowAddress
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
@@ -38,31 +43,33 @@ internal class SaleOfferAvailableTest: FunSpec({
         collection = item.collection
     )
 
+    val itemRepository = mockk<ItemRepository>() {
+        every { save(any()) } answers { Mono.just(arg(0)) }
+        every { findById(any<ItemId>()) } returns Mono.just(item)
+    }
+
+    val orderRepository = mockk<OrderRepository>() {
+        every { save(any()) } answers { Mono.just(arg(0)) }
+    }
+
+    val protocolEventPublisher = mockk<ProtocolEventPublisher>() {
+        coEvery {
+            onItemUpdate(any())
+        } returns KafkaSendResult.Success("1")
+
+        coEvery {
+            onUpdate(any<Order>())
+        } returns KafkaSendResult.Success("1")
+    }
+    val itemHistoryRepository = mockk<ItemHistoryRepository>() {
+        every { save(any()) } answers { Mono.just(arg(0)) }
+    }
+
     val listener = SaleOfferAvailable(
-        mockk() {
-            every { save(any()) } returns Mono.just(item)
-            every { findById(any<ItemId>()) } returns Mono.just(item)
-        },
-
-
-        mockk() {
-            every { save(any()) } returns Mono.just(order)
-        },
-
-        mockk() {
-            coEvery {
-                onItemUpdate(any())
-            } returns KafkaSendResult.Success("1")
-
-            coEvery {
-                onUpdate(any<Order>())
-            } returns KafkaSendResult.Success("1")
-        },
-
-        mockk() {
-            every { save(any()) } returns Mono.just(mockk())
-        },
-
+        itemRepository,
+        orderRepository,
+        protocolEventPublisher,
+        itemHistoryRepository,
     )
 
     val eventHandler = EventHandler(
@@ -73,7 +80,7 @@ internal class SaleOfferAvailableTest: FunSpec({
 
     test("should handle order opened") {
         val event = EventMessage(
-            EventId.of("A.fcfb23c627a63d40.RegularSaleOrder.OrderOpened"),
+            EventId.of("A.fcfb23c627a63d40.NFTStorefront.SaleOfferAvailable"),
             mapOf(
                 "id" to "10859892",
                 "nftType" to "A.fcfb23c627a63d40.CommonNFT.NFT",
@@ -92,6 +99,8 @@ internal class SaleOfferAvailableTest: FunSpec({
         )
 
         eventHandler.handle(event)
+
+
     }
 
     test("should calculate order data correctly") {
