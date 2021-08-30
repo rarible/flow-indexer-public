@@ -1,5 +1,6 @@
 package com.rarible.flow.api.service
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.converter.ItemMetaToDtoConverter
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
@@ -10,7 +11,6 @@ import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemsDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
-import org.onflow.sdk.FlowAddress
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux

@@ -1,5 +1,6 @@
 package com.rarible.flow.api.service
 
+import com.nftco.flow.sdk.FlowAddress
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
@@ -10,7 +11,6 @@ import com.rarible.protocol.dto.FlowActivitiesDto
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
-import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Service
 
 @FlowPreview

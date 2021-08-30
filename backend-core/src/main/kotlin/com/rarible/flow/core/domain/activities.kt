@@ -1,9 +1,9 @@
 package com.rarible.flow.core.domain
 
+import com.nftco.flow.sdk.FlowAddress
 import com.querydsl.core.annotations.PropertyType
 import com.querydsl.core.annotations.QueryEmbeddable
 import com.querydsl.core.annotations.QueryType
-import org.onflow.sdk.FlowAddress
 import java.math.BigDecimal
 
 @QueryEmbeddable

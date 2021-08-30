@@ -1,14 +1,13 @@
 package com.rarible.flow.api.service
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.repository.CollectionFilter
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.NftCollectionContinuation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Flux
 
 @Service
 class CollectionService(

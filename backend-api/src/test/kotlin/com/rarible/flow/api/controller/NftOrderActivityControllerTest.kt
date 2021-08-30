@@ -1,5 +1,6 @@
 package com.rarible.flow.api.controller
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemHistoryRepository
@@ -12,7 +13,6 @@ import com.rarible.protocol.dto.TransferDto
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.onflow.sdk.FlowAddress
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest

@@ -1,5 +1,6 @@
 package com.rarible.flow.listener.handler.listeners
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.TokenId
@@ -9,7 +10,6 @@ import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.service.ItemService
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.log.Log
-import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
 import java.time.Clock
 import java.time.Instant

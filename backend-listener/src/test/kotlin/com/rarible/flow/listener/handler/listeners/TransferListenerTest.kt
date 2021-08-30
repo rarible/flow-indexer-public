@@ -1,5 +1,6 @@
 package com.rarible.flow.listener.handler.listeners
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.TransferActivity
 import com.rarible.flow.core.repository.ItemHistoryRepository
@@ -13,7 +14,6 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.onflow.sdk.FlowAddress
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 

@@ -1,5 +1,6 @@
 package com.rarible.flow.listener.handler.listeners
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.*
 import com.rarible.flow.events.BlockInfo
@@ -8,7 +9,6 @@ import com.rarible.flow.listener.handler.EventHandler
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.runBlocking
-import org.onflow.sdk.FlowAddress
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.Clock

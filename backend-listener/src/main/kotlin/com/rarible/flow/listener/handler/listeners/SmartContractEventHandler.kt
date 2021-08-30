@@ -2,7 +2,6 @@ package com.rarible.flow.listener.handler.listeners
 
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.events.BlockInfo
-import org.onflow.sdk.FlowAddress
 
 /**
  * Handles smart-contracts events

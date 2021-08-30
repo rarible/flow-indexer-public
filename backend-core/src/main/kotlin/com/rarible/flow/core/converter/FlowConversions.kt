@@ -1,6 +1,6 @@
 package com.rarible.flow.core.converter
 
-import org.onflow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowAddress
 import org.springframework.core.convert.converter.Converter
 import org.springframework.data.convert.ReadingConverter
 import org.springframework.data.convert.WritingConverter

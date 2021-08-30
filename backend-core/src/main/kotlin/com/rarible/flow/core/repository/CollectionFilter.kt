@@ -1,7 +1,7 @@
 package com.rarible.flow.core.repository
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.ItemCollection
-import org.onflow.sdk.FlowAddress
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.isEqualTo
 

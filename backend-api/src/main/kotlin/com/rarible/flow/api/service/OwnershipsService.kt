@@ -79,6 +79,7 @@ class OwnershipsService(
 
     private fun byContractAndTokenId(contract: String, tokenId: TokenId): BooleanBuilder {
         val q = QOwnership.ownership
+
         return BooleanBuilder(q.contract.eq(contract)).and(q.tokenId.eq(tokenId))
     }
 

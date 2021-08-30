@@ -20,7 +20,8 @@ dependencies {
         exclude("org.springframework.boot:spring-boot-starter-web")
     }
     implementation(rootProject.libs.rarible.core.kafka)
-
+    implementation(rootProject.libs.blockchain.scanner.core)
+    implementation(rootProject.libs.blockchain.scanner.flow)
     testImplementation(project(":backend-api-model"))
     testImplementation(project(":util"))
 }
