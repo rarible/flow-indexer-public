@@ -68,20 +68,22 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
         is FlowNftOrderActivitySell -> FlowNftOrderActivitySellDto(
             id = id,
             date = date,
-            left = OrderActivityMatchSideDto(
+            left = FlowOrderActivityMatchSideDto(
                 maker = this.left.maker.formatted,
                 asset = FlowAssetNFTDto(
                     contract = this.left.asset.contract,
                     value = this.left.asset.value.toString(),
                     tokenId = (this.left.asset as FlowAssetNFT).tokenId.toString()
-                )
+                ),
+                type = FlowOrderActivityMatchSideDto.Type.SELL
             ),
-            right = OrderActivityMatchSideDto(
+            right = FlowOrderActivityMatchSideDto(
                 maker = this.right.maker.formatted,
                 asset = FlowAssetFungibleDto(
                     contract = this.right.asset.contract,
                     value = this.right.asset.value.toString()
-                )
+                ),
+                type = FlowOrderActivityMatchSideDto.Type.BID
             ),
             price = this.price.toString(),
             transactionHash = this.transactionHash,
