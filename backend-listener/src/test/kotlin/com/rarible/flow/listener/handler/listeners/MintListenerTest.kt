@@ -48,8 +48,7 @@ internal class MintListenerTest: FunSpec({
         itemRepository,
         ownershipRepository,
         protocolEventPublisher,
-        itemHistoryRepository,
-        ListenerProperties(kafkaReplicaSet = "kafka", environment = "test", defaultItemCollection = ItemCollectionProperty(id = "ID", owner = "0x01", name = "TestCollection", symbol = "TC"))
+        itemHistoryRepository
     )
 
     val eventHandler = EventHandler(
@@ -84,7 +83,7 @@ internal class MintListenerTest: FunSpec({
 
         verify(exactly = 1) {
             itemRepository.save(withArg {
-                it.contract shouldBe "CommonNFT"
+                it.contract shouldBe "A.fcfb23c627a63d40.CommonNFT.NFT"
                 it.tokenId shouldBe 12L
                 it.creator shouldBe FlowAddress("0xfcfb23c627a63d40")
                 it.royalties shouldContainAll listOf(
@@ -97,7 +96,7 @@ internal class MintListenerTest: FunSpec({
             })
 
             ownershipRepository.save(withArg {
-                it.contract shouldBe "CommonNFT"
+                it.contract shouldBe "A.fcfb23c627a63d40.CommonNFT.NFT"
                 it.tokenId shouldBe 12L
                 it.creators shouldContain Payout(FlowAddress("0xfcfb23c627a63d40"), BigDecimal.ONE)
             })

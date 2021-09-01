@@ -9,6 +9,7 @@ import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.service.ItemService
 import com.rarible.flow.events.BlockInfo
+import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import kotlinx.coroutines.coroutineScope
 import org.springframework.stereotype.Component
@@ -21,17 +22,15 @@ class DepositListener(
     private val itemService: ItemService,
     private val protocolEventPublisher: ProtocolEventPublisher,
     private val itemHistoryRepository: ItemHistoryRepository
-) : SmartContractEventHandler<Unit> {
+) : SmartContractEventHandler {
 
     override suspend fun handle(
-        contract: String,
-        tokenId: TokenId,
-        fields: Map<String, Any?>,
-        blockInfo: BlockInfo
+        eventMessage: EventMessage
     ): Unit = coroutineScope {
-        val to = FlowAddress(fields["to"]!! as String)
+        val event = Deposit(eventMessage.fields)
 
-        val itemId = ItemId(contract, tokenId)
+        val to = FlowAddress(event.to)
+        val itemId = ItemId(eventMessage.eventId.nft(), event.id)
         val oldItem = itemService.byId(itemId)
         itemService
             .transferNft(itemId, to)
@@ -45,12 +44,12 @@ class DepositListener(
                         date = Instant.now(Clock.systemUTC()),
                         activity = TransferActivity(
                             owner = to,
-                            contract = contract,
-                            tokenId = tokenId,
+                            contract = item.contract,
+                            tokenId = item.tokenId,
                             value = 1L,
-                            transactionHash = blockInfo.transactionId,
-                            blockHash = blockInfo.blockId,
-                            blockNumber = blockInfo.blockHeight,
+                            transactionHash = eventMessage.blockInfo.transactionId,
+                            blockHash = eventMessage.blockInfo.blockId,
+                            blockNumber = eventMessage.blockInfo.blockHeight,
                             from = oldItem?.owner ?: FlowAddress("0x00"),
                             collection = item.collection
                         )
@@ -61,5 +60,10 @@ class DepositListener(
 
     companion object {
         const val ID = "CommonNFT.Deposit"
+
+        class Deposit(fields: Map<String, Any?>) {
+            val id: Long by fields
+            val to: String by fields
+        }
     }
 }

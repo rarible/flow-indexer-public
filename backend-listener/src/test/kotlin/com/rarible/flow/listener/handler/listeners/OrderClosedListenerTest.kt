@@ -30,8 +30,6 @@ internal class OrderClosedListenerTest: FunSpec({
         FlowAssetFungible("0x1234", 10000.toBigDecimal()),
         1.toBigDecimal(),
         item.id.toString(),
-        buyerFee = BigDecimal.ZERO,
-        sellerFee = BigDecimal.ZERO,
         data = OrderData(emptyList(), emptyList()),
         collection = "ABC"
     )

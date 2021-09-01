@@ -6,6 +6,7 @@ import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.service.ItemService
 import com.rarible.flow.events.BlockInfo
+import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.reactive.awaitFirstOrDefault
@@ -22,24 +23,22 @@ class DestroyListener(
     private val protocolEventPublisher: ProtocolEventPublisher,
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository,
-): SmartContractEventHandler<Unit> {
+): SmartContractEventHandler {
 
     override suspend fun handle(
-        contract: String,
-        tokenId: TokenId,
-        fields: Map<String, Any?>,
-        blockInfo: BlockInfo
+        eventMessage: EventMessage
     ): Unit = runBlocking {
-        val itemId = ItemId(contract, tokenId)
+        val event = CommonNFTDestroy(eventMessage.fields)
+        val itemId = ItemId(eventMessage.eventId.nft(), event.id)
         val item = itemService.findAliveById(itemId)
         if(item != null) {
             log.info("Burning item [{}]...", itemId)
-            saveHistory(contract, tokenId, blockInfo, item)
+            saveHistory(item, eventMessage.blockInfo)
             itemService.markDeleted(itemId)
             protocolEventPublisher.onItemDelete(itemId)
 
             ownershipRepository
-                .deleteAllByContractAndTokenId(contract, tokenId)
+                .deleteAllByContractAndTokenId(item.contract, item.tokenId)
                 .collectList()
                 .awaitFirstOrDefault(emptyList())
                 .forEach {
@@ -53,18 +52,16 @@ class DestroyListener(
     }
 
     private suspend fun saveHistory(
-        contract: String,
-        tokenId: TokenId,
-        blockInfo: BlockInfo,
-        item: Item
+        item: Item,
+        blockInfo: BlockInfo
     ) {
         itemHistoryRepository.coSave(
             ItemHistory(
                 id = UUID.randomUUID().toString(),
                 date = Instant.now(Clock.systemUTC()),
                 activity = BurnActivity(
-                    contract = contract,
-                    tokenId = tokenId,
+                    contract = item.contract,
+                    tokenId = item.tokenId,
                     transactionHash = blockInfo.transactionId,
                     blockHash = blockInfo.blockId,
                     blockNumber = blockInfo.blockHeight,
@@ -77,5 +74,9 @@ class DestroyListener(
     companion object {
         const val ID = "CommonNFT.Destroy"
         val log by Log()
+
+        class CommonNFTDestroy(fields: Map<String, Any?>) {
+            val id: Long by fields
+        }
     }
 }

@@ -4,6 +4,7 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.*
 import com.rarible.flow.events.BlockInfo
+import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.config.ListenerProperties
 import com.rarible.flow.listener.handler.EventHandler
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
@@ -20,35 +21,27 @@ class MintListener(
     private val itemRepository: ItemRepository,
     private val ownershipRepository: OwnershipRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
-    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
-    private val itemHistoryRepository: ItemHistoryRepository,
-    private val props: ListenerProperties
-): SmartContractEventHandler<Unit> {
+    private val itemHistoryRepository: ItemHistoryRepository
+) : SmartContractEventHandler {
 
-    override suspend fun handle(
-        contract: String,
-        tokenId: TokenId,
-        fields: Map<String, Any?>,
-        blockInfo: BlockInfo
-    ) = runBlocking {
-        log.info("Handling [$ID] at [$contract.$tokenId] with fields [${fields}]")
+    override suspend fun handle(eventMessage: EventMessage) {
+        val event = CommonNftMint(eventMessage.fields)
+        log.info("Handling [$ID] at [${event.collection}.${event.id}] with fields [${eventMessage.fields}]")
 
-        val metadata = (fields["metadata"] ?: "") as String
-        val to = FlowAddress(fields["creator"]!! as String)
-        val collection = (fields.getOrDefault("collection", props.defaultItemCollection.id) as String)
+        val to = FlowAddress(event.creator)
 
-        val existingEvent = itemRepository.coFindById(ItemId(contract, tokenId))
-        val royalties = getRoyalties(fields["royalties"])
+        val existingEvent = itemRepository.coFindById(ItemId(event.collection, event.id))
+
         if (existingEvent == null) {
             val item = Item(
-                contract,
-                tokenId,
+                event.collection,
+                event.id,
                 to,
-                royalties,
+                getRoyalties(event.royalties),
                 to,
                 Instant.now(Clock.systemUTC()),
-                metadata,
-                collection = collection
+                event.metadata,
+                collection = event.collection
             )
 
             itemRepository.coSave(item).let {
@@ -58,10 +51,10 @@ class MintListener(
 
             ownershipRepository.coSave(
                 Ownership(
-                    contract,
-                    tokenId,
+                    event.collection,
+                    event.id,
                     to,
-                    Instant.now(Clock.systemUTC()),
+                    Instant.now(),
                     creators = listOf(Payout(account = item.creator, value = BigDecimal.ONE))
                 )
             )
@@ -72,12 +65,12 @@ class MintListener(
                     date = Instant.now(Clock.systemUTC()),
                     activity = MintActivity(
                         owner = to,
-                        contract = contract,
-                        tokenId = tokenId,
+                        contract = event.collection,
+                        tokenId = event.id,
                         value = 1L,
-                        transactionHash = blockInfo.transactionId,
-                        blockHash = blockInfo.blockId,
-                        blockNumber = blockInfo.blockHeight,
+                        transactionHash = eventMessage.blockInfo.transactionId,
+                        blockHash = eventMessage.blockInfo.blockId,
+                        blockNumber = eventMessage.blockInfo.blockHeight,
                         collection = item.collection
                     )
                 )
@@ -85,20 +78,25 @@ class MintListener(
         }
     }
 
-    private fun getRoyalties(royalties: Any?): List<Part> {
-        return if(royalties == null) {
-            emptyList()
-        } else {
-            royalties as List<Map<String, String>>
-            royalties.map { r ->
-                Part(FlowAddress(r["address"] as String), r["fee"]?.toDouble() ?: 0.0)
-            }
+    private fun getRoyalties(royalties: List<Map<String, String>>): List<Part> {
+        return royalties.map { r ->
+            Part(FlowAddress(r["address"] as String), r["fee"]?.toDouble() ?: 0.0)
         }
     }
 
     companion object {
-        const val ID =  "CommonNFT.Mint"
+        const val ID = "CommonNFT.Mint"
 
         val log by Log()
+
+        class CommonNftMint(
+            val fields: Map<String, Any?>
+        ) {
+            val id: Long by fields
+            val collection: String by fields
+            val creator: String by fields
+            val metadata: String by fields
+            val royalties: List<Map<String, String>> by fields
+        }
     }
 }

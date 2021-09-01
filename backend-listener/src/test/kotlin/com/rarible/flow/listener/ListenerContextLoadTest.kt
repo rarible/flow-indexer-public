@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 class ListenerContextLoadTest: BaseIntegrationTest() {
 
     @Autowired
-    lateinit var handlers: Map<String, SmartContractEventHandler<*>>
+    lateinit var handlers: Map<String, SmartContractEventHandler>
 
     @Test
     fun contextLoads() {}
@@ -21,9 +21,7 @@ class ListenerContextLoadTest: BaseIntegrationTest() {
         handlers[DepositListener.ID] shouldNotBe null
         handlers[DestroyListener.ID] shouldNotBe null
         handlers[MintListener.ID] shouldNotBe null
-        handlers[OrderAssigned.ID] shouldNotBe null
         handlers[SaleOfferCompleteListener.ID] shouldNotBe null
         handlers[SaleOfferAvailable.ID] shouldNotBe null
-        handlers[WithdrawListener.ID] shouldNotBe null
     }
 }

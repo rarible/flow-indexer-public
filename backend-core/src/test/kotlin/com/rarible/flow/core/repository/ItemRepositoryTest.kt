@@ -4,6 +4,8 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.repository.data.randomAddress
+import com.rarible.flow.core.repository.data.randomLong
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -52,7 +54,7 @@ class ItemRepositoryTest {
         for (i in tokenId..tokenId + 2) {
             items[i] =
                 Item(
-                    contract = randomAddress(),
+                    contract = "A.${randomAddress()}.CommonNFT.NFT",
                     tokenId = i,
                     creator = FlowAddress(randomAddress()),
                     royalties = listOf(),
@@ -113,6 +115,3 @@ class ItemRepositoryTest {
     }
 }
 
-fun randomAddress() = "0x${RandomStringUtils.random(16, "0123456789ABCDEF")}".lowercase(Locale.ENGLISH)
-
-fun randomLong() = Random.Default.nextLong(0L, Long.MAX_VALUE)

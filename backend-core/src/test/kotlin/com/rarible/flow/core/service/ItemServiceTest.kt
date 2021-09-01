@@ -25,7 +25,7 @@ import java.time.Clock
 import java.time.Instant
 
 fun createItem(tokenId: TokenId = 42) = Item(
-    contract = "A.${com.rarible.flow.core.repository.randomAddress()}",
+    contract = "A.${data.randomAddress()}",
     tokenId,
     FlowAddress("0x01"),
     emptyList(),

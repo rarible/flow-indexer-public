@@ -36,8 +36,6 @@ internal class SaleOfferAvailableTest: FunSpec({
         null,
         1.toBigDecimal(),
         item.id.toString(),
-        buyerFee = BigDecimal.ZERO,
-        sellerFee = BigDecimal.ZERO,
         data = OrderData(emptyList(), emptyList()),
         collection = item.collection
     )
@@ -85,9 +83,7 @@ internal class SaleOfferAvailableTest: FunSpec({
                 "nftType" to "A.fcfb23c627a63d40.CommonNFT.NFT",
                 "nftID" to "54",
                 "bidType" to "A.7e60df042a9c0868.FlowToken.Vault",
-                "price" to "10.12300000",
-                "buyerFee" to "2.50000000",
-                "sellerFee" to "2.50000000"
+                "price" to "10.12300000"
             ),
             LocalDateTime.parse("2021-07-29T05:59:58.425384445"),
             BlockInfo(

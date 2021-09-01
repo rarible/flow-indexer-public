@@ -4,6 +4,7 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.*
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
+import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.runBlocking
@@ -19,42 +20,34 @@ class SaleOfferAvailable(
     private val orderRepository: OrderRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
     private val itemHistoryRepository: ItemHistoryRepository
-) : SmartContractEventHandler<Unit> {
+) : SmartContractEventHandler {
 
     override suspend fun handle(
-        contract: String,
-        orderId: TokenId,
-        fields: Map<String, Any?>,
-        blockInfo: BlockInfo
+        eventMessage: EventMessage
     ) = runBlocking<Unit> {
-        val nftType = fields["nftType"] as String?
-        val nftId = (fields["nftID"] as String).toLong()
-        val bidType = fields["ftVaultType"] as String
-        val bidAmount = (fields["price"] as String).toBigDecimal()
-        val buyerFee = (fields.getOrDefault("buyerFee", "0.0") as String).toBigDecimal()
-        val sellerFee = (fields.getOrDefault("sellerFee", "0.0") as String).toBigDecimal()
+        val event = SaleOfferEvent(eventMessage.fields)
 
-        val itemId = ItemId(contract, nftId)
+
+        val itemId = ItemId(event.nftType, event.nftId)
         val item = itemRepository.coFindById(itemId)
         if(item?.owner != null) {
+            val price = event.price.toBigDecimal()
             val take = FlowAssetFungible(
-                contract = EventId.of(bidType).contractName,
-                value = bidAmount
+                contract = event.ftVaultType,
+                value = price
             )
             val make = FlowAssetNFT(
                 contract = item.contract, value = 1.toBigDecimal(), tokenId = item.tokenId
             )
             val order = orderRepository.coSave(
                 Order(
-                    id = orderId,
+                    id = event.saleOfferResourceID,
                     itemId = itemId,
                     maker = item.owner!!,
                     make = make,
                     take = take,
-                    data = orderData(bidAmount, item),
-                    amount = bidAmount,
-                    buyerFee = buyerFee,
-                    sellerFee = sellerFee,
+                    data = orderData(price, item),
+                    amount = price,
                     collection = item.collection
                 )
             )
@@ -70,7 +63,7 @@ class SaleOfferAvailable(
                     id = UUID.randomUUID().toString(),
                     date = Instant.now(Clock.systemUTC()),
                     activity = FlowNftOrderActivityList(
-                        price = bidAmount,
+                        price = price,
                         hash = UUID.randomUUID().toString(), //todo delete hash
                         maker = item.owner!!,
                         make = make,
@@ -103,6 +96,14 @@ class SaleOfferAvailable(
     companion object {
         const val ID = "NFTStorefront.SaleOfferAvailable"
         val log by Log()
+
+        class SaleOfferEvent(fields: Map<String, Any?>) {
+            val saleOfferResourceID: Long by fields
+            val nftType: String by fields
+            val nftId: Long by fields
+            val ftVaultType: String by fields
+            val price: String by fields
+        }
     }
 
 }

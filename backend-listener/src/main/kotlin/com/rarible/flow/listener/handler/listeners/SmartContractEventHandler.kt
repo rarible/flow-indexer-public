@@ -1,7 +1,6 @@
 package com.rarible.flow.listener.handler.listeners
 
-import com.rarible.flow.core.domain.TokenId
-import com.rarible.flow.events.BlockInfo
+import com.rarible.flow.events.EventMessage
 
 /**
  * Handles smart-contracts events
@@ -10,6 +9,6 @@ import com.rarible.flow.events.BlockInfo
  * e.g. `@Component("TopShot.Minted")`.
  * All handlers are supposed to be autowired as Map of (eventName) -> (handlerInstance)
  */
-interface SmartContractEventHandler<T> {
-    suspend fun handle(contract: String, tokenId: TokenId, fields: Map<String, Any?>, blockInfo: BlockInfo): T
+interface SmartContractEventHandler {
+    suspend fun handle(eventMessage: EventMessage)
 }
