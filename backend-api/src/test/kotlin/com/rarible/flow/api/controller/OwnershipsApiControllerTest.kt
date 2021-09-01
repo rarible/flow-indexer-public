@@ -9,6 +9,7 @@ import com.rarible.flow.randomAddress
 import com.rarible.flow.randomLong
 import com.rarible.protocol.dto.FlowNftOwnershipDto
 import com.rarible.protocol.dto.FlowNftOwnershipsDto
+import io.kotest.matchers.collections.shouldNotHaveSize
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
@@ -81,7 +82,7 @@ class OwnershipsApiControllerTest {
                     Assertions.assertEquals(owner.formatted, ownershipDto.owner, "Owner is not equals!")
                     Assertions.assertEquals(tokenId, ownershipDto.tokenId.toLong(), "Token ID is not equals!")
                     Assertions.assertNotNull(ownershipDto.creators)
-                    Assertions.assertTrue(ownershipDto.creators?.isNotEmpty() ?: false)
+                    ownershipDto.creators shouldNotHaveSize 0
 
                 }
         }
