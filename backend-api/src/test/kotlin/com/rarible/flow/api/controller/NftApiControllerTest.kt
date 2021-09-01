@@ -1,5 +1,6 @@
 package com.rarible.flow.api.controller
 
+import com.nftco.flow.sdk.FlowAddress
 import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.api.service.NftItemService
 import com.rarible.flow.core.converter.ItemToDtoConverter
@@ -24,7 +25,6 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.onflow.sdk.FlowAddress
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest

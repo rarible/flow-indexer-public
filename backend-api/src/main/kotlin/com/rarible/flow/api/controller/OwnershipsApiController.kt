@@ -4,8 +4,6 @@ import com.rarible.flow.api.service.OwnershipsService
 import com.rarible.protocol.dto.FlowNftOwnershipDto
 import com.rarible.protocol.dto.FlowNftOwnershipsDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftOwnershipControllerApi
-import kotlinx.coroutines.reactor.awaitSingle
-import org.onflow.sdk.FlowAddress
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController

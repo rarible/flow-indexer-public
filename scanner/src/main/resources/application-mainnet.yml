@@ -1,8 +1,7 @@
-grpc:
-  client:
+blockchain:
+  scanner:
     flow:
-      address:  static://access.devnet.nodes.onflow.org:9000
-      negotiationType: PLAINTEXT
+      chainId: MAINNET
 
 scanner:
   tracked-contracts:

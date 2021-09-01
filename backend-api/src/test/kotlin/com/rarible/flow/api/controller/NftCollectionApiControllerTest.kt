@@ -1,16 +1,14 @@
 package com.rarible.flow.api.controller
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.randomAddress
 import com.rarible.protocol.dto.FlowNftCollectionDto
 import com.rarible.protocol.dto.FlowNftCollectionsDto
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.onflow.sdk.FlowAddress
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
@@ -91,7 +89,7 @@ class NftCollectionApiControllerTest {
             .returnResult().responseBody!!
 
         response.total shouldBe 1
-        response.data[0].owner shouldBe "0x01"
+        response.data[0].owner shouldBe FlowAddress("0x01").formatted
 
         response = client.get()
             .uri("/v0.1/collections/byOwner?owner=0x02")
@@ -101,6 +99,6 @@ class NftCollectionApiControllerTest {
             .returnResult().responseBody!!
 
         response.total shouldBe 1
-        response.data[0].owner shouldBe "0x02"
+        response.data[0].owner shouldBe FlowAddress("0x02").formatted
     }
 }

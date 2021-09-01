@@ -4,6 +4,8 @@ scanner:
   environment: dev
   kafka-replica-set: ${kafka.hosts}
 
+
 logging:
   level:
     com.rarible.flow: DEBUG
+

@@ -1,6 +1,7 @@
 package com.rarible.flow.core.service
 
 import com.mongodb.client.result.UpdateResult
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Ownership
@@ -12,11 +13,9 @@ import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.reactive.awaitFirstOrDefault
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-import org.onflow.sdk.FlowAddress
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
-import java.time.Clock
 import java.time.Instant
 
 @Service

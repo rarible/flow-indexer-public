@@ -8,7 +8,6 @@ import com.rarible.flow.listener.handler.listeners.SmartContractEventHandler
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import org.onflow.sdk.FlowAddress
 import java.time.LocalDateTime
 
 

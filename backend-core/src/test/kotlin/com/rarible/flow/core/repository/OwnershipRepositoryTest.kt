@@ -1,5 +1,6 @@
 package com.rarible.flow.core.repository
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Ownership
@@ -7,7 +8,6 @@ import com.rarible.flow.core.domain.Payout
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.onflow.sdk.FlowAddress
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.test.context.ActiveProfiles

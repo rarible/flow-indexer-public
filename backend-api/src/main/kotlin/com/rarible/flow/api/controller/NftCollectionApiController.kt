@@ -1,5 +1,6 @@
 package com.rarible.flow.api.controller
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.api.service.CollectionService
 import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.repository.NftCollectionContinuation
@@ -8,7 +9,6 @@ import com.rarible.protocol.dto.FlowNftCollectionsDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftCollectionControllerApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
-import org.onflow.sdk.FlowAddress
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController

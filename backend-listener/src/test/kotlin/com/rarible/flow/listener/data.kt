@@ -1,8 +1,8 @@
 package com.rarible.flow.listener
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.TokenId
-import org.onflow.sdk.FlowAddress
 import java.time.Clock
 import java.time.Instant
 

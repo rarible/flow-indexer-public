@@ -1,8 +1,8 @@
 package com.rarible.flow.listener.config
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.repository.ItemCollectionRepository
-import org.onflow.sdk.FlowAddress
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.stereotype.Component

@@ -1,7 +1,7 @@
 package com.rarible.flow.events
 
-import org.onflow.sdk.FlowAddress
-import org.onflow.sdk.bytesToHex
+import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.bytesToHex
 
 
 data class EventId(

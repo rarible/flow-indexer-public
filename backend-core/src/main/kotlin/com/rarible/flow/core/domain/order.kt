@@ -1,8 +1,7 @@
 package com.rarible.flow.core.domain
 
 
-import org.bson.types.ObjectId
-import org.onflow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowAddress
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.MongoId

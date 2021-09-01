@@ -1,5 +1,6 @@
 package com.rarible.flow.listener.handler.listeners
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.kafka.KafkaSendResult
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.events.BlockInfo
@@ -11,7 +12,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import org.onflow.sdk.FlowAddress
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
 import java.time.Clock

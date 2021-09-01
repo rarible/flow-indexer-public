@@ -1,15 +1,13 @@
 package com.rarible.flow.core.repository
 
 import com.mongodb.client.result.UpdateResult
-import com.querydsl.core.types.OrderSpecifier
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrDefault
-import org.onflow.sdk.FlowAddress
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find

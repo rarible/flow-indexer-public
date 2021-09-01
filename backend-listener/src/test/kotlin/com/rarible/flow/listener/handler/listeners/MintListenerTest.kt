@@ -1,5 +1,6 @@
 package com.rarible.flow.listener.handler.listeners
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.kafka.KafkaSendResult
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemHistoryRepository
@@ -15,14 +16,11 @@ import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.match
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.onflow.sdk.FlowAddress
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
 import java.time.LocalDateTime

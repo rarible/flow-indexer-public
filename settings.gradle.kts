@@ -9,22 +9,25 @@ include(
     "backend-listener",
     "converters",
     "util",
-    "e2e"
+//    "e2e"
 )
 
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            version("flow-sdk-ver", "0.3.0")
+            version("flow-sdk-ver", "0.5.0")
             version("rarible-core", "1.3-spring25-SNAPSHOT")
             version("flow-protocol-version", "2.0.8-SNAPSHOT")
+            version("blockchain-scanner", "1.0-SNAPSHOT")
 
-            alias("flow-sdk").to("org.onflow", "flow-jvm-sdk").versionRef("flow-sdk-ver")
+            alias("flow-sdk").to("com.nftco", "flow-jvm-sdk").versionRef("flow-sdk-ver")
             alias("rarible-core-kafka").to("com.rarible.core", "rarible-core-kafka").versionRef("rarible-core")
             alias("rarible-core-daemon").to("com.rarible.core", "rarible-core-daemon").versionRef("rarible-core")
             alias("rarible-core-telemetry").to("com.rarible.core", "rarible-core-telemetry-starter").versionRef("rarible-core")
             alias("rarible-core-starter").to("com.rarible.core", "rarible-core-starter").versionRef("rarible-core")
             alias("rarible-core-logging").to("com.rarible.core", "rarible-core-logging").versionRef("rarible-core")
+            alias("blockchain-scanner-core").to("com.rarible.blockchain.scanner", "rarible-blockchain-scanner-core").versionRef("blockchain-scanner")
+            alias("blockchain-scanner-flow").to("com.rarible.blockchain.scanner", "rarible-blockchain-scanner-flow").versionRef("blockchain-scanner")
 
             alias("flow-model-common").to("com.rarible.protocol", "flow-protocol-model-common").versionRef("flow-protocol-version")
             alias("flow-model-nft").to("com.rarible.protocol", "flow-protocol-model-nft").versionRef("flow-protocol-version")

@@ -1,7 +1,7 @@
 package com.rarible.flow.core.domain
 
+import com.nftco.flow.sdk.FlowAddress
 import com.querydsl.core.annotations.QueryEntity
-import org.onflow.sdk.FlowAddress
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.CompoundIndex
