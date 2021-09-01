@@ -20,6 +20,7 @@ class OrderAssigned(
     private val itemRepository: ItemRepository
 ) : SmartContractEventHandler<Unit> {
 
+    @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override suspend fun handle(
         contract: String,
         orderId: TokenId,

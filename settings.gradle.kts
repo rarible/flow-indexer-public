@@ -9,7 +9,7 @@ include(
     "backend-listener",
     "converters",
     "util",
-//    "e2e"
+    "e2e"
 )
 
 dependencyResolutionManagement {
