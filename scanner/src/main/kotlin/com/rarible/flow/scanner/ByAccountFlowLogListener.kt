@@ -46,6 +46,7 @@ class ByAccountFlowLogListener(
 
     override suspend fun onPendingLogsDropped(logs: List<FlowLogRecord>) {
         /** do nothing */
+        log.warn("onPendingLogsDropped not realized yet!")
     }
 
     private fun isEventTracked(eventType: String) =
