@@ -1,52 +1,87 @@
 package com.rarible.flow.listener.handler.listeners
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.kafka.KafkaSendResult
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderData
 import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.repository.ItemHistoryRepository
+import com.rarible.flow.core.repository.OrderRepository
+import com.rarible.flow.core.service.ItemService
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.createItem
 import com.rarible.flow.listener.handler.EventHandler
+import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 internal class DepositListenerTest: FunSpec({
 
     val item = createItem()
 
-    val listener = DepositListener(
-        mockk() {
-            coEvery { transferNft(any(), any()) } answers {
-                item.copy(owner = arg(1)) to Ownership(
-                    contract = item.contract,
-                    tokenId = item.tokenId,
-                    owner = arg(1),
-                    date = item.date
-                )
-            }
-        },
-
-        mockk() {
-            coEvery {
-                onUpdate(any<Ownership>())
-            } returns KafkaSendResult.Success("1")
-
-            coEvery {
-                onItemUpdate(any())
-            } returns KafkaSendResult.Success("2")
-        },
-
-        mockk() {
-            every {
-                save(any())
-            } answers {
-                Mono.just(arg(0))
-            }
+    val itemService = mockk<ItemService>() {
+        coEvery { transferNft(any(), any()) } answers {
+            item.copy(owner = arg(1)) to Ownership(
+                contract = item.contract,
+                tokenId = item.tokenId,
+                owner = arg(1),
+                date = item.date
+            )
         }
+
+        coEvery { byId(any()) } returns item
+    }
+    val protocolEventPublisher = mockk<ProtocolEventPublisher>() {
+        coEvery {
+            onUpdate(any<Ownership>())
+        } returns KafkaSendResult.Success("1")
+
+        coEvery {
+            onItemUpdate(any())
+        } returns KafkaSendResult.Success("2")
+    }
+    val itemHistoryRepository = mockk<ItemHistoryRepository>() {
+        every {
+            save(any())
+        } answers {
+            Mono.just(arg(0))
+        }
+    }
+    val orderRepository = mockk<OrderRepository>() {
+        every { save(any()) } answers { Mono.just(arg(0)) }
+        every { findByItemId(any()) } answers {
+            Order(
+                1L,
+                item.id,
+                FlowAddress("0x1000"),
+                null,
+                FlowAssetNFT(item.contract, 1.toBigDecimal(), item.tokenId),
+                null,
+                1.toBigDecimal(),
+                item.id.toString(),
+                data = OrderData(emptyList(), emptyList()),
+                collection = item.collection,
+                fill = BigDecimal.valueOf(3.5)
+            ).toMono()
+        }
+
+    }
+
+    val listener = DepositListener(
+        itemService,
+        protocolEventPublisher,
+        itemHistoryRepository,
+        orderRepository
     )
 
     val eventHandler = EventHandler(
@@ -71,5 +106,11 @@ internal class DepositListenerTest: FunSpec({
         )
 
         eventHandler.handle(event)
+
+        verify() {
+            orderRepository.save(withArg {
+                it.taker == FlowAddress("0xfcfb23c627a63d40")
+            })
+        }
     }
 })

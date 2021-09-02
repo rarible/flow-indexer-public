@@ -9,8 +9,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.mapping.div
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.aggregation.Aggregation
-import org.springframework.data.mongodb.core.query.gt
-import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.*
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import org.springframework.data.querydsl.ReactiveQuerydslPredicateExecutor
 import org.springframework.stereotype.Repository
@@ -73,12 +72,15 @@ class ItemHistoryRepositoryCustomImpl(
         endDate: Instant
     ): Flow<FlowAggregationDataDto> {
         val match = Aggregation.match(
-                (ItemHistory::date).gt(startDate).lt(endDate)
-                .and("${ItemHistory::activity.name}.${BaseActivity::type.name}").isEqualTo(FlowActivityType.SELL)
+            Criteria().andOperator(
+                ItemHistory::date gte startDate,
+                ItemHistory::date lte endDate,
+                Criteria("${ItemHistory::activity.name}.${BaseActivity::type.name}").isEqualTo(FlowActivityType.SELL)
+            )
         )
         val group = Aggregation
             .group(groupByFiled)
-            .sum("${ItemHistory::activity.name}.${OrderActivityMatchSide::asset.name}").`as`(FlowAggregationDataDto::sum.name)
+            .sum("${ItemHistory::activity.name}.${OrderActivityMatchSide::asset.name}.${FlowAsset::value.name}").`as`(FlowAggregationDataDto::sum.name)
             .count().`as`(FlowAggregationDataDto::count.name)
 
         val sort = Aggregation.sort(Sort.by(Sort.Direction.DESC, FlowAggregationDataDto::sum.name))

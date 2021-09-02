@@ -13,13 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
-import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils
 import reactor.test.StepVerifier
 import java.time.Clock
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
-import kotlin.random.Random
 
 @MongoTest
 @DataMongoTest(
