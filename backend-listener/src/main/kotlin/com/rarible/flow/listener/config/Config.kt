@@ -40,7 +40,7 @@ class Config(
 
     @Bean
     fun eventMessageHandler(
-        smartContractEventHandlers: Map<String, SmartContractEventHandler<*>>
+        smartContractEventHandlers: Map<String, SmartContractEventHandler>
     ): ConsumerEventHandler<EventMessage> {
         return EventHandler(
             smartContractEventHandlers

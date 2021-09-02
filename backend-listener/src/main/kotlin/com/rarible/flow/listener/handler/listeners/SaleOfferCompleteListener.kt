@@ -6,6 +6,7 @@ import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.service.ItemService
 import com.rarible.flow.events.BlockInfo
+import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -22,26 +23,24 @@ class SaleOfferCompleteListener(
     private val orderRepository: OrderRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
     private val itemHistoryRepository: ItemHistoryRepository
-) : SmartContractEventHandler<Unit> {
+) : SmartContractEventHandler {
 
     override suspend fun handle(
-        contract: String,
-        orderId: TokenId,
-        fields: Map<String, Any?>,
-        blockInfo: BlockInfo
+        eventMessage: EventMessage
     ) = runBlocking {
+        val event = SaleOfferCompleted(eventMessage.fields)
         val order = orderRepository
-            .findActiveById(orderId)
+            .findActiveById(event.saleOfferResourceID)
             .awaitSingleOrNull()
 
         if (order != null) {
-            if (fields["accepted"]!! as Boolean) {
-                completeOffer(order, blockInfo)
+            if (event.accepted) {
+                completeOffer(order, eventMessage.blockInfo)
             } else {
                 cancelOffer(order)
             }
         } else {
-            log.info("Order [{}] does not exist", orderId)
+            log.info("Order [{}] does not exist", event.saleOfferResourceID)
         }
     }
 
@@ -122,5 +121,11 @@ class SaleOfferCompleteListener(
     companion object {
         const val ID = "NFTStorefront.SaleOfferCompleted"
         private val log by Log()
+
+        class SaleOfferCompleted(fields: Map<String, Any?>) {
+            val saleOfferResourceID: Long by fields
+            val storefrontResourceID: Long by fields
+            val accepted: Boolean by fields
+        }
     }
 }

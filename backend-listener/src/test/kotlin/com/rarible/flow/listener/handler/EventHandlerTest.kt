@@ -15,11 +15,11 @@ internal class EventHandlerTest: FunSpec({
 
     val handledEvents = mutableListOf<Pair<String, TokenId>>()
     val eventHandler = EventHandler(
-        mapOf<String, SmartContractEventHandler<*>>(
-            "SomeShot.Withdraw" to object : SmartContractEventHandler<Unit> {
-                override suspend fun handle(contract: String, tokenId: TokenId, fields: Map<String, Any?>, blockInfo: BlockInfo) {
+        mapOf<String, SmartContractEventHandler>(
+            "SomeShot.Withdraw" to object : SmartContractEventHandler {
+                override suspend fun handle(eventMessage: EventMessage) {
                     handledEvents.add(
-                        contract to tokenId
+                        eventMessage.eventId.toString() to eventMessage.fields["id"].toString().toLong()
                     )
                 }
             }
@@ -41,7 +41,7 @@ internal class EventHandlerTest: FunSpec({
         )
 
         handledEvents shouldHaveSize 1
-        handledEvents[0].first shouldBe "SomeShot" //todo need strict format
+        handledEvents[0].first shouldBe "A.877931736ee77123.SomeShot.Withdraw"
         handledEvents[0].second shouldBe 6497086
     }
 

@@ -4,6 +4,8 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.repository.data.randomAddress
+import com.rarible.flow.core.repository.data.randomLong
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -11,13 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
-import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils
 import reactor.test.StepVerifier
 import java.time.Clock
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
-import kotlin.random.Random
 
 @MongoTest
 @DataMongoTest(
@@ -52,7 +51,7 @@ class ItemRepositoryTest {
         for (i in tokenId..tokenId + 2) {
             items[i] =
                 Item(
-                    contract = randomAddress(),
+                    contract = "A.${randomAddress()}.CommonNFT.NFT",
                     tokenId = i,
                     creator = FlowAddress(randomAddress()),
                     royalties = listOf(),
@@ -113,6 +112,3 @@ class ItemRepositoryTest {
     }
 }
 
-fun randomAddress() = "0x${RandomStringUtils.random(16, "0123456789ABCDEF")}".lowercase(Locale.ENGLISH)
-
-fun randomLong() = Random.Default.nextLong(0L, Long.MAX_VALUE)

@@ -27,7 +27,7 @@ import java.math.BigDecimal
 )
 @AutoConfigureWebTestClient(timeout = "60000")
 @ActiveProfiles("test")
-class OrderApiControllerTest {
+class OrderAggregationControllerTest {
 
 
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")

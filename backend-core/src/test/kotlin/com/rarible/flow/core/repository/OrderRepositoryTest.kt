@@ -70,8 +70,6 @@ internal class OrderRepositoryTest(
         null,
         1.toBigDecimal(),
         ItemId("0x01", 1).toString(),
-        buyerFee = BigDecimal.ZERO,
-        sellerFee = BigDecimal.ZERO,
         data = OrderData(emptyList(), emptyList()),
         collection = "ABC"
     )

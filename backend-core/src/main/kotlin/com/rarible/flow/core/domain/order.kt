@@ -9,6 +9,21 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
+const val ORDER_COLLECTION = "order"
+
+@Document(collection = ORDER_COLLECTION)
+sealed class BaseOrder(
+    @MongoId
+    val id: Long,
+
+    val data: OrderData,
+
+    val createdAt: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC),
+
+    @field:LastModifiedDate
+    var lastUpdatedAt: LocalDateTime? = null,
+)
+
 /**
  * Description of an order
  * @property id             - database ID,
@@ -23,7 +38,7 @@ import java.time.ZoneOffset
  * @property sellerFee      - fee for seller
  * @property collection     - item collection
  */
-@Document
+@Document(collection = ORDER_COLLECTION)
 data class Order(
     @MongoId
     val id: Long,
@@ -36,8 +51,6 @@ data class Order(
     val offeredNftId: String? = null,
     val fill: BigDecimal = BigDecimal.ZERO,
     val canceled: Boolean = false,
-    val buyerFee: BigDecimal,
-    val sellerFee: BigDecimal,
     val data: OrderData,
     val amountUsd: BigDecimal = 0.toBigDecimal(),
     val createdAt: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC),

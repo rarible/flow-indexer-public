@@ -194,8 +194,6 @@ class NftOrderItemControllerTest {
                 tokenId = tokenId
             ),
             amount = 1000.toBigDecimal(),
-            sellerFee = 0.toBigDecimal(),
-            buyerFee = 0.toBigDecimal(),
             data = OrderData(
                 payouts = listOf(), originalFees = listOf()
             ),
@@ -259,8 +257,6 @@ class NftOrderItemControllerTest {
                 tokenId = tokenId
             ),
             amount = 1000.toBigDecimal(),
-            sellerFee = 0.toBigDecimal(),
-            buyerFee = 0.toBigDecimal(),
             data = OrderData(
                 payouts = listOf(), originalFees = listOf()
             ),
@@ -331,8 +327,6 @@ class NftOrderItemControllerTest {
                 BigDecimal.valueOf(1L),
                 tokenId = randomLong()
             ),
-            buyerFee = BigDecimal.valueOf(1L),
-            sellerFee = BigDecimal.valueOf(1L),
             collection = item.collection,
             amount = BigDecimal.valueOf(100L),
             createdAt = LocalDateTime.now(ZoneOffset.UTC),
