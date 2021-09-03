@@ -62,7 +62,7 @@ internal class MintListenerTest: FunSpec({
         val event = EventMessage(
             EventId.of("A.fcfb23c627a63d40.CommonNFT.Mint"),
             mapOf(
-                "id" to 12,
+                "id" to "12",
                 "collection" to "A.fcfb23c627a63d40.CommonNFT.NFT",
                 "creator" to "0xfcfb23c627a63d40",
                 "metadata" to "url://",

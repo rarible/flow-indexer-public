@@ -76,9 +76,10 @@ internal class OrderClosedListenerTest: FunSpec({
 
     test("should handle buy event") {
         val event = EventMessage(
-            EventId.of("A.fcfb23c627a63d40.RegularSaleOrder.OrderClosed"),
+            EventId.of("A.fcfb23c627a63d40.NFTStorefront.SaleOfferCompleted"),
             mapOf(
-                "id" to 12
+                "id" to "12",
+                "accepted" to "true"
             ),
             LocalDateTime.parse("2021-07-29T05:59:58.425384445"),
             BlockInfo(

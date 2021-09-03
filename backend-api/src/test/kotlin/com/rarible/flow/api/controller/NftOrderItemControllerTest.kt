@@ -91,7 +91,7 @@ class NftOrderItemControllerTest {
                 Assertions.assertTrue(itemsDto.items.isNotEmpty())
                 Assertions.assertTrue(itemsDto.items.size == 3)
 
-                val sorted = itemsDto.items.sortedByDescending(FlowNftItemDto::date).sortedByDescending(FlowNftItemDto::id)
+                val sorted = itemsDto.items.sortedByDescending(FlowNftItemDto::mintedAt).sortedByDescending(FlowNftItemDto::id)
                     .toList()
                 Assertions.assertArrayEquals(sorted.toTypedArray(), itemsDto.items.toTypedArray())
             }
@@ -114,7 +114,7 @@ class NftOrderItemControllerTest {
                 Assertions.assertEquals(44L, lastItem.tokenId!!.toLong())
 
                 val cont = NftItemContinuation(
-                    afterDate = lastItem.date!!,
+                    afterDate = lastItem.mintedAt!!,
                     afterId = ItemId.parse(lastItem.id!!)
                 )
 
@@ -136,7 +136,7 @@ class NftOrderItemControllerTest {
                         val nextLastItem = nextItemsDto.items.last()
 
                         Assertions.assertEquals(43L, nextLastItem.tokenId!!.toLong())
-                        Assertions.assertTrue(lastItem.date!!.isAfter(nextLastItem.date!!))
+                        Assertions.assertTrue(lastItem.mintedAt!!.isAfter(nextLastItem.mintedAt!!))
                         Assertions.assertTrue(lastItem.tokenId!! > nextLastItem.tokenId!!)
                     }
 
@@ -156,8 +156,8 @@ class NftOrderItemControllerTest {
                         val nextLastItem = nextItemsDto.items.last()
 
                         Assertions.assertEquals(42L, nextLastItem.tokenId!!.toLong())
-                        Assertions.assertTrue(lastItem.date!!.isAfter(nextLastItem.date!!))
-                        Assertions.assertTrue(lastItem.tokenId!! -  nextLastItem.tokenId!! == 2)
+                        Assertions.assertTrue(lastItem.mintedAt!!.isAfter(nextLastItem.mintedAt!!))
+                        Assertions.assertTrue(lastItem.tokenId!! -  nextLastItem.tokenId!! == 2.toBigInteger())
                     }
             }
 

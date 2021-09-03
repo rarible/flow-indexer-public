@@ -16,6 +16,7 @@ import com.rarible.flow.listener.createItem
 import com.rarible.flow.listener.handler.EventHandler
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -94,7 +95,7 @@ internal class DepositListenerTest: FunSpec({
         val event = EventMessage(
             EventId.of("A.fcfb23c627a63d40.CommonNFT.Deposit"),
             mapOf(
-                "id" to 12,
+                "id" to "12",
                 "to" to "0xfcfb23c627a63d40",
             ),
             LocalDateTime.parse("2021-07-29T05:59:58.425384445"),
@@ -109,7 +110,7 @@ internal class DepositListenerTest: FunSpec({
 
         verify() {
             orderRepository.save(withArg {
-                it.taker == FlowAddress("0xfcfb23c627a63d40")
+                it.taker shouldBe  FlowAddress("0xfcfb23c627a63d40")
             })
         }
     }

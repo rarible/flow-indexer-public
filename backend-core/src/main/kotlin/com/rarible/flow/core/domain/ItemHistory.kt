@@ -24,27 +24,27 @@ data class ItemHistory(
 
 fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
     when(this) {
-        is MintActivity -> MintDto(
+        is MintActivity -> FlowMintDto(
             id = id,
             date = date,
             owner = this.owner.formatted,
             contract = this.contract,
-            value = this.value.toString(),
-            tokenId = this.tokenId.toString(),
+            value = this.value.toBigInteger(),
+            tokenId = this.tokenId.toBigInteger(),
             transactionHash = this.transactionHash,
             blockHash = this.blockHash,
             blockNumber = this.blockNumber,
             logIndex = -1,
         )
 
-        is TransferActivity -> TransferDto(
+        is TransferActivity -> FlowTransferDto(
             id = id,
             date = date,
             from = this.from.formatted,
             owner = this.owner.formatted,
             contract = this.contract,
-            value = this.value.toString(),
-            tokenId = this.tokenId.toString(),
+            value = this.value.toBigInteger(),
+            tokenId = this.tokenId.toBigInteger(),
             transactionHash = this.transactionHash,
             blockHash = this.blockHash,
             blockNumber = this.blockNumber,
@@ -52,13 +52,13 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
 
         )
 
-        is BurnActivity -> BurnDto(
+        is BurnActivity -> FlowBurnDto(
             id = id,
             date = date,
             owner = "",
             contract = this.contract,
-            value = this.value.toString(),
-            tokenId = this.tokenId.toString(),
+            value = this.value.toBigInteger(),
+            tokenId = this.tokenId.toBigInteger(),
             transactionHash = this.transactionHash,
             blockHash = this.blockHash,
             blockNumber = this.blockNumber,
@@ -72,8 +72,8 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
                 maker = this.left.maker.formatted,
                 asset = FlowAssetNFTDto(
                     contract = this.left.asset.contract,
-                    value = this.left.asset.value.toString(),
-                    tokenId = (this.left.asset as FlowAssetNFT).tokenId.toString()
+                    value = this.left.asset.value,
+                    tokenId = (this.left.asset as FlowAssetNFT).tokenId.toBigInteger()
                 ),
                 type = FlowOrderActivityMatchSideDto.Type.SELL
             ),
@@ -81,11 +81,11 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
                 maker = this.right.maker.formatted,
                 asset = FlowAssetFungibleDto(
                     contract = this.right.asset.contract,
-                    value = this.right.asset.value.toString()
+                    value = this.right.asset.value
                 ),
                 type = FlowOrderActivityMatchSideDto.Type.BID
             ),
-            price = this.price.toString(),
+            price = this.price,
             transactionHash = this.transactionHash,
             blockHash = this.blockHash,
             blockNumber = this.blockNumber,
@@ -98,14 +98,14 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
             maker = this.maker.formatted,
             make = FlowAssetNFTDto(
                 contract = this.make.contract,
-                value = this.make.value.toString(),
-                tokenId = (this.make as FlowAssetNFT).tokenId.toString()
+                value = this.make.value,
+                tokenId = (this.make as FlowAssetNFT).tokenId.toBigInteger()
             ),
             take = FlowAssetFungibleDto(
                 contract = this.take.contract,
-                value = this.take.value.toString()
+                value = this.take.value
             ),
-            price = this.price.toString()
+            price = this.price
         )
         is FlowNftOrderActivityCancelList -> FlowNftOrderActivityCancelListDto(
             id = id,
@@ -114,14 +114,14 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
             maker = this.maker.formatted,
             make = FlowAssetNFTDto(
                 contract = this.make.contract,
-                value = this.make.value.toString(),
-                tokenId = (this.make as FlowAssetNFT).tokenId.toString()
+                value = this.make.value,
+                tokenId = (this.make as FlowAssetNFT).tokenId.toBigInteger()
             ),
             take = FlowAssetFungibleDto(
                 contract = this.take.contract,
-                value = this.take.value.toString()
+                value = this.take.value
             ),
-            price = this.price.toString()
+            price = this.price
         )
     }
 

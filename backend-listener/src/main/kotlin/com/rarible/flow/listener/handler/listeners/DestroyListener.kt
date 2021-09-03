@@ -29,7 +29,7 @@ class DestroyListener(
         eventMessage: EventMessage
     ): Unit = runBlocking {
         val event = CommonNFTDestroy(eventMessage.fields)
-        val itemId = ItemId(eventMessage.eventId.nft(), event.id)
+        val itemId = ItemId(eventMessage.eventId.nft(), event.id.toLong())
         val item = itemService.findAliveById(itemId)
         if(item != null) {
             log.info("Burning item [{}]...", itemId)
@@ -76,7 +76,7 @@ class DestroyListener(
         val log by Log()
 
         class CommonNFTDestroy(fields: Map<String, Any?>) {
-            val id: Long by fields
+            val id: String by fields
         }
     }
 }

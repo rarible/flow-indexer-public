@@ -30,7 +30,7 @@ class DepositListener(
         val event = Deposit(eventMessage.fields)
 
         val to = FlowAddress(event.to)
-        val itemId = ItemId(eventMessage.eventId.nft(), event.id)
+        val itemId = ItemId(eventMessage.eventId.nft(), event.id.toLong())
         val oldItem = itemService.byId(itemId)
         itemService
             .transferNft(itemId, to)
@@ -90,7 +90,7 @@ class DepositListener(
         const val ID = "CommonNFT.Deposit"
 
         class Deposit(fields: Map<String, Any?>) {
-            val id: Long by fields
+            val id: String by fields
             val to: String by fields
         }
     }

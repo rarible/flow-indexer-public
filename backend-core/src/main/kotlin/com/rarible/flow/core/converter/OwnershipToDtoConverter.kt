@@ -11,11 +11,11 @@ object OwnershipToDtoConverter : Converter<Ownership, FlowNftOwnershipDto> {
     override fun convert(ownership: Ownership): FlowNftOwnershipDto {
         return FlowNftOwnershipDto(
             id = ownership.id.toString(),
-            token = ownership.contract,
-            tokenId = ownership.tokenId.toString(),
+            contract = ownership.contract,
+            tokenId = ownership.tokenId,
             owner = ownership.owner.formatted,
-            creators = ownership.creators.map { PayInfoDto(account = it.account.formatted, value = it.value.toString()) },
-            date = ownership.date
+            creators = ownership.creators.map { PayInfoDto(account = it.account.formatted, value = it.value) },
+            createdAt = ownership.date
         )
     }
 }
