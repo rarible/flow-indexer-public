@@ -431,40 +431,6 @@ class NftOrderActivityControllerTest {
                 Assertions.assertEquals(3, dto.total, "Should return 3 items, but return ${dto.total} items")
                 Assertions.assertEquals(dto.total, dto.items.size, "Total and items.size are different!!!")
             }
-
-/*        var activities = client.get()
-            .uri()
-            .exchange()
-            .expectStatus().isOk
-            .expectBody(FlowActivitiesDto::class.java)
-            .returnResult().responseBody!!
-
-        Assertions.assertNotNull(activities)
-        Assertions.assertTrue(activities.items.isNotEmpty())
-        Assertions.assertTrue(
-            activities.items.size == 3,
-            "Should return 3 items, but return ${activities.items.size} items"
-        )
-
-        Assertions.assertTrue(activities.items[0] is FlowMintDto)
-        Assertions.assertTrue(activities.items[1] is FlowTransferDto)
-        Assertions.assertTrue(activities.items[2] is FlowBurnDto)
-
-        val mint = activities.items[0] as FlowMintDto
-        val transfer = activities.items[1] as FlowTransferDto
-        val burn = activities.items[2] as FlowBurnDto
-
-        Assertions.assertEquals(mint.owner, mintActivity.owner.formatted, "Mint activity: owners are not equals!")
-        Assertions.assertEquals(
-            transfer.owner,
-            transferActivity.owner.formatted,
-            "Transfer activity: owners are not equals!"
-        )
-        Assertions.assertNotEquals(
-            burn.owner,
-            burnActivity.owner?.formatted.orEmpty(),
-            "Burn activity: owners are equals! Returned owner must be null!"
-        )*/
     }
 
     @Test
