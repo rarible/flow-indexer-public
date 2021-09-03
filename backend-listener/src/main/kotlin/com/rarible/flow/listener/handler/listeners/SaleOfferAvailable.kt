@@ -28,7 +28,7 @@ class SaleOfferAvailable(
         val event = SaleOfferEvent(eventMessage.fields)
 
 
-        val itemId = ItemId(event.nftType, event.nftId)
+        val itemId = ItemId(event.nftType, event.nftId.toLong())
         val item = itemRepository.coFindById(itemId)
         if(item?.owner != null) {
             val price = event.price.toBigDecimal()
@@ -41,7 +41,7 @@ class SaleOfferAvailable(
             )
             val order = orderRepository.coSave(
                 Order(
-                    id = event.saleOfferResourceID,
+                    id = event.saleOfferResourceID.toLong(),
                     itemId = itemId,
                     maker = item.owner!!,
                     make = make,
@@ -98,9 +98,9 @@ class SaleOfferAvailable(
         val log by Log()
 
         class SaleOfferEvent(fields: Map<String, Any?>) {
-            val saleOfferResourceID: Long by fields
+            val saleOfferResourceID: String by fields
             val nftType: String by fields
-            val nftId: Long by fields
+            val nftId: String by fields
             val ftVaultType: String by fields
             val price: String by fields
         }

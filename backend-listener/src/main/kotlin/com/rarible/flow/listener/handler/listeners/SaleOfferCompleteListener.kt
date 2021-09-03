@@ -30,7 +30,7 @@ class SaleOfferCompleteListener(
     ) = runBlocking {
         val event = SaleOfferCompleted(eventMessage.fields)
         val order = orderRepository
-            .findActiveById(event.saleOfferResourceID)
+            .findActiveById(event.saleOfferResourceID.toLong())
             .awaitSingleOrNull()
 
         if (order != null) {
@@ -123,8 +123,8 @@ class SaleOfferCompleteListener(
         private val log by Log()
 
         class SaleOfferCompleted(fields: Map<String, Any?>) {
-            val saleOfferResourceID: Long by fields
-            val storefrontResourceID: Long by fields
+            val saleOfferResourceID: String by fields
+            val storefrontResourceID: String by fields
             val accepted: Boolean by fields
         }
     }

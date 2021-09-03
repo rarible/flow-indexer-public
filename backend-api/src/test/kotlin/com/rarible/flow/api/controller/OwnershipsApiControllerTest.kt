@@ -78,7 +78,7 @@ class OwnershipsApiControllerTest {
                 .consumeWith {
                     Assertions.assertNotNull(it.responseBody)
                     val ownershipDto = it.responseBody!!
-                    Assertions.assertEquals(contract, ownershipDto.token, "Token is not equals!")
+                    Assertions.assertEquals(contract, ownershipDto.contract, "Token is not equals!")
                     Assertions.assertEquals(owner.formatted, ownershipDto.owner, "Owner is not equals!")
                     Assertions.assertEquals(tokenId, ownershipDto.tokenId.toLong(), "Token ID is not equals!")
                     Assertions.assertNotNull(ownershipDto.creators)
@@ -179,9 +179,9 @@ class OwnershipsApiControllerTest {
                     val response = it.responseBody!!
                     Assertions.assertTrue(response.ownerships.isNotEmpty())
                     Assertions.assertTrue(response.ownerships.size == 2)
-                    response.ownerships.forEach {
-                        Assertions.assertEquals(contract, it.token)
-                        Assertions.assertEquals(tokenId, it.tokenId.toLong())
+                    response.ownerships.forEach { o ->
+                        Assertions.assertEquals(contract, o.contract)
+                        Assertions.assertEquals(tokenId, o.tokenId.toLong())
                     }
                 }
         }

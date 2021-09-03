@@ -96,6 +96,7 @@ internal class SaleOfferAvailableTest: FunSpec({
         eventHandler.handle(event)
 
 
+
     }
 
     test("should calculate order data correctly") {

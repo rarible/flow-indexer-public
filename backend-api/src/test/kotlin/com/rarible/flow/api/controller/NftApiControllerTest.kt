@@ -14,6 +14,7 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.NftItemContinuation
 import com.rarible.flow.form.MetaForm
 import com.rarible.flow.log.Log
+import com.rarible.protocol.dto.FlowCreatorDto
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemsDto
 import io.kotest.matchers.collections.shouldHaveSize
@@ -114,8 +115,8 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemDto>()
             .returnResult().responseBody!!
         item.id shouldBe "0x01:42"
-        item.creator shouldBe FlowAddress("0x01").formatted
-        item.owner shouldBe FlowAddress("0x02").formatted
+        item.creators shouldBe listOf(FlowCreatorDto(FlowAddress("0x01").formatted, 10000.toBigDecimal()))
+        item.owners shouldBe listOf(FlowAddress("0x02").formatted)
     }
 
     @Test
@@ -157,7 +158,7 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 1
-        response.items[0].owner shouldBe items[0].owner!!.formatted
+        response.items[0].owners shouldBe listOf(items[0].owner!!.formatted)
 
         response = client
             .get()
@@ -167,7 +168,7 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 1
-        response.items[0].owner shouldBe items[1].owner!!.formatted
+        response.items[0].owners shouldBe listOf(items[1].owner!!.formatted)
 
         response = client
             .get()
@@ -205,7 +206,7 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         respose.items shouldHaveSize 1
-        respose.items[0].owner shouldBe items[0].owner!!.formatted
+        respose.items[0].owners shouldBe listOf(items[0].owner!!.formatted)
 
         respose = client
             .get()
@@ -215,7 +216,7 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         respose.items shouldHaveSize 1
-        respose.items[0].owner shouldBe items[1].owner!!.formatted
+        respose.items[0].owners shouldBe listOf(items[1].owner!!.formatted)
 
         respose = client
             .get()

@@ -26,16 +26,17 @@ class MintListener(
 
     override suspend fun handle(eventMessage: EventMessage) {
         val event = CommonNftMint(eventMessage.fields)
-        log.info("Handling [$ID] at [${event.collection}.${event.id}] with fields [${eventMessage.fields}]")
+        val tokenId = event.id.toLong()
+
+        log.info("Handling [$ID] at [${event.collection}.$tokenId] with fields [${eventMessage.fields}]")
 
         val to = FlowAddress(event.creator)
-
-        val existingEvent = itemRepository.coFindById(ItemId(event.collection, event.id))
+        val existingEvent = itemRepository.coFindById(ItemId(event.collection, tokenId))
 
         if (existingEvent == null) {
             val item = Item(
                 event.collection,
-                event.id,
+                tokenId,
                 to,
                 getRoyalties(event.royalties),
                 to,
@@ -52,7 +53,7 @@ class MintListener(
             ownershipRepository.coSave(
                 Ownership(
                     event.collection,
-                    event.id,
+                    tokenId,
                     to,
                     Instant.now(),
                     creators = listOf(Payout(account = item.creator, value = BigDecimal.ONE))
@@ -66,7 +67,7 @@ class MintListener(
                     activity = MintActivity(
                         owner = to,
                         contract = event.collection,
-                        tokenId = event.id,
+                        tokenId = tokenId,
                         value = 1L,
                         transactionHash = eventMessage.blockInfo.transactionId,
                         blockHash = eventMessage.blockInfo.blockId,
@@ -92,7 +93,7 @@ class MintListener(
         class CommonNftMint(
             val fields: Map<String, Any?>
         ) {
-            val id: Long by fields
+            val id: String by fields
             val collection: String by fields
             val creator: String by fields
             val metadata: String by fields
