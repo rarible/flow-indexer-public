@@ -6,10 +6,10 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.randomAddress
 import com.rarible.flow.randomLong
-import com.rarible.protocol.dto.BurnDto
+import com.rarible.protocol.dto.FlowBurnDto
 import com.rarible.protocol.dto.FlowActivitiesDto
-import com.rarible.protocol.dto.MintDto
-import com.rarible.protocol.dto.TransferDto
+import com.rarible.protocol.dto.FlowMintDto
+import com.rarible.protocol.dto.FlowTransferDto
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -188,12 +188,12 @@ class NftOrderActivityControllerTest {
         Assertions.assertNotNull(activities, "Answer is NULL!")
         Assertions.assertTrue(activities.items.isNotEmpty(), "Activities list is empty!")
         Assertions.assertTrue(activities.items.size == 3, "Size of activities list is not 3!")
-        Assertions.assertTrue(activities.items[0] is BurnDto)
-        Assertions.assertTrue(activities.items[1] is TransferDto)
-        Assertions.assertTrue(activities.items[2] is MintDto)
+        Assertions.assertTrue(activities.items[0] is FlowBurnDto)
+        Assertions.assertTrue(activities.items[1] is FlowTransferDto)
+        Assertions.assertTrue(activities.items[2] is FlowMintDto)
 
         val (b, t, m) = activities.items
-        m as MintDto
+        m as FlowMintDto
         Assertions.assertEquals(mintActivity.contract, m.contract, "Mint activity: contracts are different!")
         Assertions.assertEquals(mintActivity.owner.formatted, m.owner, "Mint activity: owners are different!")
         Assertions.assertEquals(mintActivity.type, FlowActivityType.MINT, "Mint activity: types are different!")
@@ -207,7 +207,7 @@ class NftOrderActivityControllerTest {
         Assertions.assertEquals(mintActivity.blockHash, m.blockHash, "Mint activity: blocks are different!")
         Assertions.assertEquals(mintActivity.blockNumber, m.blockNumber, "Mint activity: block numbers are different!")
 
-        t as TransferDto
+        t as FlowTransferDto
         Assertions.assertEquals(transferActivity.contract, t.contract, "Transfer activity: contracts are different!")
         Assertions.assertEquals(transferActivity.owner.formatted, t.owner, "Transfer activity: owners are different!")
         Assertions.assertEquals(transferActivity.from.formatted, t.from, "Transfer activity: froms are different!")
@@ -235,7 +235,7 @@ class NftOrderActivityControllerTest {
         )
 
 
-        b as BurnDto
+        b as FlowBurnDto
         Assertions.assertEquals(burnActivity.contract, b.contract, "Burn activity: contracts are different!")
         Assertions.assertTrue(b.owner.isEmpty(), "Burn activity: owner is not NULL!")
         Assertions.assertEquals(burnActivity.type, FlowActivityType.BURN, "Burn activity: types are different!")
@@ -293,10 +293,10 @@ class NftOrderActivityControllerTest {
         val expected = mintActivity.copy(tokenId = expectedTokenId, contract = expectedContract)
 
         val history = listOf(
-            ItemHistory(id = UUID.randomUUID().toString(), date = Instant.now(Clock.systemUTC()), mintActivity),
-            ItemHistory(id = UUID.randomUUID().toString(), date = Instant.now(Clock.systemUTC()), expected),
-            ItemHistory(id = UUID.randomUUID().toString(), date = Instant.now(Clock.systemUTC()), transferActivity),
-            ItemHistory(id = UUID.randomUUID().toString(), date = Instant.now(Clock.systemUTC()), burnActivity),
+            ItemHistory(id = UUID.randomUUID().toString(), date = Instant.now(), mintActivity),
+            ItemHistory(id = UUID.randomUUID().toString(), date = Instant.now(), expected),
+            ItemHistory(id = UUID.randomUUID().toString(), date = Instant.now(), transferActivity),
+            ItemHistory(id = UUID.randomUUID().toString(), date = Instant.now(), burnActivity),
         )
 
         repo.saveAll(history).then().block()
@@ -312,12 +312,12 @@ class NftOrderActivityControllerTest {
         Assertions.assertTrue(activities.items.isNotEmpty())
         Assertions.assertTrue(activities.items.size == 1)
         val activity = activities.items[0]
-        Assertions.assertTrue(activity is MintDto)
-        activity as MintDto
+        Assertions.assertTrue(activity is FlowMintDto)
+        activity as FlowMintDto
         Assertions.assertEquals(expected.transactionHash, activity.transactionHash, "Tx hashes are not equals!")
         Assertions.assertEquals(expected.blockHash, activity.blockHash, "Block's hashes are not equals!")
         Assertions.assertEquals(expected.blockNumber, activity.blockNumber, "Block's numbers are not equals!")
-        Assertions.assertEquals(expected.tokenId.toString(), activity.tokenId, "Token ids are not equals!")
+        Assertions.assertEquals(expected.tokenId.toBigInteger(), activity.tokenId, "Token ids are not equals!")
         Assertions.assertEquals(expected.owner.formatted, activity.owner, "Owner's addresses are not equals!")
         Assertions.assertEquals(expected.contract, activity.contract, "Contract's addresses are not equals!")
     }
@@ -409,8 +409,8 @@ class NftOrderActivityControllerTest {
                 val items = dto.items
                 Assertions.assertEquals(dto.total, items.size)
                 val transfer = items[0]
-                Assertions.assertTrue(transfer is TransferDto)
-                transfer as TransferDto
+                Assertions.assertTrue(transfer is FlowTransferDto)
+                transfer as FlowTransferDto
                 Assertions.assertEquals(userFrom.formatted, transfer.from, "Wrong From user in Transfer Activity!!!")
             }
 
@@ -446,13 +446,13 @@ class NftOrderActivityControllerTest {
             "Should return 3 items, but return ${activities.items.size} items"
         )
 
-        Assertions.assertTrue(activities.items[0] is MintDto)
-        Assertions.assertTrue(activities.items[1] is TransferDto)
-        Assertions.assertTrue(activities.items[2] is BurnDto)
+        Assertions.assertTrue(activities.items[0] is FlowMintDto)
+        Assertions.assertTrue(activities.items[1] is FlowTransferDto)
+        Assertions.assertTrue(activities.items[2] is FlowBurnDto)
 
-        val mint = activities.items[0] as MintDto
-        val transfer = activities.items[1] as TransferDto
-        val burn = activities.items[2] as BurnDto
+        val mint = activities.items[0] as FlowMintDto
+        val transfer = activities.items[1] as FlowTransferDto
+        val burn = activities.items[2] as FlowBurnDto
 
         Assertions.assertEquals(mint.owner, mintActivity.owner.formatted, "Mint activity: owners are not equals!")
         Assertions.assertEquals(
@@ -536,13 +536,13 @@ class NftOrderActivityControllerTest {
         Assertions.assertTrue(activities.items.isNotEmpty())
         Assertions.assertTrue(activities.items.size == 3)
 
-        Assertions.assertTrue(activities.items[0] is BurnDto)
-        Assertions.assertTrue(activities.items[1] is TransferDto)
-        Assertions.assertTrue(activities.items[2] is MintDto)
+        Assertions.assertTrue(activities.items[0] is FlowBurnDto)
+        Assertions.assertTrue(activities.items[1] is FlowTransferDto)
+        Assertions.assertTrue(activities.items[2] is FlowMintDto)
 
-        val mint = activities.items[2] as MintDto
-        val transfer = activities.items[1] as TransferDto
-        val burn = activities.items[0] as BurnDto
+        val mint = activities.items[2] as FlowMintDto
+        val transfer = activities.items[1] as FlowTransferDto
+        val burn = activities.items[0] as FlowBurnDto
 
         Assertions.assertEquals(mint.owner, mintActivity.owner.formatted, "Mint activity: owners are not equals!")
         Assertions.assertEquals(

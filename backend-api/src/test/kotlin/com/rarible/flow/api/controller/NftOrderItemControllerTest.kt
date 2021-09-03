@@ -157,7 +157,7 @@ class NftOrderItemControllerTest {
 
                         Assertions.assertEquals(42L, nextLastItem.tokenId!!.toLong())
                         Assertions.assertTrue(lastItem.date!!.isAfter(nextLastItem.date!!))
-                        Assertions.assertTrue(lastItem.tokenId!! -  nextLastItem.tokenId!! == 2)
+                        Assertions.assertTrue(lastItem.tokenId!! -  nextLastItem.tokenId!! == 2L)
                     }
             }
 

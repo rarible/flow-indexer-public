@@ -12,9 +12,9 @@ object OwnershipToDtoConverter : Converter<Ownership, FlowNftOwnershipDto> {
         return FlowNftOwnershipDto(
             id = ownership.id.toString(),
             token = ownership.contract,
-            tokenId = ownership.tokenId.toString(),
+            tokenId = ownership.tokenId,
             owner = ownership.owner.formatted,
-            creators = ownership.creators.map { PayInfoDto(account = it.account.formatted, value = it.value.toString()) },
+            creators = ownership.creators.map { PayInfoDto(account = it.account.formatted, value = it.value) },
             date = ownership.date
         )
     }

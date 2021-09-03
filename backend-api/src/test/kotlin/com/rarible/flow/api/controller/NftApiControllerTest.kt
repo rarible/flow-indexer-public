@@ -60,7 +60,7 @@ internal class NftApiControllerTest(
     @MockkBean
     lateinit var itemMetaRepository: ItemMetaRepository
 
-    @MockkBean(NftItemService::class)
+    @Autowired
     lateinit var nftItemService: NftItemService
 
     @Test
@@ -71,13 +71,13 @@ internal class NftApiControllerTest(
         )
 
 
-        coEvery {
-            nftItemService.getAllItems(any(), any(), any())
-        } returns FlowNftItemsDto(
-            total = items.size,
-            continuation = "",
-            items = items.map(ItemToDtoConverter::convert)
-        ).toMono()
+//        coEvery {
+//            nftItemService.getAllItems(any(), any(), any())
+//        } returns FlowNftItemsDto(
+//            total = items.size,
+//            continuation = "",
+//            items = items.map(ItemToDtoConverter::convert)
+//        ).toMono()
 
         val cont = NftItemContinuation(Instant.now(Clock.systemUTC()), ItemId("0x01", 42))
         var response = client
@@ -114,8 +114,8 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemDto>()
             .returnResult().responseBody!!
         item.id shouldBe "0x01:42"
-        item.creator shouldBe "0x01"
-        item.owner shouldBe "0x02"
+        item.creator shouldBe FlowAddress("0x01").formatted
+        item.owner shouldBe FlowAddress("0x02").formatted
     }
 
     @Test
@@ -186,13 +186,13 @@ internal class NftApiControllerTest(
             createItem(),
             createItem(tokenId = 43).copy(creator = FlowAddress("0x02"))
         )
-        val captured = slot<ItemFilter.ByCreator>()
+        //val captured = slot<ItemFilter.ByCreator>()
         coEvery {
-           nftItemService.byCreator(captured.captured.creator.formatted, any(), any())
+           nftItemService.byCreator(any(), any(), any())
         } coAnswers {
             FlowNftItemsDto(
-                total = items.filter { it.owner == captured.captured.creator }.size,
-                items = items.filter { it.owner == captured.captured.creator }.map(ItemToDtoConverter::convert),
+                total = items.filter { it.owner == FlowAddress(arg(0)) }.size,
+                items = items.filter { it.owner == FlowAddress(arg(0)) }.map(ItemToDtoConverter::convert),
                 continuation = ""
             )
         }

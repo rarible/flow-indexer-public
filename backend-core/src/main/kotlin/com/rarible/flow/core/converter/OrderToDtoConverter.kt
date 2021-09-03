@@ -16,24 +16,24 @@ object OrderToDtoConverter: Converter<Order, FlowOrderDto> {
             make = when (source.make) {
                 is FlowAssetNFT -> FlowAssetNFTDto(
                     contract = source.make.contract,
-                    value = "${source.make.value}",
-                    tokenId = "${source.itemId.tokenId}"
+                    value = source.make.value,
+                    tokenId = source.itemId.tokenId.toBigInteger()
                 )
                 is FlowAssetFungible -> FlowAssetFungibleDto(
                     contract = source.make.contract,
-                    value = "${source.make.value}",
+                    value = source.make.value,
                 )
             },
             take = when (source.take) {
                 null -> null
                 is FlowAssetNFT -> FlowAssetNFTDto(
                     contract = source.make.contract,
-                    value = "${source.make.value}",
-                    tokenId = "${source.itemId.tokenId}"
+                    value = source.make.value,
+                    tokenId = source.itemId.tokenId.toBigInteger()
                 )
                 is FlowAssetFungible -> FlowAssetFungibleDto(
                     contract = source.make.contract,
-                    value = "${source.make.value}",
+                    value = source.make.value,
                 )
 
             },
@@ -46,11 +46,11 @@ object OrderToDtoConverter: Converter<Order, FlowOrderDto> {
             data = FlowOrderDataDto(
                 payouts = source.data.payouts.map { PayInfoDto(
                     account = it.account.formatted,
-                    value = "${it.value}"
+                    value = it.value
                 ) },
                 originalFees = source.data.originalFees.map { PayInfoDto(
                     account = it.account.formatted,
-                    value = "${it.value}"
+                    value = it.value
                 ) }
             ),
             amountUsd = 0.toBigDecimal(), //TODO get currencies course

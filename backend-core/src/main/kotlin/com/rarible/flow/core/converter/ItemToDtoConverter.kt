@@ -11,7 +11,7 @@ object ItemToDtoConverter : Converter<Item, FlowNftItemDto> {
         return FlowNftItemDto(
             id = item.id.toString(),
             contract = item.contract,
-            tokenId = item.tokenId.toInt(),
+            tokenId = item.tokenId,
             creator = item.creator.formatted,
             owner = item.owner?.formatted,
             meta = item.meta,
