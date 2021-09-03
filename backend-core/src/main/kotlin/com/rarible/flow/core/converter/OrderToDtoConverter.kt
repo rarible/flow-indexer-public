@@ -10,6 +10,7 @@ import java.time.ZoneOffset
 object OrderToDtoConverter: Converter<Order, FlowOrderDto> {
     override fun convert(source: Order): FlowOrderDto =
         FlowOrderDto(
+            id = source.id,
             itemId = source.itemId.toString(),
             maker = source.maker.formatted,
             taker = source.taker?.formatted,
