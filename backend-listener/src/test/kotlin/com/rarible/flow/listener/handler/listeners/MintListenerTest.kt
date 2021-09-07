@@ -51,14 +51,14 @@ class MintListenerTest() : BaseIntegrationTest() {
 
     @Test
     fun `should handle mint`() = runBlocking<Unit> {
-        val contract = "A.fcfb23c627a63d40.CommonNFT.NFT"
+        val contract = "A.fcfb23c627a63d40.CommonNFT"
         val creator = "0xfcfb23c627a63d40"
 
         val event = EventMessage(
             EventId.of("A.fcfb23c627a63d40.CommonNFT.Mint"),
             mapOf(
                 "id" to "12",
-                "collection" to contract,
+                "collection" to "A.fcfb23c627a63d40.CommonNFT.NFT",
                 "creator" to creator,
                 "metadata" to "url://",
                 "royalties" to listOf(

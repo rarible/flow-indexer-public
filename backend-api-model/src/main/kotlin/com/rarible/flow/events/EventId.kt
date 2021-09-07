@@ -16,8 +16,8 @@ data class EventId(
 
     fun contractEvent(): String = "$contractName.$eventName"
 
-    fun nft(collectionName: String = "NFT"): String {
-        return "$type.${contractAddress.bytes.bytesToHex()}.$contractName.$collectionName"
+    fun collection(): String {
+        return "$type.${contractAddress.bytes.bytesToHex()}.$contractName"
     }
 
     companion object {

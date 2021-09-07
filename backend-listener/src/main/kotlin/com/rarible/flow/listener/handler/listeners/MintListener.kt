@@ -4,6 +4,7 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.*
 import com.rarible.flow.events.BlockInfo
+import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.config.ListenerProperties
 import com.rarible.flow.listener.handler.EventHandler
@@ -31,18 +32,19 @@ class MintListener(
         log.info("Handling [$ID] at [${event.collection}.$tokenId] with fields [${eventMessage.fields}]")
 
         val to = FlowAddress(event.creator)
+        val contract = EventId.of(event.collection).collection()
         val existingEvent = itemRepository.coFindById(ItemId(event.collection, tokenId))
 
         if (existingEvent == null) {
             val item = Item(
-                event.collection,
+                contract,
                 tokenId,
                 to,
                 getRoyalties(event.royalties),
                 to,
                 Instant.now(Clock.systemUTC()),
                 event.metadata,
-                collection = event.collection,
+                collection = contract,
             )
 
             itemRepository.coSave(item).let {
@@ -52,7 +54,7 @@ class MintListener(
 
             ownershipRepository.coSave(
                 Ownership(
-                    event.collection,
+                    contract,
                     tokenId,
                     to,
                     Instant.now(),
@@ -68,13 +70,13 @@ class MintListener(
                     date = Instant.now(Clock.systemUTC()),
                     activity = MintActivity(
                         owner = to,
-                        contract = event.collection,
+                        contract = contract,
                         tokenId = tokenId,
                         value = 1L,
                         transactionHash = eventMessage.blockInfo.transactionId,
                         blockHash = eventMessage.blockInfo.blockId,
                         blockNumber = eventMessage.blockInfo.blockHeight,
-                        collection = item.collection
+                        collection = contract
                     )
                 )
             )
