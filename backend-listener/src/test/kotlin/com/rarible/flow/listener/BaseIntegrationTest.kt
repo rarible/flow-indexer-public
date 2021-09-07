@@ -6,6 +6,7 @@ import com.rarible.core.test.ext.MongoCleanup
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.listener.config.ListenerProperties
 import com.rarible.flow.listener.handler.EventHandler
@@ -42,6 +43,9 @@ abstract class BaseIntegrationTest {
 
     @Autowired
     lateinit var itemHistoryRepository: ItemHistoryRepository
+
+    @Autowired
+    lateinit var orderRepository: OrderRepository
 
     @Autowired
     lateinit var itemEvents: RaribleKafkaConsumer<FlowNftItemEventDto>

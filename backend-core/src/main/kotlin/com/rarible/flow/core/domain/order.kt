@@ -33,7 +33,7 @@ sealed class BaseOrder(
  * @property amount         - amount in flow
  * @property offeredNftId   - nft id for nft-nft exchange
  * @property fill           - TODO add  doc
- * @property canceled       - order canceled
+ * @property cancelled       - order canceled
  * @property buyerFee       - fee for buyer
  * @property sellerFee      - fee for seller
  * @property collection     - item collection
@@ -50,9 +50,9 @@ data class Order(
     val amount: BigDecimal,
     val offeredNftId: String? = null,
     val fill: BigDecimal = BigDecimal.ZERO,
-    val canceled: Boolean = false,
+    val cancelled: Boolean = false,
     val data: OrderData,
-    val amountUsd: BigDecimal = 0.toBigDecimal(),
+    val amountUsd: BigDecimal = BigDecimal.ZERO,
     val createdAt: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC),
     @field:LastModifiedDate
     var lastUpdatedAt: LocalDateTime? = null,

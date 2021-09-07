@@ -28,7 +28,7 @@ class SaleOfferAvailable(
         val event = SaleOfferEvent(eventMessage.fields)
 
 
-        val itemId = ItemId(event.nftType, event.nftId.toLong())
+        val itemId = ItemId(EventId.of(event.nftType).collection(), event.nftID.toLong())
         val item = itemRepository.coFindById(itemId)
         if(item?.owner != null) {
             val price = event.price.toBigDecimal()
@@ -78,19 +78,7 @@ class SaleOfferAvailable(
         }
     }
 
-    fun orderData(fill: BigDecimal, item: Item): OrderData {
-        val feesPaid = item.royalties.map { r ->
-            Payout(r.address, fill * (r.fee / 100).toBigDecimal())
-        }
-        val sellerProfit = fill - feesPaid.foldRight(BigDecimal.ZERO) { payout, acc ->
-            acc + payout.value
-        }
 
-        return OrderData(
-            feesPaid + Payout(item.owner!!, sellerProfit),
-            item.royalties.map { Payout(it.address, it.fee.toBigDecimal()) }
-        )
-    }
 
 
     companion object {
@@ -100,9 +88,23 @@ class SaleOfferAvailable(
         class SaleOfferEvent(fields: Map<String, Any?>) {
             val saleOfferResourceID: String by fields
             val nftType: String by fields
-            val nftId: String by fields
+            val nftID: String by fields
             val ftVaultType: String by fields
             val price: String by fields
+        }
+
+        fun orderData(fill: BigDecimal, item: Item): OrderData {
+            val feesPaid = item.royalties.map { r ->
+                Payout(r.address, fill * (r.fee / 100).toBigDecimal())
+            }
+            val sellerProfit = fill - feesPaid.foldRight(BigDecimal.ZERO) { payout, acc ->
+                acc + payout.value
+            }
+
+            return OrderData(
+                feesPaid + Payout(item.owner!!, sellerProfit),
+                item.royalties.map { Payout(it.address, it.fee.toBigDecimal()) }
+            )
         }
     }
 
