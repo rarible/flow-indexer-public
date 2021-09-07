@@ -1,5 +1,8 @@
 package com.rarible.flow.listener
 
+import com.rarible.core.test.ext.KafkaTest
+import com.rarible.core.test.ext.MongoTest
+import com.rarible.flow.listener.config.Config
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
@@ -20,5 +23,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 )
 @ActiveProfiles("test")
 @Import(TestPropertiesConfiguration::class)
+@MongoTest
+@KafkaTest
 @Testcontainers
 annotation class IntegrationTest

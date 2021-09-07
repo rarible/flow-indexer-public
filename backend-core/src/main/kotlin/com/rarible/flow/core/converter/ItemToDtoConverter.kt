@@ -22,7 +22,7 @@ object ItemToDtoConverter : Converter<Item, FlowNftItemDto> {
             creators = convert(item.creator),
             owners = item.owner?.let { listOf(it.formatted) } ?: emptyList(),
             meta = MetaDto(
-                "", "", emptyList(), emptyList(), Binary.empty()
+                "", "", emptyList(), emptyList(), ""
             ),
             mintedAt = item.date,
             lastUpdatedAt = item.date,

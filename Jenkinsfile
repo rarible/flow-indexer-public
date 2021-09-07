@@ -58,5 +58,23 @@ pipeline {
                 deployStack("dev", stackName, prefix, env.IMAGE_TAG, services)
             }
         }
+
+        stage("deploy to staging") {
+            agent any
+            when {
+                allOf {
+                    expression {
+                        return env.BRANCH_NAME == 'origin/main' || env.BRANCH_NAME == 'main'
+                    }
+                }
+                beforeAgent true
+            }
+            environment {
+                APPLICATION_ENVIRONMENT = 'staging'
+            }
+            steps {
+                deployStack("dev", stackName, prefix, env.IMAGE_TAG, services)
+            }
+        }
     }
 }

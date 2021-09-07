@@ -42,7 +42,7 @@ class MintListener(
                 to,
                 Instant.now(Clock.systemUTC()),
                 event.metadata,
-                collection = event.collection
+                collection = event.collection,
             )
 
             itemRepository.coSave(item).let {
@@ -58,7 +58,9 @@ class MintListener(
                     Instant.now(),
                     creators = listOf(Payout(account = item.creator, value = BigDecimal.ONE))
                 )
-            )
+            ).let {
+                protocolEventPublisher.onUpdate(it)
+            }
 
             itemHistoryRepository.coSave(
                 ItemHistory(
@@ -90,9 +92,7 @@ class MintListener(
 
         val log by Log()
 
-        class CommonNftMint(
-            val fields: Map<String, Any?>
-        ) {
+        class CommonNftMint(fields: Map<String, Any?>) {
             val id: String by fields
             val collection: String by fields
             val creator: String by fields
