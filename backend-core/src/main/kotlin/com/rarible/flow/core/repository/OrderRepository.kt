@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono
 interface OrderRepository: ReactiveMongoRepository<Order, Long> {
     fun findByItemId(itemId: ItemId): Mono<Order>
     @Query("""
-        {"_id": ?0, "cancelled": false, "fill": 0}
+        {"_id": ?0, "cancelled": false, "fill": "0"}
     """)
     fun findActiveById(id: Long): Mono<Order>
 }

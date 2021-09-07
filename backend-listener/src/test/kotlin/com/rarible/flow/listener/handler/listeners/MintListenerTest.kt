@@ -71,18 +71,8 @@ class MintListenerTest() : BaseIntegrationTest() {
         }
 
         ownershipRepository.coFindById(
-            OwnershipId(
-                contract,
-                12L,
-                FlowAddress(creator)
-            )
-        ) should { ownership ->
-            ownership shouldNotBe null
-            ownership as Ownership
-            ownership.contract shouldBe contract
-            ownership.tokenId shouldBe 12L
-            ownership.creators shouldContain Payout(FlowAddress(creator), BigDecimal.ONE)
-        }
+            OwnershipId(contract, 12L, FlowAddress(creator))
+        ) shouldNotBe null
 
         val history = itemHistoryRepository.coFindAll().toList()
         history shouldHaveSize 1

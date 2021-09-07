@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
-import java.math.BigDecimal
 
 @MongoTest
 @DataMongoTest(
@@ -43,7 +42,7 @@ internal class OrderRepositoryTest(
     @Test
     fun `should return only active orders`() {
         val active = createOrder()
-        val cancelled = active.copy(canceled = true, id = 2L)
+        val cancelled = active.copy(cancelled = true, id = 2L)
         val filled = active.copy(fill = 1.toBigDecimal(), id = 3L)
         orderRepository.saveAll(listOf(active, cancelled, filled))
 

@@ -6,3 +6,8 @@ flow-indexer-listener:
     owner: "0xe91e497115b9731b"
     name: "CommonNFT"
     symbol: "CNFT"
+
+logging:
+  level:
+    com.rarible.flow: DEBUG
+    org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG

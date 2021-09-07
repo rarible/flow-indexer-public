@@ -39,7 +39,7 @@ object OrderToDtoConverter: Converter<Order, FlowOrderDto> {
 
             },
             fill = source.fill.toBigInteger(),
-            cancelled = source.canceled,
+            cancelled = source.cancelled,
             createdAt = source.createdAt.toInstant(ZoneOffset.UTC),
             lastUpdateAt = source.lastUpdatedAt!!.toInstant(ZoneOffset.UTC),
             amount = source.amount,
