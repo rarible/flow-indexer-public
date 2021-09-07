@@ -9,5 +9,6 @@ flow-indexer-listener:
 
 logging:
   level:
+    root: ERROR
     com.rarible.flow: DEBUG
     org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG

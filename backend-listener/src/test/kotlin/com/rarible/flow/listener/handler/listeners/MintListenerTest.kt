@@ -34,7 +34,7 @@ class MintListenerTest() : BaseIntegrationTest() {
     @Test
     fun `should handle mint`() = runBlocking<Unit> {
         val contract = "A.fcfb23c627a63d40.CommonNFT"
-        val creator = "0xfcfb23c627a63d40"
+        val creator = FlowAddress("0x01").formatted
 
         val event = EventMessage(
             EventId.of("A.fcfb23c627a63d40.CommonNFT.Mint"),

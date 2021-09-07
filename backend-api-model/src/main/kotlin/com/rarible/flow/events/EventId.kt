@@ -1,8 +1,6 @@
 package com.rarible.flow.events
 
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.bytesToHex
-
 
 data class EventId(
     val type: String,
@@ -11,13 +9,13 @@ data class EventId(
     val eventName: String
 ) {
     override fun toString(): String {
-        return "$type.${contractAddress.bytes.bytesToHex()}.$contractName.$eventName"
+        return "$type.${contractAddress.base16Value}.$contractName.$eventName"
     }
 
     fun contractEvent(): String = "$contractName.$eventName"
 
     fun collection(): String {
-        return "$type.${contractAddress.bytes.bytesToHex()}.$contractName"
+        return "$type.${contractAddress.base16Value}.$contractName"
     }
 
     companion object {

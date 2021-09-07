@@ -55,32 +55,6 @@ class SaleOfferCompleteListener(
             )
         )
         protocolEventPublisher.onUpdate(savedOrder)
-
-        val item = itemService.byId(order.itemId)
-        if(item == null) {
-            log.error("Trying to complete an order for non-existing item [{}]", order.itemId)
-        } else {
-            itemHistoryRepository.save(
-                ItemHistory(
-                    id = UUID.randomUUID().toString(),
-                    date = Instant.now(Clock.systemUTC()),
-                    activity = FlowNftOrderActivitySell(
-                        price = order.take?.value ?: BigDecimal.ZERO,
-                        left = OrderActivityMatchSide(
-                            order.maker, order.make
-                        ),
-                        right = OrderActivityMatchSide(
-                            order.taker!!, order.take!!
-                        ),
-                        blockHash = blockInfo.blockId,
-                        blockNumber = blockInfo.blockHeight,
-                        transactionHash = blockInfo.transactionId,
-                        collection = item.collection,
-                        tokenId = savedOrder.id
-                    )
-                )
-            )
-        }
     }
 
     private suspend fun cancelOffer(
