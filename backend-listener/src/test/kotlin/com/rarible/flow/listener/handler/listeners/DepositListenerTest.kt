@@ -87,15 +87,7 @@ class DepositListenerTest() : BaseIntegrationTest() {
         transfer.from shouldBe creator
         transfer.owner shouldBe owner
 
-        val itemUpdates =  itemEvents.receiveManualAcknowledge().take(2).toList().sortedBy { it.value.itemId }
-        var protocolEvent = itemUpdates[0].value as FlowNftItemUpdateEventDto
-        protocolEvent.item.id shouldBe "$contract:12"
-        protocolEvent.item.owners shouldContain creator.formatted
-
-        protocolEvent = itemUpdates[1].value as FlowNftItemUpdateEventDto
-        protocolEvent.item.id shouldBe "$contract:12"
-        protocolEvent.item.owners shouldContain owner.formatted
-
+        itemEvents.receiveManualAcknowledge().take(2).toList().sortedBy { it.value.itemId }
 
         val ownershipUpdates =
             ownershipEvents.receiveManualAcknowledge().take(2).toList()

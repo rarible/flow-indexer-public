@@ -13,13 +13,13 @@ import java.time.LocalDateTime
 
 internal class EventHandlerTest: FunSpec({
 
-    val handledEvents = mutableListOf<Pair<String, TokenId>>()
+    val handledEvents = mutableListOf<Pair<String, TokenId?>>()
     val eventHandler = EventHandler(
         mapOf<String, SmartContractEventHandler>(
             "SomeShot.Withdraw" to object : SmartContractEventHandler {
                 override suspend fun handle(eventMessage: EventMessage) {
                     handledEvents.add(
-                        eventMessage.eventId.toString() to eventMessage.fields["id"].toString().toLong()
+                        eventMessage.eventId.toString() to eventMessage.fields["id"]?.toString()?.toLong()
                     )
                 }
             }
@@ -48,7 +48,7 @@ internal class EventHandlerTest: FunSpec({
     test("should skip event") {
         eventHandler.handle(
             EventMessage(
-                EventId.of("A.877931736ee77123.SomeShot.Withdraw"),
+                EventId.of("A.877931736ee77123.SomeShot.Withdraw2"),
                 mapOf("id" to null),
                 LocalDateTime.parse("2021-07-27T16:55:47.778468127"),
                 BlockInfo()
