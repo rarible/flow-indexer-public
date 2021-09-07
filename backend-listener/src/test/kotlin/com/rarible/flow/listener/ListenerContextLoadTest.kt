@@ -12,8 +12,12 @@ class ListenerContextLoadTest: BaseIntegrationTest() {
     @Autowired
     lateinit var handlers: Map<String, SmartContractEventHandler>
 
+
+
     @Test
-    fun contextLoads() {}
+    fun contextLoads() {
+        protocolEventPublisher shouldNotBe null
+    }
 
     @Test
     fun loadsEventHandlers() {

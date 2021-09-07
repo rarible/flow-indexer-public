@@ -62,45 +62,12 @@ class Config(
     @Bean
     fun objectMapper(): ObjectMapper = commonMapper()
 
-    @Bean
-    fun gatewayItemEventsProducer(): RaribleKafkaProducer<FlowNftItemEventDto> {
-        return RaribleKafkaProducer(
-            clientId = "${listenerProperties.environment}.flow.nft-events-importer",
-            valueSerializerClass = JsonSerializer::class.java,
-            defaultTopic = FlowNftItemEventTopicProvider.getTopic(listenerProperties.environment),
-            bootstrapServers = listenerProperties.kafkaReplicaSet
-        )
-    }
 
     @Bean
-    fun gatewayOwnershipEventsProducer(): RaribleKafkaProducer<FlowOwnershipEventDto> {
-        return RaribleKafkaProducer(
-            clientId = "${listenerProperties.environment}.flow.ownership-events-importer",
-            valueSerializerClass = JsonSerializer::class.java,
-            defaultTopic = FlowNftOwnershipEventTopicProvider.getTopic(listenerProperties.environment),
-            bootstrapServers = listenerProperties.kafkaReplicaSet
-        )
-    }
-
-    @Bean
-    fun gatewayOrderEventsProducer(): RaribleKafkaProducer<FlowOrderEventDto> {
-        return RaribleKafkaProducer(
-            clientId = "${listenerProperties.environment}.flow.order-events-importer",
-            valueSerializerClass = JsonSerializer::class.java,
-            defaultTopic = FlowOrderEventTopicProvider.getTopic(listenerProperties.environment),
-            bootstrapServers = listenerProperties.kafkaReplicaSet
-        )
-    }
-
-    @Bean
-    fun protocolEventPublisher(
-        gatewayItemEventsProducer: RaribleKafkaProducer<FlowNftItemEventDto>,
-        gatewayOwnershipEventsProducer: RaribleKafkaProducer<FlowOwnershipEventDto>,
-        gatewayOrderEventsProducer: RaribleKafkaProducer<FlowOrderEventDto>,
-    ) = ProtocolEventPublisher(
-        gatewayItemEventsProducer,
-        gatewayOwnershipEventsProducer,
-        gatewayOrderEventsProducer
+    fun protocolEventPublisher() = ProtocolEventPublisher(
+        GatewayEventsProducers.itemsUpdates(listenerProperties.environment, listenerProperties.kafkaReplicaSet),
+        GatewayEventsProducers.ownershipsUpdates(listenerProperties.environment, listenerProperties.kafkaReplicaSet),
+        GatewayEventsProducers.ordersUpdates(listenerProperties.environment, listenerProperties.kafkaReplicaSet)
     )
 
 }

@@ -16,6 +16,7 @@ dependencies {
     implementation(rootProject.libs.rarible.core.kafka)
     implementation(rootProject.libs.bundles.flow.models)
 
+    testImplementation(rootProject.testLibs.kotest.kafka)
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {

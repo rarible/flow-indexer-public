@@ -44,12 +44,13 @@ dependencyResolutionManagement {
         }
 
         create("testLibs") {
-            version("kotest", "4.6.0")
+            version("kotest", "4.6.2")
             version("rarible-core", "1.3-SNAPSHOT.spring25")
 
             alias("kotest-runner").to("io.kotest", "kotest-runner-junit5").versionRef("kotest")
-            alias("kotest-spring").to("io.kotest", "kotest-extensions-spring").versionRef("kotest")
-            alias("kotest-test-containers").to("io.kotest", "kotest-extensions-testcontainers").version("kotest")
+            alias("kotest-spring").to("io.kotest.extensions", "kotest-extensions-spring").version("1.0.0")
+            alias("kotest-test-containers").to("io.kotest", "kotest-extensions-testcontainers").version("1.0.+")
+            alias("kotest-kafka").to("io.kotest.extensions", "kotest-extensions-embedded-kafka").version("1.0.+")
             alias("rarible-core-test").to("com.rarible.core", "rarible-core-test-common").versionRef("rarible-core")
 
             bundle("kotest", listOf("kotest-runner"))
