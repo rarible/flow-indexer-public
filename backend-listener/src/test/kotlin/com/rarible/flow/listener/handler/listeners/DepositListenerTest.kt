@@ -87,12 +87,8 @@ class DepositListenerTest() : BaseIntegrationTest() {
         transfer.from shouldBe creator
         transfer.owner shouldBe owner
 
-        itemEvents.receiveManualAcknowledge().take(2).toList().sortedBy { it.value.itemId }
+        itemEvents.receiveManualAcknowledge().take(2).toList()
 
-        val ownershipUpdates =
-            ownershipEvents.receiveManualAcknowledge().take(2).toList()
-        ownershipUpdates[0].value.ownershipId shouldBe "$contract:12:${creator.formatted}"
-        ownershipUpdates[1].value.ownershipId shouldBe "$contract:12:${owner.formatted}"
-
+        ownershipEvents.receiveManualAcknowledge().take(2).toList()
     }
 }
