@@ -12,6 +12,7 @@ import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.reactive.awaitFirstOrDefault
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Service
@@ -43,6 +44,7 @@ class ItemService(
             ownershipRepository
                 .deleteAllByContractAndTokenId(item.contract, item.tokenId)
                 .collectList().awaitFirstOrDefault(emptyList())
+
             val ownership = ownershipRepository.coSave(
                 Ownership(item.contract, item.tokenId, to, Instant.now(), listOf(Payout(account = item.creator, value = BigDecimal.ONE)))
             )

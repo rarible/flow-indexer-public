@@ -31,24 +31,6 @@ import java.time.LocalDateTime
 @IntegrationTest
 class MintListenerTest() : BaseIntegrationTest() {
 
-    @Autowired
-    lateinit var eventHandler: EventHandler
-
-    @Autowired
-    lateinit var itemRepository: ItemRepository
-
-    @Autowired
-    lateinit var ownershipRepository: OwnershipRepository
-
-    @Autowired
-    lateinit var itemHistoryRepository: ItemHistoryRepository
-
-    @Autowired
-    lateinit var itemEvents: RaribleKafkaConsumer<FlowNftItemEventDto>
-
-    @Autowired
-    lateinit var ownershipEvents: RaribleKafkaConsumer<FlowOwnershipEventDto>
-
     @Test
     fun `should handle mint`() = runBlocking<Unit> {
         val contract = "A.fcfb23c627a63d40.CommonNFT"
