@@ -111,11 +111,11 @@ class NftOrderItemControllerTest {
                 Assertions.assertNotNull(itemsDto.continuation)
                 val lastItem = itemsDto.items.last()
 
-                Assertions.assertEquals(44L, lastItem.tokenId!!.toLong())
+                Assertions.assertEquals(44L, lastItem.tokenId.toLong())
 
                 val cont = NftItemContinuation(
-                    afterDate = lastItem.mintedAt!!,
-                    afterId = ItemId.parse(lastItem.id!!)
+                    afterDate = lastItem.mintedAt,
+                    afterId = ItemId.parse(lastItem.id)
                 )
 
                 Assertions.assertEquals(cont.toString(), itemsDto.continuation)
@@ -135,9 +135,9 @@ class NftOrderItemControllerTest {
 
                         val nextLastItem = nextItemsDto.items.last()
 
-                        Assertions.assertEquals(43L, nextLastItem.tokenId!!.toLong())
-                        Assertions.assertTrue(lastItem.mintedAt!!.isAfter(nextLastItem.mintedAt!!))
-                        Assertions.assertTrue(lastItem.tokenId!! > nextLastItem.tokenId!!)
+                        Assertions.assertEquals(43L, nextLastItem.tokenId.toLong())
+                        Assertions.assertTrue(lastItem.mintedAt.isAfter(nextLastItem.mintedAt))
+                        Assertions.assertTrue(lastItem.tokenId > nextLastItem.tokenId)
                     }
 
                 client.get().uri("/v0.1/order/items/all?size=2&continuation={continuation}", mapOf("continuation" to itemsDto.continuation))
@@ -155,9 +155,9 @@ class NftOrderItemControllerTest {
 
                         val nextLastItem = nextItemsDto.items.last()
 
-                        Assertions.assertEquals(42L, nextLastItem.tokenId!!.toLong())
-                        Assertions.assertTrue(lastItem.mintedAt!!.isAfter(nextLastItem.mintedAt!!))
-                        Assertions.assertTrue(lastItem.tokenId!! -  nextLastItem.tokenId!! == 2.toBigInteger())
+                        Assertions.assertEquals(42L, nextLastItem.tokenId.toLong())
+                        Assertions.assertTrue(lastItem.mintedAt.isAfter(nextLastItem.mintedAt))
+                        Assertions.assertTrue(lastItem.tokenId - nextLastItem.tokenId == 2.toBigInteger())
                     }
             }
 

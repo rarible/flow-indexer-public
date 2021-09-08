@@ -3,5 +3,9 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017
       database: flow-${spring.profiles.active}
+
 scanner:
   kafka-replica-set: PLAINTEXT://localhost:29092
+logging:
+  level:
+    com.rarible.blockchain.scanner.flow.FlowNetNewBlockPoller: debug

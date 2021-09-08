@@ -17,6 +17,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
         "spring.cloud.config.enabled = false",
         "spring.cloud.consul.config.enabled = false",
         "logging.logstash.tcp-socket.enabled = false",
+        "blockchain.scanner.flow.chainId = EMULATOR"
     ]
 )
 @ActiveProfiles("test")
