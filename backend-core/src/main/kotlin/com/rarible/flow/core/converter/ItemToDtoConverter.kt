@@ -7,10 +7,8 @@ import com.rarible.protocol.dto.FlowCreatorDto
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowRoyaltyDto
 import com.rarible.protocol.dto.MetaDto
-import io.daonomic.rpc.domain.Binary
 import org.springframework.core.convert.converter.Converter
 import java.math.BigInteger
-import java.time.Instant
 
 object ItemToDtoConverter : Converter<Item, FlowNftItemDto> {
 

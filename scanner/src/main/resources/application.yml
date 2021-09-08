@@ -1,3 +1,6 @@
 spring:
   application:
     name: flow-scanner
+  data:
+    mongodb:
+      auto-index-creation: true

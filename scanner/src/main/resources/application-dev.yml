@@ -5,11 +5,6 @@ logging:
   level:
     com.rarible.flow: DEBUG
 
-blockchain:
-  scanner:
-    flow:
-      poller:
-        delay: 200
 
 scanner:
   environment: dev
