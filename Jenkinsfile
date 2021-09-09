@@ -73,7 +73,7 @@ pipeline {
                 APPLICATION_ENVIRONMENT = 'staging'
             }
             steps {
-                deployStack("dev", stackName, prefix, env.IMAGE_TAG, services)
+                deployStack('staging', stackName, prefix, env.IMAGE_TAG, services)
             }
         }
     }

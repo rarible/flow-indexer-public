@@ -12,16 +12,11 @@ class EventHandler(
 ) : ConsumerEventHandler<EventMessage> {
 
     override suspend fun handle(event: EventMessage) {
-        try {
-            log.info("Handling event: $event")
-            smartContractEventHandlers.getOrDefault(
-                event.eventId.contractEvent(),
-                NoOpHandler(event.eventId)
-            ).handle(event)
-        } catch (e: Exception) {
-            log.error("Failed to handle message: {}", event, e)
-        }
-
+        log.info("Handling event: $event")
+        smartContractEventHandlers.getOrDefault(
+            event.eventId.contractEvent(),
+            NoOpHandler(event.eventId)
+        ).handle(event)
     }
 
     companion object {
