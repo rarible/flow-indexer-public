@@ -16,7 +16,7 @@ pipeline {
         stage('test') {
             agent any
             steps {
-                sh './gradlew clean test --no-daemon --info'
+                sh './gradlew clean test --no-daemon --info --refresh-dependencies'
             }
             post {
                 always {
@@ -77,12 +77,4 @@ pipeline {
             }
         }
     }
-    post {
-        always {
-            node("") {
-                cleanWs()
-            }
-        }
-    }
-
 }
