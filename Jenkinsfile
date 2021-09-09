@@ -29,6 +29,13 @@ pipeline {
             steps {
                 sh './gradlew build -x test --no-daemon --info'
             }
+            post {
+                always {
+                    node("") {
+                        cleanWs()
+                    }
+                }
+            }
         }
         stage('publish docker images') {
             agent any
@@ -77,4 +84,5 @@ pipeline {
             }
         }
     }
+
 }
