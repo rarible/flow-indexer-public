@@ -8,7 +8,6 @@ import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventListener
 import com.rarible.blockchain.scanner.subscriber.ProcessedBlockEvent
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventMessage
-import com.rarible.flow.scanner.config.ScannerProperties
 import com.rarible.flow.scanner.model.RariEventMessage
 import com.rarible.flow.scanner.model.RariEventMessageCaught
 import org.slf4j.Logger
@@ -20,7 +19,6 @@ import java.time.ZoneOffset
 
 @Component
 class ByAccountFlowLogListener(
-    private val scannerProperties: ScannerProperties,
     private val flowMapper: ObjectMapper,
     private val publisher: ApplicationEventPublisher
     ): FlowLogEventListener {
@@ -29,7 +27,6 @@ class ByAccountFlowLogListener(
 
     override suspend fun onBlockLogsProcessed(blockEvent: ProcessedBlockEvent<FlowLog, FlowLogRecord>) {
         blockEvent.records.filter { it.log.errorMessage.isNullOrEmpty() }.forEach { flowLogRecord ->
-            if (isEventTracked(flowLogRecord.log.type!!)) {
                 val flowLog = flowLogRecord.log
                 val msg = flowMapper.readValue<EventMessage>(flowLog.payload!!).apply {
                     timestamp = LocalDateTime.ofInstant(flowLog.timestamp, ZoneOffset.UTC)
@@ -42,13 +39,9 @@ class ByAccountFlowLogListener(
                 publisher.publishEvent(RariEventMessageCaught(message = RariEventMessage(messageId = flowLogRecord.id, event = msg)))
             }
         }
-    }
 
     override suspend fun onPendingLogsDropped(logs: List<FlowLogRecord>) {
         /** do nothing */
         log.warn("onPendingLogsDropped not realized yet!")
     }
-
-    private fun isEventTracked(eventType: String) =
-        scannerProperties.trackedContracts.any { contract -> eventType.contains(contract, true) }
 }

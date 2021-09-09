@@ -14,9 +14,3 @@ scanner:
     - "ff1201e3a53ee578" #Rari
     - "fcfb23c627a63d40" #Rari 1-phase mint
     - "665b9acf64dfdfdb" #Rari
-
-  sporks:
-    -
-      name: "Devnet25"
-      nodeUrl: "access.devnet.nodes.onflow.org:9000"
-      firstBlockHeight: 41567027
