@@ -10,6 +10,9 @@ blockchain:
     flow:
       poller:
         delay: 200
+      job:
+        reconciliation:
+          enabled: false
 
 scanner:
   environment: dev
