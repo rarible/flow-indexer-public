@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "1.5.21"
     kotlin("plugin.spring") version "1.5.21"
     kotlin("plugin.serialization") version "1.5.21"
+    jacoco
 }
 
 group = "com.rarible.flow"
@@ -35,6 +36,7 @@ allprojects {
         plugin("java")
         plugin("org.jetbrains.kotlin.jvm")
         plugin("io.spring.dependency-management")
+        plugin("jacoco")
     }
 
     repositories {
@@ -67,6 +69,19 @@ allprojects {
             freeCompilerArgs += listOf("-progressive", "-Xskip-metadata-version-check")
         }
 
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
+        testLogging {
+            this.events = setOf(
+                org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED,
+            )
+        }
+
+        finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
     }
 }
 
@@ -106,17 +121,6 @@ subprojects {
         }
     }
 
-    tasks.withType<Test> {
-        useJUnitPlatform()
-        testLogging {
-            this.events = setOf(
-                org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
-                org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED,
-                org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED,
-            )
-        }
-    }
-
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
@@ -126,6 +130,27 @@ tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar
 tasks.getByName<Jar>("jar") {
     enabled = true
 }
+
+task<JacocoReport>("coverage") {
+    dependsOn(subprojects.map { it.tasks.withType<Test>() })
+    dependsOn(subprojects.map { it.tasks.withType<JacocoReport>() })
+    additionalSourceDirs.setFrom(subprojects.map { it.the<SourceSetContainer>()["main"].allSource.srcDirs })
+    sourceDirectories.setFrom(subprojects.map { it.the<SourceSetContainer>()["main"].allSource.srcDirs })
+    classDirectories.setFrom(subprojects.map { it.the<SourceSetContainer>()["main"].output })
+    executionData.setFrom(project.fileTree(".") {
+        include("**/build/jacoco/*.exec")
+    })
+
+    reports {
+        xml.required.set(true)
+        xml.outputLocation.set(file("${buildDir}/reports/jacoco/coverage.xml"))
+        csv.required.set(false)
+        html.required.set(true)
+        html.outputLocation.set(file("${buildDir}/reports/jacoco/html"))
+    }
+}
+
+
 
 project("e2e") {
     tasks.withType<Test> {
