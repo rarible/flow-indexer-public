@@ -38,27 +38,9 @@ class DepositListener(
                 protocolEventPublisher.onItemUpdate(item)
                 protocolEventPublisher.onUpdate(ownership)
 
-                itemHistoryRepository.coSave(
-                    ItemHistory(
-                        id = UUID.randomUUID().toString(),
-                        date = Instant.now(Clock.systemUTC()),
-                        activity = TransferActivity(
-                            owner = to,
-                            contract = item.contract,
-                            tokenId = item.tokenId,
-                            value = 1L,
-                            transactionHash = eventMessage.blockInfo.transactionId,
-                            blockHash = eventMessage.blockInfo.blockId,
-                            blockNumber = eventMessage.blockInfo.blockHeight,
-                            from = oldItem?.owner ?: FlowAddress("0x00"),
-                            collection = item.collection
-                        )
-                    )
-                )
-
                 val orderToComplete = orderRepository.findByItemId(item.id).awaitSingleOrNull()
-                if(orderToComplete != null && orderToComplete.take == null && orderToComplete.fill != BigDecimal.ZERO) {
-                    orderRepository.coSave(
+                if(orderToComplete != null && orderToComplete.taker == null) {
+                    val order = orderRepository.coSave(
                         orderToComplete.copy(taker = to)
                     )
 
@@ -67,18 +49,36 @@ class DepositListener(
                             id = UUID.randomUUID().toString(),
                             date = Instant.now(Clock.systemUTC()),
                             activity = FlowNftOrderActivitySell(
-                                price = orderToComplete.take?.value ?: BigDecimal.ZERO,
+                                price = order.take?.value ?: BigDecimal.ZERO,
                                 left = OrderActivityMatchSide(
-                                    orderToComplete.maker, orderToComplete.make
+                                    order.maker, order.make
                                 ),
                                 right = OrderActivityMatchSide(
-                                    orderToComplete.taker!!, orderToComplete.take!!
+                                    order.taker!!, order.take!!
                                 ),
                                 blockHash = eventMessage.blockInfo.blockId,
                                 blockNumber = eventMessage.blockInfo.blockHeight,
                                 transactionHash = eventMessage.blockInfo.transactionId,
                                 collection = item.collection,
                                 tokenId = item.tokenId
+                            )
+                        )
+                    )
+                } else {
+                    itemHistoryRepository.coSave(
+                        ItemHistory(
+                            id = UUID.randomUUID().toString(),
+                            date = Instant.now(Clock.systemUTC()),
+                            activity = TransferActivity(
+                                owner = to,
+                                contract = item.contract,
+                                tokenId = item.tokenId,
+                                value = 1L,
+                                transactionHash = eventMessage.blockInfo.transactionId,
+                                blockHash = eventMessage.blockInfo.blockId,
+                                blockNumber = eventMessage.blockInfo.blockHeight,
+                                from = oldItem?.owner ?: FlowAddress("0x00"),
+                                collection = item.collection
                             )
                         )
                     )
