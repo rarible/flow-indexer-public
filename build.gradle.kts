@@ -134,6 +134,7 @@ tasks.getByName<Jar>("jar") {
 task<JacocoMerge>("coverageMerge") {
     dependsOn(subprojects.map { it.tasks.withType<Test>() })
     dependsOn(subprojects.map { it.tasks.withType<JacocoReport>() })
+
     executionData = (project.fileTree(".") {
         include("**/build/jacoco/*.exec")
     })
