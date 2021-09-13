@@ -131,9 +131,16 @@ tasks.getByName<Jar>("jar") {
     enabled = true
 }
 
-task<JacocoReport>("coverage") {
+task<JacocoMerge>("coverageMerge") {
     dependsOn(subprojects.map { it.tasks.withType<Test>() })
     dependsOn(subprojects.map { it.tasks.withType<JacocoReport>() })
+    executionData = (project.fileTree(".") {
+        include("**/build/jacoco/*.exec")
+    })
+}
+
+task<JacocoReport>("coverage") {
+    dependsOn("coverageMerge")
     additionalSourceDirs.setFrom(subprojects.map { it.the<SourceSetContainer>()["main"].allSource.srcDirs })
     sourceDirectories.setFrom(subprojects.map { it.the<SourceSetContainer>()["main"].allSource.srcDirs })
     classDirectories.setFrom(subprojects.map { it.the<SourceSetContainer>()["main"].output })
