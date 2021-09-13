@@ -170,13 +170,13 @@ class DepositListenerTest() : BaseIntegrationTest() {
         ownershipRepository.coFindById(OwnershipId(contract, 12L, owner)) shouldNotBe null
 
         val history = itemHistoryRepository.coFindAll().toList().sortedBy { it.date }
-        history shouldHaveSize 2
+        history shouldHaveSize 3
         val mint = history[0].activity as MintActivity
         mint.type shouldBe FlowActivityType.MINT
         mint.owner shouldBe creator
         mint.tokenId shouldBe 12L
 
-        val sell = history[1].activity as FlowNftOrderActivitySell
+        val sell = history[2].activity as FlowNftOrderActivitySell
         sell shouldNotBe null
 
         itemEvents.receiveManualAcknowledge().take(2).toList()

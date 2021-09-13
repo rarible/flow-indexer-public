@@ -44,7 +44,7 @@ class DepositListener(
                         orderToComplete.copy(taker = to)
                     )
 
-                    itemHistoryRepository.save(
+                    itemHistoryRepository.coSave(
                         ItemHistory(
                             id = UUID.randomUUID().toString(),
                             date = Instant.now(Clock.systemUTC()),
