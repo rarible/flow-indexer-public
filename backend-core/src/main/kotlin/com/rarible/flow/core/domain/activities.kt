@@ -4,6 +4,8 @@ import com.nftco.flow.sdk.FlowAddress
 import com.querydsl.core.annotations.PropertyType
 import com.querydsl.core.annotations.QueryEmbeddable
 import com.querydsl.core.annotations.QueryType
+import org.springframework.data.mongodb.core.mapping.Field
+import org.springframework.data.mongodb.core.mapping.FieldType
 import java.math.BigDecimal
 
 @QueryEmbeddable
@@ -182,12 +184,14 @@ sealed class FlowAsset {
 @QueryEmbeddable
 data class FlowAssetNFT(
     override val contract: String,
+    @Field(targetType = FieldType.DECIMAL128)
     override val value: BigDecimal,
     val tokenId: TokenId
 ): FlowAsset()
 @QueryEmbeddable
 data class FlowAssetFungible(
     override val contract: String,
+    @Field(targetType = FieldType.DECIMAL128)
     override val value: BigDecimal,
 ): FlowAsset()
 @QueryEmbeddable
