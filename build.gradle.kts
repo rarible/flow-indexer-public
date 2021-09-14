@@ -80,8 +80,6 @@ allprojects {
                 org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED,
             )
         }
-
-        finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
     }
 }
 
@@ -147,6 +145,7 @@ task<JacocoReport>("coverage") {
     classDirectories.setFrom(subprojects.map { it.the<SourceSetContainer>()["main"].output })
     executionData.setFrom(project.fileTree(".") {
         include("**/build/jacoco/*.exec")
+        exclude("**/build/jacoco/coverageMerge.exec")
     })
 
     reports {

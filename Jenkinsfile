@@ -16,7 +16,7 @@ pipeline {
         stage('test') {
             agent any
             steps {
-                sh './gradlew clean test --no-daemon --info --refresh-dependencies'
+                sh './gradlew clean test coverage --no-daemon --info --refresh-dependencies'
             }
             post {
                 always {

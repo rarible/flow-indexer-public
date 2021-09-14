@@ -4,6 +4,8 @@ import com.rarible.protocol.dto.*
 import org.springframework.data.mongodb.core.index.IndexDirection
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.core.mapping.Field
+import org.springframework.data.mongodb.core.mapping.FieldType
 import org.springframework.data.mongodb.core.mapping.MongoId
 import java.time.Instant
 
@@ -18,6 +20,7 @@ data class ItemHistory(
     @MongoId
     val id: String,
     @Indexed(direction = IndexDirection.DESCENDING)
+    @Field(targetType = FieldType.DATE_TIME)
     val date: Instant,
     val activity: FlowActivity
 )

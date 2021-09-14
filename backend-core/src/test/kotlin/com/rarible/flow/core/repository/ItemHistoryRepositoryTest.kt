@@ -4,6 +4,8 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.*
+import com.rarible.protocol.dto.FlowAggregationDataDto
+import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -30,7 +32,6 @@ import java.util.*
 )
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
-@Disabled
 class ItemHistoryRepositoryTest {
 
     @Autowired
@@ -66,11 +67,12 @@ class ItemHistoryRepositoryTest {
                     FlowAssetNFT("c1", BigDecimal.valueOf(10L), 2)
                 ),
                 right = OrderActivityMatchSide(
-                    FlowAddress("0x02"),
-                    FlowAssetFungible("flow", BigDecimal.valueOf(10L))
+                    FlowAddress("0x03"),
+                    FlowAssetFungible("flow", BigDecimal.valueOf(13L))
                 )
             )),
             ItemHistory(UUID.randomUUID().toString(), Instant.now(), sell.copy(
+                collection = "c2",
                 price = BigDecimal.valueOf(100L),
                 tokenId = 3,
                 left = OrderActivityMatchSide(
@@ -96,6 +98,10 @@ class ItemHistoryRepositoryTest {
         ).toList()
 
         aggregations shouldHaveSize 2
+        aggregations shouldContainAll listOf(
+            FlowAggregationDataDto("c1", BigDecimal.valueOf(14), 2),
+            FlowAggregationDataDto("c2", BigDecimal.valueOf(100), 1)
+        )
     }
 
     @Test
@@ -107,6 +113,11 @@ class ItemHistoryRepositoryTest {
         ).toList()
 
         aggregations shouldHaveSize 2
+        aggregations shouldContainAll listOf(
+            FlowAggregationDataDto(FlowAddress("0x02").formatted, BigDecimal.valueOf(1), 1),
+            FlowAggregationDataDto(FlowAddress("0x03").formatted, BigDecimal.valueOf(113), 2)
+        )
+
     }
 
     @Test
@@ -118,6 +129,10 @@ class ItemHistoryRepositoryTest {
         ).toList()
 
         aggregations shouldHaveSize 2
+        aggregations shouldContainAll listOf(
+            FlowAggregationDataDto(FlowAddress("0x01").formatted, BigDecimal.valueOf(14), 2),
+            FlowAggregationDataDto(FlowAddress("0x02").formatted, BigDecimal.valueOf(100), 1)
+        )
     }
 }
 
