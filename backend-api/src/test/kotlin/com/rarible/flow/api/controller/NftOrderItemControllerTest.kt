@@ -6,10 +6,12 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.NftItemContinuation
 import com.rarible.flow.core.repository.OrderRepository
+import com.rarible.flow.core.service.ItemService
 import com.rarible.flow.randomAddress
 import com.rarible.flow.randomLong
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemsDto
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -48,6 +50,9 @@ class NftOrderItemControllerTest {
 
     @Autowired
     private lateinit var orderRepository: OrderRepository
+
+    @Autowired
+    private lateinit var itemService: ItemService
 
     @BeforeEach
     internal fun setUp() {
@@ -377,11 +382,15 @@ class NftOrderItemControllerTest {
             listOf(
                 item,
                 item.copy(tokenId = ++tokenId),
-                item.copy(tokenId = ++tokenId, owner = null)
+                item.copy(tokenId = ++tokenId),
             )
         ).then().block()
 
-        client.get().uri("/v0.1/order/items/all")
+        runBlocking {
+            itemService.markDeleted(ItemId(contract = item.contract, tokenId = tokenId))
+        }
+
+        client.get().uri("/v0.1/order/items/all?showDeleted=false")
             .exchange()
             .expectStatus().isOk
             .expectBody<FlowNftItemsDto>()

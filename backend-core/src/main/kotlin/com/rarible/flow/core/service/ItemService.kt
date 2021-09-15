@@ -12,7 +12,6 @@ import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.reactive.awaitFirstOrDefault
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Service
@@ -25,7 +24,7 @@ class ItemService(
     private val ownershipRepository: OwnershipRepository
 ) {
     suspend fun markDeleted(itemId: ItemId): UpdateResult {
-        return itemRepository.updateById(itemId, Update().set(Item::owner.name, null))
+        return itemRepository.updateById(itemId, Update().unset(Item::owner.name))
     }
 
     suspend fun unlist(itemId: ItemId): UpdateResult {
