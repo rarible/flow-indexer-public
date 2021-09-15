@@ -5,7 +5,6 @@ import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.service.ItemService
-import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
@@ -13,8 +12,7 @@ import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
-import java.time.Clock
-import java.time.Instant
+import java.time.ZoneOffset
 import java.util.*
 
 @Component(SaleOfferCompleteListener.ID)
@@ -35,9 +33,9 @@ class SaleOfferCompleteListener(
 
         if (order != null) {
             if (event.accepted.toBoolean()) {
-                completeOffer(order, eventMessage.blockInfo)
+                completeOffer(order)
             } else {
-                cancelOffer(order)
+                cancelOffer(order, eventMessage)
             }
         } else {
             log.info("Order [{}] does not exist", event.saleOfferResourceID)
@@ -46,7 +44,6 @@ class SaleOfferCompleteListener(
 
     private suspend fun completeOffer(
         order: Order,
-        blockInfo: BlockInfo
     ) {
         val fill = order.take?.value ?: BigDecimal.ZERO
         val savedOrder = orderRepository.coSave(
@@ -58,7 +55,8 @@ class SaleOfferCompleteListener(
     }
 
     private suspend fun cancelOffer(
-        order: Order
+        order: Order,
+        eventMessage: EventMessage
     ) {
         val cancelled = orderRepository.coSave(order.copy(cancelled = true))
         itemService.unlist(order.itemId)
@@ -68,22 +66,23 @@ class SaleOfferCompleteListener(
         itemHistoryRepository.save(
             ItemHistory(
                 id = UUID.randomUUID().toString(),
-                date = Instant.now(Clock.systemUTC()),
+                date = eventMessage.timestamp.toInstant(ZoneOffset.UTC),
                 activity = FlowNftOrderActivityCancelList(
                     price = order.amount,
-                    hash = UUID.randomUUID().toString(), //todo delete hash
+                    hash = order.id.toString(), //todo delete hash
                     maker = item?.owner!!,
                     make = FlowAssetNFT(
                         contract = item.contract,
                         value = BigDecimal.valueOf(1L),
-                        tokenId = order.id
+                        tokenId = item.tokenId
                     ),
                     take = FlowAssetFungible(
                         contract = order.take?.contract.orEmpty(), //todo take can be empty?
                         value = order.amount
                     ),
                     collection = item.collection,
-                    tokenId = order.id
+                    tokenId = item.tokenId,
+                    contract = item.contract
                 )
             )
         )
