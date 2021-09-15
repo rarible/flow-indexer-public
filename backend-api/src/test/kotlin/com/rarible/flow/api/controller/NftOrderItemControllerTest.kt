@@ -358,4 +358,54 @@ class NftOrderItemControllerTest {
                 Assertions.assertTrue(items.size == 3)
             }
     }
+
+    @Test
+    internal fun showDeletedFlagTest() {
+        val nftContract = randomAddress()
+        var tokenId = randomLong()
+        val item = Item(
+            contract = nftContract,
+            tokenId = tokenId,
+            creator = FlowAddress(randomAddress()),
+            royalties = listOf(),
+            owner = FlowAddress(randomAddress()),
+            date = Instant.now(Clock.systemUTC()),
+            collection = "CollectionNFT"
+        )
+
+        itemRepository.saveAll(
+            listOf(
+                item,
+                item.copy(tokenId = ++tokenId),
+                item.copy(tokenId = ++tokenId, owner = null)
+            )
+        ).then().block()
+
+        client.get().uri("/v0.1/order/items/all")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemsDto>()
+            .consumeWith {
+                Assertions.assertNotNull(it.responseBody)
+                val items = it.responseBody!!.items
+                Assertions.assertTrue(items.isNotEmpty(), "Items list is empty!")
+                Assertions.assertEquals(2, items.size, "Items more or less than 2!")
+                Assertions.assertTrue(items.all { !it.deleted })
+            }
+
+        client.get().uri("/v0.1/order/items/all?showDeleted=true")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemsDto>()
+            .consumeWith {
+                Assertions.assertNotNull(it.responseBody)
+                val items = it.responseBody!!.items
+                Assertions.assertTrue(items.isNotEmpty(), "Items list is empty!")
+                Assertions.assertEquals(3, items.size, "Items more or less than 3!")
+                val deleted = items.filter { it.deleted }
+                val notDeleted = items.filterNot { it.deleted }
+                Assertions.assertEquals(1, deleted.size)
+                Assertions.assertEquals(2, notDeleted.size)
+            }
+    }
 }

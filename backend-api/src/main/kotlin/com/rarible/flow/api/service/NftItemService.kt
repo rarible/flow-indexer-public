@@ -1,10 +1,12 @@
 package com.rarible.flow.api.service
 
 import com.nftco.flow.sdk.FlowAddress
+import com.querydsl.core.BooleanBuilder
 import com.rarible.flow.core.converter.ItemMetaToDtoConverter
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.QItem
 import com.rarible.flow.core.repository.*
 import com.rarible.protocol.dto.FlowItemMetaDto
 import com.rarible.protocol.dto.FlowNftItemDto
@@ -25,22 +27,22 @@ class NftItemService(
     suspend fun getAllItems(continuation: String?, size: Int?, showDeleted: Boolean): Mono<FlowNftItemsDto> {
         return Mono.create { sink ->
             val cont = NftItemContinuation.parse(continuation)
-            var items: Flux<Item> = if (cont != null) {
-                if (showDeleted) {
-                    itemRepository.findAllByDateBeforeAndIdNotOrderByDateDescIdDesc(cont.afterDate, cont.afterId)
-                } else {
-                    itemRepository.findAllByDateBeforeAndIdNotAndOwnerIsNotNullOrderByDateDescIdDesc(cont.afterDate, cont.afterId)
-                }
-            } else if (showDeleted) {
-                itemRepository.findAllByOwnerIsNullOrderByDateDescIdDesc()
-            } else {
-                itemRepository.findAll(
-                    Sort.by(
-                        Sort.Order.desc(Item::date.name),
-                        Sort.Order.desc(Item::tokenId.name)
-                    )
-                )
+            val qItem = QItem.item
+            var builder = BooleanBuilder()
+
+            if (cont != null) {
+                builder = builder.and(qItem.date.before(cont.afterDate).and(qItem.id.ne(cont.afterId)))
             }
+            if (!showDeleted) {
+                builder = builder.and(qItem.owner.isNotNull)
+            }
+
+            var items: Flux<Item> = itemRepository.findAll(
+                builder, Sort.by(
+                    Sort.Order.desc(Item::date.name),
+                    Sort.Order.desc(Item::tokenId.name)
+                )
+            )
 
             if (size != null) {
                 items = items.take(size.toLong(), true)
@@ -58,7 +60,8 @@ class NftItemService(
     }
 
     suspend fun byCollection(collection: String, continuation: String?, size: Int?): FlowNftItemsDto {
-        val items = itemRepository.search(ItemFilter.ByCollection(collection), NftItemContinuation.parse(continuation), size)
+        val items =
+            itemRepository.search(ItemFilter.ByCollection(collection), NftItemContinuation.parse(continuation), size)
         return convert(items)
     }
 

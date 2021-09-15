@@ -17,7 +17,6 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import org.springframework.data.querydsl.ReactiveQuerydslPredicateExecutor
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.time.Instant
 
 interface ItemRepository : ReactiveMongoRepository<Item, ItemId>, ItemRepositoryCustom, ReactiveQuerydslPredicateExecutor<Item> {
 
@@ -26,12 +25,6 @@ interface ItemRepository : ReactiveMongoRepository<Item, ItemId>, ItemRepository
     fun findAllByListedIsTrue(): Flux<Item>
 
     fun findByIdAndOwnerIsNotNullOrderByDateDescTokenIdDesc(itemId: ItemId): Mono<Item>
-
-    fun findAllByDateBeforeAndIdNotAndOwnerIsNotNullOrderByDateDescIdDesc(dateBefore: Instant, idBefore: ItemId): Flux<Item>
-
-    fun findAllByDateBeforeAndIdNotOrderByDateDescIdDesc(dateBefore: Instant, idBefore: ItemId): Flux<Item>
-
-    fun findAllByOwnerIsNullOrderByDateDescIdDesc(): Flux<Item>
 }
 
 interface ItemRepositoryCustom : ContinuationRepositoryCustom<Item, ItemFilter> {
