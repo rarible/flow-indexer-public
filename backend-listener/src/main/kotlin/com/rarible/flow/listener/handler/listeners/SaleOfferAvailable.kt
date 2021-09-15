@@ -2,7 +2,6 @@ package com.rarible.flow.listener.handler.listeners
 
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.*
-import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
@@ -10,8 +9,7 @@ import com.rarible.flow.log.Log
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
-import java.time.Clock
-import java.time.Instant
+import java.time.ZoneOffset
 import java.util.*
 
 @Component(SaleOfferAvailable.ID)
@@ -61,15 +59,16 @@ class SaleOfferAvailable(
             itemHistoryRepository.coSave(
                 ItemHistory(
                     id = UUID.randomUUID().toString(),
-                    date = Instant.now(Clock.systemUTC()),
+                    date = eventMessage.timestamp.toInstant(ZoneOffset.UTC),
                     activity = FlowNftOrderActivityList(
                         price = price,
-                        hash = UUID.randomUUID().toString(), //todo delete hash
+                        hash = order.id.toString(),
                         maker = item.owner!!,
                         make = make,
                         take = take,
                         collection = saved.collection,
-                        tokenId = order.id
+                        tokenId = saved.tokenId,
+                        contract = saved.contract
                     )
                 )
             )

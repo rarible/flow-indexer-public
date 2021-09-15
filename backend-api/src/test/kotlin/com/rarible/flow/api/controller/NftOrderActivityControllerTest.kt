@@ -6,8 +6,8 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.randomAddress
 import com.rarible.flow.randomLong
-import com.rarible.protocol.dto.FlowBurnDto
 import com.rarible.protocol.dto.FlowActivitiesDto
+import com.rarible.protocol.dto.FlowBurnDto
 import com.rarible.protocol.dto.FlowMintDto
 import com.rarible.protocol.dto.FlowTransferDto
 import org.junit.jupiter.api.Assertions
@@ -563,7 +563,8 @@ class NftOrderActivityControllerTest {
                 value = BigDecimal.TEN
             ),
             collection = "NFT",
-            tokenId = randomLong()
+            tokenId = randomLong(),
+            contract = randomAddress()
         )
 
         val burnActivity = BurnActivity(

@@ -3,18 +3,16 @@ package com.rarible.flow.listener.handler.listeners
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.*
-import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
-import com.rarible.flow.listener.config.ListenerProperties
 import com.rarible.flow.listener.handler.EventHandler
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
-import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.Clock
 import java.time.Instant
+import java.time.ZoneOffset
 import java.util.*
 
 @Component(MintListener.ID)
@@ -67,7 +65,7 @@ class MintListener(
             itemHistoryRepository.coSave(
                 ItemHistory(
                     id = UUID.randomUUID().toString(),
-                    date = Instant.now(Clock.systemUTC()),
+                    date = eventMessage.timestamp.toInstant(ZoneOffset.UTC),
                     activity = MintActivity(
                         owner = to,
                         contract = contract,

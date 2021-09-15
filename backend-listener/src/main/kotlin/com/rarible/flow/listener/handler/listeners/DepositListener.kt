@@ -12,8 +12,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
-import java.time.Clock
-import java.time.Instant
+import java.time.ZoneOffset
 import java.util.*
 
 @Component(DepositListener.ID)
@@ -47,7 +46,7 @@ class DepositListener(
                     itemHistoryRepository.coSave(
                         ItemHistory(
                             id = UUID.randomUUID().toString(),
-                            date = Instant.now(Clock.systemUTC()),
+                            date = eventMessage.timestamp.toInstant(ZoneOffset.UTC),
                             activity = FlowNftOrderActivitySell(
                                 price = order.take?.value ?: BigDecimal.ZERO,
                                 left = OrderActivityMatchSide(
@@ -60,7 +59,8 @@ class DepositListener(
                                 blockNumber = eventMessage.blockInfo.blockHeight,
                                 transactionHash = eventMessage.blockInfo.transactionId,
                                 collection = item.collection,
-                                tokenId = item.tokenId
+                                tokenId = item.tokenId,
+                                contract = item.contract
                             )
                         )
                     )
@@ -68,7 +68,7 @@ class DepositListener(
                     itemHistoryRepository.coSave(
                         ItemHistory(
                             id = UUID.randomUUID().toString(),
-                            date = Instant.now(Clock.systemUTC()),
+                            date = eventMessage.timestamp.toInstant(ZoneOffset.UTC),
                             activity = TransferActivity(
                                 owner = to,
                                 contract = item.contract,

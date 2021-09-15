@@ -1,19 +1,20 @@
 package com.rarible.flow.listener.handler.listeners
 
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.BurnActivity
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.service.ItemService
-import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.reactive.awaitFirstOrDefault
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
-import java.time.Clock
-import java.time.Instant
+import java.time.ZoneOffset
 import java.util.*
 
 @Component(DestroyListener.ID)
@@ -33,7 +34,7 @@ class DestroyListener(
         val item = itemService.findAliveById(itemId)
         if(item != null) {
             log.info("Burning item [{}]...", itemId)
-            saveHistory(item, eventMessage.blockInfo)
+            saveHistory(item, eventMessage)
             itemService.markDeleted(itemId)
             protocolEventPublisher.onItemDelete(itemId)
 
@@ -53,12 +54,13 @@ class DestroyListener(
 
     private suspend fun saveHistory(
         item: Item,
-        blockInfo: BlockInfo
+        eventMessage: EventMessage
     ) {
+        val blockInfo = eventMessage.blockInfo
         itemHistoryRepository.coSave(
             ItemHistory(
                 id = UUID.randomUUID().toString(),
-                date = Instant.now(Clock.systemUTC()),
+                date = eventMessage.timestamp.toInstant(ZoneOffset.UTC),
                 activity = BurnActivity(
                     contract = item.contract,
                     tokenId = item.tokenId,
