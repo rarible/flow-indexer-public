@@ -10,21 +10,25 @@ import java.math.BigDecimal
 sealed interface FlowActivity
 
 /**
- * @property tokenId            NFT or Order token ID
+ * Common activity
+ *
+ * @property type               activity type
+ * @property contract           NFT item contract
+ * @property collection         NFT item collection
+ * @property tokenId            NFT token ID
  */
 @QueryEmbeddable
 sealed class BaseActivity: FlowActivity {
-    abstract val tokenId: TokenId /* = kotlin.Long */
     abstract val type: FlowActivityType
+    abstract val contract: String
+    abstract val collection: String
+    abstract val tokenId: TokenId /* = kotlin.Long */
 }
 
 /**
  * Base NFT Activity
  *
- * @property type               activity type
  * @property owner              NFT owner
- * @property contract           NFT source contract
- * @property tokenId            NFT token ID
  * @property value              amount of NFT's (default 1)
  * @property transactionHash    transaction ID (UUID)
  * @property blockHash          block ID (UUID)
@@ -34,36 +38,58 @@ sealed class BaseActivity: FlowActivity {
 sealed class FlowNftActivity: BaseActivity() {
     @get:QueryType(PropertyType.STRING)
     abstract val owner: FlowAddress?
-    abstract val contract: String
     abstract val value: Long
     abstract val transactionHash: String
     abstract val blockHash: String
     abstract val blockNumber: Long
-    abstract val collection: String
 }
+
+/**
+ * Order activity
+ *
+ * @property price      order price
+ */
 @QueryEmbeddable
 sealed class FlowNftOrderActivity: BaseActivity() {
     abstract val price: BigDecimal
-    abstract val collection: String
 }
+
+/**
+ * Sell activity
+ *
+ * @property left               buyer
+ * @property right              seller
+ * @property transactionHash    transaction hash
+ * @property blockHash          block hash
+ * @property blockNumber        block height
+ */
 @QueryEmbeddable
 data class FlowNftOrderActivitySell(
     override val type: FlowActivityType = FlowActivityType.SELL,
     override val price: BigDecimal,
     override val collection: String,
     override val tokenId: TokenId,
+    override val contract: String,
     val left: OrderActivityMatchSide,
     val right: OrderActivityMatchSide,
     val transactionHash: String,
     val blockHash: String,
     val blockNumber: Long,
 ): FlowNftOrderActivity()
+
+/**
+ * List activity
+ *
+ * @property hash           TODO????
+ * @property maker          NFT item
+ */
 @QueryEmbeddable
 data class FlowNftOrderActivityList(
     override val type: FlowActivityType = FlowActivityType.LIST,
     override val price: BigDecimal,
     override val collection: String,
     override val tokenId: TokenId,
+    override val contract: String,
     val hash: String,
     @get:QueryType(PropertyType.STRING)
     val maker: FlowAddress,
@@ -76,6 +102,7 @@ data class FlowNftOrderActivityCancelList(
     override val price: BigDecimal,
     override val collection: String,
     override val tokenId: TokenId,
+    override val contract: String,
     val hash: String,
     @get:QueryType(PropertyType.STRING)
     val maker: FlowAddress,
