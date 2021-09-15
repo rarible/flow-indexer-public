@@ -10,8 +10,6 @@ import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
-import java.time.Clock
-import java.time.Instant
 import java.time.ZoneOffset
 import java.util.*
 
@@ -26,7 +24,7 @@ class MintListener(
     override suspend fun handle(eventMessage: EventMessage) {
         val event = CommonNftMint(eventMessage.fields)
         val tokenId = event.id.toLong()
-
+        val eventDate = eventMessage.timestamp.toInstant(ZoneOffset.UTC)
         log.info("Handling [$ID] at [${event.collection}.$tokenId] with fields [${eventMessage.fields}]")
 
         val to = FlowAddress(event.creator)
@@ -40,7 +38,7 @@ class MintListener(
                 to,
                 getRoyalties(event.royalties),
                 to,
-                Instant.now(Clock.systemUTC()),
+                eventDate,
                 event.metadata,
                 collection = contract,
             )
@@ -55,17 +53,18 @@ class MintListener(
                     contract,
                     tokenId,
                     to,
-                    Instant.now(),
+                    eventDate,
                     creators = listOf(Payout(account = item.creator, value = BigDecimal.ONE))
                 )
             ).let {
                 protocolEventPublisher.onUpdate(it)
             }
 
+
             itemHistoryRepository.coSave(
                 ItemHistory(
                     id = UUID.randomUUID().toString(),
-                    date = eventMessage.timestamp.toInstant(ZoneOffset.UTC),
+                    date = eventDate,
                     activity = MintActivity(
                         owner = to,
                         contract = contract,
