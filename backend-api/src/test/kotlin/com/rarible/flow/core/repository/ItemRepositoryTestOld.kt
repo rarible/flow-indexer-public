@@ -81,6 +81,7 @@ class ItemRepositoryTestOld {
         emptyList(),
         FlowAddress("0x02"),
         Instant.now(Clock.systemUTC()),
-        collection = "collection"
+        collection = "collection",
+        updatedAt = Instant.now()
     )
 }

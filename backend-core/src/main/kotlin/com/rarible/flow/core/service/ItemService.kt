@@ -12,7 +12,6 @@ import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.reactive.awaitFirstOrDefault
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Service
@@ -35,7 +34,7 @@ class ItemService(
     suspend fun byId(itemId: ItemId): Item? = itemRepository.findById(itemId).awaitSingleOrNull()
 
     suspend fun findAliveById(itemId: ItemId): Item? =
-        itemRepository.findByIdAndOwnerIsNotNullOrderByDateDescTokenIdDesc(itemId).awaitSingleOrNull()
+        itemRepository.findByIdAndOwnerIsNotNullOrderByMintedAtDescTokenIdDesc(itemId).awaitSingleOrNull()
 
     suspend fun transferNft(itemId: ItemId, to: FlowAddress): Pair<Item, Ownership>? {
         return itemRepository.coFindById(itemId)?.let { item ->

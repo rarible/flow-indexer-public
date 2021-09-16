@@ -66,15 +66,16 @@ class NftOrderItemControllerTest {
             creator = nftOwner,
             royalties = listOf(),
             owner = nftOwner,
-            date = Instant.now(Clock.systemUTC()),
-            collection = "collection"
+            mintedAt = Instant.now(Clock.systemUTC()),
+            collection = "collection",
+            updatedAt = Instant.now()
         )
 
         itemRepository.saveAll(
             listOf(
                 item,
-                item.copy(tokenId = ++tokenId, date = Instant.now(Clock.systemUTC()).plusMillis(1000L)),
-                item.copy(tokenId = ++tokenId, date = Instant.now(Clock.systemUTC()).plusMillis(2000L))
+                item.copy(tokenId = ++tokenId, mintedAt = Instant.now(Clock.systemUTC()).plusMillis(1000L)),
+                item.copy(tokenId = ++tokenId, mintedAt = Instant.now(Clock.systemUTC()).plusMillis(2000L))
             )
         ).then().block()
 
@@ -176,8 +177,9 @@ class NftOrderItemControllerTest {
             creator = nftOwner,
             royalties = listOf(),
             owner = nftOwner,
-            date = Instant.now(Clock.systemUTC()),
-            collection = "collection"
+            mintedAt = Instant.now(Clock.systemUTC()),
+            collection = "collection",
+            updatedAt = Instant.now()
         )
 
         itemRepository.saveAll(
@@ -239,8 +241,9 @@ class NftOrderItemControllerTest {
             creator = nftOwner,
             royalties = listOf(),
             owner = nftOwner,
-            date = Instant.now(Clock.systemUTC()),
-            collection = "collection"
+            mintedAt = Instant.now(Clock.systemUTC()),
+            collection = "collection",
+            updatedAt = Instant.now()
         )
 
         itemRepository.saveAll(
@@ -304,8 +307,9 @@ class NftOrderItemControllerTest {
             creator = FlowAddress(randomAddress()),
             royalties = listOf(),
             owner = FlowAddress(randomAddress()),
-            date = Instant.now(Clock.systemUTC()),
-            collection = "CollectionNFT"
+            mintedAt = Instant.now(Clock.systemUTC()),
+            collection = "CollectionNFT",
+            updatedAt = Instant.now(),
         )
 
         itemRepository.saveAll(
@@ -369,8 +373,9 @@ class NftOrderItemControllerTest {
             creator = FlowAddress(randomAddress()),
             royalties = listOf(),
             owner = FlowAddress(randomAddress()),
-            date = Instant.now(Clock.systemUTC()),
-            collection = "CollectionNFT"
+            mintedAt = Instant.now(Clock.systemUTC()),
+            collection = "CollectionNFT",
+            updatedAt = Instant.now()
         )
 
         itemRepository.saveAll(
