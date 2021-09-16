@@ -60,9 +60,8 @@ internal class NftApiControllerTest(
     @MockkBean
     lateinit var itemMetaRepository: ItemMetaRepository
 
-    private val nftItemService: NftItemService by lazy {
-        NftItemService(itemRepository, itemMetaRepository)
-    }
+    @MockkBean
+    lateinit var nftItemService: NftItemService
 
     @Test
     fun `should return all items and stop`() = runBlocking<Unit> {
@@ -102,7 +101,7 @@ internal class NftApiControllerTest(
     }
 
     @Test
-    fun `should return item by id`() {
+    fun `should return item by id`() = runBlocking<Unit> {
         coEvery {
             nftItemService.getItemById(any())
         } returns ItemToDtoConverter.convert(createItem())
@@ -133,22 +132,20 @@ internal class NftApiControllerTest(
     }
 
     @Test
-    fun `should return items by owner`() {
+    fun `should return items by owner`() = runBlocking<Unit> {
         val items = listOf(
             createItem(),
             createItem(tokenId = 43).copy(owner = FlowAddress("0x03"))
         )
-        val captured = slot<ItemFilter.ByOwner>()
         coEvery {
-            nftItemService.byAccount(captured.captured.owner.formatted, any(), any())
+            nftItemService.byAccount(any(), any(), any())
         } coAnswers {
             FlowNftItemsDto(
-                total = items.filter { it.owner == captured.captured.owner }.size,
-                items = items.filter { it.owner == captured.captured.owner }.map(ItemToDtoConverter::convert),
+                total = items.filter { it.owner == FlowAddress(arg(0)) }.size,
+                items = items.filter { it.owner == FlowAddress(arg(0)) }.map(ItemToDtoConverter::convert),
                 continuation = ""
             )
         }
-
 
         var response = client
             .get()
@@ -206,7 +203,6 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         respose.items shouldHaveSize 1
-        respose.items[0].owners shouldBe listOf(items[0].owner!!.formatted)
 
         respose = client
             .get()
@@ -216,7 +212,6 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         respose.items shouldHaveSize 1
-        respose.items[0].owners shouldBe listOf(items[1].owner!!.formatted)
 
         respose = client
             .get()
@@ -226,7 +221,6 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         respose.items shouldHaveSize 0
-
 
     }
 
