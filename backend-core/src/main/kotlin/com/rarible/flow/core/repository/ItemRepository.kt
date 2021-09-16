@@ -24,7 +24,7 @@ interface ItemRepository : ReactiveMongoRepository<Item, ItemId>, ItemRepository
 
     fun findAllByListedIsTrue(): Flux<Item>
 
-    fun findByIdAndOwnerIsNotNullOrderByDateDescTokenIdDesc(itemId: ItemId): Mono<Item>
+    fun findByIdAndOwnerIsNotNullOrderByMintedAtDescTokenIdDesc(itemId: ItemId): Mono<Item>
 }
 
 interface ItemRepositoryCustom : ContinuationRepositoryCustom<Item, ItemFilter> {
@@ -38,13 +38,7 @@ class ItemRepositoryCustomImpl(
 
     override fun search(filter: ItemFilter, cont: Continuation?, limit: Int?): Flow<Item> {
         cont as NftItemContinuation?
-        val criteria = when (filter) {
-            is ItemFilter.All -> all(filter.showDeleted)
-            is ItemFilter.ByCreator -> byCreator(filter.creator)
-            is ItemFilter.ByOwner -> byOwner(filter.owner)
-            is ItemFilter.ByCollection -> byCollection(filter.collectionId)
-        } scrollTo cont
-
+        val criteria = filter.criteria() scrollTo cont
         val query = Query.query(criteria).with(
             mongoSort(filter.sort)
         ).limit(limit ?: DEFAULT_LIMIT)
@@ -52,24 +46,10 @@ class ItemRepositoryCustomImpl(
         return mongo.find<Item>(query).asFlow()
     }
 
-    private fun all(showDeleted: Boolean): Criteria =
-        if (showDeleted) Criteria() else Item::owner exists true
-
-    private fun byOwner(owner: FlowAddress): Criteria {
-        return Item::owner isEqualTo owner
-    }
-
-    private fun byCreator(creator: FlowAddress): Criteria {
-        return (Item::creator isEqualTo creator).andOperator(all(false))
-    }
-
-    private fun byCollection(collectionId: String): Criteria =
-        (Item::collection isEqualTo collectionId).andOperator(all(false))
-
     private fun mongoSort(sort: ItemFilter.Sort?): Sort {
         return when (sort) {
             ItemFilter.Sort.LAST_UPDATE -> Sort.by(
-                Sort.Order.desc(Item::date.name),
+                Sort.Order.desc(Item::mintedAt.name),
                 Sort.Order.desc(Item::id.name)
             )
             else -> Sort.unsorted()
@@ -81,9 +61,9 @@ class ItemRepositoryCustomImpl(
             this
         } else {
             this.orOperator(
-                Item::date lt continuation.afterDate,
+                Item::mintedAt lt continuation.afterDate,
                 Criteria().andOperator(
-                    Item::date isEqualTo continuation.afterDate,
+                    Item::mintedAt isEqualTo continuation.afterDate,
                     Item::id lt continuation.afterId
                 )
             )

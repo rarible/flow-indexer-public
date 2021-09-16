@@ -22,8 +22,8 @@ object ItemToDtoConverter : Converter<Item, FlowNftItemDto> {
             meta = MetaDto(
                 "", "", emptyList(), emptyList(), ""
             ),
-            mintedAt = item.date,
-            lastUpdatedAt = item.date,
+            mintedAt = item.mintedAt,
+            lastUpdatedAt = item.updatedAt,
             royalties = convert(item.royalties),
             metaUrl = item.meta,
             supply = BigInteger.ONE,

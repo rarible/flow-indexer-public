@@ -68,7 +68,7 @@ internal class NftApiControllerTest(
     fun `should return all items and stop`() = runBlocking<Unit> {
         val items = listOf(
             createItem(),
-            createItem(43).copy(date = Instant.now(Clock.systemUTC()).minus(1, ChronoUnit.DAYS))
+            createItem(43).copy(mintedAt = Instant.now(Clock.systemUTC()).minus(1, ChronoUnit.DAYS))
         )
 
 
@@ -78,7 +78,7 @@ internal class NftApiControllerTest(
             total = items.size,
             continuation = "",
             items = items.map(ItemToDtoConverter::convert)
-        ).toMono()
+        )
 
         val cont = NftItemContinuation(Instant.now(Clock.systemUTC()), ItemId("0x01", 42))
         var response = client
@@ -107,7 +107,7 @@ internal class NftApiControllerTest(
             nftItemService.getItemById(any())
         } returns ItemToDtoConverter.convert(createItem())
 
-        var item = client
+        val item = client
             .get()
             .uri("/v0.1/items/{itemId}", mapOf("itemId" to "0x01:42"))
             .exchange()
@@ -322,7 +322,8 @@ internal class NftApiControllerTest(
         emptyList(),
         FlowAddress("0x02"),
         Instant.now(Clock.systemUTC()),
-        collection = "collection"
+        collection = "collection",
+        updatedAt = Instant.now()
     )
 
     companion object {

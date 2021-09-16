@@ -24,39 +24,15 @@ class NftItemService(
     private val itemMetaRepository: ItemMetaRepository,
 ) {
 
-    suspend fun getAllItems(continuation: String?, size: Int?, showDeleted: Boolean): Mono<FlowNftItemsDto> {
-        return Mono.create { sink ->
-            val cont = NftItemContinuation.parse(continuation)
-            val qItem = QItem.item
-            var builder = BooleanBuilder()
-
-            if (cont != null) {
-                builder = builder.and(qItem.date.before(cont.afterDate).and(qItem.id.ne(cont.afterId)))
-            }
-            if (!showDeleted) {
-                builder = builder.and(qItem.owner.isNotNull)
-            }
-
-            var items: Flux<Item> = itemRepository.findAll(
-                builder, Sort.by(
-                    Sort.Order.desc(Item::date.name),
-                    Sort.Order.desc(Item::tokenId.name)
-                )
-            )
-
-            if (size != null) {
-                items = items.take(size.toLong(), true)
-            }
-
-            items.collectList().subscribe {
-                sink.success(convert(it))
-            }
-        }
+    suspend fun getAllItems(continuation: String?, size: Int?, showDeleted: Boolean): FlowNftItemsDto {
+        val items = itemRepository.search(ItemFilter.All(showDeleted), NftItemContinuation.parse(continuation), size)
+        return convert(items)
     }
 
     suspend fun getItemById(itemId: String): FlowNftItemDto? {
-        val item = itemRepository.coFindById(ItemId.parse(itemId)) ?: return null
-        return ItemToDtoConverter.convert(item)
+        return itemRepository.coFindById(ItemId.parse(itemId))?.let {
+            ItemToDtoConverter.convert(it)
+        }
     }
 
     suspend fun byCollection(collection: String, continuation: String?, size: Int?): FlowNftItemsDto {
@@ -88,7 +64,7 @@ class NftItemService(
         return if (items.isEmpty()) {
             null
         } else {
-            NftItemContinuation(items.last().date, items.last().id).toString()
+            NftItemContinuation(items.last().mintedAt, items.last().id).toString()
         }
     }
 
