@@ -1,9 +1,0 @@
-blockchain:
-  scanner:
-    flow:
-      chainId: MAINNET
-      poller:
-        delay: 300
-
-scanner:
-  tracked-contracts:
