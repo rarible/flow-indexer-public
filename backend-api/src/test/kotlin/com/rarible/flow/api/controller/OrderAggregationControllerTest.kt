@@ -42,45 +42,4 @@ class OrderAggregationControllerTest {
         repo.deleteAll().block()
     }
 
-    @Test
-    fun `should throw exception`() {
-        client.get()
-            .uri("/v0.1/orders/1")
-            .exchange()
-            .expectStatus().is5xxServerError
-    }
-
-    @Test
-    fun `should return order by id`() {
-        val itemId = ItemId("0x1a2b3c4d", 25L)
-        val order = Order(
-            id = 1L,
-            itemId = itemId,
-            maker = FlowAddress(randomAddress()),
-            make = FlowAssetNFT(
-                contract = itemId.contract,
-                value = BigDecimal.valueOf(100L),
-                tokenId = itemId.tokenId
-            ),
-            amount = BigDecimal.valueOf(100L),
-            amountUsd = BigDecimal.valueOf(100L),
-            data = OrderData(
-                payouts = listOf(Payout(FlowAddress(randomAddress()), BigDecimal.valueOf(1L))),
-                originalFees = listOf(Payout(FlowAddress(randomAddress()), BigDecimal.valueOf(1L)))
-            ),
-            collection = "collection"
-        )
-
-        repo.save(order).block()
-
-        val resp = client.get()
-            .uri("/v0.1/orders/${order.id}")
-            .exchange()
-            .expectStatus().isOk
-            .expectBody(FlowOrderDto::class.java)
-            .returnResult().responseBody!!
-
-        Assertions.assertNotNull(resp)
-
-    }
 }
