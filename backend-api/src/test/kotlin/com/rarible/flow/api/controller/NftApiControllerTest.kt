@@ -51,7 +51,6 @@ import java.time.temporal.ChronoUnit
 )
 @AutoConfigureWebTestClient(timeout = "60000")
 @ActiveProfiles("test")
-@Disabled("How to init NftItemService?!!1")
 internal class NftApiControllerTest(
     @Autowired val client: WebTestClient
 ) {
@@ -61,8 +60,9 @@ internal class NftApiControllerTest(
     @MockkBean
     lateinit var itemMetaRepository: ItemMetaRepository
 
-    @Autowired
-    lateinit var nftItemService: NftItemService
+    private val nftItemService: NftItemService by lazy {
+        NftItemService(itemRepository, itemMetaRepository)
+    }
 
     @Test
     fun `should return all items and stop`() = runBlocking<Unit> {
