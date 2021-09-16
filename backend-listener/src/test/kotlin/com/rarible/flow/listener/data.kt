@@ -14,5 +14,6 @@ fun createItem(tokenId: TokenId = 42) = Item(
     emptyList(),
     FlowAddress("0x02"),
     Instant.now(Clock.systemUTC()),
-    collection = "collection"
+    collection = "collection",
+    updatedAt = Instant.now()
 )
