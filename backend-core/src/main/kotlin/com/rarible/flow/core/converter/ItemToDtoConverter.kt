@@ -32,7 +32,7 @@ object ItemToDtoConverter : Converter<Item, FlowNftItemDto> {
     }
 
     private fun convert(creator: FlowAddress) = listOf(
-        FlowCreatorDto(creator.formatted, 10000.toBigDecimal())
+        FlowCreatorDto(creator.formatted, 100.toBigDecimal())
     )
 
     private fun convert(royalties: List<Part>) = royalties.map {

@@ -56,7 +56,7 @@ class MintListener(
                     tokenId,
                     to,
                     eventDate,
-                    creators = listOf(Payout(account = item.creator, value = BigDecimal.ONE))
+                    creators = listOf(Payout(account = item.creator, value = 100.toBigDecimal()))
                 )
             ).let {
                 protocolEventPublisher.onUpdate(it)
