@@ -1,0 +1,17 @@
+logging:
+  level:
+    com.rarible.flow: DEBUG
+    org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG
+
+spring:
+  cloud:
+    consul:
+      discovery:
+        tags:
+          - web-api:flow-api-staging.rarible.com
+
+rarible:
+  core:
+    filter:
+      cors:
+        enabled: true
