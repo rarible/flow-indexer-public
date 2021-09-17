@@ -4,7 +4,6 @@ import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.protocol.dto.FlowOrderDto
 import kotlinx.coroutines.reactive.awaitFirst
-import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono

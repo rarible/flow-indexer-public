@@ -10,7 +10,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
@@ -47,11 +46,11 @@ class ItemHistoryRepositoryTest {
             collection = "c1",
             tokenId = 1,
             left = OrderActivityMatchSide(
-                FlowAddress("0x01"),
+                FlowAddress("0x01").formatted,
                 FlowAssetNFT("c1", BigDecimal.ONE, 1)
             ),
             right = OrderActivityMatchSide(
-                FlowAddress("0x02"),
+                FlowAddress("0x02").formatted,
                 FlowAssetFungible("flow", BigDecimal.ONE)
             ),
             transactionHash = "txhash",
@@ -66,11 +65,11 @@ class ItemHistoryRepositoryTest {
                 price = BigDecimal.valueOf(10L),
                 tokenId = 2,
                 left = OrderActivityMatchSide(
-                    FlowAddress("0x01"),
+                    FlowAddress("0x01").formatted,
                     FlowAssetNFT("c1", BigDecimal.valueOf(10L), 2)
                 ),
                 right = OrderActivityMatchSide(
-                    FlowAddress("0x03"),
+                    FlowAddress("0x03").formatted,
                     FlowAssetFungible("flow", BigDecimal.valueOf(13L))
                 )
             )),
@@ -79,11 +78,11 @@ class ItemHistoryRepositoryTest {
                 price = BigDecimal.valueOf(100L),
                 tokenId = 3,
                 left = OrderActivityMatchSide(
-                    FlowAddress("0x02"),
+                    FlowAddress("0x02").formatted,
                     FlowAssetNFT("c2", BigDecimal.valueOf(100L), 2)
                 ),
                 right = OrderActivityMatchSide(
-                    FlowAddress("0x03"),
+                    FlowAddress("0x03").formatted,
                     FlowAssetFungible("flow", BigDecimal.valueOf(100L))
                 )
             )),
@@ -93,22 +92,24 @@ class ItemHistoryRepositoryTest {
     }
 
     @Test
-    fun `should aggregate by collection`() = runBlocking<Unit> {
-        val aggregations = itemHistoryRepository.aggregatePurchaseByCollection(
-            Instant.now().minus(1, ChronoUnit.DAYS),
-            Instant.now().plus(1, ChronoUnit.DAYS),
-            null
-        ).toList()
+    fun `should aggregate by collection`() {
+        runBlocking {
+            val aggregations = itemHistoryRepository.aggregatePurchaseByCollection(
+                Instant.now().minus(1, ChronoUnit.DAYS),
+                Instant.now().plus(1, ChronoUnit.DAYS),
+                null
+            ).toList()
 
-        aggregations shouldHaveSize 2
-        aggregations shouldContainAll listOf(
-            FlowAggregationDataDto("c1", BigDecimal.valueOf(14), 2),
-            FlowAggregationDataDto("c2", BigDecimal.valueOf(100), 1)
-        )
+            aggregations shouldHaveSize 2
+            aggregations shouldContainAll listOf(
+                FlowAggregationDataDto("c1", BigDecimal.valueOf(14), 2),
+                FlowAggregationDataDto("c2", BigDecimal.valueOf(100), 1)
+            )
+        }
     }
 
     @Test
-    fun `should aggregate purchase by taker`() = runBlocking<Unit> {
+    fun `should aggregate purchase by taker`() = runBlocking {
         val aggregations = itemHistoryRepository.aggregatePurchaseByTaker(
             Instant.now().minus(1, ChronoUnit.DAYS),
             Instant.now().plus(1, ChronoUnit.DAYS),

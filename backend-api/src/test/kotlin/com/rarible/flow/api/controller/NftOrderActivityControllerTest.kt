@@ -1,6 +1,5 @@
 package com.rarible.flow.api.controller
 
-import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemHistoryRepository
@@ -59,7 +58,7 @@ class NftOrderActivityControllerTest {
         val expectedContract = randomAddress()
 
         val mintActivity = MintActivity(
-            owner = FlowAddress(randomAddress()),
+            owner = randomAddress(),
             contract = expectedContract,
             tokenId = expectedTokenId,
             value = RandomUtils.nextLong(),
@@ -70,7 +69,7 @@ class NftOrderActivityControllerTest {
         )
 
         val burnActivity = BurnActivity(
-            owner = null,
+            owner = randomAddress(),
             contract = expectedContract,
             tokenId = expectedTokenId,
             value = RandomUtils.nextLong(),
@@ -124,7 +123,7 @@ class NftOrderActivityControllerTest {
         val expectedContract = randomAddress()
 
         val mintActivity = MintActivity(
-            owner = FlowAddress(randomAddress()),
+            owner = randomAddress(),
             contract = expectedContract,
             tokenId = expectedTokenId,
             value = RandomUtils.nextLong(),
@@ -135,8 +134,8 @@ class NftOrderActivityControllerTest {
         )
 
         val transferActivity = TransferActivity(
-            from = FlowAddress(randomAddress()),
-            owner = FlowAddress(randomAddress()),
+            from = randomAddress(),
+            owner = randomAddress(),
             contract = expectedContract,
             tokenId = expectedTokenId,
             value = RandomUtils.nextLong(),
@@ -147,7 +146,7 @@ class NftOrderActivityControllerTest {
         )
 
         val burnActivity = BurnActivity(
-            owner = null,
+            owner = randomAddress(),
             contract = expectedContract,
             tokenId = expectedTokenId,
             value = RandomUtils.nextLong(),
@@ -195,7 +194,7 @@ class NftOrderActivityControllerTest {
         val (b, t, m) = activities.items
         m as FlowMintDto
         Assertions.assertEquals(mintActivity.contract, m.contract, "Mint activity: contracts are different!")
-        Assertions.assertEquals(mintActivity.owner.formatted, m.owner, "Mint activity: owners are different!")
+        Assertions.assertEquals(mintActivity.owner, m.owner, "Mint activity: owners are different!")
         Assertions.assertEquals(mintActivity.type, FlowActivityType.MINT, "Mint activity: types are different!")
         Assertions.assertEquals(mintActivity.tokenId, m.tokenId.toLong(), "Mint activity: token ids are different!")
         Assertions.assertEquals(mintActivity.value, m.value.toLong(), "Mint activity: values are different!")
@@ -209,8 +208,8 @@ class NftOrderActivityControllerTest {
 
         t as FlowTransferDto
         Assertions.assertEquals(transferActivity.contract, t.contract, "Transfer activity: contracts are different!")
-        Assertions.assertEquals(transferActivity.owner.formatted, t.owner, "Transfer activity: owners are different!")
-        Assertions.assertEquals(transferActivity.from.formatted, t.from, "Transfer activity: froms are different!")
+        Assertions.assertEquals(transferActivity.owner, t.owner, "Transfer activity: owners are different!")
+        Assertions.assertEquals(transferActivity.from, t.from, "Transfer activity: froms are different!")
         Assertions.assertEquals(
             transferActivity.type,
             FlowActivityType.TRANSFER,
@@ -255,7 +254,7 @@ class NftOrderActivityControllerTest {
     @Test
     fun `should return 1 activity by item`() {
         val mintActivity = MintActivity(
-            owner = FlowAddress(randomAddress()),
+            owner = randomAddress(),
             contract = randomAddress(),
             tokenId = randomLong(),
             value = randomLong(),
@@ -266,8 +265,8 @@ class NftOrderActivityControllerTest {
         )
 
         val transferActivity = TransferActivity(
-            from = FlowAddress(randomAddress()),
-            owner = FlowAddress(randomAddress()),
+            from = randomAddress(),
+            owner = randomAddress(),
             contract = randomAddress(),
             tokenId = randomLong(),
             value = randomLong(),
@@ -278,7 +277,7 @@ class NftOrderActivityControllerTest {
         )
 
         val burnActivity = BurnActivity(
-            owner = FlowAddress(randomAddress()),
+            owner = randomAddress(),
             contract = randomAddress(),
             tokenId = randomLong(),
             value = randomLong(),
@@ -318,14 +317,14 @@ class NftOrderActivityControllerTest {
         Assertions.assertEquals(expected.blockHash, activity.blockHash, "Block's hashes are not equals!")
         Assertions.assertEquals(expected.blockNumber, activity.blockNumber, "Block's numbers are not equals!")
         Assertions.assertEquals(expected.tokenId.toBigInteger(), activity.tokenId, "Token ids are not equals!")
-        Assertions.assertEquals(expected.owner.formatted, activity.owner, "Owner's addresses are not equals!")
+        Assertions.assertEquals(expected.owner, activity.owner, "Owner's addresses are not equals!")
         Assertions.assertEquals(expected.contract, activity.contract, "Contract's addresses are not equals!")
     }
 
     @Test
     fun `should return 1 activity by userFrom and 3 activities for userTo`() {
-        val userFrom = FlowAddress(randomAddress())
-        val userTo = FlowAddress(randomAddress())
+        val userFrom = randomAddress()
+        val userTo = randomAddress()
 
         val mintActivity = MintActivity(
             owner = userTo,
@@ -393,7 +392,7 @@ class NftOrderActivityControllerTest {
         client.get()
             .uri(
                 "/v0.1/order/activities/byUser?type={type}&user={userFrom}",
-                mapOf("type" to arrayOf("TRANSFER_FROM"), "userFrom" to userFrom.formatted)
+                mapOf("type" to arrayOf("TRANSFER_FROM"), "userFrom" to userFrom)
             )
             .exchange()
             .expectStatus().isOk
@@ -411,13 +410,13 @@ class NftOrderActivityControllerTest {
                 val transfer = items[0]
                 Assertions.assertTrue(transfer is FlowTransferDto)
                 transfer as FlowTransferDto
-                Assertions.assertEquals(userFrom.formatted, transfer.from, "Wrong From user in Transfer Activity!!!")
+                Assertions.assertEquals(userFrom, transfer.from, "Wrong From user in Transfer Activity!!!")
             }
 
         client.get()
             .uri(
                 "/v0.1/order/activities/byUser?type={type}&user={userTo}",
-                mapOf("type" to arrayOf("MINT", "BURN", "TRANSFER_TO"), "userTo" to userTo.formatted)
+                mapOf("type" to arrayOf("MINT", "BURN", "TRANSFER_TO"), "userTo" to userTo)
             )
             .exchange()
             .expectStatus().isOk
@@ -435,8 +434,8 @@ class NftOrderActivityControllerTest {
 
     @Test
     fun `should return all activities`() {
-        val userFrom = FlowAddress(randomAddress())
-        val userTo = FlowAddress(randomAddress())
+        val userFrom = randomAddress()
+        val userTo = randomAddress()
 
         val mintActivity = MintActivity(
             owner = userTo,
@@ -510,24 +509,24 @@ class NftOrderActivityControllerTest {
         val transfer = activities.items[1] as FlowTransferDto
         val burn = activities.items[0] as FlowBurnDto
 
-        Assertions.assertEquals(mint.owner, mintActivity.owner.formatted, "Mint activity: owners are not equals!")
+        Assertions.assertEquals(mint.owner, mintActivity.owner, "Mint activity: owners are not equals!")
         Assertions.assertEquals(
             transfer.owner,
-            transferActivity.owner.formatted,
+            transferActivity.owner,
             "Transfer activity: owners are not equals!"
         )
         Assertions.assertNotEquals(
             burn.owner,
-            burnActivity.owner?.formatted.orEmpty(),
+            burnActivity.owner,
             "Burn activity: owners are equals! Returned owner must be null!"
         )
 
     }
 
     @Test
-    internal fun `should return all activities by collection`() {
+    fun `should return all activities by collection`() {
         val mintActivity = MintActivity(
-            owner = FlowAddress(randomAddress()),
+            owner = randomAddress(),
             contract = randomAddress(),
             tokenId = randomLong(),
             value = randomLong(),
@@ -538,8 +537,8 @@ class NftOrderActivityControllerTest {
         )
 
         val transferActivity = TransferActivity(
-            from = FlowAddress(randomAddress()),
-            owner = FlowAddress(randomAddress()),
+            from = randomAddress(),
+            owner = randomAddress(),
             contract = randomAddress(),
             tokenId = randomLong(),
             value = randomLong(),
@@ -552,7 +551,7 @@ class NftOrderActivityControllerTest {
         val listActivity = FlowNftOrderActivityList(
             price = BigDecimal.TEN,
             hash = UUID.randomUUID().toString(),
-            maker = FlowAddress(randomAddress()),
+            maker = randomAddress(),
             make = FlowAssetNFT(
                 contract = randomAddress(),
                 value = BigDecimal.ONE,
@@ -568,7 +567,7 @@ class NftOrderActivityControllerTest {
         )
 
         val burnActivity = BurnActivity(
-            owner = FlowAddress(randomAddress()),
+            owner = randomAddress(),
             contract = randomAddress(),
             tokenId = randomLong(),
             value = randomLong(),
@@ -620,5 +619,77 @@ class NftOrderActivityControllerTest {
                 Assertions.assertTrue(activities.size == 4)
             }
 
+    }
+
+    @Test
+    fun orderActivitiesByUserTest() {
+        val user = randomAddress()
+        val itemId = ItemId(contract = "A.${randomAddress()}.Contract", 42L)
+
+        val mintActivity = MintActivity(
+            owner = user,
+            contract = randomAddress(),
+            tokenId = randomLong(),
+            value = randomLong(),
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = randomLong(),
+            collection = "NFT"
+        )
+        val listActivity = FlowNftOrderActivityList(
+            price = BigDecimal.TEN,
+            hash = UUID.randomUUID().toString(),
+            maker = user,
+            make = FlowAssetNFT(
+                contract = itemId.contract,
+                value = BigDecimal.ONE,
+                tokenId = itemId.tokenId
+            ),
+            take = FlowAssetFungible(
+                contract = randomAddress(),
+                value = BigDecimal.TEN
+            ),
+            collection = "NFT",
+            tokenId = itemId.tokenId,
+            contract = itemId.contract
+        )
+
+        val sellActivity = FlowNftOrderActivitySell(
+            price = BigDecimal.TEN,
+            collection = "NFT",
+            tokenId = itemId.tokenId,
+            contract = itemId.contract,
+            left = OrderActivityMatchSide(
+                maker = user,
+                asset = FlowAssetNFT(
+                    contract = itemId.contract,
+                    value = BigDecimal.ONE,
+                    tokenId = itemId.tokenId
+                )
+            ),
+            right = OrderActivityMatchSide(
+                maker = randomAddress(),
+                asset = FlowAssetFungible(contract = randomAddress(), BigDecimal.TEN)
+            ),
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = randomLong()
+        )
+
+        repo.saveAll(listOf(mintActivity, listActivity, sellActivity).map {
+            ItemHistory(id = UUID.randomUUID().toString(), date = Instant.now(), it)
+        }).then().block()
+
+        client.get().uri("/v0.1/order/activities/byUser?type={types}&user={user}", mapOf("types" to arrayOf(FlowActivityType.LIST.name, FlowActivityType.SELL.name) ,"user" to user))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowActivitiesDto>()
+            .consumeWith {
+                Assertions.assertNotNull(it.responseBody)
+                val items = it.responseBody!!.items
+                Assertions.assertNotNull(items)
+                Assertions.assertTrue(items.isNotEmpty())
+                Assertions.assertEquals(2, items.size)
+            }
     }
 }

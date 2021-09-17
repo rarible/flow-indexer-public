@@ -1,5 +1,6 @@
 package com.rarible.flow.core.domain
 
+import com.querydsl.core.annotations.QueryEntity
 import com.rarible.protocol.dto.*
 import org.springframework.data.mongodb.core.index.IndexDirection
 import org.springframework.data.mongodb.core.index.Indexed
@@ -16,6 +17,7 @@ import java.time.Instant
  * @property activity   activity data (see [FlowNftActivity])
  */
 @Document
+@QueryEntity
 data class ItemHistory(
     @MongoId
     val id: String,
@@ -30,7 +32,7 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
         is MintActivity -> FlowMintDto(
             id = id,
             date = date,
-            owner = this.owner.formatted,
+            owner = this.owner,
             contract = this.contract,
             value = this.value.toBigInteger(),
             tokenId = this.tokenId.toBigInteger(),
@@ -43,8 +45,8 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
         is TransferActivity -> FlowTransferDto(
             id = id,
             date = date,
-            from = this.from.formatted,
-            owner = this.owner.formatted,
+            from = this.from,
+            owner = this.owner,
             contract = this.contract,
             value = this.value.toBigInteger(),
             tokenId = this.tokenId.toBigInteger(),
@@ -72,7 +74,7 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
             id = id,
             date = date,
             left = FlowOrderActivityMatchSideDto(
-                maker = this.left.maker.formatted,
+                maker = this.left.maker,
                 asset = FlowAssetNFTDto(
                     contract = this.left.asset.contract,
                     value = this.left.asset.value,
@@ -81,7 +83,7 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
                 type = FlowOrderActivityMatchSideDto.Type.SELL
             ),
             right = FlowOrderActivityMatchSideDto(
-                maker = this.right.maker.formatted,
+                maker = this.right.maker,
                 asset = FlowAssetFungibleDto(
                     contract = this.right.asset.contract,
                     value = this.right.asset.value
@@ -98,7 +100,7 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
             id = id,
             date = date,
             hash = this.hash,
-            maker = this.maker.formatted,
+            maker = this.maker,
             make = FlowAssetNFTDto(
                 contract = this.make.contract,
                 value = this.make.value,
@@ -114,7 +116,7 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
             id = id,
             date = date,
             hash = this.hash,
-            maker = this.maker.formatted,
+            maker = this.maker,
             make = FlowAssetNFTDto(
                 contract = this.make.contract,
                 value = this.make.value,

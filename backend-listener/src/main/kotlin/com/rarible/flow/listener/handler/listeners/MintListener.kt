@@ -66,7 +66,7 @@ class MintListener(
                     id = UUID.randomUUID().toString(),
                     date = eventDate,
                     activity = MintActivity(
-                        owner = to,
+                        owner = to.formatted,
                         contract = contract,
                         tokenId = tokenId,
                         value = 1L,

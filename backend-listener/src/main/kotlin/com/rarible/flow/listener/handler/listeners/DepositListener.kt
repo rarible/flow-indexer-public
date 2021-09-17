@@ -50,10 +50,10 @@ class DepositListener(
                             activity = FlowNftOrderActivitySell(
                                 price = order.take?.value ?: BigDecimal.ZERO,
                                 left = OrderActivityMatchSide(
-                                    order.maker, order.make
+                                    order.maker.formatted, order.make
                                 ),
                                 right = OrderActivityMatchSide(
-                                    order.taker!!, order.take!!
+                                    order.taker!!.formatted, order.take!!
                                 ),
                                 blockHash = eventMessage.blockInfo.blockId,
                                 blockNumber = eventMessage.blockInfo.blockHeight,
@@ -70,14 +70,14 @@ class DepositListener(
                             id = UUID.randomUUID().toString(),
                             date = eventMessage.timestamp.toInstant(ZoneOffset.UTC),
                             activity = TransferActivity(
-                                owner = to,
+                                owner = to.formatted,
                                 contract = item.contract,
                                 tokenId = item.tokenId,
                                 value = 1L,
                                 transactionHash = eventMessage.blockInfo.transactionId,
                                 blockHash = eventMessage.blockInfo.blockId,
                                 blockNumber = eventMessage.blockInfo.blockHeight,
-                                from = oldItem?.owner ?: FlowAddress("0x00"),
+                                from = oldItem?.owner?.formatted ?: FlowAddress("0x00").formatted,
                                 collection = item.collection
                             )
                         )

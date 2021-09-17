@@ -1,6 +1,5 @@
 package com.rarible.flow.api.service
 
-import com.nftco.flow.sdk.FlowAddress
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
@@ -55,30 +54,55 @@ class ActivitiesService(
         val haveTransferFrom = type.isEmpty() || type.contains("TRANSFER_FROM")
 
         val types = if (type.isEmpty()) {
-            FlowActivityType.values().toList()
+            FlowActivityType.values().toMutableList()
         } else {
             type.filter { "TRANSFER_TO" != it && "TRANSFER_FROM" != it }.map { FlowActivityType.valueOf(it) }
+                .toMutableList()
         }
-        val users = user.map { FlowAddress(it) }
         val cont = ActivityContinuation.of(continuation)
 
         val order = defaultOrder()
-        val predicate = BooleanBuilder(byTypes(types))
+        var predicate = BooleanBuilder()
         if (cont != null) {
-            predicate.and(byContinuation(cont))
+            predicate = predicate.and(byContinuation(cont))
         }
 
-        val activities: Flow<ItemHistory> = itemHistoryRepository.findAll(predicate.and(byOwner(users)), *order).asFlow()
         val transferFromActivities: Flow<ItemHistory> = if (haveTransferFrom) {
-            itemHistoryRepository.findAll(transferFromPredicate(users), *order).asFlow()
+            itemHistoryRepository.findAll(transferFromPredicate(user), *order).asFlow()
         } else emptyFlow()
 
 
         val transferToActivities: Flow<ItemHistory> = if (haveTransferTo) {
-            itemHistoryRepository.findAll(transferToPredicate(users)).asFlow()
+            itemHistoryRepository.findAll(transferToPredicate(user), *order).asFlow()
         } else emptyFlow()
 
-        return flowActivitiesDto(flowOf(activities, transferFromActivities, transferToActivities).flattenConcat(), size)
+        val listActivities: Flow<ItemHistory> = if (types.contains(FlowActivityType.LIST)) {
+            itemHistoryRepository.findAll(listPredicate(user), *order).asFlow()
+        } else emptyFlow()
+        types.remove(FlowActivityType.LIST)
+
+        val sellActivities: Flow<ItemHistory> = if (types.contains(FlowActivityType.SELL)) {
+            itemHistoryRepository.findAll(sellPredicate(user), *order).asFlow()
+        } else emptyFlow()
+        types.remove(FlowActivityType.SELL)
+
+        if (haveTransferFrom || haveTransferTo) {
+            types.remove(FlowActivityType.TRANSFER)
+        }
+
+        val activities: Flow<ItemHistory> = if (types.isEmpty()) emptyFlow() else itemHistoryRepository.findAll(
+            predicate.and(byTypes(types)).and(byOwner(user)), *order
+        ).asFlow()
+
+        return flowActivitiesDto(
+            flowOf(
+                activities,
+                transferFromActivities,
+                transferToActivities,
+                listActivities,
+                sellActivities
+            ).flattenConcat(), size
+        )
     }
 
     private suspend fun flowActivitiesDto(
@@ -153,26 +177,30 @@ class ActivitiesService(
     }
 
     private fun byContractAndTokenPredicate(contract: String, tokenId: Long): BooleanExpression {
-        val qItemHistory = QItemHistory.itemHistory
-        return qItemHistory.activity.`as`(QFlowNftActivity::class.java).contract.eq(contract)
-            .and(qItemHistory.activity.`as`(QBaseActivity::class.java).tokenId.eq(tokenId))
+        val q = QItemHistory.itemHistory
+        val activity = QFlowNftActivity(q.activity.metadata)
+        return activity.contract.eq(contract)
+            .and(activity.tokenId.eq(tokenId))
     }
 
-    private fun transferFromPredicate(users: List<FlowAddress>): BooleanExpression {
+    private fun transferFromPredicate(users: List<String>): BooleanExpression {
         val q = QItemHistory.itemHistory
-        return q.activity.`as`(QBaseActivity::class.java).type.eq(FlowActivityType.TRANSFER)
-            .and(q.activity.`as`(QTransferActivity::class.java).from.`in`(*users.toTypedArray()))
+        val activity = QTransferActivity(q.activity.metadata)
+        return activity.type.eq(FlowActivityType.TRANSFER)
+            .and(activity.from.`in`(users))
     }
 
-    private fun transferToPredicate(users: List<FlowAddress>): BooleanBuilder {
+    private fun transferToPredicate(users: List<String>): BooleanExpression {
         val q = QItemHistory.itemHistory
-        return BooleanBuilder(q.activity.`as`(QBaseActivity::class.java).type.eq(FlowActivityType.TRANSFER))
-            .and(q.activity.`as`(QTransferActivity::class.java).owner.`in`(users))
+        val activity = QTransferActivity(q.activity.metadata)
+        return activity.type.eq(FlowActivityType.TRANSFER)
+            .and(activity.owner.`in`(users))
     }
 
-    private fun byOwner(users: List<FlowAddress>): BooleanBuilder {
+    private fun byOwner(users: List<String>): BooleanExpression {
         val q = QItemHistory.itemHistory
-        return BooleanBuilder(q.activity.`as`(QFlowNftActivity::class.java).owner.isNotNull.and(q.activity.`as`(QFlowNftActivity::class.java).owner.`in`(users)))
+        val activity = QFlowNftActivity(q.activity.metadata)
+        return activity.owner.isNotNull.and(activity.owner.`in`(users))
     }
 
     private fun defaultOrder(): Array<OrderSpecifier<*>> {
@@ -185,5 +213,20 @@ class ActivitiesService(
 
     private fun answerContinuation(items: List<ItemHistory>): ActivityContinuation? =
         if (items.isEmpty()) null else ActivityContinuation(beforeDate = items.last().date, beforeId = items.last().id)
+
+
+    private fun sellPredicate(users: List<String>): BooleanExpression {
+        val q = QItemHistory.itemHistory
+        val activity = QFlowNftOrderActivitySell(q.activity.metadata)
+        return activity.type.eq(FlowActivityType.SELL)
+            .and(activity.left.maker.`in`(users))
+    }
+
+    private fun listPredicate(users: List<String>): BooleanExpression {
+        val q = QItemHistory.itemHistory
+        val activity = QFlowNftOrderActivityList(q.activity.metadata)
+        return activity.type.eq(FlowActivityType.LIST)
+            .and(activity.maker.`in`(users))
+    }
 }
 

@@ -102,8 +102,8 @@ subprojects {
         implementation(rootProject.libs.flow.sdk)
 
         implementation("org.springframework.boot:spring-boot-autoconfigure")
-        implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
-        implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+        implementation("org.springframework.boot:spring-boot-starter-data-mongodb:2.5.4")
+        implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive:2.5.4")
 
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("io.projectreactor:reactor-test")

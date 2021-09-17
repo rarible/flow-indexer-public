@@ -67,7 +67,8 @@ class DestroyListener(
                     transactionHash = blockInfo.transactionId,
                     blockHash = blockInfo.blockId,
                     blockNumber = blockInfo.blockHeight,
-                    collection = item.collection
+                    collection = item.collection,
+                    owner = item.owner!!.formatted
                 )
             )
         )

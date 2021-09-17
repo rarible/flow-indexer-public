@@ -28,13 +28,13 @@ class NftItemService(
         return Mono.create { sink ->
             val cont = NftItemContinuation.parse(continuation)
             val qItem = QItem.item
-            var builder = BooleanBuilder()
+            val builder = BooleanBuilder()
 
             if (cont != null) {
-                builder = builder.and(qItem.date.before(cont.afterDate).and(qItem.id.ne(cont.afterId)))
+                builder.and(qItem.date.before(cont.afterDate).and(qItem.id.ne(cont.afterId)))
             }
             if (!showDeleted) {
-                builder = builder.and(qItem.owner.isNotNull)
+                builder.and(qItem.owner.isNotNull)
             }
 
             var items: Flux<Item> = itemRepository.findAll(

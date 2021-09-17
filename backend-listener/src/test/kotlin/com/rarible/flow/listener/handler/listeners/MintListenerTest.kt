@@ -1,19 +1,15 @@
 package com.rarible.flow.listener.handler.listeners
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.core.kafka.RaribleKafkaConsumer
 import com.rarible.flow.core.domain.*
-import com.rarible.flow.core.repository.*
+import com.rarible.flow.core.repository.coFindAll
+import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.BaseIntegrationTest
 import com.rarible.flow.listener.IntegrationTest
-import com.rarible.flow.listener.handler.EventHandler
-import com.rarible.protocol.dto.FlowNftItemEventDto
 import com.rarible.protocol.dto.FlowNftItemUpdateEventDto
-import com.rarible.protocol.dto.FlowOwnershipEventDto
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
@@ -24,8 +20,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @IntegrationTest
@@ -78,7 +72,7 @@ class MintListenerTest() : BaseIntegrationTest() {
         history shouldHaveSize 1
         val activity = history[0].activity as MintActivity
         activity.type shouldBe FlowActivityType.MINT
-        activity.owner shouldBe FlowAddress(creator)
+        activity.owner shouldBe creator
         activity.tokenId shouldBe 12L
 
         val itemUpdates = async {

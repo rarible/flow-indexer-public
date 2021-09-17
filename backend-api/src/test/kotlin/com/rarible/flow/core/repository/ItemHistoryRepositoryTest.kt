@@ -1,6 +1,5 @@
 package com.rarible.flow.core.repository
 
-import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.*
@@ -44,7 +43,7 @@ class ItemHistoryRepositoryTest {
     @Test
     fun `should create mint activity`() {
         val mintActivity = MintActivity(
-            owner = FlowAddress(testAddress),
+            owner = testAddress,
             contract = testAddress,
             tokenId = 1L,
             value = 1L,
@@ -81,7 +80,7 @@ class ItemHistoryRepositoryTest {
     @Test
     fun `should create burn activity`() {
         val burnActivity = BurnActivity(
-            owner = FlowAddress(testAddress),
+            owner = testAddress,
             contract = testAddress,
             tokenId = 1L,
             value = 1L,
@@ -118,8 +117,8 @@ class ItemHistoryRepositoryTest {
     @Test
     fun `should create transfer activity`() {
         val transferActivity = TransferActivity(
-            from = FlowAddress(testAddress),
-            owner = FlowAddress(testAddress),
+            from = testAddress,
+            owner = testAddress,
             contract = testAddress,
             tokenId = 1L,
             value = 1L,

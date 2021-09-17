@@ -9,11 +9,11 @@ dependencies {
     implementation(project(":backend-api-model"))
     implementation(project(":util"))
 
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.boot:spring-boot-starter-websocket")
-    implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb:2.5.4")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive:2.5.4")
+    implementation("org.springframework.boot:spring-boot-starter-webflux:2.5.4")
+    implementation("org.springframework.boot:spring-boot-starter-websocket:2.5.4")
+    implementation("org.springframework.cloud:spring-cloud-starter-bootstrap:3.0.3")
 
     implementation(rootProject.libs.flow.sdk)
     implementation(rootProject.libs.bundles.rarible.core) {
