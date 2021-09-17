@@ -114,7 +114,7 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemDto>()
             .returnResult().responseBody!!
         item.id shouldBe "0x01:42"
-        item.creators shouldBe listOf(FlowCreatorDto(FlowAddress("0x01").formatted, 10000.toBigDecimal()))
+        item.creators shouldBe listOf(FlowCreatorDto(FlowAddress("0x01").formatted, 100.toBigDecimal()))
         item.owners shouldBe listOf(FlowAddress("0x02").formatted)
     }
 
