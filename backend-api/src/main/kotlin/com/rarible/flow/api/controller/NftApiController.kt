@@ -17,7 +17,6 @@ import com.rarible.protocol.flow.nft.api.controller.FlowNftItemControllerApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -33,7 +32,7 @@ class NftApiController(
 ) : FlowNftItemControllerApi {
 
     override suspend fun getNftAllItems(continuation: String?, size: Int?, showDeleted: Boolean?): ResponseEntity<FlowNftItemsDto> =
-        ResponseEntity.ok(nftItemService.getAllItems(continuation, size, showDeleted ?: false).awaitSingle())
+        ResponseEntity.ok(nftItemService.getAllItems(continuation, size, showDeleted ?: false))
 
     override suspend fun getNftItemById(itemId: String): ResponseEntity<FlowNftItemDto> {
         return nftItemService.getItemById(itemId).okOr404IfNull()

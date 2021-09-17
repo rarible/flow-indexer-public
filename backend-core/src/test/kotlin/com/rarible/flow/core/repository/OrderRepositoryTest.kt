@@ -7,6 +7,7 @@ import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderData
+import com.rarible.flow.core.repository.data.createOrder
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.BeforeEach
@@ -59,17 +60,4 @@ internal class OrderRepositoryTest(
         }
     }
 
-
-    private fun createOrder() = Order(
-        1L,
-        ItemId("0x01", 1),
-        FlowAddress("0x1000"),
-        null,
-        FlowAssetNFT("0x01", 1.toBigDecimal(), 1),
-        null,
-        1.toBigDecimal(),
-        ItemId("0x01", 1).toString(),
-        data = OrderData(emptyList(), emptyList()),
-        collection = "ABC"
-    )
 }

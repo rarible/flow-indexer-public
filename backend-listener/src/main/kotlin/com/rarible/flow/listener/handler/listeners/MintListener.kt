@@ -10,6 +10,7 @@ import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
+import java.time.Instant
 import java.time.ZoneOffset
 import java.util.*
 
@@ -41,6 +42,7 @@ class MintListener(
                 eventDate,
                 event.metadata,
                 collection = contract,
+                updatedAt = Instant.now()
             )
 
             itemRepository.coSave(item).let {
@@ -54,7 +56,7 @@ class MintListener(
                     tokenId,
                     to,
                     eventDate,
-                    creators = listOf(Payout(account = item.creator, value = BigDecimal.ONE))
+                    creators = listOf(Payout(account = item.creator, value = 100.toBigDecimal()))
                 )
             ).let {
                 protocolEventPublisher.onUpdate(it)

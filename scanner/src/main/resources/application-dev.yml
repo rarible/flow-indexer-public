@@ -18,6 +18,9 @@ scanner:
 blockchain:
   scanner:
     flow:
+      chainId: TESTNET
+      poller:
+        delay: 50
       job:
         reconciliation:
           batchSize: 64

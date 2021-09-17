@@ -47,7 +47,7 @@ class OrderApiControllerTest {
         client.get()
             .uri("/v0.1/orders/1")
             .exchange()
-            .expectStatus().is5xxServerError
+            .expectStatus().isNotFound
     }
 
     @Test

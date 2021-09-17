@@ -56,9 +56,10 @@ class ItemRepositoryTest {
                     creator = FlowAddress(randomAddress()),
                     royalties = listOf(),
                     owner = FlowAddress(randomAddress()),
-                    date = now.plus(i, ChronoUnit.MILLIS),
+                    mintedAt = now.plus(i, ChronoUnit.MILLIS),
                     meta = randomAddress(),
-                    collection = randomAddress()
+                    collection = randomAddress(),
+                    updatedAt = Instant.now()
                 )
         }
 
@@ -74,7 +75,7 @@ class ItemRepositoryTest {
                 Assertions.assertEquals(item.tokenId, savedItem.tokenId)
                 Assertions.assertEquals(item.creator, savedItem.creator)
                 Assertions.assertEquals(item.owner, savedItem.owner)
-                Assertions.assertEquals(item.date, savedItem.date)
+                Assertions.assertEquals(item.mintedAt, savedItem.mintedAt)
                 Assertions.assertEquals(item.meta, savedItem.meta)
                 Assertions.assertEquals(item.collection, savedItem.collection)
             }
@@ -89,7 +90,7 @@ class ItemRepositoryTest {
                 Assertions.assertEquals(item.tokenId, savedItem.tokenId)
                 Assertions.assertEquals(item.creator, savedItem.creator)
                 Assertions.assertEquals(item.owner, savedItem.owner)
-                Assertions.assertEquals(item.date, savedItem.date)
+                Assertions.assertEquals(item.mintedAt, savedItem.mintedAt)
                 Assertions.assertEquals(item.meta, savedItem.meta)
                 Assertions.assertEquals(item.collection, savedItem.collection)
             }
@@ -104,7 +105,7 @@ class ItemRepositoryTest {
                 Assertions.assertEquals(item.tokenId, savedItem.tokenId)
                 Assertions.assertEquals(item.creator, savedItem.creator)
                 Assertions.assertEquals(item.owner, savedItem.owner)
-                Assertions.assertEquals(item.date, savedItem.date)
+                Assertions.assertEquals(item.mintedAt, savedItem.mintedAt)
                 Assertions.assertEquals(item.meta, savedItem.meta)
                 Assertions.assertEquals(item.collection, savedItem.collection)
             }

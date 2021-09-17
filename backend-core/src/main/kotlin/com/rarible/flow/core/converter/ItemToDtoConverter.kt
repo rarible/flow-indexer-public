@@ -22,8 +22,8 @@ object ItemToDtoConverter : Converter<Item, FlowNftItemDto> {
             meta = MetaDto(
                 "", "", emptyList(), emptyList(), ""
             ),
-            mintedAt = item.date,
-            lastUpdatedAt = item.date,
+            mintedAt = item.mintedAt,
+            lastUpdatedAt = item.updatedAt,
             royalties = convert(item.royalties),
             metaUrl = item.meta,
             supply = BigInteger.ONE,
@@ -32,7 +32,7 @@ object ItemToDtoConverter : Converter<Item, FlowNftItemDto> {
     }
 
     private fun convert(creator: FlowAddress) = listOf(
-        FlowCreatorDto(creator.formatted, 10000.toBigDecimal())
+        FlowCreatorDto(creator.formatted, 100.toBigDecimal())
     )
 
     private fun convert(royalties: List<Part>) = royalties.map {
