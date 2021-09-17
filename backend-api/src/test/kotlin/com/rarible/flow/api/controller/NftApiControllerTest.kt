@@ -82,7 +82,7 @@ internal class NftApiControllerTest(
         val cont = NftItemContinuation(Instant.now(Clock.systemUTC()), ItemId("0x01", 42))
         var response = client
             .get()
-            .uri("/v0.1/items/?continuation=$cont")
+            .uri("/v0.1/items/all?continuation=$cont")
             .exchange()
             .expectStatus().isOk
             .expectBody<FlowNftItemsDto>()
@@ -91,7 +91,7 @@ internal class NftApiControllerTest(
 
         response = client
             .get()
-            .uri("/v0.1/items/?continuation=$cont&size=2")
+            .uri("/v0.1/items/all?continuation=$cont&size=2")
             .exchange()
             .expectStatus().isOk
             .expectBody<FlowNftItemsDto>()
@@ -189,8 +189,8 @@ internal class NftApiControllerTest(
            nftItemService.byCreator(any(), any(), any())
         } coAnswers {
             FlowNftItemsDto(
-                total = items.filter { it.owner == FlowAddress(arg(0)) }.size,
-                items = items.filter { it.owner == FlowAddress(arg(0)) }.map(ItemToDtoConverter::convert),
+                total = items.filter { it.creator == FlowAddress(arg(0)) }.size,
+                items = items.filter { it.creator == FlowAddress(arg(0)) }.map(ItemToDtoConverter::convert),
                 continuation = ""
             )
         }
@@ -269,11 +269,15 @@ internal class NftApiControllerTest(
             createItem(),
             createItem(tokenId = 43).copy(collection = "different collection")
         )
-        val captured = slot<ItemFilter.ByCollection>()
+
         coEvery {
-            itemRepository.search(capture(captured), null, any())
+            nftItemService.byCollection(any(), null, any())
         } coAnswers {
-            items.filter { it.collection == captured.captured.collectionId }.asFlow()
+            FlowNftItemsDto(
+                total = items.filter { it.collection == arg(0) }.size,
+                items = items.filter { it.collection == arg(0) }.map(ItemToDtoConverter::convert),
+                continuation = ""
+            )
         }
 
         var response = client
@@ -284,7 +288,6 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 1
-        response.items[0].collection shouldBe "collection"
 
         response = client
             .get()
@@ -294,7 +297,6 @@ internal class NftApiControllerTest(
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 1
-        response.items[0].collection shouldBe "different collection"
 
         response = client
             .get()
