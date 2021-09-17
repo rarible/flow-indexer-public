@@ -9,26 +9,17 @@ import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.BaseIntegrationTest
 import com.rarible.flow.listener.IntegrationTest
-import com.rarible.protocol.dto.FlowNftItemUpdateEventDto
-import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Test
-import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @IntegrationTest
-class DepositListenerTest() : BaseIntegrationTest() {
+class DepositListenerTest : BaseIntegrationTest() {
 
     @Test
     fun `should handle mint and deposit`() = runBlocking<Unit> {
@@ -39,7 +30,7 @@ class DepositListenerTest() : BaseIntegrationTest() {
                 mapOf(
                     "id" to "12",
                     "collection" to "A.fcfb23c627a63d40.CommonNFT.NFT",
-                    "creator" to "0x01",
+                    "creator" to FlowAddress("0x01").formatted,
                     "metadata" to "url://",
                     "royalties" to listOf(
                         mapOf("address" to "0x2ec081d566da0184", "fee" to "25.00000000"),
@@ -58,7 +49,7 @@ class DepositListenerTest() : BaseIntegrationTest() {
                 EventId.of("A.fcfb23c627a63d40.CommonNFT.Deposit"),
                 mapOf(
                     "id" to "12",
-                    "to" to "0x02",
+                    "to" to FlowAddress("0x02").formatted,
                 ),
                 LocalDateTime.parse("2021-07-29T05:59:58.425384445"),
                 BlockInfo(
@@ -80,12 +71,12 @@ class DepositListenerTest() : BaseIntegrationTest() {
         history shouldHaveSize 2
         val mint = history[0].activity as MintActivity
         mint.type shouldBe FlowActivityType.MINT
-        mint.owner shouldBe creator
+        FlowAddress(mint.owner) shouldBe creator
         mint.tokenId shouldBe 12L
 
         val transfer = history[1].activity as TransferActivity
-        transfer.from shouldBe creator
-        transfer.owner shouldBe owner
+        FlowAddress(transfer.from) shouldBe creator
+        FlowAddress(transfer.owner) shouldBe owner
 
         itemEvents.receiveManualAcknowledge().take(2).toList()
 
@@ -101,7 +92,7 @@ class DepositListenerTest() : BaseIntegrationTest() {
                 mapOf(
                     "id" to "12",
                     "collection" to "A.fcfb23c627a63d40.CommonNFT.NFT",
-                    "creator" to "0x01",
+                    "creator" to FlowAddress("0x01").formatted,
                     "metadata" to "url://",
                     "royalties" to listOf(
                         mapOf("address" to "0x2ec081d566da0184", "fee" to "25.00000000"),
@@ -151,7 +142,7 @@ class DepositListenerTest() : BaseIntegrationTest() {
                 EventId.of("A.fcfb23c627a63d40.CommonNFT.Deposit"),
                 mapOf(
                     "id" to "12",
-                    "to" to "0x02",
+                    "to" to FlowAddress("0x02").formatted,
                 ),
                 LocalDateTime.parse("2021-07-29T05:59:58.425384445"),
                 BlockInfo(
@@ -173,7 +164,7 @@ class DepositListenerTest() : BaseIntegrationTest() {
         history shouldHaveSize 3
         val mint = history[0].activity as MintActivity
         mint.type shouldBe FlowActivityType.MINT
-        mint.owner shouldBe creator
+        FlowAddress(mint.owner) shouldBe creator
         mint.tokenId shouldBe 12L
 
         val sell = history[2].activity as FlowNftOrderActivitySell

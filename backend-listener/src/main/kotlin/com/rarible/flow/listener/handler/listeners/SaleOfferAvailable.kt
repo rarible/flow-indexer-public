@@ -63,7 +63,7 @@ class SaleOfferAvailable(
                     activity = FlowNftOrderActivityList(
                         price = price,
                         hash = order.id.toString(),
-                        maker = item.owner!!,
+                        maker = item.owner!!.formatted,
                         make = make,
                         take = take,
                         collection = saved.collection,

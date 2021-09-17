@@ -70,7 +70,7 @@ class SaleOfferCompleteListener(
                 activity = FlowNftOrderActivityCancelList(
                     price = order.amount,
                     hash = order.id.toString(), //todo delete hash
-                    maker = item?.owner!!,
+                    maker = item?.owner!!.formatted,
                     make = FlowAssetNFT(
                         contract = item.contract,
                         value = BigDecimal.valueOf(1L),
