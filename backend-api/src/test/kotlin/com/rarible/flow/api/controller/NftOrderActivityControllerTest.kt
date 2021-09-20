@@ -236,7 +236,7 @@ class NftOrderActivityControllerTest {
 
         b as FlowBurnDto
         Assertions.assertEquals(burnActivity.contract, b.contract, "Burn activity: contracts are different!")
-        Assertions.assertTrue(b.owner.isEmpty(), "Burn activity: owner is not NULL!")
+        Assertions.assertTrue(b.owner.isNotEmpty(), "Burn activity: owner is empty!")
         Assertions.assertEquals(burnActivity.type, FlowActivityType.BURN, "Burn activity: types are different!")
         Assertions.assertEquals(burnActivity.tokenId, b.tokenId.toLong(), "Burn activity: token ids are different!")
         Assertions.assertEquals(burnActivity.value, b.value.toLong(), "Burn activity: values are different!")
@@ -515,10 +515,10 @@ class NftOrderActivityControllerTest {
             transferActivity.owner,
             "Transfer activity: owners are not equals!"
         )
-        Assertions.assertNotEquals(
+        Assertions.assertEquals(
             burn.owner,
             burnActivity.owner,
-            "Burn activity: owners are equals! Returned owner must be null!"
+            "Burn activity: owners are not equals!"
         )
 
     }
