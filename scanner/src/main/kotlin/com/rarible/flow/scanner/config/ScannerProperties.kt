@@ -8,5 +8,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 data class ScannerProperties(
     val kafkaReplicaSet: String,
     val environment: String,
-    val trackedContracts: List<String> = emptyList()
+    val trackedContracts: List<String> = emptyList(),
+    val subscribeAllEvents: Boolean = false,
+    val listenAllEvents: Boolean = true
 )

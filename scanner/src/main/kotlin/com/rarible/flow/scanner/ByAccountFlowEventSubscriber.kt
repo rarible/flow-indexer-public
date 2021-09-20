@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component
 import java.time.Instant
 
 @Component
-class ByAccountFlowEventSubscriber(private val scannerProperties: ScannerProperties): FlowLogEventSubscriber {
+class ByAccountFlowEventSubscriber(private val scannerProperties: ScannerProperties) : FlowLogEventSubscriber {
 
     private val descriptor: FlowDescriptor = FlowDescriptor(id = "ByAccountFlowEventSubscriber")
 
@@ -41,10 +41,22 @@ class ByAccountFlowEventSubscriber(private val scannerProperties: ScannerPropert
                     )
                 )
             }
+        } else if (scannerProperties.subscribeAllEvents){
+            return flowOf(FlowLogRecord(
+                log = FlowLog(
+                    transactionHash = log.hash,
+                    status = Log.Status.CONFIRMED,
+                    txIndex = null, eventIndex = null, type = null, payload = null,
+                    timestamp = Instant.ofEpochSecond(block.timestamp),
+                    blockHeight = block.number,
+                    errorMessage = log.errorMessage
+                )
+            ))
         }
         return emptyFlow()
     }
 
     private fun isSubscribedAcc(event: FlowEvent): Boolean =
+        scannerProperties.subscribeAllEvents ||
         scannerProperties.trackedContracts.any { contract -> event.type.contains(contract, true) }
 }

@@ -12,12 +12,14 @@ import com.rarible.flow.scanner.model.RariEventMessage
 import com.rarible.flow.scanner.model.RariEventMessageCaught
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
 @Component
+@ConditionalOnProperty("scanner.listenAllEvents")
 class ByAccountFlowLogListener(
     private val flowMapper: ObjectMapper,
     private val publisher: ApplicationEventPublisher

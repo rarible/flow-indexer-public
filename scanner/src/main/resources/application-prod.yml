@@ -1,0 +1,13 @@
+application:
+  environment: prod
+
+blockchain:
+  scanner:
+    flow:
+      chainId: MAINNET
+      poller:
+        delay: 200
+
+scanner:
+  environment: prod
+  kafka-replica-set: ${kafka.hosts}

@@ -21,9 +21,3 @@ scanner:
 
   tracked-contracts:
     - "e7e97b10fbd3b607" #Rari Staging
-
-  sporks:
-    -
-      name: "Devnet25"
-      nodeUrl: "access.devnet.nodes.onflow.org:9000"
-      firstBlockHeight: 41567027

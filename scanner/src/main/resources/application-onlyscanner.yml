@@ -1,0 +1,3 @@
+scanner:
+  subscribeAllEvents: true
+  listenAllEvents: false
