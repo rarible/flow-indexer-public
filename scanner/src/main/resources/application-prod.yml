@@ -15,3 +15,7 @@ scanner:
 spring:
   profiles:
     active: onlyscanner
+  data:
+    mongodb:
+      username: ${mongodb.user}
+      password: ${mongodb.password}
