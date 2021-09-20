@@ -8,6 +8,7 @@ logging:
 blockchain:
   scanner:
     flow:
+      chainId: TESTNET
       poller:
         delay: 200
       job:
