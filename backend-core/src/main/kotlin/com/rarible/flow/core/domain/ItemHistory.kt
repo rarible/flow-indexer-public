@@ -60,7 +60,7 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
         is BurnActivity -> FlowBurnDto(
             id = id,
             date = date,
-            owner = "",
+            owner = this.owner,
             contract = this.contract,
             value = this.value.toBigInteger(),
             tokenId = this.tokenId.toBigInteger(),

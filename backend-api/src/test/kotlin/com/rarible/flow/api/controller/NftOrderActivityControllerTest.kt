@@ -676,11 +676,23 @@ class NftOrderActivityControllerTest {
             blockNumber = randomLong()
         )
 
-        repo.saveAll(listOf(mintActivity, listActivity, sellActivity).map {
+        val burnActivity = BurnActivity(
+            owner = user,
+            type = FlowActivityType.BURN,
+            contract = itemId.contract,
+            tokenId = itemId.tokenId,
+            value = 1L,
+            transactionHash = UUID.randomUUID().toString(),
+            blockHash = UUID.randomUUID().toString(),
+            blockNumber = randomLong(),
+            collection = "NFT"
+        )
+
+        repo.saveAll(listOf(mintActivity, listActivity, sellActivity, burnActivity).map {
             ItemHistory(id = UUID.randomUUID().toString(), date = Instant.now(), it)
         }).then().block()
 
-        client.get().uri("/v0.1/order/activities/byUser?type={types}&user={user}", mapOf("types" to arrayOf(FlowActivityType.LIST.name, FlowActivityType.SELL.name) ,"user" to user))
+        client.get().uri("/v0.1/order/activities/byUser?type={types}&user={user}", mapOf("types" to arrayOf(FlowActivityType.LIST.name, FlowActivityType.SELL.name, FlowActivityType.BURN.name) ,"user" to user))
             .exchange()
             .expectStatus().isOk
             .expectBody<FlowActivitiesDto>()
@@ -689,7 +701,11 @@ class NftOrderActivityControllerTest {
                 val items = it.responseBody!!.items
                 Assertions.assertNotNull(items)
                 Assertions.assertTrue(items.isNotEmpty())
-                Assertions.assertEquals(2, items.size)
+                Assertions.assertEquals(3, items.size)
+                val burn = items[0]
+                Assertions.assertTrue(burn is FlowBurnDto)
+                burn as FlowBurnDto
+                Assertions.assertEquals(user, burn.owner)
             }
     }
 }
