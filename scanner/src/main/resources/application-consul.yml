@@ -18,3 +18,12 @@ spring:
 
 scanner:
   kafka-replica-set: ${kafka.hosts}
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  data:
+    mongodb:
+      username: ${mongodb.user}
+      password: ${mongodb.password}
