@@ -11,3 +11,9 @@ blockchain:
 scanner:
   environment: prod
   kafka-replica-set: ${kafka.hosts}
+
+spring:
+  data:
+    mongodb:
+      username: ${mongodb.user}
+      password: ${mongodb.password}
