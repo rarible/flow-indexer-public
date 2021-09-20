@@ -15,5 +15,9 @@ scanner:
 spring:
   data:
     mongodb:
+      uri: mongodb://${mongodb.hosts}
+      database: ${mongodb.database}
       username: ${mongodb.user}
       password: ${mongodb.password}
+  profiles:
+    active: consul,prod,onlyscanner
