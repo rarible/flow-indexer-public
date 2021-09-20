@@ -4,6 +4,8 @@ package com.rarible.flow.core.domain
 import com.nftco.flow.sdk.FlowAddress
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.core.mapping.Field
+import org.springframework.data.mongodb.core.mapping.FieldType
 import org.springframework.data.mongodb.core.mapping.MongoId
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -47,11 +49,15 @@ data class Order(
     val taker: FlowAddress? = null,
     val make: FlowAsset,
     val take: FlowAsset? = null,
+
+    @Field(targetType = FieldType.DECIMAL128)
     val amount: BigDecimal,
     val offeredNftId: String? = null,
     val fill: BigDecimal = BigDecimal.ZERO,
     val cancelled: Boolean = false,
     val data: OrderData,
+
+    @Field(targetType = FieldType.DECIMAL128)
     val amountUsd: BigDecimal = BigDecimal.ZERO,
     val createdAt: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC),
     @field:LastModifiedDate
@@ -66,5 +72,7 @@ data class OrderData(
 
 data class Payout(
     val account: FlowAddress,
+
+    @Field(targetType = FieldType.DECIMAL128)
     val value: BigDecimal
 )

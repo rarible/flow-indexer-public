@@ -5,6 +5,7 @@ import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.Payout
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.*
 import io.kotest.matchers.collections.shouldHaveSize
@@ -135,6 +136,7 @@ internal class ItemServiceTest {
         ownerships shouldHaveSize 1
         ownerships[0].owner shouldBe newOwner
         ownerships[0].date shouldBeAfter oldOwnership.date
+        ownerships[0].creators[0] shouldBe Payout(FlowAddress("0x01"), 100.toBigDecimal())
 
     }
 }

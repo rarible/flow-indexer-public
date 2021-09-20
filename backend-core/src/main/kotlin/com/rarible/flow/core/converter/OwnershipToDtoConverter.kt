@@ -4,7 +4,6 @@ import com.rarible.flow.core.domain.Ownership
 import com.rarible.protocol.dto.FlowNftOwnershipDto
 import com.rarible.protocol.dto.PayInfoDto
 import org.springframework.core.convert.converter.Converter
-import java.time.Instant
 
 object OwnershipToDtoConverter : Converter<Ownership, FlowNftOwnershipDto> {
 
