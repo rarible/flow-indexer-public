@@ -9,11 +9,12 @@ logging:
 scanner:
   environment: dev
   kafka-replica-set: ${kafka.hosts}
-
   tracked-contracts:
     - "ff1201e3a53ee578" #Rari
     - "fcfb23c627a63d40" #Rari 1-phase mint
     - "665b9acf64dfdfdb" #Rari
+  listenAllEvents: true
+  subscribeAllEvents: false
 
 blockchain:
   scanner:
