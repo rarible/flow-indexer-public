@@ -64,7 +64,7 @@ class OwnershipsService(
         val items = result.toList()
 
         return FlowNftOwnershipsDto(
-            total = items.size,
+            total = items.size.toLong(),
             ownerships = items.map(OwnershipToDtoConverter::convert),
             continuation = answerContinuation(items)
         )

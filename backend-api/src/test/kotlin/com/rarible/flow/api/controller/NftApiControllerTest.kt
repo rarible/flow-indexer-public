@@ -8,7 +8,6 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.TokenId
-import com.rarible.flow.core.repository.ItemFilter
 import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.NftItemContinuation
@@ -22,9 +21,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.slot
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
@@ -33,7 +30,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
 import java.net.URI
 import java.time.Clock
 import java.time.Instant
@@ -74,7 +70,7 @@ internal class NftApiControllerTest(
         coEvery {
             nftItemService.getAllItems(any(), any(), any())
         } returns FlowNftItemsDto(
-            total = items.size,
+            total = items.size.toLong(),
             continuation = "",
             items = items.map(ItemToDtoConverter::convert)
         )
@@ -141,7 +137,7 @@ internal class NftApiControllerTest(
             nftItemService.byAccount(any(), any(), any())
         } coAnswers {
             FlowNftItemsDto(
-                total = items.filter { it.owner == FlowAddress(arg(0)) }.size,
+                total = items.filter { it.owner == FlowAddress(arg(0)) }.size.toLong(),
                 items = items.filter { it.owner == FlowAddress(arg(0)) }.map(ItemToDtoConverter::convert),
                 continuation = ""
             )
@@ -189,7 +185,7 @@ internal class NftApiControllerTest(
            nftItemService.byCreator(any(), any(), any())
         } coAnswers {
             FlowNftItemsDto(
-                total = items.filter { it.creator == FlowAddress(arg(0)) }.size,
+                total = items.filter { it.creator == FlowAddress(arg(0)) }.size.toLong(),
                 items = items.filter { it.creator == FlowAddress(arg(0)) }.map(ItemToDtoConverter::convert),
                 continuation = ""
             )
@@ -274,7 +270,7 @@ internal class NftApiControllerTest(
             nftItemService.byCollection(any(), null, any())
         } coAnswers {
             FlowNftItemsDto(
-                total = items.filter { it.collection == arg(0) }.size,
+                total = items.filter { it.collection == arg(0) }.size.toLong(),
                 items = items.filter { it.collection == arg(0) }.map(ItemToDtoConverter::convert),
                 continuation = ""
             )

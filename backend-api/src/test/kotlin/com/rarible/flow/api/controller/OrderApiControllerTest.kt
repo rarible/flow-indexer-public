@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.math.BigDecimal
+import java.math.BigInteger
 
 @SpringBootTest(
     properties = [
@@ -68,7 +69,12 @@ class OrderApiControllerTest {
                 payouts = listOf(Payout(FlowAddress(randomAddress()), BigDecimal.valueOf(1L))),
                 originalFees = listOf(Payout(FlowAddress(randomAddress()), BigDecimal.valueOf(1L)))
             ),
-            collection = "collection"
+            collection = "collection",
+            take = FlowAssetFungible(
+                "FLOW",
+                BigDecimal.TEN
+            ),
+            makeStock = BigInteger.TEN,
         )
 
         repo.save(order).block()

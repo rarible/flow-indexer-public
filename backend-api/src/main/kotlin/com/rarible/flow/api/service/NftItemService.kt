@@ -1,22 +1,17 @@
 package com.rarible.flow.api.service
 
 import com.nftco.flow.sdk.FlowAddress
-import com.querydsl.core.BooleanBuilder
 import com.rarible.flow.core.converter.ItemMetaToDtoConverter
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.QItem
 import com.rarible.flow.core.repository.*
 import com.rarible.protocol.dto.FlowItemMetaDto
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemsDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
-import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 
 @Service
 class NftItemService(
@@ -51,7 +46,7 @@ class NftItemService(
         FlowNftItemsDto(
             continuation = nextCursor(items),
             items = items.map(ItemToDtoConverter::convert),
-            total = items.size
+            total = items.size.toLong()
         )
 
     private suspend fun convert(items: Flow<Item>): FlowNftItemsDto {

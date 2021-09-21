@@ -1,8 +1,10 @@
 package com.rarible.flow.listener.handler.listeners
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.core.kafka.KafkaSendResult
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderData
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
@@ -10,36 +12,30 @@ import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.BaseIntegrationTest
 import com.rarible.flow.listener.IntegrationTest
 import com.rarible.flow.listener.createItem
-import com.rarible.flow.listener.handler.EventHandler
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
-import reactor.core.publisher.Mono
 import java.math.BigDecimal
-import java.time.Clock
-import java.time.Instant
+import java.math.BigInteger
 import java.time.LocalDateTime
 
 @IntegrationTest
 internal class OrderClosedListenerTest: BaseIntegrationTest() {
 
-    val item = createItem()
+    private val item = createItem()
     val order = Order(
         1L,
         item.id,
         FlowAddress("0x1000"),
         FlowAddress("0x1001"),
-        FlowAssetNFT(item.contract, 1.toBigDecimal(), item.tokenId),
+        FlowAssetNFT(item.contract, BigDecimal.ONE, item.tokenId),
         FlowAssetFungible("0x1234", 10000.toBigDecimal()),
         1.toBigDecimal(),
         item.id.toString(),
         data = OrderData(emptyList(), emptyList()),
-        collection = "ABC"
+        collection = "ABC",
+        makeStock = BigInteger.ONE
     )
 
     @Test

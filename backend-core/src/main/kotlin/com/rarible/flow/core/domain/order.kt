@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.mapping.FieldType
 import org.springframework.data.mongodb.core.mapping.MongoId
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -48,7 +49,7 @@ data class Order(
     val maker: FlowAddress,
     val taker: FlowAddress? = null,
     val make: FlowAsset,
-    val take: FlowAsset? = null,
+    val take: FlowAsset,
 
     @Field(targetType = FieldType.DECIMAL128)
     val amount: BigDecimal,
@@ -62,7 +63,8 @@ data class Order(
     val createdAt: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC),
     @field:LastModifiedDate
     var lastUpdatedAt: LocalDateTime? = null,
-    val collection: String
+    val collection: String,
+    val makeStock: BigInteger
 )
 
 data class OrderData(
