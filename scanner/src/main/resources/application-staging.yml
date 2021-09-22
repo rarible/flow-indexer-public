@@ -10,7 +10,7 @@ blockchain:
     flow:
       chainId: TESTNET
       poller:
-        delay: 200
+        delay: 100
       job:
         reconciliation:
           enabled: false
@@ -21,3 +21,5 @@ scanner:
 
   tracked-contracts:
     - "e7e97b10fbd3b607" #Rari Staging
+  listenAllEvents: true
+  subscribeAllEvents: false
