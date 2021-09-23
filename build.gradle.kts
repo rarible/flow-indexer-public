@@ -119,6 +119,14 @@ subprojects {
         }
     }
 
+    sourceSets {
+        main {
+            resources {
+                include("*.cdc")
+            }
+        }
+    }
+
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
