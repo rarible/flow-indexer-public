@@ -7,6 +7,10 @@ blockchain:
       chainId: MAINNET
       poller:
         delay: 200
+      job:
+        reconciliation:
+          batchSize: 64
+        blockBufferSize: 64
 
 scanner:
   environment: prod
