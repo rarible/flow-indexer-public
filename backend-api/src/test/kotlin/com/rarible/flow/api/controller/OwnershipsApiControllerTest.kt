@@ -80,7 +80,7 @@ class OwnershipsApiControllerTest {
                     val ownershipDto = it.responseBody!!
                     Assertions.assertEquals(contract, ownershipDto.contract, "Token is not equals!")
                     Assertions.assertEquals(owner.formatted, ownershipDto.owner, "Owner is not equals!")
-                    Assertions.assertEquals(tokenId, ownershipDto.tokenId.toLong(), "Token ID is not equals!")
+                    Assertions.assertEquals(tokenId, ownershipDto.tokenId, "Token ID is not equals!")
                     Assertions.assertNotNull(ownershipDto.creators)
                     ownershipDto.creators shouldNotHaveSize 0
 
@@ -124,7 +124,7 @@ class OwnershipsApiControllerTest {
                     Assertions.assertTrue(list.ownerships.size == 3)
                     Assertions.assertNotNull(list.continuation)
                     Assertions.assertNotNull(list.total)
-                    Assertions.assertEquals(list.total, list.ownerships.size)
+                    Assertions.assertEquals(list.total, list.ownerships.size.toLong())
                 }
         }
 
@@ -181,7 +181,7 @@ class OwnershipsApiControllerTest {
                     Assertions.assertTrue(response.ownerships.size == 2)
                     response.ownerships.forEach { o ->
                         Assertions.assertEquals(contract, o.contract)
-                        Assertions.assertEquals(tokenId, o.tokenId.toLong())
+                        Assertions.assertEquals(tokenId, o.tokenId)
                     }
                 }
         }
@@ -233,7 +233,7 @@ class OwnershipsApiControllerTest {
                     val ownershipsDto = response.responseBody!!
                     Assertions.assertNotNull(ownershipsDto.continuation)
                     Assertions.assertNotNull(ownershipsDto.total)
-                    Assertions.assertEquals(ownershipsDto.total, ownershipsDto.ownerships.size)
+                    Assertions.assertEquals(ownershipsDto.total, ownershipsDto.ownerships.size.toLong())
                 }.returnResult().responseBody!!
 
             client.get().uri("/v0.1/ownerships/all?size=1")
@@ -245,7 +245,7 @@ class OwnershipsApiControllerTest {
                     val oneOwnershipsDto = response.responseBody!!
                     Assertions.assertNotNull(oneOwnershipsDto.continuation)
                     Assertions.assertNotNull(oneOwnershipsDto.total)
-                    Assertions.assertEquals(oneOwnershipsDto.total, oneOwnershipsDto.ownerships.size)
+                    Assertions.assertEquals(oneOwnershipsDto.total, oneOwnershipsDto.ownerships.size.toLong())
                     Assertions.assertEquals(allOwnerships.ownerships[0].id, oneOwnershipsDto.ownerships[0].id)
 
                     client.get().uri(
@@ -259,7 +259,7 @@ class OwnershipsApiControllerTest {
                             val nextOwnershipsDto = nextResponse.responseBody!!
                             Assertions.assertNotNull(nextOwnershipsDto.continuation)
                             Assertions.assertNotNull(nextOwnershipsDto.total)
-                            Assertions.assertEquals(nextOwnershipsDto.total, nextOwnershipsDto.ownerships.size)
+                            Assertions.assertEquals(nextOwnershipsDto.total, nextOwnershipsDto.ownerships.size.toLong())
 
                             Assertions.assertEquals(allOwnerships.ownerships[1].id, nextOwnershipsDto.ownerships[0].id)
                         }
@@ -275,7 +275,7 @@ class OwnershipsApiControllerTest {
                             val nextOwnershipsDto = nextResponse.responseBody!!
                             Assertions.assertNotNull(nextOwnershipsDto.continuation)
                             Assertions.assertNotNull(nextOwnershipsDto.total)
-                            Assertions.assertEquals(nextOwnershipsDto.total, nextOwnershipsDto.ownerships.size)
+                            Assertions.assertEquals(nextOwnershipsDto.total, nextOwnershipsDto.ownerships.size.toLong())
 
                             Assertions.assertEquals(allOwnerships.ownerships[1].id, nextOwnershipsDto.ownerships[0].id)
                             Assertions.assertEquals(allOwnerships.ownerships[2].id, nextOwnershipsDto.ownerships[1].id)

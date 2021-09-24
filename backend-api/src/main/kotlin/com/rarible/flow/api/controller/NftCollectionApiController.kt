@@ -59,7 +59,7 @@ class NftCollectionApiController(
         } else {
             val last = data.last()
             FlowNftCollectionsDto(
-                data.size,
+                data.size.toLong(),
                 NftCollectionContinuation(last.createdDate, last.id).toString(),
                 data.map { convert(it)!! }
             )

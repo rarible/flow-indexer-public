@@ -45,7 +45,7 @@ class SaleOfferCompleteListener(
     private suspend fun completeOffer(
         order: Order,
     ) {
-        val fill = order.take?.value ?: BigDecimal.ZERO
+        val fill = order.take.value
         val savedOrder = orderRepository.coSave(
             order.copy(
                 fill = fill
@@ -77,7 +77,7 @@ class SaleOfferCompleteListener(
                         tokenId = item.tokenId
                     ),
                     take = FlowAssetFungible(
-                        contract = order.take?.contract.orEmpty(), //todo take can be empty?
+                        contract = order.take.contract,
                         value = order.amount
                     ),
                     collection = item.collection,

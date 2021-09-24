@@ -46,7 +46,8 @@ class SaleOfferAvailable(
                     take = take,
                     data = orderData(price, item),
                     amount = price,
-                    collection = item.collection
+                    collection = item.collection,
+                    makeStock = make.value.toBigInteger()
                 )
             )
 

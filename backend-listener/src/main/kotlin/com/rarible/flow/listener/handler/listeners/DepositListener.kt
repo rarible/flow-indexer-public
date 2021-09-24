@@ -11,7 +11,6 @@ import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Component
-import java.math.BigDecimal
 import java.time.ZoneOffset
 import java.util.*
 
@@ -48,12 +47,12 @@ class DepositListener(
                             id = UUID.randomUUID().toString(),
                             date = eventMessage.timestamp.toInstant(ZoneOffset.UTC),
                             activity = FlowNftOrderActivitySell(
-                                price = order.take?.value ?: BigDecimal.ZERO,
+                                price = order.take.value,
                                 left = OrderActivityMatchSide(
                                     order.maker.formatted, order.make
                                 ),
                                 right = OrderActivityMatchSide(
-                                    order.taker!!.formatted, order.take!!
+                                    order.taker!!.formatted, order.take
                                 ),
                                 blockHash = eventMessage.blockInfo.blockId,
                                 blockNumber = eventMessage.blockInfo.blockHeight,

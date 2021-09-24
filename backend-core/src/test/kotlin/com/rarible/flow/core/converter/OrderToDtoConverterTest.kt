@@ -1,7 +1,10 @@
 package com.rarible.flow.core.converter
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.OrderData
+import com.rarible.flow.core.domain.Payout
 import com.rarible.flow.core.repository.data
 import com.rarible.protocol.dto.FlowAssetFungibleDto
 import com.rarible.protocol.dto.FlowAssetNFTDto
@@ -45,10 +48,6 @@ internal class OrderToDtoConverterTest: FunSpec({
                 PayInfoDto(FlowAddress("0x02").formatted, 2500.toBigDecimal())
             )
         }
-    }
-
-    test("should convert null asset") {
-        OrderToDtoConverter.convert(null as FlowAsset?) shouldBe null
     }
 
     test("should convert NFT asset") {

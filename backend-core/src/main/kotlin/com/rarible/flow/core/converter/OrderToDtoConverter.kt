@@ -12,7 +12,7 @@ object OrderToDtoConverter: Converter<Order, FlowOrderDto> {
             itemId = source.itemId.toString(),
             maker = source.maker.formatted,
             taker = source.taker?.formatted,
-            make = convert(source.make)!!,
+            make = convert(source.make),
             take = convert(source.take),
             fill = source.fill,
             cancelled = source.cancelled,
@@ -21,8 +21,9 @@ object OrderToDtoConverter: Converter<Order, FlowOrderDto> {
             amount = source.amount,
             offeredNftId = source.offeredNftId,
             data = convert(source.data),
-            amountUsd = 0.toBigDecimal(), //TODO get currencies rate
-            collection = source.collection
+            priceUsd = source.amountUsd, //TODO get currencies rate
+            collection = source.collection,
+            makeStock = source.makeStock
         )
 
     fun convert(data: OrderData) = FlowOrderDataDto(
@@ -41,9 +42,8 @@ object OrderToDtoConverter: Converter<Order, FlowOrderDto> {
     )
 
     fun convert(
-        asset: FlowAsset?
+        asset: FlowAsset
     ) = when (asset) {
-        null -> null
         is FlowAssetNFT -> FlowAssetNFTDto(
             contract = asset.contract,
             value = asset.value,

@@ -90,7 +90,6 @@ pipeline {
             }
             environment {
                 APPLICATION_ENVIRONMENT = 'prod'
-                PROFILES='prod,onlyscanner'
             }
             steps {
                 deployStack('prod', stackName, prefix, env.IMAGE_TAG, [[name: 'scanner', path: './scanner']])
