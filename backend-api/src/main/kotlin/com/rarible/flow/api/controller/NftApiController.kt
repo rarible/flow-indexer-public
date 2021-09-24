@@ -15,6 +15,7 @@ import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemsDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftItemControllerApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -26,8 +27,6 @@ import java.net.URI
 @CrossOrigin
 @RestController
 class NftApiController(
-    private val itemRepository: ItemRepository,
-    private val itemMetaRepository: ItemMetaRepository,
     private val nftItemService: NftItemService
 ) : FlowNftItemControllerApi {
 
@@ -66,42 +65,20 @@ class NftApiController(
         return ResponseEntity.ok(nftItemService.byCreator(address, continuation, size))
     }
 
+    @Deprecated("We have orders now")
     override fun getListedItems(): ResponseEntity<Flow<FlowNftItemDto>> {
-        val items = itemRepository.findAllByListedIsTrue().asFlow()
-        return ok(items)
+        return ok(emptyFlow())
     }
 
     private fun ok(items: Flow<Item>) =
         ResponseEntity.ok(toDtoFlow(items))
 
+    @Deprecated("need to remove this method")
     override suspend fun saveItemsMeta(
         itemId: String,
         flowItemMetaFormDto: FlowItemMetaFormDto?
     ): ResponseEntity<String> {
-        val id = ItemId.parse(itemId)
-        val existing: ItemMeta? = itemMetaRepository.findById(id).awaitSingleOrNull()
-        itemMetaRepository.coSave(
-            existing?.copy(
-                title = flowItemMetaFormDto!!.title!!,
-                description = flowItemMetaFormDto.description!!,
-                uri = URI.create(flowItemMetaFormDto.uri!!)
-            )
-                ?: ItemMeta(
-                    id,
-                    flowItemMetaFormDto!!.title!!,
-                    flowItemMetaFormDto.description!!,
-                    URI.create(flowItemMetaFormDto.uri!!)
-                )
-        )
-
         val metaLink = "/v0.1/items/meta/$itemId"
-        itemRepository.coFindById(id)
-            ?.let {
-                itemRepository.save(
-                    it.copy(meta = metaLink)
-                )
-            }
-
         return ResponseEntity.ok(metaLink)
     }
 

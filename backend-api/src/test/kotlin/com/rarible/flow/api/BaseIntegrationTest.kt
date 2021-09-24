@@ -2,8 +2,11 @@ package com.rarible.flow.api
 
 import com.rarible.core.test.ext.MongoCleanup
 import com.rarible.core.test.ext.MongoTest
+import com.rarible.flow.api.config.Config
+import com.rarible.flow.core.config.CoreConfig
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.context.annotation.Import
 import org.springframework.data.mongodb.core.ReactiveMongoOperations
 import javax.annotation.PostConstruct
 

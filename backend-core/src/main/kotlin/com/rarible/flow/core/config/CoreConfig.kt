@@ -3,9 +3,6 @@ package com.rarible.flow.core.config
 import com.rarible.flow.core.converter.FlowConversions
 import com.rarible.flow.core.converter.ItemIdConversions
 import com.rarible.flow.core.converter.OwnershipIdConversions
-import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.OwnershipRepository
-import com.rarible.flow.core.service.ItemService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.auditing.DateTimeProvider
@@ -35,13 +32,5 @@ class CoreConfig {
         return DateTimeProvider {
             Optional.of(LocalDateTime.now(ZoneOffset.UTC))
         }
-    }
-
-    @Bean
-    fun itemService(
-        itemRepository: ItemRepository,
-        ownershipRepository: OwnershipRepository
-    ): ItemService {
-        return ItemService(itemRepository, ownershipRepository)
     }
 }

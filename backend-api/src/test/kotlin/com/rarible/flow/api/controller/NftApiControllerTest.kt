@@ -2,7 +2,9 @@ package com.rarible.flow.api.controller
 
 import com.nftco.flow.sdk.FlowAddress
 import com.ninjasquad.springmockk.MockkBean
+import com.rarible.flow.api.config.Config
 import com.rarible.flow.api.service.NftItemService
+import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
@@ -26,6 +28,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
@@ -47,9 +50,9 @@ import java.time.temporal.ChronoUnit
 )
 @AutoConfigureWebTestClient(timeout = "60000")
 @ActiveProfiles("test")
-internal class NftApiControllerTest(
-    @Autowired val client: WebTestClient
-) {
+internal class NftApiControllerTest {
+    @Autowired lateinit var client: WebTestClient
+
     @MockkBean
     lateinit var itemRepository: ItemRepository
 

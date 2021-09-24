@@ -1,4 +1,4 @@
-package com.rarible.flow.core.service
+package com.rarible.flow.listener.service
 
 import com.mongodb.client.result.UpdateResult
 import com.nftco.flow.sdk.FlowAddress
@@ -15,7 +15,6 @@ import kotlinx.coroutines.reactive.awaitFirstOrDefault
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Service
-import java.math.BigDecimal
 import java.time.Instant
 
 @Service
