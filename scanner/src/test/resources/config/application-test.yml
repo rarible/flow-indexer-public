@@ -1,3 +1,7 @@
+spring:
+  application:
+    name: flow-scanner
+
 scanner:
   kafka-replica-set: ${kafka.hosts}
   environment: test
