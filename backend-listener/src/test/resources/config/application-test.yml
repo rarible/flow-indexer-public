@@ -1,3 +1,7 @@
+spring:
+  application:
+    name: flow-backend-listener
+
 flow-indexer-listener:
   kafka-replica-set: ${kafka.hosts}
   environment: test
