@@ -5,7 +5,7 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coSave
-import com.rarible.flow.core.service.ItemService
+import com.rarible.flow.listener.service.ItemService
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import kotlinx.coroutines.coroutineScope

@@ -7,7 +7,7 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.repository.coSave
-import com.rarible.flow.core.service.ItemService
+import com.rarible.flow.listener.service.ItemService
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log

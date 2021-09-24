@@ -1,6 +1,9 @@
 package com.rarible.flow.api.controller
 
 import com.nftco.flow.sdk.FlowAddress
+import com.ninjasquad.springmockk.MockkBean
+import com.rarible.flow.api.config.Config
+import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.randomAddress
@@ -12,6 +15,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 
@@ -27,6 +31,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 )
 @AutoConfigureWebTestClient(timeout = "60000")
 @ActiveProfiles("test")
+@Import(Config::class, CoreConfig::class)
 class NftCollectionApiControllerTest {
 
     @Autowired

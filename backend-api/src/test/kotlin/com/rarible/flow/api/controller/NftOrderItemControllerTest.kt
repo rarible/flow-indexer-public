@@ -2,22 +2,23 @@ package com.rarible.flow.api.controller
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
+import com.rarible.flow.api.config.Config
+import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.NftItemContinuation
 import com.rarible.flow.core.repository.OrderRepository
-import com.rarible.flow.core.service.ItemService
 import com.rarible.flow.randomAddress
 import com.rarible.flow.randomLong
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemsDto
-import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
@@ -41,6 +42,7 @@ import java.time.ZoneOffset
 @AutoConfigureWebTestClient(timeout = "60000")
 @MongoTest
 @ActiveProfiles("test")
+@Import(Config::class, CoreConfig::class)
 class NftOrderItemControllerTest {
 
     @Autowired
@@ -51,9 +53,6 @@ class NftOrderItemControllerTest {
 
     @Autowired
     private lateinit var orderRepository: OrderRepository
-
-    @Autowired
-    private lateinit var itemService: ItemService
 
     @BeforeEach
     internal fun setUp() {
@@ -404,13 +403,9 @@ class NftOrderItemControllerTest {
             listOf(
                 item,
                 item.copy(tokenId = ++tokenId),
-                item.copy(tokenId = ++tokenId),
+                item.copy(tokenId = ++tokenId, owner = null),
             )
         ).then().block()
-
-        runBlocking {
-            itemService.markDeleted(ItemId(contract = item.contract, tokenId = tokenId))
-        }
 
         client.get().uri("/v0.1/order/items/all?showDeleted=false")
             .exchange()

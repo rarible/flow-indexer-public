@@ -2,6 +2,8 @@ package com.rarible.flow.api.controller
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
+import com.rarible.flow.api.config.Config
+import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.Payout
 import com.rarible.flow.core.repository.OwnershipRepository
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
@@ -41,6 +44,7 @@ import kotlin.random.Random
 @AutoConfigureWebTestClient(timeout = "60000")
 @MongoTest
 @ActiveProfiles("test")
+@Import(Config::class, CoreConfig::class)
 class OwnershipsApiControllerTest {
 
     @Autowired
