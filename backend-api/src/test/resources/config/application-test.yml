@@ -1,8 +1,12 @@
+spring:
+  application:
+    name: flow-nft-indexer-api
+
 logging:
   level:
     org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG
     org.springframework.web.reactive.HandlerMapping.Mapping: DEBUG
     org.springframework.web.reactive.handler.SimpleUrlHandlerMapping: DEBUG
-spring:
-  jpa:
-    show-sql: true
+
+flow-indexer-api:
+  chain-id: TESTNET
