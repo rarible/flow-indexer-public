@@ -23,7 +23,8 @@ class ActivitiesService(
         contract: String,
         tokenId: Long,
         continuation: String?,
-        size: Int?
+        size: Int?,
+        sort: String? = "LATEST_FIRST"
     ): FlowActivitiesDto {
         var types = type.map { FlowActivityType.valueOf(it) }
 
@@ -33,7 +34,7 @@ class ActivitiesService(
 
         val cont = ActivityContinuation.of(continuation)
 
-        val order = defaultOrder()
+        val order = order(sort)
         var predicate = byTypes(types).and(byContractAndTokenPredicate(contract, tokenId))
 
         if (cont != null) {
@@ -48,7 +49,8 @@ class ActivitiesService(
         type: List<String>,
         user: List<String>,
         continuation: String?,
-        size: Int?
+        size: Int?,
+        sort: String? = "LATEST_FIRST"
     ): FlowActivitiesDto {
         val haveTransferTo = type.isEmpty() || type.contains("TRANSFER_TO")
         val haveTransferFrom = type.isEmpty() || type.contains("TRANSFER_FROM")
@@ -61,7 +63,7 @@ class ActivitiesService(
         }
         val cont = ActivityContinuation.of(continuation)
 
-        val order = defaultOrder()
+        val order = order(sort)
         var predicate = BooleanBuilder()
         if (cont != null) {
             predicate = predicate.and(byContinuation(cont))
@@ -123,7 +125,12 @@ class ActivitiesService(
         )
     }
 
-    suspend fun getNftOrderAllActivities(type: List<String>, continuation: String?, size: Int?): FlowActivitiesDto {
+    suspend fun getNftOrderAllActivities(
+        type: List<String>,
+        continuation: String?,
+        size: Int?,
+        sort: String? = "LATEST_FIRST"
+    ): FlowActivitiesDto {
         val types = if (type.isEmpty()) {
             FlowActivityType.values().toList()
         } else {
@@ -131,7 +138,7 @@ class ActivitiesService(
         }
 
         val cont = ActivityContinuation.of(continuation)
-        val order = defaultOrder()
+        val order = order(sort)
         val predicate = byTypes(types)
 
         if (cont != null) {
@@ -144,7 +151,8 @@ class ActivitiesService(
         type: List<String>,
         collection: String,
         continuation: String?,
-        size: Int?
+        size: Int?,
+        sort: String? = "LATEST_FIRST"
     ): FlowActivitiesDto {
         val types =
             if (type.isEmpty()) FlowActivityType.values().toList() else type.map { FlowActivityType.valueOf(it) }
@@ -156,7 +164,7 @@ class ActivitiesService(
         if (cont != null) {
             predicateBuilder.and(byContinuation(cont))
         }
-        val flow = itemHistoryRepository.findAll(predicateBuilder, *defaultOrder()).asFlow()
+        val flow = itemHistoryRepository.findAll(predicateBuilder, *order(sort)).asFlow()
 
         return flowActivitiesDto(flow, size)
     }
@@ -203,12 +211,20 @@ class ActivitiesService(
         return activity.owner.isNotNull.and(activity.owner.`in`(users))
     }
 
-    private fun defaultOrder(): Array<OrderSpecifier<*>> {
+    private fun order(sort: String?): Array<OrderSpecifier<*>> {
         val q = QItemHistory.itemHistory
-        return arrayOf(
-            q.date.desc(),
-            q.id.desc()
-        )
+
+        return when (sort) {
+            null, "LATEST_FIRST" -> arrayOf(
+                q.date.desc(),
+                q.id.desc()
+            )
+            "EARLIEST_FIRST" -> arrayOf(
+                q.date.asc(),
+                q.id.asc()
+            )
+            else -> throw IllegalArgumentException("Unsupported sort type: $sort")
+        }
     }
 
     private fun answerContinuation(items: List<ItemHistory>): ActivityContinuation? =
