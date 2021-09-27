@@ -4,6 +4,8 @@ logging:
     org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG
 
 spring:
+  application:
+    name: flow-nft-indexer-api
   cloud:
     consul:
       discovery:
