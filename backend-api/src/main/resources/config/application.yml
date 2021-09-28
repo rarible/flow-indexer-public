@@ -9,3 +9,6 @@ flow-indexer-api:
   chain-id: TESTNET
   flow-access-url:
   flow-access-port:
+
+application:
+  service-name: flow-nft-indexer-api
