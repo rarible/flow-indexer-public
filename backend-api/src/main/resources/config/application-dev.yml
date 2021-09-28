@@ -22,3 +22,6 @@ flow-indexer-api:
   chain-id: TESTNET
   flow-access-url: "access.devnet.nodes.onflow.org"
   flow-access-port: 9000
+
+application:
+  environment: dev
