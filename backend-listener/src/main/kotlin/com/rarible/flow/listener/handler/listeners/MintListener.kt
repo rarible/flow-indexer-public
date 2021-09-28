@@ -47,7 +47,7 @@ class MintListener(
 
             itemRepository.coSave(item).let {
                 val result = protocolEventPublisher.onItemUpdate(it)
-                EventHandler.log.info("item update message is sent: $result")
+                log.info("item update message is sent: $result")
             }
 
             ownershipRepository.coSave(

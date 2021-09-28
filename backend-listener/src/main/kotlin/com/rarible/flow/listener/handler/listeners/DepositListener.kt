@@ -1,6 +1,8 @@
 package com.rarible.flow.listener.handler.listeners
 
+import com.nftco.flow.sdk.FlowAccessApi
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.simpleFlowScript
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.OrderRepository
@@ -8,19 +10,26 @@ import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.listener.service.ItemService
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
+import com.rarible.flow.listener.handler.listeners.motogp.MotoGpMint
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Component
+import java.io.File
 import java.time.ZoneOffset
 import java.util.*
+import javax.annotation.Resource
 
 @Component(DepositListener.ID)
 class DepositListener(
     private val itemService: ItemService,
     private val protocolEventPublisher: ProtocolEventPublisher,
     private val itemHistoryRepository: ItemHistoryRepository,
-    private val orderRepository: OrderRepository
+    private val orderRepository: OrderRepository,
+    private val flowAccessApi: FlowAccessApi
 ) : SmartContractEventHandler {
+
+    @Resource(name = "/script/borrow_card_metadata.cdc")
+    lateinit var metadataScript: File
 
     override suspend fun handle(
         eventMessage: EventMessage
@@ -63,6 +72,14 @@ class DepositListener(
                             )
                         )
                     )
+                } else if(item.creator == MotoGpMint.emptyAddress) {
+
+                    val meta = flowAccessApi.simpleFlowScript {
+                        script(metadataScript.readText())
+                    }.jsonCadence
+
+                    item.copy(creator = to)
+
                 } else {
                     itemHistoryRepository.coSave(
                         ItemHistory(
