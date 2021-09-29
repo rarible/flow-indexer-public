@@ -8,7 +8,7 @@ import io.kotest.matchers.shouldBe
 
 internal class FlowSignatureServiceTest: FunSpec({
 
-    test("should verify signature") {
+    test("should verify signature").config(enabled = false) {
         val service = FlowSignatureService(
             FlowChainId.TESTNET,
             Flow.newAccessApi("access.devnet.nodes.onflow.org", 9000)

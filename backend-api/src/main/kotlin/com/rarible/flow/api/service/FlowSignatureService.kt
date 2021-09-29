@@ -1,15 +1,17 @@
 package com.rarible.flow.api.service
 
-import com.nftco.flow.sdk.*
+import com.nftco.flow.sdk.FlowAccessApi
+import com.nftco.flow.sdk.FlowChainId
+import com.nftco.flow.sdk.SignatureAlgorithm
 import com.nftco.flow.sdk.cadence.BooleanField
 import com.nftco.flow.sdk.cadence.marshall
 import com.nftco.flow.sdk.crypto.Crypto
-import com.nftco.flow.sdk.crypto.PublicKey
+import com.nftco.flow.sdk.simpleFlowScript
 
 
 class FlowSignatureService(
-    val chainId: FlowChainId,
-    val flowAccessApi: FlowAccessApi
+    private val chainId: FlowChainId,
+    private val flowAccessApi: FlowAccessApi
 ) {
 
     fun verify(publicKey: String, signature: String, message: String): Boolean {
