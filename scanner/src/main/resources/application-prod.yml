@@ -6,20 +6,22 @@ blockchain:
     flow:
       chainId: MAINNET
       poller:
-        delay: 200
+        delay: 500
       job:
         reconciliation:
-          batchSize: 64
-        blockBufferSize: 64
+          batchSize: 2500
+        blockBufferSize: 128
 
 scanner:
   environment: prod
   kafka-replica-set: ${kafka.hosts}
 
 spring:
-  profiles:
-    active: onlyscanner
   data:
     mongodb:
       uri: mongodb://${mongodb.user}:${mongodb.password}@${mongodb.hosts}
       database: ${mongodb.database}
+management:
+  endpoint:
+    metrics:
+      enabled: true
