@@ -109,7 +109,7 @@ class NftOrderActivityControllerTest {
         repo.saveAll(history).then().block()
 
         client.get()
-            .uri("/v0.1/order/activities/byItem?type=BURN&size=1&contract=${expectedContract}&tokenId=${expectedTokenId}")
+            .uri("/v0.1/order/activities/byItem?type=BURN&type=BID&size=1&contract=${expectedContract}&tokenId=${expectedTokenId}")
             .exchange()
             .expectStatus().isOk
             .expectBody<FlowActivitiesDto>()
