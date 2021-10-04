@@ -1,8 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.5.4"
-    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    id("org.springframework.boot") version "2.5.5"
     kotlin("jvm") version "1.5.21"
     kotlin("plugin.spring") version "1.5.21"
     kotlin("plugin.serialization") version "1.5.21"
@@ -12,12 +11,6 @@ plugins {
 group = "com.rarible.flow"
 version = "0.0.2-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
-
-dependencyManagement {
-    imports {
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2020.0.3")
-    }
-}
 
 buildscript {
     repositories {
@@ -66,7 +59,7 @@ allprojects {
 
     tasks.withType<KotlinCompile> {
         kotlinOptions {
-            freeCompilerArgs += listOf("-progressive", "-Xskip-metadata-version-check")
+            freeCompilerArgs = freeCompilerArgs + listOf("-progressive", "-Xskip-metadata-version-check")
         }
 
     }
@@ -84,13 +77,9 @@ allprojects {
 }
 
 subprojects {
-    dependencyManagement {
-        imports {
-            mavenBom("org.springframework.cloud:spring-cloud-dependencies:2020.0.3")
-        }
-    }
-
     dependencies {
+        implementation(enforcedPlatform("org.springframework.boot:spring-boot-dependencies:2.5.5"))
+        implementation(platform("org.springframework.cloud:spring-cloud-dependencies:2020.0.3"))
         implementation("org.jetbrains.kotlin:kotlin-reflect")
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
@@ -102,8 +91,8 @@ subprojects {
         implementation(rootProject.libs.flow.sdk)
 
         implementation("org.springframework.boot:spring-boot-autoconfigure")
-        implementation("org.springframework.boot:spring-boot-starter-data-mongodb:2.5.4")
-        implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive:2.5.4")
+        implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
+        implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("io.projectreactor:reactor-test")
