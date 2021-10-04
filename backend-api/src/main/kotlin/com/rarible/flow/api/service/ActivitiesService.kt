@@ -6,6 +6,7 @@ import com.querydsl.core.types.dsl.BooleanExpression
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ActivityContinuation
 import com.rarible.flow.core.repository.ItemHistoryRepository
+import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.FlowActivitiesDto
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -19,26 +20,18 @@ class ActivitiesService(
     private val itemHistoryRepository: ItemHistoryRepository
 ) {
     suspend fun getNftOrderActivitiesByItem(
-        type: List<String>,
+        types: List<FlowActivityType>,
         contract: String,
         tokenId: Long,
-        continuation: String?,
+        continuation: ActivityContinuation?,
         size: Int?,
         sort: String? = "LATEST_FIRST"
     ): FlowActivitiesDto {
-        var types = type.map { FlowActivityType.valueOf(it) }
-
-        if (types.isEmpty()) {
-            types = FlowActivityType.values().toList()
-        }
-
-        val cont = ActivityContinuation.of(continuation)
-
         val order = order(sort)
         var predicate = byTypes(types).and(byContractAndTokenPredicate(contract, tokenId))
 
-        if (cont != null) {
-            predicate = predicate.and(byContinuation(cont))
+        if (continuation != null) {
+            predicate = predicate.and(byContinuation(continuation))
         }
 
         val flow = itemHistoryRepository.findAll(predicate, *order).asFlow()
@@ -58,8 +51,9 @@ class ActivitiesService(
         val types = if (type.isEmpty()) {
             FlowActivityType.values().toMutableList()
         } else {
-            type.filter { "TRANSFER_TO" != it && "TRANSFER_FROM" != it }.map { FlowActivityType.valueOf(it) }
-                .toMutableList()
+            safeOf<FlowActivityType>(
+                type.filter { "TRANSFER_TO" != it && "TRANSFER_FROM" != it }
+            ).toMutableList()
         }
         val cont = ActivityContinuation.of(continuation)
 
@@ -131,11 +125,7 @@ class ActivitiesService(
         size: Int?,
         sort: String? = "LATEST_FIRST"
     ): FlowActivitiesDto {
-        val types = if (type.isEmpty()) {
-            FlowActivityType.values().toList()
-        } else {
-            type.map { FlowActivityType.valueOf(it) }.toList()
-        }
+        val types = safeOf(type, FlowActivityType.values().toList())
 
         val cont = ActivityContinuation.of(continuation)
         val order = order(sort)
@@ -154,8 +144,7 @@ class ActivitiesService(
         size: Int?,
         sort: String? = "LATEST_FIRST"
     ): FlowActivitiesDto {
-        val types =
-            if (type.isEmpty()) FlowActivityType.values().toList() else type.map { FlowActivityType.valueOf(it) }
+        val types = safeOf(type, FlowActivityType.values().toList())
 
         val cont = ActivityContinuation.of(continuation)
 
