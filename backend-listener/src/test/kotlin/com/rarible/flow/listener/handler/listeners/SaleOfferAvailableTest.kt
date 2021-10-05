@@ -25,21 +25,6 @@ import java.time.LocalDateTime
 @IntegrationTest
 class SaleOfferAvailableTest : BaseIntegrationTest() {
 
-    private val item = createItem()
-    val order = Order(
-        1L,
-        item.id,
-        FlowAddress("0x1000"),
-        null,
-        FlowAssetNFT(item.contract, BigDecimal.ONE, item.tokenId),
-        FlowAssetFungible("FLOW", BigDecimal.TEN),
-        1.toBigDecimal(),
-        item.id.toString(),
-        data = OrderData(emptyList(), emptyList()),
-        collection = item.collection,
-        makeStock = BigInteger.ONE
-    )
-
     @Test
     fun `should handle order opened`() = runBlocking<Unit> {
         listOf(

@@ -65,7 +65,10 @@ data class Order(
     var lastUpdatedAt: LocalDateTime? = null,
     val collection: String,
     val makeStock: BigInteger
-)
+) {
+
+    fun cancel(): Order = copy(cancelled = true)
+}
 
 data class OrderData(
     val payouts: List<Payout>,
