@@ -94,7 +94,8 @@ data class OwnershipContinuation(
     }
 }
 
-data class ActivityContinuation(val beforeDate: Instant, val beforeId: String) {
+//todo rename to a general continuation
+data class ActivityContinuation(val beforeDate: Instant, val beforeId: String): Continuation {
 
     override fun toString(): String = "${beforeDate.epochSecond}_$beforeId"
 
