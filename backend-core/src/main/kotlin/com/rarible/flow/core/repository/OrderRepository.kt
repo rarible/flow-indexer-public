@@ -21,7 +21,7 @@ import java.time.ZoneOffset
 interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepositoryCustom {
     fun findByItemId(itemId: ItemId): Mono<Order>
     @Query("""
-        {"_id": ?0, "cancelled": false, "fill": "0"}
+        {"_id": ?0, "cancelled": false, "fill": 0.0}
     """)
     fun findActiveById(id: Long): Mono<Order>
 }

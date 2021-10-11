@@ -46,7 +46,7 @@ object OrderToDtoConverter: Converter<Order, FlowOrderDto> {
     ) = when (asset) {
         is FlowAssetNFT -> FlowAssetNFTDto(
             contract = asset.contract,
-            value = asset.value,
+            value = asset.value.toBigInteger(),
             tokenId = asset.tokenId.toBigInteger()
         )
         is FlowAssetFungible -> FlowAssetFungibleDto(
