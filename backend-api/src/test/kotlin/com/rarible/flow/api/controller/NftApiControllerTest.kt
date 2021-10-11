@@ -69,9 +69,8 @@ internal class NftApiControllerTest {
             createItem(43).copy(mintedAt = Instant.now(Clock.systemUTC()).minus(1, ChronoUnit.DAYS))
         )
 
-
         coEvery {
-            nftItemService.getAllItems(any(), any(), any())
+            nftItemService.getAllItems(any(), any(), any(), any(), any())
         } returns FlowNftItemsDto(
             total = items.size.toLong(),
             continuation = "",
@@ -305,6 +304,55 @@ internal class NftApiControllerTest {
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 0
+
+
+    }
+
+    @Test
+    fun `should return all items with filters`() {
+        val items = listOf(
+            createItem(),
+            createItem(tokenId = 43).copy(collection = "different collection")
+        )
+
+        coEvery {
+            nftItemService.getAllItems(any(), null, any(), any(), any())
+        } coAnswers {
+            FlowNftItemsDto(
+                total = 2L,
+                items = items.map(ItemToDtoConverter::convert),
+                continuation = ""
+            )
+        }
+
+        var response = client
+            .get()
+            .uri("/v0.1/items/all")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        response.items shouldHaveSize 2
+
+        response = client
+            .get()
+            .uri("/v0.1/items/all?showDeleted=true")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        response.items shouldHaveSize 2
+
+        response = client
+            .get()
+            .uri(
+                "/v0.1/items/all?lastUpdatedFrom={from}&lastUpdatedTo={to}",
+                mapOf("from" to Instant.now().toEpochMilli(), "to" to Instant.now().toEpochMilli()))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        response.items shouldHaveSize 2
 
 
     }

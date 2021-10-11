@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.core.index.CompoundIndex
 import org.springframework.data.mongodb.core.index.CompoundIndexes
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.core.mapping.Field
+import org.springframework.data.mongodb.core.mapping.FieldType
 import org.springframework.data.mongodb.core.mapping.MongoId
 import java.io.Serializable
 import java.time.Instant
@@ -61,6 +63,7 @@ data class Item(
     val collection: String,
 
     @LastModifiedDate
+    @Field(targetType = FieldType.DATE_TIME)
     val updatedAt: Instant
 ) {
 

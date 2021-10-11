@@ -5,10 +5,7 @@ import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
-import com.rarible.flow.core.repository.ItemMetaRepository
-import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.coFindById
-import com.rarible.flow.core.repository.coSave
+import com.rarible.flow.core.repository.*
 import com.rarible.protocol.dto.FlowItemMetaDto
 import com.rarible.protocol.dto.FlowItemMetaFormDto
 import com.rarible.protocol.dto.FlowNftItemDto
@@ -23,6 +20,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController
 import java.net.URI
+import java.time.Instant
 
 @CrossOrigin
 @RestController
@@ -30,8 +28,24 @@ class NftApiController(
     private val nftItemService: NftItemService
 ) : FlowNftItemControllerApi {
 
-    override suspend fun getNftAllItems(continuation: String?, size: Int?, showDeleted: Boolean?): ResponseEntity<FlowNftItemsDto> =
-        ResponseEntity.ok(nftItemService.getAllItems(continuation, size, showDeleted ?: false))
+    override suspend fun getNftAllItems(
+        continuation: String?,
+        size: Int?,
+        showDeleted: Boolean?,
+        lastUpdatedFrom: Long?,
+        lastUpdatedTo: Long?
+    ): ResponseEntity<FlowNftItemsDto> {
+        val cont = NftItemContinuation.parse(continuation)
+        return nftItemService
+            .getAllItems(
+                cont,
+                size,
+                showDeleted ?: false,
+                lastUpdatedFrom?.let { Instant.ofEpochMilli(lastUpdatedFrom) },
+                lastUpdatedTo?.let { Instant.ofEpochMilli(lastUpdatedTo) },
+            )
+            .okOr404IfNull()
+    }
 
     override suspend fun getNftItemById(itemId: String): ResponseEntity<FlowNftItemDto> {
         return nftItemService.getItemById(itemId).okOr404IfNull()

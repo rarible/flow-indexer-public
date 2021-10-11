@@ -12,6 +12,7 @@ import com.rarible.protocol.dto.FlowNftItemsDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
+import java.time.Instant
 
 @Service
 class NftItemService(
@@ -19,8 +20,18 @@ class NftItemService(
     private val itemMetaRepository: ItemMetaRepository,
 ) {
 
-    suspend fun getAllItems(continuation: String?, size: Int?, showDeleted: Boolean): FlowNftItemsDto {
-        val items = itemRepository.search(ItemFilter.All(showDeleted), NftItemContinuation.parse(continuation), size)
+    suspend fun getAllItems(
+        continuation: NftItemContinuation?,
+        size: Int?,
+        showDeleted: Boolean,
+        lastUpdatedFrom: Instant?,
+        lastUpdatedTo: Instant?
+    ): FlowNftItemsDto {
+        val items = itemRepository.search(
+            ItemFilter.All(showDeleted, lastUpdatedFrom, lastUpdatedTo),
+            continuation,
+            size
+        )
         return convert(items)
     }
 

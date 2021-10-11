@@ -1,6 +1,5 @@
 package com.rarible.flow.core.repository
 
-import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import kotlinx.coroutines.flow.Flow
@@ -15,7 +14,6 @@ import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.ZoneOffset
 
 interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepositoryCustom {
