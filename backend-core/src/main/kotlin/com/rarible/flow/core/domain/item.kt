@@ -4,7 +4,6 @@ import com.nftco.flow.sdk.FlowAddress
 import com.querydsl.core.annotations.QueryEntity
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
-import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.mongodb.core.index.CompoundIndex
 import org.springframework.data.mongodb.core.index.CompoundIndexes
 import org.springframework.data.mongodb.core.index.Indexed
@@ -59,8 +58,6 @@ data class Item(
     val listed: Boolean = false,
     @Indexed
     val collection: String,
-
-    @LastModifiedDate
     val updatedAt: Instant
 ) {
 

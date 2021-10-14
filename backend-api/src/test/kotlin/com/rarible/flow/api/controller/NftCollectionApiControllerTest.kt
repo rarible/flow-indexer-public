@@ -1,7 +1,6 @@
 package com.rarible.flow.api.controller
 
 import com.nftco.flow.sdk.FlowAddress
-import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.api.config.Config
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.ItemCollection
@@ -26,6 +25,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
         "spring.cloud.discovery.enabled = false",
         "spring.cloud.consul.config.enabled = false",
         "logging.logstash.tcp-socket.enabled = false",
+        "blockchain.scanner.flow.chainId = TESTNET"
     ],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )

@@ -1,6 +1,8 @@
 package com.rarible.flow.core.domain
 
 import com.querydsl.core.annotations.QueryEntity
+import com.rarible.blockchain.scanner.flow.model.FlowLog
+import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.protocol.dto.*
 import org.springframework.data.mongodb.core.index.IndexDirection
 import org.springframework.data.mongodb.core.index.Indexed
@@ -16,63 +18,68 @@ import java.time.Instant
  * @property date       date of activity
  * @property activity   activity data (see [FlowNftActivity])
  */
-@Document
+@Document("item_history")
 @QueryEntity
 data class ItemHistory(
-    @MongoId
-    val id: String,
     @Indexed(direction = IndexDirection.DESCENDING)
     @Field(targetType = FieldType.DATE_TIME)
     val date: Instant,
-    val activity: FlowActivity
-)
+    val activity: FlowActivity,
+    override val log: FlowLog
+): FlowLogRecord<ItemHistory>() {
 
-fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
+    @MongoId
+    val id: String = "${log.transactionHash}:${log.eventIndex}"
+
+    override fun withLog(log: FlowLog): FlowLogRecord<ItemHistory> = copy(log = log)
+}
+
+fun FlowActivity.toDto(history: ItemHistory): FlowActivityDto  =
     when(this) {
         is MintActivity -> FlowMintDto(
-            id = id,
-            date = date,
+            id = history.id,
+            date = history.date,
             owner = this.owner,
             contract = this.contract,
             value = this.value.toBigInteger(),
             tokenId = this.tokenId.toBigInteger(),
-            transactionHash = this.transactionHash,
-            blockHash = this.blockHash,
-            blockNumber = this.blockNumber,
-            logIndex = -1,
+            transactionHash = history.log.transactionHash,
+            blockHash = history.log.blockHash,
+            blockNumber = history.log.blockHeight,
+            logIndex = history.log.eventIndex,
         )
 
-        is TransferActivity -> FlowTransferDto(
-            id = id,
-            date = date,
+/*        is TransferActivity -> FlowTransferDto(
+            id = history.id,
+            date = history.date,
             from = this.from,
             owner = this.owner,
             contract = this.contract,
             value = this.value.toBigInteger(),
             tokenId = this.tokenId.toBigInteger(),
-            transactionHash = this.transactionHash,
-            blockHash = this.blockHash,
-            blockNumber = this.blockNumber,
-            logIndex = -1
+            transactionHash = history.log.transactionHash,
+            blockHash = history.log.blockHash,
+            blockNumber = history.log.blockHeight,
+            logIndex = history.log.eventIndex,
 
-        )
+        )*/
 
         is BurnActivity -> FlowBurnDto(
-            id = id,
-            date = date,
-            owner = this.owner,
+            id = history.id,
+            date = history.date,
+            owner = this.owner.orEmpty(),
             contract = this.contract,
             value = this.value.toBigInteger(),
             tokenId = this.tokenId.toBigInteger(),
-            transactionHash = this.transactionHash,
-            blockHash = this.blockHash,
-            blockNumber = this.blockNumber,
-            logIndex = -1,
+            transactionHash = history.log.transactionHash,
+            blockHash = history.log.blockHash,
+            blockNumber = history.log.blockHeight,
+            logIndex = history.log.eventIndex,
         )
 
         is FlowNftOrderActivitySell -> FlowNftOrderActivitySellDto(
-            id = id,
-            date = date,
+            id = history.id,
+            date = history.date,
             left = FlowOrderActivityMatchSideDto(
                 maker = this.left.maker,
                 asset = FlowAssetNFTDto(
@@ -91,14 +98,14 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
                 type = FlowOrderActivityMatchSideDto.Type.BID
             ),
             price = this.price,
-            transactionHash = this.transactionHash,
-            blockHash = this.blockHash,
-            blockNumber = this.blockNumber,
-            logIndex = -1
+            transactionHash = history.log.transactionHash,
+            blockHash = history.log.blockHash,
+            blockNumber = history.log.blockHeight,
+            logIndex = history.log.eventIndex,
         )
         is FlowNftOrderActivityList -> FlowNftOrderActivityListDto(
-            id = id,
-            date = date,
+            id = history.id,
+            date = history.date,
             hash = this.hash,
             maker = this.maker,
             make = FlowAssetNFTDto(
@@ -113,8 +120,8 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
             price = this.price
         )
         is FlowNftOrderActivityCancelList -> FlowNftOrderActivityCancelListDto(
-            id = id,
-            date = date,
+            id = history.id,
+            date = history.date,
             hash = this.hash,
             maker = this.maker,
             make = FlowAssetNFTDto(
@@ -128,5 +135,6 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
             ),
             price = this.price
         )
+        else -> throw UnsupportedOperationException("Not realized yet!")
     }
 

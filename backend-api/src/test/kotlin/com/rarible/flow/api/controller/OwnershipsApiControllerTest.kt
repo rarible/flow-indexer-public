@@ -5,13 +5,11 @@ import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.api.config.Config
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Ownership
-import com.rarible.flow.core.domain.Payout
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.randomAddress
 import com.rarible.flow.randomLong
 import com.rarible.protocol.dto.FlowNftOwnershipDto
 import com.rarible.protocol.dto.FlowNftOwnershipsDto
-import io.kotest.matchers.collections.shouldNotHaveSize
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
@@ -24,7 +22,6 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
-import java.math.BigDecimal
 import java.time.Clock
 import java.time.Instant
 import kotlin.random.Random
@@ -68,8 +65,7 @@ class OwnershipsApiControllerTest {
                 contract = contract,
                 tokenId = tokenId,
                 owner = owner,
-                date = Instant.now(Clock.systemUTC()),
-                creators = listOf(Payout(account = FlowAddress(randomAddress()), value = BigDecimal.ONE))
+                date = Instant.now(Clock.systemUTC())
             )
 
         ownershipRepository.save(ownership).block()
@@ -85,9 +81,6 @@ class OwnershipsApiControllerTest {
                     Assertions.assertEquals(contract, ownershipDto.contract, "Token is not equals!")
                     Assertions.assertEquals(owner.formatted, ownershipDto.owner, "Owner is not equals!")
                     Assertions.assertEquals(tokenId, ownershipDto.tokenId, "Token ID is not equals!")
-                    Assertions.assertNotNull(ownershipDto.creators)
-                    ownershipDto.creators shouldNotHaveSize 0
-
                 }
         }
     }

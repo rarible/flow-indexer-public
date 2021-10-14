@@ -5,19 +5,18 @@ import com.rarible.protocol.dto.FlowAggregationDataDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
-import org.bson.BsonDateTime
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.aggregation.Aggregation
-import org.springframework.data.mongodb.core.query.*
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.gte
+import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.lte
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import org.springframework.data.querydsl.ReactiveQuerydslPredicateExecutor
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
 import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.util.*
 
 /**
  * Item history repo
@@ -47,7 +46,7 @@ class ItemHistoryRepositoryCustomImpl(
 ): ItemHistoryRepositoryCustom {
     override fun aggregatePurchaseByCollection(start: Instant, end: Instant, size: Long?): Flow<FlowAggregationDataDto> {
         return getNftPurchaseAggregation(
-            "${ItemHistory::activity.name}.${FlowNftOrderActivitySell::collection.name}",
+            "${ItemHistory::activity.name}.${FlowNftOrderActivitySell::contract.name}",
             start,
             end
         )
