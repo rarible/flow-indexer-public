@@ -35,10 +35,9 @@ class NftApiController(
         lastUpdatedFrom: Long?,
         lastUpdatedTo: Long?
     ): ResponseEntity<FlowNftItemsDto> {
-        val cont = NftItemContinuation.parse(continuation)
         return nftItemService
             .getAllItems(
-                cont,
+                continuation,
                 size,
                 showDeleted ?: false,
                 lastUpdatedFrom?.let { Instant.ofEpochMilli(lastUpdatedFrom) },

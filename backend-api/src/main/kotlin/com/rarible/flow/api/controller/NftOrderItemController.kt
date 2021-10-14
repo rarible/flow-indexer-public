@@ -1,7 +1,6 @@
 package com.rarible.flow.api.controller
 
 import com.rarible.flow.api.service.NftItemService
-import com.rarible.flow.core.repository.NftItemContinuation
 import com.rarible.protocol.dto.FlowNftItemsDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftOrderItemControllerApi
 import org.springframework.http.ResponseEntity
@@ -15,8 +14,9 @@ class NftOrderItemController(
 ): FlowNftOrderItemControllerApi {
 
     override suspend fun getNftOrderAllItems(continuation: String?, size: Int?, showDeleted: Boolean?): ResponseEntity<FlowNftItemsDto> {
-        val cont = NftItemContinuation.parse(continuation)
-        return ResponseEntity.ok(nftItemService.getAllItems(cont, size, showDeleted ?: false, null, null))
+        return ResponseEntity.ok(
+            nftItemService.getAllItems(continuation, size, showDeleted ?: false, null, null)
+        )
     }
 
     override suspend fun getNftOrderItemsByCollection(

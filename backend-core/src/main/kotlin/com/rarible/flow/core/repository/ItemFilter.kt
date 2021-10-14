@@ -29,11 +29,15 @@ sealed class ItemFilter(open val sort: Sort = Sort.LAST_UPDATE) {
                 )
             }
 
-            return Criteria().andOperator(
-                criterions
-                .withFrom(lastUpdatedFrom)
-                .withTo(lastUpdatedTo)
-            )
+            return if(criterions.isEmpty()) {
+                Criteria()
+            } else {
+                Criteria().andOperator(
+                    criterions
+                        .withFrom(lastUpdatedFrom)
+                        .withTo(lastUpdatedTo)
+                )
+            }
 
         }
 

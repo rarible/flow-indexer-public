@@ -77,7 +77,7 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
                 maker = this.left.maker,
                 asset = FlowAssetNFTDto(
                     contract = this.left.asset.contract,
-                    value = this.left.asset.value.toBigInteger(),
+                    value = this.left.asset.value,
                     tokenId = (this.left.asset as FlowAssetNFT).tokenId.toBigInteger()
                 ),
                 type = FlowOrderActivityMatchSideDto.Type.SELL
@@ -103,7 +103,7 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
             maker = this.maker,
             make = FlowAssetNFTDto(
                 contract = this.make.contract,
-                value = this.make.value.toBigInteger(),
+                value = this.make.value,
                 tokenId = (this.make as FlowAssetNFT).tokenId.toBigInteger()
             ),
             take = FlowAssetFungibleDto(
@@ -119,7 +119,7 @@ fun FlowActivity.toDto(id: String, date: Instant): FlowActivityDto  =
             maker = this.maker,
             make = FlowAssetNFTDto(
                 contract = this.make.contract,
-                value = this.make.value.toBigInteger(),
+                value = this.make.value,
                 tokenId = (this.make as FlowAssetNFT).tokenId.toBigInteger()
             ),
             take = FlowAssetFungibleDto(

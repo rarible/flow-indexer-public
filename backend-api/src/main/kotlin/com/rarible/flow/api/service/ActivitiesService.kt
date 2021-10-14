@@ -2,6 +2,7 @@ package com.rarible.flow.api.service
 
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.OrderSpecifier
+import com.querydsl.core.types.Predicate
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ActivityContinuation
@@ -12,6 +13,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Service
+import java.time.Instant
 
 @FlowPreview
 @Service
@@ -42,6 +44,8 @@ class ActivitiesService(
         type: List<String>,
         user: List<String>,
         continuation: String?,
+        from: Instant?,
+        to: Instant?,
         size: Int?,
         sort: String? = "LATEST_FIRST"
     ): FlowActivitiesDto {
@@ -64,21 +68,21 @@ class ActivitiesService(
         }
 
         val transferFromActivities: Flow<ItemHistory> = if (haveTransferFrom) {
-            itemHistoryRepository.findAll(transferFromPredicate(user), *order).asFlow()
+            itemHistoryRepository.findAll(transferFromPredicate(user, from, to), *order).asFlow()
         } else emptyFlow()
 
 
         val transferToActivities: Flow<ItemHistory> = if (haveTransferTo) {
-            itemHistoryRepository.findAll(transferToPredicate(user), *order).asFlow()
+            itemHistoryRepository.findAll(transferToPredicate(user, from, to), *order).asFlow()
         } else emptyFlow()
 
         val listActivities: Flow<ItemHistory> = if (types.contains(FlowActivityType.LIST)) {
-            itemHistoryRepository.findAll(listPredicate(user), *order).asFlow()
+            itemHistoryRepository.findAll(listPredicate(user, from, to), *order).asFlow()
         } else emptyFlow()
         types.remove(FlowActivityType.LIST)
 
         val sellActivities: Flow<ItemHistory> = if (types.contains(FlowActivityType.SELL)) {
-            itemHistoryRepository.findAll(sellPredicate(user), *order).asFlow()
+            itemHistoryRepository.findAll(sellPredicate(user, from, to), *order).asFlow()
         } else emptyFlow()
         types.remove(FlowActivityType.SELL)
 
@@ -180,18 +184,34 @@ class ActivitiesService(
             .and(activity.tokenId.eq(tokenId))
     }
 
-    private fun transferFromPredicate(users: List<String>): BooleanExpression {
-        val q = QItemHistory.itemHistory
-        val activity = QTransferActivity(q.activity.metadata)
-        return activity.type.eq(FlowActivityType.TRANSFER)
-            .and(activity.from.`in`(users))
+    private fun withintDates(qItemHistory: QItemHistory, predicate: BooleanExpression, from: Instant?, to: Instant?): BooleanExpression {
+        var pred = predicate
+        if(from != null) {
+            pred = predicate.and(qItemHistory.date.after(from))
+        }
+        if(to != null) {
+            pred = pred.and(qItemHistory.date.before(to))
+        }
+
+        return pred
     }
 
-    private fun transferToPredicate(users: List<String>): BooleanExpression {
+    private fun transferFromPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
         val q = QItemHistory.itemHistory
         val activity = QTransferActivity(q.activity.metadata)
-        return activity.type.eq(FlowActivityType.TRANSFER)
+        var predicate = activity.type.eq(FlowActivityType.TRANSFER)
+            .and(activity.from.`in`(users))
+
+        return withintDates(q, predicate, from, to)
+    }
+
+    private fun transferToPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
+        val q = QItemHistory.itemHistory
+        val activity = QTransferActivity(q.activity.metadata)
+        val predicate = activity.type.eq(FlowActivityType.TRANSFER)
             .and(activity.owner.`in`(users))
+
+        return withintDates(q, predicate, from, to)
     }
 
     private fun byOwner(users: List<String>): BooleanExpression {
@@ -220,18 +240,20 @@ class ActivitiesService(
         if (items.isEmpty()) null else ActivityContinuation(beforeDate = items.last().date, beforeId = items.last().id)
 
 
-    private fun sellPredicate(users: List<String>): BooleanExpression {
+    private fun sellPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
         val q = QItemHistory.itemHistory
         val activity = QFlowNftOrderActivitySell(q.activity.metadata)
-        return activity.type.eq(FlowActivityType.SELL)
+        val predicate = activity.type.eq(FlowActivityType.SELL)
             .and(activity.left.maker.`in`(users))
+        return withintDates(q, predicate, from, to)
     }
 
-    private fun listPredicate(users: List<String>): BooleanExpression {
+    private fun listPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
         val q = QItemHistory.itemHistory
         val activity = QFlowNftOrderActivityList(q.activity.metadata)
-        return activity.type.eq(FlowActivityType.LIST)
+        val predicate = activity.type.eq(FlowActivityType.LIST)
             .and(activity.maker.`in`(users))
+        return withintDates(q, predicate, from, to)
     }
 }
 

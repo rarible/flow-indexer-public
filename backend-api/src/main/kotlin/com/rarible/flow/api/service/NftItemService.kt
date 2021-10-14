@@ -21,7 +21,7 @@ class NftItemService(
 ) {
 
     suspend fun getAllItems(
-        continuation: NftItemContinuation?,
+        continuation: String?,
         size: Int?,
         showDeleted: Boolean,
         lastUpdatedFrom: Instant?,
@@ -43,7 +43,7 @@ class NftItemService(
 
     suspend fun byCollection(collection: String, continuation: String?, size: Int?): FlowNftItemsDto {
         val items =
-            itemRepository.search(ItemFilter.ByCollection(collection), NftItemContinuation.parse(continuation), size)
+            itemRepository.search(ItemFilter.ByCollection(collection), continuation, size)
         return convert(items)
     }
 
@@ -70,20 +70,20 @@ class NftItemService(
         return if (items.isEmpty()) {
             null
         } else {
-            NftItemContinuation(items.last().mintedAt, items.last().id).toString()
+            "${items.last().mintedAt.toEpochMilli()}_${items.last().id}"
         }
     }
 
     suspend fun byAccount(address: String, continuation: String?, size: Int?): FlowNftItemsDto? {
         val items: Flow<Item> = itemRepository.search(
-            ItemFilter.ByOwner(FlowAddress(address)), NftItemContinuation.parse(continuation), size
+            ItemFilter.ByOwner(FlowAddress(address)), continuation, size
         )
         return convert(items)
     }
 
     suspend fun byCreator(address: String, continuation: String?, size: Int?): FlowNftItemsDto? {
         val items: Flow<Item> = itemRepository.search(
-            ItemFilter.ByCreator(FlowAddress(address)), NftItemContinuation.parse(continuation), size
+            ItemFilter.ByCreator(FlowAddress(address)), continuation, size
         )
 
         return convert(items)

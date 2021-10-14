@@ -6,7 +6,6 @@ import com.rarible.flow.api.config.Config
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.NftItemContinuation
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.randomAddress
 import com.rarible.flow.randomLong
@@ -119,12 +118,9 @@ class NftOrderItemControllerTest {
 
                 Assertions.assertEquals(44L, lastItem.tokenId.toLong())
 
-                val cont = NftItemContinuation(
-                    afterDate = lastItem.mintedAt,
-                    afterId = ItemId.parse(lastItem.id)
-                )
+                val cont = "${lastItem.mintedAt.toEpochMilli()}_${lastItem.id}"
 
-                Assertions.assertEquals(cont.toString(), itemsDto.continuation)
+                Assertions.assertEquals(cont, itemsDto.continuation)
 
                 client.get().uri("/v0.1/order/items/all?size=1&continuation={continuation}", mapOf("continuation" to itemsDto.continuation))
                     .exchange()

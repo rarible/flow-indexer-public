@@ -53,7 +53,7 @@ internal class OrderToDtoConverterTest: FunSpec({
     test("should convert NFT asset") {
         OrderToDtoConverter.convert(
             FlowAssetNFT("A.B.C", 1.toBigDecimal(), 1337L)
-        ) shouldBe FlowAssetNFTDto("A.B.C", 1337L.toBigInteger(), 1.toBigInteger(),)
+        ) shouldBe FlowAssetNFTDto("A.B.C", 1.toBigDecimal(), 1337L.toBigInteger())
     }
 
     test("should convert fungible asset") {
