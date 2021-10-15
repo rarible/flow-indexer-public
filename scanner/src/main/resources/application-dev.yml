@@ -13,20 +13,20 @@ logging:
 scanner:
   environment: dev
   kafka-replica-set: ${kafka.hosts}
-  tracked-contracts:
-    - "ff1201e3a53ee578" #Rari
-    - "fcfb23c627a63d40" #Rari 1-phase mint
-    - "665b9acf64dfdfdb" #Rari
-  listenAllEvents: true
-  subscribeAllEvents: false
+  alchemy-api-key: t6y8505dtycu8dbz5p7rp3f1gb4a992e
 
 blockchain:
   scanner:
     flow:
       chainId: TESTNET
       poller:
-        delay: 50
+        delay: 300
       job:
         reconciliation:
-          batchSize: 64
-      blockBufferSize: 64
+          batchSize: 250
+      blockBufferSize: 128
+grpc:
+  client:
+    flow:
+      address: dns:///flow-testnet.g.alchemy.com:443
+      enable-keep-alive: true

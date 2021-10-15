@@ -14,3 +14,7 @@ flow-indexer-api:
   flow-access-port: 9000
   kafka-replica-set: ${kafka.hosts}
   environment: test
+blockchain:
+  scanner:
+    flow:
+      chainId: TESTNET

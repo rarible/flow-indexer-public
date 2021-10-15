@@ -16,10 +16,8 @@ blockchain:
           enabled: false
 
 scanner:
-  environment: dev
+  environment: staging
   kafka-replica-set: ${kafka.hosts}
+  alchemy-api-key: t6y8505dtycu8dbz5p7rp3f1gb4a992e
 
-  tracked-contracts:
-    - "e7e97b10fbd3b607" #Rari Staging
-  listenAllEvents: true
-  subscribeAllEvents: false
+

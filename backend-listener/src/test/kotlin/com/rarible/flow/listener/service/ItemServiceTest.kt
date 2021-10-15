@@ -117,8 +117,7 @@ internal class ItemServiceTest {
             contract = before.contract,
             tokenId = before.tokenId,
             owner = before.owner!!,
-            date = Instant.now(),
-            creators = listOf()
+            date = Instant.now()
         )
         ownershipRepository.coSave(oldOwnership)
 

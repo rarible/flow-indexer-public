@@ -6,9 +6,11 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":backend-core"))
     implementation(project(":backend-api-model"))
     implementation(project(":util"))
 
+    implementation("net.devh:grpc-client-spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
 
@@ -19,6 +21,7 @@ dependencies {
     implementation(rootProject.libs.rarible.core.kafka)
     implementation(rootProject.libs.blockchain.scanner.core)
     implementation(rootProject.libs.blockchain.scanner.flow)
+    implementation(rootProject.libs.bundles.flow.models)
     testImplementation(project(":backend-api-model"))
     testImplementation(project(":util"))
 }
@@ -26,4 +29,5 @@ dependencies {
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     enabled = true
     destinationDirectory.set(file("./target/boot"))
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

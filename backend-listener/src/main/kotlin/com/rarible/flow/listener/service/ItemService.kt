@@ -5,7 +5,6 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Ownership
-import com.rarible.flow.core.domain.Payout
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.repository.coFindById
@@ -44,7 +43,7 @@ class ItemService(
                 .collectList().awaitFirstOrDefault(emptyList())
 
             val ownership = ownershipRepository.coSave(
-                Ownership(item.contract, item.tokenId, to, Instant.now(), listOf(Payout(account = item.creator, value = 100.toBigDecimal())))
+                Ownership(item.contract, item.tokenId, to, Instant.now())
             )
             item to ownership
         } ?: run {

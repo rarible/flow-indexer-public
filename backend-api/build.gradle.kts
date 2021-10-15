@@ -14,11 +14,10 @@ dependencies {
     implementation(rootProject.libs.bundles.flow.models)
     implementation(rootProject.libs.bundles.flow.apis)
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
-    implementation("org.springframework.boot:spring-boot-starter-hateoas")
     implementation(rootProject.libs.bundles.rarible.core)
     implementation(rootProject.libs.rarible.core.starter)
     implementation(rootProject.libs.rarible.core.logging)
-    implementation("org.springframework.boot:spring-boot-starter-websocket")
+    implementation(rootProject.libs.blockchain.scanner.flow)
     api("com.querydsl:querydsl-mongodb:5.0.0")
 }
 

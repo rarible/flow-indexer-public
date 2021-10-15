@@ -56,22 +56,19 @@ class DestroyListener(
         item: Item,
         eventMessage: EventMessage
     ) {
-        val blockInfo = eventMessage.blockInfo
+//        val blockInfo = eventMessage.blockInfo
+/*
         itemHistoryRepository.coSave(
             ItemHistory(
-                id = UUID.randomUUID().toString(),
+//                id = UUID.randomUUID().toString(),
                 date = eventMessage.timestamp.toInstant(ZoneOffset.UTC),
                 activity = BurnActivity(
                     contract = item.contract,
                     tokenId = item.tokenId,
-                    transactionHash = blockInfo.transactionId,
-                    blockHash = blockInfo.blockId,
-                    blockNumber = blockInfo.blockHeight,
-                    collection = item.collection,
-                    owner = item.owner!!.formatted
-                )
+                ),
             )
         )
+*/
     }
 
     companion object {

@@ -117,7 +117,7 @@ class ActivitiesService(
         val items = result.toList()
 
         return FlowActivitiesDto(
-            items = items.map { h -> h.activity.toDto(h.id, h.date) },
+            items = items.map { h -> h.activity.toDto(h) },
             total = items.size,
             continuation = "${answerContinuation(items)}"
         )
@@ -164,7 +164,7 @@ class ActivitiesService(
 
     private fun byCollection(collection: String): BooleanExpression {
         val q = QItemHistory.itemHistory
-        return q.activity.`as`(QFlowNftActivity::class.java).collection.eq(collection)
+        return q.activity.`as`(QFlowNftActivity::class.java).contract.eq(collection)
     }
 
     private fun byContinuation(cont: ActivityContinuation): BooleanExpression {
@@ -198,8 +198,8 @@ class ActivitiesService(
 
     private fun transferFromPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
         val q = QItemHistory.itemHistory
-        val activity = QTransferActivity(q.activity.metadata)
-        var predicate = activity.type.eq(FlowActivityType.TRANSFER)
+        val activity = QWithdrawnActivity(q.activity.metadata)
+        var predicate = activity.type.eq(FlowActivityType.WITHDRAWN)
             .and(activity.from.`in`(users))
 
         return withintDates(q, predicate, from, to)
@@ -207,9 +207,9 @@ class ActivitiesService(
 
     private fun transferToPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
         val q = QItemHistory.itemHistory
-        val activity = QTransferActivity(q.activity.metadata)
-        val predicate = activity.type.eq(FlowActivityType.TRANSFER)
-            .and(activity.owner.`in`(users))
+        val activity = QDepositActivity(q.activity.metadata)
+        val predicate = activity.type.eq(FlowActivityType.DEPOSIT)
+            .and(activity.to.`in`(users))
 
         return withintDates(q, predicate, from, to)
     }

@@ -2,7 +2,6 @@ package com.rarible.flow.core.converter
 
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.protocol.dto.FlowNftOwnershipDto
-import com.rarible.protocol.dto.PayInfoDto
 import org.springframework.core.convert.converter.Converter
 
 object OwnershipToDtoConverter : Converter<Ownership, FlowNftOwnershipDto> {
@@ -13,7 +12,7 @@ object OwnershipToDtoConverter : Converter<Ownership, FlowNftOwnershipDto> {
             contract = ownership.contract,
             tokenId = ownership.tokenId,
             owner = ownership.owner.formatted,
-            creators = ownership.creators.map { PayInfoDto(account = it.account.formatted, value = it.value) },
+            creators = emptyList(),
             createdAt = ownership.date
         )
     }

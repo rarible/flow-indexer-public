@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
@@ -36,6 +37,7 @@ import java.time.temporal.ChronoUnit
 ])
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
+@Disabled
 class ItemRepositoryTestOld {
 
     @Autowired
