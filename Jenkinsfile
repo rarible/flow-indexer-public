@@ -3,7 +3,7 @@
 def prefix = 'flow'
 def stackName = 'protocol-flow'
 def credentialsId = 'nexus-ci'
-def services = [[name: 'backend-api', path: './backend-api'], [name: 'backend-listener', path: './backend-listener'], [name: 'scanner', path: './scanner']]
+def services = [[name: 'backend-api', path: './backend-api'], [name: 'scanner', path: './scanner']]
 
 pipeline {
     agent none
