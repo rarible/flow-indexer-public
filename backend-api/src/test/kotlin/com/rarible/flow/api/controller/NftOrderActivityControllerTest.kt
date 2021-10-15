@@ -326,7 +326,7 @@ class NftOrderActivityControllerTest {
     }
 
     @Test
-    fun `should return 1 activity by userFrom and 3 activities for userTo`() {
+    fun `should return 1 activity by userFrom and 2 activities for userTo`() {
         val userFrom = randomAddress()
         val userTo = randomAddress()
 
@@ -368,25 +368,26 @@ class NftOrderActivityControllerTest {
         val expectedContract = randomAddress()
         val expected = mintActivity.copy(tokenId = expectedTokenId, contract = expectedContract, owner = userFrom)
 
+        val now = Instant.now()
         val history = listOf(
             ItemHistory(
                 id = UUID.randomUUID().toString(),
-                date = Instant.now(Clock.systemUTC()) + Duration.ofSeconds(1L),
+                date = now + Duration.ofSeconds(1L),
                 mintActivity
             ),
             ItemHistory(
                 id = UUID.randomUUID().toString(),
-                date = Instant.now(Clock.systemUTC()) + Duration.ofSeconds(3L),
+                date = now + Duration.ofSeconds(3L),
                 expected
             ),
             ItemHistory(
                 id = UUID.randomUUID().toString(),
-                date = Instant.now(Clock.systemUTC()) + Duration.ofSeconds(6L),
+                date = now + Duration.ofSeconds(6L),
                 transferActivity
             ),
             ItemHistory(
                 id = UUID.randomUUID().toString(),
-                date = Instant.now(Clock.systemUTC()) + Duration.ofSeconds(9L),
+                date = now + Duration.ofSeconds(9L),
                 burnActivity
             ),
         )
@@ -419,8 +420,12 @@ class NftOrderActivityControllerTest {
 
         client.get()
             .uri(
-                "/v0.1/order/activities/byUser?type={type}&user={userTo}",
-                mapOf("type" to arrayOf("MINT", "BURN", "TRANSFER_TO"), "userTo" to userTo)
+                "/v0.1/order/activities/byUser?type={type}&user={userTo}&from={from}",
+                mapOf(
+                    "type" to arrayOf("MINT", "BURN", "TRANSFER_TO"),
+                    "userTo" to userTo,
+                    "from" to history[3].date.toEpochMilli()
+                )
             )
             .exchange()
             .expectStatus().isOk
@@ -431,7 +436,7 @@ class NftOrderActivityControllerTest {
                 Assertions.assertNotNull(dto.items, "Items is NULL!!!")
                 Assertions.assertNotNull(dto.continuation, "Continuation is NULL!!!")
                 Assertions.assertNotNull(dto.total, "Total is NULL!!!")
-                Assertions.assertEquals(3, dto.total, "Should return 3 items, but return ${dto.total} items")
+                Assertions.assertEquals(2, dto.total, "Should return 2 items, but return ${dto.total} items")
                 Assertions.assertEquals(dto.total, dto.items.size, "Total and items.size are different!!!")
             }
     }
