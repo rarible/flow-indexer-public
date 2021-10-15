@@ -106,15 +106,16 @@ sealed class OrderFilter() {
 
     class ByCurrency(val currency: FlowAddress?): OrderFilter() {
         override fun criteria(): Criteria {
-            if(currency == null) {
-                return Criteria()
+            return if(currency == null) {
+                Criteria()
             } else {
-                return (Order::take / FlowAsset::contract).isEqualTo(currency.formatted)
+                (Order::take / FlowAsset::contract).isEqualTo(currency.formatted)
             }
         }
     }
 
     class ByStatus(val status: List<FlowOrderStatusDto>?) : OrderFilter() {
+        @Suppress("IfThenToElvis")
         override fun criteria(): Criteria {
             return if(status == null) {
                 Criteria()
