@@ -13,14 +13,12 @@ logging:
 scanner:
   environment: dev
   kafka-replica-set: ${kafka.hosts}
-  alchemy-api-key: 6k9n3u0syeas3u47ezlpxhlzfu666egf
-#  alchemy-api-key: t6y8505dtycu8dbz5p7rp3f1gb4a992e
-#  alchemy-api-key: 9huh0gjb1ftvd7h9s3vnuptfvys4yqrw
+  alchemy-api-key: t6y8505dtycu8dbz5p7rp3f1gb4a992e
 
 blockchain:
   scanner:
     flow:
-      chainId: MAINNET
+      chainId: TESTNET
       poller:
         delay: 300
       job:
@@ -30,5 +28,5 @@ blockchain:
 grpc:
   client:
     flow:
-      address: dns:///flow-mainnet.g.alchemy.com:443
+      address: dns:///flow-testnet.g.alchemy.com:443
       enable-keep-alive: true
