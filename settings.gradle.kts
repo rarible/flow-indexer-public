@@ -26,8 +26,8 @@ dependencyResolutionManagement {
             alias("rarible-core-telemetry").to("com.rarible.core", "rarible-core-telemetry-starter").versionRef("rarible-core")
             alias("rarible-core-starter").to("com.rarible.core", "rarible-core-starter").versionRef("rarible-core")
             alias("rarible-core-logging").to("com.rarible.core", "rarible-core-logging").versionRef("rarible-core")
-            alias("blockchain-scanner-core").to("com.rarible.blockchain.scanner", "rarible-blockchain-scanner-core").versionRef("blockchain-scanner")
             alias("blockchain-scanner-flow").to("com.rarible.blockchain.scanner", "rarible-blockchain-scanner-flow").versionRef("blockchain-scanner")
+            alias("blockchain-scanner-model").to("com.rarible.blockchain.scanner", "rarible-blockchain-scanner-flow-model").versionRef("blockchain-scanner")
 
             alias("flow-model-common").to("com.rarible.protocol", "flow-protocol-model-common").versionRef("flow-protocol-version")
             alias("flow-model-nft").to("com.rarible.protocol", "flow-protocol-model-nft").versionRef("flow-protocol-version")

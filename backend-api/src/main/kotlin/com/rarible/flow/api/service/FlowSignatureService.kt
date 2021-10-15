@@ -55,7 +55,5 @@ class FlowSignatureService(
         return scriptResult.value ?: false
     }
 
-    private val scriptCode = this.javaClass.getResource("/script/sig_verify.cdc") .readText()
-
-
+    private val scriptCode = this.javaClass.getResource("/script/sig_verify.cdc").readText()
 }

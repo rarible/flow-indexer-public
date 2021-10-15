@@ -2,7 +2,6 @@ package com.rarible.flow.api.service
 
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.OrderSpecifier
-import com.querydsl.core.types.Predicate
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ActivityContinuation
@@ -199,9 +198,8 @@ class ActivitiesService(
     private fun transferFromPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
         val q = QItemHistory.itemHistory
         val activity = QWithdrawnActivity(q.activity.metadata)
-        var predicate = activity.type.eq(FlowActivityType.WITHDRAWN)
+        val predicate = activity.type.eq(FlowActivityType.WITHDRAWN)
             .and(activity.from.`in`(users))
-
         return withintDates(q, predicate, from, to)
     }
 

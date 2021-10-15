@@ -4,6 +4,7 @@ import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowChainId
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import org.apache.commons.lang3.SystemUtils
 
 internal class FlowSignatureServiceTest: FunSpec({
 
@@ -21,8 +22,7 @@ internal class FlowSignatureServiceTest: FunSpec({
         )
     )
 
-
-    test("should verify signature") {
+    test("should verify signature").config(enabledIf = { !SystemUtils.IS_OS_WINDOWS }) {
         val service = FlowSignatureService(
             FlowChainId.TESTNET,
             Flow.newAccessApi("access.devnet.nodes.onflow.org", 9000)
@@ -33,7 +33,7 @@ internal class FlowSignatureServiceTest: FunSpec({
         }
     }
 
-    test("should fail") {
+    test("should fail").config(enabledIf = { !SystemUtils.IS_OS_WINDOWS }) {
         val service = FlowSignatureService(
             FlowChainId.TESTNET,
             Flow.newAccessApi("access.devnet.nodes.onflow.org", 9000)

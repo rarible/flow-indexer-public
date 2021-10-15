@@ -13,11 +13,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation(rootProject.libs.bundles.flow.models)
     implementation(rootProject.libs.bundles.flow.apis)
-    implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
     implementation(rootProject.libs.bundles.rarible.core)
     implementation(rootProject.libs.rarible.core.starter)
     implementation(rootProject.libs.rarible.core.logging)
-
+    implementation(rootProject.libs.blockchain.scanner.model)
     api("com.querydsl:querydsl-mongodb:5.0.0")
 }
 

@@ -21,7 +21,7 @@ dependencies {
     implementation("org.springframework.data:spring-data-commons")
     implementation(rootProject.libs.bundles.flow.models)
     implementation("com.querydsl:querydsl-mongodb:5.0.0")
-    api(rootProject.libs.blockchain.scanner.flow)
+    implementation(rootProject.libs.blockchain.scanner.model)
     api("com.querydsl:querydsl-apt:5.0.0")
     kapt("com.querydsl:querydsl-apt:5.0.0:general")
 }
