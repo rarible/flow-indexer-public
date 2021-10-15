@@ -9,3 +9,6 @@ scanner:
 logging:
   level:
     com.rarible.blockchain.scanner.flow.FlowNetNewBlockPoller: debug
+  logstash:
+    tcp-socket:
+      enabled: false

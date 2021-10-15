@@ -37,7 +37,8 @@ class MotoGPSubscriber : BaseItemHistoryFlowLogSubscriber() {
                     "A.01658d9b94068f3c.MotoGPCard.Deposit",
                     "A.01658d9b94068f3c.MotoGPCard.Burn"
                 ),
-                collection = collection
+                collection = collection,
+                startFrom = 47330085L
             ),
             FlowChainId.EMULATOR to FlowDescriptor(id = "MotoGPCardDescriptor", events = emptySet(), collection = collection, startFrom = 1L)
         )

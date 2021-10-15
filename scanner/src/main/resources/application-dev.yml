@@ -23,10 +23,9 @@ blockchain:
         delay: 300
       job:
         reconciliation:
-          batchSize: 250
+          batchSize: 25
       blockBufferSize: 128
 grpc:
   client:
     flow:
       address: dns:///flow-testnet.g.alchemy.com:443
-      enable-keep-alive: true
