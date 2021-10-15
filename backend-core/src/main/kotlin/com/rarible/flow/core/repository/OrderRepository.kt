@@ -27,12 +27,12 @@ interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepository
 }
 
 interface OrderRepositoryCustom {
-    fun search(filter: OrderFilter, cont: String?, limit: Int?, sort: OrderFilter.Sort?): Flow<Order>
+    fun search(filter: OrderFilter, cont: String?, limit: Int?, sort: OrderFilter.Sort = OrderFilter.Sort.LAST_UPDATE): Flow<Order>
 }
 
 @Suppress("unused")
 class OrderRepositoryCustomImpl(val mongo: ReactiveMongoTemplate): OrderRepositoryCustom {
-    override fun search(filter: OrderFilter, cont: String?, limit: Int?, sort: OrderFilter.Sort?): Flow<Order> {
+    override fun search(filter: OrderFilter, cont: String?, limit: Int?, sort: OrderFilter.Sort): Flow<Order> {
         val query = filter.toQuery(cont, limit, sort)
         return mongo.find<Order>(query).asFlow()
     }

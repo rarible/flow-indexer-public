@@ -31,7 +31,6 @@ import java.time.temporal.ChronoUnit
 ])
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
-@Disabled
 internal class ItemRepositoryPaginationTest(
     @Autowired val itemRepository: ItemRepository
 ) {

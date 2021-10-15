@@ -37,7 +37,6 @@ import java.time.temporal.ChronoUnit
 ])
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
-@Disabled
 class ItemRepositoryTestOld {
 
     @Autowired

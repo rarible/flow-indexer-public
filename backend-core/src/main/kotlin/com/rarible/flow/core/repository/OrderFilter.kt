@@ -25,15 +25,25 @@ sealed class OrderFilter() {
     abstract fun criteria(): Criteria
 
     operator fun times(other: OrderFilter): OrderFilter {
-        return ByCriteria(
+        val empty = Criteria()
+
+        @Suppress("ReplaceCallWithBinaryOperator")
+        val finalCriteria = if(this.criteria().equals(empty) && other.criteria().equals(empty)) {
+            empty
+        } else if (this.criteria().equals(empty)) {
+            other.criteria()
+        } else if (other.criteria().equals(empty)){
+            this.criteria()
+        } else {
             Criteria().andOperator(
                 this.criteria(),
                 other.criteria()
             )
-        )
+        }
+        return ByCriteria(finalCriteria)
     }
 
-    fun toQuery(continuation: String?, limit: Int?, sort: Sort?): Query {
+    fun toQuery(continuation: String?, limit: Int?, sort: Sort = Sort.LAST_UPDATE): Query {
         val (querySort, criteria) = sortWithCriteria(continuation, sort)
         return Query
             .query(criteria)
@@ -41,7 +51,7 @@ sealed class OrderFilter() {
             .limit(limit ?: DEFAULT_LIMIT)
     }
 
-    fun sortWithCriteria(continuation: String?, sort: Sort?): Pair<SpringSort, Criteria> {
+    fun sortWithCriteria(continuation: String?, sort: Sort = Sort.LAST_UPDATE): Pair<SpringSort, Criteria> {
         return when (sort) {
             Sort.LAST_UPDATE -> SpringSort.by(
                 SpringSort.Order.desc(Order::createdAt.name),
@@ -57,8 +67,6 @@ sealed class OrderFilter() {
                 SpringSort.Order.desc((Order::take / FlowAsset::value).toDotPath()),
                 SpringSort.Order.desc(Order::id.name)
             ) to Cont.scrollDesc(this.criteria(), continuation, (Order::take / FlowAsset::value), Order::id)
-
-            null -> SpringSort.unsorted() to this.criteria()
         }
     }
 
