@@ -6,10 +6,12 @@ import java.net.URI
 
 /**
  * Represents NFT Items' meta information
- * itemId - ID of an NFT item (address:tokenId)
- * title - item's card title
- * description
- * uri - URI to the NFT's media resource
+ * @property itemId         - ID of an NFT item (address:tokenId)
+ * @property title          - item's card title
+ * @property description    - description
+ * @property uri            - URI to the NFT's media resource
+ * @property properties     - additional properties
+ *
  */
 @Document
 data class ItemMeta(
@@ -17,5 +19,6 @@ data class ItemMeta(
     val itemId: ItemId,
     val title: String,
     val description: String,
-    val uri: URI
+    val uri: URI,
+    val properties: Map<String, Any> = emptyMap()
 )

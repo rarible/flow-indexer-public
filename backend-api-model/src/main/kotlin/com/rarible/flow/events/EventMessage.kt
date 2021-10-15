@@ -1,18 +1,23 @@
 package com.rarible.flow.events
 
-import java.time.LocalDateTime
+import com.nftco.flow.sdk.cadence.CadenceNamespace
+import com.nftco.flow.sdk.cadence.JsonCadenceConversion
+import com.nftco.flow.sdk.cadence.JsonCadenceConverter
+import java.time.Instant
 
-typealias TokenId = Long
-
+@JsonCadenceConversion(EventMessageCadenceConverter::class)
 data class EventMessage(
     val eventId: EventId,
-    val fields: Map<String, Any?>,
-    var timestamp: LocalDateTime,
-    var blockInfo: BlockInfo
-) {
-    companion object {
-        fun getTopic(environment: String) =
-            "protocol.$environment.flow.scanner.nft.item"
-    }
-}
+    val fields: Map<String, com.nftco.flow.sdk.cadence.Field<*>>,
+    var timestamp: Instant = Instant.now()
+)
 
+class EventMessageCadenceConverter: JsonCadenceConverter<EventMessage> {
+    override fun unmarshall(value: com.nftco.flow.sdk.cadence.Field<*>, namespace: CadenceNamespace): EventMessage =
+        com.nftco.flow.sdk.cadence.unmarshall(value) {
+            EventMessage(
+                eventId = EventId.of(this.compositeValue.id),
+                fields = this.compositeValue.fields.associate { it.name to it.value }
+            )
+        }
+}

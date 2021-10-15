@@ -23,6 +23,7 @@ class SaleOfferAvailable(
     override suspend fun handle(
         eventMessage: EventMessage
     ) = runBlocking<Unit> {
+/*
         val event = SaleOfferEvent(eventMessage.fields)
 
 
@@ -76,6 +77,7 @@ class SaleOfferAvailable(
         } else {
             log.warn("Trying to sell deleted or non-existing item [{}]", itemId)
         }
+*/
     }
 
 

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
@@ -30,6 +31,7 @@ import java.time.temporal.ChronoUnit
 ])
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
+@Disabled
 internal class ItemRepositoryPaginationTest(
     @Autowired val itemRepository: ItemRepository
 ) {

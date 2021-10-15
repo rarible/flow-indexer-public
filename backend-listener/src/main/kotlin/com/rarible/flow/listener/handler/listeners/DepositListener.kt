@@ -25,6 +25,7 @@ class DepositListener(
     override suspend fun handle(
         eventMessage: EventMessage
     ): Unit = coroutineScope {
+/*
         val event = Deposit(eventMessage.fields)
 
         val to = FlowAddress(event.to)
@@ -83,6 +84,7 @@ class DepositListener(
                     )
                 }
             }
+*/
     }
 
     companion object {

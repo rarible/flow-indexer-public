@@ -1,24 +1,12 @@
 package com.rarible.flow.core.repository
 
-import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
-import com.rarible.flow.core.domain.*
-import com.rarible.protocol.dto.FlowAggregationDataDto
-import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.collections.shouldHaveSize
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Disabled
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
-import java.math.BigDecimal
-import java.time.Instant
-import java.time.temporal.ChronoUnit
-import java.util.*
 
 @MongoTest
 @DataMongoTest(
@@ -33,12 +21,13 @@ import java.util.*
 )
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
+@Disabled
 class ItemHistoryRepositoryTest {
 
     @Autowired
     private lateinit var itemHistoryRepository: ItemHistoryRepository
 
-    @BeforeEach
+/*    @BeforeEach
     fun setUp() {
         itemHistoryRepository.deleteAll().block()
         val sell = FlowNftOrderActivitySell(
@@ -137,7 +126,7 @@ class ItemHistoryRepositoryTest {
             FlowAggregationDataDto(FlowAddress("0x01").formatted, BigDecimal.valueOf(14), 2),
             FlowAggregationDataDto(FlowAddress("0x02").formatted, BigDecimal.valueOf(100), 1)
         )
-    }
+    }*/
 }
 
 

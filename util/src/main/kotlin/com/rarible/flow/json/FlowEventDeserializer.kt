@@ -4,11 +4,9 @@ import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
-import com.rarible.flow.events.BlockInfo
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.Instant
 
 class FlowEventDeserializer : JsonDeserializer<EventMessage>() {
 
@@ -20,9 +18,8 @@ class FlowEventDeserializer : JsonDeserializer<EventMessage>() {
         val fields = parseFields(e.get("fields"))
         return EventMessage(
             eventId = EventId.of(id),
-            fields = fields,
-            timestamp = LocalDateTime.now(ZoneOffset.UTC),
-            BlockInfo()
+            fields = emptyMap(),
+            timestamp = Instant.now()
         )
     }
 

@@ -26,6 +26,7 @@ class SaleOfferCompleteListener(
     override suspend fun handle(
         eventMessage: EventMessage
     ) = runBlocking {
+/*
         val event = SaleOfferCompleted(eventMessage.fields)
         val order = orderRepository
             .findActiveById(event.saleOfferResourceID.toLong())
@@ -86,6 +87,7 @@ class SaleOfferCompleteListener(
                 )
             )
         )
+*/
     }
 
 

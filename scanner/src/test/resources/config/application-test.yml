@@ -5,8 +5,15 @@ spring:
 scanner:
   kafka-replica-set: ${kafka.hosts}
   environment: test
+  alchemyApiKey: 6k9n3u0syeas3u47ezlpxhlzfu666egf
 
 grpc:
   client:
     flow:
-      address: access.devnet.nodes.onflow.org:9000
+      address: dns:///flow-testnet.g.alchemy.com:443
+      enable-keep-alive: true
+
+blockchain:
+  scanner:
+    flow:
+      chainId: TESTNET

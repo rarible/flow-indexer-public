@@ -9,10 +9,7 @@ import com.rarible.flow.listener.handler.EventHandler
 import com.rarible.flow.listener.handler.ProtocolEventPublisher
 import com.rarible.flow.log.Log
 import org.springframework.stereotype.Component
-import java.math.BigDecimal
 import java.time.Instant
-import java.time.ZoneOffset
-import java.util.*
 
 @Component(MintListener.ID)
 class MintListener(
@@ -25,7 +22,7 @@ class MintListener(
     override suspend fun handle(eventMessage: EventMessage) {
         val event = CommonNftMint(eventMessage.fields)
         val tokenId = event.id.toLong()
-        val eventDate = eventMessage.timestamp.toInstant(ZoneOffset.UTC)
+        val eventDate =/* eventMessage.timestamp.toInstant(ZoneOffset.UTC)*/ Instant.now()
         log.info("Handling [$ID] at [${event.collection}.$tokenId] with fields [${eventMessage.fields}]")
 
         val to = FlowAddress(event.creator)
@@ -55,15 +52,14 @@ class MintListener(
                     contract,
                     tokenId,
                     to,
-                    eventDate,
-                    creators = listOf(Payout(account = item.creator, value = 100.toBigDecimal()))
+                    eventDate
                 )
             ).let {
                 protocolEventPublisher.onUpdate(it)
             }
 
 
-            itemHistoryRepository.coSave(
+/*            itemHistoryRepository.coSave(
                 ItemHistory(
                     id = UUID.randomUUID().toString(),
                     date = eventDate,
@@ -72,13 +68,10 @@ class MintListener(
                         contract = contract,
                         tokenId = tokenId,
                         value = 1L,
-                        transactionHash = eventMessage.blockInfo.transactionId,
-                        blockHash = eventMessage.blockInfo.blockId,
-                        blockNumber = eventMessage.blockInfo.blockHeight,
                         collection = contract
                     )
                 )
-            )
+            )*/
         }
     }
 

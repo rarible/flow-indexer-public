@@ -9,12 +9,13 @@ blockchain:
         delay: 500
       job:
         reconciliation:
-          batchSize: 2500
+          batchSize: 250
         blockBufferSize: 128
 
 scanner:
   environment: prod
   kafka-replica-set: ${kafka.hosts}
+  alchemy-api-key: 9huh0gjb1ftvd7h9s3vnuptfvys4yqrw
 
 spring:
   data:
@@ -25,3 +26,8 @@ management:
   endpoint:
     metrics:
       enabled: true
+grpc:
+  client:
+    flow:
+      address: dns:///flow-mainnet.g.alchemy.com:443
+      enable-keep-alive: true

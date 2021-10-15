@@ -4,7 +4,6 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Ownership
-import com.rarible.flow.core.domain.Payout
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -13,7 +12,6 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils
-import java.math.BigDecimal
 import java.time.Clock
 import java.time.Instant
 import java.util.*
@@ -67,8 +65,7 @@ internal class OwnershipRepositoryTest(
         contract.formatted,
         Random.nextLong(),
         owner,
-        date = Instant.now(Clock.systemUTC()),
-        creators = listOf(Payout(account = randomAddress(), value = BigDecimal.ONE))
+        date = Instant.now(Clock.systemUTC())
     )
 
     private fun randomAddress() = FlowAddress("0x${RandomStringUtils.random(16, "0123456789ABCDEF")}".lowercase(Locale.ENGLISH))
