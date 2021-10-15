@@ -54,6 +54,7 @@ data class Order(
     @Field(targetType = FieldType.DECIMAL128)
     val amount: BigDecimal,
     val offeredNftId: String? = null,
+    @Field(targetType = FieldType.DECIMAL128)
     val fill: BigDecimal = BigDecimal.ZERO,
     val cancelled: Boolean = false,
     val data: OrderData,

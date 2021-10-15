@@ -5,11 +5,15 @@ import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.TokenId
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
@@ -21,6 +25,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import java.time.Clock
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 @MongoTest
 @DataMongoTest(properties = [
@@ -32,7 +37,6 @@ import java.time.Instant
 ])
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
-@Disabled
 class ItemRepositoryTestOld {
 
     @Autowired
@@ -50,6 +54,61 @@ class ItemRepositoryTestOld {
         val read = itemRepository.coFindById(item.id)
         read shouldNotBe null
         read!!.id shouldBe item.id
+    }
+
+    @Test
+    fun `should read all items after lastUpdated date`() = runBlocking<Unit> {
+        val db = (1L..5L).map { tokenId ->
+            val i = itemRepository.coSave(createItem(tokenId = tokenId))
+            delay(10)
+            i
+        }
+
+        val since = db[0].updatedAt.plus(10, ChronoUnit.MILLIS)
+        val items = itemRepository.search(
+            ItemFilter.All(lastUpdatedFrom = since),
+            null,
+            null
+        ).toList()
+        items shouldHaveSize 4
+        items shouldNotContain db[0]
+    }
+
+    @Test
+    fun `should read all items before lastUpdated date`() = runBlocking<Unit> {
+        val db = (1L..5L).map { tokenId ->
+            val i = itemRepository.coSave(createItem(tokenId = tokenId))
+            delay(10)
+            i
+        }
+
+        val before = db[2].updatedAt
+        val items = itemRepository.search(
+            ItemFilter.All(lastUpdatedTo = before),
+            null,
+            null
+        ).toList()
+        items shouldHaveSize 2
+        items shouldNotContain listOf(db[0], db[1])
+    }
+
+    @Test
+    fun `should read all items between dates`() = runBlocking<Unit> {
+        val db = (1L..5L).map { tokenId ->
+            val i = itemRepository.coSave(createItem(tokenId = tokenId))
+            delay(10)
+            i
+        }
+
+        val before = db[2].updatedAt
+        val after = db[0].updatedAt
+        val items = itemRepository.search(
+            ItemFilter.All(lastUpdatedFrom = after, lastUpdatedTo = before),
+            null,
+            null
+        ).toList()
+        items shouldHaveSize 2
+        items shouldNotContain listOf(db[0], db[1])
     }
 
     @Test

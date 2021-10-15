@@ -31,7 +31,6 @@ import java.time.temporal.ChronoUnit
 ])
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
-@Disabled
 internal class ItemRepositoryPaginationTest(
     @Autowired val itemRepository: ItemRepository
 ) {
@@ -65,7 +64,11 @@ internal class ItemRepositoryPaginationTest(
         log.info("Step 1 done")
 
         //owner1 - read next and the last
-        read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner!!), NftItemContinuation(item2Owner1.mintedAt, item2Owner1.id), 1)
+        read = itemRepository.search(
+            ItemFilter.ByOwner(item1Owner1.owner!!),
+            "${item2Owner1.mintedAt.toEpochMilli()}_${item2Owner1.id}",
+            1
+        )
         log.info("Search done")
         read.count() shouldBe 1
         read.collect {
@@ -74,7 +77,7 @@ internal class ItemRepositoryPaginationTest(
         log.info("Step 2 done")
 
         //owner1 - try to read more
-        read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner!!), NftItemContinuation(item1Owner1.mintedAt, item1Owner1.id), 1)
+        read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner!!), "${item1Owner1.mintedAt.toEpochMilli()}_${item1Owner1.id}", 1)
         log.info("Search done")
         read.count() shouldBe 0
         log.info("Step 3 done")
@@ -92,7 +95,7 @@ internal class ItemRepositoryPaginationTest(
     @Test
     fun `should save and find by creator`() = runBlocking {
         log.info("Starting...")
-        val item1 = createItem().copy(mintedAt = Instant.now(Clock.systemUTC()).minus(1, ChronoUnit.DAYS))
+        val item1 = createItem().copy(mintedAt = Instant.now().minus(1, ChronoUnit.DAYS))
         itemRepository.coSave(item1)
 
         val item2 = createItem(43)
@@ -110,14 +113,14 @@ internal class ItemRepositoryPaginationTest(
         }
 
         //creator1 - read next and the last
-        read = itemRepository.search(ItemFilter.ByCreator(item1.creator), NftItemContinuation(item2.mintedAt, item2.id), 1)
+        read = itemRepository.search(ItemFilter.ByCreator(item1.creator), "${item2.mintedAt.toEpochMilli()}_${item2.id}", 1)
         read.count() shouldBe 1
         read.collect {
             it.id shouldBe item1.id
         }
 
         //creator1 - try to read more
-        read = itemRepository.search(ItemFilter.ByCreator(item1.creator), NftItemContinuation(item1.mintedAt, item1.id), 1)
+        read = itemRepository.search(ItemFilter.ByCreator(item1.creator), "${item1.mintedAt.toEpochMilli()}_${item1.id}", 1)
         read.count() shouldBe 0
 
         //another creator
@@ -149,7 +152,7 @@ internal class ItemRepositoryPaginationTest(
         log.info("Step 1 done")
 
         //read next and the last
-        read = itemRepository.search(ItemFilter.All(), NftItemContinuation(item2.mintedAt, item2.id), 1)
+        read = itemRepository.search(ItemFilter.All(), "${item2.mintedAt.toEpochMilli()}_${item2.id}", 1)
         read.count() shouldBe 1
         read.collect {
             it.id shouldBe item1.id
@@ -157,7 +160,7 @@ internal class ItemRepositoryPaginationTest(
         log.info("Step 2 done")
 
         //try to read more
-        read = itemRepository.search(ItemFilter.All(), NftItemContinuation(item1.mintedAt, item1.id), 1)
+        read = itemRepository.search(ItemFilter.All(), "${item1.mintedAt.toEpochMilli()}_${item1.id}", 1)
         read.count() shouldBe 0
         log.info("Step 3 done")
 

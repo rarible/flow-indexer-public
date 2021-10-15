@@ -14,7 +14,9 @@ class NftOrderItemController(
 ): FlowNftOrderItemControllerApi {
 
     override suspend fun getNftOrderAllItems(continuation: String?, size: Int?, showDeleted: Boolean?): ResponseEntity<FlowNftItemsDto> {
-        return ResponseEntity.ok(nftItemService.getAllItems(continuation, size, showDeleted ?: false))
+        return ResponseEntity.ok(
+            nftItemService.getAllItems(continuation, size, showDeleted ?: false, null, null)
+        )
     }
 
     override suspend fun getNftOrderItemsByCollection(

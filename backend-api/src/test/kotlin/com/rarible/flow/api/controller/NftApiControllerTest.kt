@@ -2,9 +2,7 @@ package com.rarible.flow.api.controller
 
 import com.nftco.flow.sdk.FlowAddress
 import com.ninjasquad.springmockk.MockkBean
-import com.rarible.flow.api.config.Config
 import com.rarible.flow.api.service.NftItemService
-import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
@@ -12,7 +10,6 @@ import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.NftItemContinuation
 import com.rarible.flow.form.MetaForm
 import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.FlowCreatorDto
@@ -28,7 +25,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
-import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
@@ -69,16 +65,15 @@ internal class NftApiControllerTest {
             createItem(43).copy(mintedAt = Instant.now(Clock.systemUTC()).minus(1, ChronoUnit.DAYS))
         )
 
-
         coEvery {
-            nftItemService.getAllItems(any(), any(), any())
+            nftItemService.getAllItems(any(), any(), any(), any(), any())
         } returns FlowNftItemsDto(
             total = items.size.toLong(),
             continuation = "",
             items = items.map(ItemToDtoConverter::convert)
         )
 
-        val cont = NftItemContinuation(Instant.now(Clock.systemUTC()), ItemId("0x01", 42))
+        val cont = "${Instant.now().toEpochMilli()}_0x01:42"
         var response = client
             .get()
             .uri("/v0.1/items/all?continuation=$cont")
@@ -305,6 +300,55 @@ internal class NftApiControllerTest {
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 0
+
+
+    }
+
+    @Test
+    fun `should return all items with filters`() {
+        val items = listOf(
+            createItem(),
+            createItem(tokenId = 43).copy(collection = "different collection")
+        )
+
+        coEvery {
+            nftItemService.getAllItems(any(), null, any(), any(), any())
+        } coAnswers {
+            FlowNftItemsDto(
+                total = 2L,
+                items = items.map(ItemToDtoConverter::convert),
+                continuation = ""
+            )
+        }
+
+        var response = client
+            .get()
+            .uri("/v0.1/items/all")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        response.items shouldHaveSize 2
+
+        response = client
+            .get()
+            .uri("/v0.1/items/all?showDeleted=true")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        response.items shouldHaveSize 2
+
+        response = client
+            .get()
+            .uri(
+                "/v0.1/items/all?lastUpdatedFrom={from}&lastUpdatedTo={to}",
+                mapOf("from" to Instant.now().toEpochMilli(), "to" to Instant.now().toEpochMilli()))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemsDto>()
+            .returnResult().responseBody!!
+        response.items shouldHaveSize 2
 
 
     }

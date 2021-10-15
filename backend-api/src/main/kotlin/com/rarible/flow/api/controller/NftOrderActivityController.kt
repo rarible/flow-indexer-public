@@ -10,6 +10,7 @@ import kotlinx.coroutines.FlowPreview
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController
+import java.time.Instant
 
 @FlowPreview
 @RestController
@@ -41,11 +42,18 @@ class NftOrderActivityController(private val service: ActivitiesService): FlowNf
     override suspend fun getNftOrderActivitiesByUser(
         type: List<String>,
         user: List<String>,
+        from: Long?,
+        to: Long?,
         continuation: String?,
         size: Int?,
         sort: String?
-    ): ResponseEntity<FlowActivitiesDto> =
-        ResponseEntity.ok(service.getNftOrderActivitiesByUser(type, user, continuation, size, sort))
+    ): ResponseEntity<FlowActivitiesDto> {
+        val fromInstant = from?.let { Instant.ofEpochMilli(from) }
+        val toInstant = to?.let { Instant.ofEpochMilli(to) }
+        return ResponseEntity.ok(
+            service.getNftOrderActivitiesByUser(type, user, continuation, fromInstant, toInstant, size, sort)
+        )
+    }
 
     override suspend fun getNftOrderAllActivities(
         type: List<String>,

@@ -6,7 +6,9 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrDefault
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
@@ -18,7 +20,8 @@ import org.springframework.data.querydsl.ReactiveQuerydslPredicateExecutor
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-interface ItemRepository : ReactiveMongoRepository<Item, ItemId>, ItemRepositoryCustom, ReactiveQuerydslPredicateExecutor<Item> {
+interface ItemRepository : ReactiveMongoRepository<Item, ItemId>, ItemRepositoryCustom,
+    ReactiveQuerydslPredicateExecutor<Item> {
 
     fun findAllByCreator(creator: FlowAddress): Flux<Item>
 
@@ -27,8 +30,9 @@ interface ItemRepository : ReactiveMongoRepository<Item, ItemId>, ItemRepository
     fun findByIdAndOwnerIsNotNullOrderByMintedAtDescTokenIdDesc(itemId: ItemId): Mono<Item>
 }
 
-interface ItemRepositoryCustom : ContinuationRepositoryCustom<Item, ItemFilter> {
+interface ItemRepositoryCustom {
     suspend fun updateById(itemId: ItemId, update: Update): UpdateResult
+    suspend fun search(filter: ItemFilter, cont: String?, limit: Int?): Flow<Item>
 }
 
 @Suppress("unused")
@@ -36,14 +40,13 @@ class ItemRepositoryCustomImpl(
     private val mongo: ReactiveMongoTemplate
 ) : ItemRepositoryCustom {
 
-    override fun search(filter: ItemFilter, cont: Continuation?, limit: Int?): Flow<Item> {
-        cont as NftItemContinuation?
-        val criteria = filter.criteria() scrollTo cont
+    override suspend fun search(filter: ItemFilter, cont: String?, limit: Int?): Flow<Item> {
+        val criteria = filter.criteria().scrollTo(cont, filter.sort)
         val query = Query.query(criteria).with(
             mongoSort(filter.sort)
         ).limit(limit ?: DEFAULT_LIMIT)
 
-        return mongo.find<Item>(query).asFlow()
+        return mongo.find<Item>(query).collectList().awaitFirst().asFlow() //TODO
     }
 
     private fun mongoSort(sort: ItemFilter.Sort?): Sort {
@@ -56,18 +59,15 @@ class ItemRepositoryCustomImpl(
         }
     }
 
-    private infix fun Criteria.scrollTo(continuation: NftItemContinuation?): Criteria =
-        if (continuation == null) {
-            this
-        } else {
-            this.orOperator(
-                Item::mintedAt lt continuation.afterDate,
-                Criteria().andOperator(
-                    Item::mintedAt isEqualTo continuation.afterDate,
-                    Item::id lt continuation.afterId
-                )
-            )
-        }
+    private fun Criteria.scrollTo(continuation: String?, sort: ItemFilter.Sort?): Criteria = when (sort) {
+        ItemFilter.Sort.LAST_UPDATE -> Cont.scrollDesc(
+            this,
+            continuation,
+            Item::mintedAt,
+            Item::id
+        )
+        else -> this
+    }
 
     override suspend fun updateById(
         itemId: ItemId,
