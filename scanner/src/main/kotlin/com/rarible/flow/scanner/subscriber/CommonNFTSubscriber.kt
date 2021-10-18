@@ -36,12 +36,12 @@ class CommonNFTSubscriber: BaseItemHistoryFlowLogSubscriber() {
                 collection = collection,
                 startFrom = 47330085L
             ),
-            FlowChainId.EMULATOR to FlowDescriptor(id = "MotoGPCardDescriptor", events = emptySet(), collection = collection, startFrom = 1L)
+            FlowChainId.EMULATOR to FlowDescriptor(id = "CommonNFTSubscriber", events = emptySet(), collection = collection, startFrom = 1L)
         )
 
     override fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): FlowActivity {
-        val idField: Field<*> by msg.fields
-        val tokenId = Flow.unmarshall(Long::class, idField)
+        val id: NumberField by msg.fields
+        val tokenId = id.toLong()!!
         val contract = msg.eventId.collection()
         val timestamp = msg.timestamp
         val eventId = "${msg.eventId}"
@@ -58,20 +58,20 @@ class CommonNFTSubscriber: BaseItemHistoryFlowLogSubscriber() {
                 )
             }
             eventId.endsWith("Withdraw") -> {
-                val from: Field<*> by msg.fields
+                val from: OptionalField by msg.fields
                 WithdrawnActivity(
                     contract = contract,
                     tokenId = tokenId,
-                    from = Flow.unmarshall(String::class, from),
+                    from = if (from.value == null) null else {(from.value as AddressField).value},
                     timestamp = timestamp
                 )
             }
             eventId.endsWith("Deposit") -> {
-                val to: Field<*> by msg.fields
+                val to: OptionalField by msg.fields
                 DepositActivity(
                     contract = contract,
                     tokenId = tokenId,
-                    to = Flow.unmarshall(String::class, to),
+                    to = if (to.value == null) null else {(to.value as AddressField).value},
                     timestamp = timestamp
                 )
             }
@@ -85,34 +85,32 @@ class CommonNFTSubscriber: BaseItemHistoryFlowLogSubscriber() {
             else -> throw IllegalStateException("Unsupported eventId: $eventId")
         }
     }
+}
 
-    @JsonCadenceConversion(CommonNftMintConverter::class)
-    data class CommonNftMint(
-        val id: Long,
-        val collection: String,
-        val creator: String,
-        val metadata: Map<String, String>,
-        val royalties: List<Part>
-    )
+@JsonCadenceConversion(CommonNftMintConverter::class)
+data class CommonNftMint(
+    val id: Long,
+    val collection: String,
+    val creator: String,
+    val metadata: Map<String, String>,
+    val royalties: List<Part>
+)
 
-    inner class CommonNftMintConverter: JsonCadenceConverter<CommonNftMint> {
-        override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): CommonNftMint = unmarshall(value) {
-            CommonNftMint(
-                id = long("id"),
-                collection = string("collection"),
-                creator = address("creator"),
-                metadata = dictionaryMap("metadata") { key, value ->
-                    string(key) to string(value)
-                },
-                royalties = arrayValues("royalties") {
-                    Part(
-                        address = FlowAddress(address("address")),
-                        fee = double("fee")
-                    )
-                }
-            )
-        }
+class CommonNftMintConverter: JsonCadenceConverter<CommonNftMint> {
+    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): CommonNftMint = unmarshall(value) {
+        CommonNftMint(
+            id = long("id"),
+            collection = string("collection"),
+            creator = address("creator"),
+            metadata = dictionaryMap("metadata") { key, value ->
+                string(key) to string(value)
+            },
+            royalties = arrayValues("royalties") {
+                Part(
+                    address = FlowAddress(address("address")),
+                    fee = double("fee")
+                )
+            }
+        )
     }
-
-
 }
