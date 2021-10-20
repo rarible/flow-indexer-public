@@ -1,5 +1,6 @@
 package com.rarible.flow.scanner.eventlisteners
 
+//import net.devh.boot.grpc.client.inject.GrpcClient
 import com.google.protobuf.UnsafeByteOperations
 import com.nftco.flow.sdk.*
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
@@ -13,14 +14,12 @@ import com.rarible.flow.scanner.model.MotoGPCardMetadata
 import com.rarible.flow.scanner.model.MotoGPCardNFT
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.reactive.awaitFirst
-import net.devh.boot.grpc.client.inject.GrpcClient
 import org.onflow.protobuf.access.AccessAPIGrpc
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Component
 import java.net.URI
 import javax.annotation.PostConstruct
 
-@Component
+//@Component
 class MotoGPCardMetaExtractor(
     @Value("\${blockchain.scanner.flow.chainId}")
     private val chainId: FlowChainId,
@@ -53,7 +52,7 @@ class MotoGPCardMetaExtractor(
         }
     """.trimIndent()
 
-    @GrpcClient("flow")
+//    @GrpcClient("flow")
     private lateinit var stub: AccessAPIGrpc.AccessAPIFutureStub
 
     private lateinit var api: AsyncFlowAccessApi

@@ -10,7 +10,6 @@ dependencies {
     implementation(project(":backend-api-model"))
     implementation(project(":util"))
 
-    implementation("net.devh:grpc-client-spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
 
