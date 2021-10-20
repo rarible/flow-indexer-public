@@ -14,8 +14,6 @@ import org.springframework.stereotype.Component
 @Component
 class MotoGPSubscriber : BaseItemHistoryFlowLogSubscriber() {
 
-    private val collectionOwner = "0xa49cc0ee46c54bfb"
-
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
             FlowChainId.MAINNET to FlowDescriptor(
@@ -51,7 +49,7 @@ class MotoGPSubscriber : BaseItemHistoryFlowLogSubscriber() {
         return when ("${msg.eventId}".split(".").last()) {
             "Mint" -> {
                 MintActivity(
-                    owner = collectionOwner,
+                    owner = msg.eventId.contractAddress.formatted,
                     contract = contract,
                     tokenId = tokenId,
                     timestamp = timestamp,

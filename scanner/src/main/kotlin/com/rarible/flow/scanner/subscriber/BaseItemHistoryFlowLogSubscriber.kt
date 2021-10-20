@@ -21,6 +21,18 @@ abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
 
     internal val collection = "item_history"
 
+    internal fun flowDescriptor(
+        address: String,
+        contract: String,
+        events: Iterable<String>,
+        startFrom: Long? = null,
+    ) = FlowDescriptor(
+        id = "${contract}Descriptor",
+        events = events.map { "A.$address.$contract.$it" }.toSet(),
+        collection = collection,
+        startFrom = startFrom
+    )
+
     @Value("\${blockchain.scanner.flow.chainId}")
     lateinit var chainId: FlowChainId
 
