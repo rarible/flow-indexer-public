@@ -16,7 +16,7 @@ import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.log.Log
-import com.rarible.flow.scanner.cadence.ListingAvailable
+import com.rarible.flow.scanner.cadence.OrderAvailable
 import com.rarible.flow.scanner.cadence.ListingCompleted
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
@@ -60,7 +60,7 @@ class OrderSubscriber(
         val timestamp = msg.timestamp
         return when (msg.eventId.eventName) {
             "ListingAvailable" -> {
-                val event = com.nftco.flow.sdk.Flow.unmarshall(ListingAvailable::class, log.event.event)
+                val event = com.nftco.flow.sdk.Flow.unmarshall(OrderAvailable::class, log.event.event)
                 val take = FlowAssetFungible(
                     contract = event.ftVaultType.collection(),
                     value = event.price

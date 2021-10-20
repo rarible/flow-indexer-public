@@ -1,7 +1,6 @@
 package com.rarible.flow.scanner.cadence
 
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.FlowId
 import com.nftco.flow.sdk.cadence.CadenceNamespace
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion
@@ -11,19 +10,30 @@ import java.math.BigDecimal
 import com.nftco.flow.sdk.cadence.unmarshall
 import com.rarible.flow.events.EventId
 
+enum class PaymentType {
+    BUYER_FEE,
+    //TODO
+}
+
+data class Payment(
+    val type: PaymentType
+)
+
 @JsonCadenceConversion(ListingAvailableConverter::class)
-data class ListingAvailable(
+data class OrderAvailable(
     val storefrontAddress: FlowAddress,
     val listingResourceID: Long,
     val nftType: EventId,
     val nftID: TokenId,
     val ftVaultType: EventId,
-    val price: BigDecimal
+    val price: BigDecimal,
+    val offerPrice: BigDecimal,
+    val payments: List<Payment>
 )
 
-class ListingAvailableConverter: JsonCadenceConverter<ListingAvailable> {
-    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): ListingAvailable = unmarshall(value) {
-        ListingAvailable(
+class ListingAvailableConverter: JsonCadenceConverter<OrderAvailable> {
+    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): OrderAvailable = unmarshall(value) {
+        OrderAvailable(
             FlowAddress(string("storefrontAddress")),
             long("listingResourceID"),
             EventId.of(string("nftType")),
