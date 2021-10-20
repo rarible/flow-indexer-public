@@ -11,6 +11,7 @@ dependencies {
     implementation(project(":backend-core"))
     implementation(project(":util"))
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
     implementation(rootProject.libs.bundles.flow.models)
     implementation(rootProject.libs.bundles.flow.apis)
     implementation(rootProject.libs.bundles.rarible.core)
