@@ -13,19 +13,13 @@ logging:
 scanner:
   environment: dev
   kafka-replica-set: ${kafka.hosts}
-  alchemy-api-key: t6y8505dtycu8dbz5p7rp3f1gb4a992e
 
 blockchain:
   scanner:
     flow:
       chainId: TESTNET
       poller:
-        delay: 300
+        delay: 100
       job:
         reconciliation:
-          batchSize: 25
-      blockBufferSize: 128
-grpc:
-  client:
-    flow:
-      address: dns:///flow-testnet.g.alchemy.com:443
+          batchSize: 10000

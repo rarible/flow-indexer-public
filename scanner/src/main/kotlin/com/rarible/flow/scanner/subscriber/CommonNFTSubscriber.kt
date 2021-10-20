@@ -50,7 +50,7 @@ class CommonNFTSubscriber: BaseItemHistoryFlowLogSubscriber() {
                 val mint = Flow.unmarshall(CommonNftMint::class, log.event.event)
                 MintActivity(
                     owner = mint.creator,
-                    contract = mint.collection,
+                    contract = contract,
                     tokenId = tokenId,
                     timestamp = timestamp,
                     royalties = mint.royalties,
@@ -90,7 +90,6 @@ class CommonNFTSubscriber: BaseItemHistoryFlowLogSubscriber() {
 @JsonCadenceConversion(CommonNftMintConverter::class)
 data class CommonNftMint(
     val id: Long,
-    val collection: String,
     val creator: String,
     val metadata: Map<String, String>,
     val royalties: List<Part>
@@ -100,10 +99,13 @@ class CommonNftMintConverter: JsonCadenceConverter<CommonNftMint> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): CommonNftMint = unmarshall(value) {
         CommonNftMint(
             id = long("id"),
-            collection = string("collection"),
             creator = address("creator"),
-            metadata = dictionaryMap("metadata") { key, value ->
-                string(key) to string(value)
+            metadata = try {
+                dictionaryMap("metadata") { key, value ->
+                    string(key) to string(value)
+                }
+            } catch (_: Exception) {
+                mapOf("metaUrl" to string("metadata"))
             },
             royalties = arrayValues("royalties") {
                 Part(
