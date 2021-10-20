@@ -19,9 +19,9 @@ object OrderToDtoConverter: Converter<Order, FlowOrderDto> {
             createdAt = source.createdAt.toInstant(ZoneOffset.UTC),
             lastUpdateAt = source.lastUpdatedAt!!.toInstant(ZoneOffset.UTC),
             amount = source.amount,
-            offeredNftId = source.offeredNftId,
+            offeredNftId = "", //TODO not needed
             data = convert(source.data),
-            priceUsd = source.amountUsd, //TODO get currencies rate
+            priceUsd = source.amount, //TODO get currencies rate
             collection = source.collection,
             makeStock = source.makeStock
         )

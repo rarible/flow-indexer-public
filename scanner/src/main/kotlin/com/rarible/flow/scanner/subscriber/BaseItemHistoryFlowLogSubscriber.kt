@@ -30,29 +30,34 @@ abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
         val descriptor = getDescriptor()
         return if (descriptor.events.contains(log.event.id)) {
             val blockTimestamp = Instant.ofEpochMilli(block.timestamp)
-            flowOf(
-                ItemHistory(
-                    log = FlowLog(
-                        transactionHash = log.event.transactionId.base16Value,
-                        status = Log.Status.CONFIRMED,
-                        eventIndex = log.event.eventIndex,
-                        eventType = log.event.type,
-                        timestamp = blockTimestamp,
-                        blockHeight = block.number,
-                        blockHash = block.hash
-                    ),
-                    date = blockTimestamp,
-                    activity = activity(
-                        block, log,
-                        com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, log.event.event).apply {
-                            timestamp = blockTimestamp
-                        })
+            val activity = activity(
+                block, log,
+                com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, log.event.event).apply {
+                    timestamp = blockTimestamp
+                })
+            if (activity == null) {
+                emptyFlow()
+            } else {
+                flowOf(
+                    ItemHistory(
+                        log = FlowLog(
+                            transactionHash = log.event.transactionId.base16Value,
+                            status = Log.Status.CONFIRMED,
+                            eventIndex = log.event.eventIndex,
+                            eventType = log.event.type,
+                            timestamp = blockTimestamp,
+                            blockHeight = block.number,
+                            blockHash = block.hash
+                        ),
+                        date = blockTimestamp,
+                        activity = activity
+                    )
                 )
-            )
+            }
         } else emptyFlow()
     }
 
     override fun getDescriptor(): FlowDescriptor = descriptors[chainId]!!
 
-    abstract fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): FlowActivity
+    abstract fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): FlowActivity?
 }

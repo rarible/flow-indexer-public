@@ -21,12 +21,8 @@ class OrderService(
     private val orderRepository: OrderRepository
 ) {
 
-    suspend fun orderById(orderId: Long): FlowOrderDto? {
-        return orderRepository
-            .coFindById(orderId)
-            ?.let {
-                OrderToDtoConverter.convert(it)
-            }
+    suspend fun orderById(orderId: Long): Order? {
+        return orderRepository.coFindById(orderId)
     }
 
     suspend fun getSellOrdersByMaker(
@@ -34,19 +30,15 @@ class OrderService(
         originAddress: FlowAddress?,
         cont: String?,
         size: Int?
-    ): List<FlowOrderDto> {
-        return convert(
-            orderRepository.search(
-                OrderFilter.ByMaker(makerAddress, originAddress), cont, size, OrderFilter.Sort.LAST_UPDATE
-            )
+    ): Flow<Order> {
+        return orderRepository.search(
+            OrderFilter.ByMaker(makerAddress, originAddress), cont, size, OrderFilter.Sort.LAST_UPDATE
         )
     }
 
-    suspend fun findAll(cont: String?, size: Int?): List<FlowOrderDto> {
-        return convert(
-            orderRepository.search(
-                OrderFilter.All, cont, size, OrderFilter.Sort.LAST_UPDATE
-            )
+    suspend fun findAll(cont: String?, size: Int?): Flow<Order> {
+        return orderRepository.search(
+            OrderFilter.All, cont, size, OrderFilter.Sort.LAST_UPDATE
         )
     }
 
@@ -54,36 +46,24 @@ class OrderService(
         collection: String,
         cont: String?,
         size: Int?
-    ): List<FlowOrderDto> {
-        return convert(
-            orderRepository.search(
-                OrderFilter.ByCollection(collection), cont, size, OrderFilter.Sort.LAST_UPDATE
-            )
+    ): Flow<Order> {
+        return orderRepository.search(
+            OrderFilter.ByCollection(collection), cont, size, OrderFilter.Sort.LAST_UPDATE
         )
-    }
-
-    private suspend fun convert(orders: Flow<Order>): List<FlowOrderDto> {
-        return orders.map {
-            OrderToDtoConverter.convert(it)
-        }.toList()
     }
 
     suspend fun findAllByStatus(
         status: List<FlowOrderStatusDto>,
         cont: String?,
         size: Int?
-    ): List<FlowOrderDto> {
-        return convert(
-            orderRepository.search(
-                OrderFilter.ByStatus(status), cont, size, OrderFilter.Sort.LAST_UPDATE
-            )
+    ): Flow<Order> {
+        return orderRepository.search(
+            OrderFilter.ByStatus(status), cont, size, OrderFilter.Sort.LAST_UPDATE
         )
     }
 
-    fun ordersByIds(ids: List<Long>): Flow<FlowOrderDto> {
-        return orderRepository.findAllByIdIn(ids).asFlow().map {
-            OrderToDtoConverter.convert(it)
-        }
+    fun ordersByIds(ids: List<Long>): Flow<Order> {
+        return orderRepository.findAllByIdIn(ids).asFlow()
     }
 
     suspend fun getSellOrdersByItemAndStatus(
@@ -93,17 +73,15 @@ class OrderService(
         status: List<FlowOrderStatusDto>?,
         continuation: String?,
         size: Int?
-    ): List<FlowOrderDto> {
-        return convert(
-            orderRepository.search(
-                OrderFilter.ByItemId(itemId) *
+    ): Flow<Order> {
+        return orderRepository.search(
+            OrderFilter.ByItemId(itemId) *
                     OrderFilter.ByMaker(makerAddress) *
                     OrderFilter.ByStatus(status) *
                     OrderFilter.ByCurrency(currency),
-                continuation,
-                size,
-                OrderFilter.Sort.MAKE_PRICE_ASC
-            )
+            continuation,
+            size,
+            OrderFilter.Sort.MAKE_PRICE_ASC
         )
     }
 }
