@@ -108,9 +108,10 @@ class CommonNftMintConverter: JsonCadenceConverter<CommonNftMint> {
                 mapOf("metaUrl" to string("metadata"))
             },
             royalties = arrayValues("royalties") {
+                it as StructField
                 Part(
-                    address = FlowAddress(address("address")),
-                    fee = double("fee")
+                    address = FlowAddress(address(it.value!!.getRequiredField("address"))),
+                    fee = double(it.value!!.getRequiredField("fee"))
                 )
             }
         )
