@@ -1,15 +1,16 @@
-package com.rarible.flow.listener.config
+package com.rarible.flow.scanner
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.repository.ItemCollectionRepository
+import com.rarible.flow.scanner.config.ScannerProperties
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.stereotype.Component
 
 @Component
 class AppReadyListener(
-    private val props: ListenerProperties,
+    private val props: ScannerProperties,
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemCollectionRepository: ItemCollectionRepository
 ): ApplicationListener<ApplicationReadyEvent> {

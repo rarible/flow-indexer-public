@@ -1,4 +1,4 @@
-package com.rarible.flow.listener.config
+package com.rarible.flow.scanner.config
 
 data class ItemCollectionProperty(
     val id: String,

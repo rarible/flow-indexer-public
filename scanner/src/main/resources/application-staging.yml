@@ -18,6 +18,10 @@ blockchain:
 scanner:
   environment: staging
   kafka-replica-set: ${kafka.hosts}
-  alchemy-api-key: t6y8505dtycu8dbz5p7rp3f1gb4a992e
+  default-item-collection:
+    id: "A.665b9acf64dfdfdb.CommonNFT.NFT"
+    owner: "0xe91e497115b9731b"
+    name: "CommonNFT"
+    symbol: "CNFT"
 
 

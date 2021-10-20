@@ -7,5 +7,6 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConfigurationProperties(prefix = "scanner")
 data class ScannerProperties(
     val kafkaReplicaSet: String,
-    val environment: String
+    val environment: String,
+    val defaultItemCollection: ItemCollectionProperty
 )
