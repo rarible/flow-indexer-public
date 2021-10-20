@@ -25,16 +25,16 @@ class OrderEventListeners(
     fun list(activity: FlowNftOrderActivityList) = runBlocking {
         val order = orderRepository.coSave(
             Order(
-            activity.hash.toLong(),
-            ItemId(activity.contract, activity.tokenId),
-            maker = FlowAddress(activity.maker),
-            taker = null,
-            make = activity.make,
-            take = activity.take,
-            amount = activity.price,
-            data = OrderData(emptyList(), emptyList()), //TODO
-            collection = activity.contract,
-            makeStock = activity.make.value.toBigInteger()
+                activity.hash.toLong(),
+                ItemId(activity.contract, activity.tokenId),
+                maker = FlowAddress(activity.maker),
+                taker = null,
+                make = activity.make,
+                take = activity.take,
+                amount = activity.price,
+                data = OrderData(emptyList(), emptyList()), //TODO
+                collection = activity.contract,
+                makeStock = activity.make.value.toBigInteger()
             )
         )
 
@@ -45,7 +45,7 @@ class OrderEventListeners(
     fun cancelList(activity: FlowNftOrderActivityCancelList) = runBlocking {
         val order = orderRepository.coFindById(activity.hash.toLong())
 
-        if(order != null) {
+        if (order != null) {
             protocolEventPublisher.onUpdate(
                 orderRepository.coSave(order.copy(cancelled = true))
             )
