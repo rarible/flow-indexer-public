@@ -22,8 +22,11 @@ class CommonNFTMetaProvider(
     override suspend fun getMeta(itemId: ItemId): ItemMeta? {
         val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return null
         val metaMap = JacksonJsonParser().parseMap(item.meta)
-        val url = metaMap["metaURI"] ?: return null
-        val client = WebClient.create("https://rarible.mypinata.cloud")
+        var url = metaMap["metaURI"] ?: return null
+        val client = WebClient.create("https://rarible.mypinata.cloud/")
+        if (url.toString().startsWith("ipfs://")) {
+            url = url.toString().substring("ipfs:/".length)
+        }
         val data = client.get().uri(url.toString()).retrieve().awaitBodyOrNull<CommonNFTMetaBody>() ?: return null
         return ItemMeta(
             itemId = itemId,
