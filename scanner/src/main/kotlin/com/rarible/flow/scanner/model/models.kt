@@ -1,9 +1,16 @@
 package com.rarible.flow.scanner.model
 
+import com.nftco.flow.sdk.Flow
+import com.nftco.flow.sdk.FlowEvent
+import com.nftco.flow.sdk.FlowScriptResponse
 import com.nftco.flow.sdk.cadence.CadenceNamespace
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion
 import com.nftco.flow.sdk.cadence.JsonCadenceConverter
+
+inline fun <reified T : Any> FlowEvent.parse() = Flow.unmarshall(T::class, event)
+inline fun <reified T : Any> FlowScriptResponse.parse() = Flow.unmarshall(T::class, jsonCadence)
+inline fun <reified T : Any> Field<*>.parse() = Flow.unmarshall(T::class, this)
 
 @JsonCadenceConversion(MotoGPMetadataConverter::class)
 data class MotoGPCardMetadata(

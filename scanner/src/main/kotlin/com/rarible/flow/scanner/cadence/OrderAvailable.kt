@@ -1,45 +1,62 @@
 package com.rarible.flow.scanner.cadence
 
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.cadence.CadenceNamespace
-import com.nftco.flow.sdk.cadence.Field
-import com.nftco.flow.sdk.cadence.JsonCadenceConversion
-import com.nftco.flow.sdk.cadence.JsonCadenceConverter
+import com.nftco.flow.sdk.cadence.*
 import com.rarible.flow.core.domain.TokenId
-import java.math.BigDecimal
-import com.nftco.flow.sdk.cadence.unmarshall
 import com.rarible.flow.events.EventId
+import com.rarible.flow.scanner.model.parse
+import java.math.BigDecimal
 
 enum class PaymentType {
     BUYER_FEE,
-    //TODO
+    SELLER_FEE,
+    OTHER,
+    ROYALTY,
+    REWARD,
 }
 
+@JsonCadenceConversion(PaymentConverter::class)
 data class Payment(
-    val type: PaymentType
+    val type: PaymentType,
+    val address: FlowAddress,
+    val rate: BigDecimal,
+    val amount: BigDecimal,
 )
 
-@JsonCadenceConversion(ListingAvailableConverter::class)
+@JsonCadenceConversion(OrderAvailableConverter::class)
 data class OrderAvailable(
-    val storefrontAddress: FlowAddress,
-    val listingResourceID: Long,
+    val orderAddress: FlowAddress,
+    val orderId: Long,
     val nftType: EventId,
-    val nftID: TokenId,
-    val ftVaultType: EventId,
+    val nftId: TokenId,
+    val vaultType: EventId,
     val price: BigDecimal,
     val offerPrice: BigDecimal,
-    val payments: List<Payment>
+    val payments: List<Payment>,
 )
 
-class ListingAvailableConverter: JsonCadenceConverter<OrderAvailable> {
+class PaymentConverter : JsonCadenceConverter<Payment> {
+    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): Payment = unmarshall(value) {
+        Payment(
+            PaymentType.valueOf(string("type")),
+            FlowAddress(address("address")),
+            bigDecimal("rate"),
+            bigDecimal("amount"),
+        )
+    }
+}
+
+class OrderAvailableConverter : JsonCadenceConverter<OrderAvailable> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): OrderAvailable = unmarshall(value) {
         OrderAvailable(
-            FlowAddress(string("storefrontAddress")),
-            long("listingResourceID"),
+            FlowAddress(address("orderAddress")),
+            long("orderId"),
             EventId.of(string("nftType")),
-            long("nftID"),
-            EventId.of("ftVaultType"),
-            BigDecimal(string("price"))
+            long("nftId"),
+            EventId.of(string("vaultType")),
+            bigDecimal("price"),
+            bigDecimal("offerPrice"),
+            arrayValues("payments") { it.parse() }
         )
     }
 }

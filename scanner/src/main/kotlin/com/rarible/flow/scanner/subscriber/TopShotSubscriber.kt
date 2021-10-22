@@ -12,7 +12,7 @@ import com.rarible.flow.events.EventMessage
 import org.springframework.stereotype.Component
 
 @Component
-class TopShotMomentSubscriber : BaseItemHistoryFlowLogSubscriber() {
+class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
 
     private val events = "Withdraw,Deposit,MomentMinted,MomentDestroyed".split(",")
 
