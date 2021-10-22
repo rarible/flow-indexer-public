@@ -1,24 +1,35 @@
 package com.rarible.flow.core.domain
 
-import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
-import java.net.URI
+import org.springframework.data.mongodb.core.mapping.Field
+import org.springframework.data.mongodb.core.mapping.FieldType
+import org.springframework.data.mongodb.core.mapping.MongoId
 
 /**
  * Represents NFT Items' meta information
  * @property itemId         - ID of an NFT item (address:tokenId)
- * @property title          - item's card title
+ * @property name           - item's card title
  * @property description    - description
- * @property uri            - URI to the NFT's media resource
- * @property properties     - additional properties
+ * @property attributes     - item attributes
+ * @property contentUrls    - list of content URL's
  *
  */
 @Document
 data class ItemMeta(
-    @Id
+    @MongoId(FieldType.STRING)
     val itemId: ItemId,
-    val title: String,
+    val name: String,
     val description: String,
-    val uri: URI,
-    val properties: Map<String, Any> = emptyMap()
+    val attributes: List<ItemMetaAttribute>,
+    val contentUrls: List<String>,
+) {
+    @Field(targetType = FieldType.BINARY)
+    var raw: ByteArray? = null
+}
+
+data class ItemMetaAttribute(
+    val key: String,
+    val value: String?,
+    val type: String?,
+    val format: String?
 )
