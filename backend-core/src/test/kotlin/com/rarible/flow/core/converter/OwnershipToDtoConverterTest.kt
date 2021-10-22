@@ -5,6 +5,7 @@ import com.rarible.flow.core.domain.Ownership
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import java.math.BigInteger
 import java.time.Instant
 
 internal class OwnershipToDtoConverterTest: FunSpec({
@@ -19,7 +20,7 @@ internal class OwnershipToDtoConverterTest: FunSpec({
             )
         ) should { o ->
             o.owner shouldBe "0x0000000000000001"
-            o.tokenId shouldBe 1337L
+            o.tokenId shouldBe BigInteger.valueOf(1337L)
             o.contract shouldBe "A.B.C"
             o.id shouldBe "A.B.C:1337:0x0000000000000001"
         }

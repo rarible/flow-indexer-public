@@ -1,31 +1,29 @@
 package com.rarible.flow.api.controller
 
+import com.rarible.flow.api.service.NftItemMetaService
 import com.rarible.flow.api.service.NftItemService
+import com.rarible.flow.core.converter.ItemMetaToDtoConverter
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.ItemMeta
-import com.rarible.flow.core.repository.*
-import com.rarible.protocol.dto.FlowItemMetaDto
 import com.rarible.protocol.dto.FlowItemMetaFormDto
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemsDto
+import com.rarible.protocol.dto.MetaDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftItemControllerApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController
-import java.net.URI
 import java.time.Instant
 
 @CrossOrigin
 @RestController
 class NftApiController(
-    private val nftItemService: NftItemService
+    private val nftItemService: NftItemService,
+    private val nftItemMetaService: NftItemMetaService
 ) : FlowNftItemControllerApi {
 
     override suspend fun getNftAllItems(
@@ -58,8 +56,10 @@ class NftApiController(
         return ResponseEntity.ok(nftItemService.byCollection(collection, continuation, size))
     }
 
-    override suspend fun getNftItemMetaById(itemId: String): ResponseEntity<FlowItemMetaDto> {
-        return nftItemService.itemMeta(itemId).okOr404IfNull()
+    override suspend fun getNftItemMetaById(itemId: String): ResponseEntity<MetaDto> {
+        return ResponseEntity.ok(nftItemMetaService.getMetaByItemId(ItemId.parse(itemId)).let {
+            if (it != null) ItemMetaToDtoConverter.convert(it) else null
+        })
     }
 
     override suspend fun getNftItemsByOwner(

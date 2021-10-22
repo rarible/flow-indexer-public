@@ -80,7 +80,7 @@ class OwnershipsApiControllerTest {
                     val ownershipDto = it.responseBody!!
                     Assertions.assertEquals(contract, ownershipDto.contract, "Token is not equals!")
                     Assertions.assertEquals(owner.formatted, ownershipDto.owner, "Owner is not equals!")
-                    Assertions.assertEquals(tokenId, ownershipDto.tokenId, "Token ID is not equals!")
+                    Assertions.assertEquals(tokenId.toBigInteger(), ownershipDto.tokenId, "Token ID is not equals!")
                 }
         }
     }
@@ -178,7 +178,7 @@ class OwnershipsApiControllerTest {
                     Assertions.assertTrue(response.ownerships.size == 2)
                     response.ownerships.forEach { o ->
                         Assertions.assertEquals(contract, o.contract)
-                        Assertions.assertEquals(tokenId, o.tokenId)
+                        Assertions.assertEquals(tokenId.toBigInteger(), o.tokenId)
                     }
                 }
         }
