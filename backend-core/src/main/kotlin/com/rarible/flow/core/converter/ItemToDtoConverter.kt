@@ -6,7 +6,6 @@ import com.rarible.flow.core.domain.Part
 import com.rarible.protocol.dto.FlowCreatorDto
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowRoyaltyDto
-import com.rarible.protocol.dto.MetaDto
 import org.springframework.core.convert.converter.Converter
 import java.math.BigInteger
 
@@ -19,9 +18,6 @@ object ItemToDtoConverter : Converter<Item, FlowNftItemDto> {
             tokenId = item.tokenId.toBigInteger(),
             creators = convert(item.creator),
             owners = item.owner?.let { listOf(it.formatted) } ?: emptyList(),
-            meta = MetaDto(
-                "", "", emptyList(), emptyList(), ""
-            ),
             mintedAt = item.mintedAt,
             lastUpdatedAt = item.updatedAt,
             royalties = convert(item.royalties),

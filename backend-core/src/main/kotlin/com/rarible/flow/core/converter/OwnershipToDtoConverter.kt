@@ -10,7 +10,7 @@ object OwnershipToDtoConverter : Converter<Ownership, FlowNftOwnershipDto> {
         return FlowNftOwnershipDto(
             id = ownership.id.toString(),
             contract = ownership.contract,
-            tokenId = ownership.tokenId,
+            tokenId = ownership.tokenId.toBigInteger(),
             owner = ownership.owner.formatted,
             creators = emptyList(),
             createdAt = ownership.date

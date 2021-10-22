@@ -2,6 +2,7 @@ package com.rarible.flow.api.controller
 
 import com.nftco.flow.sdk.FlowAddress
 import com.ninjasquad.springmockk.MockkBean
+import com.rarible.flow.api.service.NftItemMetaService
 import com.rarible.flow.api.service.NftItemService
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
@@ -57,6 +58,9 @@ internal class NftApiControllerTest {
 
     @MockkBean
     lateinit var nftItemService: NftItemService
+
+    @MockkBean
+    lateinit var nftItemMetaService: NftItemMetaService
 
     @Test
     fun `should return all items and stop`() = runBlocking<Unit> {

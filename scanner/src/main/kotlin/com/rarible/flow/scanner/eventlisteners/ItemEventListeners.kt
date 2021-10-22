@@ -35,7 +35,7 @@ class ItemEventListeners(
                     royalties = activity.royalties,
                     owner = owner,
                     mintedAt = activity.timestamp,
-                    meta = activity.metadata.toString(),
+                    meta = activity.metadata["metaURI"],
                     collection = activity.contract,
                     updatedAt = activity.timestamp
                 )

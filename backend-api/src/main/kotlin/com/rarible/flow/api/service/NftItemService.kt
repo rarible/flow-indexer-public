@@ -5,19 +5,23 @@ import com.rarible.flow.core.converter.ItemMetaToDtoConverter
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.repository.*
-import com.rarible.protocol.dto.FlowItemMetaDto
+import com.rarible.flow.core.repository.ItemFilter
+import com.rarible.flow.core.repository.ItemMetaRepository
+import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.coFindById
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemsDto
+import com.rarible.protocol.dto.MetaDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
 import java.time.Instant
 
 @Service
 class NftItemService(
     private val itemRepository: ItemRepository,
-    private val itemMetaRepository: ItemMetaRepository,
+    private val itemMetaRepository: ItemMetaRepository
 ) {
 
     suspend fun getAllItems(
@@ -47,18 +51,22 @@ class NftItemService(
         return convert(items)
     }
 
-    suspend fun itemMeta(itemId: String): FlowItemMetaDto? {
-        return itemMetaRepository.coFindById(ItemId.parse(itemId))?.let {
-            ItemMetaToDtoConverter.convert(it)
-        }
-    }
-
-    private fun convert(items: List<Item>): FlowNftItemsDto =
+    private suspend fun convert(items: List<Item>): FlowNftItemsDto =
         FlowNftItemsDto(
             continuation = nextCursor(items),
-            items = items.map(ItemToDtoConverter::convert),
+            items = items.map { convertItem(it) },
             total = items.size.toLong()
         )
+
+    private suspend fun convertItem(item: Item): FlowNftItemDto {
+        return ItemToDtoConverter.convert(item).copy(meta = fillMeta(item.id))
+    }
+
+    private suspend fun fillMeta(id: ItemId): MetaDto? {
+        val meta = itemMetaRepository.findById(id).awaitSingleOrNull() ?: return null
+        return ItemMetaToDtoConverter.convert(meta)
+    }
+
 
     private suspend fun convert(items: Flow<Item>): FlowNftItemsDto {
         val result = mutableListOf<Item>()

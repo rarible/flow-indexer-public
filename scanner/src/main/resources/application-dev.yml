@@ -13,6 +13,11 @@ logging:
 scanner:
   environment: dev
   kafka-replica-set: ${kafka.hosts}
+  default-item-collection:
+    id: "A.665b9acf64dfdfdb.CommonNFT.NFT"
+    owner: "0xe91e497115b9731b"
+    name: "CommonNFT"
+    symbol: "CNFT"
 
 blockchain:
   scanner:
