@@ -1,6 +1,5 @@
 package com.rarible.flow.scanner.eventlisteners
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemRepository
@@ -28,7 +27,6 @@ class ItemEventListeners(
         val ownershipExists = ownershipRepository.existsById(ownershipId).awaitSingle()
 
         if (!itemExists) {
-            val mapper = ObjectMapper()
             val item = itemRepository.insert(
                 Item(
                     contract = id.contract,
@@ -37,7 +35,7 @@ class ItemEventListeners(
                     royalties = activity.royalties,
                     owner = owner,
                     mintedAt = activity.timestamp,
-                    meta = mapper.writeValueAsString(activity.metadata),
+                    meta = activity.metadata["metaURI"],
                     collection = activity.contract,
                     updatedAt = activity.timestamp
                 )

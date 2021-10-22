@@ -20,14 +20,17 @@ class CommonNFTMetaProvider(
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("CommonNFT")
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta? {
-        val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return null
-        val metaMap = JacksonJsonParser().parseMap(item.meta)
-        var url = metaMap["metaURI"] ?: return null
-        val client = WebClient.create("https://rarible.mypinata.cloud/")
-        if (url.toString().startsWith("ipfs://")) {
-            url = url.toString().substring("ipfs:/".length)
+        val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: throw IllegalStateException("Not found item by id [$itemId]")
+        var url = item.meta ?: throw IllegalStateException("meta is null")
+        if (url.startsWith("{")) {
+            url = JacksonJsonParser().parseMap(url)["metaURI"] as String? ?: throw IllegalStateException("metaURI not found")
         }
-        val data = client.get().uri(url.toString()).retrieve().awaitBodyOrNull<CommonNFTMetaBody>() ?: return null
+
+        val client = WebClient.create("https://rarible.mypinata.cloud/")
+        if (url.startsWith("ipfs://")) {
+            url = url.substring("ipfs:/".length)
+        }
+        val data = client.get().uri(url).retrieve().awaitBodyOrNull<CommonNFTMetaBody>() ?: throw IllegalStateException("Cant get meta from ipfs")
         return ItemMeta(
             itemId = itemId,
             name = data.name,
