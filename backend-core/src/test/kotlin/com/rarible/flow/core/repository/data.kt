@@ -23,7 +23,7 @@ object data {
         FlowAssetNFT("0x01", 1.toBigDecimal(), 1),
         FlowAssetFungible("FLOW", BigDecimal.TEN),
         1.toBigDecimal(),
-        ItemId("0x01", 1).toString(),
+//        ItemId("0x01", 1).toString(),
         data = OrderData(emptyList(), emptyList()),
         collection = "ABC",
         fill = 13.37.toBigDecimal(),

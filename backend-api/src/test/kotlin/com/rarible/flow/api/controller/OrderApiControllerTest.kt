@@ -237,7 +237,7 @@ class OrderApiControllerTest {
                 tokenId = itemId.tokenId
             ),
             amount = BigDecimal.valueOf(100L),
-            amountUsd = BigDecimal.valueOf(100L),
+//            amountUsd = BigDecimal.valueOf(100L),
             data = OrderData(
                 payouts = listOf(Payout(randomFlowAddress(), BigDecimal.valueOf(1L))),
                 originalFees = listOf(Payout(randomFlowAddress(), BigDecimal.valueOf(1L)))
