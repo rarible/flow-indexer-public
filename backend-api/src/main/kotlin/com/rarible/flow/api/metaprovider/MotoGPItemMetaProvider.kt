@@ -6,6 +6,7 @@ import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.ScriptBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
+import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.OwnershipRepository
 import kotlinx.coroutines.flow.toList
@@ -20,20 +21,19 @@ class MotoGPItemMetaProvider(
     private val api: AsyncFlowAccessApi,
     @Value("classpath:script/motogp-card-metadata.cdc")
     private val scriptFile: Resource,
-    private val ownershipRepository: OwnershipRepository
+    private val ownershipRepository: OwnershipRepository,
+    private val apiProperties: ApiProperties
 ) : ItemMetaProvider {
 
     private val cadenceBuilder = JsonCadenceBuilder()
 
-    private val addressRegistry = Flow.DEFAULT_ADDRESS_REGISTRY
-
     private val builder = ScriptBuilder()
 
-    override fun isSupported(itemId: ItemId): Boolean = /*itemId.contract.contains("MotoGPCard", true)*/false
+    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("MotoGPCard", true)
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta? {
         val ownership = lastKnownOwner(itemId) ?: return null
-        builder.script(addressRegistry.processScript(scriptFile.file.readText(Charsets.UTF_8)))
+        builder.script(Flow.DEFAULT_ADDRESS_REGISTRY.processScript(scriptFile.file.readText(Charsets.UTF_8), chainId = apiProperties.chainId))
         builder.arguments(
             mutableListOf(
                 cadenceBuilder.address(ownership.owner.formatted),
