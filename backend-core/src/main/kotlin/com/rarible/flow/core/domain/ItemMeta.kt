@@ -30,6 +30,6 @@ data class ItemMeta(
 data class ItemMetaAttribute(
     val key: String,
     val value: String?,
-    val type: String?,
-    val format: String?
+    val type: String? = null,
+    val format: String? = null
 )

@@ -21,7 +21,7 @@ object ItemMetaToDtoConverter : Converter<ItemMeta, MetaDto> {
                 )
             },
             contents = source.contentUrls,
-            raw = Base64.getEncoder().encodeToString(source.raw)
+            raw = source.raw?.let { Base64.getEncoder().encodeToString(it) }
         )
     }
 }

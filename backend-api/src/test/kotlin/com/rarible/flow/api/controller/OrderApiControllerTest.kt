@@ -2,12 +2,7 @@ package com.rarible.flow.api.controller
 
 import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.api.service.OrderService
-import com.rarible.flow.core.domain.FlowAssetFungible
-import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.domain.OrderData
-import com.rarible.flow.core.domain.Payout
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.randomFlowAddress
 import com.rarible.flow.randomLong
 import com.rarible.protocol.dto.FlowOrderDto
@@ -251,9 +246,5 @@ class OrderApiControllerTest {
             lastUpdatedAt = LocalDateTime.now()
         )
         return order
-    }
-
-    companion object {
-
     }
 }
