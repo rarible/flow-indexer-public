@@ -137,6 +137,7 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
                 BigDecimal::class -> str.toBigDecimal()
                 BigInteger::class -> str.toBigInteger()
                 ItemId::class -> ItemId.parse(str)
+                OwnershipId::class -> OwnershipId.parse(str)
 
                 else -> throw IllegalArgumentException("Not supported field type in continuation part [$str]")
             } as P

@@ -1,6 +1,7 @@
 package com.rarible.flow.scanner.subscriber
 
 import com.nftco.flow.sdk.FlowChainId
+import com.nftco.flow.sdk.FlowEventPayload
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainBlock
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
@@ -33,6 +34,16 @@ abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
         startFrom = startFrom
     )
 
+    private val reg1 = Regex.fromLiteral("\"type\":\"Type\"")
+    private val reg2 = Regex("""\{"staticType":"([^"]+)"}""")
+
+    // replace "Type" field to "String" field
+    private fun ByteArray.fixed(): ByteArray {
+        val s1 = reg1.replace(String(this), "\"type\":\"String\"")
+        val s2 = reg2.replace(s1) { "\"${it.groupValues[1]}\"" }
+        return s2.toByteArray()
+    }
+
     @Value("\${blockchain.scanner.flow.chainId}")
     lateinit var chainId: FlowChainId
 
@@ -40,31 +51,39 @@ abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
 
     override fun getEventRecords(block: FlowBlockchainBlock, log: FlowBlockchainLog): Flow<FlowLogRecord<*>> {
         val descriptor = getDescriptor()
-        return if (descriptor.events.contains(log.event.id)) {
+        val payload = FlowEventPayload(log.event.payload.bytes.fixed())
+        val event = log.event.copy(payload = payload)
+        val fixedLog = FlowBlockchainLog(log.hash, log.blockHash, event)
+        return if (descriptor.events.contains(fixedLog.event.id)) {
             val blockTimestamp = Instant.ofEpochMilli(block.timestamp)
-            flowOf(
-                ItemHistory(
-                    log = FlowLog(
-                        transactionHash = log.event.transactionId.base16Value,
-                        status = Log.Status.CONFIRMED,
-                        eventIndex = log.event.eventIndex,
-                        eventType = log.event.type,
-                        timestamp = blockTimestamp,
-                        blockHeight = block.number,
-                        blockHash = block.hash
-                    ),
-                    date = blockTimestamp,
-                    activity = activity(
-                        block, log,
-                        com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, log.event.event).apply {
-                            timestamp = blockTimestamp
-                        })
+            val activity = activity(
+                block, fixedLog,
+                com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, fixedLog.event.event).apply {
+                    timestamp = blockTimestamp
+                })
+            if (activity == null) {
+                emptyFlow()
+            } else {
+                flowOf(
+                    ItemHistory(
+                        log = FlowLog(
+                            transactionHash = fixedLog.event.transactionId.base16Value,
+                            status = Log.Status.CONFIRMED,
+                            eventIndex = fixedLog.event.eventIndex,
+                            eventType = fixedLog.event.type,
+                            timestamp = blockTimestamp,
+                            blockHeight = block.number,
+                            blockHash = block.hash
+                        ),
+                        date = blockTimestamp,
+                        activity = activity
+                    )
                 )
-            )
+            }
         } else emptyFlow()
     }
 
     override fun getDescriptor(): FlowDescriptor = descriptors[chainId]!!
 
-    abstract fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): FlowActivity
+    abstract fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): FlowActivity?
 }

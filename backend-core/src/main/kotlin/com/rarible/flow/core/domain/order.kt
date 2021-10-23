@@ -53,14 +53,11 @@ data class Order(
 
     @Field(targetType = FieldType.DECIMAL128)
     val amount: BigDecimal,
-    val offeredNftId: String? = null,
     @Field(targetType = FieldType.DECIMAL128)
     val fill: BigDecimal = BigDecimal.ZERO,
     val cancelled: Boolean = false,
     val data: OrderData,
 
-    @Field(targetType = FieldType.DECIMAL128)
-    val amountUsd: BigDecimal = BigDecimal.ZERO,
     val createdAt: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC),
     @field:LastModifiedDate
     var lastUpdatedAt: LocalDateTime? = null,

@@ -46,7 +46,7 @@ class MotoGPSubscriber : BaseItemHistoryFlowLogSubscriber() {
         val tokenId = id.toLong()!!
         val contract = msg.eventId.collection()
         val timestamp = msg.timestamp
-        return when ("${msg.eventId}".split(".").last()) {
+        return when (msg.eventId.eventName) {
             "Mint" -> {
                 MintActivity(
                     owner = msg.eventId.contractAddress.formatted,
@@ -86,5 +86,3 @@ class MotoGPSubscriber : BaseItemHistoryFlowLogSubscriber() {
         }
     }
 }
-
-

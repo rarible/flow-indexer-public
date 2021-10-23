@@ -115,28 +115,33 @@ sealed class OrderFilter() {
     }
 
     class ByStatus(val status: List<FlowOrderStatusDto>?) : OrderFilter() {
+
+        constructor(vararg statuses: FlowOrderStatusDto) : this(statuses.asList())
+
         @Suppress("IfThenToElvis")
         override fun criteria(): Criteria {
-            return if(status == null) {
+            return if(status == null || status.isEmpty()) {
                 Criteria()
             } else {
-                status.foldRight(Criteria()) { s, c ->
-                    val additionalCriterias: Criteria = when(s) {
-                        FlowOrderStatusDto.ACTIVE -> (Order::cancelled isEqualTo false).andOperator(
+                val criterias = status.mapNotNull {
+                    when(it) {
+                        FlowOrderStatusDto.ACTIVE -> Criteria().andOperator(
+                            Order::cancelled isEqualTo false,
                             Order::fill isEqualTo BigDecimal.ZERO
                         )
                         FlowOrderStatusDto.FILLED -> (Order::fill gt BigDecimal.ZERO)
-                        FlowOrderStatusDto.HISTORICAL -> Criteria() // TODO
+                        FlowOrderStatusDto.HISTORICAL -> null
                         FlowOrderStatusDto.INACTIVE -> (Order::cancelled isEqualTo true) //TODO
                         FlowOrderStatusDto.CANCELLED -> (Order::cancelled isEqualTo true)
                     }
-                    return c.orOperator(additionalCriterias)
                 }
+
+                Criteria().orOperator(criterias)
             }
         }
     }
 
     companion object {
-        val DEFAULT_LIMIT = 50
+        const val DEFAULT_LIMIT = 50
     }
 }
