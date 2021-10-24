@@ -58,9 +58,7 @@ abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
             val blockTimestamp = Instant.ofEpochMilli(block.timestamp)
             val activity = activity(
                 block, fixedLog,
-                com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, fixedLog.event.event).apply {
-                    timestamp = blockTimestamp
-                })
+                com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, fixedLog.event.event))
             if (activity == null) {
                 emptyFlow()
             } else {

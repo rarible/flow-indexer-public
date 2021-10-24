@@ -3,13 +3,11 @@ package com.rarible.flow.events
 import com.nftco.flow.sdk.cadence.CadenceNamespace
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion
 import com.nftco.flow.sdk.cadence.JsonCadenceConverter
-import java.time.Instant
 
 @JsonCadenceConversion(EventMessageCadenceConverter::class)
 data class EventMessage(
     val eventId: EventId,
-    val fields: Map<String, com.nftco.flow.sdk.cadence.Field<*>>,
-    var timestamp: Instant = Instant.now()
+    val fields: Map<String, com.nftco.flow.sdk.cadence.Field<*>>
 )
 
 class EventMessageCadenceConverter: JsonCadenceConverter<EventMessage> {

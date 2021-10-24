@@ -1,18 +1,13 @@
 package com.rarible.flow.api.metaprovider
 
-import com.google.protobuf.UnsafeByteOperations
-import com.nftco.flow.sdk.AsyncFlowAccessApi
-import com.nftco.flow.sdk.Flow
-import com.nftco.flow.sdk.ScriptBuilder
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
-import com.rarible.flow.api.config.ApiProperties
+import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.repository.ItemRepository
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.json.JacksonJsonParser
@@ -23,14 +18,11 @@ import org.springframework.stereotype.Component
 class EvolutionItemMetaProvider(
     @Value("classpath:script/evo_meta.cdc")
     private val scriptFile: Resource,
-    private val api: AsyncFlowAccessApi,
     private val itemRepository: ItemRepository,
-    private val apiProperties: ApiProperties
+    private val scriptExecutor: ScriptExecutor
 ): ItemMetaProvider {
 
     private val cadenceBuilder = JsonCadenceBuilder()
-
-    private val builder = ScriptBuilder()
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("Evolution")
 
@@ -38,19 +30,14 @@ class EvolutionItemMetaProvider(
         val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return null
         if (item.meta.isNullOrEmpty()) return null
         val meta = JacksonJsonParser().parseMap(item.meta)
-        builder.script(Flow.DEFAULT_ADDRESS_REGISTRY.processScript(scriptFile.file.readText(Charsets.UTF_8), chainId = apiProperties.chainId))
-        builder.arguments(
-            mutableListOf(
+        val resp = scriptExecutor.execute(
+            code = scriptFile.file.readText(Charsets.UTF_8),
+            args = mutableListOf(
                 cadenceBuilder.uint32(meta["itemId"].toString()),
                 cadenceBuilder.uint32(meta["setId"].toString()),
                 cadenceBuilder.uint32(meta["serialNumber"].toString())
             )
         )
-
-        val resp = api.executeScriptAtLatestBlock(
-            builder.script,
-            builder.arguments.map { UnsafeByteOperations.unsafeWrap(Flow.encodeJsonCadence(it)) }
-        ).await()
 
         val jsonCadenceParser = JsonCadenceParser()
         val data: Map<String, Field<*>> = jsonCadenceParser.optional(resp.jsonCadence) {
