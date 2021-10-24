@@ -17,6 +17,7 @@ import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import javax.annotation.PostConstruct
 
 @Component
 class TopShotMomentItemMetaProvider(
@@ -47,6 +48,13 @@ class TopShotMomentItemMetaProvider(
         "Hero_375_375_Transparent.png"
     )
 
+    private lateinit var scriptText: String
+
+    @PostConstruct
+    private fun readScript() {
+        scriptText = scriptFile.inputStream.bufferedReader().use { it.readText() }
+    }
+
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("TopShot")
 
 
@@ -58,7 +66,7 @@ class TopShotMomentItemMetaProvider(
         val setID = metaMap["setID"].toString()
         val jsonCadenceBuilder = JsonCadenceBuilder()
         val playData = scriptExecutor.execute(
-            code = scriptFile.file.readText(),
+            code = scriptText,
             args = mutableListOf(
                 jsonCadenceBuilder.uint32(playID),
                 jsonCadenceBuilder.uint32(setID),
