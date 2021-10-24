@@ -10,6 +10,7 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.events.EventMessage
 import org.springframework.stereotype.Component
+import java.time.Instant
 
 @Component
 class MotoGPSubscriber : BaseItemHistoryFlowLogSubscriber() {
@@ -45,7 +46,7 @@ class MotoGPSubscriber : BaseItemHistoryFlowLogSubscriber() {
         val id: NumberField by msg.fields
         val tokenId = id.toLong()!!
         val contract = msg.eventId.collection()
-        val timestamp = msg.timestamp
+        val timestamp = Instant.ofEpochMilli(block.timestamp)
         return when (msg.eventId.eventName) {
             "Mint" -> {
                 MintActivity(
