@@ -7,7 +7,6 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.scanner.ProtocolEventPublisher
-import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
@@ -109,8 +108,7 @@ class ItemEventListeners(
                 .filter { it.maker.formatted == activity.from }
                 .flatMap {
                     orderRepository.save(it.copy(status = OrderStatus.INACTIVE))
-                }
-                .awaitSingle()
+                }.then().subscribe()
         }
     }
 
@@ -149,8 +147,8 @@ class ItemEventListeners(
                 .filter { it.maker.formatted == activity.to }
                 .flatMap {
                     orderRepository.save(it.copy(status = OrderStatus.ACTIVE))
-                }
-                .awaitSingle()
+                }.then().subscribe()
+
         }
     }
 }
