@@ -44,7 +44,7 @@ internal class CryptoControllerTest {
 
         client
             .get()
-            .uri("/v0.1/crypto/verify?publicKey=$pk&signature=$signature&message=$message")
+            .uri("/v0.1/crypto/verify?publicKey=$pk&signature=$signature&message=$message&signerAddress=0x01")
             .exchange()
             .expectStatus().isOk
             .expectBody<Boolean>()
