@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
+import javax.annotation.PostConstruct
 
 @Component
 class EvolutionItemMetaProvider(
@@ -24,6 +25,8 @@ class EvolutionItemMetaProvider(
 
     private val cadenceBuilder = JsonCadenceBuilder()
 
+    private lateinit var scriptText: String
+
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("Evolution")
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta? {
@@ -31,7 +34,7 @@ class EvolutionItemMetaProvider(
         if (item.meta.isNullOrEmpty()) return null
         val meta = JacksonJsonParser().parseMap(item.meta)
         val resp = scriptExecutor.execute(
-            code = scriptFile.file.readText(Charsets.UTF_8),
+            code = scriptText,
             args = mutableListOf(
                 cadenceBuilder.uint32(meta["itemId"].toString()),
                 cadenceBuilder.uint32(meta["setId"].toString()),
@@ -87,5 +90,10 @@ class EvolutionItemMetaProvider(
         ).apply {
             raw = toString().toByteArray(Charsets.UTF_8)
         }
+    }
+
+    @PostConstruct
+    private fun readScript() {
+        scriptText = scriptFile.inputStream.bufferedReader().use { it.readText() }
     }
 }

@@ -10,6 +10,7 @@ import kotlinx.coroutines.reactive.asFlow
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
+import javax.annotation.PostConstruct
 
 @Component
 class MotoGPItemMetaProvider(
@@ -21,12 +22,14 @@ class MotoGPItemMetaProvider(
 
     private val builder = JsonCadenceBuilder()
 
+    private lateinit var scriptText: String
+
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("MotoGPCard", true)
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta? {
         val ownership = lastKnownOwner(itemId) ?: return null
         val resp = scriptExecutor.execute(
-            code = scriptFile.file.readText(Charsets.UTF_8),
+            code = scriptText,
             args = mutableListOf(
                 builder.address(ownership.owner.formatted),
                 builder.uint64(itemId.tokenId)
@@ -57,5 +60,10 @@ class MotoGPItemMetaProvider(
         val q = QOwnership.ownership
         val predicate = q.contract.eq(itemId.contract).and(q.tokenId.eq(itemId.tokenId))
         return ownershipRepository.findAll(predicate, q.date.desc()).asFlow().toList().maxByOrNull { it.date }
+    }
+
+    @PostConstruct
+    private fun readScript() {
+        scriptText = scriptFile.inputStream.bufferedReader().use { it.readText() }
     }
 }
