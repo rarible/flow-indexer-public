@@ -70,6 +70,11 @@ class NftApiController(
         return ResponseEntity.ok(nftItemService.byAccount(address, continuation, size))
     }
 
+    override suspend fun resetItemMeta(itemId: String): ResponseEntity<String> {
+        nftItemMetaService.resetMeta(ItemId.parse(itemId))
+        return ResponseEntity.ok().build()
+    }
+
     override suspend fun getNftItemsByCreator(
         address: String,
         continuation: String?,
