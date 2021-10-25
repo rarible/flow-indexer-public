@@ -9,6 +9,8 @@ import com.rarible.flow.scanner.ProtocolEventPublisher
 import kotlinx.coroutines.runBlocking
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @Component
 class OrderEventListeners(
@@ -38,6 +40,7 @@ class OrderEventListeners(
                 collection = activity.contract,
                 makeStock = activity.make.value.toBigInteger(),
                 status = OrderStatus.ACTIVE,
+                lastUpdatedAt = LocalDateTime.now(ZoneOffset.UTC)
             )
         )
 

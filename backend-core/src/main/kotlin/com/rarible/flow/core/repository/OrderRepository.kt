@@ -3,6 +3,7 @@ package com.rarible.flow.core.repository
 import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.data.domain.Sort
@@ -25,7 +26,7 @@ interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepository
 
     fun findAllByIdIn(ids: List<Long>): Flux<Order>
 
-    fun findAllByMake(make: FlowAsset): Flux<Order>
+    fun findAllByMakeAndStatus(make: FlowAsset, status: OrderStatus): Flux<Order>
 }
 
 interface OrderRepositoryCustom {
