@@ -20,6 +20,7 @@ dependencies {
     implementation(rootProject.libs.rarible.core.kafka)
     implementation(rootProject.libs.blockchain.scanner.flow)
     implementation(rootProject.libs.bundles.flow.models)
+    implementation(rootProject.libs.rarible.currency.starer)
     testImplementation(project(":backend-api-model"))
     testImplementation(project(":util"))
 }
