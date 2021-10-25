@@ -5,7 +5,7 @@ import com.rarible.protocol.dto.*
 import org.springframework.core.convert.converter.Converter
 import java.time.ZoneOffset
 
-object OrderToDtoConverter: Converter<Order, FlowOrderDto> {
+object OrderToDtoConverter : Converter<Order, FlowOrderDto> {
     override fun convert(source: Order): FlowOrderDto =
         FlowOrderDto(
             id = source.id,
@@ -42,7 +42,7 @@ object OrderToDtoConverter: Converter<Order, FlowOrderDto> {
     )
 
     fun convert(
-        asset: FlowAsset
+        asset: FlowAsset,
     ) = when (asset) {
         is FlowAssetNFT -> FlowAssetNFTDto(
             contract = asset.contract,
@@ -52,6 +52,10 @@ object OrderToDtoConverter: Converter<Order, FlowOrderDto> {
         is FlowAssetFungible -> FlowAssetFungibleDto(
             contract = asset.contract,
             value = asset.value,
+        )
+        is FlowAssetEmpty -> FlowAssetFungibleDto(
+            contract = "",
+            value = 0.toBigDecimal()
         )
     }
 }

@@ -59,7 +59,6 @@ data class Order(
     val data: OrderData,
 
     val createdAt: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC),
-    @field:LastModifiedDate
     var lastUpdatedAt: LocalDateTime? = null,
     val collection: String,
     val makeStock: BigInteger,
