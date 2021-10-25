@@ -2,23 +2,16 @@ package com.rarible.flow.scanner.cadence
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.*
+import com.rarible.flow.core.domain.PaymentType
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.events.EventId
 import com.rarible.flow.scanner.model.parse
 import java.math.BigDecimal
 
-enum class PaymentType {
-    BUYER_FEE,
-    SELLER_FEE,
-    OTHER,
-    ROYALTY,
-    REWARD,
-}
-
 @JsonCadenceConversion(PaymentConverter::class)
 data class Payment(
     val type: PaymentType,
-    val address: FlowAddress,
+    val address: String,
     val rate: BigDecimal,
     val amount: BigDecimal,
 )
@@ -39,7 +32,7 @@ class PaymentConverter : JsonCadenceConverter<Payment> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): Payment = unmarshall(value) {
         Payment(
             PaymentType.valueOf(string("type")),
-            FlowAddress(address("address")),
+            address("address"),
             bigDecimal("rate"),
             bigDecimal("amount"),
         )

@@ -24,6 +24,8 @@ interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepository
     fun findActiveById(id: Long): Mono<Order>
 
     fun findAllByIdIn(ids: List<Long>): Flux<Order>
+
+    fun findAllByMake(make: FlowAsset): Flux<Order>
 }
 
 interface OrderRepositoryCustom {

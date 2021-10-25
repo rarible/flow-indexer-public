@@ -62,8 +62,17 @@ data class Order(
     @field:LastModifiedDate
     var lastUpdatedAt: LocalDateTime? = null,
     val collection: String,
-    val makeStock: BigInteger
+    val makeStock: BigInteger,
+    val status: OrderStatus = OrderStatus.INACTIVE,
 )
+
+enum class OrderStatus {
+    ACTIVE,
+    FILLED,
+    HISTORICAL,
+    INACTIVE,
+    CANCELLED
+}
 
 data class OrderData(
     val payouts: List<Payout>,

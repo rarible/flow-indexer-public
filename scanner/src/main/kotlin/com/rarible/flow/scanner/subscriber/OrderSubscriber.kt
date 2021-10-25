@@ -55,28 +55,39 @@ class OrderSubscriber(
     override fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): FlowActivity? {
         val contract = msg.eventId.collection()
         val timestamp = msg.timestamp
+        val txId = log.event.transactionId
+
         return when (msg.eventId.eventName) {
             "OrderAvailable" -> {
                 val event = log.event.parse<OrderAvailable>()
-                val take = FlowAssetFungible(
-                    contract = event.vaultType.collection(),
-                    value = event.price
-                )
-                val make = FlowAssetNFT(
-                    contract = event.nftType.collection(),
-                    value = 1.toBigDecimal(),
-                    tokenId = event.nftId
-                )
-                FlowNftOrderActivityList(
-                    contract = contract,
-                    tokenId = event.nftId,
-                    timestamp = timestamp,
-                    price = event.price,
-                    make = make,
-                    take = take,
-                    hash = event.orderId.toString(),
-                    maker = event.orderAddress.formatted
-                )
+                val order = runBlocking {
+                    orderRepository.coFindById(event.orderId)
+                }
+                if (order != null) {
+                    logger.warn("OrderAvailable [$event] with existing order: txId=${txId.base16Value}")
+                    null
+                } else {
+                    val take = FlowAssetFungible(
+                        contract = event.vaultType.collection(),
+                        value = event.price
+                    )
+                    val make = FlowAssetNFT(
+                        contract = event.nftType.collection(),
+                        value = 1.toBigDecimal(),
+                        tokenId = event.nftId
+                    )
+                    FlowNftOrderActivityList(
+                        contract = contract,
+                        tokenId = event.nftId,
+                        timestamp = timestamp,
+                        price = event.price,
+                        make = make,
+                        take = take,
+                        hash = event.orderId.toString(),
+                        maker = event.orderAddress.formatted,
+                        payments = event.payments.map { FlowNftOrderPayment(it.type, it.address, it.rate, it.amount) }
+                    )
+                }
             }
             "ListingCompleted" -> {
                 val event = log.event.parse<ListingCompleted>()
@@ -84,20 +95,21 @@ class OrderSubscriber(
                     orderRepository.coFindById(event.listingResourceID)
                 }
                 if (order == null) {
-                    logger.warn("ListingCompleted event [$event] for non-existing order")
+                    logger.warn("ListingCompleted event [$event] for non-existing order: txId=${txId.base16Value}")
                     null
                 } else {
                     val tokenId = order.itemId.tokenId
-                    val tokenContract = order.itemId.contract
+                    val tokenContract = order.make.contract.split(".").last()
 
                     if (event.purchased) { // order closed
                         // take address from NonFungibleToken.Deposit in the same transaction
-                        val buyerAddress = txManager.onTransaction(log.event.transactionId) { tx ->
+                        val buyerAddress = txManager.onTransaction(txId) { tx ->
                             tx.events.asSequence()
                                 .filter { it.id.endsWith("$tokenContract.Deposit") }
                                 .map { it.parse<NFTDeposit>() }
                                 .findLast { it.id == tokenId && it.to != null }
-                        }?.to ?: throw IllegalStateException("Can't take buyer address!")
+                        }?.to
+                            ?: throw IllegalStateException("Can't take buyer address! txId=${txId.base16Value} contract=${tokenContract}")
 
                         FlowNftOrderActivitySell(
                             price = order.amount,
@@ -105,7 +117,8 @@ class OrderSubscriber(
                             contract = tokenContract,
                             timestamp = timestamp,
                             left = OrderActivityMatchSide(order.maker.formatted, order.make),
-                            right = OrderActivityMatchSide(buyerAddress, order.take)
+                            right = OrderActivityMatchSide(buyerAddress, order.take),
+                            hash = order.id.toString()
                         )
                     } else { // order cancelled
                         FlowNftOrderActivityCancelList(

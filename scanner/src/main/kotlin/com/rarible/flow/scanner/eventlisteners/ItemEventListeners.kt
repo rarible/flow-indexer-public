@@ -3,19 +3,23 @@ package com.rarible.flow.scanner.eventlisteners
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepository
+import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.scanner.ProtocolEventPublisher
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Flux
 
 @Component
 class ItemEventListeners(
     private val itemRepository: ItemRepository,
     private val ownershipRepository: OwnershipRepository,
-    private val protocolEventPublisher: ProtocolEventPublisher
+    private val orderRepository: OrderRepository,
+    private val protocolEventPublisher: ProtocolEventPublisher,
 ) {
 
     @EventListener(MintActivity::class)
@@ -95,6 +99,18 @@ class ItemEventListeners(
             ownershipRepository.delete(ownership).awaitSingle()
             protocolEventPublisher.onDelete(ownership)
         }
+
+        if (activity.from != null) {
+            val orders: Flux<Order> =
+                orderRepository.findAllByMake(FlowAssetNFT(activity.contract, 1.toBigDecimal(), activity.tokenId))
+            orders.collectMap { order ->
+                if (activity.from == order.maker.formatted && order.status == OrderStatus.ACTIVE) {
+                    runBlocking {
+                        orderRepository.coSave(order.copy(status = OrderStatus.INACTIVE))
+                    }
+                }
+            }.awaitSingle()
+        }
     }
 
     @EventListener(DepositActivity::class)
@@ -121,6 +137,18 @@ class ItemEventListeners(
                     )
                 ).awaitSingle()
             )
+        }
+
+        if (activity.to != null) {
+            val orders: Flux<Order> =
+                orderRepository.findAllByMake(FlowAssetNFT(activity.contract, 1.toBigDecimal(), activity.tokenId))
+            orders.collectMap { order ->
+                if (activity.to == order.maker.formatted && order.status == OrderStatus.INACTIVE) {
+                    runBlocking {
+                        orderRepository.coSave(order.copy(status = OrderStatus.ACTIVE))
+                    }
+                }
+            }.awaitSingle()
         }
     }
 }

@@ -36,7 +36,16 @@ class CommonNFTSubscriber: BaseItemHistoryFlowLogSubscriber() {
                 collection = collection,
                 startFrom = 47330085L
             ),
-            FlowChainId.EMULATOR to FlowDescriptor(id = "CommonNFTSubscriber", events = emptySet(), collection = collection, startFrom = 1L)
+            FlowChainId.EMULATOR to FlowDescriptor(
+                id = "CommonNFTSubscriber",
+                events = setOf(
+                    "A.f8d6e0586b0a20c7.CommonNFT.Mint",
+                    "A.f8d6e0586b0a20c7.CommonNFT.Withdraw",
+                    "A.f8d6e0586b0a20c7.CommonNFT.Deposit",
+                    "A.f8d6e0586b0a20c7.CommonNFT.Destroy"
+                ),
+                collection = collection,
+            ),
         )
 
     override fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): FlowActivity {
