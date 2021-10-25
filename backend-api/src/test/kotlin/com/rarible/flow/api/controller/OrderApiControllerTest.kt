@@ -198,9 +198,20 @@ class OrderApiControllerTest {
     }
 
     @Test
-    fun `should find bids by item - success`() {
+    fun `should find orders bids by item - success`() {
         val page = shouldGetPaginatedResult(
             "/v0.1/orders/bids/byItem?contract={contract}&tokenId={tokenId}",
+            "contract" to "ABC",
+            "tokenId" to 1337L
+        )
+
+        page.items shouldHaveSize 0 // for now we return empty bids list
+    }
+
+    @Test
+    fun `should find bids by item - success`() {
+        val page = shouldGetPaginatedResult(
+            "/v0.1/bids/byItem?contract={contract}&tokenId={tokenId}&status=",
             "contract" to "ABC",
             "tokenId" to 1337L
         )

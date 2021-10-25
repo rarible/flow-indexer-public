@@ -33,6 +33,7 @@ class OrderApiController(
         origin: String?,
         startDate: OffsetDateTime?,
         endDate: OffsetDateTime?,
+        currencyAddress: String?,
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
