@@ -10,6 +10,7 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.events.EventMessage
 import org.springframework.stereotype.Component
+import java.time.Instant
 
 @Component
 class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
@@ -27,7 +28,8 @@ class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
             FlowChainId.TESTNET to flowDescriptor(
                 address = "01658d9b94068f3c",
                 contract = "TopShot",
-                events = events
+                events = events,
+                startFrom = 47831085L
             ),
             FlowChainId.EMULATOR to flowDescriptor(
                 address = "f8d6e0586b0a20c7",
@@ -38,12 +40,13 @@ class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
         )
 
     override fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): FlowActivity {
-        val id: NumberField by msg.fields
-        val tokenId = id.toLong()!!
+
         val contract = msg.eventId.collection()
-        val timestamp = msg.timestamp
+        val timestamp = Instant.ofEpochMilli(block.timestamp)
         return when (msg.eventId.eventName) {
             "Withdraw" -> {
+                val id: NumberField by msg.fields
+                val tokenId = id.toLong()!!
                 val from: OptionalField by msg.fields
                 WithdrawnActivity(
                     contract = contract,
@@ -53,6 +56,8 @@ class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
                 )
             }
             "Deposit" -> {
+                val id: NumberField by msg.fields
+                val tokenId = id.toLong()!!
                 val to: OptionalField by msg.fields
                 DepositActivity(
                     contract = contract,
@@ -62,15 +67,26 @@ class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
                 )
             }
             "MomentMinted" -> {
+                val momentID: NumberField by msg.fields
+                val playID: NumberField by msg.fields
+                val setID: NumberField by msg.fields
+                val serialNumber: NumberField by msg.fields
                 MintActivity(
                     owner = msg.eventId.contractAddress.formatted,
                     contract = contract,
-                    tokenId = tokenId,
+                    tokenId = momentID.toLong()!!,
                     timestamp = timestamp,
-                    value = 1L, royalties = emptyList(), metadata = emptyMap(),
+                    value = 1L, royalties = emptyList(),
+                    metadata = mapOf(
+                        "playID" to playID.value.toString(),
+                        "setID" to setID.value.toString(),
+                        "serialNumber" to serialNumber.value.toString()
+                    ),
                 )
             }
             "MomentDestroyed" -> {
+                val id: NumberField by msg.fields
+                val tokenId = id.toLong()!!
                 BurnActivity(
                     contract = contract,
                     tokenId = tokenId,

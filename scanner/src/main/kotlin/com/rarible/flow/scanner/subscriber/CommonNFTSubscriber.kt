@@ -10,6 +10,7 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.events.EventMessage
 import org.springframework.stereotype.Component
+import java.time.Instant
 
 @Component
 class CommonNFTSubscriber: BaseItemHistoryFlowLogSubscriber() {
@@ -34,7 +35,7 @@ class CommonNFTSubscriber: BaseItemHistoryFlowLogSubscriber() {
                     "A.01658d9b94068f3c.CommonNFT.Destroy"
                 ),
                 collection = collection,
-                startFrom = 47330085L
+                startFrom = 47831085L
             ),
             FlowChainId.EMULATOR to FlowDescriptor(
                 id = "CommonNFTSubscriber",
@@ -52,7 +53,7 @@ class CommonNFTSubscriber: BaseItemHistoryFlowLogSubscriber() {
         val id: NumberField by msg.fields
         val tokenId = id.toLong()!!
         val contract = msg.eventId.collection()
-        val timestamp = msg.timestamp
+        val timestamp = Instant.ofEpochMilli(block.timestamp)
         val eventId = "${msg.eventId}"
         return when {
             eventId.endsWith("Mint") -> {
@@ -114,7 +115,7 @@ class CommonNftMintConverter: JsonCadenceConverter<CommonNftMint> {
                     string(key) to string(value)
                 }
             } catch (_: Exception) {
-                mapOf("metaUrl" to string("metadata"))
+                mapOf("metaURI" to string("metadata"))
             },
             royalties = arrayValues("royalties") {
                 it as StructField

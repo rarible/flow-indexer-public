@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":util"))
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
+    implementation("com.netflix.graphql.dgs:graphql-dgs-client:4.9.2")
     implementation(rootProject.libs.bundles.flow.models)
     implementation(rootProject.libs.bundles.flow.apis)
     implementation(rootProject.libs.bundles.rarible.core)

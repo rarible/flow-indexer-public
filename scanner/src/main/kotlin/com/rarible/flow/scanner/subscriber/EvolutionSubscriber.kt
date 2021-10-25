@@ -10,6 +10,7 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.events.EventMessage
 import org.springframework.stereotype.Component
+import java.time.Instant
 
 @Component
 class EvolutionSubscriber : BaseItemHistoryFlowLogSubscriber() {
@@ -28,6 +29,7 @@ class EvolutionSubscriber : BaseItemHistoryFlowLogSubscriber() {
                 address = "01658d9b94068f3c",
                 contract = "Evolution",
                 events = events,
+                startFrom = 47831085L
             ),
             FlowChainId.EMULATOR to flowDescriptor(
                 address = "f8d6e0586b0a20c7",
@@ -40,7 +42,7 @@ class EvolutionSubscriber : BaseItemHistoryFlowLogSubscriber() {
         val id: NumberField by msg.fields
         val tokenId = id.toLong()!!
         val contract = msg.eventId.collection()
-        val timestamp = msg.timestamp
+        val timestamp = Instant.ofEpochMilli(block.timestamp)
         return when (msg.eventId.eventName) {
             "Withdraw" -> {
                 val from: OptionalField by msg.fields
@@ -61,12 +63,20 @@ class EvolutionSubscriber : BaseItemHistoryFlowLogSubscriber() {
                 )
             }
             "CollectibleMinted" -> {
+                val itemId: NumberField by msg.fields
+                val setId: NumberField by msg.fields
+                val serialNumber: NumberField by msg.fields
                 MintActivity(
                     owner = msg.eventId.contractAddress.formatted,
                     contract = contract,
                     tokenId = tokenId,
                     timestamp = timestamp,
-                    value = 1L, royalties = emptyList(), metadata = emptyMap(),
+                    value = 1L, royalties = emptyList(),
+                    metadata = mapOf(
+                        "itemId" to itemId.value.toString(),
+                        "setId" to setId.value.toString(),
+                        "serialNumber" to serialNumber.value.toString()
+                    ),
                 )
             }
             "CollectibleDestroyed" -> {

@@ -37,9 +37,7 @@ class CommonNFTMetaProvider(
             description = data.description,
             attributes = data.attributes.map { ItemMetaAttribute(
                 key = it.key ?: it.traitType!!,
-                value = it.value,
-                format = null,
-                type = null
+                value = it.value
             ) },
             contentUrls = listOf(data.image),
         ).apply {

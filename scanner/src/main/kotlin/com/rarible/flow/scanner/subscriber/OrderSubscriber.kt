@@ -16,6 +16,7 @@ import com.rarible.flow.scanner.cadence.OrderAvailable
 import com.rarible.flow.scanner.model.parse
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
+import java.time.Instant
 
 @Component
 class OrderSubscriber(
@@ -54,7 +55,7 @@ class OrderSubscriber(
 
     override fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): FlowActivity? {
         val contract = msg.eventId.collection()
-        val timestamp = msg.timestamp
+        val timestamp = Instant.ofEpochMilli(block.timestamp)
         val txId = log.event.transactionId
 
         return when (msg.eventId.eventName) {

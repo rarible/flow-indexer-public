@@ -32,6 +32,10 @@ class Config(
     fun configureFlow() {
         Flow.DEFAULT_ADDRESS_REGISTRY.register("0xMOTOGPTOKEN", FlowAddress("0xa49cc0ee46c54bfb"), FlowChainId.MAINNET)
         Flow.DEFAULT_ADDRESS_REGISTRY.register("0xMOTOGPTOKEN", FlowAddress("0x01658d9b94068f3c"), FlowChainId.TESTNET)
+        Flow.DEFAULT_ADDRESS_REGISTRY.register("0xEVOLUTIONTOKEN", FlowAddress("0xf4264ac8f3256818"), FlowChainId.MAINNET)
+        Flow.DEFAULT_ADDRESS_REGISTRY.register("0xEVOLUTIONTOKEN", FlowAddress("0x01658d9b94068f3c"), FlowChainId.TESTNET)
+        Flow.DEFAULT_ADDRESS_REGISTRY.register("0xTOPSHOTTOKEN", FlowAddress("0x0b2a3299cc857e29"), FlowChainId.MAINNET)
+        Flow.DEFAULT_ADDRESS_REGISTRY.register("0xTOPSHOTTOKEN", FlowAddress("0x01658d9b94068f3c"), FlowChainId.TESTNET)
         Flow.configureDefaults(chainId = apiProperties.chainId)
     }
 }
