@@ -113,7 +113,7 @@ internal class NftApiControllerTest {
             .returnResult().responseBody!!
         item.id shouldBe "0x01:42"
         item.creators shouldBe listOf(FlowCreatorDto(FlowAddress("0x01").formatted, 100.toBigDecimal()))
-        item.owners shouldBe listOf(FlowAddress("0x02").formatted)
+        item.owner shouldBe FlowAddress("0x02").formatted
     }
 
     @Test
@@ -153,7 +153,7 @@ internal class NftApiControllerTest {
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 1
-        response.items[0].owners shouldBe listOf(items[0].owner!!.formatted)
+        response.items[0].owner shouldBe items[0].owner!!.formatted
 
         response = client
             .get()
@@ -163,7 +163,7 @@ internal class NftApiControllerTest {
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 1
-        response.items[0].owners shouldBe listOf(items[1].owner!!.formatted)
+        response.items[0].owner shouldBe items[1].owner!!.formatted
 
         response = client
             .get()
