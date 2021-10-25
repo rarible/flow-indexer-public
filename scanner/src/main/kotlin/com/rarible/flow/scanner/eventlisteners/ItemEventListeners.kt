@@ -7,12 +7,15 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.scanner.ProtocolEventPublisher
-import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @Component
 class ItemEventListeners(
@@ -101,16 +104,18 @@ class ItemEventListeners(
         }
 
         if (activity.from != null) {
-            orderRepository
-                .findAllByMakeAndStatus(
+            val orders = orderRepository
+                .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
                     FlowAssetNFT(activity.contract, 1.toBigDecimal(), activity.tokenId),
-                    OrderStatus.ACTIVE
+                    FlowAddress(activity.from!!),
+                    OrderStatus.ACTIVE,
+                    LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
                 )
-                .filter { it.maker.formatted == activity.from }
-                .flatMap {
-                    orderRepository.save(it.copy(status = OrderStatus.INACTIVE))
+                .map {
+                    it.copy(status = OrderStatus.INACTIVE)
                 }
-                .awaitSingle()
+                .asFlow().toList()
+            orderRepository.saveAll(orders).subscribe()
         }
     }
 
@@ -141,16 +146,18 @@ class ItemEventListeners(
         }
 
         if (activity.to != null) {
-            orderRepository
-                .findAllByMakeAndStatus(
+            val orders = orderRepository
+                .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
                     FlowAssetNFT(activity.contract, 1.toBigDecimal(), activity.tokenId),
-                    OrderStatus.INACTIVE
+                    FlowAddress(activity.to!!),
+                    OrderStatus.INACTIVE,
+                    LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
                 )
-                .filter { it.maker.formatted == activity.to }
-                .flatMap {
-                    orderRepository.save(it.copy(status = OrderStatus.ACTIVE))
+                .map {
+                    it.copy(status = OrderStatus.ACTIVE)
                 }
-                .awaitSingle()
+                .asFlow().toList()
+            orderRepository.saveAll(orders).subscribe()
         }
     }
 }

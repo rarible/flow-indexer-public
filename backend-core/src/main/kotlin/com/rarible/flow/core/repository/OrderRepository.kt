@@ -1,21 +1,19 @@
 package com.rarible.flow.core.repository
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
-import org.springframework.data.domain.Sort
-import org.springframework.data.mapping.div
-import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
-import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.time.LocalDateTime
 
 interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepositoryCustom {
     fun findByItemId(itemId: ItemId): Mono<Order>
@@ -26,7 +24,12 @@ interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepository
 
     fun findAllByIdIn(ids: List<Long>): Flux<Order>
 
-    fun findAllByMakeAndStatus(make: FlowAsset, status: OrderStatus): Flux<Order>
+    fun findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
+        make: FlowAsset,
+        maker: FlowAddress,
+        status: OrderStatus,
+        lastUpdatedAt: LocalDateTime,
+    ): Flux<Order>
 }
 
 interface OrderRepositoryCustom {
