@@ -14,14 +14,18 @@ import com.rarible.flow.scanner.cadence.ListingCompleted
 import com.rarible.flow.scanner.cadence.NFTDeposit
 import com.rarible.flow.scanner.cadence.OrderAvailable
 import com.rarible.flow.scanner.model.parse
+import com.rarible.protocol.currency.api.client.CurrencyControllerApi
+import com.rarible.protocol.currency.dto.BlockchainDto
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
+import java.math.BigDecimal
 import java.time.Instant
 
 @Component
 class OrderSubscriber(
-    val orderRepository: OrderRepository,
-    val txManager: TxManager,
+    private val orderRepository: OrderRepository,
+    private val txManager: TxManager,
+    private val currencyApi: CurrencyControllerApi
 ) : BaseItemHistoryFlowLogSubscriber() {
 
     override val descriptors = mapOf(
@@ -59,10 +63,17 @@ class OrderSubscriber(
         return when (msg.eventId.eventName) {
             "OrderAvailable" -> {
                 val event = log.event.parse<OrderAvailable>()
+
                 val take = FlowAssetFungible(
                     contract = event.vaultType.collection(),
                     value = event.price
                 )
+                val usdRate = try {
+                    currencyApi.getCurrencyRate(BlockchainDto.FLOW, take.contract, block.timestamp).block()!!.rate
+                } catch (e: Exception) {
+                    logger.warn("Unable to fetch USD rate from currency api: ${e.message}", e)
+                    BigDecimal.ZERO
+                }
                 val make = FlowAssetNFT(
                     contract = event.nftType.collection(),
                     value = 1.toBigDecimal(),
@@ -73,6 +84,7 @@ class OrderSubscriber(
                     tokenId = event.nftId,
                     timestamp = timestamp,
                     price = event.price,
+                    priceUsd = event.price * usdRate,
                     make = make,
                     take = take,
                     hash = event.orderId.toString(),
@@ -90,7 +102,12 @@ class OrderSubscriber(
                 } else {
                     val tokenId = order.itemId.tokenId
                     val tokenContract = order.itemId.contract
-
+                    val usdRate = try {
+                        currencyApi.getCurrencyRate(BlockchainDto.FLOW, order.take.contract, block.timestamp).block()!!.rate
+                    } catch (e: Exception) {
+                        logger.warn("Unable to fetch USD price rate from currency api: ${e.message}", e)
+                        BigDecimal.ZERO
+                    }
                     if (event.purchased) { // order closed
                         // take address from NonFungibleToken.Deposit in the same transaction
                         val buyerAddress = txManager.onTransaction(log.event.transactionId) { tx ->
@@ -102,6 +119,7 @@ class OrderSubscriber(
 
                         FlowNftOrderActivitySell(
                             price = order.amount,
+                            priceUsd = order.amount * usdRate,
                             tokenId = tokenId,
                             contract = tokenContract,
                             timestamp = timestamp,
@@ -111,6 +129,7 @@ class OrderSubscriber(
                     } else { // order cancelled
                         FlowNftOrderActivityCancelList(
                             price = order.amount,
+                            priceUsd = order.amount * usdRate,
                             hash = order.id.toString(),
                             maker = order.maker.formatted,
                             make = order.make,

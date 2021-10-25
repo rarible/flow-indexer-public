@@ -1,19 +1,19 @@
 package com.rarible.flow.api.service
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.core.converter.OrderToDtoConverter
+import com.rarible.flow.core.domain.FlowAsset
+import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coFindById
-import com.rarible.protocol.dto.FlowOrderDto
 import com.rarible.protocol.dto.FlowOrderStatusDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 
 
 @Service
@@ -83,5 +83,16 @@ class OrderService(
             size,
             OrderFilter.Sort.MAKE_PRICE_ASC
         )
+    }
+
+    fun currenciesByItemId(itemId: String): Flow<FlowAsset> {
+        return orderRepository.search(
+            OrderFilter.ByItemId(ItemId.parse(itemId)) *
+                    OrderFilter.ByStatus(listOf(FlowOrderStatusDto.ACTIVE)),
+            cont = null,
+            limit = null
+        ).map {
+            FlowAssetFungible(contract = it.take.contract, value = BigDecimal.ZERO)
+        }
     }
 }

@@ -44,10 +44,12 @@ sealed class FlowNftActivity : BaseActivity() {
  * Order activity
  *
  * @property price      order price
+ * @property priceUsd   order price in USD
  */
 @QueryEmbeddable
 sealed class FlowNftOrderActivity : BaseActivity() {
     abstract val price: BigDecimal
+    abstract val priceUsd: BigDecimal
 }
 
 /**
@@ -60,6 +62,7 @@ sealed class FlowNftOrderActivity : BaseActivity() {
 data class FlowNftOrderActivitySell(
     override val type: FlowActivityType = FlowActivityType.SELL,
     override val price: BigDecimal,
+    override val priceUsd: BigDecimal,
     override val tokenId: TokenId,
     override val contract: String,
     override val timestamp: Instant,
@@ -77,6 +80,7 @@ data class FlowNftOrderActivitySell(
 data class FlowNftOrderActivityList(
     override val type: FlowActivityType = FlowActivityType.LIST,
     override val price: BigDecimal,
+    override val priceUsd: BigDecimal,
     override val tokenId: TokenId,
     override val contract: String,
     override val timestamp: Instant,
@@ -89,6 +93,7 @@ data class FlowNftOrderActivityList(
 data class FlowNftOrderActivityCancelList(
     override val type: FlowActivityType = FlowActivityType.CANCEL_LIST,
     override val price: BigDecimal,
+    override val priceUsd: BigDecimal,
     override val tokenId: TokenId,
     override val contract: String,
     override val timestamp: Instant,

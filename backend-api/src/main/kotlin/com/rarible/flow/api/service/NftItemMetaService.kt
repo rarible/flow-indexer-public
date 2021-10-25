@@ -23,4 +23,8 @@ class NftItemMetaService(
             exists
         }
     }
+
+    suspend fun resetMeta(itemId: ItemId) {
+        itemMetaRepository.deleteById(itemId).subscribe()
+    }
 }
