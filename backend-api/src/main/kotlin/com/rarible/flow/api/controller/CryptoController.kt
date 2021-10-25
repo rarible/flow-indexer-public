@@ -13,6 +13,7 @@ class CryptoController(
 ): FlowNftCryptoControllerApi {
     override suspend fun verifySignature(
         publicKey: String,
+        signerAddress: String,
         signature: String,
         message: String
     ): ResponseEntity<Boolean> {
