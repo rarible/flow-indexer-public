@@ -7,13 +7,6 @@ import javax.annotation.PostConstruct
 
 @Component
 class TxManager(val sporkService: SporkService) {
-    @PostConstruct
-    fun pc() {
-        sporkService.allSporks[FlowChainId.EMULATOR] = listOf(
-            SporkService.Spork(from = 0L, nodeUrl = "localhost", port = 3569),
-        )
-    }
-
     fun <T> onTransaction(transactionId: FlowId, block: (FlowTransactionResult) -> T): T {
         val api = sporkService.sporkForTx(transactionId).api
         val transactionResult = api.getTransactionResultById(transactionId).get()!!
