@@ -8,6 +8,7 @@ import com.rarible.flow.randomLong
 import com.rarible.protocol.dto.FlowOrderDto
 import com.rarible.protocol.dto.FlowOrderIdsDto
 import com.rarible.protocol.dto.FlowOrdersPaginationDto
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import kotlinx.coroutines.flow.asFlow
@@ -196,8 +197,19 @@ class OrderApiControllerTest {
         )
     }
 
-    private fun shouldGetPaginatedResult(url: String, params: Map<String, Any> = emptyMap()) {
-        client.get()
+    @Test
+    fun `should find bids by item - success`() {
+        val page = shouldGetPaginatedResult(
+            "/v0.1/orders/bids/byItem?contract={contract}&tokenId={tokenId}",
+            "contract" to "ABC",
+            "tokenId" to 1337L
+        )
+
+        page.items shouldHaveSize 0 // for now we return empty bids list
+    }
+
+    private fun shouldGetPaginatedResult(url: String, params: Map<String, Any> = emptyMap()): FlowOrdersPaginationDto {
+        return client.get()
             .uri(url, params)
             .exchange()
             .expectStatus().isOk
@@ -205,8 +217,8 @@ class OrderApiControllerTest {
             .returnResult().responseBody!!
     }
 
-    private fun shouldGetPaginatedResult(url: String, vararg params: Pair<String, Any>) {
-        shouldGetPaginatedResult(url, mapOf(*params))
+    private fun shouldGetPaginatedResult(url: String, vararg params: Pair<String, Any>): FlowOrdersPaginationDto {
+        return shouldGetPaginatedResult(url, mapOf(*params))
     }
 
     private fun shouldGetBadRequest(url: String, params: Map<String, Any> = emptyMap()) {

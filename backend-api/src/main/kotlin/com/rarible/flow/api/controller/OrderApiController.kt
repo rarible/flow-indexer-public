@@ -42,6 +42,7 @@ class OrderApiController(
     override suspend fun getOrderBidsByItem(
         contract: String,
         tokenId: String,
+        currencyAddress: String?,
         maker: String?,
         origin: String?,
         continuation: String?,
