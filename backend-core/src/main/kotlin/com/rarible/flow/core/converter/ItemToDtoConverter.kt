@@ -17,7 +17,7 @@ object ItemToDtoConverter : Converter<Item, FlowNftItemDto> {
             collection = item.contract,
             tokenId = item.tokenId.toBigInteger(),
             creators = convert(item.creator),
-            owners = item.owner?.let { listOf(it.formatted) } ?: emptyList(),
+            owner = item.owner?.formatted,
             mintedAt = item.mintedAt,
             lastUpdatedAt = item.updatedAt,
             royalties = convert(item.royalties),

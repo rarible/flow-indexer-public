@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.scanner.ProtocolEventPublisher
+import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
@@ -16,7 +18,8 @@ import org.springframework.stereotype.Component
 class ItemEventListeners(
     private val itemRepository: ItemRepository,
     private val ownershipRepository: OwnershipRepository,
-    private val protocolEventPublisher: ProtocolEventPublisher
+    private val orderRepository: OrderRepository,
+    private val protocolEventPublisher: ProtocolEventPublisher,
 ) {
 
     @EventListener(MintActivity::class)
@@ -93,8 +96,21 @@ class ItemEventListeners(
         val ownershipId = OwnershipId(contract = activity.contract, tokenId = activity.tokenId, owner = from)
         val ownership = ownershipRepository.findById(ownershipId).awaitSingleOrNull()
         if (ownership != null) {
-            ownershipRepository.delete(ownership).awaitSingle()
+            ownershipRepository.delete(ownership).awaitSingleOrNull()
             protocolEventPublisher.onDelete(ownership)
+        }
+
+        if (activity.from != null) {
+            orderRepository
+                .findAllByMakeAndStatus(
+                    FlowAssetNFT(activity.contract, 1.toBigDecimal(), activity.tokenId),
+                    OrderStatus.ACTIVE
+                )
+                .filter { it.maker.formatted == activity.from }
+                .flatMap {
+                    orderRepository.save(it.copy(status = OrderStatus.INACTIVE))
+                }
+                .awaitSingle()
         }
     }
 
@@ -122,6 +138,19 @@ class ItemEventListeners(
                     )
                 ).awaitSingle()
             )
+        }
+
+        if (activity.to != null) {
+            orderRepository
+                .findAllByMakeAndStatus(
+                    FlowAssetNFT(activity.contract, 1.toBigDecimal(), activity.tokenId),
+                    OrderStatus.INACTIVE
+                )
+                .filter { it.maker.formatted == activity.to }
+                .flatMap {
+                    orderRepository.save(it.copy(status = OrderStatus.ACTIVE))
+                }
+                .awaitSingle()
         }
     }
 }

@@ -53,7 +53,7 @@ sealed class FlowNftOrderActivity : BaseActivity() {
 }
 
 /**
- * Sell activity
+ * Buy activity
  *
  * @property left               buyer
  * @property right              seller
@@ -66,12 +66,13 @@ data class FlowNftOrderActivitySell(
     override val tokenId: TokenId,
     override val contract: String,
     override val timestamp: Instant,
+    val hash: String,
     val left: OrderActivityMatchSide,
     val right: OrderActivityMatchSide
 ) : FlowNftOrderActivity()
 
 /**
- * List activity
+ * Sell (List) activity
  *
  * @property hash           TODO????
  * @property maker          NFT item
@@ -88,7 +89,9 @@ data class FlowNftOrderActivityList(
     val maker: String,
     val make: FlowAsset,
     val take: FlowAsset,
+    val payments: List<FlowNftOrderPayment>,
 ) : FlowNftOrderActivity()
+
 @QueryEmbeddable
 data class FlowNftOrderActivityCancelList(
     override val type: FlowActivityType = FlowActivityType.CANCEL_LIST,
@@ -102,6 +105,23 @@ data class FlowNftOrderActivityCancelList(
     val make: FlowAsset,
     val take: FlowAsset,
 ) : FlowNftOrderActivity()
+
+@QueryEmbeddable
+data class FlowNftOrderPayment(
+    val type: PaymentType,
+    val address: String,
+    val rate: BigDecimal,
+    val amount: BigDecimal,
+)
+
+@QueryEmbeddable
+enum class PaymentType {
+    BUYER_FEE,
+    SELLER_FEE,
+    OTHER,
+    ROYALTY,
+    REWARD,
+}
 
 /**
  * Mint Activity
