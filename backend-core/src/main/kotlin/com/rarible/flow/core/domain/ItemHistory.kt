@@ -1,5 +1,6 @@
 package com.rarible.flow.core.domain
 
+import com.querydsl.core.annotations.QueryEmbedded
 import com.querydsl.core.annotations.QueryEntity
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
@@ -25,6 +26,7 @@ data class ItemHistory(
     @Field(targetType = FieldType.DATE_TIME)
     val date: Instant,
     val activity: FlowActivity,
+    @QueryEmbedded
     override val log: FlowLog
 ): FlowLogRecord<ItemHistory>() {
 
