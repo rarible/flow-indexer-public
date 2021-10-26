@@ -3,15 +3,19 @@ package com.rarible.flow.api.service
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
+import com.rarible.blockchain.scanner.flow.model.QFlowLog
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ActivityContinuation
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.FlowActivitiesDto
+import com.rarible.protocol.dto.FlowActivityDto
+import com.rarible.protocol.dto.FlowTransferDto
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Service
+import java.math.BigInteger
 import java.time.Instant
 
 @FlowPreview
@@ -36,7 +40,7 @@ class ActivitiesService(
         }
 
         val flow = itemHistoryRepository.findAll(predicate, *order).asFlow()
-        return flowActivitiesDto(flow, size)
+        return flowActivitiesDto(flow, size, sort!!)
     }
 
     suspend fun getNftOrderActivitiesByUser(
@@ -100,24 +104,23 @@ class ActivitiesService(
                 transferToActivities,
                 listActivities,
                 sellActivities
-            ).flattenConcat(), size
+            ).flattenConcat(), size, sort!!
         )
     }
 
     private suspend fun flowActivitiesDto(
         flow: Flow<ItemHistory>,
-        size: Int?
+        size: Int?,
+        sort: String
     ): FlowActivitiesDto {
-        var result = flow
+        val items = flow.toList()
+        var dto = convertToDto(items, sort)
         if (size != null) {
-            result = result.take(size)
+            dto = dto.take(size)
         }
-
-        val items = result.toList()
-
         return FlowActivitiesDto(
-            items = items.map { h -> h.activity.toDto(h) },
-            total = items.size,
+            items = dto,
+            total = dto.size,
             continuation = "${answerContinuation(items)}"
         )
     }
@@ -137,7 +140,7 @@ class ActivitiesService(
         if (cont != null) {
             predicate.and(byContinuation(cont))
         }
-        return flowActivitiesDto(itemHistoryRepository.findAll(predicate, *order).asFlow(), size)
+        return flowActivitiesDto(itemHistoryRepository.findAll(predicate, *order).asFlow(), size, sort!!)
     }
 
     suspend fun getNfdOrderActivitiesByCollection(
@@ -158,7 +161,7 @@ class ActivitiesService(
         }
         val flow = itemHistoryRepository.findAll(predicateBuilder, *order(sort)).asFlow()
 
-        return flowActivitiesDto(flow, size)
+        return flowActivitiesDto(flow, size, sort!!)
     }
 
     private fun byCollection(collection: String): BooleanExpression {
@@ -220,15 +223,15 @@ class ActivitiesService(
 
     private fun order(sort: String?): Array<OrderSpecifier<*>> {
         val q = QItemHistory.itemHistory
-
+        val l = QFlowLog(q.log.metadata)
         return when (sort) {
             null, "LATEST_FIRST" -> arrayOf(
                 q.date.desc(),
-                q.id.desc()
+                l.eventIndex.desc()
             )
             "EARLIEST_FIRST" -> arrayOf(
                 q.date.asc(),
-                q.id.asc()
+                l.eventIndex.asc()
             )
             else -> throw IllegalArgumentException("Unsupported sort type: $sort")
         }
@@ -252,6 +255,48 @@ class ActivitiesService(
         val predicate = activity.type.eq(FlowActivityType.LIST)
             .and(activity.maker.`in`(users))
         return withintDates(q, predicate, from, to)
+    }
+
+    private fun convertToDto(history: List<ItemHistory>, sort: String): List<FlowActivityDto> {
+        val result = mutableListOf<FlowActivityDto>()
+        val sorted = history.sortedWith(compareBy(ItemHistory::date).thenBy { it.log.eventIndex })
+        for (i in sorted.indices) {
+            val h = sorted[i]
+            if (h.activity is DepositActivity) {
+                continue
+            }
+            if (h.activity is WithdrawnActivity) {
+                val wa = h.activity as WithdrawnActivity
+                if (i == sorted.lastIndex) {
+                    continue
+                }
+                val d = sorted[i+1]
+                if (d.activity is DepositActivity) {
+                    val da = d.activity as DepositActivity
+                    result.add(
+                        FlowTransferDto(
+                            id = d.id,
+                            from = wa.from.orEmpty(),
+                            owner = da.to.orEmpty(),
+                            contract = da.contract,
+                            tokenId = da.tokenId.toBigInteger(),
+                            value = BigInteger.ONE,
+                            transactionHash = d.log.transactionHash,
+                            blockHash = d.log.blockHash,
+                            blockNumber = d.log.blockHeight,
+                            logIndex = d.log.eventIndex,
+                            date = da.timestamp
+                        )
+                    )
+                }
+                continue
+            }
+            result.add(sorted[i].activity.toDto(sorted[i]))
+        }
+        if (sort == "LATEST_FIRST") {
+            result.reverse()
+        }
+        return result.toList()
     }
 }
 

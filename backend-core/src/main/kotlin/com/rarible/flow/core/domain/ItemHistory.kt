@@ -28,8 +28,9 @@ data class ItemHistory(
     override val log: FlowLog
 ): FlowLogRecord<ItemHistory>() {
 
-    @MongoId
-    val id: String = "${log.transactionHash}:${log.eventIndex}"
+    @get:MongoId
+    val id: String
+        get() = "${log.transactionHash}:${log.eventIndex}"
 
     override fun withLog(log: FlowLog): FlowLogRecord<ItemHistory> = copy(log = log)
 }
@@ -48,21 +49,6 @@ fun FlowActivity.toDto(history: ItemHistory): FlowActivityDto  =
             blockNumber = history.log.blockHeight,
             logIndex = history.log.eventIndex,
         )
-
-/*        is TransferActivity -> FlowTransferDto(
-            id = history.id,
-            date = history.date,
-            from = this.from,
-            owner = this.owner,
-            contract = this.contract,
-            value = this.value.toBigInteger(),
-            tokenId = this.tokenId.toBigInteger(),
-            transactionHash = history.log.transactionHash,
-            blockHash = history.log.blockHash,
-            blockNumber = history.log.blockHeight,
-            logIndex = history.log.eventIndex,
-
-        )*/
 
         is BurnActivity -> FlowBurnDto(
             id = history.id,
@@ -135,6 +121,6 @@ fun FlowActivity.toDto(history: ItemHistory): FlowActivityDto  =
             ),
             price = this.price
         )
-        else -> throw UnsupportedOperationException("Not realized yet!")
+        else -> throw IllegalStateException("Unsupported type of activity: [${(this as TypedFlowActivity).type}]")
     }
 
