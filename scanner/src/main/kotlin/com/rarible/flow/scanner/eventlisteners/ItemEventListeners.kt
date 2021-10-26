@@ -158,6 +158,7 @@ class ItemEventListeners(
                 }
                 .asFlow().toList()
             orderRepository.saveAll(orders).subscribe()
+
         }
     }
 }
