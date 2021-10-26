@@ -1,6 +1,7 @@
 package com.rarible.flow.api.service
 
 import com.nftco.flow.sdk.FlowAccessApi
+import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.SignatureAlgorithm
 import com.nftco.flow.sdk.cadence.BooleanField
@@ -41,7 +42,6 @@ class FlowSignatureService(
         }
 
         val scriptResult = flowAccessApi.simpleFlowScript {
-
             script(
                 scriptCode, chainId
             )
@@ -53,6 +53,17 @@ class FlowSignatureService(
         }.jsonCadence as BooleanField
 
         return scriptResult.value ?: false
+    }
+
+    /**
+     * Returns true if account has the public key
+     */
+    fun checkPublicKey(account: FlowAddress, publicKey: String): Boolean {
+        return flowAccessApi.getAccountAtLatestBlock(account)?.let { acc ->
+            acc.keys.any { key ->
+                key.publicKey.base16Value == publicKey
+            }
+        } ?: false
     }
 
     private val scriptCode = this.javaClass.getResource("/script/sig_verify.cdc").readText()
