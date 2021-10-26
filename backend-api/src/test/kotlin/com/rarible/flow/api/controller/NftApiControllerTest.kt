@@ -8,6 +8,7 @@ import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
+import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
@@ -15,6 +16,7 @@ import com.rarible.flow.form.MetaForm
 import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.FlowCreatorDto
 import com.rarible.protocol.dto.FlowNftItemDto
+import com.rarible.protocol.dto.FlowNftItemRoyaltyDto
 import com.rarible.protocol.dto.FlowNftItemsDto
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -130,6 +132,36 @@ internal class NftApiControllerTest {
     }
 
     @Test
+    fun `should return royalties by item id`() = runBlocking<Unit> {
+        coEvery {
+            nftItemService.getItemById(any())
+        } returns ItemToDtoConverter.convert(createItem())
+
+        client
+            .get()
+            .uri("/v0.1/items/{itemId}/royalty", mapOf("itemId" to "0x01:42"))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftItemRoyaltyDto>()
+            .returnResult()
+            .responseBody!!
+            .royalty shouldHaveSize 2
+    }
+
+    @Test
+    fun `should return 404 for royalties by id`() {
+        coEvery {
+            nftItemService.getItemById(any())
+        } returns null
+
+        client
+            .get()
+            .uri("/v0.1/items/{itemId}/royalty", mapOf("itemId" to "0x01:43"))
+            .exchange()
+            .expectStatus().isNotFound
+    }
+
+    @Test
     fun `should return items by owner`() = runBlocking<Unit> {
         val items = listOf(
             createItem(),
@@ -220,45 +252,6 @@ internal class NftApiControllerTest {
             .returnResult().responseBody!!
         respose.items shouldHaveSize 0
 
-    }
-
-    @Test
-    fun `should create meta and return link`() {
-        every {
-            itemRepository.findById(any<ItemId>())
-        } returns Mono.just(createItem())
-
-        val itemCapture = slot<Item>()
-        every {
-            itemRepository.save(capture(itemCapture))
-        } answers {
-            Mono.just(itemCapture.captured)
-        }
-
-        every {
-            itemMetaRepository.findById(any<ItemId>())
-        } returns Mono.empty()
-
-        val metaCapture = slot<ItemMeta>()
-        every {
-            itemMetaRepository.save(capture(metaCapture))
-        } answers {
-            Mono.just(metaCapture.captured)
-        }
-
-        client
-            .post()
-            .uri("/v0.1/items/meta/0x01:1")
-            .bodyValue(
-                MetaForm(
-                    "title",
-                    "description",
-                    URI.create("https://keyassets.timeincuk.net/inspirewp/live/wp-content/uploads/sites/34/2021/03/pouring-wine-zachariah-hagy-8_tZ-eu32LA-unsplash-1-920x609.jpg")
-                )
-            )
-            .exchange()
-            .expectStatus().isOk
-            .expectBody<String>().isEqualTo("/v0.1/items/meta/0x01:1")
     }
 
     @Test
@@ -362,14 +355,13 @@ internal class NftApiControllerTest {
         "0x01",
         tokenId,
         FlowAddress("0x01"),
-        emptyList(),
+        listOf(
+            Part(FlowAddress("0x02"), 2.0),
+            Part(FlowAddress("0x03"), 10.0),
+        ),
         FlowAddress("0x02"),
         Instant.now(Clock.systemUTC()),
         collection = "collection",
         updatedAt = Instant.now()
     )
-
-    companion object {
-        val log by Log()
-    }
 }
