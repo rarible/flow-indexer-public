@@ -3,158 +3,127 @@ package com.rarible.flow.scanner.subscriber
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainBlock
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
-import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.core.domain.*
-import com.rarible.flow.core.repository.OrderRepository
-import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.log.Log
-import com.rarible.flow.scanner.TxManager
-import com.rarible.flow.scanner.cadence.ListingCompleted
-import com.rarible.flow.scanner.cadence.NFTDeposit
 import com.rarible.flow.scanner.cadence.OrderAvailable
+import com.rarible.flow.scanner.cadence.OrderCancelled
+import com.rarible.flow.scanner.cadence.OrderClosed
 import com.rarible.flow.scanner.model.parse
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
-import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.Instant
 
 @Component
 class OrderSubscriber(
-    private val orderRepository: OrderRepository,
-    private val txManager: TxManager,
-    private val currencyApi: CurrencyControllerApi
+    private val currencyApi: CurrencyControllerApi,
 ) : BaseItemHistoryFlowLogSubscriber() {
 
+    private val events = "OrderAvailable,OrderClosed,OrderCancelled".split(",")
+
     override val descriptors = mapOf(
-        FlowChainId.MAINNET to FlowDescriptor(
-            id = "OrderSubscriber",
-            events = setOf(
-                "A.b085d2941bebf9c4.CommonOrder.OrderAvailable",
-                "A.4eb8a10cb9f87357.NFTStorefront.ListingCompleted",
-            ),
-            collection = collection
+        FlowChainId.MAINNET to flowDescriptor(
+            address = "b085d2941bebf9c4",
+            contract = "CommonOrder",
+            events = events,
+            startFrom = 19649244L
         ),
-        FlowChainId.TESTNET to FlowDescriptor(
-            id = "OrderSubscriber",
-            events = setOf(
-                "A.01658d9b94068f3c.CommonOrder.OrderAvailable",
-                "A.94b06cfca1d8a476.NFTStorefront.ListingCompleted",
-            ),
-            collection = collection,
+        FlowChainId.TESTNET to flowDescriptor(
+            address = "01658d9b94068f3c",
+            contract = "CommonOrder",
+            events = events,
             startFrom = 47330085L
         ),
-        FlowChainId.EMULATOR to FlowDescriptor(
-            id = "OrderSubscriber",
-            events = setOf(
-                "A.f8d6e0586b0a20c7.CommonOrder.OrderAvailable",
-                "A.f8d6e0586b0a20c7.NFTStorefront.ListingCompleted",
-            ),
-            collection = collection,
-        )
+        FlowChainId.EMULATOR to flowDescriptor(
+            address = "f8d6e0586b0a20c7",
+            contract = "CommonOrder",
+            events = events,
+        ),
     )
-
 
     override fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): FlowActivity? {
         val contract = msg.eventId.collection()
         val timestamp = Instant.ofEpochMilli(block.timestamp)
-        val txId = log.event.transactionId
 
         return when (msg.eventId.eventName) {
             "OrderAvailable" -> {
                 val event = log.event.parse<OrderAvailable>()
-                val order = runBlocking {
-                    orderRepository.coFindById(event.orderId)
-                }
-                if (order != null) {
-                    logger.warn("OrderAvailable [$event] with existing order: txId=${txId.base16Value}")
-                    null
-                } else {
-                    val take = FlowAssetFungible(
-                        contract = event.vaultType.collection(),
-                        value = event.price
-                    )
-                    val usdRate = try {
-                        currencyApi.getCurrencyRate(BlockchainDto.FLOW, take.contract, block.timestamp).block()!!.rate
-                    } catch (e: Exception) {
-                        logger.warn("Unable to fetch USD rate from currency api: ${e.message}", e)
-                        BigDecimal.ZERO
-                    }
-                    val make = FlowAssetNFT(
+                logger.debug("OrderSubscriber: $event")
+
+                FlowNftOrderActivityList(
+                    contract = contract,
+                    tokenId = event.nftId,
+                    timestamp = timestamp,
+                    price = event.price,
+                    priceUsd = event.price * usdRate(event.vaultType.collection(), block.timestamp),
+                    make = FlowAssetNFT(
                         contract = event.nftType.collection(),
                         value = 1.toBigDecimal(),
                         tokenId = event.nftId
-                    )
-                    FlowNftOrderActivityList(
-                        contract = contract,
-                        tokenId = event.nftId,
-                        timestamp = timestamp,
-                        price = event.price,
-                        priceUsd = event.price * usdRate,
-                        make = make,
-                        take = take,
-                        hash = event.orderId.toString(),
-                        maker = event.orderAddress.formatted,
-                        payments = event.payments.map { FlowNftOrderPayment(it.type, it.address, it.rate, it.amount) }
-                    )
-                }
+                    ),
+                    take = FlowAssetFungible(
+                        contract = event.vaultType.collection(),
+                        value = event.price
+                    ),
+                    hash = event.orderId.toString(),
+                    maker = event.orderAddress.formatted,
+                    payments = event.payments.map { FlowNftOrderPayment(it.type, it.address, it.rate, it.amount) }
+                )
             }
-            "ListingCompleted" -> {
-                val event = log.event.parse<ListingCompleted>()
-                val order = runBlocking {
-                    orderRepository.coFindById(event.listingResourceID)
-                }
-                if (order == null) {
-                    logger.warn("ListingCompleted event [$event] for non-existing order: txId=${txId.base16Value}")
-                    null
-                } else {
-                    val tokenId = order.itemId.tokenId
-                    val tokenContract = order.make.contract.split(".").last()
-                    val usdRate = try {
-                        currencyApi.getCurrencyRate(BlockchainDto.FLOW, order.take.contract, block.timestamp).block()!!.rate
-                    } catch (e: Exception) {
-                        logger.warn("Unable to fetch USD price rate from currency api: ${e.message}", e)
-                        BigDecimal.ZERO
-                    }
-                    if (event.purchased) { // order closed
-                        // take address from NonFungibleToken.Deposit in the same transaction
-                        val buyerAddress = txManager.onTransaction(txId) { tx ->
-                            tx.events.asSequence()
-                                .filter { it.id.endsWith("$tokenContract.Deposit") }
-                                .map { it.parse<NFTDeposit>() }
-                                .findLast { it.id == tokenId && it.to != null }
-                        }?.to
-                            ?: throw IllegalStateException("Can't take buyer address! txId=${txId.base16Value} contract=${tokenContract}")
 
-                        FlowNftOrderActivitySell(
-                            price = order.amount,
-                            priceUsd = order.amount * usdRate,
-                            tokenId = tokenId,
-                            contract = tokenContract,
-                            timestamp = timestamp,
-                            left = OrderActivityMatchSide(order.maker.formatted, order.make),
-                            right = OrderActivityMatchSide(buyerAddress, order.take),
-                            hash = order.id.toString()
-                        )
-                    } else { // order cancelled
-                        FlowNftOrderActivityCancelList(
-                            price = order.amount,
-                            priceUsd = order.amount * usdRate,
-                            hash = order.id.toString(),
-                            maker = order.maker.formatted,
-                            make = order.make,
-                            take = order.take,
-                            contract = tokenContract,
-                            tokenId = tokenId,
-                            timestamp = timestamp
-                        )
-                    }
-                }
+            "OrderClosed" -> {
+                val event = log.event.parse<OrderClosed>()
+                logger.debug("OrderSubscriber: $event")
+
+                FlowNftOrderActivitySell(
+                    contract = contract,
+                    tokenId = event.nftId,
+                    timestamp = timestamp,
+                    price = event.price,
+                    priceUsd = event.price * usdRate(event.vaultType.collection(), block.timestamp),
+                    left = OrderActivityMatchSide(event.orderAddress,
+                        FlowAssetNFT(event.nftType.collection(), 1.toBigDecimal(), event.nftId)),
+                    right = OrderActivityMatchSide(event.buyerAddress,
+                        FlowAssetFungible(event.vaultType.collection(), event.price)),
+                    hash = event.orderId.toString(),
+                )
             }
+
+            "OrderCancelled" -> {
+                val event = log.event.parse<OrderCancelled>()
+                logger.debug("OrderSubscriber: $event")
+
+                FlowNftOrderActivityCancelList(
+                    contract = contract,
+                    tokenId = event.nftId,
+                    timestamp = timestamp,
+                    price = event.price,
+                    priceUsd = event.price * usdRate(event.vaultType.collection(), block.timestamp),
+                    make = FlowAssetNFT(
+                        contract = event.nftType.collection(),
+                        value = 1.toBigDecimal(),
+                        tokenId = event.nftId
+                    ),
+                    take = FlowAssetFungible(
+                        contract = event.vaultType.collection(),
+                        value = event.price
+                    ),
+                    hash = event.orderId.toString(),
+                    maker = event.orderAddress,
+                )
+            }
+
             else -> throw IllegalStateException("Unsupported eventId: ${msg.eventId}")
         }
+    }
+
+    private fun usdRate(contract: String, timestamp: Long) = try {
+        currencyApi.getCurrencyRate(BlockchainDto.FLOW, contract, timestamp).block()?.rate ?: BigDecimal.ZERO
+    } catch (e: Exception) {
+        logger.warn("Unable to fetch USD price rate from currency api: ${e.message}", e)
+        BigDecimal.ZERO
     }
 
     companion object {

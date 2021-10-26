@@ -10,7 +10,7 @@ import java.time.Instant
 sealed interface FlowActivity
 
 @QueryEmbeddable
-sealed class TypedFlowActivity: FlowActivity {
+sealed class TypedFlowActivity : FlowActivity {
     abstract val type: FlowActivityType
 }
 
@@ -68,7 +68,7 @@ data class FlowNftOrderActivitySell(
     override val timestamp: Instant,
     val hash: String,
     val left: OrderActivityMatchSide,
-    val right: OrderActivityMatchSide
+    val right: OrderActivityMatchSide,
 ) : FlowNftOrderActivity()
 
 /**
@@ -135,7 +135,7 @@ data class MintActivity(
     override val value: Long = 1L,
     override val timestamp: Instant,
     val royalties: List<Part>,
-    val metadata: Map<String, String>
+    val metadata: Map<String, String>,
 ) : FlowNftActivity()
 
 /**
@@ -193,53 +193,67 @@ enum class FlowActivityType {
      */
     CANCEL_LIST
 }
+
 @QueryEmbeddable
 sealed class FlowAsset {
     abstract val contract: String
     abstract val value: BigDecimal
 }
+
 @QueryEmbeddable
 data class FlowAssetNFT(
     override val contract: String,
     @Field(targetType = FieldType.DECIMAL128)
     override val value: BigDecimal,
-    val tokenId: TokenId
+    val tokenId: TokenId,
 ) : FlowAsset()
+
 @QueryEmbeddable
 data class FlowAssetFungible(
     override val contract: String,
     @Field(targetType = FieldType.DECIMAL128)
     override val value: BigDecimal,
 ) : FlowAsset()
+
+@QueryEmbeddable
+object FlowAssetEmpty : FlowAsset() {
+    override val contract: String = ""
+    override val value: BigDecimal = 0.toBigDecimal()
+}
+
 @QueryEmbeddable
 data class OrderActivityMatchSide(
     val maker: String,
-    val asset: FlowAsset
+    val asset: FlowAsset,
 )
+
 @QueryEmbeddable
 data class FlowTokenWithdrawnActivity(
     val from: String?,
-    val amount: BigDecimal
-): FlowActivity
+    val amount: BigDecimal,
+) : FlowActivity
+
 @QueryEmbeddable
 data class FlowTokenDepositedActivity(
     val to: String?,
-    val amount: BigDecimal
-): FlowActivity
+    val amount: BigDecimal,
+) : FlowActivity
+
 @QueryEmbeddable
 data class WithdrawnActivity(
     override val type: FlowActivityType = FlowActivityType.WITHDRAWN,
     override val contract: String,
-    override val tokenId: TokenId /* = kotlin.Long */,
+    override val tokenId: TokenId, /* = kotlin.Long */
     override val timestamp: Instant,
     val from: String?,
-): BaseActivity()
+) : BaseActivity()
+
 @QueryEmbeddable
 data class DepositActivity(
     override val type: FlowActivityType = FlowActivityType.DEPOSIT,
     override val contract: String,
-    override val tokenId: TokenId /* = kotlin.Long */,
+    override val tokenId: TokenId, /* = kotlin.Long */
     override val timestamp: Instant,
-    val to: String?
-): BaseActivity()
+    val to: String?,
+) : BaseActivity()
 

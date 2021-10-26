@@ -27,48 +27,83 @@ class OrderEventListeners(
             .filter { it.type in setOf(PaymentType.ROYALTY, PaymentType.OTHER) }
             .map { Payout(FlowAddress(it.address), it.amount) }
 
-        val order = orderRepository.coSave(
-            Order(
-                activity.hash.toLong(),
-                ItemId(activity.contract, activity.tokenId),
-                maker = FlowAddress(activity.maker),
-                taker = null,
-                make = activity.make,
-                take = activity.take,
-                amount = activity.price,
-                data = OrderData(payouts, originalFees),
-                collection = activity.contract,
-                makeStock = activity.make.value.toBigInteger(),
-                status = OrderStatus.ACTIVE,
-                lastUpdatedAt = LocalDateTime.now(ZoneOffset.UTC)
-            )
+        val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
+            itemId = ItemId(activity.contract, activity.tokenId),
+            maker = FlowAddress(activity.maker),
+            make = activity.make,
+            take = activity.take,
+            amount = activity.price,
+            data = OrderData(payouts, originalFees),
+            createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            collection = activity.contract,
+            makeStock = activity.make.value.toBigInteger(),
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+        ) ?: Order(
+            id = activity.hash.toLong(),
+            status = OrderStatus.ACTIVE,
+            itemId = ItemId(activity.contract, activity.tokenId),
+            maker = FlowAddress(activity.maker),
+            make = activity.make,
+            take = activity.take,
+            amount = activity.price,
+            data = OrderData(payouts, originalFees),
+            createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            collection = activity.contract,
+            makeStock = activity.make.value.toBigInteger(),
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
         )
 
-        protocolEventPublisher.onUpdate(order)
-    }
-
-    @EventListener(FlowNftOrderActivityCancelList::class)
-    fun cancelList(activity: FlowNftOrderActivityCancelList) = runBlocking {
-        val order = orderRepository.coFindById(activity.hash.toLong())
-
-        if (order != null) {
-            protocolEventPublisher.onUpdate(
-                orderRepository.coSave(order.copy(cancelled = true, status = OrderStatus.CANCELLED))
-            )
-        }
+        protocolEventPublisher.onUpdate(orderRepository.coSave(order))
     }
 
     @EventListener(FlowNftOrderActivitySell::class)
-    fun completeOrder(activity: FlowNftOrderActivitySell) = runBlocking {
-        val order = orderRepository.coFindById(activity.hash.toLong())
+    fun orderClose(activity: FlowNftOrderActivitySell) = runBlocking {
+        val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
+            taker = FlowAddress(activity.right.maker),
+            status = OrderStatus.FILLED,
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+        ) ?: Order(
+            id = activity.hash.toLong(),
+            taker = FlowAddress(activity.right.maker),
+            status = OrderStatus.FILLED,
 
-        if (order != null) {
-            protocolEventPublisher.onUpdate(
-                orderRepository.coSave(order.copy(
-                    taker = FlowAddress(activity.right.maker),
-                    status = OrderStatus.FILLED
-                ))
-            )
-        }
+            itemId = ItemId(activity.contract, activity.tokenId),
+            amount = activity.price,
+            collection = activity.contract,
+            maker = FlowAddress(""),
+            make = FlowAssetEmpty,
+            take = FlowAssetEmpty,
+            data = OrderData(emptyList(), emptyList()),
+            makeStock = 0.toBigInteger(),
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+        )
+
+        protocolEventPublisher.onUpdate(orderRepository.coSave(order))
+    }
+
+    @EventListener(FlowNftOrderActivityCancelList::class)
+    fun orderCancelled(activity: FlowNftOrderActivityCancelList) = runBlocking {
+
+        val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
+            cancelled = true,
+            status = OrderStatus.CANCELLED,
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+        ) ?: Order(
+            id = activity.hash.toLong(),
+            cancelled = true,
+            status = OrderStatus.CANCELLED,
+
+            itemId = ItemId(activity.contract, activity.tokenId),
+            amount = activity.price,
+            collection = activity.contract,
+            maker = FlowAddress(activity.maker),
+            make = activity.make,
+            take = activity.take,
+            data = OrderData(emptyList(), emptyList()),
+            makeStock = activity.make.value.toBigInteger(),
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+        )
+
+        protocolEventPublisher.onUpdate(orderRepository.coSave(order))
     }
 }
