@@ -18,20 +18,25 @@ class CryptoController(
         signature: String,
         message: String
     ): ResponseEntity<Boolean> {
-        val sigCheck = signatureService.verify(
-            publicKey, signature, message
-        )
-        val accountCheck = signatureService.checkPublicKey(
-            signerAddress.flowAddress()!!,
-            publicKey
-        )
+        val result = try {
+            val sigCheck = signatureService.verify(
+                publicKey, signature, message
+            )
+            val accountCheck = signatureService.checkPublicKey(
+                signerAddress.flowAddress()!!,
+                publicKey
+            )
+            log.debug(
+                "Signature check for args=[{}, {}, {}, {}] - result: {}, account: {}",
+                publicKey, signerAddress, signature, message,
+                sigCheck, accountCheck
+            )
+            sigCheck && accountCheck
+        } catch (t: Throwable) {
+            false
+        }
 
-        log.debug(
-            "Signature check for args=[{}, {}, {}, {}] - result: {}, account: {}",
-            publicKey, signerAddress, signature, message,
-            sigCheck, accountCheck
-        )
-        return (sigCheck && accountCheck).okOr404IfNull()
+        return result.okOr404IfNull()
     }
 
     companion object {
