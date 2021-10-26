@@ -1,5 +1,6 @@
 package com.rarible.flow.api.controller
 
+import com.nftco.flow.sdk.FlowAddress
 import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.api.service.FlowSignatureService
 import io.kotest.matchers.shouldBe
@@ -38,6 +39,10 @@ internal class CryptoControllerTest {
             flowSignatureService.verify(any(), any(), any())
         } returns true
 
+        every {
+            flowSignatureService.checkPublicKey(any(), any())
+        } returns true
+
         val pk = "528360c75ecf870d4c8a432d23710a2d0b71ac30222b55ed31e32717a6f3741dd54c07669d607f39d164d1bce6807d1c5645569bdae99e8b0c710af450aeac05"
         val signature = "e2cfa85c1539277500e8f5fcf4c85dc7aa4cbc433d43c26527d461637a5fe34d93ef7b62774dbff4f2a718a3577698aaacbab58a1fc32d40191cd5b95194505c"
         val message = "test"
@@ -53,6 +58,10 @@ internal class CryptoControllerTest {
         verify(exactly = 1) {
             flowSignatureService.verify(
                 pk, signature, message
+            )
+
+            flowSignatureService.checkPublicKey(
+                FlowAddress("0x01"), pk
             )
         }
 

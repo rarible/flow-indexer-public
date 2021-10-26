@@ -33,6 +33,7 @@ class OrderApiController(
         origin: String?,
         startDate: OffsetDateTime?,
         endDate: OffsetDateTime?,
+        currencyAddress: String?,
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
@@ -42,9 +43,9 @@ class OrderApiController(
     override suspend fun getOrderBidsByItem(
         contract: String,
         tokenId: String,
-        currencyAddress: String?,
         maker: String?,
         origin: String?,
+        currencyAddress: String?,
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
