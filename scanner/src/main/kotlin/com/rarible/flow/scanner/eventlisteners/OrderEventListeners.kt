@@ -9,6 +9,8 @@ import com.rarible.flow.scanner.ProtocolEventPublisher
 import kotlinx.coroutines.runBlocking
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
+import java.math.BigDecimal
+import java.math.BigInteger
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -64,17 +66,18 @@ class OrderEventListeners(
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
         ) ?: Order(
             id = activity.hash.toLong(),
-            taker = FlowAddress(activity.right.maker),
+            fill = BigDecimal.ONE,
+            taker = FlowAddress(activity.left.maker),
+            maker = FlowAddress(activity.right.maker),
             status = OrderStatus.FILLED,
 
             itemId = ItemId(activity.contract, activity.tokenId),
             amount = activity.price,
             collection = activity.contract,
-            maker = FlowAddress(""),
             make = FlowAssetEmpty,
             take = FlowAssetEmpty,
             data = OrderData(emptyList(), emptyList()),
-            makeStock = 0.toBigInteger(),
+            makeStock = BigInteger.ZERO,
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
         )
 

@@ -47,7 +47,7 @@ data class OrderClosed(
 )
 
 @JsonCadenceConversion(OrderCancelledConverter::class)
-class OrderCancelled(
+data class OrderCancelled(
     val orderAddress: String,
     val orderId: Long,
     val nftType: EventId,
