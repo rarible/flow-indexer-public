@@ -12,6 +12,8 @@ import java.time.Instant
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
+
+@Deprecated("Should be removed in favor of Cont class and functions")
 sealed interface Continuation
 
 
@@ -193,10 +195,6 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
                 Instant::class -> (property as Instant).toEpochMilli().toString()
                 else -> property.toString()
             }
-        }
-
-        interface Continue<T> {
-            fun <P1, P2> next(primary: KProperty1<T, P1>, secondary: KProperty1<T, P2>): String
         }
     }
 }

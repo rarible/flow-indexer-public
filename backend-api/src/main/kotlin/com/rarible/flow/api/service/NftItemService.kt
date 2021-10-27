@@ -48,7 +48,7 @@ class NftItemService(
 
     suspend fun getItemById(itemId: String): FlowNftItemDto? {
         return itemRepository.coFindById(ItemId.parse(itemId))?.let {
-            ItemToDtoConverter.convert(it)
+            convertItem(it)
         }
     }
 
@@ -60,13 +60,6 @@ class NftItemService(
                 .asFlow()
         return convert(items, sort)
     }
-
-    private suspend fun convert(items: List<Item>): FlowNftItemsDto =
-        FlowNftItemsDto(
-            continuation = nextCursor(items),
-            items = items.map { convertItem(it) },
-            total = items.size.toLong()
-        )
 
     private suspend fun convert(items: Flow<Item>, sort: ItemFilter.Sort): FlowNftItemsDto {
         return if(items.count() == 0) {
@@ -87,21 +80,6 @@ class NftItemService(
     private suspend fun fillMeta(id: ItemId): MetaDto? {
         val meta = itemMetaRepository.findById(id).awaitSingleOrNull() ?: return null
         return ItemMetaToDtoConverter.convert(meta)
-    }
-
-
-    private suspend fun convert(items: Flow<Item>): FlowNftItemsDto {
-        val result = mutableListOf<Item>()
-        items.toList(result)
-        return convert(result.toList())
-    }
-
-    private fun nextCursor(items: List<Item>): String? {
-        return if (items.isEmpty()) {
-            null
-        } else {
-            Cont.toString(items.last().mintedAt, items.last().id)
-        }
     }
 
     suspend fun byAccount(address: String, continuation: String?, size: Int?): FlowNftItemsDto? {
