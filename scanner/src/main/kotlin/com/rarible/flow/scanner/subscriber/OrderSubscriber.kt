@@ -60,7 +60,7 @@ class OrderSubscriber(
                     priceUsd = event.price * usdRate(event.vaultType.collection(), block.timestamp),
                     make = FlowAssetNFT(
                         contract = event.nftType.collection(),
-                        value = 1.toBigDecimal(),
+                        value = BigDecimal.ONE,
                         tokenId = event.nftId
                     ),
                     take = FlowAssetFungible(
@@ -84,7 +84,7 @@ class OrderSubscriber(
                     price = event.price,
                     priceUsd = event.price * usdRate(event.vaultType.collection(), block.timestamp),
                     left = OrderActivityMatchSide(event.orderAddress,
-                        FlowAssetNFT(event.nftType.collection(), 1.toBigDecimal(), event.nftId)),
+                        FlowAssetNFT(event.nftType.collection(), BigDecimal.ONE, event.nftId)),
                     right = OrderActivityMatchSide(event.buyerAddress,
                         FlowAssetFungible(event.vaultType.collection(), event.price)),
                     hash = event.orderId.toString(),
@@ -103,7 +103,7 @@ class OrderSubscriber(
                     priceUsd = event.price * usdRate(event.vaultType.collection(), block.timestamp),
                     make = FlowAssetNFT(
                         contract = event.nftType.collection(),
-                        value = 1.toBigDecimal(),
+                        value = BigDecimal.ONE,
                         tokenId = event.nftId
                     ),
                     take = FlowAssetFungible(
