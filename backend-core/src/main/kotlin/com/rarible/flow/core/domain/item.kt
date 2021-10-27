@@ -2,6 +2,7 @@ package com.rarible.flow.core.domain
 
 import com.nftco.flow.sdk.FlowAddress
 import com.querydsl.core.annotations.QueryEntity
+import com.rarible.flow.core.repository.Cont
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.CompoundIndex
@@ -13,6 +14,7 @@ import org.springframework.data.mongodb.core.mapping.FieldType
 import org.springframework.data.mongodb.core.mapping.MongoId
 import java.io.Serializable
 import java.time.Instant
+import kotlin.reflect.KProperty1
 
 data class Part(
     val address: FlowAddress,
@@ -46,7 +48,7 @@ typealias TokenId = Long
         def = "{'date': 1, 'tokenId': 1}"
     )
 )
-data class Item(
+data class Item (
     @Indexed
     val contract: String,
     val tokenId: TokenId,
@@ -69,18 +71,6 @@ data class Item(
     var id: ItemId
         get() = ItemId(this.contract, this.tokenId)
         set(_) {}
-
-
-    fun unlist(): Item {
-        return copy(listed = false)
-    }
-
-    /**
-     * Transfer implies de-listing
-     */
-    fun transfer(to: FlowAddress): Item {
-        return unlist().copy(owner = to)
-    }
 }
 
 @Document

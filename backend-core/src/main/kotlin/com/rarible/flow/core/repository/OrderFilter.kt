@@ -4,8 +4,8 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.repository.filters.CriteriaProduct
 import com.rarible.protocol.dto.FlowOrderStatusDto
-import org.springframework.data.domain.Sort as SpringSort
 import org.springframework.data.mapping.div
 import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.query.Criteria
@@ -13,34 +13,17 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.gt
 import org.springframework.data.mongodb.core.query.isEqualTo
 import java.math.BigDecimal
+import org.springframework.data.domain.Sort as SpringSort
 
-
-sealed class OrderFilter() {
+sealed class OrderFilter(): CriteriaProduct<OrderFilter> {
     enum class Sort {
         LAST_UPDATE,
         MAKE_PRICE_ASC,
         TAKE_PRICE_DESC
     }
 
-    abstract fun criteria(): Criteria
-
-    operator fun times(other: OrderFilter): OrderFilter {
-        val empty = Criteria()
-
-        @Suppress("ReplaceCallWithBinaryOperator")
-        val finalCriteria = if(this.criteria().equals(empty) && other.criteria().equals(empty)) {
-            empty
-        } else if (this.criteria().equals(empty)) {
-            other.criteria()
-        } else if (other.criteria().equals(empty)){
-            this.criteria()
-        } else {
-            Criteria().andOperator(
-                this.criteria(),
-                other.criteria()
-            )
-        }
-        return ByCriteria(finalCriteria)
+    override fun byCriteria(criteria: Criteria): OrderFilter {
+        return ByCriteria(criteria)
     }
 
     fun toQuery(continuation: String?, limit: Int?, sort: Sort = Sort.LAST_UPDATE): Query {
@@ -70,7 +53,7 @@ sealed class OrderFilter() {
         }
     }
 
-    data class ByCriteria(private val criteria: Criteria): OrderFilter() {
+    private data class ByCriteria(private val criteria: Criteria): OrderFilter() {
         override fun criteria(): Criteria {
             return criteria
         }

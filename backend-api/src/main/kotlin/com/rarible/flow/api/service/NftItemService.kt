@@ -5,6 +5,7 @@ import com.rarible.flow.core.converter.ItemMetaToDtoConverter
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.repository.Cont
 import com.rarible.flow.core.repository.ItemFilter
 import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
@@ -78,7 +79,7 @@ class NftItemService(
         return if (items.isEmpty()) {
             null
         } else {
-            "${items.last().mintedAt.toEpochMilli()}_${items.last().id}"
+            Cont.toString(items.last(), Item::mintedAt, Item::id)
         }
     }
 

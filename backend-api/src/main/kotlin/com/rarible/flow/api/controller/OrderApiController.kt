@@ -6,6 +6,7 @@ import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.repository.ActivityContinuation
+import com.rarible.flow.core.repository.Cont
 import com.rarible.protocol.dto.*
 import com.rarible.protocol.flow.nft.api.controller.FlowOrderControllerApi
 import kotlinx.coroutines.flow.Flow
@@ -192,7 +193,10 @@ class OrderApiController(
             FlowOrdersPaginationDto(emptyList())
         } else {
             val last = dtos.last()
-            FlowOrdersPaginationDto(dtos, ActivityContinuation(last.createdAt, last.id.toString()).toString())
+            FlowOrdersPaginationDto(
+                dtos,
+                Cont.toString(last, FlowOrderDto::createdAt, FlowOrderDto::id) //TODO continuation should depend on sort
+            )
         }.okOr404IfNull()
     }
 }

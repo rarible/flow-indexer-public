@@ -42,7 +42,6 @@ internal class ItemRepositoryPaginationTest(
     }
 
     @Test
-    @Disabled("Crashed with java.lang.ClassCastException: reactor.core.publisher.FluxUsingWhen cannot be cast to kotlinx.coroutines.flow.Flow")
     fun `should save and find by account`() = runBlocking {
         log.info("Starting...")
 

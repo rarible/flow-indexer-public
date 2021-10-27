@@ -10,6 +10,7 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
 import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty1
 
 sealed interface Continuation
 
@@ -179,6 +180,23 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
             } else {
                 desc<P1, P2>(continuation)(criteria, primary, secondary)
             }
+        }
+
+        inline fun <T: Any, reified P1, reified P2> toString(
+            obj: T, primary: KProperty1<T, P1>, secondary: KProperty1<T, P2>
+        ): String {
+            return toString(primary.get(obj)) + "_" + toString(secondary.get(obj))
+        }
+
+        inline fun <reified P> toString(property: P): String {
+            return when(P::class) {
+                Instant::class -> (property as Instant).toEpochMilli().toString()
+                else -> property.toString()
+            }
+        }
+
+        interface Continue<T> {
+            fun <P1, P2> next(primary: KProperty1<T, P1>, secondary: KProperty1<T, P2>): String
         }
     }
 }
