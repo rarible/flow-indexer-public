@@ -3,17 +3,13 @@ package com.rarible.flow.api.controller
 import com.rarible.flow.api.service.NftItemMetaService
 import com.rarible.flow.api.service.NftItemService
 import com.rarible.flow.core.converter.ItemMetaToDtoConverter
-import com.rarible.flow.core.converter.ItemToDtoConverter
-import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.protocol.dto.FlowItemMetaFormDto
 import com.rarible.protocol.dto.FlowNftItemDto
+import com.rarible.protocol.dto.FlowNftItemRoyaltyDto
 import com.rarible.protocol.dto.FlowNftItemsDto
 import com.rarible.protocol.dto.MetaDto
+import com.rarible.protocol.dto.PayInfoDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftItemControllerApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.map
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController
@@ -83,25 +79,14 @@ class NftApiController(
         return ResponseEntity.ok(nftItemService.byCreator(address, continuation, size))
     }
 
-    @Deprecated("We have orders now")
-    override fun getListedItems(): ResponseEntity<Flow<FlowNftItemDto>> {
-        return ok(emptyFlow())
-    }
+    override suspend fun getNftItemRoyaltyById(itemId: String): ResponseEntity<FlowNftItemRoyaltyDto> {
+        val itemDto = nftItemService.getItemById(itemId)
 
-    private fun ok(items: Flow<Item>) =
-        ResponseEntity.ok(toDtoFlow(items))
-
-    @Deprecated("need to remove this method")
-    override suspend fun saveItemsMeta(
-        itemId: String,
-        flowItemMetaFormDto: FlowItemMetaFormDto?
-    ): ResponseEntity<String> {
-        val metaLink = "/v0.1/items/meta/$itemId"
-        return ResponseEntity.ok(metaLink)
-    }
-
-    private fun toDtoFlow(items: Flow<Item>): Flow<FlowNftItemDto> {
-        return items.map { ItemToDtoConverter.convert(it) }
+        return itemDto?.royalties?.map {
+            PayInfoDto(it.account, it.value)
+        }?.let {
+            FlowNftItemRoyaltyDto(it)
+        }.okOr404IfNull()
     }
 
 }
