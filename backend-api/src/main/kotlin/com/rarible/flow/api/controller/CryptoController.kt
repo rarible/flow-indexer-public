@@ -33,6 +33,11 @@ class CryptoController(
             )
             sigCheck && accountCheck
         } catch (t: Throwable) {
+            log.warn(
+                "Failed to check signature for args=[{}, {}, {}, {}]",
+                publicKey, signerAddress, signature, message,
+                t
+            )
             false
         }
 
