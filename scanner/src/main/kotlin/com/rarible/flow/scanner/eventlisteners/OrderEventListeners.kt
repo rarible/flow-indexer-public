@@ -26,7 +26,7 @@ class OrderEventListeners(
             .filter { it.type in setOf(PaymentType.BUYER_FEE, PaymentType.SELLER_FEE) }
             .map { Payout(FlowAddress(it.address), it.amount) }
         val payouts = activity.payments
-            .filter { it.type in setOf(PaymentType.ROYALTY, PaymentType.OTHER) }
+            .filter { it.type in setOf(PaymentType.ROYALTY, PaymentType.OTHER, PaymentType.REWARD) }
             .map { Payout(FlowAddress(it.address), it.amount) }
 
         val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
@@ -61,23 +61,25 @@ class OrderEventListeners(
     @EventListener(FlowNftOrderActivitySell::class)
     fun orderClose(activity: FlowNftOrderActivitySell) = runBlocking {
         val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
+            fill = BigDecimal.ONE,
+            makeStock = BigInteger.ZERO,
             taker = FlowAddress(activity.right.maker),
             status = OrderStatus.FILLED,
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
         ) ?: Order(
             id = activity.hash.toLong(),
             fill = BigDecimal.ONE,
-            taker = FlowAddress(activity.left.maker),
-            maker = FlowAddress(activity.right.maker),
+            makeStock = BigInteger.ZERO,
+            taker = FlowAddress(activity.right.maker),
             status = OrderStatus.FILLED,
 
+            maker = FlowAddress(activity.left.maker),
             itemId = ItemId(activity.contract, activity.tokenId),
             amount = activity.price,
             collection = activity.contract,
             make = FlowAssetEmpty,
             take = FlowAssetEmpty,
             data = OrderData(emptyList(), emptyList()),
-            makeStock = BigInteger.ZERO,
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
         )
 
