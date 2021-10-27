@@ -31,8 +31,9 @@ data class ItemHistory(
 ): FlowLogRecord<ItemHistory>() {
 
     @get:MongoId
-    val id: String
+    var id: String
         get() = "${log.transactionHash}:${log.eventIndex}"
+        set(_) { }
 
     override fun withLog(log: FlowLog): FlowLogRecord<ItemHistory> = copy(log = log)
 }
