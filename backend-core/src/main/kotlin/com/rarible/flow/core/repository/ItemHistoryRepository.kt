@@ -89,7 +89,7 @@ class ItemHistoryRepositoryCustomImpl(
         val aggregation = Aggregation.newAggregation(match, group, sort)
 
         return mongo
-            .aggregate(aggregation, "itemHistory", Agg::class.java)
+            .aggregate(aggregation, "item_history", Agg::class.java)
             .asFlow()
             .map {
                 FlowAggregationDataDto(it._id ?: "", it.sum, it.count)
