@@ -3,6 +3,7 @@ package com.rarible.flow.api.controller
 import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.api.service.OrderService
 import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.randomFlowAddress
 import com.rarible.flow.randomLong
 import com.rarible.protocol.dto.FlowOrderDto
@@ -102,7 +103,7 @@ class OrderApiControllerTest {
     @Test
     fun `should find all sell orders`() {
         coEvery {
-            orderService.findAll(any(), any())
+            orderService.findAll(any(), any(), OrderFilter.Sort.LAST_UPDATE)
         } returns (1L..10L).map { createOrder(it) }.asFlow()
 
         shouldGetPaginatedResult("/v0.1/orders/sell")
@@ -111,11 +112,11 @@ class OrderApiControllerTest {
     @Test
     fun `should find orders by collection - success`() {
         coEvery {
-            orderService.getSellOrdersByCollection(eq("ABC"), any(), any())
+            orderService.getSellOrdersByCollection(eq("ABC"), any(), any(), OrderFilter.Sort.LAST_UPDATE)
         } returns (1L..10L).map { createOrder(it) }.asFlow()
 
         coEvery {
-            orderService.getSellOrdersByCollection(neq("ABC"), any(), any())
+            orderService.getSellOrdersByCollection(neq("ABC"), any(), any(), OrderFilter.Sort.LAST_UPDATE)
         } returns emptyFlow()
 
         shouldGetPaginatedResult("/v0.1/orders/sell/byCollection?collection={collection}",
@@ -135,7 +136,15 @@ class OrderApiControllerTest {
     @Test
     fun `should find orders by item and status - success`() {
         coEvery {
-            orderService.getSellOrdersByItemAndStatus(any(), any(), any(), any(), any(), any())
+            orderService.getSellOrdersByItemAndStatus(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                OrderFilter.Sort.MAKE_PRICE_ASC
+            )
         } returns (1L..10L).map { createOrder(it) }.asFlow()
 
         shouldGetPaginatedResult(
@@ -176,7 +185,7 @@ class OrderApiControllerTest {
     @Test
     fun `should find orders by maker - success`() {
         coEvery {
-            orderService.getSellOrdersByMaker(any(), any(), any(), any())
+            orderService.getSellOrdersByMaker(any(), any(), any(), any(), OrderFilter.Sort.LAST_UPDATE)
         } returns (1L..10L).map { createOrder(it) }.asFlow()
 
         shouldGetPaginatedResult(

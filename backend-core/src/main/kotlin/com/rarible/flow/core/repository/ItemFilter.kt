@@ -3,14 +3,33 @@ package com.rarible.flow.core.repository
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.repository.filters.CriteriaProduct
-import org.springframework.data.mongodb.core.query.*
+import com.rarible.flow.core.repository.filters.ScrollingSort
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.exists
+import org.springframework.data.mongodb.core.query.gte
+import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.lt
+import org.springframework.data.mongodb.core.query.ne
 import java.time.Instant
-import java.util.*
+import org.springframework.data.domain.Sort as SpringSort
 
 
 sealed class ItemFilter(open val sort: Sort = Sort.LAST_UPDATE) : CriteriaProduct<ItemFilter> {
-    enum class Sort {
-        LAST_UPDATE
+    enum class Sort: ScrollingSort<Item> {
+        LAST_UPDATE {
+            override fun springSort(): SpringSort =
+                SpringSort.by(
+                    SpringSort.Order.desc(Item::mintedAt.name),
+                    SpringSort.Order.desc(Item::id.name)
+                )
+
+            override fun scroll(criteria: Criteria, continuation: String?): Criteria =
+                Cont.scrollDesc(criteria, continuation, Item::mintedAt, Item::id)
+
+
+            override fun nextPage(entity: Item): String =
+                Cont.toString(entity.mintedAt, entity.id)
+        }
     }
 
     override fun byCriteria(criteria: Criteria): ItemFilter {

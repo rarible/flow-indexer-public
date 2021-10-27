@@ -5,12 +5,14 @@ import com.rarible.flow.api.service.OrderService
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.repository.ActivityContinuation
-import com.rarible.flow.core.repository.Cont
+import com.rarible.flow.core.repository.OrderFilter
+import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.*
 import com.rarible.protocol.flow.nft.api.controller.FlowOrderControllerApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.springframework.http.ResponseEntity
@@ -73,8 +75,10 @@ class OrderApiController(
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
+        val sort = OrderFilter.Sort.LAST_UPDATE
         return result(
-            service.findAll(continuation, size)
+            service.findAll(continuation, size, sort),
+            sort
         )
     }
 
@@ -84,12 +88,14 @@ class OrderApiController(
         size: Int?,
         status: List<FlowOrderStatusDto>?
     ): ResponseEntity<FlowOrdersPaginationDto> {
+        val sorting = safeOf(sort, OrderFilter.Sort.LAST_UPDATE)!!
         return result(
             if(status == null) {
-                service.findAll(continuation, size)
+                service.findAll(continuation, size, sorting)
             } else {
-                service.findAllByStatus(status, continuation, size)
-            }
+                service.findAllByStatus(status, continuation, size, sorting)
+            },
+            sorting
         )
     }
 
@@ -110,8 +116,10 @@ class OrderApiController(
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
+        val sort = OrderFilter.Sort.LAST_UPDATE
         return result(
-            service.findAll(continuation, size)
+            service.findAll(continuation, size, sort),
+            sort
         )
     }
 
@@ -121,10 +129,12 @@ class OrderApiController(
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
+        val sort = OrderFilter.Sort.LAST_UPDATE
         return result(
             service.getSellOrdersByCollection(
-                collection, continuation, size
-            )
+                collection, continuation, size, sort
+            ),
+            sort
         )
     }
 
@@ -138,10 +148,12 @@ class OrderApiController(
     ): ResponseEntity<FlowOrdersPaginationDto> {
         val makerAddress = maker.flowAddress()
         val itemId = ItemId(contract, tokenId.toLong())
+        val sort = OrderFilter.Sort.MAKE_PRICE_ASC
         return result(
             service.getSellOrdersByItemAndStatus(
-                itemId, makerAddress, null, null, continuation, size
-            )
+                itemId, makerAddress, null, null, continuation, size, sort
+            ),
+            sort
         )
     }
 
@@ -158,10 +170,12 @@ class OrderApiController(
         val makerAddress = maker.flowAddress()
         val currency = currencyAddress.flowAddress()
         val itemId = ItemId(contract, tokenId.tokenId())
+        val sort = OrderFilter.Sort.MAKE_PRICE_ASC
         return result(
             service.getSellOrdersByItemAndStatus(
-                itemId, makerAddress, currency, status, continuation, size
-            )
+                itemId, makerAddress, currency, status, continuation, size, sort
+            ),
+            sort
         )
     }
 
@@ -173,8 +187,10 @@ class OrderApiController(
     ): ResponseEntity<FlowOrdersPaginationDto> {
         val makerAddress = maker.flowAddress() as FlowAddress
         val originAddress = origin.flowAddress()
+        val sort = OrderFilter.Sort.LAST_UPDATE
         return result(
-            service.getSellOrdersByMaker(makerAddress, originAddress, continuation, size)
+            service.getSellOrdersByMaker(makerAddress, originAddress, continuation, size, sort),
+            sort
         )
     }
 
@@ -184,18 +200,15 @@ class OrderApiController(
         }.okOr404IfNull()
     }
 
-    private suspend fun result(orders: Flow<Order>): ResponseEntity<FlowOrdersPaginationDto> {
-        val dtos = orders.map {
-            OrderToDtoConverter.convert(it)
-        }.toList()
-
-        return if(dtos.isEmpty()) {
+    private suspend fun result(orders: Flow<Order>, sort: OrderFilter.Sort): ResponseEntity<FlowOrdersPaginationDto> {
+        return if(orders.count() == 0) {
             FlowOrdersPaginationDto(emptyList())
         } else {
-            val last = dtos.last()
             FlowOrdersPaginationDto(
-                dtos,
-                Cont.toString(last, FlowOrderDto::createdAt, FlowOrderDto::id) //TODO continuation should depend on sort
+                orders.map {
+                    OrderToDtoConverter.convert(it)
+                }.toList(),
+                sort.nextPageSafe(orders.lastOrNull())
             )
         }.okOr404IfNull()
     }

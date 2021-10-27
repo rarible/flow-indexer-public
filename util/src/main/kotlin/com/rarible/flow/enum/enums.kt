@@ -5,19 +5,14 @@ package com.rarible.flow.enum
  *
  * @return enum value, or default value (null if default is not passed)
  */
-inline fun <reified T : Enum<T>> safeOf(value: String, default: T? = null): T? {
-    return try {
+inline fun <reified T : Enum<T>> safeOf(value: String?, default: T? = null): T? {
+    return if(value == null) {
+        return default
+    } else try {
         java.lang.Enum.valueOf(T::class.java, value)
     } catch (_: IllegalArgumentException) {
         default
     }
-}
-
-/**
- * Converts a list of enum names to enum values
- */
-inline fun <reified T : Enum<T>> safeOf(vararg values: String, default: List<T> = emptyList()): List<T> {
-    return safeOf(values.toList(), default)
 }
 
 /**

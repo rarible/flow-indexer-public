@@ -29,37 +29,40 @@ class OrderService(
         makerAddress: FlowAddress,
         originAddress: FlowAddress?,
         cont: String?,
-        size: Int?
+        size: Int?,
+        sort: OrderFilter.Sort
     ): Flow<Order> {
         return orderRepository.search(
-            OrderFilter.ByMaker(makerAddress, originAddress), cont, size, OrderFilter.Sort.LAST_UPDATE
-        )
+            OrderFilter.ByMaker(makerAddress, originAddress), cont, size, sort
+        ).asFlow()
     }
 
-    suspend fun findAll(cont: String?, size: Int?): Flow<Order> {
+    suspend fun findAll(cont: String?, size: Int?, sort: OrderFilter.Sort): Flow<Order> {
         return orderRepository.search(
-            OrderFilter.All, cont, size, OrderFilter.Sort.LAST_UPDATE
-        )
+            OrderFilter.All, cont, size, sort
+        ).asFlow()
     }
 
     suspend fun getSellOrdersByCollection(
         collection: String,
         cont: String?,
-        size: Int?
+        size: Int?,
+        sort: OrderFilter.Sort
     ): Flow<Order> {
         return orderRepository.search(
-            OrderFilter.ByCollection(collection), cont, size, OrderFilter.Sort.LAST_UPDATE
-        )
+            OrderFilter.ByCollection(collection), cont, size, sort
+        ).asFlow()
     }
 
     suspend fun findAllByStatus(
         status: List<FlowOrderStatusDto>,
         cont: String?,
-        size: Int?
+        size: Int?,
+        sort: OrderFilter.Sort
     ): Flow<Order> {
         return orderRepository.search(
-            OrderFilter.ByStatus(status), cont, size, OrderFilter.Sort.LAST_UPDATE
-        )
+            OrderFilter.ByStatus(status), cont, size, sort
+        ).asFlow()
     }
 
     fun ordersByIds(ids: List<Long>): Flow<Order> {
@@ -72,7 +75,8 @@ class OrderService(
         currency: FlowAddress?,
         status: List<FlowOrderStatusDto>?,
         continuation: String?,
-        size: Int?
+        size: Int?,
+        sort: OrderFilter.Sort
     ): Flow<Order> {
         return orderRepository.search(
             OrderFilter.ByItemId(itemId) *
@@ -81,8 +85,8 @@ class OrderService(
                     OrderFilter.ByCurrency(currency),
             continuation,
             size,
-            OrderFilter.Sort.MAKE_PRICE_ASC
-        )
+            sort
+        ).asFlow()
     }
 
     fun currenciesByItemId(itemId: String): Flow<FlowAsset> {
@@ -91,7 +95,7 @@ class OrderService(
                     OrderFilter.ByStatus(listOf(FlowOrderStatusDto.ACTIVE)),
             cont = null,
             limit = null
-        ).map {
+        ).asFlow().map {
             FlowAssetFungible(contract = it.take.contract, value = BigDecimal.ZERO)
         }
     }

@@ -2,9 +2,11 @@ package com.rarible.flow.core.repository.filters
 
 import org.springframework.data.mongodb.core.query.Criteria
 
-interface CriteriaProduct<T: CriteriaProduct<T>> {
-
+interface BuildsCriteria {
     fun criteria(): Criteria
+}
+
+interface CriteriaProduct<T: CriteriaProduct<T>>: BuildsCriteria {
 
     fun byCriteria(criteria: Criteria): T
 

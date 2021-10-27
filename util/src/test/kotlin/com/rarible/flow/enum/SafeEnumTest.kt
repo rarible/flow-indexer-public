@@ -21,10 +21,6 @@ class SafeEnumTest: FunSpec({
         safeOf<TestEnum>("E", TestEnum.A) shouldBe TestEnum.A
     }
 
-    test("should make list of known enums") {
-        safeOf<TestEnum>("A", "B", "C", "D", "E", "X") shouldContainAll TestEnum.values().toList()
-    }
-
     test("should make list of known enums from list") {
         safeOf<TestEnum>(listOf("A", "B", "C", "D", "E", "X")) shouldContainAll TestEnum.values().toList()
     }

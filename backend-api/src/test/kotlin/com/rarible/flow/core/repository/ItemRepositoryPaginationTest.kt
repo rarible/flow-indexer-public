@@ -9,6 +9,7 @@ import com.rarible.flow.log.Log
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
@@ -56,7 +57,12 @@ internal class ItemRepositoryPaginationTest(
         log.info("Set up items.")
 
         //owner1 - read the latest
-        var read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner!!), null, 1)
+        var read = itemRepository.search(
+            ItemFilter.ByOwner(item1Owner1.owner!!),
+            null,
+            1,
+            ItemFilter.Sort.LAST_UPDATE
+        ).asFlow()
         log.info("Search done")
         read.count() shouldBe 1
         read.collect {
@@ -68,8 +74,9 @@ internal class ItemRepositoryPaginationTest(
         read = itemRepository.search(
             ItemFilter.ByOwner(item1Owner1.owner!!),
             "${item2Owner1.mintedAt.toEpochMilli()}_${item2Owner1.id}",
-            1
-        )
+            1,
+            ItemFilter.Sort.LAST_UPDATE
+        ).asFlow()
         log.info("Search done")
         read.count() shouldBe 1
         read.collect {
@@ -78,13 +85,23 @@ internal class ItemRepositoryPaginationTest(
         log.info("Step 2 done")
 
         //owner1 - try to read more
-        read = itemRepository.search(ItemFilter.ByOwner(item1Owner1.owner!!), "${item1Owner1.mintedAt.toEpochMilli()}_${item1Owner1.id}", 1)
+        read = itemRepository.search(
+            ItemFilter.ByOwner(item1Owner1.owner!!),
+            "${item1Owner1.mintedAt.toEpochMilli()}_${item1Owner1.id}",
+            1,
+                ItemFilter.Sort.LAST_UPDATE
+        ).asFlow()
         log.info("Search done")
         read.count() shouldBe 0
         log.info("Step 3 done")
 
         //another owner
-        read = itemRepository.search(ItemFilter.ByOwner(item1Owner2.owner!!), null, 100)
+        read = itemRepository.search(
+            ItemFilter.ByOwner(item1Owner2.owner!!),
+            null,
+            100,
+            ItemFilter.Sort.LAST_UPDATE
+        ).asFlow()
         log.info("Search done")
         read.count() shouldBe 1
         read.collect {
@@ -107,25 +124,33 @@ internal class ItemRepositoryPaginationTest(
         log.info("Set up items.")
 
         //owner1 - read the latest
-        var read = itemRepository.search(ItemFilter.ByCreator(item1.creator), null, 1)
+        var read = itemRepository
+            .search(ItemFilter.ByCreator(item1.creator), null, 1, ItemFilter.Sort.LAST_UPDATE)
+            .asFlow()
         read.count() shouldBe 1
         read.collect {
             it.id shouldBe item2.id
         }
 
         //creator1 - read next and the last
-        read = itemRepository.search(ItemFilter.ByCreator(item1.creator), "${item2.mintedAt.toEpochMilli()}_${item2.id}", 1)
+        read = itemRepository
+            .search(ItemFilter.ByCreator(item1.creator), "${item2.mintedAt.toEpochMilli()}_${item2.id}", 1, ItemFilter.Sort.LAST_UPDATE)
+            .asFlow()
         read.count() shouldBe 1
         read.collect {
             it.id shouldBe item1.id
         }
 
         //creator1 - try to read more
-        read = itemRepository.search(ItemFilter.ByCreator(item1.creator), "${item1.mintedAt.toEpochMilli()}_${item1.id}", 1)
+        read = itemRepository
+            .search(ItemFilter.ByCreator(item1.creator), "${item1.mintedAt.toEpochMilli()}_${item1.id}", 1, ItemFilter.Sort.LAST_UPDATE)
+            .asFlow()
         read.count() shouldBe 0
 
         //another creator
-        read = itemRepository.search(ItemFilter.ByCreator(anotherCreator.creator), null, 100)
+        read = itemRepository
+            .search(ItemFilter.ByCreator(anotherCreator.creator), null, 100, ItemFilter.Sort.LAST_UPDATE)
+            .asFlow()
         read.count() shouldBe 1
         read.collect {
             it.id shouldBe anotherCreator.id
@@ -145,7 +170,9 @@ internal class ItemRepositoryPaginationTest(
 
 
         //read the latest
-        var read = itemRepository.search(ItemFilter.All(), null, 1)
+        var read = itemRepository
+            .search(ItemFilter.All(), null, 1, ItemFilter.Sort.LAST_UPDATE)
+            .asFlow()
         read.count() shouldBe 1
         read.collect {
             it.id shouldBe item2.id
@@ -153,7 +180,9 @@ internal class ItemRepositoryPaginationTest(
         log.info("Step 1 done")
 
         //read next and the last
-        read = itemRepository.search(ItemFilter.All(), "${item2.mintedAt.toEpochMilli()}_${item2.id}", 1)
+        read = itemRepository
+            .search(ItemFilter.All(), "${item2.mintedAt.toEpochMilli()}_${item2.id}", 1, ItemFilter.Sort.LAST_UPDATE)
+            .asFlow()
         read.count() shouldBe 1
         read.collect {
             it.id shouldBe item1.id
@@ -161,14 +190,20 @@ internal class ItemRepositoryPaginationTest(
         log.info("Step 2 done")
 
         //try to read more
-        read = itemRepository.search(ItemFilter.All(), "${item1.mintedAt.toEpochMilli()}_${item1.id}", 1)
+        read = itemRepository
+            .search(ItemFilter.All(), "${item1.mintedAt.toEpochMilli()}_${item1.id}", 1, ItemFilter.Sort.LAST_UPDATE)
+            .asFlow()
         read.count() shouldBe 0
         log.info("Step 3 done")
 
-        read = itemRepository.search(ItemFilter.All(), null, null)
+        read = itemRepository
+            .search(ItemFilter.All(), null, null, ItemFilter.Sort.LAST_UPDATE)
+            .asFlow()
         read.count() shouldBe 2
 
-        read = itemRepository.search(ItemFilter.All(true), null, null)
+        read = itemRepository
+            .search(ItemFilter.All(true), null, null, ItemFilter.Sort.LAST_UPDATE)
+            .asFlow()
         read.count() shouldBe 3
     }
 

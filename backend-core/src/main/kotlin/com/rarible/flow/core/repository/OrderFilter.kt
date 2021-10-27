@@ -4,7 +4,9 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.repository.filters.BuildsCriteria
 import com.rarible.flow.core.repository.filters.CriteriaProduct
+import com.rarible.flow.core.repository.filters.ScrollingSort
 import com.rarible.protocol.dto.FlowOrderStatusDto
 import org.springframework.data.mapping.div
 import org.springframework.data.mapping.toDotPath
@@ -16,41 +18,51 @@ import java.math.BigDecimal
 import org.springframework.data.domain.Sort as SpringSort
 
 sealed class OrderFilter(): CriteriaProduct<OrderFilter> {
-    enum class Sort {
-        LAST_UPDATE,
-        MAKE_PRICE_ASC,
-        TAKE_PRICE_DESC
+    enum class Sort: ScrollingSort<Order> {
+        LAST_UPDATE {
+            override fun springSort(): SpringSort = SpringSort.by(
+                    SpringSort.Order.desc(Order::createdAt.name),
+                    SpringSort.Order.desc(Order::id.name)
+                )
+
+            override fun scroll(criteria: Criteria, continuation: String?): Criteria =
+                Cont.scrollDesc(criteria, continuation, Order::createdAt, Order::id)
+
+            override fun nextPage(entity: Order): String {
+                return Cont.toString(entity.createdAt, entity.id)
+            }
+        },
+        MAKE_PRICE_ASC {
+            override fun springSort(): SpringSort = SpringSort.by(
+                SpringSort.Order.asc((Order::make / FlowAsset::value).toDotPath()),
+                SpringSort.Order.asc(Order::id.name)
+            )
+
+            override fun scroll(criteria: Criteria, continuation: String?): Criteria =
+                Cont.scrollAsc(criteria, continuation, (Order::make / FlowAsset::value), Order::id)
+
+            override fun nextPage(entity: Order): String {
+                return Cont.toString(entity.make.value, entity.id)
+            }
+        },
+        TAKE_PRICE_DESC {
+            override fun springSort(): SpringSort = SpringSort.by(
+                SpringSort.Order.desc((Order::take / FlowAsset::value).toDotPath()),
+                SpringSort.Order.desc(Order::id.name)
+            )
+
+            override fun scroll(criteria: Criteria, continuation: String?): Criteria =
+                Cont.scrollDesc(criteria, continuation, (Order::take / FlowAsset::value), Order::id)
+
+            override fun nextPage(entity: Order): String {
+                return Cont.toString(entity.take.value, entity.id)
+            }
+        };
+
     }
 
     override fun byCriteria(criteria: Criteria): OrderFilter {
         return ByCriteria(criteria)
-    }
-
-    fun toQuery(continuation: String?, limit: Int?, sort: Sort = Sort.LAST_UPDATE): Query {
-        val (querySort, criteria) = sortWithCriteria(continuation, sort)
-        return Query
-            .query(criteria)
-            .with(querySort)
-            .limit(limit ?: DEFAULT_LIMIT)
-    }
-
-    fun sortWithCriteria(continuation: String?, sort: Sort = Sort.LAST_UPDATE): Pair<SpringSort, Criteria> {
-        return when (sort) {
-            Sort.LAST_UPDATE -> SpringSort.by(
-                SpringSort.Order.desc(Order::createdAt.name),
-                SpringSort.Order.desc(Order::id.name)
-            ) to Cont.scrollDesc(this.criteria(), continuation, Order::createdAt, Order::id)
-
-            Sort.MAKE_PRICE_ASC -> SpringSort.by(
-                SpringSort.Order.asc((Order::make / FlowAsset::value).toDotPath()),
-                SpringSort.Order.asc(Order::id.name)
-            ) to Cont.scrollAsc(this.criteria(), continuation, (Order::make / FlowAsset::value), Order::id)
-
-            Sort.TAKE_PRICE_DESC -> SpringSort.by(
-                SpringSort.Order.desc((Order::take / FlowAsset::value).toDotPath()),
-                SpringSort.Order.desc(Order::id.name)
-            ) to Cont.scrollDesc(this.criteria(), continuation, (Order::take / FlowAsset::value), Order::id)
-        }
     }
 
     private data class ByCriteria(private val criteria: Criteria): OrderFilter() {
@@ -122,9 +134,5 @@ sealed class OrderFilter(): CriteriaProduct<OrderFilter> {
                 Criteria().orOperator(criterias)
             }
         }
-    }
-
-    companion object {
-        const val DEFAULT_LIMIT = 50
     }
 }

@@ -182,10 +182,10 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
             }
         }
 
-        inline fun <T: Any, reified P1, reified P2> toString(
-            obj: T, primary: KProperty1<T, P1>, secondary: KProperty1<T, P2>
+        inline fun <reified P1, reified P2> toString(
+            primary: P1, secondary: P2
         ): String {
-            return toString(primary.get(obj)) + "_" + toString(secondary.get(obj))
+            return toString(primary) + "_" + toString(secondary)
         }
 
         inline fun <reified P> toString(property: P): String {
