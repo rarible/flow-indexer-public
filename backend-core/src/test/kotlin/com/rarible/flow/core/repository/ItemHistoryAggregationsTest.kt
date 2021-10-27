@@ -2,21 +2,22 @@ package com.rarible.flow.core.repository
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.flow.model.FlowLog
+import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.FlowNftOrderActivitySell
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.OrderActivityMatchSide
+import com.rarible.flow.core.repository.data.createSellActivity
 import com.rarible.protocol.dto.FlowAggregationDataDto
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
-import io.mockk.mockk
+import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
@@ -25,7 +26,6 @@ import org.springframework.test.context.ContextConfiguration
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
 
 @MongoTest
 @DataMongoTest(
@@ -40,7 +40,7 @@ import java.util.*
 )
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
-class ItemHistoryRepositoryTest {
+class ItemHistoryAggregationsTest {
 
     @Autowired
     private lateinit var itemHistoryRepository: ItemHistoryRepository
@@ -48,24 +48,11 @@ class ItemHistoryRepositoryTest {
     @BeforeEach
     fun setUp() {
         itemHistoryRepository.deleteAll().block()
-        val sell = FlowNftOrderActivitySell(
-            price = BigDecimal.ONE,
-            priceUsd = BigDecimal.ONE,
-            tokenId = 1,
-            left = OrderActivityMatchSide(
-                FlowAddress("0x01").formatted,
-                FlowAssetNFT("c1", BigDecimal.ONE, 1)
-            ),
-            right = OrderActivityMatchSide(
-                FlowAddress("0x02").formatted,
-                FlowAssetFungible("flow", BigDecimal.ONE)
-            ),
-            contract = "c1",
-            timestamp = Instant.now(),
-            hash = UUID.randomUUID().toString()
-        )
+        val sell = createSellActivity()
 
-        val log = mockk<FlowLog>()
+        val log = FlowLog(
+            "txHash", Log.Status.CONFIRMED, 1, "abc", Instant.now(), 1L, "blockHash"
+        )
 
         val events = listOf(
             ItemHistory(Instant.now(), sell, log),
@@ -98,6 +85,15 @@ class ItemHistoryRepositoryTest {
         )
 
         itemHistoryRepository.saveAll(events).blockLast()
+    }
+
+    @Test
+    fun `should find all entries`() {
+        runBlocking {
+            itemHistoryRepository
+                .coFindAll()
+                .count() shouldBe 3
+        }
     }
 
     @Test
