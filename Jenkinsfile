@@ -35,7 +35,7 @@ pipeline {
             agent any
             steps {
                 script {
-                    env.IMAGE_TAG = "1.0.${env.BUILD_NUMBER}"
+                    env.IMAGE_TAG = "${env.GIT_BRANCH}-1.0.${env.BUILD_NUMBER}"
                     env.VERSION = "${env.IMAGE_TAG}"
                     env.BRANCH_NAME = "${env.GIT_BRANCH}"
                 }
@@ -59,7 +59,7 @@ pipeline {
         stage("deploy to staging") {
             agent any
             when {
-                anyOf { branch 'release/*' }
+                anyOf { branch 'release/*'; branch 'origin/release/*' }
                 beforeAgent true
             }
             environment {
@@ -74,7 +74,7 @@ pipeline {
             agent any
             when {
                allOf {
-                   anyOf { branch 'release/*' }
+                   anyOf { branch 'release/*'; branch 'origin/release/*' }
                    expression {
                        input message: "Deploy to prod?"
                        return true
