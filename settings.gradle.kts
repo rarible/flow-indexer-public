@@ -16,7 +16,7 @@ dependencyResolutionManagement {
         create("libs") {
             version("flow-sdk-ver", "0.5.0")
             version("rarible-core", "1.3-spring25-SNAPSHOT")
-            version("rarible-currency", "1.3-SNAPSHOT")
+            version("rarible-currency", "1.4.5")
             version("flow-protocol-version", "2.0.23-SNAPSHOT")
             version("blockchain-scanner", "1.0-SNAPSHOT")
 
