@@ -16,7 +16,7 @@ import org.springframework.data.domain.Sort as SpringSort
 
 sealed class OrderFilter(): CriteriaProduct<OrderFilter> {
     enum class Sort: ScrollingSort<Order> {
-        LAST_UPDATE {
+        LATEST_FIRST {
             override fun springSort(): SpringSort = SpringSort.by(
                     SpringSort.Order.desc(Order::createdAt.name),
                     SpringSort.Order.desc(Order::id.name)
@@ -24,6 +24,19 @@ sealed class OrderFilter(): CriteriaProduct<OrderFilter> {
 
             override fun scroll(criteria: Criteria, continuation: String?): Criteria =
                 Cont.scrollDesc(criteria, continuation, Order::createdAt, Order::id)
+
+            override fun nextPage(entity: Order): String {
+                return Cont.toString(entity.createdAt, entity.id)
+            }
+        },
+        EARLIEST_FIRST {
+            override fun springSort(): SpringSort = SpringSort.by(
+                SpringSort.Order.asc(Order::createdAt.name),
+                SpringSort.Order.asc(Order::id.name)
+            )
+
+            override fun scroll(criteria: Criteria, continuation: String?): Criteria =
+                Cont.scrollAsc(criteria, continuation, Order::createdAt, Order::id)
 
             override fun nextPage(entity: Order): String {
                 return Cont.toString(entity.createdAt, entity.id)
