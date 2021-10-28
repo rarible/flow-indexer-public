@@ -4,6 +4,7 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.filters.BuildsCriteria
 import com.rarible.flow.core.repository.filters.CriteriaProduct
 import com.rarible.flow.core.repository.filters.ScrollingSort
@@ -13,6 +14,7 @@ import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.gt
+import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
 import java.math.BigDecimal
 import org.springframework.data.domain.Sort as SpringSort
@@ -109,29 +111,15 @@ sealed class OrderFilter(): CriteriaProduct<OrderFilter> {
         }
     }
 
-    class ByStatus(val status: List<FlowOrderStatusDto>?) : OrderFilter() {
+    class ByStatus(val status: List<OrderStatus>?) : OrderFilter() {
 
-        constructor(vararg statuses: FlowOrderStatusDto) : this(statuses.asList())
+        constructor(vararg statuses: OrderStatus) : this(statuses.asList())
 
-        @Suppress("IfThenToElvis")
         override fun criteria(): Criteria {
             return if(status == null || status.isEmpty()) {
                 Criteria()
             } else {
-                val criterias = status.mapNotNull {
-                    when(it) {
-                        FlowOrderStatusDto.ACTIVE -> Criteria().andOperator(
-                            Order::cancelled isEqualTo false,
-                            Order::fill isEqualTo BigDecimal.ZERO
-                        )
-                        FlowOrderStatusDto.FILLED -> (Order::fill gt BigDecimal.ZERO)
-                        FlowOrderStatusDto.HISTORICAL -> null
-                        FlowOrderStatusDto.INACTIVE -> (Order::cancelled isEqualTo true) //TODO
-                        FlowOrderStatusDto.CANCELLED -> (Order::cancelled isEqualTo true)
-                    }
-                }
-
-                Criteria().orOperator(criterias)
+                Order::status inValues status
             }
         }
     }

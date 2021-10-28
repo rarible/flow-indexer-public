@@ -4,6 +4,7 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.protocol.dto.FlowOrderStatusDto
 import io.kotest.core.datatest.forAll
 import io.kotest.core.spec.style.FunSpec
@@ -11,6 +12,7 @@ import io.kotest.matchers.shouldBe
 import org.springframework.data.mapping.div
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.gt
+import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
 import java.math.BigDecimal
 
@@ -52,32 +54,21 @@ internal class OrderFilterTest : FunSpec({
 
     test("should make filter - by statuses") {
         forAll(
-            FlowOrderStatusDto.ACTIVE to Criteria().andOperator(
-                Order::cancelled isEqualTo false,
-                Order::fill isEqualTo BigDecimal.ZERO
-            ),
-            FlowOrderStatusDto.FILLED to (
-                Order::fill gt BigDecimal.ZERO
-            ),
-            FlowOrderStatusDto.CANCELLED to (
-                Order::cancelled isEqualTo true
-            ),
-            FlowOrderStatusDto.HISTORICAL to Criteria(),
-            FlowOrderStatusDto.INACTIVE to (
-                Order::cancelled isEqualTo true
-            ),
-        ) { (status, criteria) ->
-            OrderFilter.ByStatus(status) shouldMakeCriteria Criteria().orOperator(criteria)
+            *OrderStatus.values()
+        ) { status ->
+            OrderFilter.ByStatus(status) shouldMakeCriteria (
+                Order::status inValues listOf(status)
+            )
         }
     }
 
     test("should make filter - by status - multiple") {
         OrderFilter.ByStatus(
-            FlowOrderStatusDto.FILLED,
-            FlowOrderStatusDto.CANCELLED
-        ) shouldMakeCriteria Criteria().orOperator(
-            Order::fill gt BigDecimal.ZERO,
-            Order::cancelled isEqualTo true
+            OrderStatus.FILLED,
+            OrderStatus.CANCELLED
+        ) shouldMakeCriteria (
+            Order::status inValues listOf(OrderStatus.FILLED,
+                OrderStatus.CANCELLED)
         )
     }
 

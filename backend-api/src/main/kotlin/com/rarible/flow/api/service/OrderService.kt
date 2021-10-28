@@ -5,6 +5,7 @@ import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coFindById
@@ -55,7 +56,7 @@ class OrderService(
     }
 
     suspend fun findAllByStatus(
-        status: List<FlowOrderStatusDto>,
+        status: List<OrderStatus>?,
         cont: String?,
         size: Int?,
         sort: OrderFilter.Sort
@@ -73,7 +74,7 @@ class OrderService(
         itemId: ItemId,
         makerAddress: FlowAddress?,
         currency: FlowAddress?,
-        status: List<FlowOrderStatusDto>?,
+        status: List<OrderStatus>,
         continuation: String?,
         size: Int?,
         sort: OrderFilter.Sort
@@ -92,7 +93,7 @@ class OrderService(
     fun currenciesByItemId(itemId: String): Flow<FlowAsset> {
         return orderRepository.search(
             OrderFilter.ByItemId(ItemId.parse(itemId)) *
-                    OrderFilter.ByStatus(listOf(FlowOrderStatusDto.ACTIVE)),
+                    OrderFilter.ByStatus(OrderStatus.ACTIVE),
             cont = null,
             limit = null
         ).asFlow().map {

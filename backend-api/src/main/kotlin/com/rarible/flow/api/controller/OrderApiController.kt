@@ -2,9 +2,11 @@ package com.rarible.flow.api.controller
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.api.service.OrderService
+import com.rarible.flow.core.converter.OderStatusDtoConverter
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.*
@@ -89,12 +91,9 @@ class OrderApiController(
         status: List<FlowOrderStatusDto>?
     ): ResponseEntity<FlowOrdersPaginationDto> {
         val sorting = safeOf(sort, OrderFilter.Sort.LAST_UPDATE)!!
+        val orderStatuses = OderStatusDtoConverter.convert(status)
         return result(
-            if(status == null) {
-                service.findAll(continuation, size, sorting)
-            } else {
-                service.findAllByStatus(status, continuation, size, sorting)
-            },
+            service.findAllByStatus(orderStatuses, continuation, size, sorting),
             sorting
         )
     }
@@ -151,7 +150,7 @@ class OrderApiController(
         val sort = OrderFilter.Sort.MAKE_PRICE_ASC
         return result(
             service.getSellOrdersByItemAndStatus(
-                itemId, makerAddress, null, null, continuation, size, sort
+                itemId, makerAddress, null, emptyList(), continuation, size, sort
             ),
             sort
         )
@@ -171,9 +170,10 @@ class OrderApiController(
         val currency = currencyAddress.flowAddress()
         val itemId = ItemId(contract, tokenId.tokenId())
         val sort = OrderFilter.Sort.MAKE_PRICE_ASC
+        val orderStatuses = OderStatusDtoConverter.convert(status)
         return result(
             service.getSellOrdersByItemAndStatus(
-                itemId, makerAddress, currency, status, continuation, size, sort
+                itemId, makerAddress, currency, orderStatuses, continuation, size, sort
             ),
             sort
         )
