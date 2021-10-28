@@ -4,12 +4,15 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.OrderData
+import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.domain.Payout
 import com.rarible.flow.core.repository.data
 import com.rarible.protocol.dto.FlowAssetFungibleDto
 import com.rarible.protocol.dto.FlowAssetNFTDto
 import com.rarible.protocol.dto.FlowOrderDataDto
+import com.rarible.protocol.dto.FlowOrderStatusDto
 import com.rarible.protocol.dto.PayInfoDto
+import io.kotest.core.datatest.forAll
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.should
@@ -23,6 +26,20 @@ internal class OrderToDtoConverterTest: FunSpec({
         )
 
         OrderToDtoConverter.convert(orderData) shouldBe FlowOrderDataDto(emptyList(), emptyList())
+    }
+
+    test("should convert status") {
+        forAll(
+            *OrderStatus.values()
+        ) { status ->
+            OrderToDtoConverter.convert(status) shouldBe when(status) {
+                OrderStatus.ACTIVE -> FlowOrderStatusDto.ACTIVE
+                OrderStatus.FILLED -> FlowOrderStatusDto.FILLED
+                OrderStatus.HISTORICAL -> FlowOrderStatusDto.HISTORICAL
+                OrderStatus.INACTIVE -> FlowOrderStatusDto.INACTIVE
+                OrderStatus.CANCELLED -> FlowOrderStatusDto.CANCELLED
+            }
+        }
     }
 
     test("should convert filled order data") {

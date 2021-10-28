@@ -5,18 +5,13 @@ import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderStatus
-import com.rarible.flow.core.repository.filters.BuildsCriteria
 import com.rarible.flow.core.repository.filters.CriteriaProduct
 import com.rarible.flow.core.repository.filters.ScrollingSort
-import com.rarible.protocol.dto.FlowOrderStatusDto
 import org.springframework.data.mapping.div
 import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.core.query.gt
 import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
-import java.math.BigDecimal
 import org.springframework.data.domain.Sort as SpringSort
 
 sealed class OrderFilter(): CriteriaProduct<OrderFilter> {
