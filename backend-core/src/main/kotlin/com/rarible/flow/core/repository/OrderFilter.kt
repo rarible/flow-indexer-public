@@ -44,12 +44,12 @@ sealed class OrderFilter(): CriteriaProduct<OrderFilter> {
         },
         MAKE_PRICE_ASC {
             override fun springSort(): SpringSort = SpringSort.by(
-                SpringSort.Order.asc((Order::make / FlowAsset::value).toDotPath()),
+                SpringSort.Order.asc(Order::amount.name),
                 SpringSort.Order.asc(Order::id.name)
             )
 
             override fun scroll(criteria: Criteria, continuation: String?): Criteria =
-                Cont.scrollAsc(criteria, continuation, (Order::make / FlowAsset::value), Order::id)
+                Cont.scrollAsc(criteria, continuation, Order::amount, Order::id)
 
             override fun nextPage(entity: Order): String {
                 return Cont.toString(entity.make.value, entity.id)
@@ -109,12 +109,12 @@ sealed class OrderFilter(): CriteriaProduct<OrderFilter> {
         }
     }
 
-    class ByCurrency(val currency: FlowAddress?): OrderFilter() {
+    class ByCurrency(val currency: String?): OrderFilter() {
         override fun criteria(): Criteria {
             return if(currency == null) {
                 Criteria()
             } else {
-                (Order::take / FlowAsset::contract).isEqualTo(currency.formatted)
+                (Order::take / FlowAsset::contract).isEqualTo(currency)
             }
         }
     }

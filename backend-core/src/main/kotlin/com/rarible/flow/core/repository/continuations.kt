@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.core.query.lt
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
@@ -137,6 +139,7 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
                 Int::class -> str.toInt()
                 Long::class -> str.toLong()
                 Instant::class -> Instant.ofEpochMilli(str.toLong())
+                LocalDateTime::class -> LocalDateTime.ofInstant(Instant.ofEpochMilli(str.toLong()), ZoneOffset.UTC)
                 BigDecimal::class -> str.toBigDecimal()
                 BigInteger::class -> str.toBigInteger()
                 ItemId::class -> ItemId.parse(str)
@@ -193,6 +196,7 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
         inline fun <reified P> toString(property: P): String {
             return when(P::class) {
                 Instant::class -> (property as Instant).toEpochMilli().toString()
+                LocalDateTime::class -> (property as LocalDateTime).toInstant(ZoneOffset.UTC).toEpochMilli().toString()
                 else -> property.toString()
             }
         }

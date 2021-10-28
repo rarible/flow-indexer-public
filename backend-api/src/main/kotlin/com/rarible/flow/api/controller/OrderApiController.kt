@@ -166,13 +166,12 @@ class OrderApiController(
         currencyAddress: String?
     ): ResponseEntity<FlowOrdersPaginationDto> {
         val makerAddress = maker.flowAddress()
-        val currency = currencyAddress.flowAddress()
         val itemId = ItemId(contract, tokenId.tokenId())
         val sort = OrderFilter.Sort.MAKE_PRICE_ASC
         val orderStatuses = OderStatusDtoConverter.convert(status)
         return result(
             service.getSellOrdersByItemAndStatus(
-                itemId, makerAddress, currency, orderStatuses, continuation, size, sort
+                itemId, makerAddress, currencyAddress, orderStatuses, continuation, size, sort
             ),
             sort
         )
