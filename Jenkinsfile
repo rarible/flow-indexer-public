@@ -35,7 +35,7 @@ pipeline {
             agent any
             steps {
                 script {
-                    env.IMAGE_TAG = "${env.GIT_BRANCH}-1.0.${env.BUILD_NUMBER}"
+                    env.IMAGE_TAG = "${env.GIT_BRANCH.replace("/", "-")}-1.0.${env.BUILD_NUMBER}"
                     env.VERSION = "${env.IMAGE_TAG}"
                     env.BRANCH_NAME = "${env.GIT_BRANCH}"
                 }
