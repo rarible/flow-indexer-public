@@ -24,10 +24,10 @@ class OrderEventListeners(
     fun list(activity: FlowNftOrderActivityList) = runBlocking {
         val originalFees = activity.payments
             .filter { it.type in setOf(PaymentType.BUYER_FEE, PaymentType.SELLER_FEE) }
-            .map { Payout(FlowAddress(it.address), it.amount) }
+            .map { Payout(FlowAddress(it.address), it.amount) } //TODO replace amount with share
         val payouts = activity.payments
             .filter { it.type in setOf(PaymentType.ROYALTY, PaymentType.OTHER, PaymentType.REWARD) }
-            .map { Payout(FlowAddress(it.address), it.amount) }
+            .map { Payout(FlowAddress(it.address), it.amount) } //TODO replace amount with share
 
         val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
             itemId = ItemId(activity.contract, activity.tokenId),
