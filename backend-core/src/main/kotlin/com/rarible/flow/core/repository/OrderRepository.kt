@@ -5,8 +5,6 @@ import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderStatus
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asFlow
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
 import org.springframework.data.mongodb.repository.Query
@@ -33,7 +31,7 @@ interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepository
 }
 
 interface OrderRepositoryCustom {
-    fun search(filter: OrderFilter, cont: String?, limit: Int?, sort: OrderFilter.Sort = OrderFilter.Sort.LAST_UPDATE): Flux<Order>
+    fun search(filter: OrderFilter, cont: String?, limit: Int?, sort: OrderFilter.Sort = OrderFilter.Sort.LATEST_FIRST): Flux<Order>
 }
 
 @Suppress("unused")

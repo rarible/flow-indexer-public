@@ -6,7 +6,6 @@ import com.rarible.flow.core.converter.OderStatusDtoConverter
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.*
@@ -77,7 +76,7 @@ class OrderApiController(
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
-        val sort = OrderFilter.Sort.LAST_UPDATE
+        val sort = OrderFilter.Sort.LATEST_FIRST
         return result(
             service.findAll(continuation, size, sort),
             sort
@@ -90,7 +89,7 @@ class OrderApiController(
         size: Int?,
         status: List<FlowOrderStatusDto>?
     ): ResponseEntity<FlowOrdersPaginationDto> {
-        val sorting = safeOf(sort, OrderFilter.Sort.LAST_UPDATE)!!
+        val sorting = safeOf(sort, OrderFilter.Sort.LATEST_FIRST)!!
         val orderStatuses = OderStatusDtoConverter.convert(status)
         return result(
             service.findAllByStatus(orderStatuses, continuation, size, sorting),
@@ -115,7 +114,7 @@ class OrderApiController(
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
-        val sort = OrderFilter.Sort.LAST_UPDATE
+        val sort = OrderFilter.Sort.LATEST_FIRST
         return result(
             service.findAll(continuation, size, sort),
             sort
@@ -128,7 +127,7 @@ class OrderApiController(
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
-        val sort = OrderFilter.Sort.LAST_UPDATE
+        val sort = OrderFilter.Sort.LATEST_FIRST
         return result(
             service.getSellOrdersByCollection(
                 collection, continuation, size, sort
@@ -167,13 +166,12 @@ class OrderApiController(
         currencyAddress: String?
     ): ResponseEntity<FlowOrdersPaginationDto> {
         val makerAddress = maker.flowAddress()
-        val currency = currencyAddress.flowAddress()
         val itemId = ItemId(contract, tokenId.tokenId())
         val sort = OrderFilter.Sort.MAKE_PRICE_ASC
         val orderStatuses = OderStatusDtoConverter.convert(status)
         return result(
             service.getSellOrdersByItemAndStatus(
-                itemId, makerAddress, currency, orderStatuses, continuation, size, sort
+                itemId, makerAddress, currencyAddress, orderStatuses, continuation, size, sort
             ),
             sort
         )
@@ -187,7 +185,7 @@ class OrderApiController(
     ): ResponseEntity<FlowOrdersPaginationDto> {
         val makerAddress = maker.flowAddress() as FlowAddress
         val originAddress = origin.flowAddress()
-        val sort = OrderFilter.Sort.LAST_UPDATE
+        val sort = OrderFilter.Sort.LATEST_FIRST
         return result(
             service.getSellOrdersByMaker(makerAddress, originAddress, continuation, size, sort),
             sort

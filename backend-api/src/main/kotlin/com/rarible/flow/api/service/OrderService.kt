@@ -73,7 +73,7 @@ class OrderService(
     suspend fun getSellOrdersByItemAndStatus(
         itemId: ItemId,
         makerAddress: FlowAddress?,
-        currency: FlowAddress?,
+        currency: String?,
         status: List<OrderStatus>,
         continuation: String?,
         size: Int?,

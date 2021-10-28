@@ -103,7 +103,7 @@ class OrderApiControllerTest {
     @Test
     fun `should find all sell orders`() {
         coEvery {
-            orderService.findAll(any(), any(), OrderFilter.Sort.LAST_UPDATE)
+            orderService.findAll(any(), any(), OrderFilter.Sort.LATEST_FIRST)
         } returns (1L..10L).map { createOrder(it) }.asFlow()
 
         shouldGetPaginatedResult("/v0.1/orders/sell")
@@ -112,11 +112,11 @@ class OrderApiControllerTest {
     @Test
     fun `should find orders by collection - success`() {
         coEvery {
-            orderService.getSellOrdersByCollection(eq("ABC"), any(), any(), OrderFilter.Sort.LAST_UPDATE)
+            orderService.getSellOrdersByCollection(eq("ABC"), any(), any(), OrderFilter.Sort.LATEST_FIRST)
         } returns (1L..10L).map { createOrder(it) }.asFlow()
 
         coEvery {
-            orderService.getSellOrdersByCollection(neq("ABC"), any(), any(), OrderFilter.Sort.LAST_UPDATE)
+            orderService.getSellOrdersByCollection(neq("ABC"), any(), any(), OrderFilter.Sort.LATEST_FIRST)
         } returns emptyFlow()
 
         shouldGetPaginatedResult("/v0.1/orders/sell/byCollection?collection={collection}",
@@ -185,7 +185,7 @@ class OrderApiControllerTest {
     @Test
     fun `should find orders by maker - success`() {
         coEvery {
-            orderService.getSellOrdersByMaker(any(), any(), any(), any(), OrderFilter.Sort.LAST_UPDATE)
+            orderService.getSellOrdersByMaker(any(), any(), any(), any(), OrderFilter.Sort.LATEST_FIRST)
         } returns (1L..10L).map { createOrder(it) }.asFlow()
 
         shouldGetPaginatedResult(

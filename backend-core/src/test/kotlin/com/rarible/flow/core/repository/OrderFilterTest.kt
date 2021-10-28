@@ -33,9 +33,9 @@ internal class OrderFilterTest : FunSpec({
     }
 
     test("should make filter - by currency") {
-        OrderFilter.ByCurrency(FlowAddress("0x01")) shouldMakeCriteria (
-                (Order::take / FlowAsset::contract).isEqualTo("0x0000000000000001")
-                )
+        OrderFilter.ByCurrency("A.1234.FUSD") shouldMakeCriteria (
+            (Order::take / FlowAsset::contract).isEqualTo("A.1234.FUSD")
+        )
     }
 
     test("should make filter - by maker - null") {
@@ -74,9 +74,9 @@ internal class OrderFilterTest : FunSpec({
 
     test("should multiply filters") {
         OrderFilter.ByMaker(FlowAddress("0x01")) *
-                OrderFilter.ByCurrency(FlowAddress("0x02")) shouldMakeCriteria Criteria().andOperator(
+                OrderFilter.ByCurrency("A.1234.Flow") shouldMakeCriteria Criteria().andOperator(
                     Order::maker isEqualTo FlowAddress("0x01"),
-                    Order::take / FlowAsset::contract isEqualTo "0x0000000000000002"
+                    Order::take / FlowAsset::contract isEqualTo "A.1234.Flow"
                 )
     }
 
