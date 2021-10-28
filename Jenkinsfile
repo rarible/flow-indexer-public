@@ -45,7 +45,7 @@ pipeline {
         stage("deploy to dev") {
             agent any
             when {
-                anyOf { branch 'main'; branch: 'origin/main' }
+                anyOf { branch 'main'; branch 'origin/main' }
                 beforeAgent true
             }
             environment {
