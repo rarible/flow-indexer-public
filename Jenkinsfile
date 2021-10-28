@@ -45,11 +45,7 @@ pipeline {
         stage("deploy to dev") {
             agent any
             when {
-                allOf {
-                    expression {
-                        return env.BRANCH_NAME == 'origin/main' || env.BRANCH_NAME == 'main'
-                    }
-                }
+                anyOf { branch 'main'; branch: 'origin/main' }
                 beforeAgent true
             }
             environment {
@@ -63,11 +59,7 @@ pipeline {
         stage("deploy to staging") {
             agent any
             when {
-                allOf {
-                    expression {
-                        return env.BRANCH_NAME == 'origin/main' || env.BRANCH_NAME == 'main'
-                    }
-                }
+                anyOf { branch 'release/*' }
                 beforeAgent true
             }
             environment {
@@ -78,21 +70,23 @@ pipeline {
             }
         }
 
-        stage("deploy scanner to prod") {
+        stage("deploy to prod") {
             agent any
             when {
-                allOf {
-                    expression {
-                        return env.BRANCH_NAME == 'origin/main' || env.BRANCH_NAME == 'main'
-                    }
-                }
-                beforeAgent true
+               allOf {
+                   anyOf { branch 'release/*' }
+                   expression {
+                       input message: "Deploy to prod?"
+                       return true
+                   }
+               }
+               beforeAgent true
             }
             environment {
                 APPLICATION_ENVIRONMENT = 'prod'
             }
             steps {
-                deployStack('prod', stackName, prefix, env.IMAGE_TAG, [[name: 'scanner', path: './scanner']])
+                deployStack('prod', stackName, prefix, env.IMAGE_TAG, services)
             }
         }
     }
