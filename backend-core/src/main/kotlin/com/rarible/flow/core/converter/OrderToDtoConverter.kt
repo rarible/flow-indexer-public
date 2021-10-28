@@ -23,7 +23,8 @@ object OrderToDtoConverter : Converter<Order, FlowOrderDto> {
             data = convert(source.data),
             priceUsd = source.amount, //TODO get currencies rate
             collection = source.collection,
-            makeStock = source.makeStock
+            makeStock = source.makeStock,
+            status = convert(source.status)
         )
 
     fun convert(data: OrderData) = FlowOrderDataDto(
@@ -57,5 +58,15 @@ object OrderToDtoConverter : Converter<Order, FlowOrderDto> {
             contract = "",
             value = 0.toBigDecimal()
         )
+    }
+
+    fun convert(status: OrderStatus): FlowOrderStatusDto {
+        return when(status) {
+            OrderStatus.ACTIVE -> FlowOrderStatusDto.ACTIVE
+            OrderStatus.FILLED -> FlowOrderStatusDto.FILLED
+            OrderStatus.HISTORICAL -> FlowOrderStatusDto.HISTORICAL
+            OrderStatus.INACTIVE -> FlowOrderStatusDto.INACTIVE
+            OrderStatus.CANCELLED -> FlowOrderStatusDto.CANCELLED
+        }
     }
 }
