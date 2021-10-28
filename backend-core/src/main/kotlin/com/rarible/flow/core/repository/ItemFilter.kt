@@ -2,17 +2,78 @@ package com.rarible.flow.core.repository
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.Item
-import org.springframework.data.mongodb.core.query.*
+import com.rarible.flow.core.repository.filters.CriteriaProduct
+import com.rarible.flow.core.repository.filters.ScrollingSort
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.exists
+import org.springframework.data.mongodb.core.query.gte
+import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.lt
+import org.springframework.data.mongodb.core.query.ne
 import java.time.Instant
-import java.util.*
+import org.springframework.data.domain.Sort as SpringSort
 
 
-sealed class ItemFilter(open val sort: Sort = Sort.LAST_UPDATE) {
-    enum class Sort {
-        LAST_UPDATE
+sealed class ItemFilter(open val sort: Sort = Sort.LAST_UPDATE) : CriteriaProduct<ItemFilter> {
+    enum class Sort: ScrollingSort<Item> {
+        LAST_UPDATE {
+            override fun springSort(): SpringSort =
+                SpringSort.by(
+                    SpringSort.Order.desc(Item::mintedAt.name),
+                    SpringSort.Order.desc(Item::id.name)
+                )
+
+            override fun scroll(criteria: Criteria, continuation: String?): Criteria =
+                Cont.scrollDesc(criteria, continuation, Item::mintedAt, Item::id)
+
+
+            override fun nextPage(entity: Item): String =
+                Cont.toString(entity.mintedAt, entity.id)
+        }
     }
 
-    abstract fun criteria(): Criteria
+    override fun byCriteria(criteria: Criteria): ItemFilter {
+        return ByCriteria(criteria)
+    }
+
+    private data class ByCriteria(val criteria: Criteria) : ItemFilter() {
+        override fun criteria(): Criteria {
+            return criteria
+        }
+    }
+
+    data class ByShowDeleted(val showDeleted: Boolean = false) : ItemFilter() {
+        override fun criteria(): Criteria {
+            return if (showDeleted) {
+                Criteria()
+            } else {
+                Criteria().andOperator(
+                    Item::owner exists true,
+                    Item::owner ne null
+                )
+            }
+        }
+    }
+
+    data class ByLastUpdatedFrom(val from: Instant?) : ItemFilter() {
+        override fun criteria(): Criteria {
+            return if (from == null) {
+                Criteria()
+            } else {
+                Item::updatedAt gte from
+            }
+        }
+    }
+
+    data class ByLastUpdatedTo(val to: Instant?) : ItemFilter() {
+        override fun criteria(): Criteria {
+            return if (to == null) {
+                Criteria()
+            } else {
+                Item::updatedAt lt to
+            }
+        }
+    }
 
     data class All(
         val showDeleted: Boolean = false,
@@ -20,41 +81,11 @@ sealed class ItemFilter(open val sort: Sort = Sort.LAST_UPDATE) {
         val lastUpdatedTo: Instant? = null,
     ) : ItemFilter() {
         override fun criteria(): Criteria {
-            val criterions = if (showDeleted) {
-                emptyList()
-            } else {
-                listOf(
-                    Item::owner exists true,
-                    Item::owner ne null
-                )
-            }
-
-            return if(criterions.isEmpty()) {
-                Criteria()
-            } else {
-                Criteria().andOperator(
-                    criterions
-                        .withFrom(lastUpdatedFrom)
-                        .withTo(lastUpdatedTo)
-                )
-            }
-
-        }
-
-        private fun List<Criteria>.withFrom(from: Instant?): List<Criteria> {
-            return if (from == null) {
-                this
-            } else {
-                this + (Item::updatedAt gte from)
-            }
-        }
-
-        private fun List<Criteria>.withTo(to: Instant?): List<Criteria> {
-            return if (to == null) {
-                this
-            } else {
-                this + (Item::updatedAt lt to)
-            }
+            return (
+                ByShowDeleted(showDeleted) *
+                    ByLastUpdatedFrom(lastUpdatedFrom) *
+                    ByLastUpdatedTo(lastUpdatedTo)
+            ).criteria()
         }
     }
 

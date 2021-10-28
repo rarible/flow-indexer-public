@@ -10,7 +10,10 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
 import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty1
 
+
+@Deprecated("Should be removed in favor of Cont class and functions")
 sealed interface Continuation
 
 
@@ -178,6 +181,19 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
                 criteria
             } else {
                 desc<P1, P2>(continuation)(criteria, primary, secondary)
+            }
+        }
+
+        inline fun <reified P1, reified P2> toString(
+            primary: P1, secondary: P2
+        ): String {
+            return toString(primary) + "_" + toString(secondary)
+        }
+
+        inline fun <reified P> toString(property: P): String {
+            return when(P::class) {
+                Instant::class -> (property as Instant).toEpochMilli().toString()
+                else -> property.toString()
             }
         }
     }

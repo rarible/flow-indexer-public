@@ -68,8 +68,9 @@ class ItemRepositoryTestOld {
         val items = itemRepository.search(
             ItemFilter.All(lastUpdatedFrom = since),
             null,
-            null
-        ).toList()
+            null,
+            ItemFilter.Sort.LAST_UPDATE
+        ).asFlow().toList()
         items shouldHaveSize 4
         items shouldNotContain db[0]
     }
@@ -86,8 +87,9 @@ class ItemRepositoryTestOld {
         val items = itemRepository.search(
             ItemFilter.All(lastUpdatedTo = before),
             null,
-            null
-        ).toList()
+            null,
+            ItemFilter.Sort.LAST_UPDATE
+        ).asFlow().toList()
         items shouldHaveSize 2
         items shouldNotContain listOf(db[0], db[1])
     }
@@ -105,8 +107,9 @@ class ItemRepositoryTestOld {
         val items = itemRepository.search(
             ItemFilter.All(lastUpdatedFrom = after, lastUpdatedTo = before),
             null,
-            null
-        ).toList()
+            null,
+            ItemFilter.Sort.LAST_UPDATE
+        ).asFlow().toList()
         items shouldHaveSize 2
         items shouldNotContain listOf(db[0], db[1])
     }

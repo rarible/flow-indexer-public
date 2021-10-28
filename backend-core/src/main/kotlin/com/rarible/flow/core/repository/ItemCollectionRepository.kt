@@ -26,7 +26,7 @@ class ItemCollectionRepositoryCustomImpl(
                 Sort.Order.desc(ItemCollection::createdDate.name),
                 Sort.Order.desc(ItemCollection::id.name)
             )
-        ).limit(limit ?: ItemRepositoryCustomImpl.DEFAULT_LIMIT)
+        ).limit(limit ?: 50) // todo refactor
 
         return mongo.find<ItemCollection>(query).asFlow()
     }

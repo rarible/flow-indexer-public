@@ -4,73 +4,70 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderStatus
+import com.rarible.flow.core.repository.filters.BuildsCriteria
+import com.rarible.flow.core.repository.filters.CriteriaProduct
+import com.rarible.flow.core.repository.filters.ScrollingSort
 import com.rarible.protocol.dto.FlowOrderStatusDto
-import org.springframework.data.domain.Sort as SpringSort
 import org.springframework.data.mapping.div
 import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.gt
+import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
 import java.math.BigDecimal
+import org.springframework.data.domain.Sort as SpringSort
 
+sealed class OrderFilter(): CriteriaProduct<OrderFilter> {
+    enum class Sort: ScrollingSort<Order> {
+        LAST_UPDATE {
+            override fun springSort(): SpringSort = SpringSort.by(
+                    SpringSort.Order.desc(Order::createdAt.name),
+                    SpringSort.Order.desc(Order::id.name)
+                )
 
-sealed class OrderFilter() {
-    enum class Sort {
-        LAST_UPDATE,
-        MAKE_PRICE_ASC,
-        TAKE_PRICE_DESC
-    }
+            override fun scroll(criteria: Criteria, continuation: String?): Criteria =
+                Cont.scrollDesc(criteria, continuation, Order::createdAt, Order::id)
 
-    abstract fun criteria(): Criteria
-
-    operator fun times(other: OrderFilter): OrderFilter {
-        val empty = Criteria()
-
-        @Suppress("ReplaceCallWithBinaryOperator")
-        val finalCriteria = if(this.criteria().equals(empty) && other.criteria().equals(empty)) {
-            empty
-        } else if (this.criteria().equals(empty)) {
-            other.criteria()
-        } else if (other.criteria().equals(empty)){
-            this.criteria()
-        } else {
-            Criteria().andOperator(
-                this.criteria(),
-                other.criteria()
-            )
-        }
-        return ByCriteria(finalCriteria)
-    }
-
-    fun toQuery(continuation: String?, limit: Int?, sort: Sort = Sort.LAST_UPDATE): Query {
-        val (querySort, criteria) = sortWithCriteria(continuation, sort)
-        return Query
-            .query(criteria)
-            .with(querySort)
-            .limit(limit ?: DEFAULT_LIMIT)
-    }
-
-    fun sortWithCriteria(continuation: String?, sort: Sort = Sort.LAST_UPDATE): Pair<SpringSort, Criteria> {
-        return when (sort) {
-            Sort.LAST_UPDATE -> SpringSort.by(
-                SpringSort.Order.desc(Order::createdAt.name),
-                SpringSort.Order.desc(Order::id.name)
-            ) to Cont.scrollDesc(this.criteria(), continuation, Order::createdAt, Order::id)
-
-            Sort.MAKE_PRICE_ASC -> SpringSort.by(
+            override fun nextPage(entity: Order): String {
+                return Cont.toString(entity.createdAt, entity.id)
+            }
+        },
+        MAKE_PRICE_ASC {
+            override fun springSort(): SpringSort = SpringSort.by(
                 SpringSort.Order.asc((Order::make / FlowAsset::value).toDotPath()),
                 SpringSort.Order.asc(Order::id.name)
-            ) to Cont.scrollAsc(this.criteria(), continuation, (Order::make / FlowAsset::value), Order::id)
+            )
 
-            Sort.TAKE_PRICE_DESC -> SpringSort.by(
+            override fun scroll(criteria: Criteria, continuation: String?): Criteria =
+                Cont.scrollAsc(criteria, continuation, (Order::make / FlowAsset::value), Order::id)
+
+            override fun nextPage(entity: Order): String {
+                return Cont.toString(entity.make.value, entity.id)
+            }
+        },
+        TAKE_PRICE_DESC {
+            override fun springSort(): SpringSort = SpringSort.by(
                 SpringSort.Order.desc((Order::take / FlowAsset::value).toDotPath()),
                 SpringSort.Order.desc(Order::id.name)
-            ) to Cont.scrollDesc(this.criteria(), continuation, (Order::take / FlowAsset::value), Order::id)
-        }
+            )
+
+            override fun scroll(criteria: Criteria, continuation: String?): Criteria =
+                Cont.scrollDesc(criteria, continuation, (Order::take / FlowAsset::value), Order::id)
+
+            override fun nextPage(entity: Order): String {
+                return Cont.toString(entity.take.value, entity.id)
+            }
+        };
+
     }
 
-    data class ByCriteria(private val criteria: Criteria): OrderFilter() {
+    override fun byCriteria(criteria: Criteria): OrderFilter {
+        return ByCriteria(criteria)
+    }
+
+    private data class ByCriteria(private val criteria: Criteria): OrderFilter() {
         override fun criteria(): Criteria {
             return criteria
         }
@@ -114,34 +111,16 @@ sealed class OrderFilter() {
         }
     }
 
-    class ByStatus(val status: List<FlowOrderStatusDto>?) : OrderFilter() {
+    class ByStatus(val status: List<OrderStatus>?) : OrderFilter() {
 
-        constructor(vararg statuses: FlowOrderStatusDto) : this(statuses.asList())
+        constructor(vararg statuses: OrderStatus) : this(statuses.asList())
 
-        @Suppress("IfThenToElvis")
         override fun criteria(): Criteria {
             return if(status == null || status.isEmpty()) {
                 Criteria()
             } else {
-                val criterias = status.mapNotNull {
-                    when(it) {
-                        FlowOrderStatusDto.ACTIVE -> Criteria().andOperator(
-                            Order::cancelled isEqualTo false,
-                            Order::fill isEqualTo BigDecimal.ZERO
-                        )
-                        FlowOrderStatusDto.FILLED -> (Order::fill gt BigDecimal.ZERO)
-                        FlowOrderStatusDto.HISTORICAL -> null
-                        FlowOrderStatusDto.INACTIVE -> (Order::cancelled isEqualTo true) //TODO
-                        FlowOrderStatusDto.CANCELLED -> (Order::cancelled isEqualTo true)
-                    }
-                }
-
-                Criteria().orOperator(criterias)
+                Order::status inValues status
             }
         }
-    }
-
-    companion object {
-        const val DEFAULT_LIMIT = 50
     }
 }
