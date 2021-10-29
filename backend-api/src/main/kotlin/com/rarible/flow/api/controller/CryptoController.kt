@@ -28,7 +28,7 @@ class CryptoController(
             )
             val accountCheck = signatureService.checkPublicKey(
                 signerAddress.flowAddress()!!,
-                publicKey
+                pk
             )
             log.debug(
                 "Signature check for args=[{}, {}, {}, {}] - result: {}, account: {}",
