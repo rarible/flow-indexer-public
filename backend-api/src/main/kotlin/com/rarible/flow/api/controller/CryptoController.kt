@@ -1,5 +1,7 @@
 package com.rarible.flow.api.controller
 
+import com.nftco.flow.sdk.FlowPublicKey
+import com.nftco.flow.sdk.FlowSignature
 import com.rarible.flow.api.service.FlowSignatureService
 import com.rarible.flow.log.Log
 import com.rarible.protocol.flow.nft.api.controller.FlowNftCryptoControllerApi
@@ -18,9 +20,11 @@ class CryptoController(
         signature: String,
         message: String
     ): ResponseEntity<Boolean> {
+        val pk = FlowPublicKey(publicKey)
+        val sig = FlowSignature(signature)
         val result = try {
             val sigCheck = signatureService.verify(
-                publicKey, signature, message
+                pk, sig, message
             )
             val accountCheck = signatureService.checkPublicKey(
                 signerAddress.flowAddress()!!,

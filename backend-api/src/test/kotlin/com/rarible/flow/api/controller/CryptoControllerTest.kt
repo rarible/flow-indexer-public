@@ -1,6 +1,8 @@
 package com.rarible.flow.api.controller
 
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowPublicKey
+import com.nftco.flow.sdk.FlowSignature
 import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.api.service.FlowSignatureService
 import io.kotest.matchers.shouldBe
@@ -36,7 +38,7 @@ internal class CryptoControllerTest {
     @Test
     fun `should respond true`() = runBlocking<Unit> {
         every {
-            flowSignatureService.verify(any(), any(), any())
+            flowSignatureService.verify(any<FlowPublicKey>(), any<FlowSignature>(), any())
         } returns true
 
         every {
