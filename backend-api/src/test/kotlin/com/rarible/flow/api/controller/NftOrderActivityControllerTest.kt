@@ -1,13 +1,30 @@
 package com.rarible.flow.api.controller
 
+import com.rarible.blockchain.scanner.flow.model.FlowLog
+import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.api.config.Config
 import com.rarible.flow.core.config.CoreConfig
-import org.junit.jupiter.api.Disabled
+import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.repository.ItemHistoryRepository
+import com.rarible.flow.randomAddress
+import com.rarible.flow.randomFlowAddress
+import com.rarible.flow.randomLong
+import com.rarible.flow.randomRate
+import com.rarible.protocol.dto.FlowActivitiesDto
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
+import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils
+import java.time.Clock
+import java.time.Instant
+import kotlin.random.Random
 
 @SpringBootTest(
     properties = [
@@ -23,8 +40,65 @@ import org.springframework.test.context.ActiveProfiles
 @MongoTest
 @ActiveProfiles("test")
 @Import(Config::class, CoreConfig::class)
-@Disabled
-class NftOrderActivityControllerTest /*{
+class NftOrderActivityControllerTest {
+
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
+    @Autowired
+    private lateinit var repo: ItemHistoryRepository
+
+    @Autowired
+    lateinit var client: WebTestClient
+
+    @Test
+    internal fun `should handle basic request item history by user`() {
+        val expectedUser = randomAddress()
+
+        val history = listOf(
+            randomItemHistory(randomMint().copy(owner = expectedUser)),
+            randomItemHistory(randomBurn().copy(owner = expectedUser)),
+        )
+        repo.saveAll(history).then().block()
+        client.get()
+            .uri("/v0.1/order/activities/byUser?type=MINT&user=$expectedUser")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowActivitiesDto>()
+            .consumeWith { response ->
+                val activitiesDto = response.responseBody
+                Assertions.assertNotNull(activitiesDto)
+                Assertions.assertNotNull(activitiesDto?.items)
+                Assertions.assertEquals(1, activitiesDto?.items?.size)
+            }
+    }
+
+    private fun randomMint() = MintActivity(
+        type = FlowActivityType.MINT,
+        timestamp = Instant.now(Clock.systemUTC()),
+        owner = randomAddress(),
+        contract = randomAddress(),
+        tokenId = randomLong(),
+        value = RandomUtils.nextLong(),
+        metadata = mapOf("metaURI" to "ipfs://"),
+        royalties = (0..Random.Default.nextInt(0, 3)).map { Part(randomFlowAddress(), randomRate()) },
+    )
+
+    fun randomBurn() = BurnActivity(
+        type = FlowActivityType.BURN,
+        timestamp = Instant.now(Clock.systemUTC()),
+        owner = randomAddress(),
+        contract = randomAddress(),
+        tokenId = randomLong(),
+        value = RandomUtils.nextLong(),
+    )
+
+    fun randomItemHistory(activity: FlowActivity) = ItemHistory(
+        date = Instant.now(Clock.systemUTC()),
+        activity = activity,
+        log = FlowLog("", Log.Status.CONFIRMED, 1, "", Instant.now(Clock.systemUTC()), randomLong(), "")
+    )
+}
+
+/*{
 
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
