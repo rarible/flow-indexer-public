@@ -3,6 +3,8 @@ package com.rarible.flow.api.service
 import com.nftco.flow.sdk.FlowAccessApi
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
+import com.nftco.flow.sdk.FlowPublicKey
+import com.nftco.flow.sdk.FlowSignature
 import com.nftco.flow.sdk.SignatureAlgorithm
 import com.nftco.flow.sdk.cadence.BooleanField
 import com.nftco.flow.sdk.cadence.marshall
@@ -15,8 +17,11 @@ class FlowSignatureService(
     private val flowAccessApi: FlowAccessApi
 ) {
 
-    fun verify(publicKey: String, signature: String, message: String): Boolean {
+    fun verify(publicKey: FlowPublicKey, signature: FlowSignature, message: String): Boolean {
+        return verify(publicKey.base16Value, signature.base16Value, message)
+    }
 
+    fun verify(publicKey: String, signature: String, message: String): Boolean {
         val publicKeys = marshall {
             array {
                 listOf(
