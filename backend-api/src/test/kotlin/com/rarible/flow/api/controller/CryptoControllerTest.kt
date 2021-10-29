@@ -59,11 +59,11 @@ internal class CryptoControllerTest {
 
         verify(exactly = 1) {
             flowSignatureService.verify(
-                pk, signature, message
+                FlowPublicKey(pk), FlowSignature(signature), message
             )
 
             flowSignatureService.checkPublicKey(
-                FlowAddress("0x01"), pk
+                FlowAddress("0x01"), FlowPublicKey(pk)
             )
         }
 

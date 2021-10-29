@@ -57,14 +57,16 @@ internal class FlowSignatureServiceTest: FunSpec({
     test("should check account") {
         service.checkPublicKey(
             FlowAddress("0xeeec6511cadbc0e2"),
-            "66b3acb064f9cc990b93796e8d09d4a8820b3dde809f9be69f631d0582d314e4e0a5f881f5e2bcdb8153d78de63d98712b899d4f5dec947822a3ada60230376d"
+            FlowPublicKey("66b3acb064f9cc990b93796e8d09d4a8820b3dde809f9be69f631d0582d314e4e0a5f881f5e2bcdb8153d78de63d98712b899d4f5dec947822a3ada60230376d")
         ) shouldBe true
     }
 
     test("should check account - false") {
         service.checkPublicKey(
             FlowAddress("0xeeec6511cadbc0e2"),
-            "528360c75ecf870d4c8a432d23710a2d0b71ac30222b55ed31e32717a6f3741dd54c07669d607f39d164d1bce6807d1c5645569bdae99e8b0c710af450aeac05"
+            FlowPublicKey(
+                "528360c75ecf870d4c8a432d23710a2d0b71ac30222b55ed31e32717a6f3741dd54c07669d607f39d164d1bce6807d1c5645569bdae99e8b0c710af450aeac05"
+            )
         ) shouldBe false
     }
 

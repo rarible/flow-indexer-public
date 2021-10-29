@@ -22,7 +22,7 @@ import java.time.Instant
 @Service
 class ActivitiesService(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
-    private val itemHistoryRepository: ItemHistoryRepository
+    private val itemHistoryRepository: ItemHistoryRepository,
 ) {
     suspend fun getNftOrderActivitiesByItem(
         types: List<FlowActivityType>,
@@ -30,7 +30,7 @@ class ActivitiesService(
         tokenId: Long,
         continuation: ActivityContinuation?,
         size: Int?,
-        sort: String? = "LATEST_FIRST"
+        sort: String? = "LATEST_FIRST",
     ): FlowActivitiesDto {
         val order = order(sort)
         var predicate = byTypes(types).and(byContractAndTokenPredicate(contract, tokenId))
@@ -40,7 +40,7 @@ class ActivitiesService(
         }
 
         val flow = itemHistoryRepository.findAll(predicate, *order).asFlow()
-        return flowActivitiesDto(flow, size, sort!!)
+        return flowActivitiesDto(flow, size, sortDefault(sort))
     }
 
     suspend fun getNftOrderActivitiesByUser(
@@ -50,7 +50,7 @@ class ActivitiesService(
         from: Instant?,
         to: Instant?,
         size: Int?,
-        sort: String? = "LATEST_FIRST"
+        sort: String? = "LATEST_FIRST",
     ): FlowActivitiesDto {
         val haveTransferTo = type.isEmpty() || type.contains("TRANSFER_TO")
         val haveTransferFrom = type.isEmpty() || type.contains("TRANSFER_FROM")
@@ -104,14 +104,14 @@ class ActivitiesService(
                 transferToActivities,
                 listActivities,
                 sellActivities
-            ).flattenConcat(), size, sort!!
+            ).flattenConcat(), size, sort ?: "LATEST_FIRST"
         )
     }
 
     private suspend fun flowActivitiesDto(
         flow: Flow<ItemHistory>,
         size: Int?,
-        sort: String
+        sort: String,
     ): FlowActivitiesDto {
         val items = flow.toList()
         var dto = convertToDto(items, sort)
@@ -129,7 +129,7 @@ class ActivitiesService(
         type: List<String>,
         continuation: String?,
         size: Int?,
-        sort: String? = "LATEST_FIRST"
+        sort: String? = "LATEST_FIRST",
     ): FlowActivitiesDto {
         val types = safeOf(type, FlowActivityType.values().toList())
 
@@ -140,7 +140,7 @@ class ActivitiesService(
         if (cont != null) {
             predicate.and(byContinuation(cont))
         }
-        return flowActivitiesDto(itemHistoryRepository.findAll(predicate, *order).asFlow(), size, sort!!)
+        return flowActivitiesDto(itemHistoryRepository.findAll(predicate, *order).asFlow(), size, sortDefault(sort))
     }
 
     suspend fun getNfdOrderActivitiesByCollection(
@@ -148,7 +148,7 @@ class ActivitiesService(
         collection: String,
         continuation: String?,
         size: Int?,
-        sort: String? = "LATEST_FIRST"
+        sort: String? = "LATEST_FIRST",
     ): FlowActivitiesDto {
         val types = safeOf(type, FlowActivityType.values().toList())
 
@@ -161,7 +161,7 @@ class ActivitiesService(
         }
         val flow = itemHistoryRepository.findAll(predicateBuilder, *order(sort)).asFlow()
 
-        return flowActivitiesDto(flow, size, sort!!)
+        return flowActivitiesDto(flow, size, sortDefault(sort))
     }
 
     private fun byCollection(collection: String): BooleanExpression {
@@ -186,12 +186,17 @@ class ActivitiesService(
             .and(activity.tokenId.eq(tokenId))
     }
 
-    private fun withintDates(qItemHistory: QItemHistory, predicate: BooleanExpression, from: Instant?, to: Instant?): BooleanExpression {
+    private fun withintDates(
+        qItemHistory: QItemHistory,
+        predicate: BooleanExpression,
+        from: Instant?,
+        to: Instant?,
+    ): BooleanExpression {
         var pred = predicate
-        if(from != null) {
+        if (from != null) {
             pred = predicate.and(qItemHistory.date.after(from))
         }
-        if(to != null) {
+        if (to != null) {
             pred = pred.and(qItemHistory.date.before(to))
         }
 
@@ -270,7 +275,7 @@ class ActivitiesService(
                 if (i == sorted.lastIndex) {
                     continue
                 }
-                val d = sorted[i+1]
+                val d = sorted[i + 1]
                 if (d.activity is DepositActivity) {
                     val da = d.activity as DepositActivity
                     result.add(
@@ -298,5 +303,7 @@ class ActivitiesService(
         }
         return result.toList()
     }
+
+    private fun sortDefault(sort: String?) = sort ?: "LATEST_FIRST"
 }
 

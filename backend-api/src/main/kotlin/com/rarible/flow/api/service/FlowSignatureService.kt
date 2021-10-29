@@ -63,10 +63,10 @@ class FlowSignatureService(
     /**
      * Returns true if account has the public key
      */
-    fun checkPublicKey(account: FlowAddress, publicKey: String): Boolean {
+    fun checkPublicKey(account: FlowAddress, publicKey: FlowPublicKey): Boolean {
         return flowAccessApi.getAccountAtLatestBlock(account)?.let { acc ->
             acc.keys.any { key ->
-                key.publicKey.base16Value == publicKey
+                key.publicKey == publicKey
             }
         } ?: false
     }
