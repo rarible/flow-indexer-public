@@ -30,7 +30,7 @@ class ActivitiesService(
         tokenId: Long,
         continuation: ActivityContinuation?,
         size: Int?,
-        sort: String? = "LATEST_FIRST",
+        sort: String,
     ): FlowActivitiesDto {
         val order = order(sort)
         var predicate = byTypes(types).and(byContractAndTokenPredicate(contract, tokenId))
@@ -40,7 +40,7 @@ class ActivitiesService(
         }
 
         val flow = itemHistoryRepository.findAll(predicate, *order).asFlow()
-        return flowActivitiesDto(flow, size, sortDefault(sort))
+        return flowActivitiesDto(flow, size, sort)
     }
 
     suspend fun getNftOrderActivitiesByUser(
@@ -50,7 +50,7 @@ class ActivitiesService(
         from: Instant?,
         to: Instant?,
         size: Int?,
-        sort: String? = "LATEST_FIRST",
+        sort: String,
     ): FlowActivitiesDto {
         val haveTransferTo = type.isEmpty() || type.contains("TRANSFER_TO")
         val haveTransferFrom = type.isEmpty() || type.contains("TRANSFER_FROM")
@@ -104,7 +104,7 @@ class ActivitiesService(
                 transferToActivities,
                 listActivities,
                 sellActivities
-            ).flattenConcat(), size, sort ?: "LATEST_FIRST"
+            ).flattenConcat(), size, sort
         )
     }
 
@@ -129,7 +129,7 @@ class ActivitiesService(
         type: List<String>,
         continuation: String?,
         size: Int?,
-        sort: String? = "LATEST_FIRST",
+        sort: String,
     ): FlowActivitiesDto {
         val types = safeOf(type, FlowActivityType.values().toList())
 
@@ -140,15 +140,15 @@ class ActivitiesService(
         if (cont != null) {
             predicate.and(byContinuation(cont))
         }
-        return flowActivitiesDto(itemHistoryRepository.findAll(predicate, *order).asFlow(), size, sortDefault(sort))
+        return flowActivitiesDto(itemHistoryRepository.findAll(predicate, *order).asFlow(), size, sort)
     }
 
-    suspend fun getNfdOrderActivitiesByCollection(
+    suspend fun getNftOrderActivitiesByCollection(
         type: List<String>,
         collection: String,
         continuation: String?,
         size: Int?,
-        sort: String? = "LATEST_FIRST",
+        sort: String,
     ): FlowActivitiesDto {
         val types = safeOf(type, FlowActivityType.values().toList())
 
@@ -161,7 +161,7 @@ class ActivitiesService(
         }
         val flow = itemHistoryRepository.findAll(predicateBuilder, *order(sort)).asFlow()
 
-        return flowActivitiesDto(flow, size, sortDefault(sort))
+        return flowActivitiesDto(flow, size, sort)
     }
 
     private fun byCollection(collection: String): BooleanExpression {
@@ -303,7 +303,4 @@ class ActivitiesService(
         }
         return result.toList()
     }
-
-    private fun sortDefault(sort: String?) = sort ?: "LATEST_FIRST"
 }
-
