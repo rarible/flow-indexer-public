@@ -1,9 +1,0 @@
-application:
-  environment: staging
-flow-indexer-listener:
-  environment: staging
-  default-item-collection:
-    id: "A.e7e97b10fbd3b607.CommonNFT.NFT"
-    owner: "0xe91e497115b9731b"
-    name: "CommonNFT"
-    symbol: "CNFT"
