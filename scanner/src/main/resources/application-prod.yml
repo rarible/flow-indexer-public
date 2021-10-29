@@ -9,7 +9,7 @@ blockchain:
         delay: 100
       job:
         reconciliation:
-          batchSize: 1000
+          batchSize: 250
 
 scanner:
   environment: prod
