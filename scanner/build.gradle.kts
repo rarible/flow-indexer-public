@@ -27,5 +27,6 @@ dependencies {
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     enabled = true
+    destinationDirectory.set(file("./target/boot"))
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
