@@ -35,11 +35,17 @@ pipeline {
             agent any
             steps {
                 script {
-                    env.IMAGE_TAG = "${env.GIT_BRANCH.replace("/", "-")}-1.0.${env.BUILD_NUMBER}"
+                    env.IMAGE_TAG = "${env.GIT_BRANCH.replace("/", "_")}-1.0.${env.BUILD_NUMBER}"
                     env.VERSION = "${env.IMAGE_TAG}"
                     env.BRANCH_NAME = "${env.GIT_BRANCH}"
                 }
-                publishDockerImages(prefix, credentialsId, env.IMAGE_TAG, services)
+
+                services.collect {
+                    def image = docker.build("rarible/${prefix}-${it.name}:${env.VERSION}", it.path)
+                    docker.withRegistry('', 'rarible-docker-hub') {
+                        image.push()
+                    }
+                }
             }
         }
         stage("deploy to dev") {

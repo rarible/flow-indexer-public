@@ -8,4 +8,4 @@ USER rarible:rarible
 WORKDIR /usr/app
 COPY ./target/boot/scanner.jar application.jar
 
-CMD java $JAVA_OPTIONS -jar application.jar
+CMD java $JAVA_OPTIONS $JAVA_MEMORY_OPTIONS -jar application.jar
