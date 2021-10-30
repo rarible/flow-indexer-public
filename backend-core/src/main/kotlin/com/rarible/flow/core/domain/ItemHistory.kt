@@ -32,7 +32,7 @@ data class ItemHistory(
 
     @get:MongoId
     var id: String
-        get() = "${log.transactionHash}:${log.eventIndex}"
+        get() = "${log.transactionHash}.${log.eventIndex}"
         set(_) { }
 
     override fun withLog(log: FlowLog): FlowLogRecord<ItemHistory> = copy(log = log)
