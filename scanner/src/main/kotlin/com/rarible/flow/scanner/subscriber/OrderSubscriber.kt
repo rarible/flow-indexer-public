@@ -44,7 +44,6 @@ class OrderSubscriber(
     )
 
     override fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): FlowActivity? {
-        val contract = msg.eventId.collection()
         val timestamp = Instant.ofEpochMilli(block.timestamp)
 
         return when (msg.eventId.eventName) {
@@ -53,7 +52,7 @@ class OrderSubscriber(
                 logger.debug("OrderSubscriber: $event")
 
                 FlowNftOrderActivityList(
-                    contract = contract,
+                    contract = event.nftType.collection(),
                     tokenId = event.nftId,
                     timestamp = timestamp,
                     price = event.price,
@@ -78,7 +77,7 @@ class OrderSubscriber(
                 logger.debug("OrderSubscriber: $event")
 
                 FlowNftOrderActivitySell(
-                    contract = contract,
+                    contract = event.nftType.collection(),
                     tokenId = event.nftId,
                     timestamp = timestamp,
                     price = event.price,
@@ -96,7 +95,7 @@ class OrderSubscriber(
                 logger.debug("OrderSubscriber: $event")
 
                 FlowNftOrderActivityCancelList(
-                    contract = contract,
+                    contract = event.nftType.collection(),
                     tokenId = event.nftId,
                     timestamp = timestamp,
                     price = event.price,

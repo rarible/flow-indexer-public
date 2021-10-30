@@ -176,7 +176,14 @@ class ActivitiesService(
 
     private fun byTypes(types: List<FlowActivityType>): BooleanExpression {
         val qItemHistory = QItemHistory.itemHistory
-        return qItemHistory.activity.`as`(QBaseActivity::class.java).type.`in`(types)
+        val fixed = if (types.contains(FlowActivityType.TRANSFER)) {
+            val z = types.filter { it != FlowActivityType.TRANSFER }.toMutableList()
+            z.addAll(setOf(FlowActivityType.DEPOSIT, FlowActivityType.WITHDRAWN))
+            z.toList()
+        } else {
+            types
+        }
+        return qItemHistory.activity.`as`(QBaseActivity::class.java).type.`in`(fixed)
     }
 
     private fun byContractAndTokenPredicate(contract: String, tokenId: Long): BooleanExpression {
