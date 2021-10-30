@@ -94,7 +94,7 @@ class ActivitiesService(
         }
 
         val activities: Flow<ItemHistory> = if (types.isEmpty()) emptyFlow() else itemHistoryRepository.findAll(
-            predicate.and(byTypes(types)).and(byOwner(user)), *order
+            predicate.and(byTypes(types)).and(byOwner(user, from, to)), *order
         ).asFlow()
 
         return flowActivitiesDto(
@@ -227,10 +227,11 @@ class ActivitiesService(
         return withintDates(q, predicate, from, to)
     }
 
-    private fun byOwner(users: List<String>): BooleanExpression {
+    private fun byOwner(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
         val q = QItemHistory.itemHistory
         val activity = QFlowNftActivity(q.activity.metadata)
-        return activity.owner.isNotNull.and(activity.owner.`in`(users))
+        val predicate = activity.owner.isNotNull.and(activity.owner.`in`(users))
+        return withintDates(q, predicate, from, to)
     }
 
     private fun order(sort: String?): Array<OrderSpecifier<*>> {
