@@ -93,7 +93,6 @@ pipeline {
     }
 }
 
-@NoCPS
 def publishImages(prefix, version) {
     services.each {
         def image = docker.build("rarible/${prefix}-${it.name}:${version}", it.path)
