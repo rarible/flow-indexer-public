@@ -15,5 +15,5 @@ interface OwnershipRepository : ReactiveMongoRepository<Ownership, OwnershipId>,
 
     fun deleteAllByContractAndTokenId(contract: String, tokenId: TokenId /* = kotlin.Long */): Flux<Ownership>
 
-    fun findAllByContractAndTokenIdOrderByDateDescContractDescTokenIdDesc(address: String, id: TokenId): Flux<Ownership>
+    fun findAllByContractAndTokenId(address: String, id: TokenId): Flux<Ownership>
 }

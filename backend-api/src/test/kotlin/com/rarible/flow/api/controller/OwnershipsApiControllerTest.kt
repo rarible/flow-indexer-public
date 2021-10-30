@@ -41,7 +41,6 @@ import kotlin.random.Random
 @AutoConfigureWebTestClient(timeout = "60000")
 @MongoTest
 @ActiveProfiles("test")
-@Import(Config::class, CoreConfig::class)
 class OwnershipsApiControllerTest {
 
     @Autowired
@@ -65,7 +64,8 @@ class OwnershipsApiControllerTest {
                 contract = contract,
                 tokenId = tokenId,
                 owner = owner,
-                date = Instant.now(Clock.systemUTC())
+                date = Instant.now(Clock.systemUTC()),
+                creator = FlowAddress(randomAddress())
             )
 
         ownershipRepository.save(ownership).block()
@@ -95,18 +95,21 @@ class OwnershipsApiControllerTest {
                         tokenId = randomLong(),
                         owner = FlowAddress(randomAddress()),
                         date = Instant.now(Clock.systemUTC()),
+                        creator = FlowAddress(randomAddress())
                     ),
                     Ownership(
                         contract = randomAddress(),
                         tokenId = randomLong(),
                         owner = FlowAddress(randomAddress()),
-                        date = Instant.now(Clock.systemUTC())
+                        date = Instant.now(Clock.systemUTC()),
+                        creator = FlowAddress(randomAddress())
                     ),
                     Ownership(
                         contract = randomAddress(),
                         tokenId = randomLong(),
                         owner = FlowAddress(randomAddress()),
-                        date = Instant.now(Clock.systemUTC())
+                        date = Instant.now(Clock.systemUTC()),
+                        creator = FlowAddress(randomAddress())
                     ),
                 )
             ).then().block()
@@ -140,25 +143,29 @@ class OwnershipsApiControllerTest {
                         contract = contract,
                         tokenId = tokenId,
                         owner = FlowAddress(randomAddress()),
-                        date = Instant.now(Clock.systemUTC())
+                        date = Instant.now(Clock.systemUTC()),
+                        creator = FlowAddress(randomAddress())
                     ),
                     Ownership(
                         contract = contract,
                         tokenId = tokenId,
                         owner = FlowAddress(randomAddress()),
-                        date = Instant.now(Clock.systemUTC())
+                        date = Instant.now(Clock.systemUTC()),
+                        creator = FlowAddress(randomAddress())
                     ),
                     Ownership(
                         contract = randomAddress(),
                         tokenId = tokenId,
                         owner = FlowAddress(randomAddress()),
-                        date = Instant.now(Clock.systemUTC())
+                        date = Instant.now(Clock.systemUTC()),
+                        creator = FlowAddress(randomAddress())
                     ),
                     Ownership(
                         contract = contract,
                         tokenId = randomLong(),
                         owner = FlowAddress(randomAddress()),
-                        date = Instant.now(Clock.systemUTC())
+                        date = Instant.now(Clock.systemUTC()),
+                        creator = FlowAddress(randomAddress())
                     ),
 
                     )
@@ -195,25 +202,29 @@ class OwnershipsApiControllerTest {
                     contract = contract,
                     tokenId = ++tokenId,
                     owner = FlowAddress(randomAddress()),
-                    date = Instant.now(Clock.systemUTC()).plusSeconds(1L)
+                    date = Instant.now(Clock.systemUTC()).plusSeconds(1L),
+                    creator = FlowAddress(randomAddress())
                 ),
                 Ownership(
                     contract = contract,
                     tokenId = ++tokenId,
                     owner = FlowAddress(randomAddress()),
-                    date = Instant.now(Clock.systemUTC()).plusSeconds(2L)
+                    date = Instant.now(Clock.systemUTC()).plusSeconds(2L),
+                    creator = FlowAddress(randomAddress())
                 ),
                 Ownership(
                     contract = randomAddress(),
                     tokenId = ++tokenId,
                     owner = FlowAddress(randomAddress()),
-                    date = Instant.now(Clock.systemUTC()).plusSeconds(3L)
+                    date = Instant.now(Clock.systemUTC()).plusSeconds(3L),
+                    creator = FlowAddress(randomAddress())
                 ),
                 Ownership(
                     contract = contract,
                     tokenId = ++tokenId,
                     owner = FlowAddress(randomAddress()),
-                    date = Instant.now(Clock.systemUTC()).plusSeconds(5L)
+                    date = Instant.now(Clock.systemUTC()).plusSeconds(5L),
+                    creator = FlowAddress(randomAddress())
                 ),
             )
 

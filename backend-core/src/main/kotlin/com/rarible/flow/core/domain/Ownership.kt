@@ -55,6 +55,7 @@ data class Ownership(
     val contract: String,
     val tokenId: TokenId,
     val owner: FlowAddress,
+    val creator: FlowAddress,
     val date: Instant = Instant.now(Clock.systemUTC())
 ) : Serializable {
     @get:Id

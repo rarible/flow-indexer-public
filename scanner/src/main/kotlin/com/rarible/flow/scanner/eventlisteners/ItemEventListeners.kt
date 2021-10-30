@@ -9,6 +9,7 @@ import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.scanner.ProtocolEventPublisher
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
@@ -55,7 +56,8 @@ class ItemEventListeners(
                 Ownership(
                     contract = activity.contract,
                     tokenId = activity.tokenId,
-                    owner = FlowAddress(activity.owner),
+                    owner = owner,
+                    creator = owner,
                     date = activity.timestamp
                 )
             ).awaitSingle()
@@ -139,7 +141,8 @@ class ItemEventListeners(
                         contract = itemId.contract,
                         tokenId = itemId.tokenId,
                         owner = newOwner,
-                        date = activity.timestamp
+                        date = activity.timestamp,
+                        creator = newOwner
                     )
                 ).awaitSingle()
             )
