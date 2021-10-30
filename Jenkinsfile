@@ -40,7 +40,7 @@ pipeline {
                     env.BRANCH_NAME = "${env.GIT_BRANCH}"
                 }
 
-                publishImages(prefix, env.VERSION)
+                publishImages(services, prefix, env.VERSION)
             }
         }
         stage("deploy to dev") {
@@ -93,7 +93,7 @@ pipeline {
     }
 }
 
-def publishImages(prefix, version) {
+def publishImages(services,prefix, version) {
     services.each {
         def image = docker.build("rarible/${prefix}-${it.name}:${version}", it.path)
         docker.withRegistry('', 'rarible-docker-hub') {
