@@ -2,7 +2,6 @@ package com.rarible.flow.core.repository
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.FlowAsset
-import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderStatus
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
@@ -14,13 +13,17 @@ import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 
 interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepositoryCustom {
-    fun findByItemId(itemId: ItemId): Mono<Order>
     @Query("""
         {"_id": ?0, "cancelled": false}
     """)
     fun findActiveById(id: Long): Mono<Order>
 
     fun findAllByIdIn(ids: List<Long>): Flux<Order>
+
+    @Query("""
+        {"make.contract": ?0, "make.tokenId": ?1}
+    """)
+    fun findAllByMake(contract: String, tokenId: Long): Flux<Order>
 
     fun findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
         make: FlowAsset,
