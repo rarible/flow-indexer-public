@@ -35,7 +35,10 @@ class AppReadyListener(
      * Save default item collection's
      */
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
-        itemCollectionRepository.deleteAll().block()
-        itemCollectionRepository.saveAll(supportedCollections[scannerProperties.chainId]!!).then().block()
+        itemCollectionRepository.deleteAll().flatMapMany {
+            itemCollectionRepository.saveAll(
+                supportedCollections.getOrDefault(scannerProperties.chainId, emptyList())
+            )
+        }.blockLast()
     }
 }
