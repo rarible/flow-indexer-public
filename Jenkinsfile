@@ -95,7 +95,7 @@ pipeline {
 
 def publishImages(services,prefix, version) {
     services.each {
-        def image = docker.build("rarible/${prefix}-${it.name}:${version}", it.path)
+        def image = docker.build("rarible/${prefix}-${it.name}:${version}", "-f ${it.path}/Dockerfile ${it.path}")
         docker.withRegistry('', 'rarible-docker-hub') {
             image.push()
         }
