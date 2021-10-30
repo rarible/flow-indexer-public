@@ -10,12 +10,8 @@ import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.*
 import com.rarible.protocol.flow.nft.api.controller.FlowOrderControllerApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.lastOrNull
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController
@@ -104,9 +100,11 @@ class OrderApiController(
     }
 
     override fun getSellCurrencies(itemId: String): ResponseEntity<Flow<FlowAssetDto>> {
-        return service.currenciesByItemId(itemId).map {
-            FlowAssetFungibleDto(it.contract, it.value)
-        }.okOr404IfNull()
+        return runBlocking {
+            service.currenciesByItemId(itemId).map {
+                FlowAssetFungibleDto(it.contract, it.value)
+            }.okOr404IfNull()
+        }
     }
 
     override suspend fun getSellOrders(

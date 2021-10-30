@@ -1,17 +1,14 @@
 package com.rarible.flow.api.service
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.core.domain.FlowAsset
-import com.rarible.flow.core.domain.FlowAssetFungible
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.domain.OrderStatus
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coFindById
-import com.rarible.protocol.dto.FlowOrderStatusDto
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -90,14 +87,10 @@ class OrderService(
         ).asFlow()
     }
 
-    fun currenciesByItemId(itemId: String): Flow<FlowAsset> {
-        return orderRepository.search(
-            OrderFilter.ByItemId(ItemId.parse(itemId)) *
-                    OrderFilter.ByStatus(OrderStatus.ACTIVE),
-            cont = null,
-            limit = null
-        ).asFlow().map {
-            FlowAssetFungible(contract = it.take.contract, value = BigDecimal.ZERO)
-        }
+    suspend fun currenciesByItemId(itemId: String): Flow<FlowAsset> {
+        val id = ItemId.parse(itemId)
+        return orderRepository.findAllByMake(id.contract, id.tokenId).asFlow().map {
+            FlowAssetFungible(it.take.contract, BigDecimal.ZERO)
+        }.toSet().asFlow()
     }
 }
