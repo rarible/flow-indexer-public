@@ -40,8 +40,8 @@ pipeline {
                     env.BRANCH_NAME = "${env.GIT_BRANCH}"
                 }
 
-                services.collect {
-                    def image = docker.build("rarible/${prefix}-${it.name}:${env.VERSION}", it.path)
+                for (s in services) {
+                    def image = docker.build("rarible/${prefix}-${s.name}:${env.VERSION}", s.path)
                     docker.withRegistry('', 'rarible-docker-hub') {
                         image.push()
                     }
