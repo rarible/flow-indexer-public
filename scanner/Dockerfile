@@ -6,6 +6,6 @@ RUN addgroup -S rarible && adduser -S rarible -G rarible
 USER rarible:rarible
 
 WORKDIR /usr/app
-COPY ./build/libs/scanner.jar application.jar
+COPY ./scanner/build/libs/scanner.jar application.jar
 
 CMD java $JAVA_OPTIONS $JAVA_MEMORY_OPTIONS -jar application.jar
