@@ -40,12 +40,7 @@ pipeline {
                     env.BRANCH_NAME = "${env.GIT_BRANCH}"
                 }
 
-                for (s in services) {
-                    def image = docker.build("rarible/${prefix}-${s.name}:${env.VERSION}", s.path)
-                    docker.withRegistry('', 'rarible-docker-hub') {
-                        image.push()
-                    }
-                }
+                publishImages(prefix, env.VERSION)
             }
         }
         stage("deploy to dev") {
@@ -94,6 +89,16 @@ pipeline {
             steps {
                 deployStack('prod', stackName, prefix, env.IMAGE_TAG, services)
             }
+        }
+    }
+}
+
+@NoCPS
+def publishImages(prefix, version) {
+    services.each {
+        def image = docker.build("rarible/${prefix}-${it.name}:${version}", it.path)
+        docker.withRegistry('', 'rarible-docker-hub') {
+            image.push()
         }
     }
 }
