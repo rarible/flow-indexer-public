@@ -35,7 +35,9 @@ class AppReadyListener(
      * Save default item collection's
      */
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
-        itemCollectionRepository.deleteAll().block()
-        itemCollectionRepository.saveAll(supportedCollections[scannerProperties.chainId]!!).then().block()
+        if (scannerProperties.chainId != FlowChainId.EMULATOR) {
+            itemCollectionRepository.deleteAll().block()
+            itemCollectionRepository.saveAll(supportedCollections[scannerProperties.chainId]!!).then().block()
+        }
     }
 }
