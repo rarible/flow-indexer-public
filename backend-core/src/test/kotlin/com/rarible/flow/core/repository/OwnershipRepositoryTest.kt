@@ -65,7 +65,8 @@ internal class OwnershipRepositoryTest(
         contract.formatted,
         Random.nextLong(),
         owner,
-        date = Instant.now(Clock.systemUTC())
+        owner,
+        Instant.now(Clock.systemUTC()),
     )
 
     private fun randomAddress() = FlowAddress("0x${RandomStringUtils.random(16, "0123456789ABCDEF")}".lowercase(Locale.ENGLISH))
