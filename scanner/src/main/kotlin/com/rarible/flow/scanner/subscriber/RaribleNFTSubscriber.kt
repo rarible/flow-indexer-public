@@ -19,10 +19,10 @@ class RaribleNFTSubscriber: BaseItemHistoryFlowLogSubscriber() {
             FlowChainId.MAINNET to FlowDescriptor(
                 id = "RaribleNFTSubscriber",
                 events = setOf(
-                    "A.1ab36aaf654a13e.RaribleNFT.Mint",
-                    "A.1ab36aaf654a13e.RaribleNFT.Withdraw",
-                    "A.1ab36aaf654a13e.RaribleNFT.Deposit",
-                    "A.1ab36aaf654a13e.RaribleNFT.Destroy"
+                    "A.01ab36aaf654a13e.RaribleNFT.Mint",
+                    "A.01ab36aaf654a13e.RaribleNFT.Withdraw",
+                    "A.01ab36aaf654a13e.RaribleNFT.Deposit",
+                    "A.01ab36aaf654a13e.RaribleNFT.Destroy"
                 ),
                 collection = collection
             ),

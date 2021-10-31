@@ -25,7 +25,7 @@ class OrderSubscriber(
 
     override val descriptors = mapOf(
         FlowChainId.MAINNET to flowDescriptor(
-            address = "1ab36aaf654a13e",
+            address = "01ab36aaf654a13e",
             contract = "RaribleOrder",
             events = events,
             startFrom = 19863151L
