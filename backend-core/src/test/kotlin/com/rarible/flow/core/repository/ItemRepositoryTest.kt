@@ -51,7 +51,7 @@ class ItemRepositoryTest {
         for (i in tokenId..tokenId + 2) {
             items[i] =
                 Item(
-                    contract = "A.${randomAddress()}.CommonNFT.NFT",
+                    contract = "A.${randomAddress()}.RaribleNFT.NFT",
                     tokenId = i,
                     creator = FlowAddress(randomAddress()),
                     royalties = listOf(),

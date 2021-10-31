@@ -13,11 +13,11 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
 
 @Component
-class CommonNFTMetaProvider(
+class RaribleNFTMetaProvider(
     private val itemRepository: ItemRepository
 ) : ItemMetaProvider {
 
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("CommonNFT")
+    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("RaribleNFT")
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta? {
         val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: throw IllegalStateException("Not found item by id [$itemId]")
@@ -30,7 +30,7 @@ class CommonNFTMetaProvider(
         if (url.startsWith("ipfs://")) {
             url = url.substring("ipfs:/".length)
         }
-        val data = client.get().uri(url).retrieve().awaitBodyOrNull<CommonNFTMetaBody>() ?: throw IllegalStateException("Cant get meta from ipfs")
+        val data = client.get().uri(url).retrieve().awaitBodyOrNull<RaribleNFTMetaBody>() ?: throw IllegalStateException("Cant get meta from ipfs")
         return ItemMeta(
             itemId = itemId,
             name = data.name,
@@ -47,14 +47,14 @@ class CommonNFTMetaProvider(
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class CommonNFTMetaBody(
+data class RaribleNFTMetaBody(
     val name: String,
     val description: String,
     val image: String,
-    val attributes: List<CommonNftAttr>
+    val attributes: List<RaribleNftAttr>
 )
 
-data class CommonNftAttr(
+data class RaribleNftAttr(
     val key: String?,
     @get:JsonProperty("trait_type")
     val traitType: String?,

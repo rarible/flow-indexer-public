@@ -13,37 +13,37 @@ import org.springframework.stereotype.Component
 import java.time.Instant
 
 @Component
-class CommonNFTSubscriber: BaseItemHistoryFlowLogSubscriber() {
+class RaribleNFTSubscriber: BaseItemHistoryFlowLogSubscriber() {
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
             FlowChainId.MAINNET to FlowDescriptor(
-                id = "CommonNFTSubscriber",
+                id = "RaribleNFTSubscriber",
                 events = setOf(
-                    "A.665b9acf64dfdfdb.CommonNFT.Mint",
-                    "A.665b9acf64dfdfdb.CommonNFT.Withdraw",
-                    "A.665b9acf64dfdfdb.CommonNFT.Deposit",
-                    "A.665b9acf64dfdfdb.CommonNFT.Destroy"
+                    "A.01ab36aaf654a13e.RaribleNFT.Mint",
+                    "A.01ab36aaf654a13e.RaribleNFT.Withdraw",
+                    "A.01ab36aaf654a13e.RaribleNFT.Deposit",
+                    "A.01ab36aaf654a13e.RaribleNFT.Destroy"
                 ),
                 collection = collection
             ),
             FlowChainId.TESTNET to FlowDescriptor(
-                id = "CommonNFTSubscriber",
+                id = "RaribleNFTSubscriber",
                 events = setOf(
-                    "A.01658d9b94068f3c.CommonNFT.Mint",
-                    "A.01658d9b94068f3c.CommonNFT.Withdraw",
-                    "A.01658d9b94068f3c.CommonNFT.Deposit",
-                    "A.01658d9b94068f3c.CommonNFT.Destroy"
+                    "A.ebf4ae01d1284af8.RaribleNFT.Mint",
+                    "A.ebf4ae01d1284af8.RaribleNFT.Withdraw",
+                    "A.ebf4ae01d1284af8.RaribleNFT.Deposit",
+                    "A.ebf4ae01d1284af8.RaribleNFT.Destroy"
                 ),
                 collection = collection,
                 startFrom = 47831085L
             ),
             FlowChainId.EMULATOR to FlowDescriptor(
-                id = "CommonNFTSubscriber",
+                id = "RaribleNFTSubscriber",
                 events = setOf(
-                    "A.f8d6e0586b0a20c7.CommonNFT.Mint",
-                    "A.f8d6e0586b0a20c7.CommonNFT.Withdraw",
-                    "A.f8d6e0586b0a20c7.CommonNFT.Deposit",
-                    "A.f8d6e0586b0a20c7.CommonNFT.Destroy"
+                    "A.f8d6e0586b0a20c7.RaribleNFT.Mint",
+                    "A.f8d6e0586b0a20c7.RaribleNFT.Withdraw",
+                    "A.f8d6e0586b0a20c7.RaribleNFT.Deposit",
+                    "A.f8d6e0586b0a20c7.RaribleNFT.Destroy"
                 ),
                 collection = collection,
             ),
@@ -57,7 +57,7 @@ class CommonNFTSubscriber: BaseItemHistoryFlowLogSubscriber() {
         val eventId = "${msg.eventId}"
         return when {
             eventId.endsWith("Mint") -> {
-                val mint = Flow.unmarshall(CommonNftMint::class, log.event.event)
+                val mint = Flow.unmarshall(RaribleNftMint::class, log.event.event)
                 MintActivity(
                     owner = mint.creator,
                     contract = contract,
@@ -97,17 +97,17 @@ class CommonNFTSubscriber: BaseItemHistoryFlowLogSubscriber() {
     }
 }
 
-@JsonCadenceConversion(CommonNftMintConverter::class)
-data class CommonNftMint(
+@JsonCadenceConversion(RaribleNftMintConverter::class)
+data class RaribleNftMint(
     val id: Long,
     val creator: String,
     val metadata: Map<String, String>,
     val royalties: List<Part>
 )
 
-class CommonNftMintConverter: JsonCadenceConverter<CommonNftMint> {
-    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): CommonNftMint = unmarshall(value) {
-        CommonNftMint(
+class RaribleNftMintConverter: JsonCadenceConverter<RaribleNftMint> {
+    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): RaribleNftMint = unmarshall(value) {
+        RaribleNftMint(
             id = long("id"),
             creator = address("creator"),
             metadata = try {
