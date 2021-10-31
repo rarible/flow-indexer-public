@@ -25,15 +25,11 @@ pipeline {
                 }
             }
         }
-        stage('package') {
+
+        stage('package & publish docker images') {
             agent any
             steps {
                 sh './gradlew build -x test --no-daemon --info'
-            }
-        }
-        stage('publish docker images') {
-            agent any
-            steps {
                 script {
                     env.IMAGE_TAG = "${env.GIT_BRANCH.replace("/", "_")}-1.0.${env.BUILD_NUMBER}"
                     env.VERSION = "${env.IMAGE_TAG}"
@@ -43,6 +39,7 @@ pipeline {
                 publishImages(services, prefix, env.VERSION)
             }
         }
+
         stage("deploy to dev") {
             agent any
             when {
