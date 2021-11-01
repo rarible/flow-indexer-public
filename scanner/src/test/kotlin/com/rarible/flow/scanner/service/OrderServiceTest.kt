@@ -31,18 +31,18 @@ internal class OrderServiceTest: FunSpec({
         val activiy = FlowNftOrderActivityList(
             price = BigDecimal("13.37"),
             priceUsd = BigDecimal("26.74"),
-            contract = "CommonOrder",
+            contract = "RaribleOrder",
             tokenId = 13,
             timestamp = Instant.now(),
             hash = 1001.toString(),
             maker = "0x01",
-            make = FlowAssetNFT("CommonNFT", BigDecimal.ONE, 13),
+            make = FlowAssetNFT("RaribleNFT", BigDecimal.ONE, 13),
             take = FlowAssetFungible("Flow", BigDecimal("13.37")),
             payments = emptyList()
         )
 
         service.list(activiy) should { order ->
-            order.itemId shouldBe ItemId("CommonNFT", 13)
+            order.itemId shouldBe ItemId("RaribleNFT", 13)
         }
 
         verify {

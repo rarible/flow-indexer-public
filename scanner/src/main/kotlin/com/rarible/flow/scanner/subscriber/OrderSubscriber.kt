@@ -25,20 +25,20 @@ class OrderSubscriber(
 
     override val descriptors = mapOf(
         FlowChainId.MAINNET to flowDescriptor(
-            address = "b085d2941bebf9c4",
-            contract = "CommonOrder",
+            address = "01ab36aaf654a13e",
+            contract = "RaribleOrder",
             events = events,
-            startFrom = 19649244L
+            startFrom = 19863151L
         ),
         FlowChainId.TESTNET to flowDescriptor(
-            address = "01658d9b94068f3c",
-            contract = "CommonOrder",
+            address = "ebf4ae01d1284af8",
+            contract = "RaribleOrder",
             events = events,
-            startFrom = 47330085L
+            startFrom = 49754786L
         ),
         FlowChainId.EMULATOR to flowDescriptor(
             address = "f8d6e0586b0a20c7",
-            contract = "CommonOrder",
+            contract = "RaribleOrder",
             events = events,
         ),
     )
