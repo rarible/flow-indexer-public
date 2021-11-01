@@ -91,7 +91,7 @@ class NftOrderActivityControllerTest {
         value = RandomUtils.nextLong(),
     )
 
-    fun randomItemHistory(activity: FlowActivity) = ItemHistory(
+    fun randomItemHistory(activity: BaseActivity) = ItemHistory(
         date = Instant.now(Clock.systemUTC()),
         activity = activity,
         log = FlowLog("", Log.Status.CONFIRMED, 1, "", Instant.now(Clock.systemUTC()), randomLong(), "")

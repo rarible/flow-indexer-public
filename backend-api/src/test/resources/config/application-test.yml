@@ -9,12 +9,10 @@ logging:
     org.springframework.web.reactive.handler.SimpleUrlHandlerMapping: DEBUG
 
 flow-indexer-api:
-  chain-id: TESTNET
   flow-access-url: "access.devnet.nodes.onflow.org"
   flow-access-port: 9000
+
+app:
+  chain-id: TESTNET
   kafka-replica-set: ${kafka.hosts}
   environment: test
-blockchain:
-  scanner:
-    flow:
-      chainId: TESTNET

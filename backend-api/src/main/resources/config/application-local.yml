@@ -18,5 +18,5 @@ logging:
     tcp-socket:
       enabled: false
 
-flow-indexer-api:
-  kafka-replica-set: PLAINTEXT://localhost:9092
+app:
+  kafka-replica-set: PLAINTEXT://localhost:29092

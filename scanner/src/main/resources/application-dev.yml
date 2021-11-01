@@ -9,15 +9,10 @@ logging:
   level:
     com.rarible.flow: DEBUG
 
-
-scanner:
+app:
   environment: dev
+  chain-id: TESTNET
   kafka-replica-set: ${kafka.hosts}
-  default-item-collection:
-    id: "A.ebf4ae01d1284af8.RaribleNFT.NFT"
-    owner: "0xe91e497115b9731b"
-    name: "RaribleNFT"
-    symbol: "RNFT"
 
 blockchain:
   scanner:

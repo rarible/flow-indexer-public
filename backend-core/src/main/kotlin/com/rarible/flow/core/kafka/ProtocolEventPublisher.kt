@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner
+package com.rarible.flow.core.kafka
 
 import com.rarible.core.kafka.KafkaMessage
 import com.rarible.core.kafka.KafkaSendResult

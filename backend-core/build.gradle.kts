@@ -22,6 +22,7 @@ dependencies {
     implementation(rootProject.libs.bundles.flow.models)
     implementation("com.querydsl:querydsl-mongodb:5.0.0")
     implementation(rootProject.libs.blockchain.scanner.model)
+    implementation(rootProject.libs.rarible.core.kafka)
     api("com.querydsl:querydsl-apt:5.0.0")
     kapt("com.querydsl:querydsl-apt:5.0.0:general")
 }

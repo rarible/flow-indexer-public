@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.config
+package com.rarible.flow.core.config
 
 import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.core.kafka.json.JsonSerializer

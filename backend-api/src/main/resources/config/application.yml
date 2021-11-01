@@ -6,7 +6,6 @@ spring:
       auto-index-creation: true
 
 flow-indexer-api:
-  chain-id: TESTNET
   flow-access-url:
   flow-access-port:
 
