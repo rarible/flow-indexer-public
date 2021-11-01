@@ -58,9 +58,16 @@ data class Ownership(
     val creator: FlowAddress,
     val date: Instant = Instant.now(Clock.systemUTC())
 ) : Serializable {
+
+    constructor(
+        id: OwnershipId, creator: FlowAddress, date: Instant = Instant.now(Clock.systemUTC())
+    ): this(id.contract, id.tokenId, id.owner, creator, date)
+
     @get:Id
     @get:AccessType(AccessType.Type.PROPERTY)
     var id: OwnershipId
         get() = OwnershipId(owner = owner, contract = contract, tokenId = tokenId)
         set(_) {}
+
+    fun transfer(to: FlowAddress): Ownership = this.copy(owner = to)
 }

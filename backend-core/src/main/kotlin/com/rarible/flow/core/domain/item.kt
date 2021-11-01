@@ -71,6 +71,10 @@ data class Item (
     var id: ItemId
         get() = ItemId(this.contract, this.tokenId)
         set(_) {}
+
+    fun ownershipId(owner: FlowAddress): OwnershipId {
+        return OwnershipId(this.contract, this.tokenId, owner)
+    }
 }
 
 @Document

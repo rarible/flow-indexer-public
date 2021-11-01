@@ -11,6 +11,8 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.protocol.dto.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.util.*
 
 
@@ -73,6 +75,11 @@ class ProtocolEventPublisher(
             )
         )
     }
+
+    suspend fun onUpdate(orders: Flow<Order>): Flow<KafkaSendResult> {
+        return orders.map { this.onUpdate(it) }
+    }
+
 
     suspend fun onItemDelete(itemId: ItemId): KafkaSendResult {
         return items.send(
