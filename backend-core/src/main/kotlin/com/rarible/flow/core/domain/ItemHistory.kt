@@ -25,7 +25,7 @@ data class ItemHistory(
     @Indexed(direction = IndexDirection.DESCENDING)
     @Field(targetType = FieldType.DATE_TIME)
     val date: Instant,
-    val activity: FlowActivity,
+    val activity: BaseActivity,
     @QueryEmbedded
     override val log: FlowLog
 ): FlowLogRecord<ItemHistory>() {

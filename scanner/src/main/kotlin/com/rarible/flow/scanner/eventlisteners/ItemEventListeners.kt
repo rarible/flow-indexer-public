@@ -6,10 +6,9 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepository
-import com.rarible.flow.scanner.ProtocolEventPublisher
+import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
@@ -49,6 +48,11 @@ class ItemEventListeners(
                 )
             ).awaitSingle()
             protocolEventPublisher.onItemUpdate(item)
+        } else {
+            val item = itemRepository.findById(id).awaitSingle()
+            if (item.mintedAt != activity.timestamp) {
+                itemRepository.save(item.copy(mintedAt = activity.timestamp))
+            }
         }
 
         if (!ownershipExists) {

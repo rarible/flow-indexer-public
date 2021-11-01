@@ -3,7 +3,7 @@ package com.rarible.flow.scanner.eventlisteners
 import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
 import com.rarible.flow.core.domain.FlowNftOrderActivityList
 import com.rarible.flow.core.domain.FlowNftOrderActivitySell
-import com.rarible.flow.scanner.ProtocolEventPublisher
+import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.scanner.service.OrderService
 import kotlinx.coroutines.runBlocking
 import org.springframework.context.event.EventListener

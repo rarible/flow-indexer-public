@@ -2,14 +2,10 @@ spring:
   application:
     name: flow-scanner
 
-scanner:
+app:
+  chain-id: TESTNET
   kafka-replica-set: ${kafka.hosts}
   environment: test
-  default-item-collection:
-    id: "A.ebf4ae01d1284af8.RaribleNFT.NFT"
-    owner: "0xebf4ae01d1284af8"
-    name: "RaribleNFT"
-    symbol: "RNFT"
 
 grpc:
   client:

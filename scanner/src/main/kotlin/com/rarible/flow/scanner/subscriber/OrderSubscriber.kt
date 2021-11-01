@@ -43,7 +43,7 @@ class OrderSubscriber(
         ),
     )
 
-    override fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): FlowActivity? {
+    override fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity? {
         val timestamp = Instant.ofEpochMilli(block.timestamp)
 
         return when (msg.eventId.eventName) {
