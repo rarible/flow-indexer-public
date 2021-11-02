@@ -12,6 +12,7 @@ import com.rarible.flow.randomFlowAddress
 import com.rarible.flow.randomLong
 import com.rarible.flow.randomRate
 import com.rarible.protocol.dto.FlowActivitiesDto
+import com.rarible.protocol.dto.FlowBurnDto
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -54,8 +55,8 @@ class NftOrderActivityControllerTest {
         val expectedUser = randomAddress()
 
         val history = listOf(
-            randomItemHistory(randomMint().copy(owner = expectedUser)),
-            randomItemHistory(randomBurn().copy(owner = expectedUser)),
+            randomItemHistory(activity = randomMint().copy(owner = expectedUser)),
+            randomItemHistory(activity = randomBurn().copy(owner = expectedUser)),
         )
         repo.saveAll(history).then().block()
         client.get()
@@ -68,6 +69,37 @@ class NftOrderActivityControllerTest {
                 Assertions.assertNotNull(activitiesDto)
                 Assertions.assertNotNull(activitiesDto?.items)
                 Assertions.assertEquals(1, activitiesDto?.items?.size)
+            }
+    }
+
+    @Test
+    internal fun `should work burn by user`() {
+        val expectedUser = "0x01658d9b94068f3c"
+        val tokenId = randomLong()
+        val date = Instant.now(Clock.systemUTC())
+        val hash = "12345"
+
+        repo.saveAll(listOf(
+            randomItemHistory(date = date, activity = randomWithdraw().copy(tokenId = tokenId, from = expectedUser), log = randomLog().copy(transactionHash = hash)),
+            randomItemHistory(date = date, activity = randomBurn().copy(tokenId = tokenId, owner = null), log = randomLog().copy(transactionHash = hash)),
+//            randomItemHistory(activity = randomMint().copy(owner = expectedUser)),
+//            randomItemHistory(activity = randomBurn().copy(owner = expectedUser)),
+        )
+        ).then().block()
+
+        client.get()
+            .uri("/v0.1/order/activities/byUser?type=BURN&user=$expectedUser")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowActivitiesDto>()
+            .consumeWith { response ->
+                val activitiesDto = response.responseBody
+                Assertions.assertNotNull(activitiesDto)
+                Assertions.assertNotNull(activitiesDto?.items)
+                Assertions.assertEquals(1, activitiesDto?.items?.size)
+                activitiesDto?.items?.firstOrNull()?.apply {
+                    Assertions.assertEquals(expectedUser, (this as FlowBurnDto).owner)
+                }
             }
     }
 
@@ -91,11 +123,22 @@ class NftOrderActivityControllerTest {
         value = RandomUtils.nextLong(),
     )
 
-    fun randomItemHistory(activity: BaseActivity) = ItemHistory(
-        date = Instant.now(Clock.systemUTC()),
-        activity = activity,
-        log = FlowLog("", Log.Status.CONFIRMED, 1, "", Instant.now(Clock.systemUTC()), randomLong(), "")
+    fun randomWithdraw() = WithdrawnActivity(
+        type = FlowActivityType.BURN,
+        timestamp = Instant.now(Clock.systemUTC()),
+        from = randomAddress(),
+        contract = randomAddress(),
+        tokenId = randomLong(),
     )
+
+    fun randomItemHistory(
+        date: Instant = Instant.now(Clock.systemUTC()),
+        activity: BaseActivity,
+        log: FlowLog = randomLog(),
+    ) = ItemHistory(date = date, activity = activity, log = log)
+
+    private fun randomLog() =
+        FlowLog("", Log.Status.CONFIRMED, 1, "", Instant.now(Clock.systemUTC()), randomLong(), "")
 }
 
 /*{

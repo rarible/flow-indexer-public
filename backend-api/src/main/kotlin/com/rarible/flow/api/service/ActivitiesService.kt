@@ -54,15 +54,22 @@ class ActivitiesService(
     ): FlowActivitiesDto {
         val haveTransferTo = type.isEmpty() || type.contains("TRANSFER_TO")
         val haveTransferFrom = type.isEmpty() || type.contains("TRANSFER_FROM")
+        val haveBuy = type.contains("BUY")
+        val skipTypes = mutableListOf<FlowActivityType>()
 
         val types = if (type.isEmpty()) {
             FlowActivityType.values().toMutableList()
         } else {
             safeOf<FlowActivityType>(
-                type.filter { "TRANSFER_TO" != it && "TRANSFER_FROM" != it }
+                type.filter { "TRANSFER_TO" != it && "TRANSFER_FROM" != it && "BUY" != it }
             ).toMutableList()
         }
         val cont = ActivityContinuation.of(continuation)
+
+        if (FlowActivityType.BURN in types && FlowActivityType.WITHDRAWN !in types) {
+            types.add(FlowActivityType.WITHDRAWN)
+            skipTypes.add(FlowActivityType.WITHDRAWN)
+        }
 
         val order = order(sort)
         var predicate = BooleanBuilder()
@@ -84,10 +91,19 @@ class ActivitiesService(
         } else emptyFlow()
         types.remove(FlowActivityType.LIST)
 
+        val buyActivities: Flow<ItemHistory> = if (haveBuy) {
+            itemHistoryRepository.findAll(buyPredicate(user, from, to), *order).asFlow()
+        } else emptyFlow()
+
         val sellActivities: Flow<ItemHistory> = if (types.contains(FlowActivityType.SELL)) {
             itemHistoryRepository.findAll(sellPredicate(user, from, to), *order).asFlow()
         } else emptyFlow()
         types.remove(FlowActivityType.SELL)
+
+        val burnActivities = if (types.contains(FlowActivityType.BURN)) {
+            itemHistoryRepository.findAll(burnPredicate(from, to), *order).asFlow()
+        } else emptyFlow()
+        types.remove(FlowActivityType.BURN)
 
         if (haveTransferFrom || haveTransferTo) {
             types.remove(FlowActivityType.TRANSFER)
@@ -103,8 +119,11 @@ class ActivitiesService(
                 transferFromActivities,
                 transferToActivities,
                 listActivities,
-                sellActivities
-            ).flattenConcat(), size, sort
+                sellActivities,
+                buyActivities,
+                burnActivities,
+            ).flattenConcat(),
+            size, sort, skipTypes,
         )
     }
 
@@ -112,9 +131,10 @@ class ActivitiesService(
         flow: Flow<ItemHistory>,
         size: Int?,
         sort: String,
+        skipTypes: MutableList<FlowActivityType> = mutableListOf(),
     ): FlowActivitiesDto {
         val items = flow.toList()
-        var dto = convertToDto(items, sort)
+        var dto = convertToDto(items, sort, skipTypes)
         if (size != null) {
             dto = dto.take(size)
         }
@@ -253,6 +273,20 @@ class ActivitiesService(
     private fun answerContinuation(items: List<ItemHistory>): ActivityContinuation? =
         if (items.isEmpty()) null else ActivityContinuation(beforeDate = items.last().date, beforeId = items.last().id)
 
+    private fun burnPredicate(from: Instant?, to: Instant?): BooleanExpression {
+        val q = QItemHistory.itemHistory
+        val activity = QFlowNftOrderActivitySell(q.activity.metadata)
+        val predicate = activity.type.eq(FlowActivityType.BURN)
+        return withintDates(q, predicate, from, to)
+    }
+
+    private fun buyPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
+        val q = QItemHistory.itemHistory
+        val activity = QFlowNftOrderActivitySell(q.activity.metadata)
+        val predicate = activity.type.eq(FlowActivityType.SELL)
+            .and(activity.right.maker.`in`(users))
+        return withintDates(q, predicate, from, to)
+    }
 
     private fun sellPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
         val q = QItemHistory.itemHistory
@@ -270,10 +304,15 @@ class ActivitiesService(
         return withintDates(q, predicate, from, to)
     }
 
-    private fun convertToDto(history: List<ItemHistory>, sort: String): List<FlowActivityDto> {
+    private fun convertToDto(
+        history: List<ItemHistory>,
+        sort: String,
+        skipTypes: MutableList<FlowActivityType>,
+    ): List<FlowActivityDto> {
         val result = mutableListOf<FlowActivityDto>()
         val sorted = history.sortedWith(compareBy(ItemHistory::date).thenBy { it.log.eventIndex })
         for (i in sorted.indices) {
+            var skip = false
             val h = sorted[i]
             if (h.activity is DepositActivity) {
                 continue
@@ -304,7 +343,22 @@ class ActivitiesService(
                 }
                 continue
             }
-            result.add(sorted[i].activity.toDto(sorted[i]))
+            if (h.activity is BurnActivity) {
+                skip = true
+                val burnActivity = h.activity as BurnActivity
+                val txId = h.log.transactionHash
+                var j = i
+                while (j > 0 && sorted[j].log.transactionHash == txId) {
+                    val a = sorted[j].activity
+                    if (a is WithdrawnActivity && a.tokenId == burnActivity.tokenId && a.from != null) {
+                        result.add(burnActivity.copy(owner = a.from).toDto(sorted[i]))
+                        break
+                    }
+                    j--
+                }
+            }
+            if (!skip && !(FlowActivityType.WITHDRAWN in skipTypes && sorted[i].activity is WithdrawnActivity))
+                result.add(sorted[i].activity.toDto(sorted[i]))
         }
         if (sort == "LATEST_FIRST") {
             result.reverse()
