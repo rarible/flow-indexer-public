@@ -10,10 +10,12 @@ import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
+import com.rarible.protocol.dto.FlowNftActivityDto
 import com.rarible.protocol.dto.FlowTransferDto
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.stereotype.Service
 import java.math.BigInteger
 import java.time.Instant
@@ -54,7 +56,7 @@ class ActivitiesService(
     ): FlowActivitiesDto {
         val haveTransferTo = type.isEmpty() || type.contains("TRANSFER_TO")
         val haveTransferFrom = type.isEmpty() || type.contains("TRANSFER_FROM")
-        val haveBuy = type.contains("BUY")
+        val haveBuy =  type.isEmpty() || type.contains("BUY")
         val skipTypes = mutableListOf<FlowActivityType>()
 
         val types = if (type.isEmpty()) {
@@ -78,12 +80,28 @@ class ActivitiesService(
         }
 
         val transferFromActivities: Flow<ItemHistory> = if (haveTransferFrom) {
-            itemHistoryRepository.findAll(transferFromPredicate(user, from, to), *order).asFlow()
+            itemHistoryRepository.findAll(transferFromPredicate(user, from, to), *order).asFlow().flatMapMerge {
+                val q = QItemHistory.itemHistory
+                val a = QBaseActivity(q.activity.metadata)
+                flowOf(it, itemHistoryRepository.findAll(
+                    a.type.eq(FlowActivityType.DEPOSIT).and(a.tokenId.eq(it.activity.tokenId))
+                        .and(a.contract.eq(it.activity.contract)).and(q.log.transactionHash.eq(it.log.transactionHash)).and(q.log.eventIndex.gt(it.log.eventIndex)),
+                    q.date.desc(), q.log.eventIndex.desc()
+                ).awaitFirstOrNull()).filterNotNull()
+            }
         } else emptyFlow()
 
 
         val transferToActivities: Flow<ItemHistory> = if (haveTransferTo) {
-            itemHistoryRepository.findAll(transferToPredicate(user, from, to), *order).asFlow()
+            itemHistoryRepository.findAll(transferToPredicate(user, from, to), *order).asFlow().flatMapMerge {
+                val q = QItemHistory.itemHistory
+                val a = QBaseActivity(q.activity.metadata)
+                flowOf(itemHistoryRepository.findAll(
+                    a.type.eq(FlowActivityType.WITHDRAWN).and(a.tokenId.eq(it.activity.tokenId))
+                        .and(a.contract.eq(it.activity.contract)).and(q.log.transactionHash.eq(it.log.transactionHash)).and(q.log.eventIndex.lt(it.log.eventIndex)),
+                    q.date.desc(), q.log.eventIndex.desc()
+                ).awaitFirstOrNull(), it).filterNotNull()
+            }
         } else emptyFlow()
 
         val listActivities: Flow<ItemHistory> = if (types.contains(FlowActivityType.LIST)) {
@@ -101,7 +119,17 @@ class ActivitiesService(
         types.remove(FlowActivityType.SELL)
 
         val burnActivities = if (types.contains(FlowActivityType.BURN)) {
-            itemHistoryRepository.findAll(burnPredicate(from, to), *order).asFlow()
+            itemHistoryRepository.findAll(burnPredicate(from, to), *order).asFlow().flatMapMerge {
+                val q = QItemHistory.itemHistory
+                val a = QWithdrawnActivity(q.activity.metadata)
+                flowOf(itemHistoryRepository.findAll(
+                    a.type.eq(FlowActivityType.WITHDRAWN).and(a.tokenId.eq(it.activity.tokenId))
+                        .and(a.contract.eq(it.activity.contract)).and(q.log.transactionHash.eq(it.log.transactionHash)).and(q.log.eventIndex.lt(it.log.eventIndex))
+                        .and(a.from.`in`(user))
+                    ,
+                    q.date.desc(), q.log.eventIndex.desc()
+                ).awaitFirstOrNull(), it).filterNotNull()
+            }
         } else emptyFlow()
         types.remove(FlowActivityType.BURN)
 
@@ -123,7 +151,7 @@ class ActivitiesService(
                 buyActivities,
                 burnActivities,
             ).flattenConcat(),
-            size, sort, skipTypes,
+            size, sort
         )
     }
 
@@ -131,13 +159,15 @@ class ActivitiesService(
         flow: Flow<ItemHistory>,
         size: Int?,
         sort: String,
-        skipTypes: MutableList<FlowActivityType> = mutableListOf(),
     ): FlowActivitiesDto {
         val items = flow.toList()
-        var dto = convertToDto(items, sort, skipTypes)
+        var dto = convertToDto(items, sort)
+
         if (size != null) {
             dto = dto.take(size)
         }
+
+
         return FlowActivitiesDto(
             items = dto,
             total = dto.size,
@@ -213,7 +243,7 @@ class ActivitiesService(
             .and(activity.tokenId.eq(tokenId))
     }
 
-    private fun withintDates(
+    private fun withinDates(
         qItemHistory: QItemHistory,
         predicate: BooleanExpression,
         from: Instant?,
@@ -235,7 +265,7 @@ class ActivitiesService(
         val activity = QWithdrawnActivity(q.activity.metadata)
         val predicate = activity.type.eq(FlowActivityType.WITHDRAWN)
             .and(activity.from.`in`(users))
-        return withintDates(q, predicate, from, to)
+        return withinDates(q, predicate, from, to)
     }
 
     private fun transferToPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
@@ -244,14 +274,14 @@ class ActivitiesService(
         val predicate = activity.type.eq(FlowActivityType.DEPOSIT)
             .and(activity.to.`in`(users))
 
-        return withintDates(q, predicate, from, to)
+        return withinDates(q, predicate, from, to)
     }
 
     private fun byOwner(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
         val q = QItemHistory.itemHistory
         val activity = QFlowNftActivity(q.activity.metadata)
         val predicate = activity.owner.isNotNull.and(activity.owner.`in`(users))
-        return withintDates(q, predicate, from, to)
+        return withinDates(q, predicate, from, to)
     }
 
     private fun order(sort: String?): Array<OrderSpecifier<*>> {
@@ -277,7 +307,7 @@ class ActivitiesService(
         val q = QItemHistory.itemHistory
         val activity = QFlowNftOrderActivitySell(q.activity.metadata)
         val predicate = activity.type.eq(FlowActivityType.BURN)
-        return withintDates(q, predicate, from, to)
+        return withinDates(q, predicate, from, to)
     }
 
     private fun buyPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
@@ -285,7 +315,7 @@ class ActivitiesService(
         val activity = QFlowNftOrderActivitySell(q.activity.metadata)
         val predicate = activity.type.eq(FlowActivityType.SELL)
             .and(activity.right.maker.`in`(users))
-        return withintDates(q, predicate, from, to)
+        return withinDates(q, predicate, from, to)
     }
 
     private fun sellPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
@@ -293,7 +323,7 @@ class ActivitiesService(
         val activity = QFlowNftOrderActivitySell(q.activity.metadata)
         val predicate = activity.type.eq(FlowActivityType.SELL)
             .and(activity.left.maker.`in`(users))
-        return withintDates(q, predicate, from, to)
+        return withinDates(q, predicate, from, to)
     }
 
     private fun listPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
@@ -301,28 +331,25 @@ class ActivitiesService(
         val activity = QFlowNftOrderActivityList(q.activity.metadata)
         val predicate = activity.type.eq(FlowActivityType.LIST)
             .and(activity.maker.`in`(users))
-        return withintDates(q, predicate, from, to)
+        return withinDates(q, predicate, from, to)
     }
 
     private fun convertToDto(
         history: List<ItemHistory>,
         sort: String,
-        skipTypes: MutableList<FlowActivityType>,
     ): List<FlowActivityDto> {
         val result = mutableListOf<FlowActivityDto>()
-        val sorted = history.sortedWith(compareBy(ItemHistory::date).thenBy { it.log.eventIndex })
-        for (i in sorted.indices) {
-            var skip = false
-            val h = sorted[i]
-            if (h.activity is DepositActivity) {
+        for (i in history.indices) {
+            val h = history[i]
+            if (h.activity is DepositActivity || h.activity is BurnActivity) {
                 continue
             }
             if (h.activity is WithdrawnActivity) {
                 val wa = h.activity as WithdrawnActivity
-                if (i == sorted.lastIndex) {
+                if (i == history.lastIndex) {
                     continue
                 }
-                val d = sorted[i + 1]
+                val d = history[i + 1]
                 if (d.activity is DepositActivity) {
                     val da = d.activity as DepositActivity
                     result.add(
@@ -340,29 +367,25 @@ class ActivitiesService(
                             date = da.timestamp
                         )
                     )
+                } else if (d.activity is BurnActivity) {
+                    val b = d.activity as BurnActivity
+                    result.add(
+                        b.copy(owner = wa.from).toDto(h)
+                    )
                 }
                 continue
             }
-            if (h.activity is BurnActivity) {
-                skip = true
-                val burnActivity = h.activity as BurnActivity
-                val txId = h.log.transactionHash
-                var j = i
-                while (j > 0 && sorted[j].log.transactionHash == txId) {
-                    val a = sorted[j].activity
-                    if (a is WithdrawnActivity && a.tokenId == burnActivity.tokenId && a.from != null) {
-                        result.add(burnActivity.copy(owner = a.from).toDto(sorted[i]))
-                        break
-                    }
-                    j--
-                }
+            result.add(h.activity.toDto(h))
+        }
+
+        val dtoList = result.sortedWith(compareBy(FlowActivityDto::date).thenBy {
+            if (it is FlowNftActivityDto) {
+                it.logIndex
+            } else {
+                0
             }
-            if (!skip && !(FlowActivityType.WITHDRAWN in skipTypes && sorted[i].activity is WithdrawnActivity))
-                result.add(sorted[i].activity.toDto(sorted[i]))
-        }
-        if (sort == "LATEST_FIRST") {
-            result.reverse()
-        }
-        return result.toList()
+        })
+
+        return if (sort == "EARLIEST_FIRST") dtoList else dtoList.reversed()
     }
 }

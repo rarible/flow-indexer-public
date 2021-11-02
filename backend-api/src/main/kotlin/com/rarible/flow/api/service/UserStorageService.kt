@@ -7,10 +7,7 @@ import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.api.metaprovider.RaribleNFT
 import com.rarible.flow.core.config.AppProperties
-import com.rarible.flow.core.domain.Item
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Ownership
-import com.rarible.flow.core.domain.TokenId
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
@@ -63,7 +60,12 @@ class UserStorageService(
                                 contract = contract,
                                 tokenId = it,
                                 creator = contractAddress("0xTOPSHOTTOKEN"),
-                                royalties = emptyList(),
+                                royalties = listOf(
+                                    Part(
+                                        address = contractAddress("0xTOPSHOTTOKEN"),
+                                        fee = 5.0
+                                    )
+                                ),
                                 owner = address,
                                 mintedAt = Instant.now(),
                                 meta = ObjectMapper().writeValueAsString(momentData),

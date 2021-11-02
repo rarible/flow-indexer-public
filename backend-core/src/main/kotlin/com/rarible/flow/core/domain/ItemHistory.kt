@@ -5,6 +5,8 @@ import com.querydsl.core.annotations.QueryEntity
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.protocol.dto.*
+import org.springframework.data.mongodb.core.index.CompoundIndex
+import org.springframework.data.mongodb.core.index.CompoundIndexes
 import org.springframework.data.mongodb.core.index.IndexDirection
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
@@ -21,6 +23,12 @@ import java.time.Instant
  */
 @Document("item_history")
 @QueryEntity
+@CompoundIndexes(
+    CompoundIndex(
+        name = "activity_siblings",
+        def = "{'activity.type': 1, 'activity.contract': 1, 'activity.tokenId': 1, 'log.transactionHash': 1, 'log.eventIndex': 1, }"
+    )
+)
 data class ItemHistory(
     @Indexed(direction = IndexDirection.DESCENDING)
     @Field(targetType = FieldType.DATE_TIME)
