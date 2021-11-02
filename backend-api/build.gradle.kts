@@ -18,6 +18,7 @@ dependencies {
     implementation(rootProject.libs.bundles.rarible.core)
     implementation(rootProject.libs.rarible.core.starter)
     implementation(rootProject.libs.rarible.core.logging)
+    implementation(rootProject.libs.rarible.core.kafka)
     implementation(rootProject.libs.blockchain.scanner.model)
     api("com.querydsl:querydsl-mongodb:5.0.0")
 }

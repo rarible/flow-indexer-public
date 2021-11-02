@@ -5,6 +5,7 @@ import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventListener
 import com.rarible.blockchain.scanner.subscriber.ProcessedBlockEvent
 import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.scanner.model.IndexerEvent
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import org.slf4j.Logger
@@ -21,7 +22,10 @@ class BaseFlowLogListener(
 
     override suspend fun onBlockLogsProcessed(blockEvent: ProcessedBlockEvent<FlowLog, FlowLogRecord<*>>) {
         blockEvent.records.filterIsInstance<ItemHistory>().asFlow().collect {
-            publisher.publishEvent(it.activity)
+            publisher.publishEvent(IndexerEvent(
+                activity = it.activity,
+                source = blockEvent.event.eventSource
+            ))
         }
     }
 

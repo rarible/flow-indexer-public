@@ -1,5 +1,6 @@
 package com.rarible.flow.scanner.subscriber
 
+import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.AddressField
 import com.nftco.flow.sdk.cadence.NumberField
@@ -16,6 +17,11 @@ import java.time.Instant
 class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
 
     private val events = "Withdraw,Deposit,MomentMinted,MomentDestroyed".split(",")
+
+    private val royaltyAddress = mapOf(
+        FlowChainId.MAINNET to FlowAddress("0x01ab36aaf654a13e"),
+        FlowChainId.TESTNET to FlowAddress("0x01658d9b94068f3c"),
+    )
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
@@ -39,7 +45,7 @@ class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
             ),
         )
 
-    override fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): FlowActivity {
+    override fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity {
 
         val contract = msg.eventId.collection()
         val timestamp = Instant.ofEpochMilli(block.timestamp)
@@ -76,12 +82,15 @@ class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
                     contract = contract,
                     tokenId = momentID.toLong()!!,
                     timestamp = timestamp,
-                    value = 1L, royalties = emptyList(),
+                    value = 1L,
                     metadata = mapOf(
                         "playID" to playID.value.toString(),
                         "setID" to setID.value.toString(),
                         "serialNumber" to serialNumber.value.toString()
                     ),
+                    royalties = listOf(
+                        Part(royaltyAddress[chainId]!!, 5.0)
+                    )
                 )
             }
             "MomentDestroyed" -> {

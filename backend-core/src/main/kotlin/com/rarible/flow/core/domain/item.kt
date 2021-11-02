@@ -2,7 +2,6 @@ package com.rarible.flow.core.domain
 
 import com.nftco.flow.sdk.FlowAddress
 import com.querydsl.core.annotations.QueryEntity
-import com.rarible.flow.core.repository.Cont
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.CompoundIndex
@@ -14,7 +13,6 @@ import org.springframework.data.mongodb.core.mapping.FieldType
 import org.springframework.data.mongodb.core.mapping.MongoId
 import java.io.Serializable
 import java.time.Instant
-import kotlin.reflect.KProperty1
 
 data class Part(
     val address: FlowAddress,
@@ -71,6 +69,10 @@ data class Item (
     var id: ItemId
         get() = ItemId(this.contract, this.tokenId)
         set(_) {}
+
+    fun ownershipId(owner: FlowAddress): OwnershipId {
+        return OwnershipId(this.contract, this.tokenId, owner)
+    }
 }
 
 @Document
@@ -80,6 +82,7 @@ data class ItemCollection(
     val owner: FlowAddress,
     val name: String,
     val symbol: String,
-    val createdDate: Instant = Instant.now()
+    val createdDate: Instant = Instant.now(),
+    val features: Set<String> = emptySet()
 )
 

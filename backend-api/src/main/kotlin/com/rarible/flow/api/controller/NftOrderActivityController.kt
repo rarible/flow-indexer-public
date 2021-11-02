@@ -55,13 +55,16 @@ class NftOrderActivityController(private val service: ActivitiesService) : FlowN
         continuation: String?,
         size: Int?,
         sort: String?,
-    ): ResponseEntity<FlowActivitiesDto> {
-        val fromInstant = from?.let { Instant.ofEpochMilli(from) }
-        val toInstant = to?.let { Instant.ofEpochMilli(to) }
-        return ResponseEntity.ok(
-            service.getNftOrderActivitiesByUser(type, user, continuation, fromInstant, toInstant, size, sort ?: defaultSort)
-        )
-    }
+    ): ResponseEntity<FlowActivitiesDto> = ResponseEntity.ok(
+        service.getNftOrderActivitiesByUser(
+            type,
+            user,
+            continuation,
+            from?.let { Instant.ofEpochMilli(from) },
+            to?.let { Instant.ofEpochMilli(to) },
+            size,
+            sort ?: defaultSort)
+    )
 
     override suspend fun getNftOrderAllActivities(
         type: List<String>,

@@ -7,6 +7,7 @@ import com.nftco.flow.sdk.cadence.CadenceNamespace
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion
 import com.nftco.flow.sdk.cadence.JsonCadenceConverter
+import com.rarible.flow.core.domain.BaseActivity
 
 inline fun <reified T : Any> FlowEvent.parse() = Flow.unmarshall(T::class, event)
 inline fun <reified T : Any> FlowScriptResponse.parse() = Flow.unmarshall(T::class, jsonCadence)
@@ -55,3 +56,8 @@ class MotoGPCardNftConverter: JsonCadenceConverter<MotoGPCardNFT> {
             )
         }
 }
+
+data class IndexerEvent(
+    val activity: BaseActivity,
+    val source: com.rarible.blockchain.scanner.framework.data.Source
+)

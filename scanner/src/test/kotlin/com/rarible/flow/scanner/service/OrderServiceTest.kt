@@ -4,16 +4,21 @@ import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.FlowNftOrderActivityList
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.OrderRepository
+import com.rarible.flow.scanner.Data
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.flow.count
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
 import java.time.Instant
+import java.time.LocalDateTime
 
 internal class OrderServiceTest: FunSpec({
 
@@ -47,6 +52,45 @@ internal class OrderServiceTest: FunSpec({
 
         verify {
             repo.findById(1001L)
+        }
+    }
+
+    test("deactivateOrdersByItem - empty orders") {
+        val orderRepository = mockk<OrderRepository>() {
+            every {
+                findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(any(), any(), any(), any())
+            } returns Flux.empty()
+        }
+        OrderService(orderRepository)
+            .deactivateOrdersByItem(Data.createItem(), LocalDateTime.now())
+            .count() shouldBe 0
+
+        verify (exactly = 0) {
+            orderRepository.save(any())
+        }
+    }
+
+    test("deactivateOrdersByItem - some orders") {
+        val orderRepository = mockk<OrderRepository>() {
+            every {
+                findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
+                    any(), any(), eq(OrderStatus.ACTIVE), any()
+                )
+            } returns Flux.fromIterable(
+                listOf(
+                    Data.createOrder(),
+                )
+            )
+
+            every { save(any()) } answers { Mono.just(arg(0)) }
+        }
+
+        OrderService(orderRepository)
+            .deactivateOrdersByItem(Data.createItem(), LocalDateTime.now())
+            .count() shouldBe 1
+
+        verify(exactly = 1) {
+            orderRepository.save(any())
         }
     }
 

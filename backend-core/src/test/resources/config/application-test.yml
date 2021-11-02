@@ -2,3 +2,8 @@ logging:
   level:
     com.rarible.flow: DEBUG
     org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG
+
+app:
+  chain-id: TESTNET
+  kafka-replica-set: ${kafka.hosts}
+  environment: test

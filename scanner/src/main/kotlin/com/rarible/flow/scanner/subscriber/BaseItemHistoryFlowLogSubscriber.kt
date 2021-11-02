@@ -9,12 +9,15 @@ import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventSubscriber
 import com.rarible.blockchain.scanner.framework.model.Log
+import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.domain.FlowActivity
 import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.events.EventMessage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import java.time.Instant
 
@@ -47,6 +50,9 @@ abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
     @Value("\${blockchain.scanner.flow.chainId}")
     lateinit var chainId: FlowChainId
 
+    @Autowired
+    private lateinit var itemHistoryRepository: ItemHistoryRepository
+
     abstract val descriptors: Map<FlowChainId, FlowDescriptor>
 
     override fun getEventRecords(block: FlowBlockchainBlock, log: FlowBlockchainLog): Flow<FlowLogRecord<*>> {
@@ -61,7 +67,7 @@ abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
                 com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, fixedLog.event.event))
             if (activity == null) {
                 emptyFlow()
-            } else {
+            } else if (isNewActivity(activity)) {
                 flowOf(
                     ItemHistory(
                         log = FlowLog(
@@ -77,11 +83,13 @@ abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
                         activity = activity
                     )
                 )
-            }
+            } else emptyFlow()
         } else emptyFlow()
     }
 
     override fun getDescriptor(): FlowDescriptor = descriptors[chainId]!!
 
-    abstract fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): FlowActivity?
+    abstract fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity?
+
+    private fun isNewActivity(activity: FlowActivity): Boolean = !itemHistoryRepository.activityExists(activity)
 }
