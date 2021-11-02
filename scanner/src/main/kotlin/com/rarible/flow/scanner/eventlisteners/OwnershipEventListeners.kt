@@ -1,12 +1,11 @@
 package com.rarible.flow.scanner.eventlisteners
 
+import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.flow.core.domain.OwnershipId
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.repository.coFindById
-
 import com.rarible.flow.scanner.service.OwnershipService
-import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
@@ -25,8 +24,10 @@ class OwnershipEventListeners(
         ownershipRepository
             .coFindById(ownershipId)
             ?.let { ownership ->
-                ownershipRepository.delete(ownership).awaitSingle()
-                protocolEventPublisher.onDelete(ownership)
+                ownershipRepository.delete(ownership).subscribe()
+                if (event.source != Source.REINDEX) {
+                    protocolEventPublisher.onDelete(ownership)
+                }
             }
     }
 
