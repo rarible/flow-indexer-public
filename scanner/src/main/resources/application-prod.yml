@@ -11,14 +11,11 @@ blockchain:
         reconciliation:
           batchSize: 250
 
-scanner:
+app:
   environment: prod
-  kafka-replica-set: ${kafka.hosts}
-  default-item-collection:
-    id: "A.ebf4ae01d1284af8.RaribleNFT.NFT"
-    owner: "0xebf4ae01d1284af8"
-    name: "RaribleNFT"
-    symbol: "RNFT"
+  kafka-replica-set:
+  chain-id: MAINNET
+
 spring:
   data:
     mongodb:

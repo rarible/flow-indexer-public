@@ -21,10 +21,13 @@ rarible:
         enabled: true
 
 flow-indexer-api:
-  environment: prod
-  chain-id: MAINNET
   flow-access-url: "access.mainnet.nodes.onflow.org"
   flow-access-port: 9000
+
+app:
+  environment: prod
+  kafka-replica-set: ${kafka.hosts}
+  chain-id: MAINNET
 
 application:
   environment: prod
