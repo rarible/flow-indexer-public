@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class ItemEventListeners(
-    val itemService: ItemService,
+    private val itemService: ItemService,
     private val itemRepository: ItemRepository,
     private val ownershipRepository: OwnershipRepository, //TODO should be removed
     private val protocolEventPublisher: ProtocolEventPublisher,
