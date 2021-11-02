@@ -48,7 +48,8 @@ class NftCollectionApiController(
             id = it.id,
             owner = it.owner.formatted,
             name = it.name,
-            symbol = it.symbol
+            symbol = it.symbol,
+            features = it.features.map { FlowNftCollectionDto.Features.valueOf(it) }
         )
     }
 
