@@ -2,29 +2,33 @@ package com.rarible.flow.scanner.eventlisteners
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.BurnActivity
+import com.rarible.flow.core.domain.DepositActivity
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.MintActivity
+import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.OwnershipId
+import com.rarible.flow.core.domain.WithdrawnActivity
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepository
+import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
+import com.rarible.flow.scanner.service.ItemService
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 @Component
 class ItemEventListeners(
+    private val itemService: ItemService,
     private val itemRepository: ItemRepository,
-    private val ownershipRepository: OwnershipRepository,
-    private val orderRepository: OrderRepository,
+    private val ownershipRepository: OwnershipRepository, //TODO should be removed
     private val protocolEventPublisher: ProtocolEventPublisher,
 ) {
 
+    // TODO cleanup code
     @EventListener(MintActivity::class)
     fun mintItemEvent(activity: MintActivity) = runBlocking {
         val id = ItemId(contract = activity.contract, tokenId = activity.tokenId)
@@ -87,85 +91,36 @@ class ItemEventListeners(
     }
 
     @EventListener(WithdrawnActivity::class)
-    fun itemWithdrawn(activity: WithdrawnActivity) = runBlocking {
+    fun itemWithdrawn(activity: WithdrawnActivity): ItemIsWithdrawn? = runBlocking {
         val itemId = ItemId(contract = activity.contract, tokenId = activity.tokenId)
         val from = FlowAddress(activity.from ?: "0x00")
-        val item = itemRepository.findById(itemId).awaitSingleOrNull()
-        if (item != null && item.updatedAt <= activity.timestamp) {
-            protocolEventPublisher.onItemUpdate(
-                itemRepository.save(
-                    item.copy(
-                        owner = from,
-                        updatedAt = activity.timestamp
+        itemService.withItem(itemId) { item ->
+            if (item.updatedAt <= activity.timestamp) {
+                protocolEventPublisher.onItemUpdate(
+                    itemRepository.coSave(
+                        item.copy(
+                            owner = from,
+                            updatedAt = activity.timestamp
+                        )
                     )
-                ).awaitSingle()
-            )
-        }
-
-        val ownershipId = OwnershipId(contract = activity.contract, tokenId = activity.tokenId, owner = from)
-        val ownership = ownershipRepository.findById(ownershipId).awaitSingleOrNull()
-        if (ownership != null) {
-            ownershipRepository.delete(ownership).awaitSingleOrNull()
-            protocolEventPublisher.onDelete(ownership)
-        }
-
-        if (activity.from != null) {
-            val orders = orderRepository
-                .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
-                    FlowAssetNFT(activity.contract, 1.toBigDecimal(), activity.tokenId),
-                    FlowAddress(activity.from!!),
-                    OrderStatus.ACTIVE,
-                    LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
                 )
-                .map {
-                    it.copy(status = OrderStatus.INACTIVE)
-                }
-                .asFlow().toList()
-            orderRepository.saveAll(orders).subscribe()
+            }
+            ItemIsWithdrawn(item, from, activity.timestamp)
         }
     }
 
     @EventListener(DepositActivity::class)
-    fun itemDeposit(activity: DepositActivity) = runBlocking {
+    fun itemDeposit(activity: DepositActivity): ItemIsDeposited? = runBlocking {
         val itemId = ItemId(contract = activity.contract, tokenId = activity.tokenId)
         val newOwner = FlowAddress(activity.to ?: "0x00")
-        val item = itemRepository.findById(itemId).awaitSingleOrNull()
-        if (item != null && item.updatedAt <= activity.timestamp) {
-            protocolEventPublisher.onItemUpdate(
-                itemRepository.save(item.copy(owner = newOwner, updatedAt = activity.timestamp)).awaitSingle()
-            )
-        }
-
-        val ownershipId = OwnershipId(contract = activity.contract, tokenId = activity.tokenId, owner = newOwner)
-        val existsOwnership = ownershipRepository.existsById(ownershipId).awaitSingle()
-        if (!existsOwnership) {
-            protocolEventPublisher.onUpdate(
-                ownershipRepository.insert(
-                    Ownership(
-                        contract = itemId.contract,
-                        tokenId = itemId.tokenId,
-                        owner = newOwner,
-                        date = activity.timestamp,
-                        creator = newOwner
-                    )
-                ).awaitSingle()
-            )
-        }
-
-        if (activity.to != null) {
-            val orders = orderRepository
-                .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
-                    FlowAssetNFT(activity.contract, 1.toBigDecimal(), activity.tokenId),
-                    FlowAddress(activity.to!!),
-                    OrderStatus.INACTIVE,
-                    LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                )
-                .map {
-                    it.copy(status = OrderStatus.ACTIVE)
-                }
-                .asFlow().toList()
-            orderRepository.saveAll(orders).subscribe()
-
+        itemService.withItem(itemId) { item ->
+            if (item.updatedAt <= activity.timestamp) {
+                val deposited = itemRepository.coSave(item.copy(owner = newOwner, updatedAt = activity.timestamp))
+                protocolEventPublisher.onItemUpdate(deposited)
+                ItemIsDeposited(deposited, newOwner, item.owner, activity.timestamp)
+            } else {
+                null
+            }
         }
     }
 }
