@@ -23,6 +23,7 @@ flow-indexer-api:
 app:
   environment: staging
   chain-id: TESTNET
+  kafka-replica-set: ${kafka.hosts}
 
 application:
   environment: staging
