@@ -21,6 +21,7 @@ dependencies {
         exclude("org.springframework.boot:spring-boot-starter-web")
     }
     implementation(rootProject.libs.rarible.core.kafka)
+    implementation(rootProject.libs.rarible.core.apm.starter)
     implementation(rootProject.libs.blockchain.scanner.flow)
     implementation(rootProject.libs.bundles.flow.models)
     implementation(rootProject.libs.rarible.currency.starer)
