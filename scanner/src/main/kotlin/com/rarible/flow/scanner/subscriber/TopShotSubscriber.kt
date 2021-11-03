@@ -10,9 +10,11 @@ import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.events.EventMessage
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.springframework.stereotype.Component
 import java.time.Instant
 
+@ExperimentalCoroutinesApi
 @Component
 class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
 
