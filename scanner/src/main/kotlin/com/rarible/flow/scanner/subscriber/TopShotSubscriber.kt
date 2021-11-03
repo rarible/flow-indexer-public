@@ -11,11 +11,13 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.events.EventMessage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.stereotype.Component
 import java.time.Instant
 
 @ExperimentalCoroutinesApi
 @Component
+@ConditionalOnExpression("false")
 class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
 
     private val events = "Withdraw,Deposit,MomentMinted,MomentDestroyed".split(",")
