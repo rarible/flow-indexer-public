@@ -1,0 +1,22 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://${mongodb.user}:${mongodb.password}@${mongodb.hosts}
+      database: ${mongodb.database}
+  cloud:
+    consul:
+      discovery:
+        tags:
+          - web-api:flow-api.rarible.com
+
+management:
+  endpoint:
+    metrics:
+      enabled: true
+
+rarible:
+  core:
+    filter:
+      cors:
+        enabled: true
+
