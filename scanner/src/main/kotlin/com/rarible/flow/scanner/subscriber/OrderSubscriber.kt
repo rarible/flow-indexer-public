@@ -76,16 +76,17 @@ class OrderSubscriber(
                 val event = log.event.parse<OrderClosed>()
                 logger.debug("OrderSubscriber: $event")
 
+                val orderPrice = event.price - event.cuts[0].rate
                 FlowNftOrderActivitySell(
                     contract = event.nftType.collection(),
                     tokenId = event.nftId,
                     timestamp = timestamp,
-                    price = event.price,
+                    price = orderPrice,
                     priceUsd = event.price * usdRate(event.vaultType.collection(), block.timestamp),
                     left = OrderActivityMatchSide(event.orderAddress,
                         FlowAssetNFT(event.nftType.collection(), BigDecimal.ONE, event.nftId)),
                     right = OrderActivityMatchSide(event.buyerAddress,
-                        FlowAssetFungible(event.vaultType.collection(), event.price)),
+                        FlowAssetFungible(event.vaultType.collection(), orderPrice)),
                     hash = event.orderId.toString(),
                 )
             }
@@ -94,11 +95,12 @@ class OrderSubscriber(
                 val event = log.event.parse<OrderCancelled>()
                 logger.debug("OrderSubscriber: $event")
 
+                val orderPrice = event.price - event.cuts[0].rate
                 FlowNftOrderActivityCancelList(
                     contract = event.nftType.collection(),
                     tokenId = event.nftId,
                     timestamp = timestamp,
-                    price = event.price,
+                    price = orderPrice,
                     priceUsd = event.price * usdRate(event.vaultType.collection(), block.timestamp),
                     make = FlowAssetNFT(
                         contract = event.nftType.collection(),
@@ -107,7 +109,7 @@ class OrderSubscriber(
                     ),
                     take = FlowAssetFungible(
                         contract = event.vaultType.collection(),
-                        value = event.price
+                        value = orderPrice
                     ),
                     hash = event.orderId.toString(),
                     maker = event.orderAddress,
