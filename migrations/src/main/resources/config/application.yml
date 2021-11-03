@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: flow-nft-migrations
+  profiles:
+    active: without-kafka
+
+
+application:
+  service-name: flow-nft-migrations

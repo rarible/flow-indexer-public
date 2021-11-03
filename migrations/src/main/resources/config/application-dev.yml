@@ -1,0 +1,27 @@
+logging:
+  level:
+    com.rarible.flow: DEBUG
+    org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG
+
+spring:
+  application:
+    name: flow-nft-indexer-api
+  cloud:
+    consul:
+      discovery:
+        tags:
+          - web-api:flow-api-dev.rarible.com
+
+rarible:
+  core:
+    filter:
+      cors:
+        enabled: true
+
+application:
+  environment: dev
+
+app:
+  environment: dev
+  chain-id: TESTNET
+  kafka-replica-set: ${kafka.hosts}
