@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component
 import java.time.Instant
 
 @Component
+@ConditionalOnExpression("false")
 class MotoGPSubscriber : BaseItemHistoryFlowLogSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>

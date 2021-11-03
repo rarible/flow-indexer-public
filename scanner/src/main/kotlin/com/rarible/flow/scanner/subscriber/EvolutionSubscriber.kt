@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component
 import java.time.Instant
 
 @Component
+@ConditionalOnExpression("false")
 class EvolutionSubscriber : BaseItemHistoryFlowLogSubscriber() {
 
     private val events = "Withdraw,Deposit,CollectibleMinted,CollectibleDestroyed".split(",")
