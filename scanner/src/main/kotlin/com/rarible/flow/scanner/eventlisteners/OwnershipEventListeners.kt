@@ -34,15 +34,16 @@ class OwnershipEventListeners(
     @EventListener
     fun afterDeposit(event: ItemIsDeposited): Unit = runBlocking {
         val item = event.item
-        if(event.from == null) { // item is new
+        val ownership = if(event.from == null) { // item is new
             ownershipService.createOwnership(item, event.to, event.activityTime)
         } else {
-            val transferred = ownershipService.transferOwnershipIfExists(item, event.from, event.to)
-            if(transferred == null) { //transfer existing, or create a new
+            ownershipService.transferOwnershipIfExists(item, event.from, event.to)
+                ?: //transfer existing, or create a new
                 ownershipService.createOwnership(item, event.to, event.activityTime)
-            } else {
-                // nothing
-            }
+        }
+
+        if (event.source != Source.REINDEX) {
+            protocolEventPublisher.onUpdate(ownership)
         }
     }
 
