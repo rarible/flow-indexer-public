@@ -13,7 +13,7 @@ blockchain:
 
 app:
   environment: prod
-  kafka-replica-set:
+  kafka-replica-set: ${kafka.hosts}
   chain-id: MAINNET
 
 spring:
