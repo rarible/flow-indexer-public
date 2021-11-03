@@ -25,3 +25,7 @@ management:
   endpoint:
     metrics:
       enabled: true
+
+logging:
+  level:
+    com.rarible.flow: DEBUG
