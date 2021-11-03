@@ -1,4 +1,4 @@
-package com.rarible.flow.migrations.changes
+package com.rarible.flow.scanner.migrations
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.Item
@@ -16,7 +16,8 @@ import reactor.core.publisher.Flux
 
 @ChangeUnit(
     id = "ChangeLog00001UpdateTopshotRoyalties",
-    order = "00001"
+    order = "00001",
+    author = "flow"
 )
 class ChangeLog00001UpdateTopshotRoyalties(
     private val itemRepository: ItemRepository

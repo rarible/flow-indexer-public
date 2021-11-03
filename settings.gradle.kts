@@ -9,7 +9,6 @@ include(
     "converters",
     "util",
     "e2e",
-    "migrations"
 )
 
 dependencyResolutionManagement {
