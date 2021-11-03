@@ -4,3 +4,7 @@ spring:
   data:
     mongodb:
       auto-index-creation: true
+mongock:
+  runner-type: initializingbean
+  migration-scan-package: "com.rarible.flow.scanner.migrations"
+  default-migration-author: "flow"

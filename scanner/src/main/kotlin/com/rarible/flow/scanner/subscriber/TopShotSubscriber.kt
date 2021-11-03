@@ -19,7 +19,7 @@ class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
     private val events = "Withdraw,Deposit,MomentMinted,MomentDestroyed".split(",")
 
     private val royaltyAddress = mapOf(
-        FlowChainId.MAINNET to FlowAddress("0x01ab36aaf654a13e"),
+        FlowChainId.MAINNET to FlowAddress("0xbd69b6abdfcf4539"),
         FlowChainId.TESTNET to FlowAddress("0x01658d9b94068f3c"),
     )
 

@@ -1,6 +1,5 @@
 package com.rarible.flow.api.controller
 
-import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.api.service.UserStorageService
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
@@ -13,6 +12,7 @@ class ReadUserTokensController(private val userStorageService: UserStorageServic
 
     @GetMapping("/v0.1/newLogin/{address}")
     suspend fun newLogin(@PathVariable address: String) {
-        userStorageService.scanNFT(FlowAddress(address))
+        val flowAddress = address.flowAddress()!!
+        userStorageService.scanNFT(flowAddress)
     }
 }

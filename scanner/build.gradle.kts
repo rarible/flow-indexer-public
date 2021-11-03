@@ -9,6 +9,9 @@ dependencies {
     implementation(project(":backend-core"))
     implementation(project(":backend-api-model"))
     implementation(project(":util"))
+    implementation(platform("io.mongock:mongock-bom:5.0.21.RC"))
+    implementation("io.mongock:mongock-springboot")
+    implementation("io.mongock:mongodb-springdata-v3-driver")
 
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")

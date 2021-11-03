@@ -8,7 +8,7 @@ include(
     "backend-core",
     "converters",
     "util",
-    "e2e"
+    "e2e",
 )
 
 dependencyResolutionManagement {
