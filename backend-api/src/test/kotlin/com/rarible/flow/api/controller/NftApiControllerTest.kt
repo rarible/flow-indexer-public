@@ -25,6 +25,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
+import java.math.BigDecimal
 import java.time.Clock
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -106,7 +107,7 @@ internal class NftApiControllerTest {
             .expectBody<FlowNftItemDto>()
             .returnResult().responseBody!!
         item.id shouldBe "0x01:42"
-        item.creators shouldBe listOf(FlowCreatorDto(FlowAddress("0x01").formatted, 100.toBigDecimal()))
+        item.creators shouldBe listOf(FlowCreatorDto(FlowAddress("0x01").formatted, BigDecimal.ONE))
         item.owner shouldBe FlowAddress("0x02").formatted
     }
 
@@ -135,9 +136,6 @@ internal class NftApiControllerTest {
             .exchange()
             .expectStatus().isOk
             .expectBody<FlowNftItemRoyaltyDto>()
-            .returnResult()
-            .responseBody!!
-            .royalty shouldHaveSize 2
     }
 
     @Test
