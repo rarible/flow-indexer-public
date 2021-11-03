@@ -7,6 +7,7 @@ import com.rarible.protocol.dto.FlowCreatorDto
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowRoyaltyDto
 import org.springframework.core.convert.converter.Converter
+import java.math.BigDecimal
 import java.math.BigInteger
 
 object ItemToDtoConverter : Converter<Item, FlowNftItemDto> {
@@ -29,7 +30,7 @@ object ItemToDtoConverter : Converter<Item, FlowNftItemDto> {
     }
 
     private fun convert(creator: FlowAddress) = listOf(
-        FlowCreatorDto(creator.formatted, 100.toBigDecimal())
+        FlowCreatorDto(creator.formatted, BigDecimal.ONE)
     )
 
     private fun convert(royalties: List<Part>) = royalties.map {
