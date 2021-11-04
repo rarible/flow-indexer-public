@@ -8,8 +8,10 @@ import kotlinx.coroutines.reactive.asFlow
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.aggregation.Aggregation
-import org.springframework.data.mongodb.core.exists
-import org.springframework.data.mongodb.core.query.*
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.gte
+import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.lte
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import org.springframework.data.querydsl.ReactiveQuerydslPredicateExecutor
 import org.springframework.stereotype.Repository
@@ -37,8 +39,6 @@ interface ItemHistoryRepositoryCustom {
     fun aggregateSellByMaker(
         start: Instant, end: Instant, size: Long?
     ): Flow<FlowAggregationDataDto>
-
-    fun activityExists(activity: FlowActivity): Boolean
 }
 
 class ItemHistoryRepositoryCustomImpl(
@@ -66,19 +66,6 @@ class ItemHistoryRepositoryCustomImpl(
             start,
             end
         )
-    }
-
-    override fun activityExists(activity: FlowActivity): Boolean {
-        activity as BaseActivity
-        val criteria = Criteria().andOperator(
-            BaseActivity::contract.isEqualTo(activity.contract),
-            BaseActivity::tokenId.isEqualTo(activity.tokenId),
-            BaseActivity::type.isEqualTo(activity.type),
-            BaseActivity::timestamp.isEqualTo(activity.timestamp)
-        )
-
-        val res = mongo.exists<ItemHistory>(Query.query(criteria)).block()
-        return res ?: false
     }
 
     private fun getNftPurchaseAggregation(

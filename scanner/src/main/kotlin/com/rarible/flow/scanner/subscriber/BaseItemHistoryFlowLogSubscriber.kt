@@ -9,22 +9,17 @@ import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventSubscriber
 import com.rarible.blockchain.scanner.framework.model.Log
-import com.rarible.blockchain.scanner.util.logTime
 import com.rarible.flow.core.domain.BaseActivity
-import com.rarible.flow.core.domain.FlowActivity
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.events.EventMessage
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import java.time.Instant
 
-@ExperimentalCoroutinesApi
 abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
 
     internal val collection = "item_history"
@@ -61,11 +56,7 @@ abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
 
     override fun getEventRecords(block: FlowBlockchainBlock, log: FlowBlockchainLog): Flow<FlowLogRecord<*>> {
         val descriptor = getDescriptor()
-        val payload = runBlocking {
-            logTime("Fix payload by regexp") {
-                FlowEventPayload(log.event.payload.bytes.fixed())
-            }
-        }
+        val payload = FlowEventPayload(log.event.payload.bytes.fixed())
         val event = log.event.copy(payload = payload)
         val fixedLog = FlowBlockchainLog(log.hash, log.blockHash, event)
         return if (descriptor.events.contains(fixedLog.event.id)) {
@@ -75,7 +66,7 @@ abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
                 com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, fixedLog.event.event))
             if (activity == null) {
                 emptyFlow()
-            } else if (isNewActivity(activity)) {
+            } else if (isNewLog(log)) {
                 flowOf(
                     ItemHistory(
                         log = FlowLog(
@@ -99,5 +90,6 @@ abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
 
     abstract fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity?
 
-    private fun isNewActivity(activity: FlowActivity): Boolean = !itemHistoryRepository.activityExists(activity)
+    private fun isNewLog(log: FlowBlockchainLog): Boolean =
+        !itemHistoryRepository.existsById("${log.event.transactionId.base16Value}.${log.event.eventIndex}").block()!!
 }

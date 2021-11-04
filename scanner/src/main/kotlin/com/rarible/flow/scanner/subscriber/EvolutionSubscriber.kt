@@ -9,12 +9,10 @@ import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.events.EventMessage
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.stereotype.Component
 import java.time.Instant
 
 @Component
-@ConditionalOnExpression("false")
 class EvolutionSubscriber : BaseItemHistoryFlowLogSubscriber() {
 
     private val events = "Withdraw,Deposit,CollectibleMinted,CollectibleDestroyed".split(",")
