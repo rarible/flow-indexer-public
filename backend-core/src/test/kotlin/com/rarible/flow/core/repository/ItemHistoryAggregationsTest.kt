@@ -67,7 +67,7 @@ class ItemHistoryAggregationsTest {
                     FlowAddress("0x03").formatted,
                     FlowAssetFungible("flow", BigDecimal.valueOf(13L))
                 )
-            ), log),
+            ), log.copy(eventIndex = 2)),
             ItemHistory(
                 Instant.now(), sell.copy(
                 contract = "c2",
@@ -81,7 +81,7 @@ class ItemHistoryAggregationsTest {
                     FlowAddress("0x03").formatted,
                     FlowAssetFungible("flow", BigDecimal.valueOf(100L))
                 )
-            ), log),
+            ), log.copy(eventIndex = 3)),
         )
 
         itemHistoryRepository.saveAll(events).blockLast()

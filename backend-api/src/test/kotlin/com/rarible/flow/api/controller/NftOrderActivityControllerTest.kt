@@ -26,6 +26,7 @@ import org.springframework.test.web.reactive.server.expectBody
 import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils
 import java.time.Clock
 import java.time.Instant
+import java.util.*
 import kotlin.random.Random
 
 @SpringBootTest(
@@ -84,10 +85,11 @@ class NftOrderActivityControllerTest {
         val tokenId = randomLong()
         val date = Instant.now(Clock.systemUTC())
         val hash = "12345"
+        val contract = randomAddress()
 
         repo.saveAll(listOf(
-            randomItemHistory(date = date, activity = randomWithdraw().copy(tokenId = tokenId, from = expectedUser), log = randomLog().copy(transactionHash = hash)),
-            randomItemHistory(date = date, activity = randomBurn().copy(tokenId = tokenId, owner = null), log = randomLog().copy(transactionHash = hash)),
+            randomItemHistory(date = date, activity = randomWithdraw().copy(tokenId = tokenId, from = expectedUser, contract = contract), log = randomLog().copy(transactionHash = hash)),
+            randomItemHistory(date = date, activity = randomBurn().copy(tokenId = tokenId, owner = null, contract = contract), log = randomLog().copy(transactionHash = hash, eventIndex = 2)),
         )
         ).then().block()
 
@@ -128,7 +130,7 @@ class NftOrderActivityControllerTest {
     )
 
     fun randomWithdraw() = WithdrawnActivity(
-        type = FlowActivityType.BURN,
+        type = FlowActivityType.WITHDRAWN,
         timestamp = Instant.now(Clock.systemUTC()),
         from = randomAddress(),
         contract = randomAddress(),
@@ -142,5 +144,5 @@ class NftOrderActivityControllerTest {
     ) = ItemHistory(date = date, activity = activity, log = log)
 
     private fun randomLog() =
-        FlowLog("", Log.Status.CONFIRMED, 1, "", Instant.now(Clock.systemUTC()), randomLong(), "")
+        FlowLog(UUID.randomUUID().toString(), Log.Status.CONFIRMED, 1, "", Instant.now(Clock.systemUTC()), randomLong(), "")
 }
