@@ -90,6 +90,9 @@ abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
 
     abstract fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity?
 
-    private fun isNewLog(log: FlowBlockchainLog): Boolean =
-        !itemHistoryRepository.existsById("${log.event.transactionId.base16Value}.${log.event.eventIndex}").block()!!
+    private fun isNewLog(log: FlowBlockchainLog): Boolean {
+        val txHash = log.event.transactionId.base16Value
+        val eventIndex = log.event.eventIndex
+        return !itemHistoryRepository.existsByLog_TransactionHashAndLog_EventIndex(txHash, eventIndex).block()!!
+    }
 }

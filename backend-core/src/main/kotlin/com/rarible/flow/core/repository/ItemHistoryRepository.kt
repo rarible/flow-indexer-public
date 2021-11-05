@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.query.lte
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import org.springframework.data.querydsl.ReactiveQuerydslPredicateExecutor
 import org.springframework.stereotype.Repository
+import reactor.core.publisher.Mono
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -25,7 +26,11 @@ import java.time.Instant
 interface ItemHistoryRepository:
     ReactiveMongoRepository<ItemHistory, String>,
     ReactiveQuerydslPredicateExecutor<ItemHistory>,
-    ItemHistoryRepositoryCustom
+    ItemHistoryRepositoryCustom {
+
+        @Suppress("FunctionName")
+        fun existsByLog_TransactionHashAndLog_EventIndex(txHash: String, eventIndex: Int): Mono<Boolean>
+    }
 
 interface ItemHistoryRepositoryCustom {
     fun aggregatePurchaseByCollection(
