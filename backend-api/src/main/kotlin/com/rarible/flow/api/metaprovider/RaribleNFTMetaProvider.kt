@@ -39,7 +39,7 @@ class RaribleNFTMetaProvider(
                 key = it.key ?: it.traitType!!,
                 value = it.value
             ) },
-            contentUrls = listOf(data.image),
+            contentUrls = listOfNotNull(data.image, data.animationUrl),
         ).apply {
             raw = data.toString().toByteArray(charset = Charsets.UTF_8)
         }
@@ -50,7 +50,9 @@ class RaribleNFTMetaProvider(
 data class RaribleNFTMetaBody(
     val name: String,
     val description: String,
-    val image: String,
+    val image: String? = null,
+    @get:JsonProperty("animation_url")
+    val animationUrl: String? = null,
     val attributes: List<RaribleNftAttr>
 )
 
