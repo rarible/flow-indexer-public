@@ -25,6 +25,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils
 import java.time.Clock
+import java.time.Duration
 import java.time.Instant
 import java.util.*
 import kotlin.random.Random
@@ -109,13 +110,100 @@ class NftOrderActivityControllerTest {
             }
     }
 
+    @Test
+    internal fun test() {
+        val account1 = randomAddress()
+        val account2 = randomAddress()
+        val contract = "A.01ab36aaf654a13e.RaribleNFT"
+        val tokenId = 52L
+
+        val date1 = Instant.now(Clock.systemUTC())
+        val date2 = date1 + Duration.ofMinutes(1)
+        val date3 = date1 + Duration.ofMinutes(2)
+
+
+        repo.saveAll(listOf(
+            // mint
+            ItemHistory(
+                date = date1,
+                activity = randomMint().copy(
+                    timestamp = date1,
+                    contract = contract,
+                    tokenId = tokenId,
+                    owner = account1,
+                ),
+                log = randomLog().copy(eventIndex = 1, transactionHash = "1")
+            ),
+            ItemHistory(
+                date = date1,
+                activity = deposit(date1, contract, tokenId, account1),
+                log = randomLog().copy(eventIndex = 2, transactionHash = "1")
+            ),
+            // transfer
+            ItemHistory(
+                date = date2,
+                activity = randomWithdraw().copy(
+                    timestamp = date2,
+                    contract = contract,
+                    tokenId = tokenId,
+                    from = account1,
+                ),
+                log = randomLog().copy(eventIndex = 1, transactionHash = "2")
+            ),
+            ItemHistory(
+                date = date2,
+                activity = deposit(date1, contract, tokenId, account2),
+                log = randomLog().copy(eventIndex = 2, transactionHash = "2")
+            ),
+            // burn
+            ItemHistory(
+                date = date3,
+                activity = randomWithdraw().copy(
+                    timestamp = date2,
+                    contract = contract,
+                    tokenId = tokenId,
+                    from = account2,
+                ),
+                log = randomLog().copy(eventIndex = 1, transactionHash = "3")
+            ),
+            ItemHistory(
+                date = date3,
+                activity = randomBurn().copy(
+                    timestamp = date2,
+                    contract = contract,
+                    tokenId = tokenId,
+                    owner = null,
+                ),
+                log = randomLog().copy(eventIndex = 2, transactionHash = "3")
+            ),
+        )).then().block()
+
+        listOf(
+            "/v0.1/order/activities/byItem?type=TRANSFER&contract=$contract&tokenId=$tokenId",
+            "/v0.1/order/activities/byItem?type=BURN&contract=$contract&tokenId=$tokenId",
+            "/v0.1/order/activities/byItem?type=TRANSFER&contract=$contract&tokenId=$tokenId&sort=EARLIEST_FIRST",
+            "/v0.1/order/activities/byItem?type=BURN&contract=$contract&tokenId=$tokenId&sort=EARLIEST_FIRST",
+        ).forEach {
+            client.get().uri(it)
+                .exchange()
+                .expectStatus().isOk
+                .expectBody<FlowActivitiesDto>()
+                .consumeWith { response ->
+                    val activitiesDto = response.responseBody
+                    Assertions.assertNotNull(activitiesDto)
+                    Assertions.assertNotNull(activitiesDto?.items)
+                    Assertions.assertEquals(1, activitiesDto?.items?.size)
+                }
+        }
+    }
+
     private fun randomMint() = MintActivity(
         type = FlowActivityType.MINT,
         timestamp = Instant.now(Clock.systemUTC()),
         owner = randomAddress(),
         contract = randomAddress(),
         tokenId = randomLong(),
-        value = RandomUtils.nextLong(),
+        value = 1,
         metadata = mapOf("metaURI" to "ipfs://"),
         royalties = (0..Random.Default.nextInt(0, 3)).map { Part(randomFlowAddress(), randomRate()) },
     )
@@ -126,7 +214,7 @@ class NftOrderActivityControllerTest {
         owner = randomAddress(),
         contract = randomAddress(),
         tokenId = randomLong(),
-        value = RandomUtils.nextLong(),
+        value = 1,
     )
 
     fun randomWithdraw() = WithdrawnActivity(
@@ -136,6 +224,13 @@ class NftOrderActivityControllerTest {
         contract = randomAddress(),
         tokenId = randomLong(),
     )
+
+    fun deposit(
+        timestamp: Instant,
+        contract: String = randomAddress(),
+        tokenId: Long = randomLong(),
+        to: String? = randomAddress(),
+    ) = DepositActivity(FlowActivityType.DEPOSIT, contract, tokenId, timestamp, to)
 
     fun randomItemHistory(
         date: Instant = Instant.now(Clock.systemUTC()),
