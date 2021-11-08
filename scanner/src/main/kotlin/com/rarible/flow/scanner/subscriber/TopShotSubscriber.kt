@@ -45,7 +45,7 @@ class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
             ),
         )
 
-    override fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity {
+    override suspend fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity {
 
         val contract = msg.eventId.collection()
         val timestamp = Instant.ofEpochMilli(block.timestamp)
@@ -89,7 +89,7 @@ class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
                         "serialNumber" to serialNumber.value.toString()
                     ),
                     royalties = listOf(
-                        Part(royaltyAddress[chainId]!!, 5.0)
+                        Part(royaltyAddress[chainId]!!, 0.05)
                     )
                 )
             }

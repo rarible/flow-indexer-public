@@ -7,29 +7,45 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
+import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.ItemService
+import com.rarible.flow.scanner.service.OrderService
+import com.rarible.flow.scanner.service.OwnershipService
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.runBlocking
-import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @Component
-class ItemEventListeners(
+class ItemIndexerEventProcessor(
     private val itemService: ItemService,
     private val itemRepository: ItemRepository,
-    private val ownershipRepository: OwnershipRepository, //TODO should be removed
+    private val ownershipRepository: OwnershipRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
-) {
+    private val ownershipService: OwnershipService,
+    private val orderService: OrderService,
+): IndexerEventsProcessor {
 
     private val objectMapper = ObjectMapper()
 
-    // TODO cleanup code
-    @EventListener(condition = "#event.activity instanceof T(com.rarible.flow.core.domain.MintActivity)")
-    fun mintItemEvent(event: IndexerEvent) = runBlocking {
+    override fun isSupported(event: IndexerEvent): Boolean = event.activity is MintActivity ||
+            event.activity is WithdrawnActivity || event.activity is DepositActivity || event.activity is BurnActivity
+
+    override suspend fun process(event: IndexerEvent) {
+        when(event.activity) {
+            is MintActivity -> mintItemEvent(event)
+            is WithdrawnActivity -> itemWithdrawn(event)
+            is DepositActivity -> itemDeposit(event)
+            is BurnActivity -> burnItemEvent(event)
+            else -> throw IllegalStateException("Unsupported item event!  [${event.activity::class.simpleName}]")
+        }
+    }
+
+    private suspend fun mintItemEvent(event: IndexerEvent) {
         val activity = event.activity as MintActivity
         val id = ItemId(contract = activity.contract, tokenId = activity.tokenId)
         val owner = FlowAddress(activity.owner)
@@ -76,8 +92,7 @@ class ItemEventListeners(
         }
     }
 
-    @EventListener(condition = "#event.activity instanceof T(com.rarible.flow.core.domain.BurnActivity)")
-    fun burnItemEvent(event: IndexerEvent) = runBlocking {
+    private suspend fun burnItemEvent(event: IndexerEvent) {
         val activity = event.activity as BurnActivity
         val itemId = ItemId(contract = activity.contract, tokenId = activity.tokenId)
         val exists = itemRepository.existsById(itemId).awaitSingle()
@@ -95,40 +110,55 @@ class ItemEventListeners(
         }
     }
 
-    @EventListener(condition = "#event.activity instanceof T(com.rarible.flow.core.domain.WithdrawnActivity)")
-    fun itemWithdrawn(event: IndexerEvent): ItemIsWithdrawn? = runBlocking {
+    private suspend fun itemWithdrawn(event: IndexerEvent) {
         val activity = event.activity as WithdrawnActivity
         val itemId = ItemId(contract = activity.contract, tokenId = activity.tokenId)
         val from = FlowAddress(activity.from ?: "0x00")
         itemService.withItem(itemId) { item ->
             if (item.updatedAt <= activity.timestamp) {
-                protocolEventPublisher.onItemUpdate(
-                    itemRepository.coSave(
-                        item.copy(
-                            owner = from,
-                            updatedAt = activity.timestamp
-                        )
+                val saved = itemRepository.coSave(
+                    item.copy(
+                        owner = from,
+                        updatedAt = activity.timestamp
                     )
                 )
+
+                if (event.source != Source.REINDEX) {
+                    protocolEventPublisher.onItemUpdate(saved)
+                }
             }
-            ItemIsWithdrawn(item, from, activity.timestamp, event.source)
+            val ownershipId = OwnershipId(item.contract, item.tokenId, from)
+            ownershipRepository
+                .coFindById(ownershipId)
+                ?.let { ownership ->
+                    ownershipRepository.delete(ownership).subscribe()
+                    if (event.source != Source.REINDEX) {
+                        protocolEventPublisher.onDelete(ownership)
+                    }
+                }
+            val o = orderService.deactivateOrdersByItem(
+                item,
+                LocalDateTime.ofInstant(event.activity.timestamp, ZoneOffset.UTC)
+            )
+            if (event.source != Source.REINDEX) {
+                protocolEventPublisher.onUpdate(o)
+            }
         }
     }
 
-    @EventListener(condition = "#event.activity instanceof T(com.rarible.flow.core.domain.DepositActivity)")
-    fun itemDeposit(event: IndexerEvent): ItemIsDeposited? = runBlocking {
+    private suspend fun itemDeposit(event: IndexerEvent) {
         val activity = event.activity as DepositActivity
         val itemId = ItemId(contract = activity.contract, tokenId = activity.tokenId)
         val newOwner = FlowAddress(activity.to ?: "0x00")
-        itemService.withItem(itemId) { item ->
-            if (item.updatedAt <= activity.timestamp) {
-                val deposited = itemRepository.coSave(item.copy(owner = newOwner, updatedAt = activity.timestamp))
-                if (event.source != Source.REINDEX) {
-                    protocolEventPublisher.onItemUpdate(deposited)
-                }
-                ItemIsDeposited(deposited, newOwner, item.owner, activity.timestamp, event.source)
-            } else {
-                null
+        val item = itemRepository.coFindById(itemId)
+        if (item != null && item.updatedAt <= activity.timestamp) {
+            val deposited = itemRepository.coSave(item.copy(owner = newOwner, updatedAt = activity.timestamp))
+           val ownership = ownershipService.transferOwnershipIfExists(item, item.owner!!, newOwner)
+                    ?: //transfer existing, or create a new
+                    ownershipService.createOwnership(item, newOwner, activity.timestamp)
+            if (event.source != Source.REINDEX) {
+                protocolEventPublisher.onItemUpdate(deposited)
+                protocolEventPublisher.onUpdate(ownership)
             }
         }
     }

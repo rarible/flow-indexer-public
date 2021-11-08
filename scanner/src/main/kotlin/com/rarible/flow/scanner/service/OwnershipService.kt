@@ -31,7 +31,7 @@ class OwnershipService(
         return withOwnership(
             item.ownershipId(from)
         ) { o ->
-            ownershipRepository.delete(o)
+            ownershipRepository.delete(o).subscribe()
             ownershipRepository.coSave(o.transfer(to))
         }
     }
