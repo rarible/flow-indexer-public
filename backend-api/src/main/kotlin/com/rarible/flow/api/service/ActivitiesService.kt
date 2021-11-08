@@ -7,6 +7,7 @@ import com.rarible.blockchain.scanner.flow.model.QFlowLog
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ActivityContinuation
 import com.rarible.flow.core.repository.ItemHistoryRepository
+import com.rarible.flow.enum.enumContains
 import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
@@ -63,7 +64,7 @@ class ActivitiesService(
             FlowActivityType.values().toMutableList()
         } else {
             safeOf<FlowActivityType>(
-                type.filter { "TRANSFER_TO" != it && "TRANSFER_FROM" != it && "BUY" != it }
+                type.filter { enumContains<FlowActivityType>(it) }
             ).toMutableList()
         }
         val cont = ActivityContinuation.of(continuation)

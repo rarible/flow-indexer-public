@@ -18,7 +18,7 @@ dependencyResolutionManagement {
             version("rarible-core", "1.3-spring25-SNAPSHOT")
             version("rarible-currency", "1.4.5")
             version("flow-protocol-version", "2.0.26-SNAPSHOT")
-            version("blockchain-scanner", "1.0.3-SNAPSHOT")
+            version("blockchain-scanner", "1.0.4-SNAPSHOT")
 
             alias("flow-sdk").to("com.nftco", "flow-jvm-sdk").versionRef("flow-sdk-ver")
             alias("rarible-core-apm-starter").to("com.rarible.core", "rarible-core-apm-starter").versionRef("rarible-core")

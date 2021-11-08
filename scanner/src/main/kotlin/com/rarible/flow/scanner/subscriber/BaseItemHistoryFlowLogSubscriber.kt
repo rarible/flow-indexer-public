@@ -16,6 +16,7 @@ import com.rarible.flow.events.EventMessage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import java.time.Instant
@@ -54,7 +55,7 @@ abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
 
     abstract val descriptors: Map<FlowChainId, FlowDescriptor>
 
-    override fun getEventRecords(block: FlowBlockchainBlock, log: FlowBlockchainLog): Flow<FlowLogRecord<*>> {
+    override suspend fun getEventRecords(block: FlowBlockchainBlock, log: FlowBlockchainLog): Flow<FlowLogRecord<*>> {
         val descriptor = getDescriptor()
         val payload = FlowEventPayload(log.event.payload.bytes.fixed())
         val event = log.event.copy(payload = payload)
@@ -88,11 +89,11 @@ abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
 
     override fun getDescriptor(): FlowDescriptor = descriptors[chainId]!!
 
-    abstract fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity?
+    abstract suspend fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity?
 
-    private fun isNewLog(log: FlowBlockchainLog): Boolean {
+    private suspend fun isNewLog(log: FlowBlockchainLog): Boolean {
         val txHash = log.event.transactionId.base16Value
         val eventIndex = log.event.eventIndex
-        return !itemHistoryRepository.existsByLog_TransactionHashAndLog_EventIndex(txHash, eventIndex).block()!!
+        return !itemHistoryRepository.existsByLog_TransactionHashAndLog_EventIndex(txHash, eventIndex).awaitSingle()
     }
 }
