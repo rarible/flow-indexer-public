@@ -14,9 +14,9 @@ class AppReadyListener(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemCollectionRepository: ItemCollectionRepository,
     private val scannerProperties: FlowBlockchainScannerProperties
-): ApplicationListener<ApplicationReadyEvent> {
+) : ApplicationListener<ApplicationReadyEvent> {
 
-    private val  supportedCollections = mapOf(
+    private val supportedCollections = mapOf(
         FlowChainId.TESTNET to listOf(
             ItemCollection(id = "A.ebf4ae01d1284af8.RaribleNFT", name = "Rarible", owner = FlowAddress("0xebf4ae01d1284af8"), symbol = "RARIBLE", features = setOf("SECONDARY_SALE_FEES", "BURN")),
             ItemCollection(id = "A.01658d9b94068f3c.MotoGPCard", name = "MotoGP™ Ignition", owner = FlowAddress("0x01658d9b94068f3c"), symbol = "MotoGP™", features = setOf("BURN")),
@@ -36,8 +36,8 @@ class AppReadyListener(
      */
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
         if (scannerProperties.chainId != FlowChainId.EMULATOR) {
-            itemCollectionRepository.deleteAll().block()
-            itemCollectionRepository.saveAll(supportedCollections[scannerProperties.chainId]!!).then().block()
+            itemCollectionRepository.deleteAll()
+                .and(itemCollectionRepository.saveAll(supportedCollections[scannerProperties.chainId]!!)).subscribe()
         }
     }
 }

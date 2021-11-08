@@ -45,7 +45,7 @@ class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
             ),
         )
 
-    override fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity {
+    override suspend fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity {
 
         val contract = msg.eventId.collection()
         val timestamp = Instant.ofEpochMilli(block.timestamp)
