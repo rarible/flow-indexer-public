@@ -89,7 +89,7 @@ class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
                         "serialNumber" to serialNumber.value.toString()
                     ),
                     royalties = listOf(
-                        Part(royaltyAddress[chainId]!!, 5.0)
+                        Part(royaltyAddress[chainId]!!, 0.05)
                     )
                 )
             }
