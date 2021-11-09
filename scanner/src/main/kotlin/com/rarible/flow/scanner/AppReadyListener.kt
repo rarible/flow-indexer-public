@@ -5,6 +5,8 @@ import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.configuration.FlowBlockchainScannerProperties
 import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.repository.ItemCollectionRepository
+import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.runBlocking
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.stereotype.Component
@@ -36,8 +38,10 @@ class AppReadyListener(
      */
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
         if (scannerProperties.chainId != FlowChainId.EMULATOR) {
-            itemCollectionRepository.deleteAll()
-                .and(itemCollectionRepository.saveAll(supportedCollections[scannerProperties.chainId]!!)).subscribe()
+            runBlocking {
+                itemCollectionRepository.deleteAll().awaitFirstOrNull()
+                itemCollectionRepository.saveAll(supportedCollections[scannerProperties.chainId]!!).awaitFirstOrNull()
+            }
         }
     }
 }
