@@ -116,7 +116,7 @@ class ItemIndexerEventProcessor(
         val itemId = ItemId(contract = activity.contract, tokenId = activity.tokenId)
         val from = FlowAddress(activity.from ?: "0x00")
         itemService.withItem(itemId) { item ->
-            if (item.updatedAt <= activity.timestamp) {
+            if (item.updatedAt <= activity.timestamp && item.owner != null) {
                 val saved = itemRepository.coSave(
                     item.copy(
                         owner = from,
