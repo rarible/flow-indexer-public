@@ -169,17 +169,16 @@ class ActivitiesService(
         sort: String,
     ): FlowActivitiesDto {
         val items = flow.toList()
+        val limit = size ?: DEFAULT_SIZE
         var dto = convertToDto(items, sort)
+        dto = dto.take(limit)
 
-        if (size != null) {
-            dto = dto.take(size)
-        }
-
+        val continuation = if(items.size < limit) null else answerContinuation(items)?.toString()
 
         return FlowActivitiesDto(
             items = dto,
             total = dto.size,
-            continuation = "${answerContinuation(items)}"
+            continuation = continuation
         )
     }
 
@@ -431,5 +430,9 @@ class ActivitiesService(
         }
 
         return helper()
+    }
+
+    companion object {
+        const val DEFAULT_SIZE = 50
     }
 }
