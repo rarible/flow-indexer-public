@@ -3,6 +3,7 @@ package com.rarible.flow.core.kafka
 import com.rarible.core.kafka.KafkaMessage
 import com.rarible.core.kafka.KafkaSendResult
 import com.rarible.core.kafka.RaribleKafkaProducer
+import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.converter.OwnershipToDtoConverter
@@ -104,14 +105,18 @@ class ProtocolEventPublisher(
         )
     }
 
-    suspend fun activity(activity: BaseActivity, history: ItemHistory): KafkaSendResult {
-        log.debug("Sending activity: {}", activity)
-        return activities.send(
-            KafkaMessage(
-                "${activity.contract}:${activity.tokenId}-${activity.timestamp}",
-                activity.toDto(history)
+    suspend fun activity(history: ItemHistory): KafkaSendResult? {
+        log.debug("Sending activity: {}", history.activity)
+        return ItemHistoryToDtoConverter.convert(
+            history
+        )?.let { dto ->
+            return activities.send(
+                KafkaMessage(
+                    "${history.activity.contract}:${history.activity.tokenId}-${history.activity.timestamp}",
+                    dto
+                )
             )
-        )
+        }
     }
 
     companion object {

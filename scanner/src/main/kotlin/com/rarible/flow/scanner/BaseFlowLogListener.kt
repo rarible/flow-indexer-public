@@ -32,7 +32,7 @@ class BaseFlowLogListener(
             )
 
             if(blockEvent.event.eventSource != Source.REINDEX) {
-                protocolEventPublisher.activity(it.activity, it)
+                protocolEventPublisher.activity(it)
             }
         }
     }
