@@ -1,5 +1,6 @@
 package com.rarible.flow.api.controller
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.core.test.ext.MongoTest
@@ -27,6 +28,7 @@ import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
+import java.time.ZonedDateTime
 import java.util.*
 import kotlin.random.Random
 
@@ -111,7 +113,78 @@ class NftOrderActivityControllerTest {
     }
 
     @Test
-    internal fun test() {
+    internal fun `mint-burn history events`() {
+        val contract = "A.ebf4ae01d1284af8.RaribleNFT"
+        val tokenId = 569L
+
+        val date1 = ZonedDateTime.parse("2021-11-09T09:14:01.708Z").toInstant()
+        val date2 = ZonedDateTime.parse("2021-11-09T09:14:36.388Z").toInstant()
+        val acc1 = "0x8b3a1957d16153ed"
+
+        val royalties = listOf(
+            Part(FlowAddress("0x6f5da08ac09b5332"), 0.12),
+            Part(FlowAddress("0x80102bce1de42dc4"), 0.08)
+        )
+        val metadata = mapOf(
+            "metaURI" to "ipfs://ipfs/QmNe7Hd9xiqm1MXPtQQjVtksvWX6ieq9Wr6kgtqFo9D4CU"
+        )
+
+        val flowLog1 = FlowLog(
+            "32b8e20c643740a6e96b48af96f015655801864d3dbed3f22611ee94af421f86",
+            Log.Status.CONFIRMED,
+            0,
+            "",
+            date1,
+            50564298L,
+            "12f9dc7ed8fc0b9043802719f13e4cd20fed6780d2d8d621284b08dc6485ba5e"
+        )
+        val flowLog2 = FlowLog(
+            "e2b72842eb40183ce2a956d9103b29c1ce2efe013bccfdd12730c3148e550a10",
+            Log.Status.CONFIRMED,
+            0,
+            "",
+            date2,
+            50564339L,
+            "c452cb8a5a009447fbd7632f1e7f5af4698ba276e1cb77097b017e08874f2477"
+        )
+        val history = listOf(
+            ItemHistory(
+                date1,
+                MintActivity(FlowActivityType.MINT, acc1, contract, tokenId, 1, date1, royalties, metadata),
+                flowLog1.copy(eventIndex = 0, eventType = "A.ebf4ae01d1284af8.RaribleNFT.Mint")
+            ),
+            ItemHistory(
+                date1,
+                DepositActivity(FlowActivityType.DEPOSIT, contract, tokenId, date1, acc1),
+                flowLog1.copy(eventIndex = 1, eventType = "A.ebf4ae01d1284af8.RaribleNFT.Deposit")
+            ),
+            ItemHistory(
+                date2,
+                WithdrawnActivity(FlowActivityType.WITHDRAWN, contract, tokenId, date2, acc1),
+                flowLog2.copy(eventIndex = 0, eventType = "A.ebf4ae01d1284af8.RaribleNFT.Withdraw")
+            ),
+            ItemHistory(
+                date2,
+                BurnActivity(FlowActivityType.BURN, contract, tokenId, 1, null, date2),
+                flowLog2.copy(eventIndex = 1, eventType = "A.ebf4ae01d1284af8.RaribleNFT.Destroy")
+            ),
+        )
+        repo.saveAll(history).subscribe()
+
+        client.get().uri("/v0.1/order/activities/byItem?type=BURN&contract=$contract&tokenId=$tokenId")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowActivitiesDto>()
+            .consumeWith { response ->
+                val activitiesDto = response.responseBody
+                Assertions.assertNotNull(activitiesDto)
+                Assertions.assertNotNull(activitiesDto?.items)
+                Assertions.assertEquals(1, activitiesDto?.items?.size)
+            }
+    }
+
+    @Test
+    internal fun `mint-transfer-burn history events`() {
         val account1 = randomAddress()
         val account2 = randomAddress()
         val contract = "A.01ab36aaf654a13e.RaribleNFT"
@@ -239,5 +312,11 @@ class NftOrderActivityControllerTest {
     ) = ItemHistory(date = date, activity = activity, log = log)
 
     private fun randomLog() =
-        FlowLog(UUID.randomUUID().toString(), Log.Status.CONFIRMED, 1, "", Instant.now(Clock.systemUTC()), randomLong(), "")
+        FlowLog(UUID.randomUUID().toString(),
+            Log.Status.CONFIRMED,
+            1,
+            "",
+            Instant.now(Clock.systemUTC()),
+            randomLong(),
+            "")
 }

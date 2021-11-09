@@ -349,9 +349,6 @@ class ActivitiesService(
             }
             if (h.activity is WithdrawnActivity) {
                 val wa = h.activity as WithdrawnActivity
-                if (i == history.lastIndex) {
-                    continue
-                }
                 val d = findActivity(history, i, FlowActivityType.DEPOSIT)
                 if (d != null) {
                     val da = d.activity as DepositActivity
