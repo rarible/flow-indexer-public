@@ -6,10 +6,14 @@ import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.converter.OwnershipToDtoConverter
+import com.rarible.flow.core.domain.BaseActivity
+import com.rarible.flow.core.domain.FlowActivity
 import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.toDto
 import com.rarible.protocol.dto.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -19,7 +23,8 @@ import java.util.*
 class ProtocolEventPublisher(
     private val items: RaribleKafkaProducer<FlowNftItemEventDto>,
     private val ownerships: RaribleKafkaProducer<FlowOwnershipEventDto>,
-    private val orders: RaribleKafkaProducer<FlowOrderEventDto>
+    private val orders: RaribleKafkaProducer<FlowOrderEventDto>,
+    private val activities: RaribleKafkaProducer<FlowActivityDto>
 ) {
 
     suspend fun onItemUpdate(item: Item): KafkaSendResult {
@@ -94,6 +99,15 @@ class ProtocolEventPublisher(
                         itemId.tokenId
                     )
                 )
+            )
+        )
+    }
+
+    suspend fun activity(activity: BaseActivity, history: ItemHistory): KafkaSendResult {
+        return activities.send(
+            KafkaMessage(
+                "${activity.contract}:${activity.tokenId}-${activity.timestamp}",
+                activity.toDto(history)
             )
         )
     }
