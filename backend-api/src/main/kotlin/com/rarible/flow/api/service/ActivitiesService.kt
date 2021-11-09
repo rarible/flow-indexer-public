@@ -4,6 +4,7 @@ import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.rarible.blockchain.scanner.flow.model.QFlowLog
+import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ActivityContinuation
 import com.rarible.flow.core.repository.ItemHistoryRepository
@@ -372,13 +373,17 @@ class ActivitiesService(
                     if (b != null) {
                         val ba = b.activity as BurnActivity
                         result.add(
-                            ba.copy(owner = wa.from).toDto(h)
+                            ItemHistoryToDtoConverter.convert(
+                                h.copy(activity = ba.copy(owner = wa.from))
+                            )!!
                         )
                     }
                 }
                 continue
             }
-            result.add(h.activity.toDto(h))
+            ItemHistoryToDtoConverter.convert(h)?.let {
+                result.add(it)
+            }
         }
 
         val dtoList = result.sortedWith(compareBy(FlowActivityDto::date).thenBy {
