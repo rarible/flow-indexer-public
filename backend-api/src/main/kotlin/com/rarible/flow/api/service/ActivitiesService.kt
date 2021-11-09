@@ -115,6 +115,11 @@ class ActivitiesService(
         } else emptyFlow()
         types.remove(FlowActivityType.LIST)
 
+        val cancelListActivities: Flow<ItemHistory> = if (types.contains(FlowActivityType.CANCEL_LIST)) {
+            itemHistoryRepository.findAll(cancelListPredicate(user, from, to), *order).asFlow()
+        } else emptyFlow()
+        types.remove(FlowActivityType.CANCEL_LIST)
+
         val buyActivities: Flow<ItemHistory> = if (haveBuy) {
             itemHistoryRepository.findAll(buyPredicate(user, from, to), *order).asFlow()
         } else emptyFlow()
@@ -153,6 +158,7 @@ class ActivitiesService(
                 transferFromActivities,
                 transferToActivities,
                 listActivities,
+                cancelListActivities,
                 sellActivities,
                 buyActivities,
                 burnActivities,
@@ -340,6 +346,14 @@ class ActivitiesService(
         return withinDates(q, predicate, from, to)
     }
 
+    private fun cancelListPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
+        val q = QItemHistory.itemHistory
+        val activity = QFlowNftOrderActivityCancelList(q.activity.metadata)
+        val predicate = activity.type.eq(FlowActivityType.CANCEL_LIST)
+            .and(activity.maker.`in`(users))
+        return withinDates(q, predicate, from, to)
+    }
+
     private fun convertToDto(
         history: List<ItemHistory>,
         sort: String,
@@ -352,9 +366,6 @@ class ActivitiesService(
             }
             if (h.activity is WithdrawnActivity) {
                 val wa = h.activity as WithdrawnActivity
-                if (i == history.lastIndex) {
-                    continue
-                }
                 val d = findActivity(history, i, FlowActivityType.DEPOSIT)
                 if (d != null) {
                     val da = d.activity as DepositActivity
