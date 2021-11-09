@@ -57,7 +57,7 @@ class ActivitiesService(
     ): FlowActivitiesDto {
         val haveTransferTo = type.isEmpty() || type.contains("TRANSFER_TO")
         val haveTransferFrom = type.isEmpty() || type.contains("TRANSFER_FROM")
-        val haveBuy =  type.isEmpty() || type.contains("BUY")
+        val haveBuy = type.isEmpty() || type.contains("BUY")
         val skipTypes = mutableListOf<FlowActivityType>()
 
         val types = if (type.isEmpty()) {
@@ -228,9 +228,9 @@ class ActivitiesService(
     private fun byTypes(types: List<FlowActivityType>): BooleanExpression {
         val qItemHistory = QItemHistory.itemHistory
         val fixed = if (types.contains(FlowActivityType.TRANSFER)) {
-            val z = types.filter { it != FlowActivityType.TRANSFER }.toMutableList()
-            z.addAll(setOf(FlowActivityType.DEPOSIT, FlowActivityType.WITHDRAWN))
-            z.toList()
+            types - FlowActivityType.TRANSFER + FlowActivityType.DEPOSIT + FlowActivityType.WITHDRAWN
+        } else if (types.contains(FlowActivityType.BURN)) {
+            types + FlowActivityType.WITHDRAWN
         } else {
             types
         }
@@ -291,10 +291,12 @@ class ActivitiesService(
         return when (sort) {
             null, "LATEST_FIRST" -> arrayOf(
                 q.date.desc(),
+                l.transactionHash.desc(),
                 l.eventIndex.desc()
             )
             "EARLIEST_FIRST" -> arrayOf(
                 q.date.asc(),
+                l.transactionHash.asc(),
                 l.eventIndex.asc()
             )
             else -> throw IllegalArgumentException("Unsupported sort type: $sort")
@@ -340,19 +342,18 @@ class ActivitiesService(
         sort: String,
     ): List<FlowActivityDto> {
         val result = mutableListOf<FlowActivityDto>()
-        val timelines = history.sortedWith(compareBy<ItemHistory> { it.activity.timestamp }.thenBy { it.log.eventIndex })
-        for (i in timelines.indices) {
-            val h = timelines[i]
+        for (i in history.indices) {
+            val h = history[i]
             if (h.activity is DepositActivity || h.activity is BurnActivity) {
                 continue
             }
             if (h.activity is WithdrawnActivity) {
                 val wa = h.activity as WithdrawnActivity
-                if (i == timelines.lastIndex) {
+                if (i == history.lastIndex) {
                     continue
                 }
-                val d = timelines[i + 1]
-                if (d.activity is DepositActivity) {
+                val d = findActivity(history, i, FlowActivityType.DEPOSIT)
+                if (d != null) {
                     val da = d.activity as DepositActivity
                     result.add(
                         FlowTransferDto(
@@ -369,11 +370,14 @@ class ActivitiesService(
                             date = da.timestamp
                         )
                     )
-                } else if (d.activity is BurnActivity) {
-                    val b = d.activity as BurnActivity
-                    result.add(
-                        b.copy(owner = wa.from).toDto(h)
-                    )
+                } else {
+                    val b = findActivity(history, i, FlowActivityType.BURN)
+                    if (b != null) {
+                        val ba = b.activity as BurnActivity
+                        result.add(
+                            ba.copy(owner = wa.from).toDto(h)
+                        )
+                    }
                 }
                 continue
             }
@@ -389,5 +393,27 @@ class ActivitiesService(
         })
 
         return if (sort == "EARLIEST_FIRST") dtoList else dtoList.reversed()
+    }
+
+
+    fun findActivity(history: List<ItemHistory>, index: Int, type: FlowActivityType): ItemHistory? {
+        val h = history[index]
+        val a = h.activity
+        val hash = h.log.transactionHash
+
+        fun isFit(activity: BaseActivity) =
+            activity.type == type && activity.contract == a.contract && activity.tokenId == a.tokenId
+
+        tailrec fun helper(lag: Int = 1, checkNext: Boolean = true): ItemHistory? {
+            val i = index + lag
+            val isUseful = (i >= 0 && i <= history.lastIndex) && history[i].log.transactionHash == hash
+            if (isUseful) {
+                val item = history[i]
+                if (isFit(item.activity)) return item
+            }
+            return if (isUseful || checkNext) helper(if (lag > 0) -lag else -lag + 1, isUseful) else null
+        }
+
+        return helper()
     }
 }
