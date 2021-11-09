@@ -5,6 +5,7 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.coFindById
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
 
@@ -25,6 +26,6 @@ class NftItemMetaService(
     }
 
     suspend fun resetMeta(itemId: ItemId) {
-        itemMetaRepository.deleteById(itemId).subscribe()
+        itemMetaRepository.deleteById(itemId).awaitFirstOrNull()
     }
 }
