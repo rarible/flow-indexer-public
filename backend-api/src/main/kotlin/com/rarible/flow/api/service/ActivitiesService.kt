@@ -340,17 +340,18 @@ class ActivitiesService(
         sort: String,
     ): List<FlowActivityDto> {
         val result = mutableListOf<FlowActivityDto>()
-        for (i in history.indices) {
-            val h = history[i]
+        val timelines = history.sortedWith(compareBy<ItemHistory> { it.activity.timestamp }.thenBy { it.log.eventIndex })
+        for (i in timelines.indices) {
+            val h = timelines[i]
             if (h.activity is DepositActivity || h.activity is BurnActivity) {
                 continue
             }
             if (h.activity is WithdrawnActivity) {
                 val wa = h.activity as WithdrawnActivity
-                if (i == history.lastIndex) {
+                if (i == timelines.lastIndex) {
                     continue
                 }
-                val d = history[i + 1]
+                val d = timelines[i + 1]
                 if (d.activity is DepositActivity) {
                     val da = d.activity as DepositActivity
                     result.add(
