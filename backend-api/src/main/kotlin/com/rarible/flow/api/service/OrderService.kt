@@ -5,10 +5,7 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coFindById
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toSet
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -23,7 +20,7 @@ class OrderService(
         return orderRepository.coFindById(orderId)
     }
 
-    suspend fun getSellOrdersByMaker(
+    fun getSellOrdersByMaker(
         makerAddress: FlowAddress,
         originAddress: FlowAddress?,
         cont: String?,
@@ -35,13 +32,13 @@ class OrderService(
         ).asFlow()
     }
 
-    suspend fun findAll(cont: String?, size: Int?, sort: OrderFilter.Sort): Flow<Order> {
+    fun findAll(cont: String?, size: Int?, sort: OrderFilter.Sort): Flow<Order> {
         return orderRepository.search(
             OrderFilter.All, cont, size, sort
         ).asFlow()
     }
 
-    suspend fun getSellOrdersByCollection(
+    fun getSellOrdersByCollection(
         collection: String,
         cont: String?,
         size: Int?,
@@ -52,7 +49,7 @@ class OrderService(
         ).asFlow()
     }
 
-    suspend fun findAllByStatus(
+    fun findAllByStatus(
         status: List<OrderStatus>?,
         cont: String?,
         size: Int?,
@@ -67,7 +64,7 @@ class OrderService(
         return orderRepository.findAllByIdIn(ids).asFlow()
     }
 
-    suspend fun getSellOrdersByItemAndStatus(
+    fun getSellOrdersByItemAndStatus(
         itemId: ItemId,
         makerAddress: FlowAddress?,
         currency: String?,
@@ -87,10 +84,10 @@ class OrderService(
         ).asFlow()
     }
 
-    suspend fun currenciesByItemId(itemId: String): Flow<FlowAsset> {
+    fun currenciesByItemId(itemId: String): Flow<FlowAsset> = flow {
         val id = ItemId.parse(itemId)
-        return orderRepository.findAllByMake(id.contract, id.tokenId).asFlow().map {
+        emitAll(orderRepository.findAllByMake(id.contract, id.tokenId).asFlow().map {
             FlowAssetFungible(it.take.contract, BigDecimal.ZERO)
-        }.toSet().asFlow()
+        }.toSet().asFlow())
     }
 }
