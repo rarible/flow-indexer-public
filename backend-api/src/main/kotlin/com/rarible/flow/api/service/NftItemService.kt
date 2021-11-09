@@ -43,7 +43,7 @@ class NftItemService(
             size,
             sort
         ).asFlow()
-        return convert(items, sort)
+        return convert(items, sort, size)
     }
 
     suspend fun getItemById(itemId: String): FlowNftItemDto? {
@@ -58,15 +58,15 @@ class NftItemService(
             itemRepository
                 .search(ItemFilter.ByCollection(collection), continuation, size, sort)
                 .asFlow()
-        return convert(items, sort)
+        return convert(items, sort, size)
     }
 
-    private suspend fun convert(items: Flow<Item>, sort: ItemFilter.Sort): FlowNftItemsDto {
+    private suspend fun convert(items: Flow<Item>, sort: ItemFilter.Sort, size: Int?): FlowNftItemsDto {
         return if(items.count() == 0) {
             FlowNftItemsDto(0, null, emptyList())
         } else {
             FlowNftItemsDto(
-                continuation = sort.nextPageSafe(items.lastOrNull()),
+                continuation = sort.nextPage(items, size),
                 items = items.map { convertItem(it) }.toList(),
                 total = items.count().toLong()
             )
@@ -87,7 +87,7 @@ class NftItemService(
         val items: Flow<Item> = itemRepository.search(
             ItemFilter.ByOwner(FlowAddress(address)), continuation, size, sort
         ).asFlow()
-        return convert(items, sort)
+        return convert(items, sort, size)
     }
 
     suspend fun byCreator(address: String, continuation: String?, size: Int?): FlowNftItemsDto? {
@@ -96,7 +96,7 @@ class NftItemService(
             ItemFilter.ByCreator(FlowAddress(address)), continuation, size, sort
         ).asFlow()
 
-        return convert(items, sort)
+        return convert(items, sort, size)
     }
 
 }

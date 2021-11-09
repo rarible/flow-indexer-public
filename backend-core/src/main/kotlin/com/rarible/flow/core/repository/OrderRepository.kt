@@ -34,7 +34,9 @@ interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepository
 }
 
 interface OrderRepositoryCustom {
-    fun search(filter: OrderFilter, cont: String?, limit: Int?, sort: OrderFilter.Sort = OrderFilter.Sort.LATEST_FIRST): Flux<Order>
+    fun search(
+        filter: OrderFilter, cont: String?, limit: Int?, sort: OrderFilter.Sort = OrderFilter.Sort.LATEST_FIRST
+    ): Flux<Order>
 }
 
 @Suppress("unused")

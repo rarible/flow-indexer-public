@@ -75,7 +75,7 @@ class OrderApiController(
         val sort = OrderFilter.Sort.LATEST_FIRST
         return result(
             service.findAll(continuation, size, sort),
-            sort
+            sort, size
         )
     }
 
@@ -89,7 +89,7 @@ class OrderApiController(
         val orderStatuses = OderStatusDtoConverter.convert(status)
         return result(
             service.findAllByStatus(orderStatuses, continuation, size, sorting),
-            sorting
+            sorting, size
         )
     }
 
@@ -115,7 +115,7 @@ class OrderApiController(
         val sort = OrderFilter.Sort.LATEST_FIRST
         return result(
             service.findAll(continuation, size, sort),
-            sort
+            sort, size
         )
     }
 
@@ -130,7 +130,7 @@ class OrderApiController(
             service.getSellOrdersByCollection(
                 collection, continuation, size, sort
             ),
-            sort
+            sort, size
         )
     }
 
@@ -149,7 +149,7 @@ class OrderApiController(
             service.getSellOrdersByItemAndStatus(
                 itemId, makerAddress, null, emptyList(), continuation, size, sort
             ),
-            sort
+            sort, size
         )
     }
 
@@ -171,7 +171,7 @@ class OrderApiController(
             service.getSellOrdersByItemAndStatus(
                 itemId, makerAddress, currencyAddress, orderStatuses, continuation, size, sort
             ),
-            sort
+            sort, size
         )
     }
 
@@ -186,7 +186,7 @@ class OrderApiController(
         val sort = OrderFilter.Sort.LATEST_FIRST
         return result(
             service.getSellOrdersByMaker(makerAddress, originAddress, continuation, size, sort),
-            sort
+            sort, size
         )
     }
 
@@ -196,7 +196,7 @@ class OrderApiController(
         }.okOr404IfNull()
     }
 
-    private suspend fun result(orders: Flow<Order>, sort: OrderFilter.Sort): ResponseEntity<FlowOrdersPaginationDto> {
+    private suspend fun result(orders: Flow<Order>, sort: OrderFilter.Sort, size: Int?): ResponseEntity<FlowOrdersPaginationDto> {
         return if(orders.count() == 0) {
             FlowOrdersPaginationDto(emptyList())
         } else {
@@ -204,7 +204,7 @@ class OrderApiController(
                 orders.map {
                     OrderToDtoConverter.convert(it)
                 }.toList(),
-                sort.nextPageSafe(orders.lastOrNull())
+                sort.nextPage(orders, size)
             )
         }.okOr404IfNull()
     }

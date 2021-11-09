@@ -149,7 +149,6 @@ internal class OrderServiceTest : BaseIntegrationTest() {
         )
     }
 
-
     suspend fun shouldReadAllByOne(
         fn: suspend (continuation: String?) -> List<Order>,
         expectedCount: Int,
