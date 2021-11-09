@@ -15,6 +15,7 @@ import com.rarible.flow.scanner.service.OrderService
 import com.rarible.flow.scanner.service.OwnershipService
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
@@ -72,7 +73,7 @@ class ItemIndexerEventProcessor(
         } else {
             val item = itemRepository.findById(id).awaitSingle()
             if (item.mintedAt != activity.timestamp) {
-                itemRepository.save(item.copy(mintedAt = activity.timestamp)).subscribe()
+                itemRepository.save(item.copy(mintedAt = activity.timestamp))
             }
         }
 
@@ -98,7 +99,7 @@ class ItemIndexerEventProcessor(
         val exists = itemRepository.existsById(itemId).awaitSingle()
         if (exists) {
             val item = itemRepository.findById(itemId).awaitSingle()
-            itemRepository.save(item.copy(owner = null, updatedAt = activity.timestamp)).subscribe()
+            itemRepository.save(item.copy(owner = null, updatedAt = activity.timestamp)).awaitFirstOrNull()
             val ownerships =
                 ownershipRepository.deleteAllByContractAndTokenId(itemId.contract, itemId.tokenId).asFlow().toList()
             if (event.source != Source.REINDEX) {
@@ -131,7 +132,7 @@ class ItemIndexerEventProcessor(
             ownershipRepository
                 .coFindById(ownershipId)
                 ?.let { ownership ->
-                    ownershipRepository.delete(ownership).subscribe()
+                    ownershipRepository.delete(ownership).awaitFirstOrNull()
                     if (event.source != Source.REINDEX) {
                         protocolEventPublisher.onDelete(ownership)
                     }
