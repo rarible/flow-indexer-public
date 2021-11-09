@@ -75,6 +75,10 @@ class ActivitiesService(
             skipTypes.add(FlowActivityType.WITHDRAWN)
         }
 
+        if (FlowActivityType.SELL in types) {
+            types.add(FlowActivityType.CANCEL_LIST) // TODO FB-398 workaround
+        }
+
         val order = order(sort)
         var predicate = BooleanBuilder()
         if (cont != null) {
@@ -178,13 +182,11 @@ class ActivitiesService(
     }
 
     suspend fun getNftOrderAllActivities(
-        type: List<String>,
+        types: List<FlowActivityType>,
         continuation: String?,
         size: Int?,
         sort: String,
     ): FlowActivitiesDto {
-        val types = safeOf(type, FlowActivityType.values().toList())
-
         val cont = ActivityContinuation.of(continuation)
         val order = order(sort)
         val predicate = byTypes(types)
@@ -196,13 +198,13 @@ class ActivitiesService(
     }
 
     suspend fun getNftOrderActivitiesByCollection(
-        type: List<String>,
+        types: List<FlowActivityType>,
         collection: String,
         continuation: String?,
         size: Int?,
         sort: String,
     ): FlowActivitiesDto {
-        val types = safeOf(type, FlowActivityType.values().toList())
+
 
         val cont = ActivityContinuation.of(continuation)
 
