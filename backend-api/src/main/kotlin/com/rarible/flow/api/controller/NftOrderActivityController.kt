@@ -29,7 +29,9 @@ class NftOrderActivityController(private val service: ActivitiesService) : FlowN
         sort: String?,
     ): ResponseEntity<FlowActivitiesDto> =
         ResponseEntity.ok(
-            service.getNftOrderActivitiesByCollection(type, collection, continuation, size, sort ?: defaultSort)
+            service.getNftOrderActivitiesByCollection(
+                modifyTypes(type), collection, continuation, size, sort ?: defaultSort
+            )
         )
 
     override suspend fun getNftOrderActivitiesByItem(
@@ -40,10 +42,11 @@ class NftOrderActivityController(private val service: ActivitiesService) : FlowN
         size: Int?,
         sort: String?,
     ): ResponseEntity<FlowActivitiesDto> {
-        val types = safeOf(type, FlowActivityType.values().toList())
         val cont = ActivityContinuation.of(continuation)
         return ResponseEntity.ok(
-            service.getNftOrderActivitiesByItem(types, contract, tokenId, cont, size, sort ?: defaultSort)
+            service.getNftOrderActivitiesByItem(
+                modifyTypes(type), contract, tokenId, cont, size, sort ?: defaultSort
+            )
         )
     }
 
@@ -73,6 +76,18 @@ class NftOrderActivityController(private val service: ActivitiesService) : FlowN
         sort: String?,
     ): ResponseEntity<FlowActivitiesDto> =
         ResponseEntity.ok(
-            service.getNftOrderAllActivities(type, continuation, size, sort ?: defaultSort)
+            service.getNftOrderAllActivities(
+                modifyTypes(type), continuation, size, sort ?: defaultSort
+            )
         )
+
+    //TODO workaround for consistency with Protocol (FB-398)
+    private fun modifyTypes(types: List<String>): List<FlowActivityType> {
+        val converted = safeOf<FlowActivityType>(types, FlowActivityType.values().toList())
+        return if (converted.contains(FlowActivityType.SELL)) {
+            converted + FlowActivityType.CANCEL_LIST
+        } else {
+            converted
+        }
+    }
 }
