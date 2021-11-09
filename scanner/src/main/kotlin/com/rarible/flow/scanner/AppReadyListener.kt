@@ -40,7 +40,8 @@ class AppReadyListener(
         if (scannerProperties.chainId != FlowChainId.EMULATOR) {
             runBlocking {
                 itemCollectionRepository.deleteAll().awaitFirstOrNull()
-                itemCollectionRepository.saveAll(supportedCollections[scannerProperties.chainId]!!).awaitFirstOrNull()
+                itemCollectionRepository.saveAll(supportedCollections[scannerProperties.chainId]!!).then()
+                    .awaitFirstOrNull()
             }
         }
     }
