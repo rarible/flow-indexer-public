@@ -3,8 +3,10 @@ package com.rarible.flow.scanner
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventListener
+import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.blockchain.scanner.subscriber.ProcessedBlockEvent
 import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.IndexerEventService
 import kotlinx.coroutines.flow.asFlow
@@ -15,7 +17,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class BaseFlowLogListener(
-    private val indexerEventService: IndexerEventService
+    private val indexerEventService: IndexerEventService,
+    private val protocolEventPublisher: ProtocolEventPublisher
 ) : FlowLogEventListener {
 
     private val log: Logger = LoggerFactory.getLogger(BaseFlowLogListener::class.java)
@@ -28,6 +31,10 @@ class BaseFlowLogListener(
                     source = blockEvent.event.eventSource
                 )
             )
+
+            if(blockEvent.event.eventSource != Source.REINDEX) {
+                protocolEventPublisher.activity(it.activity, it)
+            }
         }
     }
 

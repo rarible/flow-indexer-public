@@ -32,6 +32,7 @@ class CoreConfig(
     fun protocolEventPublisher() = ProtocolEventPublisher(
         GatewayEventsProducers.itemsUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
         GatewayEventsProducers.ownershipsUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
-        GatewayEventsProducers.ordersUpdates(appProperties.environment, appProperties.kafkaReplicaSet)
+        GatewayEventsProducers.ordersUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
+        GatewayEventsProducers.activitiesUpdates(appProperties.environment, appProperties.kafkaReplicaSet)
     )
 }
