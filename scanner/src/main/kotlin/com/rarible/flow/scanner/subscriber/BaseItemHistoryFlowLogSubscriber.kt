@@ -13,9 +13,7 @@ import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.events.EventMessage
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -55,16 +53,17 @@ abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
 
     abstract val descriptors: Map<FlowChainId, FlowDescriptor>
 
-    override suspend fun getEventRecords(block: FlowBlockchainBlock, log: FlowBlockchainLog): Flow<FlowLogRecord<*>> {
+    override fun getEventRecords(block: FlowBlockchainBlock, log: FlowBlockchainLog): Flow<FlowLogRecord<*>> = flow {
         val descriptor = getDescriptor()
         val payload = FlowEventPayload(log.event.payload.bytes.fixed())
         val event = log.event.copy(payload = payload)
         val fixedLog = FlowBlockchainLog(log.hash, log.blockHash, event)
-        return if (descriptor.events.contains(fixedLog.event.id)) {
+        emitAll(if (descriptor.events.contains(fixedLog.event.id)) {
             val blockTimestamp = Instant.ofEpochMilli(block.timestamp)
             val activity = activity(
                 block, fixedLog,
-                com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, fixedLog.event.event))
+                com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, fixedLog.event.event)
+            )
             if (activity == null) {
                 emptyFlow()
             } else if (isNewLog(log)) {
@@ -84,7 +83,7 @@ abstract class BaseItemHistoryFlowLogSubscriber : FlowLogEventSubscriber {
                     )
                 )
             } else emptyFlow()
-        } else emptyFlow()
+        } else emptyFlow())
     }
 
     override fun getDescriptor(): FlowDescriptor = descriptors[chainId]!!
