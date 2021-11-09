@@ -7,6 +7,7 @@ import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.blockchain.scanner.subscriber.ProcessedBlockEvent
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
+import com.rarible.flow.log.Log
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.IndexerEventService
 import kotlinx.coroutines.flow.asFlow
@@ -20,8 +21,6 @@ class BaseFlowLogListener(
     private val indexerEventService: IndexerEventService,
     private val protocolEventPublisher: ProtocolEventPublisher
 ) : FlowLogEventListener {
-
-    private val log: Logger = LoggerFactory.getLogger(BaseFlowLogListener::class.java)
 
     override suspend fun onBlockLogsProcessed(blockEvent: ProcessedBlockEvent<FlowLog, FlowLogRecord<*>>) {
         blockEvent.records.filterIsInstance<ItemHistory>().asFlow().collect {
@@ -41,5 +40,9 @@ class BaseFlowLogListener(
     override suspend fun onPendingLogsDropped(logs: List<FlowLogRecord<*>>) {
         /** do nothing */
         log.warn("onPendingLogsDropped not realized yet!")
+    }
+
+    companion object {
+        val log by Log()
     }
 }

@@ -14,6 +14,7 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.toDto
+import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -104,11 +105,16 @@ class ProtocolEventPublisher(
     }
 
     suspend fun activity(activity: BaseActivity, history: ItemHistory): KafkaSendResult {
+        log.debug("Sending activity: {}", activity)
         return activities.send(
             KafkaMessage(
                 "${activity.contract}:${activity.tokenId}-${activity.timestamp}",
                 activity.toDto(history)
             )
         )
+    }
+
+    companion object {
+        val log by Log()
     }
 }
