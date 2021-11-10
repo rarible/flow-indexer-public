@@ -28,6 +28,15 @@ class OwnershipService(
         )
     }
 
+    suspend fun deleteOwnership(item: Item) {
+        ownershipRepository.deleteAllByContractAndTokenId(item.contract, item.tokenId).awaitFirstOrNull()
+    }
+
+    suspend fun setOwnershipTo(item: Item, to: FlowAddress): Ownership {
+        ownershipRepository.deleteAllByContractAndTokenId(item.contract, item.tokenId).awaitFirstOrNull()
+        return ownershipRepository.coSave(Ownership(item.ownershipId(to), item.creator))
+    }
+
     suspend fun transferOwnershipIfExists(item: Item, from: FlowAddress, to: FlowAddress): Ownership? {
         return withOwnership(
             item.ownershipId(from)

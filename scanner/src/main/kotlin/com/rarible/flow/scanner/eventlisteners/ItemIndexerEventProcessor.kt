@@ -118,6 +118,7 @@ class ItemIndexerEventProcessor(
 
     private suspend fun itemWithdrawn(event: IndexerEvent) {
         val activity = event.activity as WithdrawnActivity
+        if (activity.from == null) return
         withSpan("itemWithdrawn", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val itemId = ItemId(contract = activity.contract, tokenId = activity.tokenId)
             val from = FlowAddress(activity.from ?: "0x00")
@@ -138,7 +139,7 @@ class ItemIndexerEventProcessor(
                 ownershipRepository
                     .coFindById(ownershipId)
                     ?.let { ownership ->
-                        ownershipRepository.delete(ownership).awaitFirstOrNull()
+                        ownershipService.deleteOwnership(item)
                         if (event.source != Source.REINDEX) {
                             protocolEventPublisher.onDelete(ownership)
                         }
@@ -156,15 +157,14 @@ class ItemIndexerEventProcessor(
 
     private suspend fun itemDeposit(event: IndexerEvent) {
         val activity = event.activity as DepositActivity
+        if (activity.to == null) return
         withSpan("itemDeposit", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val itemId = ItemId(contract = activity.contract, tokenId = activity.tokenId)
             val newOwner = FlowAddress(activity.to ?: "0x00")
             val item = itemRepository.coFindById(itemId)
             if (item != null && item.updatedAt <= activity.timestamp) {
                 val deposited = itemRepository.coSave(item.copy(owner = newOwner, updatedAt = activity.timestamp))
-                val ownership = ownershipService.transferOwnershipIfExists(item, item.owner!!, newOwner)
-                    ?: //transfer existing, or create a new
-                    ownershipService.createOwnership(item, newOwner, activity.timestamp)
+                val ownership = ownershipService.setOwnershipTo(item, newOwner)
                 if (event.source != Source.REINDEX) {
                     protocolEventPublisher.onItemUpdate(deposited)
                     protocolEventPublisher.onUpdate(ownership)
