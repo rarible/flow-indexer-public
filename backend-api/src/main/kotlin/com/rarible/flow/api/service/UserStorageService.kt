@@ -177,7 +177,7 @@ class UserStorageService(
 
     private fun contract(tokenAlias: String, contractName: String): String {
         val address = Flow.DEFAULT_ADDRESS_REGISTRY.addressOf(tokenAlias, appProperties.chainId)!!
-        return "A.${address.formatted}.$contractName"
+        return "A.${address.base16Value}.$contractName"
     }
 
     private suspend fun notExistsItem(contract: String, tokenId: TokenId): Boolean {
