@@ -3,7 +3,7 @@ package com.rarible.flow.api.controller
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.api.service.CollectionService
 import com.rarible.flow.core.domain.ItemCollection
-import com.rarible.flow.core.repository.NftCollectionContinuation
+import com.rarible.flow.core.repository.CollectionFilter
 import com.rarible.protocol.dto.FlowNftCollectionDto
 import com.rarible.protocol.dto.FlowNftCollectionsDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftCollectionControllerApi
@@ -27,7 +27,7 @@ class NftCollectionApiController(
     ): ResponseEntity<FlowNftCollectionsDto> {
         return convert(
             service
-            .searchAll(NftCollectionContinuation.parse(continuation), size)
+            .searchAll(continuation, size), size
         ).okOr404IfNull()
     }
 
@@ -38,7 +38,7 @@ class NftCollectionApiController(
     ): ResponseEntity<FlowNftCollectionsDto> {
         return convert(
             service
-                .searchByOwner(FlowAddress(owner), NftCollectionContinuation.parse(continuation), size)
+                .searchByOwner(FlowAddress(owner), continuation, size), size
         ).okOr404IfNull()
     }
 
@@ -49,11 +49,11 @@ class NftCollectionApiController(
             owner = it.owner.formatted,
             name = it.name,
             symbol = it.symbol,
-            features = it.features.map { FlowNftCollectionDto.Features.valueOf(it) }
+            features = it.features.map { f -> FlowNftCollectionDto.Features.valueOf(f) }
         )
     }
 
-    private suspend fun convert(collections: Flow<ItemCollection>): FlowNftCollectionsDto {
+    private suspend fun convert(collections: Flow<ItemCollection>, size: Int?): FlowNftCollectionsDto {
         val data: List<ItemCollection> = collections.toList()
         return if(data.isEmpty()) {
             FlowNftCollectionsDto(0, null, emptyList())
@@ -61,7 +61,7 @@ class NftCollectionApiController(
             val last = data.last()
             FlowNftCollectionsDto(
                 data.size.toLong(),
-                NftCollectionContinuation(last.createdDate, last.id).toString(),
+                CollectionFilter.Sort.LATEST_UPDATE.nextPage(collections, size),
                 data.map { convert(it)!! }
             )
         }

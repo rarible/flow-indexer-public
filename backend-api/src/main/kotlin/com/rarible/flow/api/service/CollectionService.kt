@@ -4,8 +4,8 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.repository.CollectionFilter
 import com.rarible.flow.core.repository.ItemCollectionRepository
-import com.rarible.flow.core.repository.NftCollectionContinuation
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
 
@@ -17,12 +17,16 @@ class CollectionService(
     suspend fun byId(collectionId: String): ItemCollection? =
         repo.findById(collectionId).awaitSingleOrNull()
 
-    fun searchAll(continuation: NftCollectionContinuation?, size: Int?): Flow<ItemCollection> {
-        return repo.search(CollectionFilter.All, continuation, size)
+    fun searchAll(continuation: String?, size: Int?): Flow<ItemCollection> {
+        return repo.search(
+            CollectionFilter.All, continuation, size, CollectionFilter.Sort.LATEST_UPDATE
+        ).asFlow()
     }
 
-    fun searchByOwner(owner: FlowAddress, continuation: NftCollectionContinuation?, size: Int?): Flow<ItemCollection> {
-        return repo.search(CollectionFilter.ByOwner(owner), continuation, size)
+    fun searchByOwner(owner: FlowAddress, continuation: String?, size: Int?): Flow<ItemCollection> {
+        return repo.search(
+            CollectionFilter.ByOwner(owner), continuation, size, CollectionFilter.Sort.LATEST_UPDATE
+        ).asFlow()
     }
 
 
