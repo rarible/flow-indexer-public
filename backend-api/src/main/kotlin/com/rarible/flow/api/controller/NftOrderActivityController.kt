@@ -70,4 +70,14 @@ class NftOrderActivityController(private val service: ActivitiesService) : FlowN
         ResponseEntity.ok(
             service.getNftOrderAllActivities(type, continuation, size, sort ?: defaultSort)
         )
+
+    //TODO workaround for consistency with Protocol (FB-398)
+    private fun modifyTypes(types: List<String>): List<FlowActivityType> {
+        val converted = safeOf<FlowActivityType>(types, FlowActivityType.values().toList())
+        return if (converted.contains(FlowActivityType.SELL)) {
+            converted + FlowActivityType.CANCEL_LIST
+        } else {
+            converted
+        }
+    }
 }

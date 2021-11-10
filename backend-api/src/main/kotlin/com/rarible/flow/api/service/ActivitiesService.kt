@@ -77,6 +77,10 @@ class ActivitiesService(
             skipTypes.add(FlowActivityType.WITHDRAWN)
         }
 
+        if (FlowActivityType.SELL in types) {
+            types.add(FlowActivityType.CANCEL_LIST) // TODO FB-398 workaround
+        }
+
         val order = order(sort)
         var predicate = BooleanBuilder()
         if (cont != null) {
