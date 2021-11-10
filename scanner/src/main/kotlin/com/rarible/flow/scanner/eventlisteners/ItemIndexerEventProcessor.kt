@@ -118,6 +118,7 @@ class ItemIndexerEventProcessor(
 
     private suspend fun itemWithdrawn(event: IndexerEvent) {
         val activity = event.activity as WithdrawnActivity
+        if (activity.from == null) return
         withSpan("itemWithdrawn", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val itemId = ItemId(contract = activity.contract, tokenId = activity.tokenId)
             val from = FlowAddress(activity.from ?: "0x00")
@@ -156,6 +157,7 @@ class ItemIndexerEventProcessor(
 
     private suspend fun itemDeposit(event: IndexerEvent) {
         val activity = event.activity as DepositActivity
+        if (activity.to == null) return
         withSpan("itemDeposit", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val itemId = ItemId(contract = activity.contract, tokenId = activity.tokenId)
             val newOwner = FlowAddress(activity.to ?: "0x00")
