@@ -230,7 +230,9 @@ class ActivitiesService(
         types = safeOf(type, FlowActivityType.values().toList()).toMutableList()
 
         val cont = ActivityContinuation.of(continuation)
-
+        if (FlowActivityType.SELL in types) {
+            types.add(FlowActivityType.CANCEL_LIST) // TODO FB-398 workaround
+        }
         val predicateBuilder = BooleanBuilder(byTypes(types)).and(byCollection(collection))
 
         if (cont != null) {
