@@ -191,7 +191,10 @@ enum class FlowActivityType {
     /**
      * Cancel listing
      */
-    CANCEL_LIST
+    CANCEL_LIST,
+    TRANSFER_TO,
+    TRANSFER_FROM,
+    BUY
 }
 
 @QueryEmbeddable
