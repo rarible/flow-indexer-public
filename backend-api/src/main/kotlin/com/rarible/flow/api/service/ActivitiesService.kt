@@ -8,7 +8,6 @@ import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ActivityContinuation
 import com.rarible.flow.core.repository.ItemHistoryRepository
-import com.rarible.flow.enum.enumContains
 import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
@@ -29,18 +28,23 @@ class ActivitiesService(
     private val itemHistoryRepository: ItemHistoryRepository,
 ) {
     suspend fun getNftOrderActivitiesByItem(
-        types: List<FlowActivityType>,
+        types: List<String>,
         contract: String,
         tokenId: Long,
-        continuation: ActivityContinuation?,
+        continuation: String?,
         size: Int?,
         sort: String,
     ): FlowActivitiesDto {
+        var queryTypes = safeOf<FlowActivityType>(types)
+        if (queryTypes.isEmpty()) {
+            return FlowActivitiesDto(items = emptyList(), total = 0)
+        }
+        queryTypes = safeOf(types, FlowActivityType.values().toList()).toMutableList()
         val order = order(sort)
-        var predicate = byTypes(types).and(byContractAndTokenPredicate(contract, tokenId))
-
-        if (continuation != null) {
-            predicate = predicate.and(byContinuation(continuation))
+        var predicate = byTypes(queryTypes).and(byContractAndTokenPredicate(contract, tokenId))
+        val cont = ActivityContinuation.of(continuation)
+        if (cont != null) {
+            predicate = predicate.and(byContinuation(cont))
         }
 
         val flow = itemHistoryRepository.findAll(predicate, *order).asFlow()
@@ -56,22 +60,20 @@ class ActivitiesService(
         size: Int?,
         sort: String,
     ): FlowActivitiesDto {
+        var queryTypes = safeOf<FlowActivityType>(type)
+        if (queryTypes.isEmpty()) {
+            return FlowActivitiesDto(items = emptyList(), total = 0)
+        }
         val haveTransferTo = type.isEmpty() || type.contains("TRANSFER_TO")
         val haveTransferFrom = type.isEmpty() || type.contains("TRANSFER_FROM")
         val haveBuy = type.isEmpty() || type.contains("BUY")
         val skipTypes = mutableListOf<FlowActivityType>()
 
-        val types = if (type.isEmpty()) {
-            FlowActivityType.values().toMutableList()
-        } else {
-            safeOf<FlowActivityType>(
-                type.filter { enumContains<FlowActivityType>(it) }
-            ).toMutableList()
-        }
+        queryTypes = safeOf(type, FlowActivityType.values().toList()).toMutableList()
         val cont = ActivityContinuation.of(continuation)
 
-        if (FlowActivityType.BURN in types && FlowActivityType.WITHDRAWN !in types) {
-            types.add(FlowActivityType.WITHDRAWN)
+        if (FlowActivityType.BURN in queryTypes && FlowActivityType.WITHDRAWN !in queryTypes) {
+            queryTypes.add(FlowActivityType.WITHDRAWN)
             skipTypes.add(FlowActivityType.WITHDRAWN)
         }
 
@@ -106,26 +108,26 @@ class ActivitiesService(
             }
         } else emptyFlow()
 
-        val listActivities: Flow<ItemHistory> = if (types.contains(FlowActivityType.LIST)) {
+        val listActivities: Flow<ItemHistory> = if (queryTypes.contains(FlowActivityType.LIST)) {
             itemHistoryRepository.findAll(listPredicate(user, from, to), *order).asFlow()
         } else emptyFlow()
-        types.remove(FlowActivityType.LIST)
+        queryTypes.remove(FlowActivityType.LIST)
 
-        val cancelListActivities: Flow<ItemHistory> = if (types.contains(FlowActivityType.CANCEL_LIST)) {
+        val cancelListActivities: Flow<ItemHistory> = if (queryTypes.contains(FlowActivityType.CANCEL_LIST)) {
             itemHistoryRepository.findAll(cancelListPredicate(user, from, to), *order).asFlow()
         } else emptyFlow()
-        types.remove(FlowActivityType.CANCEL_LIST)
+        queryTypes.remove(FlowActivityType.CANCEL_LIST)
 
         val buyActivities: Flow<ItemHistory> = if (haveBuy) {
             itemHistoryRepository.findAll(buyPredicate(user, from, to), *order).asFlow()
         } else emptyFlow()
 
-        val sellActivities: Flow<ItemHistory> = if (types.contains(FlowActivityType.SELL)) {
+        val sellActivities: Flow<ItemHistory> = if (queryTypes.contains(FlowActivityType.SELL)) {
             itemHistoryRepository.findAll(sellPredicate(user, from, to), *order).asFlow()
         } else emptyFlow()
-        types.remove(FlowActivityType.SELL)
+        queryTypes.remove(FlowActivityType.SELL)
 
-        val burnActivities = if (types.contains(FlowActivityType.BURN)) {
+        val burnActivities = if (queryTypes.contains(FlowActivityType.BURN)) {
             itemHistoryRepository.findAll(burnPredicate(from, to), *order).asFlow().flatMapMerge {
                 val q = QItemHistory.itemHistory
                 val a = QWithdrawnActivity(q.activity.metadata)
@@ -138,14 +140,14 @@ class ActivitiesService(
                 ).awaitFirstOrNull(), it).filterNotNull()
             }
         } else emptyFlow()
-        types.remove(FlowActivityType.BURN)
+        queryTypes.remove(FlowActivityType.BURN)
 
         if (haveTransferFrom || haveTransferTo) {
-            types.remove(FlowActivityType.TRANSFER)
+            queryTypes.remove(FlowActivityType.TRANSFER)
         }
 
-        val activities: Flow<ItemHistory> = if (types.isEmpty()) emptyFlow() else itemHistoryRepository.findAll(
-            predicate.and(byTypes(types)).and(byOwner(user, from, to)), *order
+        val activities: Flow<ItemHistory> = if (queryTypes.isEmpty()) emptyFlow() else itemHistoryRepository.findAll(
+            predicate.and(byTypes(queryTypes)).and(byOwner(user, from, to)), *order
         ).asFlow()
 
         return flowActivitiesDto(
@@ -188,8 +190,11 @@ class ActivitiesService(
         size: Int?,
         sort: String,
     ): FlowActivitiesDto {
-        val types = safeOf(type, FlowActivityType.values().toList())
-
+        var types = safeOf<FlowActivityType>(type)
+        if (types.isEmpty()) {
+            return FlowActivitiesDto(items = emptyList(), total = 0)
+        }
+        types = safeOf(type, FlowActivityType.values().toList()).toMutableList()
         val cont = ActivityContinuation.of(continuation)
         val order = order(sort)
         val predicate = byTypes(types)
@@ -207,7 +212,11 @@ class ActivitiesService(
         size: Int?,
         sort: String,
     ): FlowActivitiesDto {
-        val types = safeOf(type, FlowActivityType.values().toList())
+        var types = safeOf<FlowActivityType>(type)
+        if (types.isEmpty()) {
+            return FlowActivitiesDto(items = emptyList(), total = 0)
+        }
+        types = safeOf(type, FlowActivityType.values().toList()).toMutableList()
 
         val cont = ActivityContinuation.of(continuation)
 
