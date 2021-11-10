@@ -394,7 +394,7 @@ class ActivitiesService(
         val result = mutableListOf<FlowActivityDto>()
         for (i in history.indices) {
             val h = history[i]
-            if (h.activity is DepositActivity /*|| h.activity is BurnActivity*/) {
+            if (h.activity is DepositActivity || h.activity is BurnActivity) {
                 continue
             }
             if (h.activity is WithdrawnActivity) {
