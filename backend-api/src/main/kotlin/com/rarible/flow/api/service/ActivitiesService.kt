@@ -9,6 +9,7 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ActivityContinuation
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.enum.safeOf
+import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
 import com.rarible.protocol.dto.FlowNftActivityDto
@@ -182,7 +183,7 @@ class ActivitiesService(
         var dto = convertToDto(items, sort)
         dto = dto.take(limit)
 
-        val continuation = if(items.size < limit) null else answerContinuation(items)?.toString()
+        val continuation = if(dto.size < limit) null else answerContinuation(dto)?.toString()
 
         return FlowActivitiesDto(
             items = dto,
@@ -248,9 +249,22 @@ class ActivitiesService(
         return q.activity.`as`(QFlowNftActivity::class.java).contract.eq(collection)
     }
 
-    private fun byContinuation(cont: ActivityContinuation): BooleanExpression {
+    private fun byContinuation(cont: ActivityContinuation, sort: String = "LATEST_FIRST"): BooleanExpression {
         val q = QItemHistory.itemHistory
-        return q.date.before(cont.beforeDate).and(q.id.loe(cont.beforeId))
+        return when (sort) {
+            "EARLIEST_FIRST" ->
+                q.date.after(cont.beforeDate).or(
+                    q.date.eq(cont.beforeDate).and(
+                        q.id.goe(cont.beforeId)
+                    )
+                )
+            else ->
+                q.date.before(cont.beforeDate).or(
+                    q.date.eq(cont.beforeDate).and(
+                        q.id.loe(cont.beforeId)
+                    )
+                )
+        }
     }
 
     private fun byTypes(types: List<FlowActivityType>): BooleanExpression {
@@ -331,7 +345,7 @@ class ActivitiesService(
         }
     }
 
-    private fun answerContinuation(items: List<ItemHistory>): ActivityContinuation? =
+    private fun answerContinuation(items: List<FlowActivityDto>): ActivityContinuation? =
         if (items.isEmpty()) null else ActivityContinuation(beforeDate = items.last().date, beforeId = items.last().id)
 
     private fun burnPredicate(from: Instant?, to: Instant?): BooleanExpression {
@@ -456,5 +470,6 @@ class ActivitiesService(
 
     companion object {
         const val DEFAULT_SIZE = 50
+        val logger by Log()
     }
 }
