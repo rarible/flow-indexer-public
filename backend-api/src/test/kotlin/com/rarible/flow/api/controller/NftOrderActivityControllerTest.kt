@@ -255,6 +255,8 @@ class NftOrderActivityControllerTest {
             "/v0.1/order/activities/byItem?type=BURN&contract=$contract&tokenId=$tokenId",
             "/v0.1/order/activities/byItem?type=TRANSFER&contract=$contract&tokenId=$tokenId&sort=EARLIEST_FIRST",
             "/v0.1/order/activities/byItem?type=BURN&contract=$contract&tokenId=$tokenId&sort=EARLIEST_FIRST",
+            "/v0.1/order/activities/byUser?type=TRANSFER_FROM&user=${account1}",
+            "/v0.1/order/activities/byUser?type=TRANSFER_TO&user=${account2}",
         ).forEach {
             client.get().uri(it)
                 .exchange()

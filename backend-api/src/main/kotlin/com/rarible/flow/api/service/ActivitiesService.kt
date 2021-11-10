@@ -67,9 +67,9 @@ class ActivitiesService(
         if (queryTypes.isEmpty()) {
             return FlowActivitiesDto(items = emptyList(), total = 0)
         }
-        val haveTransferTo = type.isEmpty() || type.contains("TRANSFER_TO")
-        val haveTransferFrom = type.isEmpty() || type.contains("TRANSFER_FROM")
-        val haveBuy = type.isEmpty() || type.contains("BUY")
+        val haveTransferTo = type.isEmpty() || queryTypes.contains(FlowActivityType.TRANSFER_TO)
+        val haveTransferFrom = type.isEmpty() || queryTypes.contains(FlowActivityType.TRANSFER_FROM)
+        val haveBuy = type.isEmpty() || queryTypes.contains(FlowActivityType.BUY)
         val skipTypes = mutableListOf<FlowActivityType>()
 
         queryTypes = safeOf(type, FlowActivityType.values().toList()).toMutableList()
