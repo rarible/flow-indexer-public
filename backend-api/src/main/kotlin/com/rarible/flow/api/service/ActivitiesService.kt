@@ -40,6 +40,9 @@ class ActivitiesService(
             return FlowActivitiesDto(items = emptyList(), total = 0)
         }
         queryTypes = safeOf(types, FlowActivityType.values().toList()).toMutableList()
+        if (FlowActivityType.SELL in queryTypes) {
+            queryTypes.add(FlowActivityType.CANCEL_LIST) // TODO FB-398 workaround
+        }
         val order = order(sort)
         var predicate = byTypes(queryTypes).and(byContractAndTokenPredicate(contract, tokenId))
         val cont = ActivityContinuation.of(continuation)
@@ -77,8 +80,8 @@ class ActivitiesService(
             skipTypes.add(FlowActivityType.WITHDRAWN)
         }
 
-        if (FlowActivityType.SELL in types) {
-            types.add(FlowActivityType.CANCEL_LIST) // TODO FB-398 workaround
+        if (FlowActivityType.SELL in queryTypes) {
+            queryTypes.add(FlowActivityType.CANCEL_LIST) // TODO FB-398 workaround
         }
 
         val order = order(sort)
@@ -199,6 +202,10 @@ class ActivitiesService(
             return FlowActivitiesDto(items = emptyList(), total = 0)
         }
         types = safeOf(type, FlowActivityType.values().toList()).toMutableList()
+
+        if (FlowActivityType.SELL in types) {
+            types.add(FlowActivityType.CANCEL_LIST) // TODO FB-398 workaround
+        }
         val cont = ActivityContinuation.of(continuation)
         val order = order(sort)
         val predicate = byTypes(types)
