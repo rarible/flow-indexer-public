@@ -139,7 +139,7 @@ class ItemIndexerEventProcessor(
                 ownershipRepository
                     .coFindById(ownershipId)
                     ?.let { ownership ->
-                        ownershipRepository.delete(ownership).awaitFirstOrNull()
+                        ownershipService.deleteOwnership(item)
                         if (event.source != Source.REINDEX) {
                             protocolEventPublisher.onDelete(ownership)
                         }
@@ -164,9 +164,7 @@ class ItemIndexerEventProcessor(
             val item = itemRepository.coFindById(itemId)
             if (item != null && item.updatedAt <= activity.timestamp) {
                 val deposited = itemRepository.coSave(item.copy(owner = newOwner, updatedAt = activity.timestamp))
-                val ownership = ownershipService.transferOwnershipIfExists(item, item.owner!!, newOwner)
-                    ?: //transfer existing, or create a new
-                    ownershipService.createOwnership(item, newOwner, activity.timestamp)
+                val ownership = ownershipService.setOwnershipTo(item, newOwner)
                 if (event.source != Source.REINDEX) {
                     protocolEventPublisher.onItemUpdate(deposited)
                     protocolEventPublisher.onUpdate(ownership)
