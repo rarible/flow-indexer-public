@@ -1,9 +1,6 @@
 package com.rarible.flow.api.controller
 
 import com.rarible.flow.api.service.ActivitiesService
-import com.rarible.flow.core.domain.FlowActivityType
-import com.rarible.flow.core.repository.ActivityContinuation
-import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftOrderActivityControllerApi
 import kotlinx.coroutines.FlowPreview
@@ -40,10 +37,8 @@ class NftOrderActivityController(private val service: ActivitiesService) : FlowN
         size: Int?,
         sort: String?,
     ): ResponseEntity<FlowActivitiesDto> {
-        val types = safeOf(type, FlowActivityType.values().toList())
-        val cont = ActivityContinuation.of(continuation)
         return ResponseEntity.ok(
-            service.getNftOrderActivitiesByItem(types, contract, tokenId, cont, size, sort ?: defaultSort)
+            service.getNftOrderActivitiesByItem(type, contract, tokenId, continuation, size, sort ?: defaultSort)
         )
     }
 

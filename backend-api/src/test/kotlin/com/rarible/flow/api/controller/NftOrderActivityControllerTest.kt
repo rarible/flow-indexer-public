@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
-import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
@@ -270,6 +269,50 @@ class NftOrderActivityControllerTest {
         }
     }
 
+    @Test
+    internal fun `unknown types should return empty`() {
+        repo.saveAll(
+            listOf(
+                ItemHistory(
+                    activity = randomMint(),
+                    log = randomLog(),
+                    date = Instant.now()
+                ),
+                ItemHistory(
+                    activity = randomWithdraw(),
+                    log = randomLog(),
+                    date = Instant.now()
+                ),
+                ItemHistory(
+                    activity = randomBurn(),
+                    log = randomLog(),
+                    date = Instant.now()
+                )
+            )
+        ).then().block()
+
+
+        listOf(
+            "/v0.1/order/activities/byItem?type=UNSUPPORTED&contract=${randomAddress()}&tokenId=${randomLong()}",
+            "/v0.1/order/activities/byUser?type=UNSUPPORTED&user=${randomAddress()}",
+            "/v0.1/order/activities/byCollection?type=UNSUPPORTED&collection=A.0000000000.RandomCollection",
+            "/v0.1/order/activities/all?type=UNSUPPORTED"
+        ).forEach { url ->
+            client.get().uri(url)
+                .exchange()
+                .expectStatus().isOk
+                .expectBody<FlowActivitiesDto>()
+                .consumeWith { response ->
+                    val activitiesDto = response.responseBody
+                    Assertions.assertNotNull(activitiesDto)
+                    Assertions.assertNotNull(activitiesDto?.items)
+                    Assertions.assertTrue(activitiesDto?.items!!.isEmpty())
+                    Assertions.assertNull(activitiesDto.continuation)
+                    Assertions.assertEquals(0, activitiesDto.total)
+                }
+        }
+    }
+
     private fun randomMint() = MintActivity(
         type = FlowActivityType.MINT,
         timestamp = Instant.now(Clock.systemUTC()),
@@ -281,7 +324,7 @@ class NftOrderActivityControllerTest {
         royalties = (0..Random.Default.nextInt(0, 3)).map { Part(randomFlowAddress(), randomRate()) },
     )
 
-    fun randomBurn() = BurnActivity(
+    private fun randomBurn() = BurnActivity(
         type = FlowActivityType.BURN,
         timestamp = Instant.now(Clock.systemUTC()),
         owner = randomAddress(),
@@ -290,7 +333,7 @@ class NftOrderActivityControllerTest {
         value = 1,
     )
 
-    fun randomWithdraw() = WithdrawnActivity(
+    private fun randomWithdraw() = WithdrawnActivity(
         type = FlowActivityType.WITHDRAWN,
         timestamp = Instant.now(Clock.systemUTC()),
         from = randomAddress(),
@@ -298,14 +341,14 @@ class NftOrderActivityControllerTest {
         tokenId = randomLong(),
     )
 
-    fun deposit(
+    private fun deposit(
         timestamp: Instant,
         contract: String = randomAddress(),
         tokenId: Long = randomLong(),
         to: String? = randomAddress(),
     ) = DepositActivity(FlowActivityType.DEPOSIT, contract, tokenId, timestamp, to)
 
-    fun randomItemHistory(
+    private fun randomItemHistory(
         date: Instant = Instant.now(Clock.systemUTC()),
         activity: BaseActivity,
         log: FlowLog = randomLog(),
