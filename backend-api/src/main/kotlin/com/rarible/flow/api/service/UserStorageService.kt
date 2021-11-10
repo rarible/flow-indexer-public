@@ -12,6 +12,8 @@ import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.repository.coSave
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingle
 import org.slf4j.Logger
@@ -192,10 +194,13 @@ class UserStorageService(
     }
 
     private suspend fun saveItem(item: Item?) {
+        log.debug("saveItem: $item")
         if (item != null) {
             val a = itemRepository.save(item).awaitSingle()
             protocolEventPublisher.onItemUpdate(a)
-            ownershipRepository.deleteAllByContractAndTokenId(item.contract, item.tokenId).awaitFirstOrNull()
+            val deleted =
+                ownershipRepository.deleteAllByContractAndTokenId(item.contract, item.tokenId).asFlow().toList()
+            log.debug("deleted ownerships: $deleted")
             val o = ownershipRepository.save(
                 Ownership(
                     contract = item.contract,
