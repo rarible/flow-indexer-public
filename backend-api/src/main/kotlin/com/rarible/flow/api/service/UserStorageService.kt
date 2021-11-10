@@ -12,8 +12,6 @@ import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.repository.coSave
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingle
 import org.slf4j.Logger
@@ -103,7 +101,10 @@ class UserStorageService(
                             val i = itemRepository.findById(ItemId(contract, it)).awaitSingle()
                             if (i.owner != address) {
                                 i.copy(owner = address, updatedAt = Instant.now())
-                            } else null
+                            } else {
+                                checkOwnership(i, address)
+                                null
+                            }
                         }
                         saveItem(item)
                     }
@@ -128,10 +129,14 @@ class UserStorageService(
                                 updatedAt = Instant.now()
                             )
                         } else {
-                            val i = itemRepository.findById(ItemId(contract, it)).awaitSingle()
+                            val itemId = ItemId(contract, it)
+                            val i = itemRepository.findById(itemId).awaitSingle()
                             if (i.owner != address) {
                                 i.copy(owner = address, updatedAt = Instant.now())
-                            } else null
+                            } else {
+                                checkOwnership(i, address)
+                                null
+                            }
                         }
                         saveItem(item)
                     }
@@ -163,7 +168,10 @@ class UserStorageService(
                             val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
                             if (i.owner != address) {
                                 i.copy(owner = address, updatedAt = Instant.now())
-                            } else null
+                            } else {
+                                checkOwnership(i, address)
+                                null
+                            }
                         }
                         saveItem(item)
                     }
@@ -198,18 +206,14 @@ class UserStorageService(
         if (item != null) {
             val a = itemRepository.save(item).awaitSingle()
             protocolEventPublisher.onItemUpdate(a)
-            val deleted =
-                ownershipRepository.deleteAllByContractAndTokenId(item.contract, item.tokenId).asFlow().toList()
-            log.debug("deleted ownerships: $deleted")
-            val o = ownershipRepository.save(
-                Ownership(
-                    contract = item.contract,
-                    tokenId = item.tokenId,
-                    creator = item.creator,
-                    owner = item.owner!!,
-                    date = Instant.now()
-                )
-            ).awaitSingle()
+            checkOwnership(item, item.owner!!)
+        }
+    }
+
+    private suspend fun checkOwnership(item: Item, to: FlowAddress) {
+        ownershipRepository.deleteAllByContractAndTokenIdAndOwnerNot(item.contract, item.tokenId, to).awaitFirstOrNull()
+        if (!ownershipRepository.existsById(item.ownershipId(to)).awaitSingle()) {
+            val o = ownershipRepository.coSave(Ownership(item.ownershipId(to), item.creator))
             protocolEventPublisher.onUpdate(o)
         }
     }
