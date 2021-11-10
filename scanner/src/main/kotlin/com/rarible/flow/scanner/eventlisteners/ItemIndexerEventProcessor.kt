@@ -108,9 +108,7 @@ class ItemIndexerEventProcessor(
                     ownershipRepository.deleteAllByContractAndTokenId(itemId.contract, itemId.tokenId).asFlow().toList()
                 if (event.source != Source.REINDEX) {
                     protocolEventPublisher.onItemDelete(itemId)
-                    ownerships.forEach {
-                        protocolEventPublisher.onDelete(it)
-                    }
+                    protocolEventPublisher.onDelete(ownerships)
                 }
             }
         }

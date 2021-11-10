@@ -9,7 +9,7 @@ class IndexerEventService(
     private val processors: List<IndexerEventsProcessor>
 ) {
     suspend fun processEvent(event: IndexerEvent) {
-        val p = processors.firstOrNull { it.isSupported(event) } ?: throw IllegalStateException("Not found processor for indexer event [${event.activity::class.simpleName}]")
+        val p = processors.firstOrNull { it.isSupported(event) } ?: throw IllegalStateException("Not found processor for indexer event [${event.history.activity::class.simpleName}]")
         p.process(event)
     }
 }
