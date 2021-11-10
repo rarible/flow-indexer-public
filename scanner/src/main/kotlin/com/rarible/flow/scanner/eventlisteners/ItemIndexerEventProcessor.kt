@@ -49,7 +49,7 @@ class ItemIndexerEventProcessor(
 
     private suspend fun mintItemEvent(event: IndexerEvent) {
         val activity = event.activity as MintActivity
-        withSpan("mintItemEvent", type = "db", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
+        withSpan("mintItemEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val id = ItemId(contract = activity.contract, tokenId = activity.tokenId)
             val owner = FlowAddress(activity.owner)
             val ownershipId = OwnershipId(contract = activity.contract, tokenId = activity.tokenId, owner = owner)
@@ -98,7 +98,7 @@ class ItemIndexerEventProcessor(
 
     private suspend fun burnItemEvent(event: IndexerEvent) {
         val activity = event.activity as BurnActivity
-        withSpan("burnItemEvent", type = "db", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
+        withSpan("burnItemEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val itemId = ItemId(contract = activity.contract, tokenId = activity.tokenId)
             val exists = itemRepository.existsById(itemId).awaitSingle()
             if (exists) {
@@ -118,7 +118,7 @@ class ItemIndexerEventProcessor(
 
     private suspend fun itemWithdrawn(event: IndexerEvent) {
         val activity = event.activity as WithdrawnActivity
-        withSpan("itemWithdrawn", type = "db", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
+        withSpan("itemWithdrawn", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val itemId = ItemId(contract = activity.contract, tokenId = activity.tokenId)
             val from = FlowAddress(activity.from ?: "0x00")
             itemService.withItem(itemId) { item ->
@@ -156,7 +156,7 @@ class ItemIndexerEventProcessor(
 
     private suspend fun itemDeposit(event: IndexerEvent) {
         val activity = event.activity as DepositActivity
-        withSpan("itemDeposit", type = "db", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
+        withSpan("itemDeposit", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val itemId = ItemId(contract = activity.contract, tokenId = activity.tokenId)
             val newOwner = FlowAddress(activity.to ?: "0x00")
             val item = itemRepository.coFindById(itemId)
