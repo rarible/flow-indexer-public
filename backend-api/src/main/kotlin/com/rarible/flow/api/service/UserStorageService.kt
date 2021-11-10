@@ -11,6 +11,8 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
+import com.rarible.flow.core.repository.coSave
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingle
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -73,10 +75,12 @@ class UserStorageService(
                                 updatedAt = Instant.now()
                             )
                             saveItem(item)
+                            setOwnershipTo(item, address)
                         } else {
                             val item =
                                 itemRepository.findById(ItemId(contract, it)).awaitSingle()
                             saveItem(item.copy(owner = address, updatedAt = Instant.now()))
+                            setOwnershipTo(item, address)
                         }
                     }
                 }
@@ -102,6 +106,7 @@ class UserStorageService(
                             } else null
                         }
                         saveItem(item)
+                        item?.let { setOwnershipTo(it, address) }
                     }
                 }
                 "Evolution" -> {
@@ -130,6 +135,7 @@ class UserStorageService(
                             } else null
                         }
                         saveItem(item)
+                        item?.let { setOwnershipTo(it, address) }
                     }
                 }
                 "RaribleNFT" -> {
@@ -162,6 +168,7 @@ class UserStorageService(
                             } else null
                         }
                         saveItem(item)
+                        item?.let { setOwnershipTo(it, address) }
                     }
                 }
             }
@@ -204,6 +211,11 @@ class UserStorageService(
             ).awaitSingle()
             protocolEventPublisher.onUpdate(o)
         }
+    }
+
+    suspend fun setOwnershipTo(item: Item, to: FlowAddress): Ownership {
+        ownershipRepository.deleteAllByContractAndTokenId(item.contract, item.tokenId).awaitFirstOrNull()
+        return ownershipRepository.coSave(Ownership(item.ownershipId(to), item.creator))
     }
 
     private fun scriptText(resourcePath: String): String {
