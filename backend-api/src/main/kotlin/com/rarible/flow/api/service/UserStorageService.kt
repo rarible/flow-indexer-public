@@ -75,12 +75,10 @@ class UserStorageService(
                                 updatedAt = Instant.now()
                             )
                             saveItem(item)
-                            setOwnershipTo(item, address)
                         } else {
                             val item =
                                 itemRepository.findById(ItemId(contract, it)).awaitSingle()
                             saveItem(item.copy(owner = address, updatedAt = Instant.now()))
-                            setOwnershipTo(item, address)
                         }
                     }
                 }
@@ -106,7 +104,6 @@ class UserStorageService(
                             } else null
                         }
                         saveItem(item)
-                        item?.let { setOwnershipTo(it, address) }
                     }
                 }
                 "Evolution" -> {
@@ -135,7 +132,6 @@ class UserStorageService(
                             } else null
                         }
                         saveItem(item)
-                        item?.let { setOwnershipTo(it, address) }
                     }
                 }
                 "RaribleNFT" -> {
@@ -168,7 +164,6 @@ class UserStorageService(
                             } else null
                         }
                         saveItem(item)
-                        item?.let { setOwnershipTo(it, address) }
                     }
                 }
             }
@@ -200,6 +195,7 @@ class UserStorageService(
         if (item != null) {
             val a = itemRepository.save(item).awaitSingle()
             protocolEventPublisher.onItemUpdate(a)
+            ownershipRepository.deleteAllByContractAndTokenId(item.contract, item.tokenId).awaitFirstOrNull()
             val o = ownershipRepository.save(
                 Ownership(
                     contract = item.contract,
@@ -211,11 +207,6 @@ class UserStorageService(
             ).awaitSingle()
             protocolEventPublisher.onUpdate(o)
         }
-    }
-
-    suspend fun setOwnershipTo(item: Item, to: FlowAddress): Ownership {
-        ownershipRepository.deleteAllByContractAndTokenId(item.contract, item.tokenId).awaitFirstOrNull()
-        return ownershipRepository.coSave(Ownership(item.ownershipId(to), item.creator))
     }
 
     private fun scriptText(resourcePath: String): String {
