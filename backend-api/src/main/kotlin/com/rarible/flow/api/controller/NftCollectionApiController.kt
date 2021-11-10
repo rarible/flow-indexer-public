@@ -58,7 +58,6 @@ class NftCollectionApiController(
         return if(data.isEmpty()) {
             FlowNftCollectionsDto(0, null, emptyList())
         } else {
-            val last = data.last()
             FlowNftCollectionsDto(
                 data.size.toLong(),
                 CollectionFilter.Sort.LATEST_UPDATE.nextPage(collections, size),
