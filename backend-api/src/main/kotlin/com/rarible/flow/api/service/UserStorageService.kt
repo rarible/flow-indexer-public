@@ -11,9 +11,9 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
-import com.rarible.flow.core.repository.coSave
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ClassPathResource
@@ -26,7 +26,7 @@ class UserStorageService(
     private val itemRepository: ItemRepository,
     private val appProperties: AppProperties,
     private val protocolEventPublisher: ProtocolEventPublisher,
-    private val ownershipRepository: OwnershipRepository
+    private val ownershipRepository: OwnershipRepository,
 ) {
 
     private val log: Logger = LoggerFactory.getLogger(UserStorageService::class.java)
@@ -122,7 +122,8 @@ class UserStorageService(
                     entry.value.forEach {
                         val contract = contract("0xEVOLUTIONTOKEN", "Evolution")
                         val item = if (notExistsItem(contract, it)) {
-                            val res = scriptExecutor.execute(scriptText("/script/get_evolution_nft.cdc"), mutableListOf(builder.address(address.bytes), builder.uint64(it)))
+                            val res = scriptExecutor.execute(scriptText("/script/get_evolution_nft.cdc"),
+                                mutableListOf(builder.address(address.bytes), builder.uint64(it)))
                             val initialMeta = parser.dictionaryMap(res.jsonCadence) { k, v ->
                                 string(k) to int(v)
                             }
@@ -221,10 +222,9 @@ class UserStorageService(
 
     private suspend fun checkOwnership(item: Item, to: FlowAddress) {
         ownershipRepository.deleteAllByContractAndTokenIdAndOwnerNot(item.contract, item.tokenId, to).awaitFirstOrNull()
-        if (!ownershipRepository.existsById(item.ownershipId(to)).awaitSingle()) {
-            val o = ownershipRepository.coSave(Ownership(item.ownershipId(to), item.creator))
-            protocolEventPublisher.onUpdate(o)
-        }
+        val o = ownershipRepository.findById(item.ownershipId(to)).awaitSingleOrNull()
+            ?: Ownership(item.ownershipId(to), item.creator)
+        protocolEventPublisher.onUpdate(o)
     }
 
     private fun scriptText(resourcePath: String): String {
