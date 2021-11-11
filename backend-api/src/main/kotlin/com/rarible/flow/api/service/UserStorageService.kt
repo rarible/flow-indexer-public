@@ -65,7 +65,7 @@ class UserStorageService(
                                 royalties = listOf(
                                     Part(
                                         address = contractAddress("0xTOPSHOTTOKEN"),
-                                        fee = 5.0
+                                        fee = 0.05
                                     )
                                 ),
                                 owner = address,
@@ -78,7 +78,16 @@ class UserStorageService(
                         } else {
                             val item =
                                 itemRepository.findById(ItemId(contract, it)).awaitSingle()
-                            saveItem(item.copy(owner = address, updatedAt = Instant.now()))
+                            saveItem(item.copy(
+                                owner = address,
+                                royalties = listOf(
+                                    Part(
+                                        address = contractAddress("0xTOPSHOTTOKEN"),
+                                        fee = 0.05
+                                    )
+                                ),
+                                updatedAt = Instant.now()
+                            ))
                         }
                     }
                 }
