@@ -12,7 +12,6 @@ import com.rarible.flow.enum.safeOf
 import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
-import com.rarible.protocol.dto.FlowNftActivityDto
 import com.rarible.protocol.dto.FlowTransferDto
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -435,13 +434,10 @@ class ActivitiesService(
             }
         }
 
-        val dtoList = result.sortedWith(compareBy(FlowActivityDto::date).thenBy {
-            if (it is FlowNftActivityDto) {
-                it.logIndex
-            } else {
-                0
-            }
-        })
+        val dtoList = result.sortedWith(compareBy(FlowActivityDto::date)
+            .thenBy { it.id.substringBefore(".") }
+            .thenBy { it.id.substringAfter(".").padStart(4, '0') }
+        )
 
         return if (sort == "EARLIEST_FIRST") dtoList else dtoList.reversed()
     }
