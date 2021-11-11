@@ -1,0 +1,12 @@
+flow-indexer-backend-api:
+  replicas: 2
+  resources:
+    jvm:
+      xmx_megabytes: 768
+      max_direct_memory_megabytes: 128
+
+flow-indexer-scanner:
+  resources:
+    jvm:
+      xmx_megabytes: 1024
+      max_direct_memory_megabytes: 128
