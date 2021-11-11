@@ -11,7 +11,10 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.Logger
@@ -221,7 +224,8 @@ class UserStorageService(
     }
 
     private suspend fun checkOwnership(item: Item, to: FlowAddress) {
-        ownershipRepository.deleteAllByContractAndTokenIdAndOwnerNot(item.contract, item.tokenId, to).awaitFirstOrNull()
+        ownershipRepository.deleteAllByContractAndTokenIdAndOwnerNot(item.contract, item.tokenId, to).asFlow().toList()
+            .forEach { protocolEventPublisher.onDelete(it) }
         val o = ownershipRepository.findById(item.ownershipId(to)).awaitSingleOrNull()
             ?: Ownership(item.ownershipId(to), item.creator)
         protocolEventPublisher.onUpdate(o)
