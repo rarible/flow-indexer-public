@@ -1,5 +1,6 @@
 package com.rarible.flow.core.repository
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.OwnershipId
 import com.rarible.flow.core.domain.TokenId
