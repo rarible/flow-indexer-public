@@ -10,11 +10,11 @@ import org.springframework.data.mongodb.core.index.Index
 import org.springframework.data.mongodb.core.indexOps
 
 @ChangeUnit(
-    id = "ChangeLog00005OwnershipIndex",
-    order = "00005",
+    id = "ChangeLog00006OwnershipIndex",
+    order = "00006",
     author = "flow"
 )
-class ChangeLog00005OwnershipIndex(
+class ChangeLog00006OwnershipIndex(
     private val mongoTemplate: MongoTemplate
 ) {
 

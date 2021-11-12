@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -52,11 +53,9 @@ class ItemIndexerEventProcessor(
         withSpan("mintItemEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val id = ItemId(contract = activity.contract, tokenId = activity.tokenId)
             val owner = FlowAddress(activity.owner)
-            val ownershipId = OwnershipId(contract = activity.contract, tokenId = activity.tokenId, owner = owner)
-            val itemExists = itemRepository.existsById(id).awaitSingle()
-            val ownershipExists = ownershipRepository.existsById(ownershipId).awaitSingle()
-            if (!itemExists) {
-                val item = itemRepository.insert(
+            val item = itemRepository.findById(id).awaitSingleOrNull()
+            val saved = if (item == null) {
+                itemRepository.insert(
                     Item(
                         contract = id.contract,
                         tokenId = id.tokenId,
@@ -69,18 +68,19 @@ class ItemIndexerEventProcessor(
                         updatedAt = activity.timestamp
                     )
                 ).awaitSingle()
-                if (event.source != Source.REINDEX) {
-                    protocolEventPublisher.onItemUpdate(item)
-                }
-            } else {
-                val item = itemRepository.findById(id).awaitSingle()
-                if (item.mintedAt != activity.timestamp) {
-                    itemRepository.save(item.copy(mintedAt = activity.timestamp))
-                }
+            } else if (item.mintedAt != activity.timestamp) { //if we read item by 'newLogin' endpoint, we don't know mintedAt and creator
+                    itemRepository.save(item.copy(mintedAt = activity.timestamp, creator = owner)).awaitSingle()
+            } else item
+
+            if (saved != item && event.source != Source.REINDEX) {
+                protocolEventPublisher.onItemUpdate(saved)
             }
 
-            if (!ownershipExists) {
-                val ownership = ownershipRepository.insert(
+            if (saved.updatedAt <= activity.timestamp) {
+                //we should not have ownership records yet
+                val deleted = ownershipRepository.deleteAllByContractAndTokenId(saved.contract, saved.tokenId)
+                    .asFlow().toList()
+                val o = ownershipRepository.save(
                     Ownership(
                         contract = activity.contract,
                         tokenId = activity.tokenId,
@@ -90,7 +90,8 @@ class ItemIndexerEventProcessor(
                     )
                 ).awaitSingle()
                 if (event.source != Source.REINDEX) {
-                    protocolEventPublisher.onUpdate(ownership)
+                    protocolEventPublisher.onDelete(deleted)
+                    protocolEventPublisher.onUpdate(o)
                 }
             }
         }
@@ -100,9 +101,8 @@ class ItemIndexerEventProcessor(
         val activity = event.activity as BurnActivity
         withSpan("burnItemEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val itemId = ItemId(contract = activity.contract, tokenId = activity.tokenId)
-            val exists = itemRepository.existsById(itemId).awaitSingle()
-            if (exists) {
-                val item = itemRepository.findById(itemId).awaitSingle()
+            val item = itemRepository.findById(itemId).awaitSingleOrNull()
+            if (item != null) {
                 itemRepository.save(item.copy(owner = null, updatedAt = activity.timestamp)).awaitFirstOrNull()
                 val ownerships =
                     ownershipRepository.deleteAllByContractAndTokenId(itemId.contract, itemId.tokenId).asFlow().toList()

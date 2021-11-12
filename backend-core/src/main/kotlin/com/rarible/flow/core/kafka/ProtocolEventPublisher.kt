@@ -112,6 +112,8 @@ class ProtocolEventPublisher(
         )
     }
 
+
+
     suspend fun activity(history: ItemHistory): KafkaSendResult? {
         return ItemHistoryToDtoConverter.convert(
             history
