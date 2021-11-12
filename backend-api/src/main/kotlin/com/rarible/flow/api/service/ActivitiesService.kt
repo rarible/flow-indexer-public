@@ -3,6 +3,7 @@ package com.rarible.flow.api.service
 import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ActivityContinuation
+import com.rarible.flow.core.repository.DEFAULT_LIMIT
 import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
@@ -25,9 +26,6 @@ import java.time.Instant
 class ActivitiesService(
     private val mongoTemplate: ReactiveMongoTemplate
 ) {
-
-    @Suppress("PrivatePropertyName")
-    private val DEFAULT_SIZE = 50
 
     suspend fun getNftOrderActivitiesByItem(
         types: List<String>,
@@ -329,7 +327,7 @@ class ActivitiesService(
         sort: String,
     ): FlowActivitiesDto {
         val items = flow.toList()
-        val limit = size ?: DEFAULT_SIZE
+        val limit = size ?: DEFAULT_LIMIT
         val dto = convertToDto(items, sort).take(limit)
         val continuation = if (items.size <= limit) null else if (items.size >= dto.size && dto.size < limit) null else  answerContinuation(dto)?.toString()
         return FlowActivitiesDto(

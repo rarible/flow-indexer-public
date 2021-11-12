@@ -12,8 +12,9 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.reflect.KProperty
-import kotlin.reflect.KProperty1
 
+
+const val DEFAULT_LIMIT: Int = 50
 
 @Deprecated("Should be removed in favor of Cont class and functions")
 sealed interface Continuation
