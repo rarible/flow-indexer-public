@@ -254,7 +254,6 @@ class NftOrderActivityControllerTest {
         )).then().block()
 
         listOf(
-            "/v0.1/order/activities/byItem?type=BURN&type=TRANSFER&type=MINT&contract=$contract&tokenId=$tokenId",
             "/v0.1/order/activities/byItem?type=TRANSFER&contract=$contract&tokenId=$tokenId",
             "/v0.1/order/activities/byItem?type=BURN&contract=$contract&tokenId=$tokenId",
             "/v0.1/order/activities/byItem?type=TRANSFER&contract=$contract&tokenId=$tokenId&sort=EARLIEST_FIRST",
