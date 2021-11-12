@@ -4,7 +4,6 @@ import com.querydsl.core.annotations.QueryEmbedded
 import com.querydsl.core.annotations.QueryEntity
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
-import com.rarible.protocol.dto.*
 import org.springframework.data.mongodb.core.index.CompoundIndex
 import org.springframework.data.mongodb.core.index.CompoundIndexes
 import org.springframework.data.mongodb.core.index.IndexDirection
@@ -44,96 +43,6 @@ data class ItemHistory(
     @MongoId(FieldType.STRING)
     val id: String = "${log.transactionHash}.${log.eventIndex}"
 ): FlowLogRecord<ItemHistory>() {
-
     override fun withLog(log: FlowLog): FlowLogRecord<ItemHistory> = copy(log = log)
 }
-
-fun FlowActivity.toDto(history: ItemHistory): FlowActivityDto  =
-    when(this) {
-        is MintActivity -> FlowMintDto(
-            id = history.id,
-            date = history.date,
-            owner = this.owner,
-            contract = this.contract,
-            value = this.value.toBigInteger(),
-            tokenId = this.tokenId.toBigInteger(),
-            transactionHash = history.log.transactionHash,
-            blockHash = history.log.blockHash,
-            blockNumber = history.log.blockHeight,
-            logIndex = history.log.eventIndex,
-        )
-
-        is BurnActivity -> FlowBurnDto(
-            id = history.id,
-            date = history.date,
-            owner = this.owner.orEmpty(),
-            contract = this.contract,
-            value = this.value.toBigInteger(),
-            tokenId = this.tokenId.toBigInteger(),
-            transactionHash = history.log.transactionHash,
-            blockHash = history.log.blockHash,
-            blockNumber = history.log.blockHeight,
-            logIndex = history.log.eventIndex,
-        )
-
-        is FlowNftOrderActivitySell -> FlowNftOrderActivitySellDto(
-            id = history.id,
-            date = history.date,
-            left = FlowOrderActivityMatchSideDto(
-                maker = this.left.maker,
-                asset = FlowAssetNFTDto(
-                    contract = this.left.asset.contract,
-                    value = this.left.asset.value,
-                    tokenId = (this.left.asset as FlowAssetNFT).tokenId.toBigInteger()
-                ),
-                type = FlowOrderActivityMatchSideDto.Type.SELL
-            ),
-            right = FlowOrderActivityMatchSideDto(
-                maker = this.right.maker,
-                asset = FlowAssetFungibleDto(
-                    contract = this.right.asset.contract,
-                    value = this.right.asset.value
-                ),
-                type = FlowOrderActivityMatchSideDto.Type.BID
-            ),
-            price = this.price,
-            transactionHash = history.log.transactionHash,
-            blockHash = history.log.blockHash,
-            blockNumber = history.log.blockHeight,
-            logIndex = history.log.eventIndex,
-        )
-        is FlowNftOrderActivityList -> FlowNftOrderActivityListDto(
-            id = history.id,
-            date = history.date,
-            hash = this.hash,
-            maker = this.maker,
-            make = FlowAssetNFTDto(
-                contract = this.make.contract,
-                value = this.make.value,
-                tokenId = (this.make as FlowAssetNFT).tokenId.toBigInteger()
-            ),
-            take = FlowAssetFungibleDto(
-                contract = this.take.contract,
-                value = this.take.value
-            ),
-            price = this.price
-        )
-        is FlowNftOrderActivityCancelList -> FlowNftOrderActivityCancelListDto(
-            id = history.id,
-            date = history.date,
-            hash = this.hash,
-            maker = this.maker,
-            make = FlowAssetNFTDto(
-                contract = this.make.contract,
-                value = this.make.value,
-                tokenId = (this.make as FlowAssetNFT).tokenId.toBigInteger()
-            ),
-            take = FlowAssetFungibleDto(
-                contract = this.take.contract,
-                value = this.take.value
-            ),
-            price = this.price
-        )
-        else -> throw IllegalStateException("Unsupported type of activity: [${(this as TypedFlowActivity).type}]")
-    }
 

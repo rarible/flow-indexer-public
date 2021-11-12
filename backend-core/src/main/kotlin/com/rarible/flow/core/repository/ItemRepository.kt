@@ -8,14 +8,11 @@ import org.springframework.data.mongodb.core.find
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import org.springframework.data.querydsl.ReactiveQuerydslPredicateExecutor
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 
 interface ItemRepository : ReactiveMongoRepository<Item, ItemId>, ItemRepositoryCustom,
     ReactiveQuerydslPredicateExecutor<Item> {
 
     fun findAllByCreator(creator: FlowAddress): Flux<Item>
-
-    fun existsByContractAndTokenId(contract: String, tokenId: Long): Mono<Boolean>
 }
 
 interface ItemRepositoryCustom {

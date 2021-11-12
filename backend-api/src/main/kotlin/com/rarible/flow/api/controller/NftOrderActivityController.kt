@@ -68,6 +68,6 @@ class NftOrderActivityController(private val service: ActivitiesService) : FlowN
         sort: String?,
     ): ResponseEntity<FlowActivitiesDto> =
         ResponseEntity.ok(
-            service.getNftOrderAllActivities(type, continuation, size, sort ?: defaultSort)
+            service.getNftOrderAllActivities(type.filterNot { it.isEmpty() }, continuation, size, sort ?: defaultSort)
         )
 }
