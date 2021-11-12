@@ -13,8 +13,6 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.Logger
