@@ -1,23 +1,11 @@
 package com.rarible.flow.scanner.service
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.core.domain.FlowAssetEmpty
-import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
-import com.rarible.flow.core.domain.FlowNftOrderActivityList
-import com.rarible.flow.core.domain.FlowNftOrderActivitySell
-import com.rarible.flow.core.domain.Item
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.domain.OrderData
-import com.rarible.flow.core.domain.OrderStatus
-import com.rarible.flow.core.domain.PaymentType
-import com.rarible.flow.core.domain.Payout
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -134,18 +122,15 @@ class OrderService(
             .asFlow()
     }
 
-    // TODO we can restore all past orders
-    fun restoreOrdersForItem(item: Item): Flow<Order> {
-//        orderRepository
-//            .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
-//                FlowAssetNFT(activity.contract, 1.toBigDecimal(), activity.tokenId),
-//                FlowAddress(event.to),
-//                OrderStatus.INACTIVE,
-//                LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-//            )
-//            .map {
-//                it.copy(status = OrderStatus.ACTIVE)
-//            }
-        return emptyFlow()
-    }
+    fun restoreOrdersForItem(item: Item, before: LocalDateTime): Flow<Order> = orderRepository
+        .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
+            FlowAssetNFT(item.contract, BigDecimal.ONE, item.tokenId),
+            item.owner!!,
+            OrderStatus.INACTIVE,
+            before
+        )
+        .flatMap {
+            orderRepository.save(it.copy(status = OrderStatus.ACTIVE))
+        }
+        .asFlow()
 }

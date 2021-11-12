@@ -165,9 +165,14 @@ class ItemIndexerEventProcessor(
             if (item != null && item.updatedAt <= activity.timestamp) {
                 val deposited = itemRepository.coSave(item.copy(owner = newOwner, updatedAt = activity.timestamp))
                 val ownership = ownershipService.setOwnershipTo(item, newOwner)
+                val o = orderService.restoreOrdersForItem(
+                    deposited,
+                    LocalDateTime.ofInstant(event.activity.timestamp, ZoneOffset.UTC)
+                )
                 if (event.source != Source.REINDEX) {
                     protocolEventPublisher.onItemUpdate(deposited)
                     protocolEventPublisher.onUpdate(ownership)
+                    protocolEventPublisher.onUpdate(o)
                 }
             }
         }
