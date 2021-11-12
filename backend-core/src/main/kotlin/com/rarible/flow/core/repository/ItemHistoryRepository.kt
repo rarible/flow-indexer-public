@@ -48,8 +48,12 @@ interface ItemHistoryRepositoryCustom {
 
 class ItemHistoryRepositoryCustomImpl(
     private val mongo: ReactiveMongoTemplate
-): ItemHistoryRepositoryCustom {
-    override fun aggregatePurchaseByCollection(start: Instant, end: Instant, size: Long?): Flow<FlowAggregationDataDto> {
+) : ItemHistoryRepositoryCustom {
+    override fun aggregatePurchaseByCollection(
+        start: Instant,
+        end: Instant,
+        size: Long?
+    ): Flow<FlowAggregationDataDto> {
         return getNftPurchaseAggregation(
             "${ItemHistory::activity.name}.${FlowNftOrderActivitySell::contract.name}",
             start,

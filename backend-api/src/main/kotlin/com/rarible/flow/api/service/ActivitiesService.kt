@@ -1,23 +1,21 @@
 package com.rarible.flow.api.service
 
-import com.querydsl.core.BooleanBuilder
-import com.querydsl.core.types.OrderSpecifier
-import com.querydsl.core.types.dsl.BooleanExpression
-import com.rarible.blockchain.scanner.flow.model.QFlowLog
 import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ActivityContinuation
-import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.enum.safeOf
-import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
-import com.rarible.protocol.dto.FlowNftActivityDto
 import com.rarible.protocol.dto.FlowTransferDto
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import org.springframework.data.domain.Sort
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.stereotype.Service
 import java.math.BigInteger
 import java.time.Instant
@@ -25,9 +23,12 @@ import java.time.Instant
 @FlowPreview
 @Service
 class ActivitiesService(
-    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
-    private val itemHistoryRepository: ItemHistoryRepository,
+    private val mongoTemplate: ReactiveMongoTemplate
 ) {
+
+    @Suppress("PrivatePropertyName")
+    private val DEFAULT_SIZE = 50
+
     suspend fun getNftOrderActivitiesByItem(
         types: List<String>,
         contract: String,
@@ -36,22 +37,19 @@ class ActivitiesService(
         size: Int?,
         sort: String,
     ): FlowActivitiesDto {
-        var queryTypes = safeOf<FlowActivityType>(types)
+        val queryTypes = if (types.isEmpty()) FlowActivityType.values().toMutableList() else safeOf<FlowActivityType>(
+            types
+        ).toMutableList()
         if (queryTypes.isEmpty()) {
             return FlowActivitiesDto(items = emptyList(), total = 0)
         }
-        queryTypes = safeOf(types, FlowActivityType.values().toList()).toMutableList()
-        if (FlowActivityType.SELL in queryTypes) {
-            queryTypes.add(FlowActivityType.CANCEL_LIST) // TODO FB-398 workaround
-        }
-        val order = order(sort)
-        var predicate = byTypes(queryTypes).and(byContractAndTokenPredicate(contract, tokenId))
         val cont = ActivityContinuation.of(continuation)
-        if (cont != null) {
-            predicate = predicate.and(byContinuation(cont))
-        }
-
-        val flow = itemHistoryRepository.findAll(predicate, *order).asFlow()
+        val query = defaultQuery().with(defaultSort(sort))
+        val criteria = Criteria.where("activity.type").`in`(fixTypes(queryTypes).toSet())
+            .and("activity.contract").isEqualTo(contract)
+            .and("activity.tokenId").isEqualTo(tokenId)
+        addContinuation(cont, criteria, sort)
+        val flow = mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow()
         return flowActivitiesDto(flow, size, sort)
     }
 
@@ -64,89 +62,70 @@ class ActivitiesService(
         size: Int?,
         sort: String,
     ): FlowActivitiesDto {
-        var queryTypes = safeOf<FlowActivityType>(type)
+        var queryTypes = if (type.isEmpty()) FlowActivityType.values().toMutableList() else safeOf<FlowActivityType>(
+            type
+        ).toMutableList()
         if (queryTypes.isEmpty()) {
             return FlowActivitiesDto(items = emptyList(), total = 0)
         }
         val haveTransferTo = type.isEmpty() || queryTypes.contains(FlowActivityType.TRANSFER_TO)
         val haveTransferFrom = type.isEmpty() || queryTypes.contains(FlowActivityType.TRANSFER_FROM)
         val haveBuy = type.isEmpty() || queryTypes.contains(FlowActivityType.BUY)
-        val skipTypes = mutableListOf<FlowActivityType>()
 
-        queryTypes = safeOf(type, FlowActivityType.values().toList()).toMutableList()
+        queryTypes = fixTypes(queryTypes).toMutableList()
+
         val cont = ActivityContinuation.of(continuation)
-
-        if (FlowActivityType.BURN in queryTypes && FlowActivityType.WITHDRAWN !in queryTypes) {
-            queryTypes.add(FlowActivityType.WITHDRAWN)
-            skipTypes.add(FlowActivityType.WITHDRAWN)
-        }
-
-        if (FlowActivityType.SELL in queryTypes) {
-            queryTypes.add(FlowActivityType.CANCEL_LIST) // TODO FB-398 workaround
-        }
-
-        val order = order(sort)
-        var predicate = BooleanBuilder()
-        if (cont != null) {
-            predicate = predicate.and(byContinuation(cont))
-        }
-
         val transferFromActivities: Flow<ItemHistory> = if (haveTransferFrom) {
-            itemHistoryRepository.findAll(transferFromPredicate(user, from, to), *order).asFlow().flatMapMerge {
-                val q = QItemHistory.itemHistory
-                val a = QBaseActivity(q.activity.metadata)
-                flowOf(it, itemHistoryRepository.findAll(
-                    a.type.eq(FlowActivityType.DEPOSIT).and(a.tokenId.eq(it.activity.tokenId))
-                        .and(a.contract.eq(it.activity.contract)).and(q.log.transactionHash.eq(it.log.transactionHash)).and(q.log.eventIndex.gt(it.log.eventIndex)),
-                    q.date.desc(), q.log.eventIndex.desc()
-                ).awaitFirstOrNull()).filterNotNull()
-            }
+            getTransferFromActivities(user, cont, sort, from, to)
         } else emptyFlow()
-
+        queryTypes.remove(FlowActivityType.TRANSFER_FROM)
 
         val transferToActivities: Flow<ItemHistory> = if (haveTransferTo) {
-            itemHistoryRepository.findAll(transferToPredicate(user, from, to), *order).asFlow().flatMapMerge {
-                val q = QItemHistory.itemHistory
-                val a = QBaseActivity(q.activity.metadata)
-                flowOf(itemHistoryRepository.findAll(
-                    a.type.eq(FlowActivityType.WITHDRAWN).and(a.tokenId.eq(it.activity.tokenId))
-                        .and(a.contract.eq(it.activity.contract)).and(q.log.transactionHash.eq(it.log.transactionHash)).and(q.log.eventIndex.lt(it.log.eventIndex)),
-                    q.date.desc(), q.log.eventIndex.desc()
-                ).awaitFirstOrNull(), it).filterNotNull()
-            }
+            getTransferToActivities(user, cont, sort, from, to)
         } else emptyFlow()
+        queryTypes.remove(FlowActivityType.TRANSFER_TO)
 
         val listActivities: Flow<ItemHistory> = if (queryTypes.contains(FlowActivityType.LIST)) {
-            itemHistoryRepository.findAll(listPredicate(user, from, to), *order).asFlow()
+            val query = defaultQuery().with(defaultSort(sort))
+            val criteria = Criteria.where("activity.type").isEqualTo(FlowActivityType.LIST)
+                .and("activity.maker").`in`(user)
+            addContinuation(cont, criteria, sort)
+            addDates(criteria, from, to)
+            mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow()
         } else emptyFlow()
         queryTypes.remove(FlowActivityType.LIST)
 
         val cancelListActivities: Flow<ItemHistory> = if (queryTypes.contains(FlowActivityType.CANCEL_LIST)) {
-            itemHistoryRepository.findAll(cancelListPredicate(user, from, to), *order).asFlow()
+            val query = defaultQuery().with(defaultSort(sort))
+            val criteria = Criteria.where("activity.type").isEqualTo(FlowActivityType.CANCEL_LIST)
+                .and("activity.maker").`in`(user)
+            addContinuation(cont, criteria, sort)
+            addDates(criteria, from, to)
+            mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow()
         } else emptyFlow()
         queryTypes.remove(FlowActivityType.CANCEL_LIST)
 
         val buyActivities: Flow<ItemHistory> = if (haveBuy) {
-            itemHistoryRepository.findAll(buyPredicate(user, from, to), *order).asFlow()
+            val query = defaultQuery().with(defaultSort(sort))
+            val criteria = Criteria.where("activity.type").isEqualTo(FlowActivityType.SELL)
+                .and("activity.right.maker").`in`(user)
+            addContinuation(cont, criteria, sort)
+            addDates(criteria, from, to)
+            mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow()
         } else emptyFlow()
 
         val sellActivities: Flow<ItemHistory> = if (queryTypes.contains(FlowActivityType.SELL)) {
-            itemHistoryRepository.findAll(sellPredicate(user, from, to), *order).asFlow()
+            val query = defaultQuery().with(defaultSort(sort))
+            val criteria = Criteria.where("activity.type").isEqualTo(FlowActivityType.SELL)
+                .and("activity.left.maker").`in`(user)
+            addContinuation(cont, criteria, sort)
+            addDates(criteria, from, to)
+            mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow()
         } else emptyFlow()
         queryTypes.remove(FlowActivityType.SELL)
 
         val burnActivities = if (queryTypes.contains(FlowActivityType.BURN)) {
-            itemHistoryRepository.findAll(burnPredicate(from, to), *order).asFlow().flatMapMerge {
-                val q = QItemHistory.itemHistory
-                val a = QWithdrawnActivity(q.activity.metadata)
-                flowOf(itemHistoryRepository.findAll(
-                    a.type.eq(FlowActivityType.WITHDRAWN).and(a.tokenId.eq(it.activity.tokenId))
-                        .and(a.contract.eq(it.activity.contract)).and(q.log.transactionHash.eq(it.log.transactionHash)).and(q.log.eventIndex.lt(it.log.eventIndex))
-                        .and(a.from.`in`(user))
-                    ,
-                    q.date.desc(), q.log.eventIndex.desc()
-                ).awaitFirstOrNull(), it).filterNotNull()
-            }
+            getBurnActivities(user, cont, sort, from, to)
         } else emptyFlow()
         queryTypes.remove(FlowActivityType.BURN)
 
@@ -154,9 +133,14 @@ class ActivitiesService(
             queryTypes.remove(FlowActivityType.TRANSFER)
         }
 
-        val activities: Flow<ItemHistory> = if (queryTypes.isEmpty()) emptyFlow() else itemHistoryRepository.findAll(
-            predicate.and(byTypes(queryTypes)).and(byOwner(user, from, to)), *order
-        ).asFlow()
+        val activities: Flow<ItemHistory> = if (queryTypes.isEmpty()) emptyFlow() else {
+            val query = defaultQuery().with(defaultSort(sort))
+            val criteria = Criteria.where("activity.type").`in`(queryTypes.toSet())
+                .and("activity.owner").`in`(user)
+            addContinuation(cont, criteria, sort)
+            addDates(criteria, from, to)
+            mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow()
+        }
 
         return flowActivitiesDto(
             flowOf(
@@ -173,23 +157,110 @@ class ActivitiesService(
         )
     }
 
-    private suspend fun flowActivitiesDto(
-        flow: Flow<ItemHistory>,
-        size: Int?,
+    private fun getBurnActivities(
+        user: List<String>,
+        cont: ActivityContinuation?,
         sort: String,
-    ): FlowActivitiesDto {
-        val items = flow.toList()
-        val limit = size ?: DEFAULT_SIZE
-        var dto = convertToDto(items, sort)
-        dto = dto.take(limit)
+        from: Instant?,
+        to: Instant?
+    ): Flow<ItemHistory> {
+        val query = defaultQuery().with(defaultSort(sort))
+        val criteria = Criteria.where("activity.type").isEqualTo(FlowActivityType.BURN)
+        addContinuation(cont, criteria, sort)
+        addDates(criteria, from, to)
+        return mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow().flatMapConcat {
+            val c = Criteria.where("activity.type").isEqualTo(FlowActivityType.WITHDRAWN)
+                .and("activity.from").`in`(user)
+                .and("activity.tokenId").isEqualTo(it.activity.tokenId)
+                .and("activity.contract").isEqualTo(it.activity.contract)
+                .and("log.transactionHash").isEqualTo(it.log.transactionHash)
+                .and("log.eventIndex").lt(it.log.eventIndex)
+            addContinuation(cont, c, sort)
+            flowOf(
+                it,
+                mongoTemplate.find(defaultQuery().addCriteria(c).with(Sort.by(Sort.Direction.DESC, "date", "log.eventIndex")), ItemHistory::class.java).awaitFirstOrNull()
+            )
+        }.filterNotNull()
+    }
 
-        val continuation = if(dto.size < limit) null else answerContinuation(dto)?.toString()
+    private fun addDates(criteria: Criteria, from: Instant?, to: Instant?) {
+        if (from != null) {
+            criteria.and("date").gte(from)
+        }
+        if (to != null) {
+            criteria.and("date").lte(to)
+        }
+    }
 
-        return FlowActivitiesDto(
-            items = dto,
-            total = dto.size,
-            continuation = continuation
-        )
+    private fun getTransferToActivities(
+        user: List<String>,
+        cont: ActivityContinuation?,
+        sort: String,
+        from: Instant?,
+        to: Instant?
+    ): Flow<ItemHistory> {
+        val query = defaultQuery().with(defaultSort(sort))
+        val criteria = Criteria.where("activity.to").`in`(user).and("activity.type").isEqualTo(FlowActivityType.DEPOSIT.name)
+        addContinuation(cont, criteria, sort)
+        addDates(criteria, from, to)
+        return mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow().flatMapConcat {
+            val c = Criteria.where("activity.type").isEqualTo(FlowActivityType.WITHDRAWN)
+                .and("activity.tokenId").isEqualTo(it.activity.tokenId)
+                .and("activity.contract").isEqualTo(it.activity.contract)
+                .and("log.transactionHash").isEqualTo(it.log.transactionHash)
+                .and("log.eventIndex").lt(it.log.eventIndex)
+            addContinuation(cont, c, sort)
+            flowOf(
+                it,
+                mongoTemplate.find(defaultQuery().addCriteria(c).with(Sort.by(Sort.Direction.DESC, "date", "log.eventIndex")), ItemHistory::class.java).awaitFirstOrNull()
+            ).filterNotNull()
+        }
+    }
+
+    private fun getTransferFromActivities(
+        user: List<String>,
+        cont: ActivityContinuation?,
+        sort: String,
+        from: Instant?,
+        to: Instant?
+    ): Flow<ItemHistory> {
+        val query = defaultQuery()
+        val criteria = Criteria.where("activity.from").`in`(user).and("activity.type").isEqualTo(FlowActivityType.WITHDRAWN.name)
+        addContinuation(cont, criteria, sort)
+        addDates(criteria, from, to)
+        return mongoTemplate.find(query.addCriteria(criteria).with(defaultSort(sort)), ItemHistory::class.java).asFlow()
+            .flatMapConcat {
+                val c =
+                    Criteria.where("activity.type").isEqualTo(FlowActivityType.DEPOSIT)
+                        .and("activity.tokenId").isEqualTo(it.activity.tokenId)
+                        .and("activity.contract").isEqualTo(it.activity.contract)
+                        .and("log.transactionHash").isEqualTo(it.log.transactionHash)
+                        .and("log.eventIndex").gt(it.log.eventIndex)
+                addContinuation(cont, c, sort)
+                flowOf(
+                    it,
+                    mongoTemplate.find(
+                        defaultQuery().addCriteria(c).with(Sort.by(Sort.Direction.DESC, "date", "log.eventIndex")), ItemHistory::class.java
+                    ).awaitFirstOrNull()
+                ).filterNotNull()
+            }
+    }
+
+    private fun addContinuation(cont: ActivityContinuation?, criteria: Criteria, sort: String) {
+        if (cont != null) {
+            when (sort) {
+                "EARLIEST_FIRST" -> criteria.and("date").gte(cont.beforeDate)
+                else -> criteria.and("date").lte(cont.beforeDate)
+            }
+            criteria.and("id").ne(cont.beforeId)
+        }
+    }
+
+    private fun defaultQuery(): Query = Query()/*.allowDiskUse(true)*/.limit(500)
+
+    private fun defaultSort(sort: String): Sort = when (sort) {
+        "EARLIEST_FIRST" -> Sort.by(Sort.Direction.ASC, "date", "log.transactionHash", "log.eventIndex")
+        else -> Sort.by(Sort.Direction.DESC, "date", "log.transactionHash", "log.eventIndex")
     }
 
     suspend fun getNftOrderAllActivities(
@@ -198,23 +269,37 @@ class ActivitiesService(
         size: Int?,
         sort: String,
     ): FlowActivitiesDto {
-        var types = safeOf<FlowActivityType>(type)
+        val types = if (type.isEmpty()) FlowActivityType.values()
+            .toMutableList() else safeOf<FlowActivityType>(type).toMutableList()
         if (types.isEmpty()) {
             return FlowActivitiesDto(items = emptyList(), total = 0)
         }
-        types = safeOf(type, FlowActivityType.values().toList()).toMutableList()
 
-        if (FlowActivityType.SELL in types) {
-            types.add(FlowActivityType.CANCEL_LIST) // TODO FB-398 workaround
-        }
         val cont = ActivityContinuation.of(continuation)
-        val order = order(sort)
-        val predicate = byTypes(types)
+        val query = Query().allowDiskUse(true)
+        val fixed = fixTypes(types)
 
-        if (cont != null) {
-            predicate.and(byContinuation(cont))
+        val criteria = Criteria.where("activity.type").`in`(fixed.toSet())
+        when (sort) {
+            "EARLIEST_FIRST" -> {
+                if (cont != null) {
+                    criteria.and("date").gte(cont.beforeDate).and("id").ne(cont.beforeId)
+                }
+                query.with(Sort.by(Sort.Order.asc("date"))).with(Sort.by(Sort.Order.asc("log.transactionHash")))
+                    .with(Sort.by(Sort.Order.asc("log.eventIndex")))
+            }
+            else -> {
+                if (cont != null) {
+                    criteria.and("date").lte(cont.beforeDate).and("id").ne(cont.beforeId)
+                }
+                query.with(Sort.by("date").descending()).with(Sort.by("log.transactionHash").descending())
+                    .with(Sort.by("log.eventIndex").descending())
+            }
         }
-        return flowActivitiesDto(itemHistoryRepository.findAll(predicate, *order).asFlow(), size, sort)
+
+        query.addCriteria(criteria).allowDiskUse(true)
+        query.limit(500)
+        return flowActivitiesDto(mongoTemplate.find(query, ItemHistory::class.java).asFlow(), size, sort)
     }
 
     suspend fun getNftOrderActivitiesByCollection(
@@ -224,168 +309,49 @@ class ActivitiesService(
         size: Int?,
         sort: String,
     ): FlowActivitiesDto {
-        var types = safeOf<FlowActivityType>(type)
-        if (types.isEmpty()) {
+        val queryTypes = if (type.isEmpty()) FlowActivityType.values().toList() else  safeOf(type)
+        if (queryTypes.isEmpty()) {
             return FlowActivitiesDto(items = emptyList(), total = 0)
         }
-        types = safeOf(type, FlowActivityType.values().toList()).toMutableList()
 
         val cont = ActivityContinuation.of(continuation)
-        if (FlowActivityType.SELL in types) {
-            types.add(FlowActivityType.CANCEL_LIST) // TODO FB-398 workaround
-        }
-        val predicateBuilder = BooleanBuilder(byTypes(types)).and(byCollection(collection))
-
-        if (cont != null) {
-            predicateBuilder.and(byContinuation(cont))
-        }
-        val flow = itemHistoryRepository.findAll(predicateBuilder, *order(sort)).asFlow()
-
+        val criteria = Criteria.where("activity.type").`in`(fixTypes(queryTypes).toSet())
+            .and("activity.collection").isEqualTo(collection)
+        addContinuation(cont, criteria, sort)
+        val query = defaultQuery().with(defaultSort(sort))
+        val flow = mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow()
         return flowActivitiesDto(flow, size, sort)
     }
 
-    private fun byCollection(collection: String): BooleanExpression {
-        val q = QItemHistory.itemHistory
-        return q.activity.`as`(QFlowNftActivity::class.java).contract.eq(collection)
+    private suspend fun flowActivitiesDto(
+        flow: Flow<ItemHistory>,
+        size: Int?,
+        sort: String,
+    ): FlowActivitiesDto {
+        val items = flow.toList()
+        val limit = size ?: DEFAULT_SIZE
+        val dto = convertToDto(items, sort).take(limit)
+        val continuation = if (items.size <= limit) null else if (items.size >= dto.size && dto.size < limit) null else  answerContinuation(dto)?.toString()
+        return FlowActivitiesDto(
+            items = dto,
+            total = dto.size,
+            continuation = continuation
+        )
     }
 
-    private fun byContinuation(cont: ActivityContinuation, sort: String = "LATEST_FIRST"): BooleanExpression {
-        val q = QItemHistory.itemHistory
-        return when (sort) {
-            "EARLIEST_FIRST" ->
-                q.date.after(cont.beforeDate).or(
-                    q.date.eq(cont.beforeDate).and(
-                        q.id.goe(cont.beforeId)
-                    )
-                )
-            else ->
-                q.date.before(cont.beforeDate).or(
-                    q.date.eq(cont.beforeDate).and(
-                        q.id.loe(cont.beforeId)
-                    )
-                )
-        }
-    }
-
-    private fun byTypes(types: List<FlowActivityType>): BooleanExpression {
-        val qItemHistory = QItemHistory.itemHistory
-        val fixed = if (types.contains(FlowActivityType.TRANSFER)) {
+    private fun fixTypes(types: List<FlowActivityType>) =
+        if (types.contains(FlowActivityType.TRANSFER)) {
             types - FlowActivityType.TRANSFER + FlowActivityType.DEPOSIT + FlowActivityType.WITHDRAWN
         } else if (types.contains(FlowActivityType.BURN)) {
             types + FlowActivityType.WITHDRAWN
+        } else if (types.contains(FlowActivityType.SELL)) {
+            types + FlowActivityType.CANCEL_LIST
         } else {
             types
         }
-        return qItemHistory.activity.`as`(QBaseActivity::class.java).type.`in`(fixed)
-    }
-
-    private fun byContractAndTokenPredicate(contract: String, tokenId: Long): BooleanExpression {
-        val q = QItemHistory.itemHistory
-        val activity = QFlowNftActivity(q.activity.metadata)
-        return activity.contract.eq(contract)
-            .and(activity.tokenId.eq(tokenId))
-    }
-
-    private fun withinDates(
-        qItemHistory: QItemHistory,
-        predicate: BooleanExpression,
-        from: Instant?,
-        to: Instant?,
-    ): BooleanExpression {
-        var pred = predicate
-        if (from != null) {
-            pred = predicate.and(qItemHistory.date.after(from))
-        }
-        if (to != null) {
-            pred = pred.and(qItemHistory.date.before(to))
-        }
-
-        return pred
-    }
-
-    private fun transferFromPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
-        val q = QItemHistory.itemHistory
-        val activity = QWithdrawnActivity(q.activity.metadata)
-        val predicate = activity.type.eq(FlowActivityType.WITHDRAWN)
-            .and(activity.from.`in`(users))
-        return withinDates(q, predicate, from, to)
-    }
-
-    private fun transferToPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
-        val q = QItemHistory.itemHistory
-        val activity = QDepositActivity(q.activity.metadata)
-        val predicate = activity.type.eq(FlowActivityType.DEPOSIT)
-            .and(activity.to.`in`(users))
-
-        return withinDates(q, predicate, from, to)
-    }
-
-    private fun byOwner(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
-        val q = QItemHistory.itemHistory
-        val activity = QFlowNftActivity(q.activity.metadata)
-        val predicate = activity.owner.isNotNull.and(activity.owner.`in`(users))
-        return withinDates(q, predicate, from, to)
-    }
-
-    private fun order(sort: String?): Array<OrderSpecifier<*>> {
-        val q = QItemHistory.itemHistory
-        val l = QFlowLog(q.log.metadata)
-        return when (sort) {
-            null, "LATEST_FIRST" -> arrayOf(
-                q.date.desc(),
-                l.transactionHash.desc(),
-                l.eventIndex.desc()
-            )
-            "EARLIEST_FIRST" -> arrayOf(
-                q.date.asc(),
-                l.transactionHash.asc(),
-                l.eventIndex.asc()
-            )
-            else -> throw IllegalArgumentException("Unsupported sort type: $sort")
-        }
-    }
 
     private fun answerContinuation(items: List<FlowActivityDto>): ActivityContinuation? =
         if (items.isEmpty()) null else ActivityContinuation(beforeDate = items.last().date, beforeId = items.last().id)
-
-    private fun burnPredicate(from: Instant?, to: Instant?): BooleanExpression {
-        val q = QItemHistory.itemHistory
-        val activity = QFlowNftOrderActivitySell(q.activity.metadata)
-        val predicate = activity.type.eq(FlowActivityType.BURN)
-        return withinDates(q, predicate, from, to)
-    }
-
-    private fun buyPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
-        val q = QItemHistory.itemHistory
-        val activity = QFlowNftOrderActivitySell(q.activity.metadata)
-        val predicate = activity.type.eq(FlowActivityType.SELL)
-            .and(activity.right.maker.`in`(users))
-        return withinDates(q, predicate, from, to)
-    }
-
-    private fun sellPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
-        val q = QItemHistory.itemHistory
-        val activity = QFlowNftOrderActivitySell(q.activity.metadata)
-        val predicate = activity.type.eq(FlowActivityType.SELL)
-            .and(activity.left.maker.`in`(users))
-        return withinDates(q, predicate, from, to)
-    }
-
-    private fun listPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
-        val q = QItemHistory.itemHistory
-        val activity = QFlowNftOrderActivityList(q.activity.metadata)
-        val predicate = activity.type.eq(FlowActivityType.LIST)
-            .and(activity.maker.`in`(users))
-        return withinDates(q, predicate, from, to)
-    }
-
-    private fun cancelListPredicate(users: List<String>, from: Instant?, to: Instant?): BooleanExpression {
-        val q = QItemHistory.itemHistory
-        val activity = QFlowNftOrderActivityCancelList(q.activity.metadata)
-        val predicate = activity.type.eq(FlowActivityType.CANCEL_LIST)
-            .and(activity.maker.`in`(users))
-        return withinDates(q, predicate, from, to)
-    }
 
     private fun convertToDto(
         history: List<ItemHistory>,
@@ -399,6 +365,9 @@ class ActivitiesService(
             }
             if (h.activity is WithdrawnActivity) {
                 val wa = h.activity as WithdrawnActivity
+                if (wa.from.isNullOrEmpty()) {
+                    continue
+                }
                 val d = findActivity(history, i, FlowActivityType.DEPOSIT)
                 if (d != null) {
                     val da = d.activity as DepositActivity
@@ -435,13 +404,10 @@ class ActivitiesService(
             }
         }
 
-        val dtoList = result.sortedWith(compareBy(FlowActivityDto::date).thenBy {
-            if (it is FlowNftActivityDto) {
-                it.logIndex
-            } else {
-                0
-            }
-        })
+        val dtoList = result.sortedWith(compareBy(FlowActivityDto::date)
+            .thenBy { it.id.substringBefore(".") }
+            .thenBy { it.id.substringAfter(".").padStart(4, '0') }
+        )
 
         return if (sort == "EARLIEST_FIRST") dtoList else dtoList.reversed()
     }
@@ -466,10 +432,5 @@ class ActivitiesService(
         }
 
         return helper()
-    }
-
-    companion object {
-        const val DEFAULT_SIZE = 50
-        val logger by Log()
     }
 }
