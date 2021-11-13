@@ -254,7 +254,7 @@ class ActivitiesService(
         }
     }
 
-    private fun defaultQuery(): Query = Query()/*.allowDiskUse(true)*/.limit(500)
+    private fun defaultQuery(limit: Int? = 500): Query = Query().limit(limit!!)
 
     private fun defaultSort(sort: String): Sort = when (sort) {
         "EARLIEST_FIRST" -> Sort.by(Sort.Direction.ASC, "date", "log.transactionHash", "log.eventIndex")
@@ -274,29 +274,10 @@ class ActivitiesService(
         }
 
         val cont = ActivityContinuation.of(continuation)
-        val query = Query().allowDiskUse(true)
-        val fixed = fixTypes(types)
-
-        val criteria = Criteria.where("activity.type").`in`(fixed.toSet())
-        when (sort) {
-            "EARLIEST_FIRST" -> {
-                if (cont != null) {
-                    criteria.and("date").gte(cont.beforeDate).and("id").ne(cont.beforeId)
-                }
-                query.with(Sort.by(Sort.Order.asc("date"))).with(Sort.by(Sort.Order.asc("log.transactionHash")))
-                    .with(Sort.by(Sort.Order.asc("log.eventIndex")))
-            }
-            else -> {
-                if (cont != null) {
-                    criteria.and("date").lte(cont.beforeDate).and("id").ne(cont.beforeId)
-                }
-                query.with(Sort.by("date").descending()).with(Sort.by("log.transactionHash").descending())
-                    .with(Sort.by("log.eventIndex").descending())
-            }
-        }
-
-        query.addCriteria(criteria).allowDiskUse(true)
-        query.limit(500)
+        val query = defaultQuery().with(defaultSort(sort))
+        val criteria = Criteria.where("activity.type").`in`(fixTypes(types).toSet())
+        addContinuation(cont, criteria, sort)
+        query.addCriteria(criteria)
         return flowActivitiesDto(mongoTemplate.find(query, ItemHistory::class.java).asFlow(), size, sort)
     }
 
