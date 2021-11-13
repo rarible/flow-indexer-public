@@ -1,13 +1,7 @@
 package com.rarible.flow.scanner
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.core.domain.FlowAssetFungible
-import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.Item
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.domain.OrderData
-import com.rarible.flow.core.domain.Payout
+import com.rarible.flow.core.domain.*
 import org.apache.activemq.artemis.utils.RandomUtil.randomLong
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -52,7 +46,8 @@ object Data {
                 BigDecimal.TEN
             ),
             makeStock = BigInteger.TEN,
-            lastUpdatedAt = LocalDateTime.now()
+            lastUpdatedAt = LocalDateTime.now(),
+            createdAt = LocalDateTime.now()
         )
         return order
     }

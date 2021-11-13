@@ -1,18 +1,7 @@
 package com.rarible.flow.scanner.service
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.core.domain.FlowAssetEmpty
-import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
-import com.rarible.flow.core.domain.FlowNftOrderActivityList
-import com.rarible.flow.core.domain.FlowNftOrderActivitySell
-import com.rarible.flow.core.domain.Item
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.domain.OrderData
-import com.rarible.flow.core.domain.OrderStatus
-import com.rarible.flow.core.domain.PaymentType
-import com.rarible.flow.core.domain.Payout
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
@@ -81,7 +70,7 @@ class OrderService(
             makeStock = BigInteger.ZERO,
             taker = FlowAddress(activity.right.maker),
             status = OrderStatus.FILLED,
-
+            createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             maker = FlowAddress(activity.left.maker),
             itemId = ItemId(activity.left.asset.contract, activity.tokenId),
             amount = activity.price,
@@ -105,7 +94,7 @@ class OrderService(
             id = activity.hash.toLong(),
             cancelled = true,
             status = OrderStatus.CANCELLED,
-
+            createdAt =  LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             itemId = ItemId(activity.make.contract, activity.tokenId),
             amount = activity.price,
             collection = activity.contract,

@@ -1,10 +1,8 @@
 package com.rarible.flow.api.service
 
-import com.querydsl.core.BooleanBuilder
 import com.rarible.flow.core.converter.OwnershipToDtoConverter
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.OwnershipId
-import com.rarible.flow.core.domain.QOwnership
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.OwnershipContinuation
 import com.rarible.flow.core.repository.OwnershipRepository
@@ -66,15 +64,4 @@ class OwnershipsService(
             beforeId = items.last().id
         )
     }"
-
-    private fun byContractAndTokenId(contract: String, tokenId: TokenId): BooleanBuilder {
-        val q = QOwnership.ownership
-
-        return BooleanBuilder(q.contract.eq(contract)).and(q.tokenId.eq(tokenId))
-    }
-
-    private fun byContinuation(cont: OwnershipContinuation?): BooleanBuilder {
-        val q = QOwnership.ownership
-        return if (cont == null) BooleanBuilder() else BooleanBuilder(q.date.before(cont.beforeDate)).and(q.id.ne(cont.beforeId))
-    }
 }
