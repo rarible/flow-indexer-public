@@ -4,6 +4,7 @@ spring:
   data:
     mongodb:
       auto-index-creation: true
+
 mongock:
   runner-type: applicationrunner
   migration-scan-package: "com.rarible.flow.scanner.migrations"

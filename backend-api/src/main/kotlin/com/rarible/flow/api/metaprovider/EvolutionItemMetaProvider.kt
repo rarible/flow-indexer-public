@@ -58,15 +58,15 @@ class EvolutionItemMetaProvider(
             ),
             ItemMetaAttribute(
                 key = "itemId",
-                value = meta["itemId"] as String?
+                value = meta["itemId"]?.toString()
             ),
             ItemMetaAttribute(
                 key = "setId",
-                value = meta["setId"] as String?
+                value = meta["setId"]?.toString()
             ),
             ItemMetaAttribute(
                 key = "serialNumber",
-                value = meta["serialNumber"] as String?
+                value = meta["serialNumber"]?.toString()
             ),
             ItemMetaAttribute(
                 key = "setDescription",

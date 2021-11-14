@@ -1,7 +1,6 @@
 package com.rarible.flow.api.service
 
 import com.querydsl.core.BooleanBuilder
-import com.querydsl.core.types.OrderSpecifier
 import com.rarible.flow.core.converter.OwnershipToDtoConverter
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.OwnershipId
@@ -29,8 +28,7 @@ class OwnershipsService(
     }
 
     suspend fun all(continuation: String?, size: Int?): FlowNftOwnershipsDto {
-        val predicate = BooleanBuilder(byContinuation(OwnershipContinuation.of(continuation)))
-        val flow = ownershipRepository.findAll(predicate, *defaultOrder()).asFlow()
+        val flow = ownershipRepository.all(continuation, size).asFlow()
         return flowNftOwnershipsDto(flow, size)
     }
 
@@ -40,17 +38,9 @@ class OwnershipsService(
         continuation: String?,
         size: Int?
     ): FlowNftOwnershipsDto {
-        val predicate = BooleanBuilder(byContinuation(OwnershipContinuation.of(continuation)))
-        predicate.and(byContractAndTokenId(contract, tokenId))
-        val flow = ownershipRepository.findAll(predicate).asFlow()
+        val flow = ownershipRepository.byItem(contract, tokenId, continuation, size).asFlow()
         return flowNftOwnershipsDto(flow, size)
     }
-
-    private fun defaultOrder(): Array<OrderSpecifier<*>> = arrayOf(
-        QOwnership.ownership.date.desc(),
-        QOwnership.ownership.id.contract.desc(),
-        QOwnership.ownership.id.tokenId.desc()
-    )
 
     private suspend fun flowNftOwnershipsDto(
         flow: Flow<Ownership>,

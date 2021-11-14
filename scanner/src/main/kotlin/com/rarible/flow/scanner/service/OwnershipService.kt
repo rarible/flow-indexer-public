@@ -7,6 +7,7 @@ import com.rarible.flow.core.domain.OwnershipId
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -27,11 +28,20 @@ class OwnershipService(
         )
     }
 
+    suspend fun deleteOwnership(item: Item) {
+        ownershipRepository.deleteAllByContractAndTokenId(item.contract, item.tokenId).awaitFirstOrNull()
+    }
+
+    suspend fun setOwnershipTo(item: Item, to: FlowAddress): Ownership {
+        ownershipRepository.deleteAllByContractAndTokenId(item.contract, item.tokenId).awaitFirstOrNull()
+        return ownershipRepository.coSave(Ownership(item.ownershipId(to), item.creator))
+    }
+
     suspend fun transferOwnershipIfExists(item: Item, from: FlowAddress, to: FlowAddress): Ownership? {
         return withOwnership(
             item.ownershipId(from)
         ) { o ->
-            ownershipRepository.delete(o)
+            ownershipRepository.delete(o).awaitFirstOrNull()
             ownershipRepository.coSave(o.transfer(to))
         }
     }

@@ -12,6 +12,7 @@ import com.rarible.flow.scanner.cadence.OrderClosed
 import com.rarible.flow.scanner.model.parse
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.Instant
@@ -43,7 +44,7 @@ class OrderSubscriber(
         ),
     )
 
-    override fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity? {
+    override suspend fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity? {
         val timestamp = Instant.ofEpochMilli(block.timestamp)
 
         return when (msg.eventId.eventName) {
@@ -120,8 +121,8 @@ class OrderSubscriber(
         }
     }
 
-    private fun usdRate(contract: String, timestamp: Long) = try {
-        currencyApi.getCurrencyRate(BlockchainDto.FLOW, contract, timestamp).block()?.rate ?: BigDecimal.ZERO
+    private suspend fun usdRate(contract: String, timestamp: Long) = try {
+        currencyApi.getCurrencyRate(BlockchainDto.FLOW, contract, timestamp).awaitSingle().rate
     } catch (e: Exception) {
         logger.warn("Unable to fetch USD price rate from currency api: ${e.message}", e)
         BigDecimal.ZERO

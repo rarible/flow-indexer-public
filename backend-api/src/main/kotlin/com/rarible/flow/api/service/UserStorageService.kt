@@ -11,7 +11,10 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ClassPathResource
@@ -24,7 +27,7 @@ class UserStorageService(
     private val itemRepository: ItemRepository,
     private val appProperties: AppProperties,
     private val protocolEventPublisher: ProtocolEventPublisher,
-    private val ownershipRepository: OwnershipRepository
+    private val ownershipRepository: OwnershipRepository,
 ) {
 
     private val log: Logger = LoggerFactory.getLogger(UserStorageService::class.java)
@@ -63,7 +66,7 @@ class UserStorageService(
                                 royalties = listOf(
                                     Part(
                                         address = contractAddress("0xTOPSHOTTOKEN"),
-                                        fee = 5.0
+                                        fee = 0.05
                                     )
                                 ),
                                 owner = address,
@@ -76,7 +79,16 @@ class UserStorageService(
                         } else {
                             val item =
                                 itemRepository.findById(ItemId(contract, it)).awaitSingle()
-                            saveItem(item.copy(owner = address, updatedAt = Instant.now()))
+                            saveItem(item.copy(
+                                owner = address,
+                                royalties = listOf(
+                                    Part(
+                                        address = contractAddress("0xTOPSHOTTOKEN"),
+                                        fee = 0.05
+                                    )
+                                ),
+                                updatedAt = Instant.now()
+                            ))
                         }
                     }
                 }
@@ -99,7 +111,10 @@ class UserStorageService(
                             val i = itemRepository.findById(ItemId(contract, it)).awaitSingle()
                             if (i.owner != address) {
                                 i.copy(owner = address, updatedAt = Instant.now())
-                            } else null
+                            } else {
+                                checkOwnership(i, address)
+                                null
+                            }
                         }
                         saveItem(item)
                     }
@@ -108,7 +123,8 @@ class UserStorageService(
                     entry.value.forEach {
                         val contract = contract("0xEVOLUTIONTOKEN", "Evolution")
                         val item = if (notExistsItem(contract, it)) {
-                            val res = scriptExecutor.execute(scriptText("/script/get_evolution_nft.cdc"), mutableListOf(builder.address(address.bytes), builder.uint64(it)))
+                            val res = scriptExecutor.execute(scriptText("/script/get_evolution_nft.cdc"),
+                                mutableListOf(builder.address(address.bytes), builder.uint64(it)))
                             val initialMeta = parser.dictionaryMap(res.jsonCadence) { k, v ->
                                 string(k) to int(v)
                             }
@@ -124,10 +140,14 @@ class UserStorageService(
                                 updatedAt = Instant.now()
                             )
                         } else {
-                            val i = itemRepository.findById(ItemId(contract, it)).awaitSingle()
+                            val itemId = ItemId(contract, it)
+                            val i = itemRepository.findById(itemId).awaitSingle()
                             if (i.owner != address) {
                                 i.copy(owner = address, updatedAt = Instant.now())
-                            } else null
+                            } else {
+                                checkOwnership(i, address)
+                                null
+                            }
                         }
                         saveItem(item)
                     }
@@ -159,7 +179,10 @@ class UserStorageService(
                             val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
                             if (i.owner != address) {
                                 i.copy(owner = address, updatedAt = Instant.now())
-                            } else null
+                            } else {
+                                checkOwnership(i, address)
+                                null
+                            }
                         }
                         saveItem(item)
                     }
@@ -177,7 +200,7 @@ class UserStorageService(
 
     private fun contract(tokenAlias: String, contractName: String): String {
         val address = Flow.DEFAULT_ADDRESS_REGISTRY.addressOf(tokenAlias, appProperties.chainId)!!
-        return "A.${address.formatted}.$contractName"
+        return "A.${address.base16Value}.$contractName"
     }
 
     private suspend fun notExistsItem(contract: String, tokenId: TokenId): Boolean {
@@ -190,20 +213,20 @@ class UserStorageService(
     }
 
     private suspend fun saveItem(item: Item?) {
+        log.debug("saveItem: $item")
         if (item != null) {
             val a = itemRepository.save(item).awaitSingle()
             protocolEventPublisher.onItemUpdate(a)
-            val o = ownershipRepository.save(
-                Ownership(
-                    contract = item.contract,
-                    tokenId = item.tokenId,
-                    creator = item.creator,
-                    owner = item.owner!!,
-                    date = Instant.now()
-                )
-            ).awaitSingle()
-            protocolEventPublisher.onUpdate(o)
+            checkOwnership(item, item.owner!!)
         }
+    }
+
+    private suspend fun checkOwnership(item: Item, to: FlowAddress) {
+        ownershipRepository.deleteAllByContractAndTokenIdAndOwnerNot(item.contract, item.tokenId, to).asFlow().toList()
+            .forEach { protocolEventPublisher.onDelete(it) }
+        val o = ownershipRepository.findById(item.ownershipId(to)).awaitSingleOrNull()
+            ?: Ownership(item.ownershipId(to), item.creator)
+        protocolEventPublisher.onUpdate(o)
     }
 
     private fun scriptText(resourcePath: String): String {

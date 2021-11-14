@@ -51,7 +51,7 @@ class RaribleNFTSubscriber: BaseItemHistoryFlowLogSubscriber() {
             ),
         )
 
-    override fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity {
+    override suspend fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity {
         val id: NumberField by msg.fields
         val tokenId = id.toLong()!!
         val contract = msg.eventId.collection()
