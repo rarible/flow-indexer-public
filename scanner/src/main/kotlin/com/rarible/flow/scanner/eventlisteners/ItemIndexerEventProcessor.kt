@@ -14,6 +14,7 @@ import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.ItemService
 import com.rarible.flow.scanner.service.OrderService
 import com.rarible.flow.scanner.service.OwnershipService
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
