@@ -4,10 +4,7 @@ import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventListener
 import com.rarible.blockchain.scanner.subscriber.ProcessedBlockEvent
-import com.rarible.flow.core.domain.FlowActivityType
-import com.rarible.flow.core.domain.ItemHistory
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.WithdrawnActivity
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.log.Log
@@ -35,8 +32,12 @@ class BaseFlowLogListener(
                         FlowActivityType.DEPOSIT,
                         FlowActivityType.BURN
                     )
-                }.filterNot { //rem
-                    if (it.activity is WithdrawnActivity) (it.activity as WithdrawnActivity).from.isNullOrEmpty() else false
+                }.filterNot {
+                    when(it.activity) {
+                        is WithdrawnActivity -> (it.activity as WithdrawnActivity).from.isNullOrEmpty()
+                        is DepositActivity -> (it.activity as DepositActivity).to.isNullOrEmpty()
+                        else -> false
+                    }
                 }.sortedBy { it.log.eventIndex }.chunked(2) //NFT events shouldn't be single
 
                 val orderEvents =
