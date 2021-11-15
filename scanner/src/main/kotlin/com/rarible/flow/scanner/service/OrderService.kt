@@ -27,7 +27,7 @@ class OrderService(
         val payouts = activity.payments
             .filter { it.type in setOf(PaymentType.ROYALTY, PaymentType.OTHER, PaymentType.REWARD) }
             .map { Payout(FlowAddress(it.address), it.amount) } //TODO replace amount with share
-        val status = suspend {
+        val status = {
             val item = (activity.make as? FlowAssetNFT)
                 ?.let { itemRepository.coFindById(ItemId(it.contract, it.tokenId)) }
             if (item?.owner?.formatted != activity.maker) OrderStatus.INACTIVE else OrderStatus.ACTIVE
