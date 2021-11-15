@@ -76,7 +76,7 @@ class ProtocolEventPublisher(
         )
     }
 
-    suspend fun onUpdate(orders: Flow<Order>): Flow<KafkaSendResult> {
+    suspend fun onUpdate(orders: List<Order>): List<KafkaSendResult> {
         return orders.map { this.onUpdate(it) }
     }
 

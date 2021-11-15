@@ -7,6 +7,7 @@ import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.OwnershipFilter
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
@@ -14,7 +15,6 @@ import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.ItemService
 import com.rarible.flow.scanner.service.OrderService
 import com.rarible.flow.scanner.service.OwnershipService
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -50,13 +50,21 @@ class ItemIndexerEventProcessor(
 
     private suspend fun mintItemEvent(event: IndexerEvent) {
         val activity = event.activity as MintActivity
-        withSpan("mintItemEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
+        withSpan<Unit>("mintItemEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val id = ItemId(contract = activity.contract, tokenId = activity.tokenId)
             val owner = FlowAddress(activity.owner)
-            val ownershipId = OwnershipId(contract = activity.contract, tokenId = activity.tokenId, owner = owner)
             val itemExists = itemRepository.existsById(id).awaitSingle()
-            val ownershipExists = ownershipRepository.existsById(ownershipId).awaitSingle()
-            if (!itemExists) {
+            val ownerships = ownershipRepository
+                .search(OwnershipFilter.ByItem(id), null, null, OwnershipFilter.Sort.LATEST_FIRST)
+                .asFlow()
+                .toList()
+
+            if (itemExists) {
+                val item = itemRepository.findById(id).awaitSingle()
+                if (item.mintedAt != activity.timestamp) {
+                    itemRepository.save(item.copy(mintedAt = activity.timestamp))
+                }
+            } else {
                 val item = itemRepository.insert(
                     Item(
                         contract = id.contract,
@@ -73,27 +81,30 @@ class ItemIndexerEventProcessor(
                 if (event.source != Source.REINDEX) {
                     protocolEventPublisher.onItemUpdate(item)
                 }
-            } else {
-                val item = itemRepository.findById(id).awaitSingle()
-                if (item.mintedAt != activity.timestamp) {
-                    itemRepository.save(item.copy(mintedAt = activity.timestamp))
+            }
+
+            if (ownerships.isNotEmpty()) {
+                ownershipRepository.deleteAll(ownerships)
+                ownerships.forEach { deletedOwnership ->
+                    if (event.source != Source.REINDEX) {
+                        protocolEventPublisher.onDelete(deletedOwnership)
+                    }
                 }
             }
 
-            if (!ownershipExists) {
-                val ownership = ownershipRepository.insert(
-                    Ownership(
-                        contract = activity.contract,
-                        tokenId = activity.tokenId,
-                        owner = owner,
-                        creator = owner,
-                        date = activity.timestamp
-                    )
-                ).awaitSingle()
-                if (event.source != Source.REINDEX) {
-                    protocolEventPublisher.onUpdate(ownership)
-                }
+            val ownership = ownershipRepository.insert(
+                Ownership(
+                    contract = activity.contract,
+                    tokenId = activity.tokenId,
+                    owner = owner,
+                    creator = owner,
+                    date = activity.timestamp
+                )
+            ).awaitSingle()
+            if (event.source != Source.REINDEX) {
+                protocolEventPublisher.onUpdate(ownership)
             }
+
         }
     }
 
