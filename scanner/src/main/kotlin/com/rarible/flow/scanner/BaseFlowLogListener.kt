@@ -12,8 +12,6 @@ import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.IndexerEventService
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
@@ -21,6 +19,8 @@ class BaseFlowLogListener(
     private val indexerEventService: IndexerEventService,
     private val protocolEventPublisher: ProtocolEventPublisher
 ) : FlowLogEventListener {
+
+    private val log by Log()
 
     override suspend fun onBlockLogsProcessed(blockEvent: ProcessedBlockEvent<FlowLog, FlowLogRecord<*>>) {
         blockEvent.records.filterIsInstance<ItemHistory>().asFlow().collect {
@@ -40,9 +40,5 @@ class BaseFlowLogListener(
     override suspend fun onPendingLogsDropped(logs: List<FlowLogRecord<*>>) {
         /** do nothing */
         log.warn("onPendingLogsDropped not realized yet!")
-    }
-
-    companion object {
-        val log by Log()
     }
 }
