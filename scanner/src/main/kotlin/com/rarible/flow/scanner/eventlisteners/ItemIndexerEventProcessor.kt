@@ -7,6 +7,7 @@ import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.OwnershipFilter
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.scanner.model.IndexerEvent
 import kotlinx.coroutines.flow.toList
@@ -90,6 +91,7 @@ class ItemIndexerEventProcessor(
                     protocolEventPublisher.onUpdate(o)
                 }
             }
+
         }
     }
 
