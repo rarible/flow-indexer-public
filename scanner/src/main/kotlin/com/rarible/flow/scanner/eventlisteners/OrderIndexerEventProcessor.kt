@@ -1,6 +1,7 @@
 package com.rarible.flow.scanner.eventlisteners
 
 import com.rarible.blockchain.scanner.framework.data.Source
+import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
 import com.rarible.flow.core.domain.FlowNftOrderActivityList
 import com.rarible.flow.core.domain.FlowNftOrderActivitySell
@@ -29,25 +30,31 @@ class OrderIndexerEventProcessor(
 
     private suspend fun list(event: IndexerEvent) {
         val activity = event.activity as FlowNftOrderActivityList
-        val o = orderService.list(activity)
-        if (event.source != Source.REINDEX) {
-            protocolEventPublisher.onUpdate(o)
+        withSpan("listOrderEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
+            val o = orderService.list(activity)
+            if (event.source != Source.REINDEX) {
+                protocolEventPublisher.onUpdate(o)
+            }
         }
     }
 
     private suspend fun orderClose(event: IndexerEvent) {
         val activity = event.activity as FlowNftOrderActivitySell
-        val o = orderService.close(activity)
-        if (event.source != Source.REINDEX) {
-            protocolEventPublisher.onUpdate(o)
+        withSpan("closeOrderEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
+            val o = orderService.close(activity)
+            if (event.source != Source.REINDEX) {
+                protocolEventPublisher.onUpdate(o)
+            }
         }
     }
 
     private suspend fun orderCancelled(event: IndexerEvent) {
         val activity = event.activity as FlowNftOrderActivityCancelList
-        val o = orderService.cancel(activity)
-        if (event.source != Source.REINDEX) {
-            protocolEventPublisher.onUpdate(o)
+        withSpan("cancelOrderEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
+            val o = orderService.cancel(activity)
+            if (event.source != Source.REINDEX) {
+                protocolEventPublisher.onUpdate(o)
+            }
         }
     }
 }
