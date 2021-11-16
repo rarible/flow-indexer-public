@@ -7,7 +7,6 @@ import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.OwnershipFilter
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.scanner.model.IndexerEvent
 import kotlinx.coroutines.flow.toList
@@ -46,52 +45,50 @@ class ItemIndexerEventProcessor(
         withSpan("mintItemEvent", type = "event", labels = listOf("itemId" to "${mintActivity.contract}:${mintActivity.tokenId}")) {
             val owner = FlowAddress(depositActivity.to!!)
             val creator = FlowAddress(mintActivity.owner)
-            val saved = if (event.item == null) {
-                itemRepository.insert(
-                    Item(
-                        contract = mintActivity.contract,
-                        tokenId = mintActivity.tokenId,
-                        creator = owner,
-                        royalties = mintActivity.royalties,
-                        owner = owner,
-                        mintedAt = mintActivity.timestamp,
-                        meta = objectMapper.writeValueAsString(mintActivity.metadata),
-                        collection = mintActivity.contract,
-                        updatedAt = depositActivity.timestamp
-                    )
-                ).awaitSingle()
+            val forSave = if (event.item == null) {
+                Item(
+                    contract = mintActivity.contract,
+                    tokenId = mintActivity.tokenId,
+                    creator = owner,
+                    royalties = mintActivity.royalties,
+                    owner = owner,
+                    mintedAt = mintActivity.timestamp,
+                    meta = objectMapper.writeValueAsString(mintActivity.metadata),
+                    collection = mintActivity.contract,
+                    updatedAt = depositActivity.timestamp
+                )
             } else if (event.item.mintedAt != mintActivity.timestamp) {
-                itemRepository.save(
-                    event.item.copy(
-                        mintedAt = mintActivity.timestamp,
-                        creator = creator
-                    )
-                ).awaitSingle()
+                event.item.copy(
+                    mintedAt = mintActivity.timestamp,
+                    creator = creator
+                )
+
             } else event.item
 
-            if (saved != event.item && event.source != Source.REINDEX) {
-                protocolEventPublisher.onItemUpdate(saved)
-            }
-
-            if (saved.updatedAt <= depositActivity.timestamp) {
-                //we should not have ownership records yet
-                val deleted = ownershipRepository.deleteAllByContractAndTokenId(saved.contract, saved.tokenId)
-                    .asFlow().toList()
-                val o = ownershipRepository.save(
-                    Ownership(
-                        contract = depositActivity.contract,
-                        tokenId = depositActivity.tokenId,
-                        owner = owner,
-                        creator = creator,
-                        date = depositActivity.timestamp
-                    )
-                ).awaitSingle()
+            if (forSave != event.item) {
+                val saved = itemRepository.save(forSave).awaitSingle()
                 if (event.source != Source.REINDEX) {
-                    protocolEventPublisher.onDelete(deleted)
-                    protocolEventPublisher.onUpdate(o)
+                    protocolEventPublisher.onItemUpdate(saved)
+                }
+                if (saved.updatedAt <= depositActivity.timestamp) {
+                    //we should not have ownership records yet
+                    val deleted = ownershipRepository.deleteAllByContractAndTokenId(forSave.contract, forSave.tokenId)
+                        .asFlow().toList()
+                    val o = ownershipRepository.save(
+                        Ownership(
+                            contract = depositActivity.contract,
+                            tokenId = depositActivity.tokenId,
+                            owner = owner,
+                            creator = creator,
+                            date = depositActivity.timestamp
+                        )
+                    ).awaitSingle()
+                    if (event.source != Source.REINDEX) {
+                        protocolEventPublisher.onDelete(deleted)
+                        protocolEventPublisher.onUpdate(o)
+                    }
                 }
             }
-
         }
     }
 
