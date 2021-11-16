@@ -31,7 +31,7 @@ pipeline {
             steps {
                 sh './gradlew build -x test --no-daemon --info'
                 script {
-                    env.IMAGE_TAG = "${env.GIT_BRANCH.replace("/", "_")}-1.0.${env.BUILD_NUMBER}"
+                    env.IMAGE_TAG = "${env.GIT_BRANCH.replace("/", "_")}-${env.BUILD_NUMBER}"
                     env.VERSION = "${env.IMAGE_TAG}"
                     env.BRANCH_NAME = "${env.GIT_BRANCH}"
                 }
@@ -57,7 +57,7 @@ pipeline {
         stage("deploy to staging") {
             agent any
             when {
-                anyOf { branch 'release/*'; branch 'origin/release/*' }
+                anyOf { branch 'release/*'; branch 'origin/release/*' ; branch 'hotfix/*'; branch 'origin/hotfix/*'}
                 beforeAgent true
             }
             environment {
