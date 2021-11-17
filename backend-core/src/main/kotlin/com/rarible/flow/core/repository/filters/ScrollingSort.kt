@@ -13,7 +13,7 @@ interface ScrollingSort<T> {
         Query
             .query(this.scroll(filter.criteria(), continuation))
             .with(this.springSort())
-            .limit(limit ?: DEFAULT_LIMIT)
+            .limit(pageSize(limit))
 
     fun nextPage(entity: T): String
 
@@ -25,8 +25,8 @@ interface ScrollingSort<T> {
         }
     }
 
-    suspend fun nextPage(entities: Flow<T>, size: Int?): String? {
-        val expectedCount = size ?: DEFAULT_LIMIT
+    suspend fun nextPage(entities: Flow<T>, limit: Int?): String? {
+        val expectedCount = pageSize(limit)
         return if(entities.count() < expectedCount) {
              null
         } else nextPageSafe(entities.lastOrNull())
@@ -34,5 +34,14 @@ interface ScrollingSort<T> {
 
     companion object {
         const val DEFAULT_LIMIT = 50
+        const val MAX_LIMIT = 1000
+
+        fun pageSize(incomingSize: Int?): Int {
+            return when {
+                incomingSize == null || incomingSize < 0 -> DEFAULT_LIMIT
+                incomingSize > MAX_LIMIT -> MAX_LIMIT
+                else -> incomingSize
+            }
+        }
     }
 }
