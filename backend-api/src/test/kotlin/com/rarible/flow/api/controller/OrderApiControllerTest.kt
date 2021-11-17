@@ -23,6 +23,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @WebFluxTest(
     controllers = [OrderApiController::class],
@@ -275,7 +276,9 @@ class OrderApiControllerTest {
                 BigDecimal.TEN
             ),
             makeStock = BigInteger.TEN,
-            lastUpdatedAt = LocalDateTime.now()
+            lastUpdatedAt = LocalDateTime.now(ZoneOffset.UTC),
+            createdAt = LocalDateTime.now(ZoneOffset.UTC),
+
         )
         return order
     }
