@@ -16,43 +16,8 @@ import kotlin.reflect.KProperty
 
 const val DEFAULT_LIMIT: Int = 50
 
-@Deprecated("Should be removed in favor of Cont class and functions")
-sealed interface Continuation
-
-data class OwnershipContinuation(
-    val beforeDate: Instant,
-    val beforeId: OwnershipId
-) : Continuation {
-
-    override fun toString(): String {
-        return "${beforeDate.epochSecond}_${beforeId}"
-    }
-
-    companion object {
-        /**
-         * Create continuation from string, like "Instant.epochSeconds_OwnershipId"
-         *
-         */
-        fun of(continuation: String?): OwnershipContinuation? {
-            if (continuation.isNullOrEmpty()) {
-                return null
-            }
-
-            return if (continuation.contains("_")) {
-                val (dateStr, ownershipId) = continuation.split("_")
-                OwnershipContinuation(
-                    beforeDate = Instant.ofEpochSecond(dateStr.toLong()),
-                    beforeId = OwnershipId.parse(ownershipId)
-                )
-            } else {
-                null
-            }
-        }
-    }
-}
-
-//todo rename to a general continuation
-data class ActivityContinuation(val beforeDate: Instant, val beforeId: String): Continuation {
+//todo try to get rid
+data class ActivityContinuation(val beforeDate: Instant, val beforeId: String) {
 
     override fun toString(): String = "${beforeDate.toEpochMilli()}_$beforeId"
 
