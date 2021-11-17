@@ -206,7 +206,7 @@ class NftOrderItemControllerTest {
                 payouts = listOf(), originalFees = listOf()
             ),
             collection = item.collection,
-
+            createdAt = LocalDateTime.now(ZoneOffset.UTC)
         )
 
         orderRepository.saveAll(
@@ -276,6 +276,7 @@ class NftOrderItemControllerTest {
                 BigDecimal.TEN
             ),
             makeStock = BigInteger.TEN,
+            createdAt = LocalDateTime.now(ZoneOffset.UTC)
         )
 
         orderRepository.saveAll(

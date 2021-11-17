@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.domain.Sort as SpringSort
 
-sealed class OrderFilter(): CriteriaProduct<OrderFilter> {
+sealed class OrderFilter : CriteriaProduct<OrderFilter> {
     enum class Sort: ScrollingSort<Order> {
         LATEST_FIRST {
             override fun springSort(): SpringSort = SpringSort.by(

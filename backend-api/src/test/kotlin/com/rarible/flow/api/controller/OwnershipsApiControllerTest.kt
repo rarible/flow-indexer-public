@@ -122,7 +122,6 @@ class OwnershipsApiControllerTest {
                     val list = it.responseBody!!
                     Assertions.assertTrue(list.ownerships.isNotEmpty())
                     Assertions.assertTrue(list.ownerships.size == 3)
-                    Assertions.assertNotNull(list.continuation)
                     Assertions.assertNotNull(list.total)
                     Assertions.assertEquals(list.total, list.ownerships.size.toLong())
                 }
@@ -239,7 +238,6 @@ class OwnershipsApiControllerTest {
                 .consumeWith { response ->
                     Assertions.assertNotNull(response.responseBody)
                     val ownershipsDto = response.responseBody!!
-                    Assertions.assertNotNull(ownershipsDto.continuation)
                     Assertions.assertNotNull(ownershipsDto.total)
                     Assertions.assertEquals(ownershipsDto.total, ownershipsDto.ownerships.size.toLong())
                 }.returnResult().responseBody!!
@@ -251,7 +249,6 @@ class OwnershipsApiControllerTest {
                 .consumeWith { response ->
                     Assertions.assertNotNull(response.responseBody)
                     val oneOwnershipsDto = response.responseBody!!
-                    Assertions.assertNotNull(oneOwnershipsDto.continuation)
                     Assertions.assertNotNull(oneOwnershipsDto.total)
                     Assertions.assertEquals(oneOwnershipsDto.total, oneOwnershipsDto.ownerships.size.toLong())
                     Assertions.assertEquals(allOwnerships.ownerships[0].id, oneOwnershipsDto.ownerships[0].id)
@@ -265,7 +262,6 @@ class OwnershipsApiControllerTest {
                         .consumeWith { nextResponse ->
                             Assertions.assertNotNull(nextResponse.responseBody)
                             val nextOwnershipsDto = nextResponse.responseBody!!
-                            Assertions.assertNotNull(nextOwnershipsDto.continuation)
                             Assertions.assertNotNull(nextOwnershipsDto.total)
                             Assertions.assertEquals(nextOwnershipsDto.total, nextOwnershipsDto.ownerships.size.toLong())
 
@@ -281,7 +277,6 @@ class OwnershipsApiControllerTest {
                         .consumeWith { nextResponse ->
                             Assertions.assertNotNull(nextResponse.responseBody)
                             val nextOwnershipsDto = nextResponse.responseBody!!
-                            Assertions.assertNotNull(nextOwnershipsDto.continuation)
                             Assertions.assertNotNull(nextOwnershipsDto.total)
                             Assertions.assertEquals(nextOwnershipsDto.total, nextOwnershipsDto.ownerships.size.toLong())
 

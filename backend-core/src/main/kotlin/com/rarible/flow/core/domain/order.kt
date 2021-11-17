@@ -2,7 +2,6 @@ package com.rarible.flow.core.domain
 
 
 import com.nftco.flow.sdk.FlowAddress
-import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.mapping.FieldType
@@ -10,22 +9,10 @@ import org.springframework.data.mongodb.core.mapping.MongoId
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 const val ORDER_COLLECTION = "order"
 
-@Document(collection = ORDER_COLLECTION)
-sealed class BaseOrder(
-    @MongoId
-    val id: Long,
 
-    val data: OrderData,
-
-    val createdAt: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC),
-
-    @field:LastModifiedDate
-    var lastUpdatedAt: LocalDateTime? = null,
-)
 
 /**
  * Description of an order
@@ -58,7 +45,7 @@ data class Order(
     val cancelled: Boolean = false,
     val data: OrderData,
 
-    val createdAt: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC),
+    val createdAt: LocalDateTime,
     var lastUpdatedAt: LocalDateTime? = null,
     val collection: String,
     val makeStock: BigInteger,

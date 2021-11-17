@@ -1,6 +1,8 @@
 package com.rarible.flow.scanner.eventlisteners
 
 import com.rarible.blockchain.scanner.framework.data.Source
+import com.rarible.flow.core.domain.FlowActivityType
+import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
 import com.rarible.flow.core.domain.FlowNftOrderActivityList
 import com.rarible.flow.core.domain.FlowNftOrderActivitySell
@@ -15,39 +17,46 @@ class OrderIndexerEventProcessor(
     private val protocolEventPublisher: ProtocolEventPublisher,
 ): IndexerEventsProcessor {
 
-    override fun isSupported(event: IndexerEvent): Boolean = event.activity is FlowNftOrderActivityList ||
-            event.activity is FlowNftOrderActivitySell || event.activity is FlowNftOrderActivityCancelList
+    private val supportedTypes = arrayOf(FlowActivityType.LIST, FlowActivityType.SELL, FlowActivityType.CANCEL_LIST)
+
+    override fun isSupported(event: IndexerEvent): Boolean = event.activityType() in supportedTypes
 
     override suspend fun process(event: IndexerEvent) {
-        when(event.activity) {
-            is FlowNftOrderActivityList -> list(event)
-            is FlowNftOrderActivitySell -> orderClose(event)
-            is FlowNftOrderActivityCancelList -> orderCancelled(event)
-            else -> throw IllegalStateException("Unsupported order event! [${event.activity::class.simpleName}]")
+        when(event.activityType()) {
+            FlowActivityType.LIST -> list(event)
+            FlowActivityType.SELL -> orderClose(event)
+            FlowActivityType.CANCEL_LIST -> orderCancelled(event)
+            else -> throw IllegalStateException("Unsupported order event! [${event.activityType()}]")
         }
     }
 
     private suspend fun list(event: IndexerEvent) {
-        val activity = event.activity as FlowNftOrderActivityList
-        val o = orderService.list(activity)
-        if (event.source != Source.REINDEX) {
-            protocolEventPublisher.onUpdate(o)
+        val activity = event.history.first().activity as FlowNftOrderActivityList
+        withSpan("listOrderEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
+            val o = orderService.list(activity)
+            if (event.source != Source.REINDEX) {
+                protocolEventPublisher.onUpdate(o)
+            }
         }
     }
 
     private suspend fun orderClose(event: IndexerEvent) {
-        val activity = event.activity as FlowNftOrderActivitySell
-        val o = orderService.close(activity)
-        if (event.source != Source.REINDEX) {
-            protocolEventPublisher.onUpdate(o)
+        val activity = event.history.first().activity as FlowNftOrderActivitySell
+        withSpan("closeOrderEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
+            val o = orderService.close(activity)
+            if (event.source != Source.REINDEX) {
+                protocolEventPublisher.onUpdate(o)
+            }
         }
     }
 
     private suspend fun orderCancelled(event: IndexerEvent) {
-        val activity = event.activity as FlowNftOrderActivityCancelList
-        val o = orderService.cancel(activity)
-        if (event.source != Source.REINDEX) {
-            protocolEventPublisher.onUpdate(o)
+        val activity = event.history.first().activity as FlowNftOrderActivityCancelList
+        withSpan("cancelOrderEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
+            val o = orderService.cancel(activity)
+            if (event.source != Source.REINDEX) {
+                protocolEventPublisher.onUpdate(o)
+            }
         }
     }
 }

@@ -2,10 +2,11 @@ package com.rarible.flow.scanner.service
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -15,7 +16,8 @@ import java.time.ZoneOffset
 
 @Service
 class OrderService(
-    val orderRepository: OrderRepository
+    val orderRepository: OrderRepository,
+    val itemRepository: ItemRepository,
 ) {
 
     suspend fun list(activity: FlowNftOrderActivityList): Order {
@@ -25,6 +27,11 @@ class OrderService(
         val payouts = activity.payments
             .filter { it.type in setOf(PaymentType.ROYALTY, PaymentType.OTHER, PaymentType.REWARD) }
             .map { Payout(FlowAddress(it.address), it.amount) } //TODO replace amount with share
+        val status = suspend {
+            val item = (activity.make as? FlowAssetNFT)
+                ?.let { itemRepository.coFindById(ItemId(it.contract, it.tokenId)) }
+            if (item?.owner?.formatted != activity.maker) OrderStatus.INACTIVE else OrderStatus.ACTIVE
+        }
 
         val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
             itemId = ItemId(activity.make.contract, activity.tokenId),
@@ -39,7 +46,7 @@ class OrderService(
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
         ) ?: Order(
             id = activity.hash.toLong(),
-            status = OrderStatus.ACTIVE,
+            status = status(),
             itemId = ItemId(activity.make.contract, activity.tokenId),
             maker = FlowAddress(activity.maker),
             make = activity.make,
@@ -69,7 +76,7 @@ class OrderService(
             makeStock = BigInteger.ZERO,
             taker = FlowAddress(activity.right.maker),
             status = OrderStatus.FILLED,
-
+            createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             maker = FlowAddress(activity.left.maker),
             itemId = ItemId(activity.left.asset.contract, activity.tokenId),
             amount = activity.price,
@@ -93,7 +100,7 @@ class OrderService(
             id = activity.hash.toLong(),
             cancelled = true,
             status = OrderStatus.CANCELLED,
-
+            createdAt =  LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             itemId = ItemId(activity.make.contract, activity.tokenId),
             amount = activity.price,
             collection = activity.contract,
@@ -108,7 +115,7 @@ class OrderService(
         return orderRepository.coSave(order)
     }
 
-    fun deactivateOrdersByItem(item: Item, before: LocalDateTime): Flow<Order> {
+    suspend fun deactivateOrdersByItem(item: Item, before: LocalDateTime): List<Order> {
         return orderRepository
             .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
                 FlowAssetNFT(item.contract, 1.toBigDecimal(), item.tokenId),
@@ -119,10 +126,10 @@ class OrderService(
             .flatMap {
                 orderRepository.save(it.copy(status = OrderStatus.INACTIVE))
             }
-            .asFlow()
+            .asFlow().toList()
     }
 
-    fun restoreOrdersForItem(item: Item, before: LocalDateTime): Flow<Order> = orderRepository
+    suspend fun restoreOrdersForItem(item: Item, before: LocalDateTime): List<Order> = orderRepository
         .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
             FlowAssetNFT(item.contract, BigDecimal.ONE, item.tokenId),
             item.owner!!,
@@ -132,5 +139,5 @@ class OrderService(
         .flatMap {
             orderRepository.save(it.copy(status = OrderStatus.ACTIVE))
         }
-        .asFlow()
+        .asFlow().toList()
 }
