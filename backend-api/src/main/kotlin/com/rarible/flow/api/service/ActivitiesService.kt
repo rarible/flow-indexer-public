@@ -267,7 +267,7 @@ class ActivitiesService(
     }
 
     private fun defaultQuery(limit: Int?): Query = if (limit == null) {
-        Query().limit(DEFAULT_LIMIT * 2)
+        Query().limit(DEFAULT_LIMIT * 4)
     } else Query().limit(limit + DEFAULT_LIMIT)
 
     private fun defaultSort(sort: String): Sort = when (sort) {
