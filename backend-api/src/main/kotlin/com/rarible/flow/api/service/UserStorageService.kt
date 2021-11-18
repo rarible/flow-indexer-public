@@ -33,6 +33,7 @@ class UserStorageService(
     private val log: Logger = LoggerFactory.getLogger(UserStorageService::class.java)
 
     suspend fun scanNFT(address: FlowAddress) {
+        log.info("Scan user NFT's for address ${address.formatted}")
         val builder = JsonCadenceBuilder()
         val response =
             scriptExecutor.execute(scriptText("/script/all_nft_ids.cdc"), mutableListOf(builder.address(address.bytes)))
@@ -189,6 +190,7 @@ class UserStorageService(
                 }
             }
         }
+        log.info("Scan NFT's for address [${address.formatted}] complete!")
     }
 
     private fun contractAddress(alias: String): FlowAddress {
