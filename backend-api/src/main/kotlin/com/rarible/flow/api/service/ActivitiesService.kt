@@ -1,15 +1,26 @@
 package com.rarible.flow.api.service
 
 import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.BaseActivity
+import com.rarible.flow.core.domain.BurnActivity
+import com.rarible.flow.core.domain.DepositActivity
+import com.rarible.flow.core.domain.FlowActivityType
+import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.core.domain.WithdrawnActivity
 import com.rarible.flow.core.repository.ActivityContinuation
-import com.rarible.flow.core.repository.DEFAULT_LIMIT
+import com.rarible.flow.core.repository.filters.ScrollingSort
 import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
 import com.rarible.protocol.dto.FlowTransferDto
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flattenConcat
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.data.domain.Sort
@@ -266,9 +277,9 @@ class ActivitiesService(
         }
     }
 
-    private fun defaultQuery(limit: Int?): Query = if (limit == null) {
-        Query().limit(DEFAULT_LIMIT * 4)
-    } else Query().limit(limit + DEFAULT_LIMIT)
+    private fun defaultQuery(limit: Int?): Query = Query().limit(
+        ScrollingSort.Companion.pageSize(limit) * 3
+    )
 
     private fun defaultSort(sort: String): Sort = when (sort) {
         "EARLIEST_FIRST" -> Sort.by(Sort.Direction.ASC, "date", "log.transactionHash", "log.eventIndex")
@@ -322,7 +333,7 @@ class ActivitiesService(
         sort: String,
     ): FlowActivitiesDto {
         val items = flow.toList()
-        val limit = size ?: DEFAULT_LIMIT
+        val limit = ScrollingSort.Companion.pageSize(size)
         val dto = convertToDto(items, sort).take(limit)
         val continuation =
             if (items.size <= limit) null else if (items.size >= dto.size && dto.size < limit) null else answerContinuation(

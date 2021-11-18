@@ -14,8 +14,6 @@ import java.time.ZoneOffset
 import kotlin.reflect.KProperty
 
 
-const val DEFAULT_LIMIT: Int = 50
-
 //todo try to get rid
 data class ActivityContinuation(val beforeDate: Instant, val beforeId: String) {
 
