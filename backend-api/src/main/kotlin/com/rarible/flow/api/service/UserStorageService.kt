@@ -228,7 +228,7 @@ class UserStorageService(
             .forEach { protocolEventPublisher.onDelete(it) }
         val o = ownershipRepository.findById(item.ownershipId(to)).awaitSingleOrNull()
             ?: Ownership(item.ownershipId(to), item.creator)
-        protocolEventPublisher.onUpdate(o)
+        protocolEventPublisher.onUpdate(ownershipRepository.save(o).awaitSingle())
     }
 
     private fun scriptText(resourcePath: String): String {
