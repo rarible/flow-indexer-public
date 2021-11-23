@@ -30,6 +30,9 @@ import org.springframework.test.context.ContextConfiguration
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
 internal class DeduplicateOwnershipsTest {
+
+    private val logger by Log()
+
     @Autowired
     lateinit var itemRepository: ItemRepository
 
@@ -52,9 +55,5 @@ internal class DeduplicateOwnershipsTest {
         logger.info("Result: {}", result)
 
         mongoTemplate.findAll<Ownership>("ownership_fix").collectList().block()!! shouldHaveSize 100
-    }
-
-    companion object {
-        val logger by Log()
     }
 }

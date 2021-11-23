@@ -66,9 +66,9 @@ class ChangeLog00009DeduplicateOwnerships(
     }
 
     companion object {
-        const val OLD_COLLECTION = "ownership_old"
-        const val NEW_COLLECTION = "ownership_fix"
-        const val OWNERSHIP = "ownership"
+        private const val OLD_COLLECTION = "ownership_old"
+        private const val NEW_COLLECTION = "ownership_fix"
+        private const val OWNERSHIP = "ownership"
 
         const val migrationCommand = "{" +
                 "    \"aggregate\": \"item\"," +
@@ -92,7 +92,7 @@ class ChangeLog00009DeduplicateOwnerships(
                 "    \"cursor\": {}" +
                 "}"
 
-        val log by Log()
+        private val log by Log()
 
 
     }
