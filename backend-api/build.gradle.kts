@@ -20,6 +20,7 @@ dependencies {
     implementation(rootProject.libs.rarible.core.logging)
     implementation(rootProject.libs.rarible.core.kafka)
     implementation(rootProject.libs.blockchain.scanner.model)
+    implementation(rootProject.libs.rarible.currency.starer)
     api("com.querydsl:querydsl-mongodb:5.0.0")
 }
 

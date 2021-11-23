@@ -18,8 +18,4 @@ import org.springframework.context.annotation.Configuration
 @EnableFlowBlockchainScanner
 class Config {
 
-    @Bean
-    fun currencyApi(factory: CurrencyApiClientFactory): CurrencyControllerApi {
-        return factory.createCurrencyApiClient()
-    }
 }
