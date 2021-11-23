@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.ZoneOffset
 
-@Component
+
 class OrderToDtoConverter(
     private val currencyApi: CurrencyControllerApi
 ) {
@@ -35,7 +35,7 @@ class OrderToDtoConverter(
             amount = source.amount,
             offeredNftId = "", //TODO not needed
             data = convert(source.data),
-            priceUsd = priceUsd.rate,
+            priceUsd = priceUsd.rate * source.take.value,
             collection = source.collection,
             makeStock = source.makeStock,
             status = convert(source.status)

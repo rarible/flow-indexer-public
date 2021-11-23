@@ -6,6 +6,9 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.flow.api.service.FlowSignatureService
 import com.rarible.flow.core.config.AppProperties
+import com.rarible.flow.core.converter.OrderToDtoConverter
+import com.rarible.protocol.currency.api.client.CurrencyApiClientFactory
+import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -47,5 +50,15 @@ class Config(
         }
 
         Flow.configureDefaults(chainId = appProperties.chainId)
+    }
+
+    @Bean
+    fun currencyApi(factory: CurrencyApiClientFactory): CurrencyControllerApi {
+        return factory.createCurrencyApiClient()
+    }
+
+    @Bean
+    fun orderToDtoConverter(currencyApi: CurrencyControllerApi): OrderToDtoConverter {
+        return OrderToDtoConverter(currencyApi)
     }
 }

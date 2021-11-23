@@ -70,27 +70,26 @@ class ChangeLog00009DeduplicateOwnerships(
         private const val NEW_COLLECTION = "ownership_fix"
         private const val OWNERSHIP = "ownership"
 
-        const val migrationCommand = "{" +
-                "    \"aggregate\": \"item\"," +
-                "    \"pipeline\": [{" +
-                "        \"\$project\": {" +
-                "            \"_id\": {" +
-                "                \"\$concat\": [" +
-                "                    \"\$_id\", \":\", \"\$owner\"" +
-                "                ]" +
-                "            }," +
-                "            \"contract\": \"\$contract\"," +
-                "            \"tokenId\": \"\$tokenId\"," +
-                "            \"owner\": \"\$owner\"," +
-                "            \"creator\": \"\$creator\"," +
-                "            \"date\": \"\$mintedAt\"," +
-                "            \"_class\": \"com.rarible.flow.core.domain.Ownership\"" +
-                "        }" +
-                "    }, {" +
-                "        \"\$out\": \"ownership_fix\"" +
-                "    }]," +
-                "    \"cursor\": {}" +
-                "}"
+        const val migrationCommand = """{    
+                "aggregate": "item",
+                "pipeline": [{
+                    "${'$'}project": {
+                        "_id": {
+                            "${'$'}concat": ["${'$'}_id", ":", "${'$'}owner"]
+                        },
+                        "contract": "${'$'}contract",
+                        "tokenId": "${'$'}tokenId",
+                        "owner": "${'$'}owner",
+                        "creator": "${'$'}creator",
+                        "date": "${'$'}mintedAt",
+                        "_class": "com.rarible.flow.core.domain.Ownership"
+                    }
+                },
+                {
+                    "${'$'}out": "ownership_fix"
+                }],
+                "cursor": {}
+            }"""
 
         private val log by Log()
 
