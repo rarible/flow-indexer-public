@@ -2,6 +2,7 @@ package com.rarible.flow.scanner.eventlisteners
 
 import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.core.apm.withSpan
+import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
 import com.rarible.flow.core.domain.FlowNftOrderActivityList
 import com.rarible.flow.core.domain.FlowNftOrderActivitySell
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component
 class OrderIndexerEventProcessor(
     private val orderService: OrderService,
     private val protocolEventPublisher: ProtocolEventPublisher,
+    private val orderConverter: OrderToDtoConverter
 ): IndexerEventsProcessor {
 
     override fun isSupported(event: IndexerEvent): Boolean = event.activity is FlowNftOrderActivityList ||
@@ -33,7 +35,7 @@ class OrderIndexerEventProcessor(
         withSpan("listOrderEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val o = orderService.list(activity)
             if (event.source != Source.REINDEX) {
-                protocolEventPublisher.onUpdate(o)
+                protocolEventPublisher.onOrderUpdate(o, orderConverter)
             }
         }
     }
@@ -43,7 +45,7 @@ class OrderIndexerEventProcessor(
         withSpan("closeOrderEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val o = orderService.close(activity)
             if (event.source != Source.REINDEX) {
-                protocolEventPublisher.onUpdate(o)
+                protocolEventPublisher.onOrderUpdate(o, orderConverter)
             }
         }
     }
@@ -53,7 +55,7 @@ class OrderIndexerEventProcessor(
         withSpan("cancelOrderEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val o = orderService.cancel(activity)
             if (event.source != Source.REINDEX) {
-                protocolEventPublisher.onUpdate(o)
+                protocolEventPublisher.onOrderUpdate(o, orderConverter)
             }
         }
     }

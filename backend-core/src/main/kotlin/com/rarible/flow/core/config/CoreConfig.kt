@@ -2,8 +2,11 @@ package com.rarible.flow.core.config
 
 import com.rarible.flow.core.converter.FlowConversions
 import com.rarible.flow.core.converter.ItemIdConversions
+import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.converter.OwnershipIdConversions
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
+import com.rarible.protocol.currency.api.client.CurrencyApiClientFactory
+import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -35,4 +38,14 @@ class CoreConfig(
         GatewayEventsProducers.ordersUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
         GatewayEventsProducers.activitiesUpdates(appProperties.environment, appProperties.kafkaReplicaSet)
     )
+
+    @Bean
+    fun currencyApi(factory: CurrencyApiClientFactory): CurrencyControllerApi {
+        return factory.createCurrencyApiClient()
+    }
+
+    @Bean
+    fun orderToDtoConverter(currencyApi: CurrencyControllerApi): OrderToDtoConverter {
+        return OrderToDtoConverter(currencyApi)
+    }
 }
