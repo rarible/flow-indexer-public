@@ -39,13 +39,4 @@ class CoreConfig(
         GatewayEventsProducers.activitiesUpdates(appProperties.environment, appProperties.kafkaReplicaSet)
     )
 
-    @Bean
-    fun currencyApi(factory: CurrencyApiClientFactory): CurrencyControllerApi {
-        return factory.createCurrencyApiClient()
-    }
-
-    @Bean
-    fun orderToDtoConverter(currencyApi: CurrencyControllerApi): OrderToDtoConverter {
-        return OrderToDtoConverter(currencyApi)
-    }
 }

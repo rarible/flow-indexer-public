@@ -7,6 +7,8 @@ import com.rarible.flow.core.domain.OrderData
 import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.domain.Payout
 import com.rarible.flow.core.repository.data
+import com.rarible.protocol.currency.api.client.CurrencyControllerApi
+import com.rarible.protocol.currency.dto.CurrencyRateDto
 import com.rarible.protocol.dto.FlowAssetFungibleDto
 import com.rarible.protocol.dto.FlowAssetNFTDto
 import com.rarible.protocol.dto.FlowOrderDataDto
@@ -17,22 +19,34 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
+import reactor.core.publisher.Mono
+import java.time.Instant
 
 internal class OrderToDtoConverterTest: FunSpec({
+
+    val currencyApi = mockk<CurrencyControllerApi>() {
+        every { getCurrencyRate(any(), any(), any()) } returns Mono.just(
+            CurrencyRateDto("FLOW", "USD", 10.toBigDecimal(), Instant.now())
+        )
+    }
+
+    val converter = OrderToDtoConverter(currencyApi)
 
     test("should convert empty order data") {
         val orderData = OrderData(
             emptyList(), emptyList()
         )
 
-        OrderToDtoConverter.convert(orderData) shouldBe FlowOrderDataDto(emptyList(), emptyList())
+        converter.convert(orderData) shouldBe FlowOrderDataDto(emptyList(), emptyList())
     }
 
     test("should convert status") {
         forAll(
             *OrderStatus.values()
         ) { status ->
-            OrderToDtoConverter.convert(status) shouldBe when(status) {
+            converter.convert(status) shouldBe when(status) {
                 OrderStatus.ACTIVE -> FlowOrderStatusDto.ACTIVE
                 OrderStatus.FILLED -> FlowOrderStatusDto.FILLED
                 OrderStatus.HISTORICAL -> FlowOrderStatusDto.HISTORICAL
@@ -54,7 +68,7 @@ internal class OrderToDtoConverterTest: FunSpec({
             )
         )
 
-        OrderToDtoConverter.convert(orderData) should { od: FlowOrderDataDto ->
+        converter.convert(orderData) should { od: FlowOrderDataDto ->
             od.originalFees shouldContainAll listOf(
                 PayInfoDto(FlowAddress("0x01").formatted, 75.toBigDecimal()),
                 PayInfoDto(FlowAddress("0x02").formatted, 25.toBigDecimal())
@@ -68,13 +82,13 @@ internal class OrderToDtoConverterTest: FunSpec({
     }
 
     test("should convert NFT asset") {
-        OrderToDtoConverter.convert(
+        converter.convert(
             FlowAssetNFT("A.B.C", 1.toBigDecimal(), 1337L)
         ) shouldBe FlowAssetNFTDto("A.B.C", 1.toBigDecimal(), 1337L.toBigInteger())
     }
 
     test("should convert fungible asset") {
-        OrderToDtoConverter.convert(
+        converter.convert(
             FlowAssetFungible("A.B.C", 10.25.toBigDecimal())
         ) shouldBe FlowAssetFungibleDto("A.B.C", 10.25.toBigDecimal())
     }
@@ -82,7 +96,7 @@ internal class OrderToDtoConverterTest: FunSpec({
     test("should convert order without taker") {
         val order = data.createOrder()
 
-        OrderToDtoConverter.convert(order) should { o ->
+        converter.convert(order) should { o ->
             o.id shouldBe order.id
             o.itemId shouldBe "0x0000000000000001:1"
             o.taker shouldBe null
@@ -93,11 +107,12 @@ internal class OrderToDtoConverterTest: FunSpec({
     test("should convert order with taker") {
         val order = data.createOrder().copy(taker = FlowAddress("0x1337"))
 
-        OrderToDtoConverter.convert(order) should { o ->
+        converter.convert(order) should { o ->
             o.id shouldBe order.id
             o.itemId shouldBe "0x0000000000000001:1"
             o.taker shouldBe "0x0000000000001337"
             o.fill shouldBe 13.37.toBigDecimal()
+            o.priceUsd shouldBe 100.toBigDecimal()
         }
     }
 
