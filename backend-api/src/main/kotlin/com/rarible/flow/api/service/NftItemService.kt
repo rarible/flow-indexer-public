@@ -5,7 +5,6 @@ import com.rarible.flow.core.converter.ItemMetaToDtoConverter
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.repository.Cont
 import com.rarible.flow.core.repository.ItemFilter
 import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
@@ -15,7 +14,6 @@ import com.rarible.protocol.dto.FlowNftItemsDto
 import com.rarible.protocol.dto.MetaDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -48,7 +46,7 @@ class NftItemService(
 
     suspend fun getItemById(itemId: String): FlowNftItemDto? {
         return itemRepository.coFindById(ItemId.parse(itemId))?.let {
-            convertItem(it)
+            convertItem(it, fillMeta(it.id))
         }
     }
 
@@ -62,19 +60,22 @@ class NftItemService(
     }
 
     private suspend fun convert(items: Flow<Item>, sort: ItemFilter.Sort, size: Int?): FlowNftItemsDto {
-        return if(items.count() == 0) {
+        return if (items.count() == 0) {
             FlowNftItemsDto(0, null, emptyList())
         } else {
+            val meta = itemMetaRepository.findAllByItemIdIn(items.map { it.id }.toList()).asFlow().toList()
+                .associateBy { it.itemId }
+                .mapValues { ItemMetaToDtoConverter.convert(it.value) }
             FlowNftItemsDto(
                 continuation = sort.nextPage(items, size),
-                items = items.map { convertItem(it) }.toList(),
+                items = items.map { convertItem(it, meta[it.id]) }.toList(),
                 total = items.count().toLong()
             )
         }
     }
 
-    private suspend fun convertItem(item: Item): FlowNftItemDto {
-        return ItemToDtoConverter.convert(item).copy(meta = fillMeta(item.id))
+    private suspend fun convertItem(item: Item, metaDto: MetaDto?): FlowNftItemDto {
+        return ItemToDtoConverter.convert(item).copy(meta = metaDto)
     }
 
     private suspend fun fillMeta(id: ItemId): MetaDto? {
