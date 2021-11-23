@@ -19,16 +19,16 @@ sealed class ItemFilter(open val sort: Sort = Sort.LAST_UPDATE) : CriteriaProduc
         LAST_UPDATE {
             override fun springSort(): SpringSort =
                 SpringSort.by(
-                    SpringSort.Order.desc(Item::mintedAt.name),
+                    SpringSort.Order.desc(Item::updatedAt.name),
                     SpringSort.Order.desc(Item::id.name)
                 )
 
             override fun scroll(criteria: Criteria, continuation: String?): Criteria =
-                Cont.scrollDesc(criteria, continuation, Item::mintedAt, Item::id)
+                Cont.scrollDesc(criteria, continuation, Item::updatedAt, Item::id)
 
 
             override fun nextPage(entity: Item): String =
-                Cont.toString(entity.mintedAt, entity.id)
+                Cont.toString(entity.updatedAt, entity.id)
         }
     }
 

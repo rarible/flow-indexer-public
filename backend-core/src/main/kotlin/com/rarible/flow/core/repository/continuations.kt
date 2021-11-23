@@ -4,8 +4,11 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.OwnershipId
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.gt
+import org.springframework.data.mongodb.core.query.gte
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.mongodb.core.query.lt
+import org.springframework.data.mongodb.core.query.lte
+import org.springframework.data.mongodb.core.query.ne
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
@@ -45,7 +48,8 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
         secondaryProp: KProperty<P2>
     ): Criteria
 
-    data class AscCont<P1, P2>(override val primary: P1, override val secondary: P2): Cont<P1, P2>(primary, secondary) {
+    data class AscCont<P1, P2>(override val primary: P1, override val secondary: P2) :
+        Cont<P1, P2>(primary, secondary) {
         override fun invoke(criteria: Criteria, primaryProp: KProperty<P1>, secondaryProp: KProperty<P2>): Criteria {
             return criteria.orOperator(
                 primaryProp gt primary,
@@ -57,7 +61,8 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
         }
     }
 
-    data class DescCont<P1, P2>(override val primary: P1, override val secondary: P2): Cont<P1, P2>(primary, secondary) {
+    data class DescCont<P1, P2>(override val primary: P1, override val secondary: P2) :
+        Cont<P1, P2>(primary, secondary) {
         override fun invoke(criteria: Criteria, primaryProp: KProperty<P1>, secondaryProp: KProperty<P2>): Criteria {
             return criteria.orOperator(
                 primaryProp lt primary,
@@ -107,7 +112,7 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
             criteria: Criteria, continuation: String?,
             primary: KProperty<P1>, secondary: KProperty<P2>
         ): Criteria {
-            return if(continuation == null) {
+            return if (continuation == null) {
                 criteria
             } else {
                 asc<P1, P2>(continuation)(criteria, primary, secondary)
@@ -118,7 +123,7 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
             criteria: Criteria, continuation: String?,
             primary: KProperty<P1>, secondary: KProperty<P2>
         ): Criteria {
-            return if(continuation == null) {
+            return if (continuation == null) {
                 criteria
             } else {
                 desc<P1, P2>(continuation)(criteria, primary, secondary)
@@ -132,7 +137,7 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
         }
 
         inline fun <reified P> toString(property: P): String {
-            return when(P::class) {
+            return when (P::class) {
                 Instant::class -> (property as Instant).toEpochMilli().toString()
                 LocalDateTime::class -> (property as LocalDateTime).toInstant(ZoneOffset.UTC).toEpochMilli().toString()
                 else -> property.toString()

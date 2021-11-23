@@ -4,7 +4,12 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.api.config.Config
 import com.rarible.flow.core.config.CoreConfig
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderData
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.randomAddress
@@ -96,7 +101,7 @@ class NftOrderItemControllerTest {
                 Assertions.assertTrue(itemsDto.items.isNotEmpty())
                 Assertions.assertTrue(itemsDto.items.size == 3)
 
-                val sorted = itemsDto.items.sortedByDescending(FlowNftItemDto::mintedAt).sortedByDescending(FlowNftItemDto::id)
+                val sorted = itemsDto.items.sortedByDescending(FlowNftItemDto::lastUpdatedAt).sortedByDescending(FlowNftItemDto::id)
                     .toList()
                 Assertions.assertArrayEquals(sorted.toTypedArray(), itemsDto.items.toTypedArray())
             }
@@ -118,7 +123,7 @@ class NftOrderItemControllerTest {
 
                 Assertions.assertEquals(44L, lastItem.tokenId.toLong())
 
-                val cont = "${lastItem.mintedAt.toEpochMilli()}_${lastItem.id}"
+                val cont = "${lastItem.lastUpdatedAt.toEpochMilli()}_${lastItem.id}"
 
                 Assertions.assertEquals(cont, itemsDto.continuation)
 
@@ -138,7 +143,7 @@ class NftOrderItemControllerTest {
                         val nextLastItem = nextItemsDto.items.last()
 
                         Assertions.assertEquals(43L, nextLastItem.tokenId.toLong())
-                        Assertions.assertTrue(lastItem.mintedAt.isAfter(nextLastItem.mintedAt))
+                        Assertions.assertTrue(lastItem.lastUpdatedAt.isAfter(nextLastItem.lastUpdatedAt))
                         Assertions.assertTrue(lastItem.tokenId > nextLastItem.tokenId)
                     }
 
@@ -158,7 +163,7 @@ class NftOrderItemControllerTest {
                         val nextLastItem = nextItemsDto.items.last()
 
                         Assertions.assertEquals(42L, nextLastItem.tokenId.toLong())
-                        Assertions.assertTrue(lastItem.mintedAt.isAfter(nextLastItem.mintedAt))
+                        Assertions.assertTrue(lastItem.lastUpdatedAt.isAfter(nextLastItem.lastUpdatedAt))
                         Assertions.assertTrue(lastItem.tokenId - nextLastItem.tokenId == 2.toBigInteger())
                     }
             }
