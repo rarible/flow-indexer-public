@@ -1,7 +1,6 @@
 package com.rarible.flow.api
 
 import com.rarible.flow.core.converter.OrderToDtoConverter
-import com.rarible.protocol.currency.api.client.CurrencyApiClientFactory
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
 import com.rarible.protocol.currency.dto.CurrencyRateDto
@@ -15,15 +14,6 @@ import java.time.Instant
 
 @TestConfiguration
 class TestPropertiesConfiguration {
-
-    //@Bean
-    fun currencyApiClientFactory(): CurrencyApiClientFactory {
-        return mockk {
-            every {
-                createCurrencyApiClient()
-            } returns currencyApi()
-        }
-    }
 
     @Bean
     @Primary
