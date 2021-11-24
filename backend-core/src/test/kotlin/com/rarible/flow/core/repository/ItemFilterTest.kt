@@ -8,11 +8,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import org.springframework.data.domain.Sort
-import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.data.mongodb.core.query.exists
-import org.springframework.data.mongodb.core.query.gte
-import org.springframework.data.mongodb.core.query.lt
-import org.springframework.data.mongodb.core.query.ne
+import org.springframework.data.mongodb.core.query.*
 import java.time.Instant
 
 internal class ItemFilterTest: FunSpec({
@@ -47,13 +43,13 @@ internal class ItemFilterTest: FunSpec({
     test("item filter - sort ") {
         val sort = ItemFilter.Sort.LAST_UPDATE
         sort.springSort() shouldBe Sort.by(
-            Sort.Order.desc(Item::mintedAt.name),
+            Sort.Order.desc(Item::updatedAt.name),
             Sort.Order.desc(Item::id.name)
         )
 
         val entities = flowOf<Item>(
             mockk(), mockk() {
-                every { mintedAt } returns now
+                every { updatedAt } returns now
                 every { id } returns ItemId("ABC", 1000)
             }
         )
