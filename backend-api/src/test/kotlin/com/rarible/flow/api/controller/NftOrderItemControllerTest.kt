@@ -4,12 +4,7 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.api.config.Config
 import com.rarible.flow.core.config.CoreConfig
-import com.rarible.flow.core.domain.FlowAssetFungible
-import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.Item
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.domain.OrderData
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.randomAddress
@@ -83,8 +78,8 @@ class NftOrderItemControllerTest {
         itemRepository.saveAll(
             listOf(
                 item,
-                item.copy(tokenId = ++tokenId, mintedAt = Instant.now(Clock.systemUTC()).plusMillis(1000L)),
-                item.copy(tokenId = ++tokenId, mintedAt = Instant.now(Clock.systemUTC()).plusMillis(2000L))
+                item.copy(tokenId = ++tokenId, updatedAt = Instant.now(Clock.systemUTC()).plusMillis(1000L)),
+                item.copy(tokenId = ++tokenId, updatedAt = Instant.now(Clock.systemUTC()).plusMillis(2000L))
             )
         ).then().block()
 
