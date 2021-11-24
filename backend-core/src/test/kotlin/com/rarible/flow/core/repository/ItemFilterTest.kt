@@ -47,13 +47,13 @@ internal class ItemFilterTest: FunSpec({
     test("item filter - sort ") {
         val sort = ItemFilter.Sort.LAST_UPDATE
         sort.springSort() shouldBe Sort.by(
-            Sort.Order.desc(Item::mintedAt.name),
+            Sort.Order.desc(Item::updatedAt.name),
             Sort.Order.desc(Item::id.name)
         )
 
         val entities = flowOf<Item>(
             mockk(), mockk() {
-                every { mintedAt } returns now
+                every { updatedAt } returns now
                 every { id } returns ItemId("ABC", 1000)
             }
         )
