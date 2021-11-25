@@ -10,6 +10,7 @@ import com.rarible.flow.core.converter.OwnershipToDtoConverter
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.*
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 
