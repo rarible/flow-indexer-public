@@ -20,8 +20,10 @@ import java.time.OffsetDateTime
 @RestController
 @CrossOrigin
 class OrderApiController(
-    private val service: OrderService
+    private val service: OrderService,
+    private val converter: OrderToDtoConverter
 ): FlowOrderControllerApi {
+
     override fun getBidCurrencies(itemId: String): ResponseEntity<Flow<FlowAssetDto>> =
         ResponseEntity.ok(emptyFlow())
 
@@ -95,7 +97,7 @@ class OrderApiController(
 
     override fun getOrdersByIds(flowOrderIdsDto: FlowOrderIdsDto): ResponseEntity<Flow<FlowOrderDto>> {
         return service.ordersByIds(flowOrderIdsDto.ids).map {
-            OrderToDtoConverter.convert(it)
+            converter.convert(it)
         }.okOr404IfNull()
     }
 
@@ -190,9 +192,9 @@ class OrderApiController(
         )
     }
 
-    private fun result(order: Order?): ResponseEntity<FlowOrderDto> {
+    private suspend fun result(order: Order?): ResponseEntity<FlowOrderDto> {
         return order?.let {
-            OrderToDtoConverter.convert(it)
+            converter.convert(it)
         }.okOr404IfNull()
     }
 
@@ -202,7 +204,7 @@ class OrderApiController(
         } else {
             FlowOrdersPaginationDto(
                 orders.map {
-                    OrderToDtoConverter.convert(it)
+                    converter.convert(it)
                 }.toList(),
                 sort.nextPage(orders, size)
             )

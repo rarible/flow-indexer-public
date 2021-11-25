@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.core.apm.withSpan
+import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository

@@ -94,7 +94,11 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                     contract = source.activity.take.contract,
                     value = source.activity.take.value
                 ),
-                price = source.activity.price
+                price = source.activity.price,
+                transactionHash = source.log.transactionHash,
+                blockHash = source.log.blockHash,
+                blockNumber = source.log.blockHeight,
+                logIndex = source.log.eventIndex,
             )
             is FlowNftOrderActivityCancelList -> FlowNftOrderActivityCancelListDto(
                 id = source.id,
@@ -110,7 +114,11 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                     contract = source.activity.take.contract,
                     value = source.activity.take.value
                 ),
-                price = source.activity.price
+                price = source.activity.price,
+                transactionHash = source.log.transactionHash,
+                blockHash = source.log.blockHash,
+                blockNumber = source.log.blockHeight,
+                logIndex = source.log.eventIndex,
             )
 
             is DepositActivity -> null
