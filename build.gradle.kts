@@ -42,18 +42,7 @@ allprojects {
         }
 
         maven {
-            name = "nexus-maven-public"
-            url = uri("http://nexus.rarible.int/repository/maven-public/")
-            isAllowInsecureProtocol = true
-            metadataSources {
-                mavenPom()
-                artifact()
-            }
-        }
-        maven {
-            name = "nexus-maven-public"
-            url = uri("http://nexus-ext.rarible.int/repository/maven-public/")
-            isAllowInsecureProtocol = true
+            url = uri("https://repo.rarible.org/repository/maven-public")
             metadataSources {
                 mavenPom()
                 artifact()

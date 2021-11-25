@@ -15,7 +15,7 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             version("flow-sdk-ver", "0.5.0")
-            version("rarible-core", "1.3-spring25-SNAPSHOT")
+            version("rarible-core", "2.0.0")
             version("rarible-currency", "1.4.5")
             version("flow-protocol-version", "2.0.30-SNAPSHOT")
             version("blockchain-scanner", "1.0.10")
@@ -47,7 +47,7 @@ dependencyResolutionManagement {
 
         create("testLibs") {
             version("kotest", "4.6.2")
-            version("rarible-core", "1.3-SNAPSHOT.spring25")
+            version("rarible-core", "2.0.0")
 
             alias("kotest-runner").to("io.kotest", "kotest-runner-junit5").versionRef("kotest")
             alias("kotest-spring").to("io.kotest.extensions", "kotest-extensions-spring").version("1.0.0")

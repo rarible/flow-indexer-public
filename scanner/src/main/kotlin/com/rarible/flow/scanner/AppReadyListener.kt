@@ -15,7 +15,8 @@ import org.springframework.stereotype.Component
 class AppReadyListener(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemCollectionRepository: ItemCollectionRepository,
-    private val scannerProperties: FlowBlockchainScannerProperties
+    private val scannerProperties: FlowBlockchainScannerProperties,
+    private val scannerMonitoring: ScannerMonitoring
 ) : ApplicationListener<ApplicationReadyEvent> {
 
     private val supportedCollections = mapOf(
@@ -37,6 +38,7 @@ class AppReadyListener(
      * Save default item collection's
      */
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
+        scannerMonitoring.start()
         if (scannerProperties.chainId != FlowChainId.EMULATOR) {
             runBlocking {
                 itemCollectionRepository.deleteAll().awaitFirstOrNull()
