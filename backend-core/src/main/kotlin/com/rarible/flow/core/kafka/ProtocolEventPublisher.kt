@@ -10,8 +10,6 @@ import com.rarible.flow.core.converter.OwnershipToDtoConverter
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import java.util.*
 
 
@@ -62,7 +60,7 @@ class ProtocolEventPublisher(
         )
     }
 
-    suspend fun onUpdate(order: Order): KafkaSendResult {
+    suspend fun onOrderUpdate(order: Order, converter: OrderToDtoConverter): KafkaSendResult {
         val orderId = order.id
         return orders.send(
             KafkaMessage(
@@ -70,14 +68,14 @@ class ProtocolEventPublisher(
                 FlowOrderUpdateEventDto(
                     eventId = "$orderId.${UUID.randomUUID()}",
                     orderId = orderId.toString(),
-                    OrderToDtoConverter.convert(order)
+                    converter.convert(order)
                 )
             )
         )
     }
 
-    suspend fun onUpdate(orders: List<Order>): List<KafkaSendResult> {
-        return orders.map { this.onUpdate(it) }
+    suspend fun onOrderUpdate(orders: List<Order>, converter: OrderToDtoConverter): List<KafkaSendResult> {
+        return orders.map { this.onOrderUpdate(it, converter) }
     }
 
 

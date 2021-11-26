@@ -19,6 +19,5 @@ import org.testcontainers.junit.jupiter.Testcontainers
     ]
 )
 @ActiveProfiles("test")
-@Import(TestPropertiesConfiguration::class)
 @Testcontainers
 annotation class IntegrationTest

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.core.apm.withSpan
+import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
@@ -31,6 +32,7 @@ class ItemIndexerEventProcessor(
     private val protocolEventPublisher: ProtocolEventPublisher,
     private val ownershipService: OwnershipService,
     private val orderService: OrderService,
+    private val orderConverter: OrderToDtoConverter
 ): IndexerEventsProcessor {
 
     private val objectMapper = ObjectMapper()
@@ -161,7 +163,7 @@ class ItemIndexerEventProcessor(
                     LocalDateTime.ofInstant(event.activity.timestamp, ZoneOffset.UTC)
                 )
                 if (event.source != Source.REINDEX) {
-                    protocolEventPublisher.onUpdate(o)
+                    protocolEventPublisher.onOrderUpdate(o, orderConverter)
                 }
             }
         }
@@ -184,7 +186,7 @@ class ItemIndexerEventProcessor(
                 if (event.source != Source.REINDEX) {
                     protocolEventPublisher.onItemUpdate(deposited)
                     protocolEventPublisher.onUpdate(ownership)
-                    protocolEventPublisher.onUpdate(o)
+                    protocolEventPublisher.onOrderUpdate(o, orderConverter)
                 }
             }
         }

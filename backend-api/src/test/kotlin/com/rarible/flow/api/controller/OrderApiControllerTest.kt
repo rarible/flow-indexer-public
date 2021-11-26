@@ -1,23 +1,31 @@
 package com.rarible.flow.api.controller
 
 import com.ninjasquad.springmockk.MockkBean
+import com.rarible.flow.api.TestPropertiesConfiguration
 import com.rarible.flow.api.service.OrderService
+import com.rarible.flow.core.config.CoreConfig
+import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.randomFlowAddress
 import com.rarible.flow.randomLong
+import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.dto.FlowOrderDto
 import com.rarible.protocol.dto.FlowOrderIdsDto
 import com.rarible.protocol.dto.FlowOrdersPaginationDto
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.math.BigDecimal
@@ -36,6 +44,7 @@ import java.time.LocalDateTime
 )
 @AutoConfigureWebTestClient(timeout = "60000")
 @ActiveProfiles("test")
+@Import(TestPropertiesConfiguration::class)
 class OrderApiControllerTest {
 
     @MockkBean
