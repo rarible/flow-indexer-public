@@ -11,21 +11,29 @@ import org.springframework.data.mongodb.core.MongoTemplate
  * {
 "aggregate": "item",
 "pipeline": [{
-"$project": {
-"_id": {
-"$concat": [
-"$_id", ":", "$owner"
+$project: {
+_id: {
+$concat: [
+'$_id',
+':',
+'$owner'
 ]
 },
-"contract": "$contract",
-"tokenId": "$tokenId",
-"owner": "$owner",
-"creator": "$creator",
-"date": "$mintedAt",
-"_class": "com.rarible.flow.core.domain.Ownership"
+contract: '$contract',
+tokenId: '$tokenId',
+owner: '$owner',
+creator: '$creator',
+date: '$mintedAt',
+_class: 'com.rarible.flow.core.domain.Ownership'
 }
 }, {
-"$out": "ownership_fix"
+$match: {
+_id: {
+$ne: null
+}
+}
+}, {
+$out: 'ownership_fix'
 }],
 "cursor": {}
 }
@@ -73,20 +81,29 @@ class ChangeLog00009DeduplicateOwnerships(
         const val migrationCommand = """{    
                 "aggregate": "item",
                 "pipeline": [{
-                    "${'$'}project": {
-                        "_id": {
-                            "${'$'}concat": ["${'$'}_id", ":", "${'$'}owner"]
+                    ${'$'}project: {
+                        _id: {
+                            ${'$'}concat: [
+                                '${'$'}_id',
+                                ':',
+                                '${'$'}owner'
+                            ]
                         },
-                        "contract": "${'$'}contract",
-                        "tokenId": "${'$'}tokenId",
-                        "owner": "${'$'}owner",
-                        "creator": "${'$'}creator",
-                        "date": "${'$'}mintedAt",
-                        "_class": "com.rarible.flow.core.domain.Ownership"
+                        contract: '${'$'}contract',
+                        tokenId: '${'$'}tokenId',
+                        owner: '${'$'}owner',
+                        creator: '${'$'}creator',
+                        date: '${'$'}mintedAt',
+                        _class: 'com.rarible.flow.core.domain.Ownership'
                     }
-                },
-                {
-                    "${'$'}out": "ownership_fix"
+                }, {
+                    ${'$'}match: {
+                        _id: {
+                            ${'$'}ne: null
+                        }
+                    }
+                }, {
+                    ${'$'}out: 'ownership_fix'
                 }],
                 "cursor": {}
             }"""
