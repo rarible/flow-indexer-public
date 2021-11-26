@@ -15,7 +15,7 @@ import kotlinx.coroutines.runBlocking
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController
-import java.time.Instant
+import java.time.OffsetDateTime
 
 @RestController
 @CrossOrigin
@@ -33,8 +33,8 @@ class OrderApiController(
         status: List<FlowOrderStatusDto>,
         maker: String?,
         origin: String?,
-        startDate: Instant?,
-        endDate: Instant?,
+        startDate: OffsetDateTime?,
+        endDate: OffsetDateTime?,
         currencyAddress: String?,
         continuation: String?,
         size: Int?
@@ -58,8 +58,8 @@ class OrderApiController(
         maker: String,
         status: List<FlowOrderStatusDto>,
         origin: String?,
-        startDate: Instant?,
-        endDate: Instant?,
+        startDate: OffsetDateTime?,
+        endDate: OffsetDateTime?,
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
