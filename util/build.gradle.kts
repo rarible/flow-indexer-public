@@ -5,7 +5,6 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":converters"))
     implementation(project(":backend-api-model"))
     implementation(rootProject.libs.rarible.core.kafka)
 }

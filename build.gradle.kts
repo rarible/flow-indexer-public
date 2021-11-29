@@ -80,17 +80,17 @@ allprojects {
         }
 
     }
-
-    tasks.withType<Test> {
-        useJUnitPlatform()
-        testLogging {
-            this.events = setOf(
-                org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
-                org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED,
-            )
-        }
-    }
 }
+
+val testReport = tasks.register<TestReport>("testReport") {
+    destinationDir = file("$buildDir/reports/tests/test")
+
+    reportOn(subprojects.mapNotNull {
+        it.tasks.findByPath("test")
+    })
+}
+
+
 
 subprojects {
     dependencies {
@@ -124,6 +124,24 @@ subprojects {
         }
     }
 
+    tasks.withType<Test> {
+        useJUnitPlatform()
+        finalizedBy(testReport)
+        testLogging {
+            events("passed", "skipped", "failed")
+        }
+        reports {
+            junitXml.required.set(true)
+        }
+
+        copy {
+            logger.info("merging test reports from ${project.name}")
+            from("${buildDir}/test-results/test") {
+                include("TEST-*.xml")
+            }
+            into("${rootProject.projectDir}/target/surefire-reports")
+        }
+    }
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
@@ -151,6 +169,7 @@ task<JacocoReport>("coverage") {
     executionData.setFrom(project.fileTree(".") {
         include("**/build/jacoco/*.exec")
         exclude("**/build/jacoco/coverageMerge.exec")
+        exclude("/target/jacoco.exec")
     })
 
     reports {
@@ -159,6 +178,12 @@ task<JacocoReport>("coverage") {
         csv.required.set(false)
         html.required.set(true)
         html.outputLocation.set(file("${buildDir}/reports/jacoco/html"))
+    }
+
+    copy {
+        from("$buildDir/jacoco/coverageMerge.exec")
+        rename("coverageMerge.exec", "jacoco.exec")
+        into("target")
     }
 }
 

@@ -1,8 +1,6 @@
 package com.rarible.flow.core.domain
 
 import com.nftco.flow.sdk.FlowAddress
-import com.querydsl.core.annotations.QueryEmbeddable
-import com.querydsl.core.annotations.QueryEntity
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.CompoundIndex
@@ -12,7 +10,6 @@ import java.io.Serializable
 import java.time.Clock
 import java.time.Instant
 
-@QueryEmbeddable
 data class OwnershipId(
     val contract: String,
     val tokenId: TokenId,
@@ -39,7 +36,6 @@ data class OwnershipId(
     }
 }
 
-@QueryEntity
 @Document
 @CompoundIndexes(
     CompoundIndex(
