@@ -28,8 +28,8 @@ class MotoGPItemMetaProvider(
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("MotoGPCard", true)
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta? {
-        val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return null
+    override suspend fun getMeta(itemId: ItemId): ItemMeta {
+        val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
         val resp = scriptExecutor.execute(
             code = scriptText,
             args = mutableListOf(
