@@ -1,7 +1,5 @@
 package com.rarible.flow.core.domain
 
-import com.querydsl.core.annotations.QueryEmbedded
-import com.querydsl.core.annotations.QueryEntity
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import org.springframework.data.mongodb.core.index.CompoundIndex
@@ -21,7 +19,6 @@ import java.time.Instant
  * @property activity   activity data (see [FlowNftActivity])
  */
 @Document("item_history")
-@QueryEntity
 @CompoundIndexes(
     CompoundIndex(
         name = "activity_siblings",
@@ -38,7 +35,6 @@ data class ItemHistory(
     @Field(targetType = FieldType.DATE_TIME)
     val date: Instant,
     val activity: BaseActivity,
-    @QueryEmbedded
     override val log: FlowLog,
     @MongoId(FieldType.STRING)
     val id: String = "${log.transactionHash}.${log.eventIndex}"

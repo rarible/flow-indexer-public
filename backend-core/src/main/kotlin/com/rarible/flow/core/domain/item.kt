@@ -1,7 +1,6 @@
 package com.rarible.flow.core.domain
 
 import com.nftco.flow.sdk.FlowAddress
-import com.querydsl.core.annotations.QueryEntity
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.CompoundIndex
@@ -38,7 +37,6 @@ data class ItemId(val contract: String, val tokenId: TokenId): Serializable {
 
 typealias TokenId = Long
 
-@QueryEntity
 @Document
 @CompoundIndexes(
     CompoundIndex(

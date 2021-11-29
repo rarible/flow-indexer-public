@@ -13,7 +13,6 @@ import org.springframework.data.mongodb.core.query.gte
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.mongodb.core.query.lte
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
-import org.springframework.data.querydsl.ReactiveQuerydslPredicateExecutor
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
@@ -25,7 +24,6 @@ import java.time.Instant
 @Repository
 interface ItemHistoryRepository:
     ReactiveMongoRepository<ItemHistory, String>,
-    ReactiveQuerydslPredicateExecutor<ItemHistory>,
     ItemHistoryRepositoryCustom {
 
         @Suppress("FunctionName")

@@ -6,9 +6,8 @@ include(
     "backend-api-model",
     "backend-api",
     "backend-core",
-    "converters",
     "util",
-    "e2e",
+    "e2e"
 )
 
 dependencyResolutionManagement {
@@ -16,8 +15,8 @@ dependencyResolutionManagement {
         create("libs") {
             version("flow-sdk-ver", "0.5.0")
             version("rarible-core", "2.0.0")
-            version("rarible-currency", "1.4.5")
-            version("flow-protocol-version", "2.0.30-SNAPSHOT")
+            version("rarible-currency", "1.18.2")
+            version("flow-protocol-version", "2.1.0")
             version("blockchain-scanner", "1.0.10")
 
             alias("flow-sdk").to("com.nftco", "flow-jvm-sdk").versionRef("flow-sdk-ver")
@@ -30,16 +29,16 @@ dependencyResolutionManagement {
             alias("blockchain-scanner-flow").to("com.rarible.blockchain.scanner", "rarible-blockchain-scanner-flow").versionRef("blockchain-scanner")
             alias("blockchain-scanner-model").to("com.rarible.blockchain.scanner", "rarible-blockchain-scanner-flow-model").versionRef("blockchain-scanner")
 
-            alias("flow-model-common").to("com.rarible.protocol", "flow-protocol-model-common").versionRef("flow-protocol-version")
-            alias("flow-model-nft").to("com.rarible.protocol", "flow-protocol-model-nft").versionRef("flow-protocol-version")
-            alias("flow-model-order").to("com.rarible.protocol", "flow-protocol-model-order").versionRef("flow-protocol-version")
+            alias("flow-model-common").to("com.rarible.protocol.flow", "flow-protocol-model-common").versionRef("flow-protocol-version")
+            alias("flow-model-nft").to("com.rarible.protocol.flow", "flow-protocol-model-nft").versionRef("flow-protocol-version")
+            alias("flow-model-order").to("com.rarible.protocol.flow", "flow-protocol-model-order").versionRef("flow-protocol-version")
 
-            alias("flow-api").to("com.rarible.protocol", "flow-api").versionRef("flow-protocol-version")
-            alias("flow-protocol-api-nft").to("com.rarible.protocol", "flow-protocol-api-nft").versionRef("flow-protocol-version")
-            alias("flow-protocol-api-order").to("com.rarible.protocol", "flow-protocol-api-order").versionRef("flow-protocol-version")
-            alias("flow-protocol-api-nftorder").to("com.rarible.protocol", "flow-protocol-api-nft-order").versionRef("flow-protocol-version")
+            alias("flow-api").to("com.rarible.protocol.flow", "flow-api").versionRef("flow-protocol-version")
+            alias("flow-protocol-api-nft").to("com.rarible.protocol.flow", "flow-protocol-api-nft").versionRef("flow-protocol-version")
+            alias("flow-protocol-api-order").to("com.rarible.protocol.flow", "flow-protocol-api-order").versionRef("flow-protocol-version")
+            alias("flow-protocol-api-nftorder").to("com.rarible.protocol.flow", "flow-protocol-api-nft-order").versionRef("flow-protocol-version")
 
-            alias("rarible-currency-starer").to("com.rarible.protocol" ,"protocol-client-currency-starter").versionRef("rarible-currency")
+            alias("rarible-currency-starer").to("com.rarible.protocol.currency" ,"protocol-client-currency-starter").versionRef("rarible-currency")
             bundle("rarible-core", listOf("rarible-core-daemon", "rarible-core-telemetry"))
             bundle("flow-models", listOf("flow-model-common", "flow-model-nft", "flow-model-order"))
             bundle("flow-apis", listOf("flow-api", "flow-protocol-api-nft", "flow-protocol-api-order", "flow-protocol-api-nftorder"))

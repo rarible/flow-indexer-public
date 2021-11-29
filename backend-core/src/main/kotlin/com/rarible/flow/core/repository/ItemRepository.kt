@@ -6,12 +6,9 @@ import com.rarible.flow.core.domain.ItemId
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
-import org.springframework.data.querydsl.ReactiveQuerydslPredicateExecutor
 import reactor.core.publisher.Flux
 
-interface ItemRepository : ReactiveMongoRepository<Item, ItemId>, ItemRepositoryCustom,
-    ReactiveQuerydslPredicateExecutor<Item> {
-
+interface ItemRepository : ReactiveMongoRepository<Item, ItemId>, ItemRepositoryCustom {
     fun findAllByCreator(creator: FlowAddress): Flux<Item>
 }
 
