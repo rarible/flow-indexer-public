@@ -58,9 +58,9 @@ class TopShotMomentItemMetaProvider(
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("TopShot")
 
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta? {
-        val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return null
-        if (item.meta.isNullOrEmpty()) return null
+    override suspend fun getMeta(itemId: ItemId): ItemMeta {
+        val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
+        if (item.meta.isNullOrEmpty()) return emptyMeta(itemId)
         val metaMap = JacksonJsonParser().parseMap(item.meta)
         val playID = metaMap["playID"].toString()
         val setID = metaMap["setID"].toString()

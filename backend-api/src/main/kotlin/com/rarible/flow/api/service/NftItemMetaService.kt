@@ -15,10 +15,10 @@ class NftItemMetaService(
     private val itemMetaRepository: ItemMetaRepository
 ) {
 
-    suspend fun getMetaByItemId(itemId: ItemId): ItemMeta? {
+    suspend fun getMetaByItemId(itemId: ItemId): ItemMeta {
         val exists = itemMetaRepository.coFindById(itemId)
         return if (exists == null) {
-            val meta = providers.firstOrNull { it.isSupported(itemId) }?.getMeta(itemId) ?: return null
+            val meta = providers.first { it.isSupported(itemId) }.getMeta(itemId)
             return itemMetaRepository.save(meta).awaitSingle()
         } else {
             exists

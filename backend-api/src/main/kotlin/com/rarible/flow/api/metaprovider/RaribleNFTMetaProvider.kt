@@ -6,6 +6,7 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.log.Log
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.stereotype.Component
@@ -17,31 +18,49 @@ class RaribleNFTMetaProvider(
     private val itemRepository: ItemRepository
 ) : ItemMetaProvider {
 
+    private val logger by Log()
+
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("RaribleNFT")
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta? {
-        val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: throw IllegalStateException("Not found item by id [$itemId]")
-        var url = item.meta ?: throw IllegalStateException("meta is null")
+    override suspend fun getMeta(itemId: ItemId): ItemMeta {
+        val item = itemRepository.findById(itemId).awaitSingleOrNull()
+            ?: return emptyMeta(itemId)
+        var url = item.meta ?: return emptyMeta(itemId)
         if (url.startsWith("{")) {
-            url = JacksonJsonParser().parseMap(url)["metaURI"] as String? ?: throw IllegalStateException("metaURI not found")
+            url = JacksonJsonParser().parseMap(url)["metaURI"] as String?
+                ?: return emptyMeta(itemId)
         }
 
-        val client = WebClient.create("https://rarible.mypinata.cloud/")
+
         if (url.startsWith("ipfs://")) {
             url = url.substring("ipfs:/".length)
         }
-        val data = client.get().uri(url).retrieve().awaitBodyOrNull<RaribleNFTMetaBody>() ?: throw IllegalStateException("Cant get meta from ipfs")
-        return ItemMeta(
-            itemId = itemId,
-            name = data.name,
-            description = data.description,
-            attributes = data.attributes.map { ItemMetaAttribute(
-                key = it.key ?: it.traitType!!,
-                value = it.value
-            ) },
-            contentUrls = listOfNotNull(data.image, data.animationUrl),
-        ).apply {
-            raw = data.toString().toByteArray(charset = Charsets.UTF_8)
+
+        if (url.isEmpty()) {
+            return emptyMeta(itemId)
+        }
+
+        val client = WebClient.create("https://rarible.mypinata.cloud/")
+        return try {
+            val data = client.get().uri(url)
+                .retrieve().awaitBodyOrNull<RaribleNFTMetaBody>() ?: return emptyMeta(itemId)
+            ItemMeta(
+                itemId = itemId,
+                name = data.name,
+                description = data.description,
+                attributes = data.attributes.map {
+                    ItemMetaAttribute(
+                        key = it.key ?: it.traitType!!,
+                        value = it.value
+                    )
+                },
+                contentUrls = listOfNotNull(data.image, data.animationUrl),
+            ).apply {
+                raw = data.toString().toByteArray(charset = Charsets.UTF_8)
+            }
+        } catch (e: Exception) {
+            logger.warn(e.message, e)
+            return emptyMeta(itemId)
         }
     }
 }

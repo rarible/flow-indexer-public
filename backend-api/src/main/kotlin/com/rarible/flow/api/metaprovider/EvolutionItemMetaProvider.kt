@@ -29,9 +29,9 @@ class EvolutionItemMetaProvider(
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("Evolution")
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta? {
-        val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return null
-        if (item.meta.isNullOrEmpty()) return null
+    override suspend fun getMeta(itemId: ItemId): ItemMeta {
+        val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
+        if (item.meta.isNullOrEmpty()) return emptyMeta(itemId)
         val meta = JacksonJsonParser().parseMap(item.meta)
         val resp = scriptExecutor.execute(
             code = scriptText,
@@ -45,7 +45,7 @@ class EvolutionItemMetaProvider(
         val jsonCadenceParser = JsonCadenceParser()
         val data: Map<String, Field<*>> = jsonCadenceParser.optional(resp.jsonCadence) {
             dictionaryMap(it) { k, v -> string(k) to v }
-        } ?: return null
+        } ?: return emptyMeta(itemId)
 
         val attributes = listOf(
             ItemMetaAttribute(
