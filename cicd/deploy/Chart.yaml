@@ -1,0 +1,12 @@
+apiVersion: v2
+name: protocol-flow
+version: 0.1.0
+dependencies:
+- name: rarible-helm-chart
+  alias: flow-indexer-backend-api
+  repository: file://../resources/helm/rarible
+  version: 0.1.0
+- name: rarible-helm-chart
+  alias: flow-indexer-scanner
+  repository: file://../resources/helm/rarible
+  version: 0.1.0
