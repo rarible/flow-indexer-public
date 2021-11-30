@@ -21,11 +21,8 @@ const val ORDER_COLLECTION = "order"
  * @property taker          - buyer
  * @property maker          - seller
  * @property amount         - amount in flow
- * @property offeredNftId   - nft id for nft-nft exchange
  * @property fill           - TODO add  doc
  * @property cancelled       - order canceled
- * @property buyerFee       - fee for buyer
- * @property sellerFee      - fee for seller
  * @property collection     - item collection
  */
 @Document(collection = ORDER_COLLECTION)

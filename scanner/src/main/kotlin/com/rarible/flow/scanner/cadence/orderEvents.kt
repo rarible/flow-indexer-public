@@ -117,3 +117,49 @@ class OrderCancelledConverter : JsonCadenceConverter<OrderCancelled> {
         )
     }
 }
+
+@JsonCadenceConversion(OpenBidAvailableConverter::class)
+data class BidAvailable(
+    val bidAddress: FlowAddress,
+    val bidId: Long,
+    val nftType: EventId,
+    val nftId: TokenId,
+    val vaultType: EventId,
+    val price: BigDecimal,
+    val cuts: Map<FlowAddress, BigDecimal>,
+)
+
+
+@JsonCadenceConversion(OpenBidClosedConverter::class)
+data class BidCompleted(
+    val bidId: Long,
+    val bidResourceId: Long,
+    val purchased: Boolean,
+)
+
+
+class OpenBidAvailableConverter: JsonCadenceConverter<BidAvailable> {
+    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): BidAvailable = unmarshall(value) {
+        BidAvailable(
+            bidAddress = FlowAddress(address("OpenBidAddress")),
+            bidId = long("BidResourceID"),
+            nftType = EventId.of(string("nftType")),
+            nftId = long("nftID"),
+            vaultType = EventId.of(string("ftVaultType")),
+            price = bigDecimal("price"),
+            cuts = dictionaryMap("saleCuts") { k, v ->
+                FlowAddress(address(k)) to bigDecimal(v)
+            }
+        )
+    }
+}
+
+class OpenBidClosedConverter: JsonCadenceConverter<BidCompleted> {
+    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): BidCompleted = unmarshall(value) {
+        BidCompleted(
+            bidId = long("OpenBidResourceID"),
+            bidResourceId = long("BidResourceID"),
+            purchased = boolean("purchased"),
+        )
+    }
+}

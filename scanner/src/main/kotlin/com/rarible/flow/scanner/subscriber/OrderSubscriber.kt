@@ -5,22 +5,16 @@ import com.rarible.blockchain.scanner.flow.client.FlowBlockchainBlock
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.events.EventMessage
-import com.rarible.flow.log.Log
 import com.rarible.flow.scanner.cadence.OrderAvailable
 import com.rarible.flow.scanner.cadence.OrderCancelled
 import com.rarible.flow.scanner.cadence.OrderClosed
 import com.rarible.flow.scanner.model.parse
-import com.rarible.protocol.currency.api.client.CurrencyControllerApi
-import com.rarible.protocol.currency.dto.BlockchainDto
-import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.Instant
 
 @Component
-class OrderSubscriber(
-    private val currencyApi: CurrencyControllerApi,
-) : BaseItemHistoryFlowLogSubscriber() {
+class OrderSubscriber : BaseItemHistoryFlowLogSubscriber() {
 
     private val events = "OrderAvailable,OrderClosed,OrderCancelled".split(",")
 
@@ -119,16 +113,5 @@ class OrderSubscriber(
 
             else -> throw IllegalStateException("Unsupported eventId: ${msg.eventId}")
         }
-    }
-
-    private suspend fun usdRate(contract: String, timestamp: Long) = try {
-        currencyApi.getCurrencyRate(BlockchainDto.FLOW, contract, timestamp).awaitSingle().rate
-    } catch (e: Exception) {
-        logger.warn("Unable to fetch USD price rate from currency api: ${e.message}", e)
-        BigDecimal.ZERO
-    }
-
-    companion object {
-        val logger by Log()
     }
 }
