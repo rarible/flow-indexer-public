@@ -29,18 +29,21 @@ class OrderSubscriber(
             address = "01ab36aaf654a13e",
             contract = "RaribleOrder",
             events = events,
-            startFrom = 19863151L
+            startFrom = 19863151L,
+            dbCollection = collection
         ),
         FlowChainId.TESTNET to flowDescriptor(
             address = "ebf4ae01d1284af8",
             contract = "RaribleOrder",
             events = events,
-            startFrom = 49754786L
+            startFrom = 49754786L,
+            dbCollection = collection
         ),
         FlowChainId.EMULATOR to flowDescriptor(
             address = "f8d6e0586b0a20c7",
             contract = "RaribleOrder",
             events = events,
+            dbCollection = collection,
         ),
     )
 

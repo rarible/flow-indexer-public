@@ -31,19 +31,22 @@ class TopShotSubscriber : BaseItemHistoryFlowLogSubscriber() {
                 address = "0b2a3299cc857e29",
                 contract = "TopShot",
                 events = events,
-                startFrom = 7641063L
+                startFrom = 7641063L,
+                dbCollection = collection
             ),
             FlowChainId.TESTNET to flowDescriptor(
                 address = "01658d9b94068f3c",
                 contract = "TopShot",
                 events = events,
-                startFrom = 47831085L
+                startFrom = 47831085L,
+                dbCollection = collection
             ),
             FlowChainId.EMULATOR to flowDescriptor(
                 address = "f8d6e0586b0a20c7",
                 contract = "TopShot",
                 events = events,
-                startFrom = 1L
+                startFrom = 1L,
+                dbCollection = collection
             ),
         )
 
