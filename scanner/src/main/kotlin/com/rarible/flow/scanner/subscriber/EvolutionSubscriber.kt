@@ -19,16 +19,19 @@ class EvolutionSubscriber : BaseFlowLogEventSubscriber() {
                 contract = "Evolution",
                 events = events,
                 startFrom = 13001301L,
+                dbCollection = collection,
             ),
             FlowChainId.TESTNET to flowDescriptor(
                 address = "01658d9b94068f3c",
                 contract = "Evolution",
                 events = events,
+                dbCollection = collection
             ),
             FlowChainId.EMULATOR to flowDescriptor(
                 address = "f8d6e0586b0a20c7",
                 contract = "Evolution",
                 events = events,
+                dbCollection = collection,
             )
         )
 
