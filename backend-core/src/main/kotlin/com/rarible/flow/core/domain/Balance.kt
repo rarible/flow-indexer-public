@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Version
 import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.mapping.FieldType
 import java.math.BigDecimal
+import java.time.Instant
 
 data class BalanceId(
     val account: FlowAddress,
@@ -28,10 +29,11 @@ data class BalanceId(
 data class Balance(
     val account: FlowAddress,
     val token: String,
-
     @Field(targetType = FieldType.DECIMAL128)
     val balance: BigDecimal = BigDecimal.ZERO,
 
+    @Field(targetType = FieldType.DATE_TIME)
+    val lastUpdatedAt: Instant = Instant.now(),
     @Version
     val version: Long? = null
 ) {

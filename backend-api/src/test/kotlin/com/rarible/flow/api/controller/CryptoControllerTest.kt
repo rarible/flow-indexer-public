@@ -6,6 +6,8 @@ import com.nftco.flow.sdk.FlowSignature
 import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.api.service.FlowSignatureService
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
@@ -37,11 +39,11 @@ internal class CryptoControllerTest {
 
     @Test
     fun `should respond true`() = runBlocking<Unit> {
-        every {
+        coEvery {
             flowSignatureService.verify(any<FlowPublicKey>(), any<FlowSignature>(), any())
         } returns true
 
-        every {
+        coEvery {
             flowSignatureService.checkPublicKey(any(), any())
         } returns true
 
@@ -57,7 +59,7 @@ internal class CryptoControllerTest {
             .expectBody<Boolean>()
             .returnResult().responseBody!! shouldBe true
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             flowSignatureService.verify(
                 FlowPublicKey(pk), FlowSignature(signature), message
             )
