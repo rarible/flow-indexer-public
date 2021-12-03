@@ -13,7 +13,7 @@ internal class FlowSignatureServiceTest: FunSpec({
 
     val service = FlowSignatureService(
         FlowChainId.TESTNET,
-        Flow.newAccessApi("access.devnet.nodes.onflow.org", 9000)
+        Flow.newAsyncAccessApi("access.devnet.nodes.onflow.org", 9000)
     )
 
     val data = listOf(
