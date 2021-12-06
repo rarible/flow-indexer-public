@@ -55,6 +55,8 @@ sealed class FlowNftOrderActivity : BaseActivity() {
 data class FlowNftOrderActivitySell(
     override val type: FlowActivityType = FlowActivityType.SELL,
     override val price: BigDecimal,
+
+    @Field(targetType = FieldType.DECIMAL128)
     override val priceUsd: BigDecimal,
     override val tokenId: TokenId,
     override val contract: String,

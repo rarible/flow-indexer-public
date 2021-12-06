@@ -50,6 +50,9 @@ data class Order(
     val collection: String,
     val makeStock: BigInteger,
     val status: OrderStatus = OrderStatus.INACTIVE,
+
+    @Field(targetType = FieldType.DECIMAL128)
+    val takePriceUsd: BigDecimal = BigDecimal.ZERO
 )
 
 enum class OrderStatus {

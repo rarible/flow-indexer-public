@@ -58,6 +58,7 @@ class ItemHistoryAggregationsTest {
             ItemHistory(Instant.now(), sell, log),
             ItemHistory(Instant.now(), sell.copy(
                 price = BigDecimal.valueOf(10L),
+                priceUsd = BigDecimal("2.7"),
                 tokenId = 2,
                 left = OrderActivityMatchSide(
                     FlowAddress("0x01").formatted,
@@ -72,6 +73,7 @@ class ItemHistoryAggregationsTest {
                 Instant.now(), sell.copy(
                 contract = "c2",
                 price = BigDecimal.valueOf(100L),
+                priceUsd = BigDecimal("4.83"),
                 tokenId = 3,
                 left = OrderActivityMatchSide(
                     FlowAddress("0x02").formatted,
@@ -107,8 +109,8 @@ class ItemHistoryAggregationsTest {
 
             aggregations shouldHaveSize 2
             aggregations shouldContainAll listOf(
-                FlowAggregationDataDto("c1", BigDecimal.valueOf(14), 2),
-                FlowAggregationDataDto("c2", BigDecimal.valueOf(100), 1)
+                FlowAggregationDataDto("c1", BigDecimal("3.8"), 2),
+                FlowAggregationDataDto("c2", BigDecimal("4.83"), 1)
             )
         }
     }
@@ -123,8 +125,8 @@ class ItemHistoryAggregationsTest {
 
         aggregations shouldHaveSize 2
         aggregations shouldContainAll listOf(
-            FlowAggregationDataDto(FlowAddress("0x02").formatted, BigDecimal.valueOf(1), 1),
-            FlowAggregationDataDto(FlowAddress("0x03").formatted, BigDecimal.valueOf(113), 2)
+            FlowAggregationDataDto(FlowAddress("0x02").formatted, BigDecimal("1.1"), 1),
+            FlowAggregationDataDto(FlowAddress("0x03").formatted, BigDecimal("7.53"), 2)
         )
 
     }
@@ -139,8 +141,8 @@ class ItemHistoryAggregationsTest {
 
         aggregations shouldHaveSize 2
         aggregations shouldContainAll listOf(
-            FlowAggregationDataDto(FlowAddress("0x01").formatted, BigDecimal.valueOf(14), 2),
-            FlowAggregationDataDto(FlowAddress("0x02").formatted, BigDecimal.valueOf(100), 1)
+            FlowAggregationDataDto(FlowAddress("0x01").formatted, BigDecimal("3.8"), 2),
+            FlowAggregationDataDto(FlowAddress("0x02").formatted, BigDecimal("4.83"), 1)
         )
     }
 }

@@ -17,3 +17,8 @@ rarible:
         enabled: true
         server: http://elk_apm-server:8200
         packages: org.rarible.flow.indexer
+
+jobs:
+  order-price-update:
+    enabled: false
+    rate: 120000

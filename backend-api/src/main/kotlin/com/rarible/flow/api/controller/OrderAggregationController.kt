@@ -20,8 +20,8 @@ class OrderAggregationController(
         size: Long?
     ): ResponseEntity<Flow<FlowAggregationDataDto>> {
         return itemHistoryRepository.aggregatePurchaseByCollection(
-            Instant.ofEpochSecond(startDate),
-            Instant.ofEpochSecond(endDate),
+            Instant.ofEpochMilli(startDate),
+            Instant.ofEpochMilli(endDate),
             size
         ).okOr404IfNull()
     }
@@ -32,8 +32,8 @@ class OrderAggregationController(
         size: Long?
     ): ResponseEntity<Flow<FlowAggregationDataDto>> {
         return itemHistoryRepository.aggregatePurchaseByTaker(
-            Instant.ofEpochSecond(startDate),
-            Instant.ofEpochSecond(endDate),
+            Instant.ofEpochMilli(startDate),
+            Instant.ofEpochMilli(endDate),
             size
         ).okOr404IfNull()
     }
@@ -44,8 +44,8 @@ class OrderAggregationController(
         size: Long?
     ): ResponseEntity<Flow<FlowAggregationDataDto>> {
         return itemHistoryRepository.aggregateSellByMaker(
-            Instant.ofEpochSecond(startDate),
-            Instant.ofEpochSecond(endDate),
+            Instant.ofEpochMilli(startDate),
+            Instant.ofEpochMilli(endDate),
             size
         ).okOr404IfNull()
     }

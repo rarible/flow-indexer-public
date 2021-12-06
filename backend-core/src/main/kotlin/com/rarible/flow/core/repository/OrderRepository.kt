@@ -31,6 +31,8 @@ interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepository
         status: OrderStatus,
         lastUpdatedAt: LocalDateTime,
     ): Flux<Order>
+
+    fun findAllByStatus(status: OrderStatus): Flux<Order>
 }
 
 interface OrderRepositoryCustom {
