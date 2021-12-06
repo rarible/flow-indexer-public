@@ -1,12 +1,7 @@
 package com.rarible.flow.api.service
 
 import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
-import com.rarible.flow.core.domain.BaseActivity
-import com.rarible.flow.core.domain.BurnActivity
-import com.rarible.flow.core.domain.DepositActivity
-import com.rarible.flow.core.domain.FlowActivityType
-import com.rarible.flow.core.domain.ItemHistory
-import com.rarible.flow.core.domain.WithdrawnActivity
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ActivityContinuation
 import com.rarible.flow.core.repository.filters.ScrollingSort
 import com.rarible.flow.enum.safeOf
@@ -14,13 +9,7 @@ import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
 import com.rarible.protocol.dto.FlowTransferDto
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flattenConcat
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.data.domain.Sort
@@ -80,6 +69,7 @@ class ActivitiesService(
         val haveTransferTo = type.isEmpty() || queryTypes.contains(FlowActivityType.TRANSFER_TO)
         val haveTransferFrom = type.isEmpty() || queryTypes.contains(FlowActivityType.TRANSFER_FROM)
         val haveBuy = type.isEmpty() || queryTypes.contains(FlowActivityType.BUY)
+        val haveGetBid = queryTypes.contains(FlowActivityType.GET_BID)
 
         queryTypes = fixTypes(queryTypes).toMutableList()
 
@@ -113,6 +103,28 @@ class ActivitiesService(
             mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow()
         } else emptyFlow()
         queryTypes.remove(FlowActivityType.CANCEL_LIST)
+
+        val makeBidActivities: Flow<ItemHistory> = if (queryTypes.contains(FlowActivityType.MAKE_BID)) {
+            val query = defaultQuery(size).with(defaultSort(sort))
+            val criteria = Criteria().orOperator(
+                Criteria("activity.type").isEqualTo(FlowActivityType.BID),
+                Criteria("activity.type").isEqualTo(FlowActivityType.CANCEL_BID),
+            ).and("activity.maker").`in`(user)
+            addContinuation(cont, criteria, sort)
+            addDates(criteria, from, to)
+            mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow()
+        } else emptyFlow()
+        queryTypes.remove(FlowActivityType.MAKE_BID)
+
+        val getBidActivities: Flow<ItemHistory> = if (queryTypes.contains(FlowActivityType.GET_BID)) {
+            val query = defaultQuery(size).with(defaultSort(sort))
+            val criteria = Criteria.where("activity.type").isEqualTo(FlowActivityType.SELL)
+                .and("activity.right.maker").`in`(user)
+            addContinuation(cont, criteria, sort)
+            addDates(criteria, from, to)
+            mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow()
+        } else emptyFlow()
+        queryTypes.remove(FlowActivityType.GET_BID)
 
         val buyActivities: Flow<ItemHistory> = if (haveBuy) {
             val query = defaultQuery(size).with(defaultSort(sort))
@@ -158,6 +170,8 @@ class ActivitiesService(
                 transferToActivities,
                 listActivities,
                 cancelListActivities,
+                makeBidActivities,
+                getBidActivities,
                 sellActivities,
                 buyActivities,
                 burnActivities,
@@ -353,6 +367,8 @@ class ActivitiesService(
             types + FlowActivityType.WITHDRAWN
         } else if (types.contains(FlowActivityType.SELL)) {
             types + FlowActivityType.CANCEL_LIST
+        } else if (types.contains(FlowActivityType.BID)) {
+            types + FlowActivityType.CANCEL_BID
         } else {
             types
         }

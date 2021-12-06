@@ -153,16 +153,37 @@ enum class FlowActivityType {
     BURN,
 
     /**
+     * NFT Sold
+     */
+    SELL,
+
+    BUY,
+
+    /**
      * List to sell
      */
     LIST,
 
     /**
-     * NFT Sold
+     * Cancel listing
      */
-    SELL,
+    CANCEL_LIST,
+
+    /**
+     * Open bid
+     */
+    BID,
+    MAKE_BID,
+    GET_BID,
+
+    /**
+     * Cancel bid
+     */
+    CANCEL_BID,
 
     TRANSFER,
+    TRANSFER_FROM,
+    TRANSFER_TO,
 
     /**
      * NFT withdrawn
@@ -173,14 +194,6 @@ enum class FlowActivityType {
      * NFT deposit
      */
     DEPOSIT,
-
-    /**
-     * Cancel listing
-     */
-    CANCEL_LIST,
-    TRANSFER_TO,
-    TRANSFER_FROM,
-    BUY
 }
 
 sealed class FlowAsset {
