@@ -115,7 +115,7 @@ class OrderApiControllerTest {
     @Test
     fun `should find all sell orders`() {
         coEvery {
-            orderService.findAll(any(), any(), OrderFilter.Sort.LATEST_FIRST)
+            orderService.findAllSell(any(), any(), OrderFilter.Sort.LATEST_FIRST)
         } returns (1L..10L).map { createOrder(it) }.asFlow()
 
         shouldGetPaginatedResult("/v0.1/orders/sell")
@@ -231,6 +231,10 @@ class OrderApiControllerTest {
 
     @Test
     fun `should find bids by item - success`() {
+        coEvery {
+            orderService.getBidOrdersByItem(any(), any(), any(), any(), any(), any(), any(), any(), any())
+        } returns (1L..10L).map { createBidOrder(it) }.asFlow()
+
         val page = shouldGetPaginatedResult(
             "/v0.1/bids/byItem?contract={contract}&tokenId={tokenId}&status=",
             "contract" to "ABC",
@@ -306,6 +310,36 @@ class OrderApiControllerTest {
             createdAt = LocalDateTime.now(ZoneOffset.UTC),
 
         )
+        return order
+    }
+
+    private fun createBidOrder(tokenId: Long = randomLong()): Order {
+        val itemId = ItemId("0x1a2b3c4d", tokenId)
+        val order = Order(
+            id = randomLong(),
+            itemId = itemId,
+            maker = randomFlowAddress(),
+            make = FlowAssetFungible(
+                "FLOW",
+                BigDecimal.TEN
+            ),
+            amount = BigDecimal.valueOf(100L),
+//            amountUsd = BigDecimal.valueOf(100L),
+            data = OrderData(
+                payouts = listOf(Payout(randomFlowAddress(), BigDecimal.valueOf(1L))),
+                originalFees = listOf(Payout(randomFlowAddress(), BigDecimal.valueOf(1L)))
+            ),
+            collection = "collection",
+            take = FlowAssetNFT(
+                contract = itemId.contract,
+                value = BigDecimal.valueOf(100L),
+                tokenId = itemId.tokenId
+            ),
+            makeStock = BigInteger.TEN,
+            lastUpdatedAt = LocalDateTime.now(ZoneOffset.UTC),
+            createdAt = LocalDateTime.now(ZoneOffset.UTC),
+
+            )
         return order
     }
 }
