@@ -1,6 +1,6 @@
 flow-indexer-backend-api:
   image:
-    repository: protocol-flow-backend-api
+    repository: flow-nft-indexer-backend-api
   environments:
     APPLICATION_ENVIRONMENT: '{{ include "service.appEnv" $ }}'
     CONSUL_ROOT_PATH: '{{ include "service.appEnv" $ }}/flow-indexer'
@@ -14,11 +14,12 @@ flow-indexer-backend-api:
   networks:
     common:
     - '{{ include "service.appEnv" $ }}-backend'
-    - proxy
+    additional:
+    - proxy-staging
 
 flow-indexer-scanner:
   image:
-    repository: protocol-flow-scanner
+    repository: flow-nft-indexer-scanner
   environments:
     APPLICATION_ENVIRONMENT: '{{ include "service.appEnv" $ }}'
     CONSUL_ROOT_PATH: '{{ include "service.appEnv" $ }}/flow-indexer'

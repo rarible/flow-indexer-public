@@ -4,6 +4,9 @@ flow-indexer-backend-api:
     jvm:
       xmx_megabytes: 768
       max_direct_memory_megabytes: 128
+  networks:
+    additional:
+    - proxy
 
 flow-indexer-scanner:
   resources:
