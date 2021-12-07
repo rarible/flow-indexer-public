@@ -18,8 +18,10 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -236,6 +238,21 @@ class OrderApiControllerTest {
         )
 
         page.items shouldHaveSize 0 // for now we return empty bids list
+    }
+
+    @Test
+    fun `should find bid currencies`() {
+        coEvery {
+            orderService.bidCurrenciesByItemId(any())
+        } returns flowOf(FlowAssetFungible("FLOW", BigDecimal.ZERO))
+
+        client.get()
+            .uri("/v0.1/bids/currencies/A.0b2a3299cc857e29.TopShot:1000")
+            .exchange()
+            .expectStatus().isOk
+
+        shouldGetBadRequest("/v0.1/bids/currencies/A.0b2a3299cc857e29.TopShot+1000")
+        shouldGetBadRequest("/v0.1/bids/currencies/A.0b2a3299cc857e29.TopShot:10T0")
     }
 
     private fun shouldGetPaginatedResult(url: String, params: Map<String, Any> = emptyMap()): FlowOrdersPaginationDto {

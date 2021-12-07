@@ -131,4 +131,20 @@ sealed class OrderFilter : CriteriaProduct<OrderFilter> {
             }
         }
     }
+
+    object OnlySell: OrderFilter() {
+        override fun criteria(): Criteria {
+            return Criteria(
+                "${Order::make.name}.tokenId"
+            ).exists(true)
+        }
+    }
+
+    object OnlyBid: OrderFilter() {
+        override fun criteria(): Criteria {
+            return Criteria(
+                "${Order::take.name}.tokenId"
+            ).exists(true)
+        }
+    }
 }
