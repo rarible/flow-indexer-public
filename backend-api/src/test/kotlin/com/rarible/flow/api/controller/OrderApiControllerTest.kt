@@ -232,7 +232,7 @@ class OrderApiControllerTest {
     @Test
     fun `should find bids by item - success`() {
         coEvery {
-            orderService.getBidOrdersByItem(any(), any(), any(), any(), any(), any(), any(), any(), any())
+            orderService.getBidOrdersByItem(any(), any(), any(), any(), any(), any(), any(), any(), OrderFilter.Sort.TAKE_PRICE_DESC)
         } returns (1L..10L).map { createBidOrder(it) }.asFlow()
 
         val page = shouldGetPaginatedResult(
@@ -241,7 +241,7 @@ class OrderApiControllerTest {
             "tokenId" to 1337L
         )
 
-        page.items shouldHaveSize 0 // for now we return empty bids list
+        page.items shouldHaveSize 10
     }
 
     @Test
