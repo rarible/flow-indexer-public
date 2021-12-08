@@ -114,6 +114,15 @@ internal class OrderServiceTest : BaseIntegrationTest() {
             )
         }
 
+        //Add one bid
+        orderRepository.coSave(
+            createOrder().copy(
+                itemId = ItemId("A", 1),
+                make = FlowAssetFungible("FLOW", 100.toBigDecimal()),
+                take = FlowAssetNFT("A", BigDecimal.ONE, 1)
+            )
+        )
+
         // maker is null, currency is null
         shouldReadAllByOne(
             { cont -> orderService.getSellOrdersByItemAndStatus(

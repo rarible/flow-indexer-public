@@ -69,6 +69,7 @@ class ActivitiesService(
         val haveTransferTo = type.isEmpty() || queryTypes.contains(FlowActivityType.TRANSFER_TO)
         val haveTransferFrom = type.isEmpty() || queryTypes.contains(FlowActivityType.TRANSFER_FROM)
         val haveBuy = type.isEmpty() || queryTypes.contains(FlowActivityType.BUY)
+        val haveGetBid = queryTypes.contains(FlowActivityType.GET_BID)
 
         queryTypes = fixTypes(queryTypes).toMutableList()
 
@@ -102,6 +103,28 @@ class ActivitiesService(
             mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow()
         } else emptyFlow()
         queryTypes.remove(FlowActivityType.CANCEL_LIST)
+
+        val makeBidActivities: Flow<ItemHistory> = if (queryTypes.contains(FlowActivityType.MAKE_BID)) {
+            val query = defaultQuery(size).with(defaultSort(sort))
+            val criteria = Criteria().orOperator(
+                Criteria("activity.type").isEqualTo(FlowActivityType.BID),
+                Criteria("activity.type").isEqualTo(FlowActivityType.CANCEL_BID),
+            ).and("activity.maker").`in`(user)
+            addContinuation(cont, criteria, sort)
+            addDates(criteria, from, to)
+            mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow()
+        } else emptyFlow()
+        queryTypes.remove(FlowActivityType.MAKE_BID)
+
+        val getBidActivities: Flow<ItemHistory> = if (queryTypes.contains(FlowActivityType.GET_BID)) {
+            val query = defaultQuery(size).with(defaultSort(sort))
+            val criteria = Criteria.where("activity.type").isEqualTo(FlowActivityType.SELL)
+                .and("activity.right.maker").`in`(user)
+            addContinuation(cont, criteria, sort)
+            addDates(criteria, from, to)
+            mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow()
+        } else emptyFlow()
+        queryTypes.remove(FlowActivityType.GET_BID)
 
         val buyActivities: Flow<ItemHistory> = if (haveBuy) {
             val query = defaultQuery(size).with(defaultSort(sort))
@@ -147,6 +170,8 @@ class ActivitiesService(
                 transferToActivities,
                 listActivities,
                 cancelListActivities,
+                makeBidActivities,
+                getBidActivities,
                 sellActivities,
                 buyActivities,
                 burnActivities,
@@ -342,6 +367,8 @@ class ActivitiesService(
             types + FlowActivityType.WITHDRAWN
         } else if (types.contains(FlowActivityType.SELL)) {
             types + FlowActivityType.CANCEL_LIST
+        } else if (types.contains(FlowActivityType.BID)) {
+            types + FlowActivityType.CANCEL_BID
         } else {
             types
         }

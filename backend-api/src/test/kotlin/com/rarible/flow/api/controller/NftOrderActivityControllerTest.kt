@@ -320,8 +320,162 @@ class NftOrderActivityControllerTest {
     }
 
     @Test
+    internal fun `should get bid cancel_bid`() {
+        val user = "0xf60ae072502ac3e6"
+        val contract = "A.01ab36aaf654a13e.RaribleNFT"
+        val tokenId = 74L
+
+        val history = listOf(
+            ItemHistory(
+                ZonedDateTime.parse("2021-11-10T11:11:36.543Z").toInstant(),
+                FlowNftOrderActivityList(
+                    type = FlowActivityType.BID,
+                    contract = contract,
+                    tokenId = tokenId,
+                    timestamp = ZonedDateTime.parse("2021-11-10T11:11:36.543Z").toInstant(),
+                    price = BigDecimal("9.00000000"),
+                    priceUsd = BigDecimal("9.00000000"),
+                    make = FlowAssetFungible(contract, BigDecimal.TEN),
+                    take = FlowAssetNFT(contract, BigDecimal.ONE, tokenId),
+                    maker = user,
+                    hash = "79268631",
+                    payments = emptyList(),
+                ),
+                FlowLog(
+                    transactionHash = "052dd413b2fb22fb078f03b3d5cb93238376f801513a8996b45e848e92700535",
+                    status = Log.Status.CONFIRMED,
+                    eventIndex = 1,
+                    eventType = "A.01ab36aaf654a13e.RaribleOpenBid.BidAvailable",
+                    timestamp = ZonedDateTime.parse("2021-11-10T11:11:36.543Z").toInstant(),
+                    blockHeight = 20231662L,
+                    blockHash = "d3265903abde4ab6518347f40f7aa2720539ef499925fd27481c0e08a1a81824"
+                )
+            ),
+            ItemHistory(
+                ZonedDateTime.parse("2021-11-10T11:12:24.761Z").toInstant(),
+                FlowNftOrderActivityCancelList(
+                    type = FlowActivityType.CANCEL_BID,
+                    contract = contract,
+                    tokenId = tokenId,
+                    timestamp = ZonedDateTime.parse("2021-11-10T11:12:24.761Z").toInstant(),
+                    price = BigDecimal("9.00000000"),
+                    priceUsd = BigDecimal("9.00000000"),
+                    make = FlowAssetFungible(contract, BigDecimal.TEN),
+                    take = FlowAssetNFT(contract, BigDecimal.ONE, tokenId),
+                    maker = user,
+                    hash = "79268631",
+                ),
+                FlowLog(
+                    transactionHash = "a1b589c6a8f969f5f219b04457f3ff214c7fdce7a87eae9176805569fab89dc6",
+                    status = Log.Status.CONFIRMED,
+                    eventIndex = 0,
+                    eventType = "A.01ab36aaf654a13e.RaribleOpenBid.BidCompleted",
+                    timestamp = ZonedDateTime.parse("2021-11-10T11:12:24.761Z").toInstant(),
+                    blockHeight = 20231684L,
+                    blockHash = "f5f672878a5d2311e5742e82f5334abcf34f2ec1df813336b68d4c64264fd8c6"
+                )
+            ),
+        )
+        repo.saveAll(history).then().block()
+
+        val urls = listOf(
+            "/v0.1/order/activities/byItem?type=BID&contract=$contract&tokenId=$tokenId",
+            "/v0.1/order/activities/byUser?type=MAKE_BID&user=$user",
+            "/v0.1/order/activities/byCollection?type=BID&collection=$contract",
+            "/v0.1/order/activities/all?type=BID"
+        )
+        urls.forEach { url ->
+            client.get().uri(url)
+                .exchange()
+                .expectStatus().isOk
+                .expectBody<FlowActivitiesDto>()
+                .consumeWith { response ->
+                    val activitiesDto = response.responseBody
+                    Assertions.assertNotNull(activitiesDto)
+                    Assertions.assertNotNull(activitiesDto?.items)
+                    Assertions.assertTrue(activitiesDto?.items!!.isNotEmpty())
+                    Assertions.assertEquals(2, activitiesDto.items.count() )
+                }
+        }
+    }
+
+    @Test
+    internal fun `test get_bid`() {
+        val user = "0xf60ae072502ac3e6"
+        val contract = "A.01ab36aaf654a13e.RaribleNFT"
+        val tokenId = 74L
+
+        val history = listOf(
+            ItemHistory(
+                ZonedDateTime.parse("2021-11-10T11:12:24.761Z").toInstant(),
+                FlowNftOrderActivitySell(
+                    type = FlowActivityType.SELL,
+                    contract = contract,
+                    tokenId = tokenId,
+                    timestamp = ZonedDateTime.parse("2021-11-10T11:12:24.761Z").toInstant(),
+                    price = BigDecimal("9.00000000"),
+                    priceUsd = BigDecimal("9.00000000"),
+                    left = OrderActivityMatchSide(randomAddress(), FlowAssetFungible(contract, BigDecimal.TEN)),
+                    right = OrderActivityMatchSide(user, FlowAssetNFT(contract, BigDecimal.ONE, tokenId)),
+                    hash = "79268642",
+                ),
+                FlowLog(
+                    transactionHash = "a1b589c6a8f969f5f219b04457f3ff214c7fdce7a87eae9176805569fab89dd6",
+                    status = Log.Status.CONFIRMED,
+                    eventIndex = 0,
+                    eventType = "A.01ab36aaf654a13e.RaribleOpenBid.BidCompleted",
+                    timestamp = ZonedDateTime.parse("2021-11-10T11:12:24.761Z").toInstant(),
+                    blockHeight = 20231684L,
+                    blockHash = "f5f672878a5d2311e5742e82f5334abcf34f2ec1df813336b68d4c64264fd8d6"
+                )
+            ),
+            ItemHistory(
+                ZonedDateTime.parse("2021-11-10T11:12:24.761Z").toInstant(),
+                FlowNftOrderActivitySell(
+                    type = FlowActivityType.SELL,
+                    contract = contract,
+                    tokenId = tokenId,
+                    timestamp = ZonedDateTime.parse("2021-11-10T11:12:24.761Z").toInstant(),
+                    price = BigDecimal("9.00000000"),
+                    priceUsd = BigDecimal("9.00000000"),
+                    left = OrderActivityMatchSide(randomAddress(), FlowAssetFungible(contract, BigDecimal.TEN)),
+                    right = OrderActivityMatchSide(user, FlowAssetNFT(contract, BigDecimal.ONE, tokenId)),
+                    hash = "79268642",
+                ),
+                FlowLog(
+                    transactionHash = "a1b589c6a8f969f5f219b04457f3ff214c7fdce7a87eae9176805569fab89de6",
+                    status = Log.Status.CONFIRMED,
+                    eventIndex = 0,
+                    eventType = "A.01ab36aaf654a13e.RaribleOpenBid.BidCompleted",
+                    timestamp = ZonedDateTime.parse("2021-11-10T11:12:24.761Z").toInstant(),
+                    blockHeight = 20231684L,
+                    blockHash = "f5f672878a5d2311e5742e82f5334abcf34f2ec1df813336b68d4c64264fd8e6"
+                )
+            ),
+        )
+        repo.saveAll(history).then().block()
+
+        val urls = listOf(
+            "/v0.1/order/activities/byUser?type=GET_BID&user=$user",
+        )
+        urls.forEach { url ->
+            client.get().uri(url)
+                .exchange()
+                .expectStatus().isOk
+                .expectBody<FlowActivitiesDto>()
+                .consumeWith { response ->
+                    val activitiesDto = response.responseBody
+                    Assertions.assertNotNull(activitiesDto)
+                    Assertions.assertNotNull(activitiesDto?.items)
+                    Assertions.assertTrue(activitiesDto?.items!!.isNotEmpty())
+                    Assertions.assertEquals(2, activitiesDto.items.count() )
+                }
+        }
+    }
+
+    @Test
     @Disabled("TODO Enable it after debug!!!")
-    internal fun test() {
+    internal fun `check order of list cancel_list`() {
         val acc1 = "0xf60ae072502ac3e6"
         val contract = "A.01ab36aaf654a13e.RaribleNFT"
         val tokenId = 74L

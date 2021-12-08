@@ -15,6 +15,7 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
@@ -107,7 +108,7 @@ class OrderApiControllerTest {
     @Test
     fun `should find all sell orders`() {
         coEvery {
-            orderService.findAll(any(), any(), OrderFilter.Sort.LATEST_FIRST)
+            orderService.findAllSell(any(), any(), OrderFilter.Sort.LATEST_FIRST)
         } returns (1L..10L).map { createOrder(it) }.asFlow()
 
         shouldGetPaginatedResult("/v0.1/orders/sell")
@@ -223,13 +224,32 @@ class OrderApiControllerTest {
 
     @Test
     fun `should find bids by item - success`() {
+        coEvery {
+            orderService.getBidOrdersByItem(any(), any(), any(), any(), any(), any(), any(), any(), OrderFilter.Sort.TAKE_PRICE_DESC)
+        } returns (1L..10L).map { createBidOrder(it) }.asFlow()
+
         val page = shouldGetPaginatedResult(
             "/v0.1/bids/byItem?contract={contract}&tokenId={tokenId}&status=",
             "contract" to "ABC",
             "tokenId" to 1337L
         )
 
-        page.items shouldHaveSize 0 // for now we return empty bids list
+        page.items shouldHaveSize 10
+    }
+
+    @Test
+    fun `should find bid currencies`() {
+        coEvery {
+            orderService.bidCurrenciesByItemId(any())
+        } returns flowOf(FlowAssetFungible("FLOW", BigDecimal.ZERO))
+
+        client.get()
+            .uri("/v0.1/bids/currencies/A.0b2a3299cc857e29.TopShot:1000")
+            .exchange()
+            .expectStatus().isOk
+
+        shouldGetBadRequest("/v0.1/bids/currencies/A.0b2a3299cc857e29.TopShot+1000")
+        shouldGetBadRequest("/v0.1/bids/currencies/A.0b2a3299cc857e29.TopShot:10T0")
     }
 
     private fun shouldGetPaginatedResult(url: String, params: Map<String, Any> = emptyMap()): FlowOrdersPaginationDto {
@@ -283,6 +303,36 @@ class OrderApiControllerTest {
             createdAt = LocalDateTime.now(ZoneOffset.UTC),
             type = OrderType.LIST
         )
+        return order
+    }
+
+    private fun createBidOrder(tokenId: Long = randomLong()): Order {
+        val itemId = ItemId("0x1a2b3c4d", tokenId)
+        val order = Order(
+            id = randomLong(),
+            itemId = itemId,
+            maker = randomFlowAddress(),
+            make = FlowAssetFungible(
+                "FLOW",
+                BigDecimal.TEN
+            ),
+            amount = BigDecimal.valueOf(100L),
+//            amountUsd = BigDecimal.valueOf(100L),
+            data = OrderData(
+                payouts = listOf(Payout(randomFlowAddress(), BigDecimal.valueOf(1L))),
+                originalFees = listOf(Payout(randomFlowAddress(), BigDecimal.valueOf(1L)))
+            ),
+            collection = "collection",
+            take = FlowAssetNFT(
+                contract = itemId.contract,
+                value = BigDecimal.valueOf(100L),
+                tokenId = itemId.tokenId
+            ),
+            makeStock = BigInteger.TEN,
+            lastUpdatedAt = LocalDateTime.now(ZoneOffset.UTC),
+            createdAt = LocalDateTime.now(ZoneOffset.UTC),
+
+            )
         return order
     }
 }

@@ -1,14 +1,30 @@
 package com.rarible.flow.core.converter
 
 import com.rarible.flow.core.domain.*
+import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.*
 import org.springframework.core.convert.converter.Converter
 
 
 object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
 
+    val logger by Log()
+
+    private fun convertAsset(asset: FlowAsset) = when (asset) {
+        is FlowAssetNFT -> FlowAssetNFTDto(
+            contract = asset.contract,
+            value = asset.value,
+            tokenId = asset.tokenId.toBigInteger(),
+        )
+        is FlowAssetFungible -> FlowAssetFungibleDto(
+            contract = asset.contract,
+            value = asset.value,
+        )
+        else -> throw IllegalStateException("Invalid asset: ${asset.javaClass}")
+    }
+
     override fun convert(source: ItemHistory): FlowActivityDto? {
-        return when(source.activity) {
+        return when (source.activity) {
             is MintActivity -> FlowMintDto(
                 id = source.id,
                 date = source.date,
@@ -40,19 +56,12 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 date = source.date,
                 left = FlowOrderActivityMatchSideDto(
                     maker = source.activity.left.maker,
-                    asset = FlowAssetNFTDto(
-                        contract = source.activity.left.asset.contract,
-                        value = source.activity.left.asset.value,
-                        tokenId = (source.activity.left.asset as FlowAssetNFT).tokenId.toBigInteger()
-                    ),
+                    asset = convertAsset(source.activity.left.asset),
                     type = FlowOrderActivityMatchSideDto.Type.SELL
                 ),
                 right = FlowOrderActivityMatchSideDto(
                     maker = source.activity.right.maker,
-                    asset = FlowAssetFungibleDto(
-                        contract = source.activity.right.asset.contract,
-                        value = source.activity.right.asset.value
-                    ),
+                    asset = convertAsset(source.activity.right.asset),
                     type = FlowOrderActivityMatchSideDto.Type.BID
                 ),
                 price = source.activity.price,
@@ -66,15 +75,8 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 date = source.date,
                 hash = source.activity.hash,
                 maker = source.activity.maker,
-                make = FlowAssetNFTDto(
-                    contract = source.activity.make.contract,
-                    value = source.activity.make.value,
-                    tokenId = (source.activity.make as FlowAssetNFT).tokenId.toBigInteger()
-                ),
-                take = FlowAssetFungibleDto(
-                    contract = source.activity.take.contract,
-                    value = source.activity.take.value
-                ),
+                make = convertAsset(source.activity.make),
+                take = convertAsset(source.activity.take),
                 price = source.activity.price,
                 transactionHash = source.log.transactionHash,
                 blockHash = source.log.blockHash,
@@ -86,15 +88,8 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 date = source.date,
                 hash = source.activity.hash,
                 maker = source.activity.maker,
-                make = FlowAssetNFTDto(
-                    contract = source.activity.make.contract,
-                    value = source.activity.make.value,
-                    tokenId = (source.activity.make as FlowAssetNFT).tokenId.toBigInteger()
-                ),
-                take = FlowAssetFungibleDto(
-                    contract = source.activity.take.contract,
-                    value = source.activity.take.value
-                ),
+                make = convertAsset(source.activity.make),
+                take = convertAsset(source.activity.take),
                 price = source.activity.price,
                 transactionHash = source.log.transactionHash,
                 blockHash = source.log.blockHash,

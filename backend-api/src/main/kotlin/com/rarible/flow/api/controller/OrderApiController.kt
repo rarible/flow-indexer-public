@@ -25,8 +25,12 @@ class OrderApiController(
     private val converter: OrderToDtoConverter
 ): FlowOrderControllerApi {
 
-    override fun getBidCurrencies(itemId: String): ResponseEntity<Flow<FlowAssetDto>> =
-        ResponseEntity.ok(emptyFlow())
+    override fun getBidCurrencies(itemId: String): ResponseEntity<Flow<FlowAssetDto>> {
+        val itemId = itemId.itemId()
+        return service.bidCurrenciesByItemId(itemId).map {
+            FlowAssetFungibleDto(it.contract, it.value)
+        }.okOr404IfNull()
+    }
 
     override suspend fun getBidsByItem(
         contract: String,
@@ -40,9 +44,28 @@ class OrderApiController(
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
-        return FlowOrdersPaginationDto(emptyList()).okOr404IfNull()
+        val makerAddress = maker.flowAddress()
+        val itemId = ItemId(contract, tokenId.tokenId())
+        val sort = OrderFilter.Sort.TAKE_PRICE_DESC
+        val orderStatuses = OderStatusDtoConverter.convert(status)
+        return result(
+            service.getBidOrdersByItem(
+                itemId,
+                makerAddress,
+                currencyAddress,
+                orderStatuses,
+                startDate,
+                endDate,
+                continuation,
+                size,
+                sort
+            ),
+            sort, size
+        )
     }
 
+
+    //TODO possible duplicate
     override suspend fun getOrderBidsByItem(
         contract: String,
         tokenId: String,
@@ -64,7 +87,22 @@ class OrderApiController(
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
-        return FlowOrdersPaginationDto(emptyList()).okOr404IfNull()
+        val makerAddress = maker.flowAddress()
+        val sort = OrderFilter.Sort.TAKE_PRICE_DESC
+        val orderStatuses = OderStatusDtoConverter.convert(status)
+        return result(
+            service.getBidOrdersByMaker(
+                makerAddress,
+                orderStatuses,
+                origin,
+                startDate,
+                endDate,
+                continuation,
+                size,
+                sort
+            ),
+            sort, size
+        )
     }
 
     override suspend fun getOrderByOrderId(orderId: String): ResponseEntity<FlowOrderDto> =
@@ -103,11 +141,10 @@ class OrderApiController(
     }
 
     override fun getSellCurrencies(itemId: String): ResponseEntity<Flow<FlowAssetDto>> {
-        return runBlocking {
-            service.currenciesByItemId(itemId).map {
-                FlowAssetFungibleDto(it.contract, it.value)
-            }.okOr404IfNull()
-        }
+        val itemId = itemId.itemId()
+        return service.currenciesByItemId(itemId).map {
+            FlowAssetFungibleDto(it.contract, it.value)
+        }.okOr404IfNull()
     }
 
     override suspend fun getSellOrders(
@@ -117,7 +154,7 @@ class OrderApiController(
     ): ResponseEntity<FlowOrdersPaginationDto> {
         val sort = OrderFilter.Sort.LATEST_FIRST
         return result(
-            service.findAll(continuation, size, sort),
+            service.findAllSell(continuation, size, sort),
             sort, size
         )
     }

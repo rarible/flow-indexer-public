@@ -35,7 +35,7 @@ object data {
 
     fun createSellActivity() = FlowNftOrderActivitySell(
         price = BigDecimal.ONE,
-        priceUsd = BigDecimal.ONE,
+        priceUsd = 1.1.toBigDecimal(),
         tokenId = 1,
         left = OrderActivityMatchSide(
             FlowAddress("0x01").formatted,

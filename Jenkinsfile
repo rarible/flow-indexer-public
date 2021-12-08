@@ -1,4 +1,4 @@
-@Library('shared-library@v20211117-3') _
+@Library('shared-library@v21.11.30-1') _
 
 def pipelineConfig = [
     "stackName": "protocol-flow",

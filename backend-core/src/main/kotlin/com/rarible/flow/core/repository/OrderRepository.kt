@@ -25,12 +25,19 @@ interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepository
     """)
     fun findAllByMake(contract: String, tokenId: Long): Flux<Order>
 
+    @Query("""
+        {"take.contract": ?0, "take.tokenId": ?1}
+    """)
+    fun findAllByTake(contract: String, tokenId: Long): Flux<Order>
+
     fun findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
         make: FlowAsset,
         maker: FlowAddress,
         status: OrderStatus,
         lastUpdatedAt: LocalDateTime,
     ): Flux<Order>
+
+    fun findAllByStatus(status: OrderStatus): Flux<Order>
 }
 
 interface OrderRepositoryCustom {
