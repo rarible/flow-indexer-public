@@ -1,0 +1,111 @@
+package com.rarible.flow.scanner.subscriber
+
+import com.nftco.flow.sdk.FlowChainId
+import com.nftco.flow.sdk.cadence.*
+import com.rarible.blockchain.scanner.flow.client.FlowBlockchainBlock
+import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
+import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
+import com.rarible.flow.core.domain.BaseActivity
+import com.rarible.flow.core.domain.DepositActivity
+import com.rarible.flow.core.domain.MintActivity
+import com.rarible.flow.core.domain.WithdrawnActivity
+import com.rarible.flow.events.EventMessage
+import com.rarible.flow.scanner.model.parse
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.springframework.stereotype.Component
+import java.time.Instant
+
+@ExperimentalCoroutinesApi
+@Component
+class MugenNFTSubscriber : BaseItemHistoryFlowLogSubscriber() {
+    override val descriptors: Map<FlowChainId, FlowDescriptor>
+        get() = mapOf(
+            FlowChainId.MAINNET to FlowDescriptor(
+                id = "MugenNFTSubscriber",
+                events = setOf(
+                    "A.2cd46d41da4ce262.MugenNFT.Minted",
+                    "A.2cd46d41da4ce262.MugenNFT.Withdraw",
+                    "A.2cd46d41da4ce262.MugenNFT.Deposit",
+                ),
+                collection = collection,
+                startFrom = 19040960L,
+            ),
+            FlowChainId.TESTNET to FlowDescriptor(
+                id = "MugenNFTSubscriber",
+                events = setOf(
+                    "A.ebf4ae01d1284af8.MugenNFT.Mint",
+                    "A.ebf4ae01d1284af8.MugenNFT.Withdraw",
+                    "A.ebf4ae01d1284af8.MugenNFT.Deposit",
+                ),
+                collection = collection,
+                startFrom = 53489946L
+            ),
+            FlowChainId.EMULATOR to FlowDescriptor(
+                id = "MugenNFTSubscriber",
+                events = setOf(
+                    "A.f8d6e0586b0a20c7.MugenNFT.Mint",
+                    "A.f8d6e0586b0a20c7.MugenNFT.Withdraw",
+                    "A.f8d6e0586b0a20c7.MugenNFT.Deposit",
+                ),
+                collection = collection,
+            ),
+        )
+
+    override suspend fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity {
+        val id: NumberField by msg.fields
+        val tokenId = id.toLong()!!
+        val contract = msg.eventId.collection()
+        val timestamp = Instant.ofEpochMilli(block.timestamp)
+        val eventId = "${msg.eventId}"
+        return when {
+            eventId.endsWith("Minted") -> {
+                val minted = log.event.parse<MugenNftMinted>()
+                MintActivity(
+                    owner = msg.eventId.contractAddress.formatted,
+                    contract = contract,
+                    tokenId = tokenId,
+                    timestamp = timestamp,
+                    royalties = emptyList(),
+                    metadata = mapOf(
+                        "id" to minted.id.toString(),
+                        "typeId" to minted.typeId.toString(),
+                    )
+                )
+            }
+            eventId.endsWith("Withdraw") -> {
+                val from: OptionalField by msg.fields
+                WithdrawnActivity(
+                    contract = contract,
+                    tokenId = tokenId,
+                    from = (from.value as? AddressField)?.value,
+                    timestamp = timestamp
+                )
+            }
+            eventId.endsWith("Deposit") -> {
+                val to: OptionalField by msg.fields
+                DepositActivity(
+                    contract = contract,
+                    tokenId = tokenId,
+                    to = (to.value as? AddressField)?.value,
+                    timestamp = timestamp
+                )
+            }
+            else -> throw IllegalStateException("Unsupported eventId: $eventId")
+        }
+    }
+}
+
+@JsonCadenceConversion(MugenNftMintConverter::class)
+data class MugenNftMinted(
+    val id: Long,
+    val typeId: Long,
+)
+
+class MugenNftMintConverter : JsonCadenceConverter<MugenNftMinted> {
+    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): MugenNftMinted = unmarshall(value) {
+        MugenNftMinted(
+            id = long("id"),
+            typeId = long("typeID"),
+        )
+    }
+}
