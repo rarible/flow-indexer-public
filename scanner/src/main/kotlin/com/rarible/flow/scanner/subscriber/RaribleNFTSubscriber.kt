@@ -30,7 +30,6 @@ class RaribleNFTSubscriber: BaseFlowLogEventSubscriber() {
                 address = "ebf4ae01d1284af8",
                 events = events,
                 contract = contractName,
-                startFrom = 47831085L
             ),
             FlowChainId.EMULATOR to flowDescriptor(
                 address = "f8d6e0586b0a20c7",

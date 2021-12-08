@@ -22,4 +22,4 @@ blockchain:
         delay: 100
       job:
         reconciliation:
-          batchSize: 1000
+          batchSize: 25

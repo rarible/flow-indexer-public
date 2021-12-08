@@ -3,6 +3,7 @@ package com.rarible.flow.scanner
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.configuration.FlowBlockchainScannerProperties
+import com.rarible.blockchain.scanner.flow.service.SporkService
 import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -16,7 +17,8 @@ class AppReadyListener(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemCollectionRepository: ItemCollectionRepository,
     private val scannerProperties: FlowBlockchainScannerProperties,
-    private val scannerMonitoring: ScannerMonitoring
+    private val scannerMonitoring: ScannerMonitoring,
+    private val sporkService: SporkService
 ) : ApplicationListener<ApplicationReadyEvent> {
 
     private val supportedCollections = mapOf(
@@ -44,6 +46,11 @@ class AppReadyListener(
                 itemCollectionRepository.deleteAll().awaitFirstOrNull()
                 itemCollectionRepository.saveAll(supportedCollections[scannerProperties.chainId]!!).then()
                     .awaitFirstOrNull()
+                if (scannerProperties.chainId == FlowChainId.TESTNET) {
+                    sporkService.allSporks.replace(FlowChainId.TESTNET, listOf(
+                        SporkService.Spork(from = 53376277L, nodeUrl = "access.devnet.nodes.onflow.org"),
+                    ))
+                }
             }
         }
     }

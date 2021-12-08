@@ -27,7 +27,6 @@ class MotoGPSubscriber : BaseFlowLogEventSubscriber() {
                 address = "01658d9b94068f3c",
                 contract = contractName,
                 events = events,
-                startFrom = 47831085L
             ),
         )
 
