@@ -331,7 +331,7 @@ class OrderApiControllerTest {
             makeStock = BigInteger.TEN,
             lastUpdatedAt = LocalDateTime.now(ZoneOffset.UTC),
             createdAt = LocalDateTime.now(ZoneOffset.UTC),
-
+            type = OrderType.LIST
             )
         return order
     }
