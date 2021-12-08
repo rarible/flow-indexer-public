@@ -2,7 +2,6 @@ package com.rarible.flow.scanner.service
 
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.scanner.Data
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
@@ -14,7 +13,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import io.mockk.verifyAll
 import io.mockk.verifySequence
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -51,7 +49,7 @@ internal class OrderServiceTest: FunSpec({
                 findById(any<ItemId>())
             } returns Mono.empty()
         }
-        val service = OrderService(orderRepository, itemRepository, currencyApi)
+        val service = OrderService(orderRepository, currencyApi)
         val activiy = FlowNftOrderActivityList(
             price = BigDecimal("13.37"),
             priceUsd = BigDecimal("26.74"),
@@ -62,10 +60,9 @@ internal class OrderServiceTest: FunSpec({
             maker = "0x01",
             make = FlowAssetNFT("RaribleNFT", BigDecimal.ONE, 13),
             take = FlowAssetFungible("Flow", BigDecimal("13.37")),
-            payments = emptyList()
         )
 
-        service.list(activiy) should { order ->
+        service.list(activiy, null) should { order ->
             order.itemId shouldBe ItemId("RaribleNFT", 13)
         }
 
@@ -81,7 +78,7 @@ internal class OrderServiceTest: FunSpec({
             } returns Flux.empty()
         }
         val itemRepository = mockk<ItemRepository>("itemRepository") {}
-        OrderService(orderRepository, itemRepository, currencyApi)
+        OrderService(orderRepository, currencyApi)
             .deactivateOrdersByItem(Data.createItem(), LocalDateTime.now())
             .count() shouldBe 0
 
@@ -104,9 +101,8 @@ internal class OrderServiceTest: FunSpec({
 
             every { save(any()) } answers { Mono.just(arg(0)) }
         }
-        val itemRepository = mockk<ItemRepository>("itemRepository") {}
 
-        OrderService(orderRepository, itemRepository, currencyApi)
+        OrderService(orderRepository, currencyApi)
             .deactivateOrdersByItem(Data.createItem(), LocalDateTime.now())
             .count() shouldBe 1
 
@@ -128,9 +124,7 @@ internal class OrderServiceTest: FunSpec({
             every { save(any()) } answers { Mono.just(arg(0)) }
         }
 
-        val itemRepository = mockk<ItemRepository>("itemRepository") {}
-
-        OrderService(orderRepository, itemRepository, currencyApi)
+        OrderService(orderRepository, currencyApi)
             .updateOrdersPrices()
 
         verifySequence {

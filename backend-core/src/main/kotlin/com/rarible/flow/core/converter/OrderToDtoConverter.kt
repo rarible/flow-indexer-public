@@ -5,8 +5,6 @@ import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
 import com.rarible.protocol.dto.*
 import kotlinx.coroutines.reactor.awaitSingle
-import org.springframework.core.convert.converter.Converter
-import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -34,7 +32,7 @@ class OrderToDtoConverter(
             lastUpdateAt = source.lastUpdatedAt!!.toInstant(ZoneOffset.UTC),
             amount = source.amount,
             offeredNftId = "", //TODO not needed
-            data = convert(source.data),
+            data = convert(source.data ?: OrderData(emptyList(), emptyList())),
             priceUsd = priceUsd.rate * source.take.value,
             collection = source.collection,
             makeStock = source.makeStock,

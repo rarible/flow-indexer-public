@@ -1,9 +1,9 @@
 package com.rarible.flow.scanner.eventlisteners
 
 import com.rarible.blockchain.scanner.framework.data.Source
-import com.rarible.flow.core.domain.FlowActivityType
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.converter.OrderToDtoConverter
+import com.rarible.flow.core.domain.FlowActivityType
 import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
 import com.rarible.flow.core.domain.FlowNftOrderActivityList
 import com.rarible.flow.core.domain.FlowNftOrderActivitySell
@@ -33,9 +33,9 @@ class OrderIndexerEventProcessor(
     }
 
     private suspend fun list(event: IndexerEvent) {
-        val activity = event.history.first().activity as FlowNftOrderActivityList
+        val activity = event.history.activity as FlowNftOrderActivityList
         withSpan("listOrderEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
-            val o = orderService.list(activity)
+            val o = orderService.list(activity, event.item)
             if (event.source != Source.REINDEX) {
                 protocolEventPublisher.onOrderUpdate(o, orderConverter)
             }
@@ -43,7 +43,7 @@ class OrderIndexerEventProcessor(
     }
 
     private suspend fun orderClose(event: IndexerEvent) {
-        val activity = event.history.first().activity as FlowNftOrderActivitySell
+        val activity = event.history.activity as FlowNftOrderActivitySell
         withSpan("closeOrderEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val o = orderService.close(activity)
             if (event.source != Source.REINDEX) {
@@ -53,8 +53,8 @@ class OrderIndexerEventProcessor(
     }
 
     private suspend fun orderCancelled(event: IndexerEvent) {
-        val activity = event.history.first().activity as FlowNftOrderActivityCancelList
-        withSpan("cancelOrderEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
+        val activity = event.history.activity as FlowNftOrderActivityCancelList
+        withSpan("cancelOrderEvent", type = "event", labels = listOf("hash" to activity.hash)) {
             val o = orderService.cancel(activity)
             if (event.source != Source.REINDEX) {
                 protocolEventPublisher.onOrderUpdate(o, orderConverter)

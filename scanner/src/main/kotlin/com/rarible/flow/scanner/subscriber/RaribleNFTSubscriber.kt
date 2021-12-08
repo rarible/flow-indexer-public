@@ -1,102 +1,54 @@
 package com.rarible.flow.scanner.subscriber
 
-import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.*
-import com.rarible.blockchain.scanner.flow.client.FlowBlockchainBlock
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
-import com.rarible.flow.core.domain.*
-import com.rarible.flow.events.EventMessage
+import com.rarible.flow.core.domain.FlowLogType
+import com.rarible.flow.core.domain.Part
+import com.rarible.flow.events.EventId
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.springframework.stereotype.Component
-import java.time.Instant
 
 @ExperimentalCoroutinesApi
 @Component
-class RaribleNFTSubscriber: BaseItemHistoryFlowLogSubscriber() {
+class RaribleNFTSubscriber: BaseFlowLogEventSubscriber() {
+
+    private val events = setOf("Mint", "Withdraw", "Deposit", "Destroy")
+    private val contractName = "RaribleNFT"
+
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.MAINNET to FlowDescriptor(
-                id = "RaribleNFTSubscriber",
-                events = setOf(
-                    "A.01ab36aaf654a13e.RaribleNFT.Mint",
-                    "A.01ab36aaf654a13e.RaribleNFT.Withdraw",
-                    "A.01ab36aaf654a13e.RaribleNFT.Deposit",
-                    "A.01ab36aaf654a13e.RaribleNFT.Destroy"
-                ),
-                collection = collection
+            FlowChainId.MAINNET to flowDescriptor(
+                address = "01ab36aaf654a13e",
+                contract = contractName,
+                events = events,
+                startFrom = 19799019L
             ),
-            FlowChainId.TESTNET to FlowDescriptor(
-                id = "RaribleNFTSubscriber",
-                events = setOf(
-                    "A.ebf4ae01d1284af8.RaribleNFT.Mint",
-                    "A.ebf4ae01d1284af8.RaribleNFT.Withdraw",
-                    "A.ebf4ae01d1284af8.RaribleNFT.Deposit",
-                    "A.ebf4ae01d1284af8.RaribleNFT.Destroy"
-                ),
-                collection = collection,
+            FlowChainId.TESTNET to flowDescriptor(
+                address = "ebf4ae01d1284af8",
+                events = events,
+                contract = contractName,
                 startFrom = 47831085L
             ),
-            FlowChainId.EMULATOR to FlowDescriptor(
-                id = "RaribleNFTSubscriber",
-                events = setOf(
-                    "A.f8d6e0586b0a20c7.RaribleNFT.Mint",
-                    "A.f8d6e0586b0a20c7.RaribleNFT.Withdraw",
-                    "A.f8d6e0586b0a20c7.RaribleNFT.Deposit",
-                    "A.f8d6e0586b0a20c7.RaribleNFT.Destroy"
-                ),
-                collection = collection,
+            FlowChainId.EMULATOR to flowDescriptor(
+                address = "f8d6e0586b0a20c7",
+                events = events,
+                contract = contractName,
             ),
         )
 
-    override suspend fun activity(block: FlowBlockchainBlock, log: FlowBlockchainLog, msg: EventMessage): BaseActivity {
-        val id: NumberField by msg.fields
-        val tokenId = id.toLong()!!
-        val contract = msg.eventId.collection()
-        val timestamp = Instant.ofEpochMilli(block.timestamp)
-        val eventId = "${msg.eventId}"
-        return when {
-            eventId.endsWith("Mint") -> {
-                val mint = Flow.unmarshall(RaribleNftMint::class, log.event.event)
-                MintActivity(
-                    owner = mint.creator,
-                    contract = contract,
-                    tokenId = tokenId,
-                    timestamp = timestamp,
-                    royalties = mint.royalties,
-                    metadata = mint.metadata
-                )
-            }
-            eventId.endsWith("Withdraw") -> {
-                val from: OptionalField by msg.fields
-                WithdrawnActivity(
-                    contract = contract,
-                    tokenId = tokenId,
-                    from = if (from.value == null) null else {(from.value as AddressField).value},
-                    timestamp = timestamp
-                )
-            }
-            eventId.endsWith("Deposit") -> {
-                val to: OptionalField by msg.fields
-                DepositActivity(
-                    contract = contract,
-                    tokenId = tokenId,
-                    to = if (to.value == null) null else {(to.value as AddressField).value},
-                    timestamp = timestamp
-                )
-            }
-            eventId.endsWith("Destroy") -> {
-                BurnActivity(
-                    contract = contract,
-                    tokenId = tokenId,
-                    timestamp = timestamp
-                )
-            }
-            else -> throw IllegalStateException("Unsupported eventId: $eventId")
-        }
+    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when(EventId.of(log.event.id).eventName) {
+        "Mint" -> FlowLogType.MINT
+        "Withdraw" -> FlowLogType.WITHDRAW
+        "Deposit" -> FlowLogType.DEPOSIT
+        "Destroy" -> FlowLogType.BURN
+        else -> throw IllegalStateException("Unsupported event type: ${log.event.id}")
     }
+
+
+
 }
 
 @JsonCadenceConversion(RaribleNftMintConverter::class)

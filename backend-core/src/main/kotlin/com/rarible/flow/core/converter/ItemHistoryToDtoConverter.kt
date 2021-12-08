@@ -83,7 +83,7 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
             )
-            is FlowNftOrderActivityCancelList -> FlowNftOrderActivityCancelListDto(
+            /*is FlowNftOrderActivityCancelList -> FlowNftOrderActivityCancelListDto(
                 id = source.id,
                 date = source.date,
                 hash = source.activity.hash,
@@ -95,10 +95,10 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 blockHash = source.log.blockHash,
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
-            )
-
-            is DepositActivity -> null
-            is WithdrawnActivity -> null
+            )*/
+            else -> null
+//            is DepositActivity -> null
+//            is WithdrawnActivity -> null
         }
     }
 }

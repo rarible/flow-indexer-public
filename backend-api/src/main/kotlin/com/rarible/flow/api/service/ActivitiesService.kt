@@ -195,8 +195,8 @@ class ActivitiesService(
         return mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow().flatMapConcat {
             val c = Criteria.where("activity.type").isEqualTo(FlowActivityType.WITHDRAWN)
                 .and("activity.from").`in`(user)
-                .and("activity.tokenId").isEqualTo(it.activity.tokenId)
-                .and("activity.contract").isEqualTo(it.activity.contract)
+                .and("activity.tokenId").isEqualTo((it.activity as NFTActivity).tokenId)
+                .and("activity.contract").isEqualTo((it.activity as NFTActivity).contract)
                 .and("log.transactionHash").isEqualTo(it.log.transactionHash)
                 .and("log.eventIndex").lt(it.log.eventIndex)
             addContinuation(cont, c, sort)
@@ -234,8 +234,8 @@ class ActivitiesService(
         addDates(criteria, from, to)
         return mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow().flatMapConcat {
             val c = Criteria.where("activity.type").isEqualTo(FlowActivityType.WITHDRAWN)
-                .and("activity.tokenId").isEqualTo(it.activity.tokenId)
-                .and("activity.contract").isEqualTo(it.activity.contract)
+                .and("activity.tokenId").isEqualTo((it.activity as NFTActivity).tokenId)
+                .and("activity.contract").isEqualTo((it.activity as NFTActivity).contract)
                 .and("log.transactionHash").isEqualTo(it.log.transactionHash)
                 .and("log.eventIndex").lt(it.log.eventIndex)
             addContinuation(cont, c, sort)
@@ -266,8 +266,8 @@ class ActivitiesService(
             .flatMapConcat {
                 val c =
                     Criteria.where("activity.type").isEqualTo(FlowActivityType.DEPOSIT)
-                        .and("activity.tokenId").isEqualTo(it.activity.tokenId)
-                        .and("activity.contract").isEqualTo(it.activity.contract)
+                        .and("activity.tokenId").isEqualTo((it.activity as NFTActivity).tokenId)
+                        .and("activity.contract").isEqualTo((it.activity as NFTActivity).contract)
                         .and("log.transactionHash").isEqualTo(it.log.transactionHash)
                         .and("log.eventIndex").gt(it.log.eventIndex)
                 addContinuation(cont, c, sort)
@@ -438,10 +438,10 @@ class ActivitiesService(
 
     fun findActivity(history: List<ItemHistory>, index: Int, type: FlowActivityType): ItemHistory? {
         val h = history[index]
-        val a = h.activity
+        val a = h.activity as NFTActivity
         val hash = h.log.transactionHash
 
-        fun isFit(activity: BaseActivity) =
+        fun isFit(activity: NFTActivity) =
             activity.type == type && activity.contract == a.contract && activity.tokenId == a.tokenId
 
         tailrec fun helper(lag: Int = 1, checkNext: Boolean = true): ItemHistory? {
@@ -449,7 +449,7 @@ class ActivitiesService(
             val isUseful = (i >= 0 && i <= history.lastIndex) && history[i].log.transactionHash == hash
             if (isUseful) {
                 val item = history[i]
-                if (isFit(item.activity)) return item
+                if (isFit(item.activity as NFTActivity)) return item
             }
             return if (isUseful || checkNext) helper(if (lag > 0) -lag else -lag + 1, isUseful) else null
         }

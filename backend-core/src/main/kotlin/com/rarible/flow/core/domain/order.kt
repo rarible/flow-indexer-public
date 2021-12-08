@@ -21,11 +21,8 @@ const val ORDER_COLLECTION = "order"
  * @property taker          - buyer
  * @property maker          - seller
  * @property amount         - amount in flow
- * @property offeredNftId   - nft id for nft-nft exchange
  * @property fill           - TODO add  doc
  * @property cancelled       - order canceled
- * @property buyerFee       - fee for buyer
- * @property sellerFee      - fee for seller
  * @property collection     - item collection
  */
 @Document(collection = ORDER_COLLECTION)
@@ -37,14 +34,13 @@ data class Order(
     val taker: FlowAddress? = null,
     val make: FlowAsset,
     val take: FlowAsset,
-
+    val type: OrderType,
     @Field(targetType = FieldType.DECIMAL128)
     val amount: BigDecimal,
     @Field(targetType = FieldType.DECIMAL128)
     val fill: BigDecimal = BigDecimal.ZERO,
     val cancelled: Boolean = false,
-    val data: OrderData,
-
+    val data: OrderData? = null,
     val createdAt: LocalDateTime,
     var lastUpdatedAt: LocalDateTime? = null,
     val collection: String,
@@ -54,6 +50,10 @@ data class Order(
     @Field(targetType = FieldType.DECIMAL128)
     val takePriceUsd: BigDecimal = BigDecimal.ZERO
 )
+
+enum class OrderType {
+    LIST, BID
+}
 
 enum class OrderStatus {
     ACTIVE,
