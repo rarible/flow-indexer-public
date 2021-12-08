@@ -3,12 +3,7 @@ package com.rarible.flow.api.service
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.api.BaseIntegrationTest
 import com.rarible.flow.api.IntegrationTest
-import com.rarible.flow.core.domain.FlowAssetFungible
-import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.domain.OrderData
-import com.rarible.flow.core.domain.OrderStatus
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coSave
@@ -48,7 +43,7 @@ internal class OrderServiceTest : BaseIntegrationTest() {
             )
         }
 
-        var list = orderService.findAllByStatus(
+        val list = orderService.findAllByStatus(
             listOf(OrderStatus.ACTIVE), null, 3, OrderFilter.Sort.EARLIEST_FIRST
         ).toList()
         list should {
@@ -157,7 +152,7 @@ internal class OrderServiceTest : BaseIntegrationTest() {
         last: Order? = null,
         cmp: Comparator<Order>? = null,
         sort: OrderFilter.Sort = OrderFilter.Sort.LATEST_FIRST
-    ): Unit {
+    ) {
         val result = fn(continuation)
         if(result.isEmpty()) {
             currentIteration shouldBe expectedCount
@@ -172,13 +167,14 @@ internal class OrderServiceTest : BaseIntegrationTest() {
     }
 
     fun createOrder(id: Long = randomLong()) = Order(
-        id,
-        ItemId(FlowAddress("0x01").formatted, 1),
-        FlowAddress("0x1000"),
-        null,
-        FlowAssetNFT("0x01", 1.toBigDecimal(), 1),
-        FlowAssetFungible("FLOW", BigDecimal.TEN),
-        1.toBigDecimal(),
+        id = id,
+        itemId = ItemId(FlowAddress("0x01").formatted, 1),
+        maker = FlowAddress("0x1000"),
+        taker = null,
+        make = FlowAssetNFT("0x01", 1.toBigDecimal(), 1),
+        take = FlowAssetFungible("FLOW", BigDecimal.TEN),
+        amount = BigDecimal.TEN,
+        type = OrderType.LIST,
         data = OrderData(emptyList(), emptyList()),
         collection = "ABC",
         fill = 13.37.toBigDecimal(),

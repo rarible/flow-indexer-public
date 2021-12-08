@@ -11,8 +11,8 @@ import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.events.EventId
 import com.rarible.flow.scanner.TxManager
-import com.rarible.flow.scanner.cadence.BidAvailable
-import com.rarible.flow.scanner.cadence.BidCompleted
+import com.rarible.flow.scanner.cadence.ListingAvailable
+import com.rarible.flow.scanner.cadence.ListingCompleted
 import com.rarible.flow.scanner.model.parse
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -22,32 +22,38 @@ import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 
 @Component
-class BidSubscriber(
+class NFTStorefrontSubscriber(
     private val collectionRepository: ItemCollectionRepository,
     private val txManager: TxManager,
     private val orderRepository: OrderRepository
-) : BaseFlowLogEventSubscriber() {
-    override val descriptors: Map<FlowChainId, FlowDescriptor>
-        get() = mapOf(
-            FlowChainId.TESTNET to flowDescriptor(
-                address = "0xebf4ae01d1284af8",
-                contract = "RaribleOpenBid",
-                events = listOf("BidAvailable", "BidCompleted")
-            ),
-            FlowChainId.MAINNET to flowDescriptor(
-                address = "0xebf4ae01d1284af8", //todo fill mainnet address
-                contract = "RaribleOpenBid",
-                events = listOf("BidAvailable", "BidCompleted")
-            )
-        )
+): BaseFlowLogEventSubscriber() {
 
-    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when (EventId.of(log.event.id).eventName) {
-        "BidAvailable" -> FlowLogType.BID_AVAILABLE
-        "BidCompleted" -> FlowLogType.BID_COMPLETED
-        else -> throw IllegalStateException("Unsupported event type: ${log.event.type}")
-    }
+    private val events = setOf("ListingAvailable", "ListingCompleted")
+
+    private val contractName = "NFTStorefront"
 
     private lateinit var nftEvents: Set<String>
+
+    override val descriptors: Map<FlowChainId, FlowDescriptor> = mapOf(
+        FlowChainId.MAINNET to flowDescriptor(
+            address = "4eb8a10cb9f87357",
+            events = events,
+            contract = contractName,
+            startFrom = 19799019L
+        ),
+        FlowChainId.TESTNET to flowDescriptor(
+            address = "94b06cfca1d8a476",
+            events = events,
+            contract = contractName
+        )
+
+    )
+
+    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when(EventId.of(log.event.type).eventName) {
+        "ListingAvailable" -> FlowLogType.LISTING_AVAILABLE
+        "ListingCompleted" -> FlowLogType.LISTING_COMPLETED
+        else -> throw IllegalStateException("Unsupported event type [${log.event.type}]")
+    }
 
     override suspend fun isNewEvent(block: FlowBlockchainBlock, event: FlowEvent): Boolean {
         if (nftEvents.isEmpty()) {
@@ -55,13 +61,14 @@ class BidSubscriber(
                 listOf("${it.id}.Withdraw", "${it.id}.Deposit")
             }.toSet()
         }
-        return withSpan("checkBidIsNewEvent", "event") { super.isNewEvent(block, event) && when(EventId.of(event.type).eventName) {
-            "BidAvailable" -> {
-                val e = event.event.parse<BidAvailable>()
-                collectionRepository.existsById(e.nftType.collection()).awaitSingle()
+        return withSpan("checkOrderIsNewEvent", "event") { super.isNewEvent(block, event) && when(EventId.of(event.type).eventName) {
+            "ListingAvailable" -> {
+                val e = event.event.parse<ListingAvailable>()
+                val nftCollection = EventId.of(e.nftType).collection()
+                collectionRepository.existsById(nftCollection).awaitSingle()
             }
-            "BidCompleted" -> {
-                val e = event.event.parse<BidCompleted>()
+            "ListingCompleted" -> {
+                val e = event.event.parse<ListingCompleted>()
                 return@withSpan if (e.purchased) {
                     txManager.onTransaction(
                         blockHeight = block.number,
@@ -72,7 +79,7 @@ class BidSubscriber(
                         }
                         r
                     }
-                } else orderRepository.existsById(e.bidId).awaitSingle()
+                } else orderRepository.existsById(e.listingResourceID).awaitSingle()
 
             }
             else -> false

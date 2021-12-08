@@ -3,24 +3,18 @@ package com.rarible.flow.api.controller
 import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.api.TestPropertiesConfiguration
 import com.rarible.flow.api.service.OrderService
-import com.rarible.flow.core.config.CoreConfig
-import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.randomFlowAddress
 import com.rarible.flow.randomLong
-import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.dto.FlowOrderDto
 import com.rarible.protocol.dto.FlowOrderIdsDto
 import com.rarible.protocol.dto.FlowOrdersPaginationDto
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.mockk
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
@@ -287,7 +281,7 @@ class OrderApiControllerTest {
             makeStock = BigInteger.TEN,
             lastUpdatedAt = LocalDateTime.now(ZoneOffset.UTC),
             createdAt = LocalDateTime.now(ZoneOffset.UTC),
-
+            type = OrderType.LIST
         )
         return order
     }

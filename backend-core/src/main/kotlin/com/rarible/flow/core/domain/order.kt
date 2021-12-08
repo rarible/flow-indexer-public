@@ -34,20 +34,23 @@ data class Order(
     val taker: FlowAddress? = null,
     val make: FlowAsset,
     val take: FlowAsset,
-
+    val type: OrderType,
     @Field(targetType = FieldType.DECIMAL128)
     val amount: BigDecimal,
     @Field(targetType = FieldType.DECIMAL128)
     val fill: BigDecimal = BigDecimal.ZERO,
     val cancelled: Boolean = false,
-    val data: OrderData,
-
+    val data: OrderData? = null,
     val createdAt: LocalDateTime,
     var lastUpdatedAt: LocalDateTime? = null,
     val collection: String,
     val makeStock: BigInteger,
     val status: OrderStatus = OrderStatus.INACTIVE,
 )
+
+enum class OrderType {
+    LIST, BID
+}
 
 enum class OrderStatus {
     ACTIVE,

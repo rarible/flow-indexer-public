@@ -1,12 +1,7 @@
 package com.rarible.flow.api.service
 
 import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
-import com.rarible.flow.core.domain.BaseActivity
-import com.rarible.flow.core.domain.BurnActivity
-import com.rarible.flow.core.domain.DepositActivity
-import com.rarible.flow.core.domain.FlowActivityType
-import com.rarible.flow.core.domain.ItemHistory
-import com.rarible.flow.core.domain.WithdrawnActivity
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ActivityContinuation
 import com.rarible.flow.core.repository.filters.ScrollingSort
 import com.rarible.flow.enum.safeOf
@@ -14,13 +9,7 @@ import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
 import com.rarible.protocol.dto.FlowTransferDto
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flattenConcat
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.data.domain.Sort
@@ -181,8 +170,8 @@ class ActivitiesService(
         return mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow().flatMapConcat {
             val c = Criteria.where("activity.type").isEqualTo(FlowActivityType.WITHDRAWN)
                 .and("activity.from").`in`(user)
-                .and("activity.tokenId").isEqualTo(it.activity.tokenId)
-                .and("activity.contract").isEqualTo(it.activity.contract)
+                .and("activity.tokenId").isEqualTo((it.activity as NFTActivity).tokenId)
+                .and("activity.contract").isEqualTo((it.activity as NFTActivity).contract)
                 .and("log.transactionHash").isEqualTo(it.log.transactionHash)
                 .and("log.eventIndex").lt(it.log.eventIndex)
             addContinuation(cont, c, sort)
@@ -220,8 +209,8 @@ class ActivitiesService(
         addDates(criteria, from, to)
         return mongoTemplate.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow().flatMapConcat {
             val c = Criteria.where("activity.type").isEqualTo(FlowActivityType.WITHDRAWN)
-                .and("activity.tokenId").isEqualTo(it.activity.tokenId)
-                .and("activity.contract").isEqualTo(it.activity.contract)
+                .and("activity.tokenId").isEqualTo((it.activity as NFTActivity).tokenId)
+                .and("activity.contract").isEqualTo((it.activity as NFTActivity).contract)
                 .and("log.transactionHash").isEqualTo(it.log.transactionHash)
                 .and("log.eventIndex").lt(it.log.eventIndex)
             addContinuation(cont, c, sort)
@@ -252,8 +241,8 @@ class ActivitiesService(
             .flatMapConcat {
                 val c =
                     Criteria.where("activity.type").isEqualTo(FlowActivityType.DEPOSIT)
-                        .and("activity.tokenId").isEqualTo(it.activity.tokenId)
-                        .and("activity.contract").isEqualTo(it.activity.contract)
+                        .and("activity.tokenId").isEqualTo((it.activity as NFTActivity).tokenId)
+                        .and("activity.contract").isEqualTo((it.activity as NFTActivity).contract)
                         .and("log.transactionHash").isEqualTo(it.log.transactionHash)
                         .and("log.eventIndex").gt(it.log.eventIndex)
                 addContinuation(cont, c, sort)
@@ -422,10 +411,10 @@ class ActivitiesService(
 
     fun findActivity(history: List<ItemHistory>, index: Int, type: FlowActivityType): ItemHistory? {
         val h = history[index]
-        val a = h.activity
+        val a = h.activity as NFTActivity
         val hash = h.log.transactionHash
 
-        fun isFit(activity: BaseActivity) =
+        fun isFit(activity: NFTActivity) =
             activity.type == type && activity.contract == a.contract && activity.tokenId == a.tokenId
 
         tailrec fun helper(lag: Int = 1, checkNext: Boolean = true): ItemHistory? {
@@ -433,7 +422,7 @@ class ActivitiesService(
             val isUseful = (i >= 0 && i <= history.lastIndex) && history[i].log.transactionHash == hash
             if (isUseful) {
                 val item = history[i]
-                if (isFit(item.activity)) return item
+                if (isFit(item.activity as NFTActivity)) return item
             }
             return if (isUseful || checkNext) helper(if (lag > 0) -lag else -lag + 1, isUseful) else null
         }

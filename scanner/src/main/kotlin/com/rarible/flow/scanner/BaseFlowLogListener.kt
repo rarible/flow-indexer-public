@@ -8,11 +8,13 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.log.Log
-import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.IndexerEventService
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.stereotype.Component
 
 @Component
+@ConditionalOnExpression("false")
+@Deprecated("Use [ItemAndOrderEventsListener], remove after debug")
 class BaseFlowLogListener(
     private val indexerEventService: IndexerEventService,
     private val itemRepository: ItemRepository,
@@ -23,7 +25,7 @@ class BaseFlowLogListener(
     override suspend fun onBlockLogsProcessed(blockEvent: ProcessedBlockEvent<FlowLog, FlowLogRecord<*>>) {
         blockEvent.records.filterIsInstance<ItemHistory>()
             .groupBy {
-                ItemId(contract = it.activity.contract, tokenId = it.activity.tokenId)
+                ItemId(contract = (it.activity as NFTActivity).contract, tokenId = (it.activity as NFTActivity).tokenId)
             }.forEach { entry ->
                 val itemEvents = entry.value.filter {
                     it.activity.type in arrayOf(
@@ -50,13 +52,13 @@ class BaseFlowLogListener(
                     }.sortedBy { it.log.eventIndex }.chunked(1)
 
                 val item = itemRepository.coFindById(entry.key)
-                (itemEvents + orderEvents).map {
+                /*(itemEvents + orderEvents).map {
                     IndexerEvent(
                         history = it,
                         source = blockEvent.event.eventSource,
                         item = item
                     )
-                }.forEach { indexerEventService.processEvent(it) }
+                }.forEach { indexerEventService.processEvent(it) }*/
             }
     }
 

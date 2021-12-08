@@ -117,9 +117,10 @@ class ProtocolEventPublisher(
         return ItemHistoryToDtoConverter.convert(
             history
         )?.let { dto ->
+            val a = history.activity as NFTActivity
             return activities.send(
                 KafkaMessage(
-                    "${history.activity.contract}:${history.activity.tokenId}-${history.activity.timestamp}",
+                    "${a.contract}:${a.tokenId}-${history.activity.timestamp}",
                     dto
                 )
             )

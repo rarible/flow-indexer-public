@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.core.apm.withSpan
-import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
+import com.rarible.flow.events.EventId
 import com.rarible.flow.scanner.model.IndexerEvent
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -41,22 +41,21 @@ class ItemIndexerEventProcessor(
     }
 
     suspend fun mintItemEvent(event: IndexerEvent) {
-        val mintActivity = event.history.first().activity as MintActivity
-        val depositActivity = event.history.last().activity as DepositActivity
+        val mintActivity = event.history.activity as MintActivity
         withSpan("mintItemEvent", type = "event", labels = listOf("itemId" to "${mintActivity.contract}:${mintActivity.tokenId}")) {
-            val owner = FlowAddress(depositActivity.to!!)
-            val creator = FlowAddress(mintActivity.owner)
+            val owner = FlowAddress(mintActivity.owner)
+            val creator = FlowAddress(mintActivity.creator)
             val forSave = if (event.item == null) {
                 Item(
                     contract = mintActivity.contract,
                     tokenId = mintActivity.tokenId,
-                    creator = owner,
+                    creator = creator,
                     royalties = mintActivity.royalties,
                     owner = owner,
                     mintedAt = mintActivity.timestamp,
                     meta = objectMapper.writeValueAsString(mintActivity.metadata),
                     collection = mintActivity.contract,
-                    updatedAt = depositActivity.timestamp
+                    updatedAt = mintActivity.timestamp
                 )
             } else if (event.item.mintedAt != mintActivity.timestamp) {
                 event.item.copy(
@@ -71,17 +70,17 @@ class ItemIndexerEventProcessor(
                 if (event.source != Source.REINDEX) {
                     protocolEventPublisher.onItemUpdate(saved)
                 }
-                if (saved.updatedAt <= depositActivity.timestamp) {
+                if (saved.updatedAt <= mintActivity.timestamp) {
                     //we should not have ownership records yet
                     val deleted = ownershipRepository.deleteAllByContractAndTokenId(forSave.contract, forSave.tokenId)
                         .asFlow().toList()
                     val o = ownershipRepository.save(
                         Ownership(
-                            contract = depositActivity.contract,
-                            tokenId = depositActivity.tokenId,
+                            contract = mintActivity.contract,
+                            tokenId = mintActivity.tokenId,
                             owner = owner,
                             creator = creator,
-                            date = depositActivity.timestamp
+                            date = mintActivity.timestamp
                         )
                     ).awaitSingle()
                     if (event.source != Source.REINDEX) {
@@ -94,10 +93,9 @@ class ItemIndexerEventProcessor(
     }
 
     private suspend fun burnItemEvent(event: IndexerEvent) {
-        val withdraw = event.history.first().activity as WithdrawnActivity
-        val burn = event.history.last().activity as BurnActivity
+        val burn = event.history.activity as BurnActivity
         val item = event.item
-        withSpan("burnItemEvent", type = "event", labels = listOf("itemId" to "${withdraw.contract}:${withdraw.tokenId}")) {
+        withSpan("burnItemEvent", type = "event", labels = listOf("itemId" to "${burn.contract}:${burn.tokenId}")) {
             if (item != null && item.updatedAt <= burn.timestamp) {
                 itemRepository.save(item.copy(owner = null, updatedAt = burn.timestamp)).awaitFirstOrNull()
                 val ownerships =
@@ -109,13 +107,13 @@ class ItemIndexerEventProcessor(
             } else {
                 val saved = itemRepository.insert(
                     Item(
-                        contract = withdraw.contract,
-                        tokenId = withdraw.tokenId,
+                        contract = burn.contract,
+                        tokenId = burn.tokenId,
                         royalties = listOf(),
-                        creator = FlowAddress(withdraw.from!!),
+                        creator = EventId.of(burn.contract).contractAddress,
                         owner = null,
                         mintedAt = Instant.now(),
-                        collection = withdraw.contract,
+                        collection = burn.contract,
                         updatedAt = burn.timestamp
                     )
                 ).awaitSingle()
@@ -127,34 +125,32 @@ class ItemIndexerEventProcessor(
     }
 
     private suspend fun transfer(event: IndexerEvent) {
-        val withdraw = event.history.first().activity as WithdrawnActivity
-        val deposit = event.history.last().activity as DepositActivity
+        val transferActivity = event.history.activity as TransferActivity
 
         val item = event.item
         val needSendToKafka = event.source != Source.REINDEX
-        val prevOwner = FlowAddress(withdraw.from!!)
-        val newOwner = FlowAddress(deposit.to!!)
+        val prevOwner = FlowAddress(transferActivity.from)
+        val newOwner = FlowAddress(transferActivity.to)
 
-        withSpan("transferItemEvent", type = "event", labels = listOf("itemId" to "${withdraw.contract}:${withdraw.tokenId}")) {
-            val prevOwnership = ownershipRepository.findById(OwnershipId(contract = withdraw.contract, tokenId = withdraw.tokenId, owner = prevOwner)).awaitSingleOrNull()
+        withSpan("transferItemEvent", type = "event", labels = listOf("itemId" to "${transferActivity.contract}:${transferActivity.tokenId}")) {
+            val prevOwnership = ownershipRepository.findById(OwnershipId(contract = transferActivity.contract, tokenId = transferActivity.tokenId, owner = prevOwner)).awaitSingleOrNull()
             if (prevOwnership != null) {
                 ownershipRepository.delete(prevOwnership).awaitSingleOrNull()
                 if (needSendToKafka) {
                     protocolEventPublisher.onDelete(prevOwnership)
                 }
             }
-            if (item != null && item.updatedAt <= deposit.timestamp && item.owner != null) {
+            if (item != null && item.updatedAt <= transferActivity.timestamp && item.owner != null) {
                 val newOwnership = ownershipRepository.save(
                     Ownership(
-                        contract = deposit.contract,
-                        tokenId = deposit.tokenId,
+                        contract = transferActivity.contract,
+                        tokenId = transferActivity.tokenId,
                         owner = newOwner,
                         creator = item.creator,
-                        date = deposit.timestamp
+                        date = transferActivity.timestamp
                     )
                 ).awaitSingle()
-
-                val saved = itemRepository.save(item.copy(owner = newOwner, updatedAt = deposit.timestamp)).awaitSingle()
+                val saved = itemRepository.save(item.copy(owner = newOwner, updatedAt = transferActivity.timestamp)).awaitSingle()
                 if (needSendToKafka) {
                     protocolEventPublisher.onItemUpdate(saved)
                     protocolEventPublisher.onUpdate(newOwnership)

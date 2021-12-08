@@ -1,30 +1,11 @@
 package com.rarible.flow.core.converter
 
-import com.rarible.flow.core.domain.BurnActivity
-import com.rarible.flow.core.domain.DepositActivity
-import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
-import com.rarible.flow.core.domain.FlowNftOrderActivityList
-import com.rarible.flow.core.domain.FlowNftOrderActivitySell
-import com.rarible.flow.core.domain.ItemHistory
-import com.rarible.flow.core.domain.MintActivity
-import com.rarible.flow.core.domain.WithdrawnActivity
-import com.rarible.flow.log.Log
-import com.rarible.protocol.dto.FlowActivityDto
-import com.rarible.protocol.dto.FlowAssetFungibleDto
-import com.rarible.protocol.dto.FlowAssetNFTDto
-import com.rarible.protocol.dto.FlowBurnDto
-import com.rarible.protocol.dto.FlowMintDto
-import com.rarible.protocol.dto.FlowNftOrderActivityCancelListDto
-import com.rarible.protocol.dto.FlowNftOrderActivityListDto
-import com.rarible.protocol.dto.FlowNftOrderActivitySellDto
-import com.rarible.protocol.dto.FlowOrderActivityMatchSideDto
+import com.rarible.flow.core.domain.*
+import com.rarible.protocol.dto.*
 import org.springframework.core.convert.converter.Converter
 
 
 object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
-
-    val logger by Log()
 
     override fun convert(source: ItemHistory): FlowActivityDto? {
         return when(source.activity) {
@@ -100,7 +81,7 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
             )
-            is FlowNftOrderActivityCancelList -> FlowNftOrderActivityCancelListDto(
+            /*is FlowNftOrderActivityCancelList -> FlowNftOrderActivityCancelListDto(
                 id = source.id,
                 date = source.date,
                 hash = source.activity.hash,
@@ -119,10 +100,10 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 blockHash = source.log.blockHash,
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
-            )
-
-            is DepositActivity -> null
-            is WithdrawnActivity -> null
+            )*/
+            else -> null
+//            is DepositActivity -> null
+//            is WithdrawnActivity -> null
         }
     }
 }

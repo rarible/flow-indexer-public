@@ -10,6 +10,7 @@ import reactor.core.publisher.Flux
 
 interface ItemRepository : ReactiveMongoRepository<Item, ItemId>, ItemRepositoryCustom {
     fun findAllByCreator(creator: FlowAddress): Flux<Item>
+    fun findAllByIdIn(ids: Set<ItemId>): Flux<Item>
 }
 
 interface ItemRepositoryCustom {

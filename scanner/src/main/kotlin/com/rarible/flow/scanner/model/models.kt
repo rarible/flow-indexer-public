@@ -7,7 +7,9 @@ import com.nftco.flow.sdk.cadence.CadenceNamespace
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion
 import com.nftco.flow.sdk.cadence.JsonCadenceConverter
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.FlowActivityType
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemHistory
 
 inline fun <reified T : Any> FlowEvent.parse() = Flow.unmarshall(T::class, event)
 inline fun <reified T : Any> FlowScriptResponse.parse() = Flow.unmarshall(T::class, jsonCadence)
@@ -58,11 +60,12 @@ class MotoGPCardNftConverter: JsonCadenceConverter<MotoGPCardNFT> {
 }
 
 data class IndexerEvent(
-    val history: List<ItemHistory>,
+    val history: ItemHistory,
     val source: com.rarible.blockchain.scanner.framework.data.Source,
     val item: Item? = null
 ) {
-    fun activityType(): FlowActivityType =
+
+    fun activityType(): FlowActivityType = history.activity.type/*
         when(history.first().activity) {
             is MintActivity -> FlowActivityType.MINT
             is WithdrawnActivity -> when (history.last().activity) {
@@ -74,5 +77,5 @@ data class IndexerEvent(
             is FlowNftOrderActivitySell -> FlowActivityType.SELL
             is FlowNftOrderActivityCancelList -> FlowActivityType.CANCEL_LIST
             else -> throw IllegalStateException("Unexpected activity [${history.last().activity.type}]")
-        }
+        }*/
 }

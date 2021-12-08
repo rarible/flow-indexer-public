@@ -17,14 +17,14 @@ object data {
     fun randomLong() = Random.Default.nextLong(0L, Long.MAX_VALUE)
 
     fun createOrder(id: Long = randomLong()) = Order(
-        id,
-        ItemId(FlowAddress("0x01").formatted, 1),
-        FlowAddress("0x1000"),
-        null,
-        FlowAssetNFT("0x01", 1.toBigDecimal(), 1),
-        FlowAssetFungible("FLOW", BigDecimal.TEN),
-        1.toBigDecimal(),
-//        ItemId("0x01", 1).toString(),
+        id = id,
+        itemId = ItemId(FlowAddress("0x01").formatted, 1),
+        maker = FlowAddress("0x1000"),
+        taker = null,
+        make = FlowAssetNFT("0x01", 1.toBigDecimal(), 1),
+        take = FlowAssetFungible("FLOW", BigDecimal.TEN),
+        amount = BigDecimal.TEN,
+        type = OrderType.LIST,
         data = OrderData(emptyList(), emptyList()),
         collection = "ABC",
         fill = 13.37.toBigDecimal(),
@@ -47,6 +47,7 @@ object data {
         ),
         contract = "c1",
         timestamp = Instant.now(),
-        hash = UUID.randomUUID().toString()
+        hash = UUID.randomUUID().toString(),
+        payments = emptyList()
     )
 }

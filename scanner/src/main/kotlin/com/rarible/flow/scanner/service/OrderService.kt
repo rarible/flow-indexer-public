@@ -20,18 +20,8 @@ class OrderService(
     val itemRepository: ItemRepository,
 ) {
 
-    suspend fun list(activity: FlowNftOrderActivityList): Order {
-        val originalFees = activity.payments
-            .filter { it.type in setOf(PaymentType.BUYER_FEE, PaymentType.SELLER_FEE) }
-            .map { Payout(FlowAddress(it.address), it.amount) } //TODO replace amount with share
-        val payouts = activity.payments
-            .filter { it.type in setOf(PaymentType.ROYALTY, PaymentType.OTHER, PaymentType.REWARD) }
-            .map { Payout(FlowAddress(it.address), it.amount) } //TODO replace amount with share
-        val status = suspend {
-            val item = (activity.make as? FlowAssetNFT)
-                ?.let { itemRepository.coFindById(ItemId(it.contract, it.tokenId)) }
-            if (item?.owner?.formatted != activity.maker) OrderStatus.INACTIVE else OrderStatus.ACTIVE
-        }
+    suspend fun list(activity: FlowNftOrderActivityList, item: Item?): Order {
+        val status = if (item == null || item.owner?.formatted != activity.maker) OrderStatus.INACTIVE else OrderStatus.ACTIVE
 
         val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
             itemId = ItemId(activity.make.contract, activity.tokenId),
@@ -39,24 +29,24 @@ class OrderService(
             make = activity.make,
             take = activity.take,
             amount = activity.price,
-            data = OrderData(payouts, originalFees),
             createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             collection = activity.contract,
             makeStock = activity.make.value.toBigInteger(),
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            type = OrderType.LIST
         ) ?: Order(
             id = activity.hash.toLong(),
-            status = status(),
+            status = status,
             itemId = ItemId(activity.make.contract, activity.tokenId),
             maker = FlowAddress(activity.maker),
             make = activity.make,
             take = activity.take,
             amount = activity.price,
-            data = OrderData(payouts, originalFees),
             createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             collection = activity.contract,
             makeStock = activity.make.value.toBigInteger(),
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            type = OrderType.LIST
         )
 
         return orderRepository.coSave(order)
@@ -69,6 +59,15 @@ class OrderService(
             makeStock = BigInteger.ZERO,
             taker = FlowAddress(activity.right.maker),
             status = OrderStatus.FILLED,
+            data = OrderData(
+                activity.payments.filter {
+                    it.type !in arrayOf(
+                        PaymentType.SELLER_FEE,
+                        PaymentType.BUYER_FEE
+                    )
+                }.map { Payout(account = FlowAddress(it.address), value = it.amount) },
+                activity.payments.filter { it.type in arrayOf(PaymentType.SELLER_FEE, PaymentType.BUYER_FEE) }
+                    .map { Payout(account = FlowAddress(it.address), value = it.amount) }),
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
         ) ?: Order(
             id = activity.hash.toLong(),
@@ -81,10 +80,19 @@ class OrderService(
             itemId = ItemId(activity.left.asset.contract, activity.tokenId),
             amount = activity.price,
             collection = activity.contract,
-            make = FlowAssetEmpty,
-            take = FlowAssetEmpty,
-            data = OrderData(emptyList(), emptyList()),
+            make = activity.left.asset,
+            take = activity.right.asset,
+            data = OrderData(
+                payouts = activity.payments.filter {
+                    it.type !in arrayOf(
+                        PaymentType.SELLER_FEE,
+                        PaymentType.BUYER_FEE
+                    )
+                }.map { Payout(account = FlowAddress(it.address), value = it.amount) },
+                originalFees = activity.payments.filter { it.type in arrayOf(PaymentType.SELLER_FEE, PaymentType.BUYER_FEE) }
+                    .map { Payout(account = FlowAddress(it.address), value = it.amount) }),
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            type = OrderType.LIST
         )
 
         return orderRepository.coSave(order)
@@ -100,16 +108,17 @@ class OrderService(
             id = activity.hash.toLong(),
             cancelled = true,
             status = OrderStatus.CANCELLED,
-            createdAt =  LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-            itemId = ItemId(activity.make.contract, activity.tokenId),
-            amount = activity.price,
-            collection = activity.contract,
-            maker = FlowAddress(activity.maker),
-            make = activity.make,
-            take = activity.take,
+            createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            itemId = ItemId("", 0L),
+            amount = BigDecimal.ZERO,
+            collection = "",
+            maker = FlowAddress("0x00"),
+            make = FlowAssetEmpty,
+            take = FlowAssetEmpty,
             data = OrderData(emptyList(), emptyList()),
-            makeStock = activity.make.value.toBigInteger(),
+            makeStock = BigInteger.ZERO,
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            type = OrderType.LIST
         )
 
         return orderRepository.coSave(order)

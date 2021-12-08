@@ -19,9 +19,13 @@ sealed class TypedFlowActivity : FlowActivity {
  * @property tokenId            NFT token ID
  */
 sealed class BaseActivity : TypedFlowActivity() {
+    abstract val timestamp: Instant
+}
+
+sealed class NFTActivity: BaseActivity() {
     abstract val contract: String
     abstract val tokenId: TokenId /* = kotlin.Long */
-    abstract val timestamp: Instant
+
 }
 
 /**
@@ -30,7 +34,7 @@ sealed class BaseActivity : TypedFlowActivity() {
  * @property owner              NFT owner account address
  * @property value              amount of NFT's (default 1)
  */
-sealed class FlowNftActivity : BaseActivity() {
+sealed class FlowNftActivity : NFTActivity() {
     abstract val owner: String?
     abstract val value: Long
 }
@@ -41,7 +45,7 @@ sealed class FlowNftActivity : BaseActivity() {
  * @property price      order price
  * @property priceUsd   order price in USD
  */
-sealed class FlowNftOrderActivity : BaseActivity() {
+sealed class FlowNftOrderActivity : NFTActivity() {
     abstract val price: BigDecimal
     abstract val priceUsd: BigDecimal
 }
@@ -62,6 +66,7 @@ data class FlowNftOrderActivitySell(
     val hash: String,
     val left: OrderActivityMatchSide,
     val right: OrderActivityMatchSide,
+    val payments: List<FlowNftOrderPayment>,
 ) : FlowNftOrderActivity()
 
 /**
@@ -81,21 +86,13 @@ data class FlowNftOrderActivityList(
     val maker: String,
     val make: FlowAsset,
     val take: FlowAsset,
-    val payments: List<FlowNftOrderPayment>,
 ) : FlowNftOrderActivity()
 
 data class FlowNftOrderActivityCancelList(
     override val type: FlowActivityType = FlowActivityType.CANCEL_LIST,
-    override val price: BigDecimal,
-    override val priceUsd: BigDecimal,
-    override val tokenId: TokenId,
-    override val contract: String,
     override val timestamp: Instant,
-    val hash: String,
-    val maker: String,
-    val make: FlowAsset,
-    val take: FlowAsset,
-) : FlowNftOrderActivity()
+    val hash: String
+) : BaseActivity()
 
 data class FlowNftOrderActivityBid(
     override val type: FlowActivityType = FlowActivityType.BID,
@@ -108,21 +105,13 @@ data class FlowNftOrderActivityBid(
     val maker: String,
     val make: FlowAsset,
     val take: FlowAsset,
-    val payments: List<FlowNftOrderPayment>,
 ): FlowNftOrderActivity()
 
 data class FlowNftOrderActivityCancelBid(
     override val type: FlowActivityType = FlowActivityType.CANCEL_BID,
-    override val price: BigDecimal,
-    override val priceUsd: BigDecimal,
-    override val tokenId: TokenId,
-    override val contract: String,
     override val timestamp: Instant,
     val hash: String,
-    val maker: String,
-    val make: FlowAsset,
-    val take: FlowAsset,
-): FlowNftOrderActivity()
+): BaseActivity()
 
 
 data class FlowNftOrderPayment(
@@ -150,6 +139,7 @@ data class MintActivity(
     override val tokenId: TokenId,
     override val value: Long = 1L,
     override val timestamp: Instant,
+    val creator: String,
     val royalties: List<Part>,
     val metadata: Map<String, String>,
 ) : FlowNftActivity()
@@ -251,19 +241,29 @@ data class FlowTokenDepositedActivity(
     val amount: BigDecimal,
 ) : FlowActivity
 
+@Deprecated(message = "should generate TransferActivities only")
 data class WithdrawnActivity(
     override val type: FlowActivityType = FlowActivityType.WITHDRAWN,
     override val contract: String,
     override val tokenId: TokenId, /* = kotlin.Long */
     override val timestamp: Instant,
     val from: String?,
-) : BaseActivity()
+) : NFTActivity()
 
+@Deprecated(message = "should generate TransferActivities only")
 data class DepositActivity(
     override val type: FlowActivityType = FlowActivityType.DEPOSIT,
     override val contract: String,
     override val tokenId: TokenId, /* = kotlin.Long */
     override val timestamp: Instant,
     val to: String?,
-) : BaseActivity()
+) : NFTActivity()
 
+data class TransferActivity(
+    override val type: FlowActivityType = FlowActivityType.TRANSFER,
+    override val contract: String,
+    override val tokenId: TokenId, /* = kotlin.Long */
+    override val timestamp: Instant,
+    val from: String,
+    val to: String
+) : NFTActivity()

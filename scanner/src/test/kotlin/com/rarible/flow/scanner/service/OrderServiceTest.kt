@@ -44,10 +44,9 @@ internal class OrderServiceTest: FunSpec({
             maker = "0x01",
             make = FlowAssetNFT("RaribleNFT", BigDecimal.ONE, 13),
             take = FlowAssetFungible("Flow", BigDecimal("13.37")),
-            payments = emptyList()
         )
 
-        service.list(activiy) should { order ->
+        service.list(activiy, null) should { order ->
             order.itemId shouldBe ItemId("RaribleNFT", 13)
         }
 

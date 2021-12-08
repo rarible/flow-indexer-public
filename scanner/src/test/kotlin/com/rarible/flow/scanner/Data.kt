@@ -47,7 +47,8 @@ object Data {
             ),
             makeStock = BigInteger.TEN,
             lastUpdatedAt = LocalDateTime.now(),
-            createdAt = LocalDateTime.now()
+            createdAt = LocalDateTime.now(),
+            type = OrderType.LIST
         )
         return order
     }
