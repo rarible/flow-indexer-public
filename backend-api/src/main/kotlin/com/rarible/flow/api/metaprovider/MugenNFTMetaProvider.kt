@@ -23,8 +23,7 @@ class MugenNFTMetaProvider(
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("MugenNFT")
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        val item = itemRepository.findById(itemId).awaitSingleOrNull()
-            ?: return emptyMeta(itemId)
+        itemRepository.existsById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
         val url = "https://onchain.mugenart.io/flow/nft/0x2cd46d41da4ce262/metadata/${itemId.tokenId}"
 
         val client = WebClient.create()
