@@ -108,7 +108,7 @@ class ItemIndexerEventProcessor(
                     protocolEventPublisher.onItemDelete(item.id)
                     protocolEventPublisher.onDelete(ownerships)
                 }
-            } else {
+            } else if (item == null){
                 val saved = itemRepository.insert(
                     Item(
                         contract = burn.contract,
