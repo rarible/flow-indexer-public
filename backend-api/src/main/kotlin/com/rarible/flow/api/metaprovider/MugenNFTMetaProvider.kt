@@ -49,6 +49,7 @@ class MugenNFTMetaProvider(
                     )
                 ),
                 contentUrls = listOfNotNull(
+                    data.imageBlocto,
                     data.icon,
                     data.image,
                     data.imagePreview,
@@ -57,7 +58,6 @@ class MugenNFTMetaProvider(
                     data.animationUrl,
                     data.animationUrl2,
                     data.youtubeUrl,
-                    data.imageBlocto,
                 ),
             ).apply {
                 raw = data.toString().toByteArray(charset = Charsets.UTF_8)

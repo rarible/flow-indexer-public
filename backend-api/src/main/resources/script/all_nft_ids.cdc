@@ -42,6 +42,7 @@ pub fun main(address: Address): {String: [UInt64]} {
     results["Evolution"] = idsEvolution(account)
     results["MotoGPCard"] = idsMotoGpCard(account)
     results["TopShot"] = idsTopShot(account)
+    results["MugenNFT"] = idsMugenNFT(account)
 
     return results
 }
