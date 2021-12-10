@@ -25,6 +25,7 @@ class EvolutionSubscriber : BaseFlowLogEventSubscriber() {
                 address = "01658d9b94068f3c",
                 contract = "Evolution",
                 events = events,
+                startFrom = 47831085L,
                 dbCollection = collection
             ),
             FlowChainId.EMULATOR to flowDescriptor(
