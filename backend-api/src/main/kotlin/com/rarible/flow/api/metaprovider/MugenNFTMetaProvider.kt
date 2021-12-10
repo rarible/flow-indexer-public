@@ -5,30 +5,28 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.log.Log
-import kotlinx.coroutines.reactor.awaitSingleOrNull
-import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
 
 @Component
-class MugenNFTMetaProvider(
-    private val itemRepository: ItemRepository,
-) : ItemMetaProvider {
+class MugenNFTMetaProvider : ItemMetaProvider {
 
     private val logger by Log()
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("MugenNFT")
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
+        logger.debug("getMeta: $itemId")
         val url = "https://onchain.mugenart.io/flow/nft/0x2cd46d41da4ce262/metadata/${itemId.tokenId}"
 
         val client = WebClient.create()
         return try {
+            logger.debug("getMeta: url=$url")
             val data = client.get().uri(url)
                 .retrieve().awaitBodyOrNull<MugenNFTMetaBody>() ?: return emptyMeta(itemId)
+            logger.debug("getMeta: data=$data")
             ItemMeta(
                 itemId = itemId,
                 name = data.name,
@@ -63,7 +61,7 @@ class MugenNFTMetaProvider(
                 raw = data.toString().toByteArray(charset = Charsets.UTF_8)
             }
         } catch (e: Exception) {
-            logger.warn(e.message, e)
+            logger.warn("getMeta: ${e.message}", e)
             return emptyMeta(itemId)
         }
     }
