@@ -74,21 +74,3 @@ class RaribleNFTConverter : JsonCadenceConverter<RaribleNFT> {
             )
         }
 }
-
-@JsonCadenceConversion(MugenNFTConverter::class)
-data class MugenNFT(
-    val uuid: Long,
-    val id: Long,
-    val typeId: Long,
-)
-
-class MugenNFTConverter : JsonCadenceConverter<MugenNFT> {
-    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): MugenNFT =
-        com.nftco.flow.sdk.cadence.unmarshall(value) {
-            MugenNFT(
-                uuid = long(compositeValue.getRequiredField("uuid")),
-                id = long(compositeValue.getRequiredField("id")),
-                typeId = long(compositeValue.getRequiredField("typeId")),
-            )
-        }
-}
