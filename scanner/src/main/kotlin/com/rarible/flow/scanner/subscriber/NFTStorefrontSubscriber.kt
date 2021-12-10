@@ -39,12 +39,14 @@ class NFTStorefrontSubscriber(
             address = "4eb8a10cb9f87357",
             events = events,
             contract = contractName,
-            startFrom = 19799019L
+            startFrom = 19799019L,
+            dbCollection = collection
         ),
         FlowChainId.TESTNET to flowDescriptor(
             address = "94b06cfca1d8a476",
             events = events,
-            contract = contractName
+            contract = contractName,
+            dbCollection = collection
         )
 
     )

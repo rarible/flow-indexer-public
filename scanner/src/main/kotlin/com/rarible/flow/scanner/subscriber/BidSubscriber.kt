@@ -32,12 +32,14 @@ class BidSubscriber(
             FlowChainId.TESTNET to flowDescriptor(
                 address = "0xebf4ae01d1284af8",
                 contract = "RaribleOpenBid",
-                events = listOf("BidAvailable", "BidCompleted")
+                events = listOf("BidAvailable", "BidCompleted"),
+                dbCollection = collection
             ),
             FlowChainId.MAINNET to flowDescriptor(
                 address = "0xebf4ae01d1284af8", //todo fill mainnet address
                 contract = "RaribleOpenBid",
-                events = listOf("BidAvailable", "BidCompleted")
+                events = listOf("BidAvailable", "BidCompleted"),
+                dbCollection = collection
             )
         )
 

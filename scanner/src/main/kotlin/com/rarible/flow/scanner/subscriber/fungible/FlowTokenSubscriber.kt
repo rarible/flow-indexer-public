@@ -7,7 +7,7 @@ import com.rarible.flow.scanner.subscriber.flowDescriptor
 import org.springframework.stereotype.Component
 
 @Component
-class FungibleTokenSubscriber(
+class FlowTokenSubscriber(
     override val balanceRepository: BalanceRepository
 ) : AbstractFungibleTokenSubscriber(balanceRepository) {
 
@@ -23,7 +23,7 @@ class FungibleTokenSubscriber(
                 dbCollection = ""
             ),
             FlowChainId.TESTNET to flowDescriptor(
-                address = "01658d9b94068f3c", //TODO paste correct address
+                address = "7e60df042a9c0868",
                 contract = "FlowToken",
                 events = events,
                 startFrom = 1L,
