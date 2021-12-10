@@ -33,7 +33,7 @@ class MugenNFTSubscriber : BaseItemHistoryFlowLogSubscriber() {
             FlowChainId.TESTNET to FlowDescriptor(
                 id = "MugenNFTSubscriber",
                 events = setOf(
-                    "A.ebf4ae01d1284af8.MugenNFT.Mint",
+                    "A.ebf4ae01d1284af8.MugenNFT.Minted",
                     "A.ebf4ae01d1284af8.MugenNFT.Withdraw",
                     "A.ebf4ae01d1284af8.MugenNFT.Deposit",
                 ),
@@ -43,7 +43,7 @@ class MugenNFTSubscriber : BaseItemHistoryFlowLogSubscriber() {
             FlowChainId.EMULATOR to FlowDescriptor(
                 id = "MugenNFTSubscriber",
                 events = setOf(
-                    "A.f8d6e0586b0a20c7.MugenNFT.Mint",
+                    "A.f8d6e0586b0a20c7.MugenNFT.Minted",
                     "A.f8d6e0586b0a20c7.MugenNFT.Withdraw",
                     "A.f8d6e0586b0a20c7.MugenNFT.Deposit",
                 ),
