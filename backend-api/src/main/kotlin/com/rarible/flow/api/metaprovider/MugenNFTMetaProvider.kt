@@ -6,6 +6,7 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.log.Log
+import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
@@ -18,15 +19,12 @@ class MugenNFTMetaProvider : ItemMetaProvider {
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("MugenNFT")
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        logger.debug("getMeta: $itemId")
         val url = "https://onchain.mugenart.io/flow/nft/0x2cd46d41da4ce262/metadata/${itemId.tokenId}"
 
         val client = WebClient.create()
         return try {
-            logger.debug("getMeta: url=$url")
             val data = client.get().uri(url)
-                .retrieve().awaitBodyOrNull<MugenNFTMetaBody>() ?: return emptyMeta(itemId)
-            logger.debug("getMeta: data=$data")
+                .retrieve().awaitBodyOrNull<List<MugenNFTMetaBody>>()?.singleOrNull() ?: return emptyMeta(itemId)
             ItemMeta(
                 itemId = itemId,
                 name = data.name,
