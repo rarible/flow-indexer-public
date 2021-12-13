@@ -24,6 +24,7 @@ flow-indexer-scanner:
     APPLICATION_ENVIRONMENT: '{{ include "service.appEnv" $ }}'
     CONSUL_ROOT_PATH: '{{ include "service.appEnv" $ }}/flow-indexer'
     SPRING_PROFILES_ACTIVE: '{{ include "service.appEnv" $ }},consul'
+  endpointMode: dnsrr
   resources:
     jvm:
       xmx_megabytes: 400
