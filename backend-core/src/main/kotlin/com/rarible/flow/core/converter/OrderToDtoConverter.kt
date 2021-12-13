@@ -5,6 +5,7 @@ import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
 import com.rarible.protocol.dto.*
 import kotlinx.coroutines.reactor.awaitSingle
+import java.math.BigDecimal
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -13,11 +14,15 @@ class OrderToDtoConverter(
     private val currencyApi: CurrencyControllerApi
 ) {
     suspend fun convert(source: Order): FlowOrderDto {
-        val priceUsd = currencyApi.getCurrencyRate(
-            BlockchainDto.FLOW,
-            source.take.contract,
-            Instant.now().toEpochMilli()
-        ).awaitSingle()
+        val usdRate = try {
+            currencyApi.getCurrencyRate(
+                BlockchainDto.FLOW,
+                source.take.contract,
+                Instant.now().toEpochMilli()
+            ).awaitSingle().rate
+        } catch (e: Exception) {
+            BigDecimal.ZERO
+        }
 
         return FlowOrderDto(
             id = source.id,
@@ -33,7 +38,7 @@ class OrderToDtoConverter(
             amount = source.amount,
             offeredNftId = "", //TODO not needed
             data = convert(source.data ?: OrderData(emptyList(), emptyList())),
-            priceUsd = priceUsd.rate * source.take.value,
+            priceUsd = usdRate * source.take.value,
             collection = source.collection,
             makeStock = source.makeStock,
             status = convert(source.status)

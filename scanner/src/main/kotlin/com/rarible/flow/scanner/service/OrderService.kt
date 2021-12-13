@@ -39,7 +39,8 @@ class OrderService(
             collection = activity.contract,
             makeStock = activity.make.value.toBigInteger(),
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-            type = OrderType.LIST
+            type = OrderType.LIST,
+            takePriceUsd = activity.priceUsd
         ) ?: Order(
             id = activity.hash.toLong(),
             status = status,
@@ -52,7 +53,8 @@ class OrderService(
             collection = activity.contract,
             makeStock = activity.make.value.toBigInteger(),
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-            type = OrderType.LIST
+            type = OrderType.LIST,
+            takePriceUsd = activity.priceUsd
         )
 
         return orderRepository.coSave(order)
@@ -71,7 +73,8 @@ class OrderService(
             collection = activity.contract,
             makeStock = activity.make.value.toBigInteger(),
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-            type = OrderType.BID
+            type = OrderType.BID,
+            takePriceUsd = activity.priceUsd
         ) ?: Order(
             id = activity.hash.toLong(),
             status = status,
@@ -84,7 +87,8 @@ class OrderService(
             collection = activity.contract,
             makeStock = activity.make.value.toBigInteger(),
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-            type = OrderType.BID
+            type = OrderType.BID,
+            takePriceUsd = activity.priceUsd
         )
 
         return orderRepository.coSave(order)
@@ -122,10 +126,7 @@ class OrderService(
             take = activity.right.asset,
             data = OrderData(
                 payouts = activity.payments.filter {
-                    it.type !in arrayOf(
-                        PaymentType.SELLER_FEE,
-                        PaymentType.BUYER_FEE
-                    )
+                    it.type == PaymentType.REWARD
                 }.map { Payout(account = FlowAddress(it.address), value = it.amount) },
                 originalFees = activity.payments.filter {
                     it.type in arrayOf(
@@ -135,7 +136,8 @@ class OrderService(
                 }
                     .map { Payout(account = FlowAddress(it.address), value = it.amount) }),
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-            type = OrderType.LIST
+            type = OrderType.LIST,
+            takePriceUsd = activity.priceUsd
         )
 
         return orderRepository.coSave(order)
@@ -180,7 +182,8 @@ class OrderService(
                     )
                 }.map { Payout(account = FlowAddress(it.address), value = it.amount) }),
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-            type = OrderType.LIST
+            type = OrderType.LIST,
+            takePriceUsd = activity.priceUsd
         )
 
         return orderRepository.coSave(order)
@@ -212,7 +215,7 @@ class OrderService(
             data = OrderData(emptyList(), emptyList()),
             makeStock = BigInteger.ZERO,
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-            type = OrderType.LIST
+            type = OrderType.LIST,
         )
 
         return orderRepository.coSave(order)
