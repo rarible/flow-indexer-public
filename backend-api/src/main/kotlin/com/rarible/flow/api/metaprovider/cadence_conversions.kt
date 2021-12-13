@@ -92,3 +92,22 @@ class MugenNFTConverter : JsonCadenceConverter<MugenNFT> {
             )
         }
 }
+
+@JsonCadenceConversion(CnnNFTConverter::class)
+data class CnnNFT(
+    val id: Long,
+    val setId: Int,
+    val editionNum: Int
+)
+
+class CnnNFTConverter : JsonCadenceConverter<CnnNFT> {
+    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): CnnNFT =
+        com.nftco.flow.sdk.cadence.unmarshall(value) {
+            CnnNFT(
+                id = long(compositeValue.getRequiredField("id")),
+                setId = int(compositeValue.getRequiredField("setId")),
+                editionNum = int(compositeValue.getRequiredField("editionNum")),
+            )
+        }
+}
+
