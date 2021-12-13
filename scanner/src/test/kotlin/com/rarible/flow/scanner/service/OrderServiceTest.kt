@@ -62,7 +62,7 @@ internal class OrderServiceTest: FunSpec({
             take = FlowAssetFungible("Flow", BigDecimal("13.37")),
         )
 
-        service.list(activiy, null) should { order ->
+        service.openList(activiy, null) should { order ->
             order.itemId shouldBe ItemId("RaribleNFT", 13)
         }
 

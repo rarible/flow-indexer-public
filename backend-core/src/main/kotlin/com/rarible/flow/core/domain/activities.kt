@@ -72,6 +72,27 @@ data class FlowNftOrderActivitySell(
 ) : FlowNftOrderActivity()
 
 /**
+ * Buy activity
+ *
+ * @property left               buyer
+ * @property right              seller
+ */
+data class FlowNftOrderActivityBidAccept(
+    override val type: FlowActivityType = FlowActivityType.ACCEPT_BID,
+    override val price: BigDecimal,
+
+    @Field(targetType = FieldType.DECIMAL128)
+    override val priceUsd: BigDecimal,
+    override val tokenId: TokenId,
+    override val contract: String,
+    override val timestamp: Instant,
+    val hash: String,
+    val left: OrderActivityMatchSide,
+    val right: OrderActivityMatchSide,
+    val payments: List<FlowNftOrderPayment>,
+) : FlowNftOrderActivity()
+
+/**
  * Sell (List) activity
  *
  * @property hash           TODO????
@@ -200,6 +221,11 @@ enum class FlowActivityType {
      * Cancel bid
      */
     CANCEL_BID,
+
+    /**
+     * Bid accepted
+     */
+    ACCEPT_BID,
 
     TRANSFER,
     TRANSFER_FROM,
