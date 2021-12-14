@@ -30,7 +30,7 @@ class CnnNFTSubscriber : BaseItemHistoryFlowLogSubscriber() {
                     "A.329feb3ab062d289.CNN_NFT.NFTDestroyed",
                 ),
                 collection = collection,
-                startFrom = 19040960L,
+                startFrom = 15640000L,
             ),
             FlowChainId.TESTNET to FlowDescriptor(
                 id = "CnnNFTSubscriber",
