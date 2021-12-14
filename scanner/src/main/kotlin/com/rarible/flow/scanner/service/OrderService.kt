@@ -133,6 +133,7 @@ class OrderService(
                         PaymentType.SELLER_FEE,
                         PaymentType.BUYER_FEE
                     )
+
                 }
                     .map { Payout(account = FlowAddress(it.address), value = it.amount) }),
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
