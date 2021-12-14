@@ -5,6 +5,8 @@ import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
+import com.rarible.flow.api.metaprovider.CnnNFT
+import com.rarible.flow.api.metaprovider.MugenNFT
 import com.rarible.flow.api.metaprovider.RaribleNFT
 import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.domain.*
@@ -46,8 +48,10 @@ class UserStorageService(
             }
         }
         log.info("$data")
+        val objectMapper = ObjectMapper()
 
         data.forEach { entry ->
+
             when (entry.key) {
                 "TopShot" -> {
                     entry.value.forEach {
@@ -72,7 +76,7 @@ class UserStorageService(
                                 ),
                                 owner = address,
                                 mintedAt = Instant.now(),
-                                meta = ObjectMapper().writeValueAsString(momentData),
+                                meta = objectMapper.writeValueAsString(momentData),
                                 collection = contract,
                                 updatedAt = Instant.now()
                             )
@@ -136,7 +140,7 @@ class UserStorageService(
                                 owner = address,
                                 royalties = emptyList(),
                                 mintedAt = Instant.now(),
-                                meta = ObjectMapper().writeValueAsString(initialMeta),
+                                meta = objectMapper.writeValueAsString(initialMeta),
                                 collection = contract,
                                 updatedAt = Instant.now()
                             )
@@ -172,7 +176,80 @@ class UserStorageService(
                                 royalties = token.royalties,
                                 owner = address,
                                 mintedAt = Instant.now(),
-                                meta = ObjectMapper().writeValueAsString(token.metadata),
+                                meta = objectMapper.writeValueAsString(token.metadata),
+                                collection = contract,
+                                updatedAt = Instant.now()
+                            )
+                        } else {
+                            val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                            if (i.owner != address) {
+                                i.copy(owner = address, updatedAt = Instant.now())
+                            } else {
+                                checkOwnership(i, address)
+                                null
+                            }
+                        }
+                        saveItem(item)
+                    }
+                }
+                "MugenNFT" -> {
+                    entry.value.forEach { tokenId ->
+                        val contract = contract("0xMUGENNFT", "MugenNFT")
+                        val item = if (notExistsItem(contract, tokenId)) {
+                            val res = scriptExecutor.execute(scriptText("/script/get_mugen_nft.cdc"), mutableListOf(
+                                builder.address(address.bytes),
+                                builder.uint64(tokenId)
+                            ))
+
+                            val token = parser.optional(res.jsonCadence) {
+                                unmarshall<MugenNFT>(it)
+                            }!!
+
+                            Item(
+                                contract = contract,
+                                tokenId = tokenId,
+                                creator = contractAddress("0xMUGENNFT"),
+                                royalties = emptyList(),
+                                owner = address,
+                                mintedAt = Instant.now(),
+                                meta = "{}",
+                                collection = contract,
+                                updatedAt = Instant.now()
+                            )
+                        } else {
+                            val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                            if (i.owner != address) {
+                                i.copy(owner = address, updatedAt = Instant.now())
+                            } else {
+                                checkOwnership(i, address)
+                                null
+                            }
+                        }
+                        saveItem(item)
+                    }
+                }
+
+                "CNN_NFT" -> {
+                    entry.value.forEach { tokenId ->
+                        val contract = contract("0xCNNNFT", "CNN_NFT")
+                        val item = if (notExistsItem(contract, tokenId)) {
+                            val res = scriptExecutor.execute(scriptText("/script/get_cnn_nft.cdc"), mutableListOf(
+                                builder.address(address.bytes),
+                                builder.uint64(tokenId)
+                            ))
+
+                            val tokenData = parser.optional(res.jsonCadence) {
+                                unmarshall<CnnNFT>(it)
+                            }!!
+
+                            Item(
+                                contract = contract,
+                                tokenId = tokenId,
+                                creator = contractAddress("0xCNNNFT"),
+                                royalties = emptyList(),
+                                owner = address,
+                                mintedAt = Instant.now(),
+                                meta = objectMapper.writeValueAsString(tokenData),
                                 collection = contract,
                                 updatedAt = Instant.now()
                             )
