@@ -5,15 +5,19 @@ import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
+import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.OrderService
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Component
 
 @Component
 class OrderIndexerEventProcessor(
     private val orderService: OrderService,
     private val protocolEventPublisher: ProtocolEventPublisher,
-    private val orderConverter: OrderToDtoConverter
+    private val orderConverter: OrderToDtoConverter,
+    private val itemRepository: ItemRepository
 ) : IndexerEventsProcessor {
 
     private val supportedTypes = arrayOf(
@@ -49,6 +53,9 @@ class OrderIndexerEventProcessor(
             val o = orderService.openList(activity, event.item)
             if (event.source != Source.REINDEX) {
                 protocolEventPublisher.onOrderUpdate(o, orderConverter)
+                itemRepository.findById(o.itemId).awaitSingleOrNull()?.let {
+                    protocolEventPublisher.onItemUpdate(itemRepository.coSave(it.copy(listed = true)))
+                }
             }
         }
     }
@@ -61,8 +68,12 @@ class OrderIndexerEventProcessor(
             labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")
         ) {
             val o = orderService.close(activity)
+
             if (event.source != Source.REINDEX) {
                 protocolEventPublisher.onOrderUpdate(o, orderConverter)
+                itemRepository.findById(o.itemId).awaitSingleOrNull()?.let {
+                    protocolEventPublisher.onItemUpdate(itemRepository.coSave(it.copy(listed = false)))
+                }
             }
         }
     }
@@ -71,8 +82,12 @@ class OrderIndexerEventProcessor(
         val activity = event.history.activity as FlowNftOrderActivityCancelList
         withSpan("cancelOrderEvent", type = "event", labels = listOf("hash" to activity.hash)) {
             val o = orderService.cancel(activity, event.item)
+
             if (event.source != Source.REINDEX) {
                 protocolEventPublisher.onOrderUpdate(o, orderConverter)
+                itemRepository.findById(o.itemId).awaitSingleOrNull()?.let {
+                    protocolEventPublisher.onItemUpdate(itemRepository.coSave(it.copy(listed = false)))
+                }
             }
         }
     }
