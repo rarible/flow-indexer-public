@@ -5,18 +5,14 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.log.Log
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
 
 @Component
-class MugenNFTMetaProvider(
-    private val itemRepository: ItemRepository,
-) : ItemMetaProvider {
+class MugenNFTMetaProvider : ItemMetaProvider {
 
     private val logger by Log()
 
@@ -28,7 +24,7 @@ class MugenNFTMetaProvider(
         val client = WebClient.create()
         return try {
             val data = client.get().uri(url)
-                .retrieve().awaitBodyOrNull<MugenNFTMetaBody>() ?: return emptyMeta(itemId)
+                .retrieve().awaitBodyOrNull<List<MugenNFTMetaBody>>()?.singleOrNull() ?: return emptyMeta(itemId)
             ItemMeta(
                 itemId = itemId,
                 name = data.name,
@@ -63,7 +59,7 @@ class MugenNFTMetaProvider(
                 raw = data.toString().toByteArray(charset = Charsets.UTF_8)
             }
         } catch (e: Exception) {
-            logger.warn(e.message, e)
+            logger.warn("getMeta: ${e.message}", e)
             return emptyMeta(itemId)
         }
     }
