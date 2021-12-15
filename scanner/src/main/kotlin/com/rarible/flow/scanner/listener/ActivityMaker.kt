@@ -67,7 +67,7 @@ abstract class NFTActivityMaker : ActivityMaker {
                 val deposit = depositEvents.first { d -> cadenceParser.long(d.event.fields["id"]!!) == tokenId }
                 result.add(
                     MintActivity(
-                        creator = it.event.eventId.contractAddress.formatted,
+                        creator = creator(it),
                         owner = cadenceParser.optional(deposit.event.fields["to"]!!) { value ->
                             address(value)
                         }!!,
@@ -131,6 +131,8 @@ abstract class NFTActivityMaker : ActivityMaker {
     abstract fun meta(logEvent: FlowLogEvent): Map<String, String>
 
     protected open fun royalties(logEvent: FlowLogEvent): List<Part> = emptyList()
+
+    protected open fun creator(logEvent: FlowLogEvent): String = logEvent.event.eventId.contractAddress.formatted
 }
 
 @Component
@@ -211,6 +213,10 @@ class RaribleNFTActivityMaker : NFTActivityMaker() {
                 fee = double(it.value!!.getRequiredField("fee"))
             )
         }
+    }
+
+    override fun creator(logEvent: FlowLogEvent): String {
+        return cadenceParser.address(logEvent.event.fields["creator"]!!)
     }
 }
 
