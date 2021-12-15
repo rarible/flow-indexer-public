@@ -2,15 +2,15 @@ package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.log.Log
-import kotlinx.coroutines.reactor.awaitSingleOrNull
-import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.core.io.Resource
@@ -23,10 +23,14 @@ class CnnNFTMetaProvider(
     private val itemRepository: ItemRepository,
     private val scriptExecutor: ScriptExecutor,
     @Value("classpath:script/cnn_meta.cdc")
-    private val scriptFile: Resource,
+    private val metaScript: Resource,
+
+    @Value("classpath:script/get_cnn_nft.cdc")
+    private val cnnNftScript: Resource,
 ) : ItemMetaProvider {
 
-    private val scriptText = scriptFile.inputStream.bufferedReader().use { it.readText() }
+    private val metaScriptText = metaScript.inputStream.bufferedReader().use { it.readText() }
+    private val cnnNftScriptText = cnnNftScript.inputStream.bufferedReader().use { it.readText() }
 
     private val cadenceBuilder = JsonCadenceBuilder()
 
@@ -35,14 +39,22 @@ class CnnNFTMetaProvider(
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("CNN_NFT")
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
-        if (item.meta.isNullOrEmpty()) return emptyMeta(itemId)
-        val meta = JacksonJsonParser().parseMap(item.meta)
-        val ipfsHash = scriptExecutor.execute(
-            code = scriptText,
+        val item = itemRepository.coFindById(itemId) ?: return emptyMeta(itemId)
+
+        val cnnNFT: CnnNFT = scriptExecutor.execute(
+            code = cnnNftScriptText,
             args = mutableListOf(
-                cadenceBuilder.uint32(meta[CnnNFT::setId.name].toString()),
-                cadenceBuilder.uint32(meta[CnnNFT::editionNum.name].toString())
+                cadenceBuilder.address((item.owner ?: item.creator).formatted),
+                cadenceBuilder.uint64(item.tokenId)
+            )
+        ).jsonCadence.let { Flow.unmarshall(CnnNFT::class, it) }
+
+
+        val ipfsHash = scriptExecutor.execute(
+            code = metaScriptText,
+            args = mutableListOf(
+                cadenceBuilder.uint32(cnnNFT.setId),
+                cadenceBuilder.uint32(cnnNFT.editionNum)
             )
         )
 
