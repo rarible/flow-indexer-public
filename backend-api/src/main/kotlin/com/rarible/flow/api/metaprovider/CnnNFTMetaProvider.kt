@@ -26,7 +26,7 @@ class CnnNFTMetaProvider(
     private val scriptFile: Resource,
 ) : ItemMetaProvider {
 
-    private val scriptText = scriptFile.file.readText()
+    private val scriptText = scriptFile.inputStream.bufferedReader().use { it.readText() }
 
     private val cadenceBuilder = JsonCadenceBuilder()
 
