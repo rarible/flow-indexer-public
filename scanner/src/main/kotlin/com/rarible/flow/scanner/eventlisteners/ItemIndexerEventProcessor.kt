@@ -10,6 +10,7 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.events.EventId
 import com.rarible.flow.scanner.model.IndexerEvent
+import com.rarible.flow.scanner.service.OrderService
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -23,6 +24,7 @@ class ItemIndexerEventProcessor(
     private val itemRepository: ItemRepository,
     private val ownershipRepository: OwnershipRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
+    private val orderService: OrderService,
 ) : IndexerEventsProcessor {
 
     private val objectMapper = ObjectMapper()
@@ -71,13 +73,15 @@ class ItemIndexerEventProcessor(
 
             if (forSave != event.item) {
                 val saved = itemRepository.save(forSave).awaitSingle()
-                if (event.source != Source.REINDEX) {
+                val needSendToKafka = event.source != Source.REINDEX
+                if (needSendToKafka) {
                     protocolEventPublisher.onItemUpdate(saved)
                 }
                 if (saved.updatedAt <= mintActivity.timestamp) {
                     //we should not have ownership records yet
                     val deleted = ownershipRepository.deleteAllByContractAndTokenId(forSave.contract, forSave.tokenId)
                         .asFlow().toList()
+                    deleted.map { orderService.deactivateOrdersByOwnership(it, mintActivity.timestamp, needSendToKafka) }
                     val o = ownershipRepository.save(
                         Ownership(
                             contract = mintActivity.contract,
@@ -87,7 +91,8 @@ class ItemIndexerEventProcessor(
                             date = mintActivity.timestamp
                         )
                     ).awaitSingle()
-                    if (event.source != Source.REINDEX) {
+                    orderService.restoreOrdersForOwnership(o, mintActivity.timestamp, needSendToKafka)
+                    if (needSendToKafka) {
                         protocolEventPublisher.onDelete(deleted)
                         protocolEventPublisher.onUpdate(o)
                     }
@@ -100,11 +105,13 @@ class ItemIndexerEventProcessor(
         val burn = event.history.activity as BurnActivity
         val item = event.item
         withSpan("burnItemEvent", type = "event", labels = listOf("itemId" to "${burn.contract}:${burn.tokenId}")) {
+            val needSendToKafka = event.source != Source.REINDEX
             if (item != null && item.updatedAt <= burn.timestamp) {
                 itemRepository.save(item.copy(owner = null, updatedAt = burn.timestamp)).awaitFirstOrNull()
                 val ownerships =
                     ownershipRepository.deleteAllByContractAndTokenId(item.contract, item.tokenId).asFlow().toList()
-                if (event.source != Source.REINDEX) {
+                ownerships.forEach { orderService.deactivateOrdersByOwnership(it, burn.timestamp, needSendToKafka) }
+                if (needSendToKafka) {
                     protocolEventPublisher.onItemDelete(item.id)
                     protocolEventPublisher.onDelete(ownerships)
                 }
@@ -121,7 +128,7 @@ class ItemIndexerEventProcessor(
                         updatedAt = burn.timestamp
                     )
                 ).awaitSingle()
-                if (event.source != Source.REINDEX) {
+                if (needSendToKafka) {
                     protocolEventPublisher.onItemDelete(saved.id)
                 }
             }
@@ -150,6 +157,7 @@ class ItemIndexerEventProcessor(
             ).awaitSingleOrNull()
             if (prevOwnership != null) {
                 ownershipRepository.delete(prevOwnership).awaitSingleOrNull()
+                orderService.deactivateOrdersByOwnership(prevOwnership, transferActivity.timestamp, needSendToKafka)
                 if (needSendToKafka) {
                     protocolEventPublisher.onDelete(prevOwnership)
                 }
@@ -167,6 +175,7 @@ class ItemIndexerEventProcessor(
                     ).awaitSingle()
                     val s = itemRepository.save(item.copy(owner = newOwner, updatedAt = transferActivity.timestamp))
                         .awaitSingle()
+                    orderService.restoreOrdersForOwnership(newOwnership, transferActivity.timestamp, needSendToKafka)
                    Pair(s, newOwnership)
                 } else Pair(item, null)
             } else {
@@ -179,6 +188,7 @@ class ItemIndexerEventProcessor(
                         date = transferActivity.timestamp
                     )
                 ).awaitSingle()
+                orderService.restoreOrdersForOwnership(newOwnership, transferActivity.timestamp, needSendToKafka)
                 val saved = itemRepository.save(
                     Item(
                         contract = transferActivity.contract,

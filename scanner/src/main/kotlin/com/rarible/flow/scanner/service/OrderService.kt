@@ -1,13 +1,16 @@
 package com.rarible.flow.scanner.service
 
 import com.nftco.flow.sdk.FlowAddress
+import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.log.Log
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Service
@@ -16,12 +19,15 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.ZoneOffset
 
 @Service
 class OrderService(
-    val orderRepository: OrderRepository,
-    val currencyApi: CurrencyControllerApi
+    private val orderRepository: OrderRepository,
+    private val protocolEventPublisher: ProtocolEventPublisher,
+    private val orderConverter: OrderToDtoConverter,
+    private val currencyApi: CurrencyControllerApi
 ) {
     val logger by Log()
 
@@ -252,6 +258,38 @@ class OrderService(
 
         return orderRepository.coSave(order)
     }
+
+    suspend fun deactivateOrdersByOwnership(ownership: Ownership, before: Instant, needSendToKafka: Boolean): List<Order> = orderRepository
+        .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
+            FlowAssetNFT(ownership.contract, 1.toBigDecimal(), ownership.tokenId),
+            ownership.owner,
+            OrderStatus.ACTIVE,
+            LocalDateTime.ofInstant(before, ZoneId.systemDefault()),
+        )
+        .flatMap {
+            orderRepository.save(it.copy(status = OrderStatus.INACTIVE))
+        }
+        .asFlow()
+        .onEach {
+            if (needSendToKafka) protocolEventPublisher.onOrderUpdate(it, orderConverter)
+        }
+        .toList()
+
+    suspend fun restoreOrdersForOwnership(ownership: Ownership, before: Instant, needSendToKafka: Boolean): List<Order> = orderRepository
+        .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
+            FlowAssetNFT(ownership.contract, BigDecimal.ONE, ownership.tokenId),
+            ownership.owner,
+            OrderStatus.INACTIVE,
+            LocalDateTime.ofInstant(before, ZoneId.systemDefault()),
+        )
+        .flatMap {
+            orderRepository.save(it.copy(status = OrderStatus.ACTIVE))
+        }
+        .asFlow()
+        .onEach {
+            if (needSendToKafka) protocolEventPublisher.onOrderUpdate(it, orderConverter)
+        }
+        .toList()
 
     suspend fun deactivateOrdersByItem(item: Item, before: LocalDateTime): List<Order> {
         return orderRepository
