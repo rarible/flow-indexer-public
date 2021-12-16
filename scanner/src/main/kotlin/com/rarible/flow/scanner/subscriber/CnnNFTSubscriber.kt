@@ -68,7 +68,8 @@ class CnnNFTSubscriber : BaseItemHistoryFlowLogSubscriber() {
                     contract = contract,
                     tokenId = tokenId,
                     timestamp = timestamp,
-                    value = 1L, royalties = emptyList(), metadata = emptyMap()
+                    value = 1L, royalties = emptyList(),
+                    metadata = emptyMap()
                 )
             }
 
