@@ -16,14 +16,14 @@ class FusdSubscriber(
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
             FlowChainId.MAINNET to flowDescriptor(
-                address = "1654653399040a61",
+                address = "3c5959b568896393",
                 contract = "FUSD",
                 events = events,
                 startFrom = 1L,
                 dbCollection = "",
             ),
             FlowChainId.TESTNET to flowDescriptor(
-                address = "3c5959b568896393",
+                address = "e223d8a629e49c68",
                 contract = "FUSD",
                 events = events,
                 startFrom = 1L,
