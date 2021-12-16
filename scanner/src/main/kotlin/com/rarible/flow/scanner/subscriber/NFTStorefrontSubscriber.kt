@@ -76,10 +76,9 @@ class NFTStorefrontSubscriber(
                         blockHeight = block.number,
                         transactionId = event.transactionId
                     ) {
-                        val r = it.events.map { EventId.of(it.type) }.any {
+                        it.events.map { EventId.of(it.type) }.any {
                             nftEvents.contains(it.toString())
                         }
-                        r
                     }
                 } else orderRepository.existsById(e.listingResourceID).awaitSingle()
 

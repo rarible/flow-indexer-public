@@ -30,13 +30,14 @@ class BidSubscriber(
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
             FlowChainId.TESTNET to flowDescriptor(
-                address = "0xebf4ae01d1284af8",
+                address = "ebf4ae01d1284af8",
                 contract = "RaribleOpenBid",
                 events = listOf("BidAvailable", "BidCompleted"),
+                startFrom = 53502136L,
                 dbCollection = collection
             ),
             FlowChainId.MAINNET to flowDescriptor(
-                address = "0xebf4ae01d1284af8", //todo fill mainnet address
+                address = "ebf4ae01d1284af8", //todo fill mainnet address
                 contract = "RaribleOpenBid",
                 events = listOf("BidAvailable", "BidCompleted"),
                 dbCollection = collection
@@ -64,18 +65,21 @@ class BidSubscriber(
             }
             "BidCompleted" -> {
                 val e = event.event.parse<BidCompleted>()
+                if (nftEvents.isEmpty()) {
+                    nftEvents = collectionRepository.findAll().asFlow().toList().flatMap {
+                        listOf("${it.id}.Withdraw", "${it.id}.Deposit")
+                    }.toSet()
+                }
                 return@withSpan if (e.purchased) {
                     txManager.onTransaction(
                         blockHeight = block.number,
                         transactionId = event.transactionId
                     ) {
-                        val r = it.events.map { EventId.of(it.type) }.any {
+                        it.events.map { EventId.of(it.type) }.any {
                             nftEvents.contains(it.toString())
                         }
-                        r
                     }
                 } else orderRepository.existsById(e.bidId).awaitSingle()
-
             }
             else -> false
         } }
