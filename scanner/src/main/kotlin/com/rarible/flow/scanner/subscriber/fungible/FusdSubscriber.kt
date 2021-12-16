@@ -19,14 +19,12 @@ class FusdSubscriber(
                 address = "3c5959b568896393",
                 contract = "FUSD",
                 events = events,
-                startFrom = 1L,
                 dbCollection = dbCollection,
             ),
             FlowChainId.TESTNET to flowDescriptor(
                 address = "e223d8a629e49c68",
                 contract = "FUSD",
                 events = events,
-                startFrom = 1L,
                 dbCollection = dbCollection
             ),
             FlowChainId.EMULATOR to flowDescriptor(

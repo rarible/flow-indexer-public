@@ -19,14 +19,12 @@ class FlowTokenSubscriber(
                 address = "1654653399040a61",
                 contract = "FlowToken",
                 events = events,
-                startFrom = 1L,
                 dbCollection = dbCollection
             ),
             FlowChainId.TESTNET to flowDescriptor(
                 address = "7e60df042a9c0868",
                 contract = "FlowToken",
                 events = events,
-                startFrom = 1L,
                 dbCollection = dbCollection
             ),
             FlowChainId.EMULATOR to flowDescriptor(
