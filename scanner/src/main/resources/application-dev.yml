@@ -11,13 +11,13 @@ logging:
 
 app:
   environment: dev
-  chain-id: TESTNET
+  chain-id: MAINNET
   kafka-replica-set: ${kafka.hosts}
 
 blockchain:
   scanner:
     flow:
-      chainId: TESTNET
+      chainId: MAINNET
       poller:
         delay: 100
       job:
