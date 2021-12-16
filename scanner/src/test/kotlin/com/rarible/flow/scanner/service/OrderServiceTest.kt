@@ -1,7 +1,8 @@
 package com.rarible.flow.scanner.service
 
+import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.*
-import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.scanner.Data
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
@@ -34,6 +35,10 @@ internal class OrderServiceTest: FunSpec({
         )
     }
 
+    val orderConverter = mockk<OrderToDtoConverter>("orderConverter")
+    val publisher = mockk<ProtocolEventPublisher>("publisher")
+
+
     test("should list order") {
         val orderRepository = mockk<OrderRepository>("orderRepository") {
             every {
@@ -44,12 +49,7 @@ internal class OrderServiceTest: FunSpec({
                 save(any())
             } answers { Mono.just(arg(0)) }
         }
-        val itemRepository = mockk<ItemRepository>("itemRepository") {
-            every {
-                findById(any<ItemId>())
-            } returns Mono.empty()
-        }
-        val service = OrderService(orderRepository, currencyApi)
+        val service = OrderService(orderRepository, publisher, orderConverter, currencyApi)
         val activiy = FlowNftOrderActivityList(
             price = BigDecimal("13.37"),
             priceUsd = BigDecimal("26.74"),
@@ -77,8 +77,7 @@ internal class OrderServiceTest: FunSpec({
                 findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(any(), any(), any(), any())
             } returns Flux.empty()
         }
-        val itemRepository = mockk<ItemRepository>("itemRepository") {}
-        OrderService(orderRepository, currencyApi)
+        OrderService(orderRepository, publisher, orderConverter, currencyApi)
             .deactivateOrdersByItem(Data.createItem(), LocalDateTime.now())
             .count() shouldBe 0
 
@@ -102,7 +101,7 @@ internal class OrderServiceTest: FunSpec({
             every { save(any()) } answers { Mono.just(arg(0)) }
         }
 
-        OrderService(orderRepository, currencyApi)
+        OrderService(orderRepository, publisher, orderConverter, currencyApi)
             .deactivateOrdersByItem(Data.createItem(), LocalDateTime.now())
             .count() shouldBe 1
 
@@ -124,7 +123,7 @@ internal class OrderServiceTest: FunSpec({
             every { save(any()) } answers { Mono.just(arg(0)) }
         }
 
-        OrderService(orderRepository, currencyApi)
+        OrderService(orderRepository, publisher, orderConverter, currencyApi)
             .updateOrdersPrices()
 
         verifySequence {
