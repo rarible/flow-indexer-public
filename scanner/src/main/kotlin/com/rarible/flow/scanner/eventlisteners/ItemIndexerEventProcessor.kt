@@ -64,9 +64,10 @@ class ItemIndexerEventProcessor(
             } else if (event.item.mintedAt != mintActivity.timestamp) {
                 event.item.copy(
                     mintedAt = mintActivity.timestamp,
-                    creator = creator
+                    creator = creator,
+                    royalties = mintActivity.royalties,
+                    meta = objectMapper.writeValueAsString(mintActivity.metadata),
                 )
-
             } else event.item
 
             if (forSave != event.item) {
