@@ -1,9 +1,7 @@
 package com.rarible.flow.core.domain
 
-import com.rarible.blockchain.scanner.flow.model.FlowBlock
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
-import com.rarible.blockchain.scanner.framework.model.Log
 import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.mapping.FieldType
 import org.springframework.data.mongodb.core.mapping.MongoId

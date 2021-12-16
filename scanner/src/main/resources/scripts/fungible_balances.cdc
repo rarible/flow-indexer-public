@@ -15,28 +15,28 @@ pub struct Balance {
 }
 
 pub fun main(accounts: [Address]): [Balance] {
-    let result: [Balance] = []
+    var res: [Balance] = []
     for acc in accounts {
         let a = getAccount(acc)
 
         let flowBalance = a
             .getCapability(/public/flowTokenBalance)
             .borrow<&FlowToken.Vault{FungibleToken.Balance}>()?.balance
-            ?: 0.0
+            ?? 0.0
 
-        result.append(
-            Balance(account: acc, token: Type<FlowToken>.identifier, amount: flowBalance)
+        res.append(
+            Balance(account: acc, token: Type<FlowToken>().identifier, amount: flowBalance)
         )
 
-        let flowBalance = a
+        let fusdBalance = a
             .getCapability(/public/fusdBalance)
             .borrow<&FUSD.Vault{FungibleToken.Balance}>()?.balance
-            ?: 0.0
+            ?? 0.0
 
-        result.append(
-            Balance(account: acc, token: Type<FUSD>.identifier, amount: flowBalance)
+        res.append(
+            Balance(account: acc, token: Type<FUSD>().identifier, amount: fusdBalance)
         )
     }
 
-    return result
+    return res
 }

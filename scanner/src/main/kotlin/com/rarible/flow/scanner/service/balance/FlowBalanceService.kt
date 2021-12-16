@@ -1,4 +1,4 @@
-package com.rarible.flow.api.service.flowrpc
+package com.rarible.flow.scanner.service.balance
 
 import com.nftco.flow.sdk.AsyncFlowAccessApi
 import com.nftco.flow.sdk.Flow
@@ -6,15 +6,15 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.ArrayField
 import com.nftco.flow.sdk.cadence.Field
-import com.rarible.flow.api.simpleScript
 import com.rarible.flow.core.domain.Balance
+import com.rarible.flow.sdk.simpleScript
 
 
 class FlowBalanceService(
     private val chainId: FlowChainId,
     private val flowAccessApi: AsyncFlowAccessApi
 ) {
-    private val script = this.javaClass.getResource("/script/fungible_balances.cdc").readText()
+    private val script = this.javaClass.getResource("/scripts/fungible_balances.cdc").readText()
 
     suspend fun initBalances(accounts: Set<FlowAddress>): List<Balance> {
         return executeScript(script, accounts)
@@ -46,10 +46,14 @@ class FlowBalanceService(
         )
     }
 
-    fun convert(jsonCadence: Field<*>): List<Balance> {
-        jsonCadence as ArrayField
-        return jsonCadence.value?.map {
-            Flow.unmarshall(BalanceC::class, it).toDomain()
-        } ?: emptyList()
+
+
+    companion object {
+        fun convert(jsonCadence: Field<*>): List<Balance> {
+            jsonCadence as ArrayField
+            return jsonCadence.value?.map {
+                Flow.unmarshall(BalanceC::class, it).toDomain()
+            } ?: emptyList()
+        }
     }
 }

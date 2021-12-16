@@ -29,3 +29,8 @@ management:
 logging:
   level:
     com.rarible.flow: DEBUG
+
+flow-api:
+  flow-access-url: "access.mainnet.nodes.onflow.org"
+  flow-access-port: 9000
+  chain-id: MAINNET

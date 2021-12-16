@@ -14,6 +14,7 @@ import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.cadence.BidAvailable
 import com.rarible.flow.scanner.cadence.BidCompleted
 import com.rarible.flow.scanner.model.parse
+import com.rarible.flow.scanner.service.balance.FlowBalanceService
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
@@ -25,7 +26,8 @@ import javax.annotation.PostConstruct
 class BidSubscriber(
     private val collectionRepository: ItemCollectionRepository,
     private val txManager: TxManager,
-    private val orderRepository: OrderRepository
+    private val orderRepository: OrderRepository,
+    private val flowBalanceService: FlowBalanceService
 ) : BaseFlowLogEventSubscriber() {
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(

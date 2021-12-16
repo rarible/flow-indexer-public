@@ -51,7 +51,7 @@ abstract class AbstractFungibleTokenSubscriber(
                     val from: OptionalField by fields
                     val amount: UFix64NumberField by fields
                     balanceHistory(
-                        from, amount.toBigDecimal()!!, token, block, fixedLog
+                        from, amount.toBigDecimal()!!.negate(), token, block, fixedLog
                     )
                 }
                 FungibleEvents.TokensDeposited -> {

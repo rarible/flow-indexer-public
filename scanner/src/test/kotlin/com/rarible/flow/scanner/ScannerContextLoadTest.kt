@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test
 
 
 @IntegrationTest
-class ContextLoadTest: BaseIntegrationTest() {
+class ScannerContextLoadTest: BaseIntegrationTest() {
 
     @Test
     fun contextLoads() {}

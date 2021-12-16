@@ -5,7 +5,6 @@ import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.flow.api.service.FlowSignatureService
-import com.rarible.flow.api.service.flowrpc.FlowBalanceService
 import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.protocol.currency.api.client.CurrencyApiClientFactory
@@ -26,14 +25,6 @@ class Config(
     @Bean
     fun signatureService(api: AsyncFlowAccessApi): FlowSignatureService {
         return FlowSignatureService(
-            appProperties.chainId,
-            api
-        )
-    }
-
-    @Bean
-    fun flowBalanceService(api: AsyncFlowAccessApi): FlowBalanceService {
-        return FlowBalanceService(
             appProperties.chainId,
             api
         )

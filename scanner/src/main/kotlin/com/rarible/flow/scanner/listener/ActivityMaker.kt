@@ -15,6 +15,7 @@ import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.log.Log
 import com.rarible.flow.scanner.TxManager
+import com.rarible.flow.scanner.service.balance.FlowBalanceService
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
 import kotlinx.coroutines.flow.toList
@@ -445,7 +446,9 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
 }
 
 @Component
-class RaribleOpenBidActivityMaker : OrderActivityMaker() {
+class RaribleOpenBidActivityMaker(
+    val flowBalanceService: FlowBalanceService
+) : OrderActivityMaker() {
     override val contractName: String = "RaribleOpenBid"
 
     override suspend fun activities(events: List<FlowLogEvent>): List<BaseActivity> {
@@ -499,7 +502,10 @@ class RaribleOpenBidActivityMaker : OrderActivityMaker() {
                         ),
                     )
                 )
+
+                flowBalanceService.initBalances(FlowAddress(maker), currencyContract)
             }
+
             acceptedBids.forEach {
                 val allTxEvents = readEvents(blockHeight = it.log.blockHeight, txId = FlowId(it.log.transactionHash))
                 val tokenEvents = allTxEvents.filter { it.eventId.toString() in nftCollectionEvents }

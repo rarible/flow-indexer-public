@@ -24,17 +24,20 @@ class RaribleNFTSubscriber: BaseFlowLogEventSubscriber() {
                 address = "01ab36aaf654a13e",
                 contract = contractName,
                 events = events,
-                startFrom = 19799019L
+                startFrom = 19799019L,
+                dbCollection = collection
             ),
             FlowChainId.TESTNET to flowDescriptor(
                 address = "ebf4ae01d1284af8",
                 events = events,
                 contract = contractName,
+                dbCollection = collection
             ),
             FlowChainId.EMULATOR to flowDescriptor(
                 address = "f8d6e0586b0a20c7",
                 events = events,
                 contract = contractName,
+                dbCollection = collection
             ),
         )
 

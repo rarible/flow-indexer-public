@@ -1,11 +1,10 @@
-package com.rarible.flow.api.service.flowrpc
+package com.rarible.flow.scanner.service.balance
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.CadenceNamespace
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion
 import com.nftco.flow.sdk.cadence.JsonCadenceConverter
-import com.rarible.flow.api.controller.flowAddress
 import com.rarible.flow.core.domain.Balance
 import java.math.BigDecimal
 
@@ -28,7 +27,7 @@ data class BalanceC(
         class CadenceConverter: JsonCadenceConverter<BalanceC> {
             override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): BalanceC = com.nftco.flow.sdk.cadence.unmarshall(value) {
                 BalanceC(
-                    address("account").flowAddress()!!,
+                    FlowAddress(address("account")),
                     string("token"),
                     bigDecimal("amount")
                 )
