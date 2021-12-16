@@ -20,20 +20,20 @@ class FusdSubscriber(
                 contract = "FUSD",
                 events = events,
                 startFrom = 1L,
-                dbCollection = "",
+                dbCollection = dbCollection,
             ),
             FlowChainId.TESTNET to flowDescriptor(
                 address = "e223d8a629e49c68",
                 contract = "FUSD",
                 events = events,
                 startFrom = 1L,
-                dbCollection = ""
+                dbCollection = dbCollection
             ),
             FlowChainId.EMULATOR to flowDescriptor(
                 address = "0ae53cb6e3f42a79",
                 contract = "FUSD",
                 events = events,
-                dbCollection = "",
+                dbCollection = dbCollection,
             )
         )
 

@@ -25,10 +25,13 @@ abstract class AbstractFungibleTokenSubscriber(
     open val balanceRepository: BalanceRepository
 ) : FlowLogEventSubscriber {
 
+    val dbCollection = "balance_events"
+
     @Value("\${blockchain.scanner.flow.chainId}")
     lateinit var chainId: FlowChainId
 
     abstract val descriptors: Map<FlowChainId, FlowDescriptor>
+
 
     override fun getDescriptor(): FlowDescriptor = descriptors[chainId]!!
 

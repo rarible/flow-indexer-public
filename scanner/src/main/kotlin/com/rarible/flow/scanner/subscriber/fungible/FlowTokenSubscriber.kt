@@ -20,20 +20,20 @@ class FlowTokenSubscriber(
                 contract = "FlowToken",
                 events = events,
                 startFrom = 1L,
-                dbCollection = ""
+                dbCollection = dbCollection
             ),
             FlowChainId.TESTNET to flowDescriptor(
                 address = "7e60df042a9c0868",
                 contract = "FlowToken",
                 events = events,
                 startFrom = 1L,
-                dbCollection = ""
+                dbCollection = dbCollection
             ),
             FlowChainId.EMULATOR to flowDescriptor(
                 address = "f8d6e0586b0a20c7", //TODO paste correct address
                 contract = "FlowToken",
                 events = events,
-                dbCollection = ""
+                dbCollection = dbCollection
             )
         )
 
