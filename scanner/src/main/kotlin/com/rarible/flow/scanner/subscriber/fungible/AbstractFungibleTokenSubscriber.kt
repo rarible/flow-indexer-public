@@ -39,7 +39,7 @@ abstract class AbstractFungibleTokenSubscriber(
         val payload = com.nftco.flow.sdk.FlowEventPayload(log.event.payload.bytes)
         val event = log.event.copy(payload = payload)
         val fixedLog = FlowBlockchainLog(log.hash, log.blockHash, event)
-        val eventType = safeOf<FungibleEvents>(fixedLog.event.id)
+        val eventType = safeOf<FungibleEvents>(fixedLog.event.type)
         return if (eventType == null) {
             logger.info("Unknown FlowToken event: {}", fixedLog.event)
             emptyFlow<FlowLogRecord<BalanceHistory>>()
