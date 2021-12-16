@@ -88,7 +88,7 @@ class MugenNFTConverter : JsonCadenceConverter<MugenNFT> {
             MugenNFT(
                 uuid = long(compositeValue.getRequiredField("uuid")),
                 id = long(compositeValue.getRequiredField("id")),
-                typeId = long(compositeValue.getRequiredField("typeId")),
+                typeId = long(compositeValue.getRequiredField("typeID")),
             )
         }
 }
