@@ -74,11 +74,27 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
 
     companion object {
 
+        fun parseInt(str: String): Int {
+            return try {
+                str.toInt()
+            } catch (ex: NumberFormatException) {
+                0
+            }
+        }
+
+        fun parseLong(str: String): Long {
+            return try {
+                str.toLong()
+            } catch (ex: NumberFormatException) {
+                0L
+            }
+        }
+
         inline fun <reified P> parseField(str: String): P {
             return when (P::class) {
                 String::class -> str
-                Int::class -> str.toInt()
-                Long::class -> str.toLong()
+                Int::class -> parseInt(str)
+                Long::class -> parseLong(str)
                 Instant::class -> Instant.ofEpochMilli(str.toLong())
                 LocalDateTime::class -> LocalDateTime.ofInstant(Instant.ofEpochMilli(str.toLong()), ZoneOffset.UTC)
                 BigDecimal::class -> str.toBigDecimal()

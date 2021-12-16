@@ -1,20 +1,26 @@
 package com.rarible.flow.scanner.subscriber
-//
+
 //import com.nftco.flow.sdk.FlowChainId
 //import com.rarible.blockchain.scanner.flow.client.FlowBlockchainBlock
 //import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 //import com.rarible.flow.core.domain.*
 //import com.rarible.flow.events.EventMessage
+//import com.rarible.flow.log.Log
 //import com.rarible.flow.scanner.cadence.OrderAvailable
 //import com.rarible.flow.scanner.cadence.OrderCancelled
 //import com.rarible.flow.scanner.cadence.OrderClosed
 //import com.rarible.flow.scanner.model.parse
+//import com.rarible.protocol.currency.api.client.CurrencyControllerApi
+//import com.rarible.protocol.currency.dto.BlockchainDto
+//import kotlinx.coroutines.reactor.awaitSingle
 //import org.springframework.stereotype.Component
 //import java.math.BigDecimal
 //import java.time.Instant
-//
+
 //@Component
-//class OrderSubscriber : BaseFlowLogEventSubscriber() {
+//class OrderSubscriber(
+//    private val currencyApi: CurrencyControllerApi,
+//) : BaseItemHistoryFlowLogSubscriber() {
 //
 //    private val events = "OrderAvailable,OrderClosed,OrderCancelled".split(",")
 //
@@ -23,18 +29,21 @@ package com.rarible.flow.scanner.subscriber
 //            address = "01ab36aaf654a13e",
 //            contract = "RaribleOrder",
 //            events = events,
-//            startFrom = 19863151L
+//            startFrom = 19863151L,
+//            dbCollection = collection
 //        ),
 //        FlowChainId.TESTNET to flowDescriptor(
 //            address = "ebf4ae01d1284af8",
 //            contract = "RaribleOrder",
 //            events = events,
-//            startFrom = 49754786L
+//            startFrom = 49754786L,
+//            dbCollection = collection
 //        ),
 //        FlowChainId.EMULATOR to flowDescriptor(
 //            address = "f8d6e0586b0a20c7",
 //            contract = "RaribleOrder",
 //            events = events,
+//            dbCollection = collection,
 //        ),
 //    )
 //
@@ -113,5 +122,16 @@ package com.rarible.flow.scanner.subscriber
 //
 //            else -> throw IllegalStateException("Unsupported eventId: ${msg.eventId}")
 //        }
+//    }
+//
+//    private suspend fun usdRate(contract: String, timestamp: Long) = try {
+//        currencyApi.getCurrencyRate(BlockchainDto.FLOW, contract, timestamp).awaitSingle().rate
+//    } catch (e: Exception) {
+//        logger.warn("Unable to fetch USD price rate from currency api: ${e.message}", e)
+//        BigDecimal.ZERO
+//    }
+//
+//    companion object {
+//        val logger by Log()
 //    }
 //}

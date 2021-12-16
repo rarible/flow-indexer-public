@@ -19,6 +19,7 @@ rarible:
 flow-indexer-api:
   flow-access-url: "access.devnet.nodes.onflow.org"
   flow-access-port: 9000
+  chain-id: TESTNET
 
 app:
   environment: staging

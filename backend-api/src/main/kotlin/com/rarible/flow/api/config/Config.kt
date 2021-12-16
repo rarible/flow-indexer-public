@@ -23,10 +23,10 @@ class Config(
 ) {
 
     @Bean
-    fun signatureService(): FlowSignatureService {
+    fun signatureService(api: AsyncFlowAccessApi): FlowSignatureService {
         return FlowSignatureService(
             appProperties.chainId,
-            Flow.newAccessApi(apiProperties.flowAccessUrl, apiProperties.flowAccessPort)
+            api
         )
     }
 

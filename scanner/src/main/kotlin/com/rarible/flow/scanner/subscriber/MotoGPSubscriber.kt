@@ -21,12 +21,14 @@ class MotoGPSubscriber : BaseFlowLogEventSubscriber() {
                 address = "a49cc0ee46c54bfb",
                 contract = contractName,
                 events = events,
-                startFrom = 16246182L
+                startFrom = 16246182L,
+                dbCollection = collection
             ),
             FlowChainId.TESTNET to flowDescriptor(
                 address = "01658d9b94068f3c",
                 contract = contractName,
                 events = events,
+                dbCollection = collection
             ),
         )
 

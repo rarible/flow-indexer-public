@@ -14,6 +14,11 @@ app:
   chain-id: TESTNET
   kafka-replica-set: ${kafka.hosts}
 
+flow-api:
+  flow-access-url: "access.devnet.nodes.onflow.org"
+  flow-access-port: 9000
+  chain-id: TESTNET
+
 blockchain:
   scanner:
     flow:
