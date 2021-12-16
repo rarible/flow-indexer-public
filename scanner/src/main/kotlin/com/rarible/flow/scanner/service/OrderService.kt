@@ -62,9 +62,9 @@ class OrderService(
 
     suspend fun openBid(activity: FlowNftOrderActivityBid, item: Item?): Order {
         val status =
-            if (item == null || item.owner?.formatted != activity.maker) OrderStatus.INACTIVE else OrderStatus.ACTIVE
+            if (item == null) OrderStatus.INACTIVE else OrderStatus.ACTIVE
         val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
-            itemId = ItemId(activity.make.contract, activity.tokenId),
+            itemId = ItemId(activity.take.contract, activity.tokenId),
             maker = FlowAddress(activity.maker),
             make = activity.make,
             take = activity.take,
@@ -74,11 +74,12 @@ class OrderService(
             makeStock = activity.make.value.toBigInteger(),
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             type = OrderType.BID,
-            takePriceUsd = activity.priceUsd
+            takePriceUsd = activity.priceUsd,
+            status = status
         ) ?: Order(
             id = activity.hash.toLong(),
             status = status,
-            itemId = ItemId(activity.make.contract, activity.tokenId),
+            itemId = ItemId(activity.take.contract, activity.tokenId),
             maker = FlowAddress(activity.maker),
             make = activity.make,
             take = activity.take,
