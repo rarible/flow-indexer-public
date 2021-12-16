@@ -56,13 +56,8 @@ class AppReadyListener(
                             nodeUrl = "access.mainnet.nodes.onflow.org"
                         ),
                         SporkService.Spork(
-                            from = 19912922L,
-                            to = 21291691L,
-                            nodeUrl = "access-001.mainnet14.nodes.onflow.org"
-                        ),
-                        SporkService.Spork(
                             from = 19050753L,
-                            to = 19912897L,
+                            to = 21291691L,
                             nodeUrl = "access-001.mainnet14.nodes.onflow.org"
                         ),
                     )
