@@ -1,6 +1,6 @@
-import FungibleToken from 0xFUNGIBLETOKENADDRESS
-import FlowToken from 0xFLOWTOKENADDRESS
-import FUSD from 0xFUSDTOKENADDRESS
+import FungibleToken from 0xFUNGIBLETOKEN
+import FlowToken from 0xFLOWTOKEN
+import FUSD from 0xFUSDTOKEN
 
 pub struct Balance {
     pub var account: Address

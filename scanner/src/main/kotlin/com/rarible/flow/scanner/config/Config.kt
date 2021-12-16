@@ -41,15 +41,15 @@ class Config(
     fun flowBalanceService(api: AsyncFlowAccessApi): FlowBalanceService {
         Flow.DEFAULT_ADDRESS_REGISTRY.apply {
             FlowChainId.TESTNET.let { testnet ->
-                register("0xFUNGIBLETOKENADDRESS", FlowAddress("0x9a0766d93b6608b7"), testnet)
-                register("0xFLOWTOKENADDRESS", FlowAddress("0x7e60df042a9c0868"), testnet)
-                register("0xFUSDTOKENADDRESS", FlowAddress("0xe223d8a629e49c68"), testnet)
+                register("0xFUNGIBLETOKEN", FlowAddress("0x9a0766d93b6608b7"), testnet)
+                register("0xFLOWTOKEN", FlowAddress("0x7e60df042a9c0868"), testnet)
+                register("0xFUSDTOKEN", FlowAddress("0xe223d8a629e49c68"), testnet)
             }
 
             FlowChainId.MAINNET.let { mainnet ->
-                register("0xFUNGIBLETOKENADDRESS", FlowAddress("0xf233dcee88fe0abe"), mainnet)
-                register("0xFLOWTOKENADDRESS", FlowAddress("0x1654653399040a61"),  mainnet)
-                register("0xFUSDTOKENADDRESS", FlowAddress("0x3c5959b568896393"), mainnet)
+                register("0xFUNGIBLETOKEN", FlowAddress("0xf233dcee88fe0abe"), mainnet)
+                register("0xFLOWTOKEN", FlowAddress("0x1654653399040a61"),  mainnet)
+                register("0xFUSDTOKEN", FlowAddress("0x3c5959b568896393"), mainnet)
             }
 
 
