@@ -6,6 +6,7 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.EnableFlowBlockchainScanner
 import com.rarible.flow.core.converter.OrderToDtoConverter
+import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.scanner.service.balance.FlowBalanceService
 import com.rarible.protocol.currency.api.client.CurrencyApiClientFactory
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
@@ -38,7 +39,10 @@ class Config(
     }
 
     @Bean
-    fun flowBalanceService(api: AsyncFlowAccessApi): FlowBalanceService {
+    fun flowBalanceService(
+        api: AsyncFlowAccessApi,
+        balanceRepository: BalanceRepository
+    ): FlowBalanceService {
         Flow.DEFAULT_ADDRESS_REGISTRY.apply {
             FlowChainId.TESTNET.let { testnet ->
                 register("0xFUNGIBLETOKEN", FlowAddress("0x9a0766d93b6608b7"), testnet)
@@ -59,7 +63,8 @@ class Config(
 
         return FlowBalanceService(
             flowApiProperties.chainId,
-            api
+            api,
+            balanceRepository
         )
     }
 

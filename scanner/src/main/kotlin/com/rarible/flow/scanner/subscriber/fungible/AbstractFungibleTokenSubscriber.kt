@@ -32,14 +32,15 @@ abstract class AbstractFungibleTokenSubscriber(
 
     abstract val descriptors: Map<FlowChainId, FlowDescriptor>
 
-
     override fun getDescriptor(): FlowDescriptor = descriptors[chainId]!!
 
     override fun getEventRecords(block: FlowBlockchainBlock, log: FlowBlockchainLog): Flow<FlowLogRecord<*>> {
         val payload = com.nftco.flow.sdk.FlowEventPayload(log.event.payload.bytes)
         val event = log.event.copy(payload = payload)
         val fixedLog = FlowBlockchainLog(log.hash, log.blockHash, event)
-        val eventType = safeOf<FungibleEvents>(fixedLog.event.type)
+        val eventType = safeOf<FungibleEvents>(
+            EventId.of(fixedLog.event.type).eventName
+        )
         return if (eventType == null) {
             logger.info("Unknown FlowToken event: {}", fixedLog.event)
             emptyFlow<FlowLogRecord<BalanceHistory>>()
