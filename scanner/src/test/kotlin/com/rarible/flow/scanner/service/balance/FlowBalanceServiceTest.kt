@@ -70,14 +70,14 @@ internal class FlowBalanceServiceTest : FunSpec({
     test("should convert script result") {
         FlowBalanceService.convert(
             balanceResponse
-        ) shouldContainAll listOf(
-            Balance(
+        ).map { Triple(it.account, it.token, it.balance) } shouldContainAll listOf(
+            Triple(
                 FlowAddress("0x1c0a1528f6966cb8"),
                 "A.1654653399040a61.FlowToken",
                 BigDecimal("0.01000000")
             ),
 
-            Balance(
+            Triple(
                 FlowAddress("0x1c0a1528f6966cb8"),
                 "A.3c5959b568896393.FUSD",
                 BigDecimal("0.00000000")
