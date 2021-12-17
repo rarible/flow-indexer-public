@@ -41,7 +41,7 @@ abstract class NFTActivityMaker : ActivityMaker {
     protected val cadenceParser: JsonCadenceParser = JsonCadenceParser()
 
     override fun isSupportedCollection(collection: String): Boolean =
-        collection.split(".").last().lowercase() in arrayOf(contractName.lowercase())
+        collection.split(".").last().lowercase() == contractName.lowercase()
 
     override suspend fun activities(events: List<FlowLogEvent>): List<BaseActivity> {
         val result: MutableList<BaseActivity> = mutableListOf()
@@ -266,22 +266,22 @@ abstract class OrderActivityMaker : ActivityMaker {
         EventId.of("${collection}.dummy").contractName.lowercase() == contractName.lowercase()
 
     protected suspend fun readEvents(blockHeight: Long, txId: FlowId): List<EventMessage> {
-        return withSpan("readEventsFromOrderTx", "event") {
+        return withSpan("readEventsFromOrderTx", "network") {
             txManager.onTransaction(
                 blockHeight = blockHeight,
                 transactionId = txId
-            ) {
-                it.events.map { Flow.unmarshall(EventMessage::class, it.event) }
+            ) { transactionResult ->
+                transactionResult.events.map { Flow.unmarshall(EventMessage::class, it.event) }
             }
         }
     }
 
-    protected suspend fun usdRate(contract: String, timestamp: Long): BigDecimal? = try {
+    protected suspend fun usdRate(contract: String, timestamp: Long): BigDecimal? = withSpan("usdRate", "network") {try {
         currencyApi.getCurrencyRate(BlockchainDto.FLOW, contract, timestamp).awaitSingle().rate
     } catch (e: Exception) {
         logger.warn("Unable to fetch USD price rate from currency api: ${e.message}", e)
         null
-    }
+    }}
 
     protected fun paymentType(address: String): PaymentType {
         return pTypes[chainId]!!.firstNotNullOfOrNull { if (it.value == address) it.key else null } ?: PaymentType.OTHER
@@ -320,7 +320,7 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
                 orderCancel.map {
                     val orderId = cadenceParser.long(it.event.fields["listingResourceID"]!!)
                     FlowNftOrderActivityCancelList(
-                        hash = orderId.toString(),
+                        hash = "$orderId",
                         timestamp = it.log.timestamp
                     )
                 }
@@ -346,7 +346,7 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
                         tokenId = tokenId,
                         contract = nftCollection,
                         timestamp = it.log.timestamp,
-                        hash = orderId.toString(),
+                        hash = "$orderId",
                         maker = cadenceParser.address(it.event.fields["storefrontAddress"]!!),
                         make = FlowAssetNFT(
                             contract = nftCollection,
