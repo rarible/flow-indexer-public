@@ -6,13 +6,14 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Version
 import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.mapping.FieldType
+import java.io.Serializable
 import java.math.BigDecimal
 import java.time.Instant
 
 data class BalanceId(
     val account: FlowAddress,
     val token: String
-) {
+): Serializable {
 
     override fun toString(): String {
         return "$token:${account.formatted}"

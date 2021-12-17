@@ -42,14 +42,15 @@ abstract class AbstractFungibleTokenSubscriber: FlowLogEventSubscriber {
             logger.info("Unknown FlowToken event: {}", fixedLog.event)
             emptyFlow<FlowLogRecord<BalanceHistory>>()
         } else {
-            val event = log.event.copy(payload = payload)
-            val fixedLog = FlowBlockchainLog(log.hash, log.blockHash, event)
             val token = EventId.of(fixedLog.event.type).collection()
             val fields = com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, fixedLog.event.event).fields
 
             val balanceHistory = when (eventType) {
                 FungibleEvents.TokensWithdrawn -> {
                     val from: OptionalField by fields
+                    if (from.value == null) {
+                        return emptyFlow()
+                    }
                     val amount: UFix64NumberField by fields
                     balanceHistory(
                         from, amount.toBigDecimal()!!.negate(), token, block, fixedLog
@@ -57,6 +58,9 @@ abstract class AbstractFungibleTokenSubscriber: FlowLogEventSubscriber {
                 }
                 FungibleEvents.TokensDeposited -> {
                     val to: OptionalField by fields
+                    if (to.value == null) {
+                        return emptyFlow()
+                    }
                     val amount: UFix64NumberField by fields
                     balanceHistory(
                         to, amount.toBigDecimal()!!, token, block, fixedLog
