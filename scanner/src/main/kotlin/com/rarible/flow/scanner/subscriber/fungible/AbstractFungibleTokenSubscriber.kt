@@ -9,7 +9,6 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventSubscriber
 import com.rarible.flow.core.domain.BalanceHistory
-import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.enum.safeOf
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
@@ -21,9 +20,7 @@ import kotlinx.coroutines.flow.flowOf
 import org.springframework.beans.factory.annotation.Value
 
 
-abstract class AbstractFungibleTokenSubscriber(
-    open val balanceRepository: BalanceRepository
-) : FlowLogEventSubscriber {
+abstract class AbstractFungibleTokenSubscriber: FlowLogEventSubscriber {
 
     val dbCollection = "balance_events"
 

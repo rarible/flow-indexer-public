@@ -2,14 +2,11 @@ package com.rarible.flow.scanner.subscriber.fungible
 
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
-import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.scanner.subscriber.flowDescriptor
 import org.springframework.stereotype.Component
 
 @Component
-class FusdSubscriber(
-    override val balanceRepository: BalanceRepository
-) : AbstractFungibleTokenSubscriber(balanceRepository) {
+class FusdSubscriber: AbstractFungibleTokenSubscriber() {
 
     private val events = supportedEvents()
 
