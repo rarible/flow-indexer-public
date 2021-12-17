@@ -196,15 +196,6 @@ class UserStorageService(
                     entry.value.forEach { tokenId ->
                         val contract = contract("0xMUGENNFT", "MugenNFT")
                         val item = if (notExistsItem(contract, tokenId)) {
-                            val res = scriptExecutor.execute(scriptText("/script/get_mugen_nft.cdc"), mutableListOf(
-                                builder.address(address.bytes),
-                                builder.uint64(tokenId)
-                            ))
-
-                            val token = parser.optional(res.jsonCadence) {
-                                unmarshall<MugenNFT>(it)
-                            }!!
-
                             Item(
                                 contract = contract,
                                 tokenId = tokenId,
