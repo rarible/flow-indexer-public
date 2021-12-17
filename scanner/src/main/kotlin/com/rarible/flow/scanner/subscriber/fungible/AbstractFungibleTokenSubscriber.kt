@@ -9,7 +9,6 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventSubscriber
 import com.rarible.flow.core.domain.BalanceHistory
-import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.enum.safeOf
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
@@ -21,9 +20,7 @@ import kotlinx.coroutines.flow.flowOf
 import org.springframework.beans.factory.annotation.Value
 
 
-abstract class AbstractFungibleTokenSubscriber(
-    open val balanceRepository: BalanceRepository
-) : FlowLogEventSubscriber {
+abstract class AbstractFungibleTokenSubscriber: FlowLogEventSubscriber {
 
     val dbCollection = "balance_events"
 
@@ -32,14 +29,15 @@ abstract class AbstractFungibleTokenSubscriber(
 
     abstract val descriptors: Map<FlowChainId, FlowDescriptor>
 
-
     override fun getDescriptor(): FlowDescriptor = descriptors[chainId]!!
 
     override fun getEventRecords(block: FlowBlockchainBlock, log: FlowBlockchainLog): Flow<FlowLogRecord<*>> {
         val payload = com.nftco.flow.sdk.FlowEventPayload(log.event.payload.bytes)
         val event = log.event.copy(payload = payload)
         val fixedLog = FlowBlockchainLog(log.hash, log.blockHash, event)
-        val eventType = safeOf<FungibleEvents>(fixedLog.event.type)
+        val eventType = safeOf<FungibleEvents>(
+            EventId.of(fixedLog.event.type).eventName
+        )
         return if (eventType == null) {
             logger.info("Unknown FlowToken event: {}", fixedLog.event)
             emptyFlow<FlowLogRecord<BalanceHistory>>()
