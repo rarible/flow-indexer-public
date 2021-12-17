@@ -53,8 +53,8 @@ class OrderIndexerEventProcessor(
             val o = orderService.openList(activity, event.item)
             if (event.source != Source.REINDEX) {
                 protocolEventPublisher.onOrderUpdate(o, orderConverter)
-                itemRepository.findById(o.itemId).awaitSingleOrNull()?.let {
-                    protocolEventPublisher.onItemUpdate(itemRepository.coSave(it.copy(listed = true)))
+                if (event.item != null && event.item.updatedAt <= activity.timestamp) {
+                    protocolEventPublisher.onItemUpdate(itemRepository.coSave(event.item.copy(listed = true, updatedAt = activity.timestamp)))
                 }
             }
         }
@@ -71,8 +71,8 @@ class OrderIndexerEventProcessor(
 
             if (event.source != Source.REINDEX) {
                 protocolEventPublisher.onOrderUpdate(o, orderConverter)
-                itemRepository.findById(o.itemId).awaitSingleOrNull()?.let {
-                    protocolEventPublisher.onItemUpdate(itemRepository.coSave(it.copy(listed = false)))
+                if (event.item != null && event.item.updatedAt <= activity.timestamp) {
+                    protocolEventPublisher.onItemUpdate(itemRepository.coSave(event.item.copy(listed = false, updatedAt = activity.timestamp)))
                 }
             }
         }
@@ -86,7 +86,9 @@ class OrderIndexerEventProcessor(
             if (event.source != Source.REINDEX) {
                 protocolEventPublisher.onOrderUpdate(o, orderConverter)
                 itemRepository.findById(o.itemId).awaitSingleOrNull()?.let {
-                    protocolEventPublisher.onItemUpdate(itemRepository.coSave(it.copy(listed = false)))
+                    if (it.updatedAt <= activity.timestamp) {
+                        protocolEventPublisher.onItemUpdate(itemRepository.coSave(it.copy(listed = false, updatedAt = activity.timestamp)))
+                    }
                 }
             }
         }
