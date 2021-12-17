@@ -35,7 +35,6 @@ class BidSubscriber(
                 address = "ebf4ae01d1284af8",
                 contract = "RaribleOpenBid",
                 events = listOf("BidAvailable", "BidCompleted"),
-                startFrom = 53502136L,
                 dbCollection = collection
             ),
             FlowChainId.MAINNET to flowDescriptor(

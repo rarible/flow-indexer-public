@@ -156,7 +156,7 @@ class OrderService(
             it.copy(
                 fill = it.makeStock.toBigDecimal(),
                 makeStock = BigInteger.ZERO,
-                taker = FlowAddress(activity.right.maker),
+                taker = FlowAddress(activity.left.maker),
                 status = OrderStatus.FILLED,
                 data = OrderData(
                     activity.payments.filter {
@@ -170,10 +170,10 @@ class OrderService(
             id = activity.hash.toLong(),
             fill = BigDecimal.ONE,
             makeStock = BigInteger.ZERO,
-            taker = FlowAddress(activity.right.maker),
+            taker = FlowAddress(activity.left.maker),
             status = OrderStatus.FILLED,
             createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-            maker = FlowAddress(activity.left.maker),
+            maker = FlowAddress(activity.right.maker),
             itemId = ItemId(activity.left.asset.contract, activity.tokenId),
             amount = activity.price,
             collection = activity.contract,

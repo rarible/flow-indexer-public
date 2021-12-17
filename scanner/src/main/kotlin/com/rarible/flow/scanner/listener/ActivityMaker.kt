@@ -276,12 +276,14 @@ abstract class OrderActivityMaker : ActivityMaker {
         }
     }
 
-    protected suspend fun usdRate(contract: String, timestamp: Long): BigDecimal? = withSpan("usdRate", "network") {try {
-        currencyApi.getCurrencyRate(BlockchainDto.FLOW, contract, timestamp).awaitSingle().rate
-    } catch (e: Exception) {
-        logger.warn("Unable to fetch USD price rate from currency api: ${e.message}", e)
-        null
-    }}
+    protected suspend fun usdRate(contract: String, timestamp: Long): BigDecimal? = withSpan("usdRate", "network") {
+        try {
+            currencyApi.getCurrencyRate(BlockchainDto.FLOW, contract, timestamp).awaitSingle().rate
+        } catch (e: Exception) {
+            logger.warn("Unable to fetch USD price rate from currency api: ${e.message}", e)
+            null
+        }
+    }
 
     protected fun paymentType(address: String): PaymentType {
         return pTypes[chainId]!!.firstNotNullOfOrNull { if (it.value == address) it.key else null } ?: PaymentType.OTHER
@@ -291,12 +293,10 @@ abstract class OrderActivityMaker : ActivityMaker {
         FlowChainId.MAINNET to mapOf(
             PaymentType.ROYALTY to "0xbd69b6abdfcf4539",
             PaymentType.BUYER_FEE to "0x7f599d6dd7fd7e7b",
-            PaymentType.SELLER_FEE to "0x7f599d6dd7fd7e7b",
             PaymentType.OTHER to "0xf919ee77447b7497"
         ),
         FlowChainId.TESTNET to mapOf(
             PaymentType.BUYER_FEE to "0xebf4ae01d1284af8",
-            PaymentType.SELLER_FEE to "0xebf4ae01d1284af8",
             PaymentType.OTHER to "0x912d5440f7e3769e"
         )
     )
@@ -376,24 +376,26 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
                         address(it)
                     }!!
 
-                    val payInfo = currencyEvents.filter { it.eventId.eventName == "TokensDeposited" }.mapNotNull {
-                        val to = cadenceParser.optional(it.fields["to"]!!) {
-                            address(it)
-                        } ?: return@mapNotNull null
+                    val payInfo = currencyEvents.filter { it.eventId.eventName == "TokensDeposited" }
+                        .filter { cadenceParser.optional(it.fields["to"]!!) { address(it) } != null }
+                        .map {
+                            val to = cadenceParser.optional(it.fields["to"]!!) {
+                                address(it)
+                            }!!
 
-                        val amount = cadenceParser.bigDecimal(it.fields["amount"]!!)
+                            val amount = cadenceParser.bigDecimal(it.fields["amount"]!!)
 
-                        var type = paymentType(to)
-                        if (type == PaymentType.OTHER && to == sellerAddress) {
-                            type = PaymentType.REWARD
+                            var type = paymentType(to)
+                            if (type == PaymentType.OTHER && to == sellerAddress) {
+                                type = PaymentType.REWARD
+                            }
+                            PayInfo(
+                                address = to,
+                                amount = amount,
+                                currencyContract = it.eventId.collection(),
+                                type = type
+                            )
                         }
-                        PayInfo(
-                            address = to,
-                            amount = amount,
-                            currencyContract = it.eventId.collection(),
-                            type = type
-                        )
-                    }
 
                     val price = payInfo.filterNot {
                         it.type == PaymentType.OTHER
@@ -525,7 +527,7 @@ class RaribleOpenBidActivityMaker(
                     val payInfo = payInfos(currencyEvents, sellerAddress)
 
                     val price = payInfo.filterNot {
-                        it.type == PaymentType.OTHER
+                        it.type in arrayOf(PaymentType.SELLER_FEE, PaymentType.OTHER)
                     }.sumOf { it.amount }
                     val usdRate =
                         usdRate(payInfo.first().currencyContract, it.log.timestamp.toEpochMilli()) ?: BigDecimal.ZERO
@@ -579,24 +581,40 @@ class RaribleOpenBidActivityMaker(
         sellerAddress: String
     ): List<PayInfo> {
         try {
-            val payInfo = currencyEvents.filter { it.eventId.eventName == "TokensDeposited" }.mapNotNull {
-                val to = cadenceParser.optional(it.fields["to"]!!) {
-                    address(it)
-                } ?: return@mapNotNull null
-
-                val amount = cadenceParser.bigDecimal(it.fields["amount"]!!)
-
-                var type = paymentType(to)
-                if (type == PaymentType.OTHER && to == sellerAddress) {
-                    type = PaymentType.REWARD
+            val payments = currencyEvents.filter { it.eventId.eventName == "TokensDeposited" }
+                .filter {
+                    cadenceParser.optional(it.fields["to"]!!) {
+                        address(it)
+                    } != null
                 }
-                PayInfo(
-                    address = to,
-                    amount = amount,
-                    currencyContract = it.eventId.collection(),
-                    type = type
-                )
-            }
+
+
+            var feeFounded = false
+            val payInfo = payments
+                .map {
+                    val to = cadenceParser.optional(it.fields["to"]!!) {
+                        address(it)
+                    }!!
+
+                    val amount = cadenceParser.bigDecimal(it.fields["amount"]!!)
+
+                    var type = paymentType(to)
+                    if (type == PaymentType.OTHER && to == sellerAddress) {
+                        type = PaymentType.REWARD
+                    } else if (type == PaymentType.BUYER_FEE) {
+                        if (!feeFounded) {
+                            feeFounded = true
+                        } else {
+                            type = PaymentType.SELLER_FEE
+                        }
+                    }
+                    PayInfo(
+                        address = to,
+                        amount = amount,
+                        currencyContract = it.eventId.collection(),
+                        type = type
+                    )
+                }
             return payInfo
         } catch (e: Exception) {
             throw e
