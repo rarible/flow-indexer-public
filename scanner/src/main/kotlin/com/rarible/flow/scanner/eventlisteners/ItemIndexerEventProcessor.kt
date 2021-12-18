@@ -6,22 +6,26 @@ import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
+import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.events.EventId
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.OrderService
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Component
+import reactor.kotlin.extra.math.max
 import java.time.Instant
 
 @Component
 class ItemIndexerEventProcessor(
     private val itemRepository: ItemRepository,
+    private val itemMetaRepository: ItemMetaRepository,
     private val ownershipRepository: OwnershipRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
     private val orderService: OrderService,
@@ -74,6 +78,7 @@ class ItemIndexerEventProcessor(
 
             if (forSave != event.item) {
                 val saved = itemRepository.save(forSave).awaitSingle()
+                itemMetaRepository.deleteById(forSave.id).awaitFirstOrNull()
                 val needSendToKafka = event.source != Source.REINDEX
                 if (needSendToKafka) {
                     protocolEventPublisher.onItemUpdate(saved)
@@ -97,6 +102,31 @@ class ItemIndexerEventProcessor(
                         protocolEventPublisher.onDelete(deleted)
                         protocolEventPublisher.onUpdate(o)
                     }
+                } else {
+                    ownershipRepository.findAllByContractAndTokenId(forSave.contract, forSave.tokenId)
+                        .max { o1, o2 -> o1.date.compareTo(o2.date) }
+                        .awaitSingleOrNull()
+                        ?.let { o ->
+                            ownershipRepository
+                                .deleteAllByContractAndTokenIdAndOwnerNot(forSave.contract, forSave.tokenId, o.owner)
+                                .asFlow()
+                                .onEach {
+                                    if (needSendToKafka) {
+                                        orderService.deactivateOrdersByOwnership(
+                                            it,
+                                            mintActivity.timestamp,
+                                            needSendToKafka
+                                        )
+                                    }
+                                }
+                                .toList()
+                            if (o.creator != creator) {
+                                val ownership = ownershipRepository.save(o.copy(creator = creator)).awaitSingle()
+                                if (needSendToKafka) {
+                                    protocolEventPublisher.onUpdate(ownership)
+                                }
+                            }
+                        }
                 }
             }
         }
