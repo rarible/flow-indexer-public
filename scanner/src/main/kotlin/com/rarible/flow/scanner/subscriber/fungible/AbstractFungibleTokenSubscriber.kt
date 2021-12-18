@@ -10,7 +10,6 @@ import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventSubscriber
-import com.rarible.flow.core.domain.BalanceHistory
 import com.rarible.flow.core.domain.BalanceId
 import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.enum.safeOf
@@ -24,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 
 
-abstract class AbstractFungibleTokenSubscriber: FlowLogEventSubscriber {
+abstract class AbstractFungibleTokenSubscriber : FlowLogEventSubscriber {
 
     val dbCollection = "balance_events"
 
@@ -45,42 +44,48 @@ abstract class AbstractFungibleTokenSubscriber: FlowLogEventSubscriber {
         val eventType = safeOf<FungibleEvents>(
             EventId.of(fixedLog.event.type).eventName
         )
-        emitAll(if (eventType == null) {
-            logger.info("Unknown FlowToken event: {}", fixedLog.event)
-            emptyFlow<FlowLogRecord<BalanceHistory>>()
-        } else {
-            val token = EventId.of(fixedLog.event.type).collection()
-            val fields = com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, fixedLog.event.event).fields
-
+        val token = EventId.of(fixedLog.event.type).collection()
+        val fields = com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, fixedLog.event.event).fields
+        emitAll(
             when (eventType) {
                 FungibleEvents.TokensWithdrawn -> {
                     val from: OptionalField by fields
                     if (from.value == null) {
-                        emptyFlow<FlowLogRecord<BalanceHistory>>()
+                        emptyFlow()
+                    } else {
+                        val amount: UFix64NumberField by fields
+                        val balanceId = BalanceId(FlowAddress((from.value as AddressField).value!!), token)
+                        if (balanceRepository.existsById(balanceId).awaitSingle()) {
+                            flowOf(
+                                balanceHistory(
+                                    balanceId, amount.toBigDecimal()!!.negate(), block, fixedLog
+                                )
+                            )
+                        } else emptyFlow()
                     }
-                    val amount: UFix64NumberField by fields
-                    val balanceId = BalanceId(FlowAddress((from.value as AddressField).value!!), token)
-                    if (balanceRepository.existsById(balanceId).awaitSingle()) {
-                        flowOf(balanceHistory(
-                            balanceId, amount.toBigDecimal()!!.negate(), block, fixedLog
-                        ))
-                    } else emptyFlow()
                 }
                 FungibleEvents.TokensDeposited -> {
                     val to: OptionalField by fields
                     if (to.value == null) {
-                        emptyFlow<FlowLogRecord<BalanceHistory>>()
+                        emptyFlow()
+                    } else {
+                        val amount: UFix64NumberField by fields
+                        val balanceId = BalanceId(FlowAddress((to.value as AddressField).value!!), token)
+                        if (balanceRepository.existsById(balanceId).awaitSingle()) {
+                            flowOf(
+                                balanceHistory(
+                                    to, amount.toBigDecimal()!!, token, block, fixedLog
+                                )
+                            )
+                        } else emptyFlow()
                     }
-                    val amount: UFix64NumberField by fields
-                    val balanceId = BalanceId(FlowAddress((to.value as AddressField).value!!), token)
-                    if (balanceRepository.existsById(balanceId).awaitSingle()) {
-                        flowOf(balanceHistory(
-                            to, amount.toBigDecimal()!!, token, block, fixedLog
-                        ))
-                    } else emptyFlow()
+                }
+                null -> {
+                    logger.info("Unknown FlowToken event: {}", fixedLog.event)
+                    emptyFlow()
                 }
             }
-        })
+        )
     }
 
     companion object {
