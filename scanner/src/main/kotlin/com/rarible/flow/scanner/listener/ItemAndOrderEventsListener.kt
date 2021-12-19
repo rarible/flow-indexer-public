@@ -39,11 +39,11 @@ class ItemAndOrderEventsListener(
                 }
                 .forEach { entry ->
                     nftActivityMakers.find { it.isSupportedCollection(entry.key.collection) }?.let { maker ->
-                        history.addAll(maker.activities(entry.value).map {
+                        history.addAll(maker.activities(entry.value).mapIndexed { index, activity ->
                             ItemHistory(
-                                log = entry.key.log,
-                                activity = it,
-                                date = it.timestamp
+                                log = entry.key.log.copy(eventIndex = index),
+                                activity = activity,
+                                date = activity.timestamp
                             )
                         })
                     }
