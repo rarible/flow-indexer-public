@@ -3,6 +3,7 @@ package com.rarible.flow.api.metaprovider
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.nftco.flow.sdk.Flow
+import com.nftco.flow.sdk.cadence.CompositeField
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.OptionalField
 import com.nftco.flow.sdk.cadence.StringField
@@ -26,11 +27,11 @@ class CnnNFTMetaProvider(
     private val scriptExecutor: ScriptExecutor,
     private val pinataClient: WebClient,
 
-    @Value("classpath:script/cnn_meta.cdc")
-    private val metaScript: Resource,
-
     @Value("classpath:script/get_cnn_nft.cdc")
     private val cnnNftScript: Resource,
+
+    @Value("classpath:script/cnn_meta.cdc")
+    private val metaScript: Resource,
 ) : ItemMetaProvider {
 
     private val metaScriptText = metaScript.inputStream.bufferedReader().use { it.readText() }
@@ -62,6 +63,8 @@ class CnnNFTMetaProvider(
             )
         ).jsonCadence as OptionalField
         return jsonCadence.value?.let {
+            it.value as CompositeField
+        }?.let {
             Flow.unmarshall(CnnNFT::class, it)
         }
     }

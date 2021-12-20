@@ -23,7 +23,7 @@ class ScriptExecutor(
         }
         logger.info(
             "Running script {} with args: [{}]. Result: {}",
-            DigestUtils.md5Digest(code.toByteArray()),
+            DigestUtils.md5Digest(code.toByteArray()).decodeToString(),
             logArgs(args),
             response.stringValue
         )
