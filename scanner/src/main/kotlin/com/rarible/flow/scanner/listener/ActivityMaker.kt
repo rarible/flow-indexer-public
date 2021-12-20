@@ -8,6 +8,7 @@ import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.nftco.flow.sdk.cadence.NumberField
 import com.nftco.flow.sdk.cadence.OptionalField
 import com.nftco.flow.sdk.cadence.StructField
+import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemCollectionRepository
@@ -31,7 +32,7 @@ interface ActivityMaker {
 
     fun isSupportedCollection(collection: String): Boolean
 
-    suspend fun activities(events: List<FlowLogEvent>): List<BaseActivity>
+    suspend fun activities(events: List<FlowLogEvent>): Map<FlowLog, BaseActivity>
 }
 
 abstract class NFTActivityMaker : ActivityMaker {
@@ -43,8 +44,8 @@ abstract class NFTActivityMaker : ActivityMaker {
     override fun isSupportedCollection(collection: String): Boolean =
         collection.split(".").last().lowercase() == contractName.lowercase()
 
-    override suspend fun activities(events: List<FlowLogEvent>): List<BaseActivity> {
-        val result: MutableList<BaseActivity> = mutableListOf()
+    override suspend fun activities(events: List<FlowLogEvent>): Map<FlowLog, BaseActivity> {
+        val result: MutableMap<FlowLog, BaseActivity> = mutableMapOf()
         withSpan("generateNftActivities", "event") {
             val filtered = events.filterNot {
                 when (it.type) {
@@ -66,18 +67,16 @@ abstract class NFTActivityMaker : ActivityMaker {
             mintEvents.forEach {
                 val tokenId = tokenId(it)
                 val deposit = depositEvents.first { d -> cadenceParser.long(d.event.fields["id"]!!) == tokenId }
-                result.add(
-                    MintActivity(
-                        creator = creator(it),
-                        owner = cadenceParser.optional(deposit.event.fields["to"]!!) { value ->
-                            address(value)
-                        }!!,
-                        contract = it.event.eventId.collection(),
-                        tokenId = tokenId,
-                        timestamp = deposit.log.timestamp,
-                        metadata = meta(it),
-                        royalties = royalties(it)
-                    )
+                result[deposit.log] = MintActivity(
+                    creator = creator(it),
+                    owner = cadenceParser.optional(deposit.event.fields["to"]!!) { value ->
+                        address(value)
+                    }!!,
+                    contract = it.event.eventId.collection(),
+                    tokenId = tokenId,
+                    timestamp = deposit.log.timestamp,
+                    metadata = meta(it),
+                    royalties = royalties(it)
                 )
             }
 
@@ -91,18 +90,16 @@ abstract class NFTActivityMaker : ActivityMaker {
 
                 if (depositActivity != null) {
                     val to: OptionalField by depositActivity.event.fields
-                    result.add(
-                        TransferActivity(
-                            contract = w.event.eventId.collection(),
-                            tokenId = tokenId,
-                            timestamp = depositActivity.log.timestamp,
-                            from = cadenceParser.optional(from) {
-                                address(it)
-                            }!!,
-                            to = cadenceParser.optional(to) {
-                                address(it)
-                            }!!
-                        )
+                    result[depositActivity.log] = TransferActivity(
+                        contract = w.event.eventId.collection(),
+                        tokenId = tokenId,
+                        timestamp = depositActivity.log.timestamp,
+                        from = cadenceParser.optional(from) {
+                            address(it)
+                        }!!,
+                        to = cadenceParser.optional(to) {
+                            address(it)
+                        }!!
                     )
                 } else {
                     val burnActivity = burnEvents.find { b ->
@@ -110,21 +107,19 @@ abstract class NFTActivityMaker : ActivityMaker {
                         bTokenId == tokenId && b.log.timestamp >= w.log.timestamp
                     }
                     if (burnActivity != null) {
-                        result.add(
-                            BurnActivity(
-                                contract = burnActivity.event.eventId.collection(),
-                                tokenId = tokenId,
-                                owner = cadenceParser.optional(from) {
-                                    address(it)
-                                },
-                                timestamp = burnActivity.log.timestamp
-                            )
+                        result[burnActivity.log] = BurnActivity(
+                            contract = burnActivity.event.eventId.collection(),
+                            tokenId = tokenId,
+                            owner = cadenceParser.optional(from) {
+                                address(it)
+                            },
+                            timestamp = burnActivity.log.timestamp
                         )
                     }
                 }
             }
         }
-        return result.sortedBy { it.timestamp }.toList()
+        return result.toMap()
     }
 
     abstract fun tokenId(logEvent: FlowLogEvent): Long
@@ -307,8 +302,8 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
 
     override val contractName: String = "NFTStorefront"
 
-    override suspend fun activities(events: List<FlowLogEvent>): List<BaseActivity> {
-        val result: MutableList<BaseActivity> = mutableListOf()
+    override suspend fun activities(events: List<FlowLogEvent>): Map<FlowLog, BaseActivity> {
+        val result: MutableMap<FlowLog, BaseActivity> = mutableMapOf()
         withSpan("generateOrderActivities", "event") {
             val orderCancel =
                 events.filter { it.type == FlowLogType.LISTING_COMPLETED && !cadenceParser.boolean(it.event.fields["purchased"]!!) }
@@ -316,15 +311,13 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
                 events.filter { it.type == FlowLogType.LISTING_COMPLETED && cadenceParser.boolean(it.event.fields["purchased"]!!) }
             val orderListed = events.filter { it.type == FlowLogType.LISTING_AVAILABLE }
 
-            result.addAll(
-                orderCancel.map {
-                    val orderId = cadenceParser.long(it.event.fields["listingResourceID"]!!)
-                    FlowNftOrderActivityCancelList(
-                        hash = "$orderId",
-                        timestamp = it.log.timestamp
-                    )
-                }
-            )
+            orderCancel.forEach {
+                val orderId = cadenceParser.long(it.event.fields["listingResourceID"]!!)
+                result[it.log] = FlowNftOrderActivityCancelList(
+                    hash = "$orderId",
+                    timestamp = it.log.timestamp
+                )
+            }
 
             orderListed.forEach {
                 val price = cadenceParser.bigDecimal(it.event.fields["price"]!!)
@@ -339,24 +332,22 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
                 } else BigDecimal.ZERO
                 val nftCollection = EventId.of(cadenceParser.string(it.event.fields["nftType"]!!)).collection()
                 val tokenId = cadenceParser.long(it.event.fields["nftID"]!!)
-                result.add(
-                    FlowNftOrderActivityList(
-                        price = price,
-                        priceUsd = priceUsd,
-                        tokenId = tokenId,
+                result[it.log] = FlowNftOrderActivityList(
+                    price = price,
+                    priceUsd = priceUsd,
+                    tokenId = tokenId,
+                    contract = nftCollection,
+                    timestamp = it.log.timestamp,
+                    hash = "$orderId",
+                    maker = cadenceParser.address(it.event.fields["storefrontAddress"]!!),
+                    make = FlowAssetNFT(
                         contract = nftCollection,
-                        timestamp = it.log.timestamp,
-                        hash = "$orderId",
-                        maker = cadenceParser.address(it.event.fields["storefrontAddress"]!!),
-                        make = FlowAssetNFT(
-                            contract = nftCollection,
-                            value = BigDecimal.ONE,
-                            tokenId = tokenId
-                        ),
-                        take = FlowAssetFungible(
-                            contract = EventId.of(cadenceParser.string(it.event.fields["ftVaultType"]!!)).collection(),
-                            value = price
-                        )
+                        value = BigDecimal.ONE,
+                        tokenId = tokenId
+                    ),
+                    take = FlowAssetFungible(
+                        contract = EventId.of(cadenceParser.string(it.event.fields["ftVaultType"]!!)).collection(),
+                        value = price
                     )
                 )
             }
@@ -407,43 +398,41 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
                     } else BigDecimal.ZERO
                     val tokenId = cadenceParser.long(withdrawnEvent.fields["id"]!!)
                     val hash = cadenceParser.long(it.event.fields["listingResourceID"]!!).toString()
-                    result.add(
-                        FlowNftOrderActivitySell(
-                            price = price,
-                            priceUsd = priceUsd,
-                            tokenId = tokenId,
-                            contract = withdrawnEvent.eventId.collection(),
-                            hash = hash,
-                            left = OrderActivityMatchSide(
-                                maker = sellerAddress,
-                                asset = FlowAssetNFT(
-                                    contract = withdrawnEvent.eventId.collection(),
-                                    tokenId = tokenId,
-                                    value = BigDecimal.ONE
-                                )
-                            ),
-                            right = OrderActivityMatchSide(
-                                maker = buyerAddress,
-                                asset = FlowAssetFungible(
-                                    contract = payInfo.first().currencyContract,
-                                    value = price
-                                )
-                            ),
-                            timestamp = it.log.timestamp,
-                            payments = payInfo.map {
-                                FlowNftOrderPayment(
-                                    type = it.type,
-                                    address = it.address,
-                                    amount = it.amount,
-                                    rate = BigDecimal.valueOf((it.amount.toDouble() / price.toDouble()) * 100.0)
-                                )
-                            }
-                        )
+                    result[it.log] = FlowNftOrderActivitySell(
+                        price = price,
+                        priceUsd = priceUsd,
+                        tokenId = tokenId,
+                        contract = withdrawnEvent.eventId.collection(),
+                        hash = hash,
+                        left = OrderActivityMatchSide(
+                            maker = sellerAddress,
+                            asset = FlowAssetNFT(
+                                contract = withdrawnEvent.eventId.collection(),
+                                tokenId = tokenId,
+                                value = BigDecimal.ONE
+                            )
+                        ),
+                        right = OrderActivityMatchSide(
+                            maker = buyerAddress,
+                            asset = FlowAssetFungible(
+                                contract = payInfo.first().currencyContract,
+                                value = price
+                            )
+                        ),
+                        timestamp = it.log.timestamp,
+                        payments = payInfo.map {
+                            FlowNftOrderPayment(
+                                type = it.type,
+                                address = it.address,
+                                amount = it.amount,
+                                rate = BigDecimal.valueOf((it.amount.toDouble() / price.toDouble()) * 100.0)
+                            )
+                        }
                     )
                 }
             }
         }
-        return result.toList()
+        return result.toMap()
     }
 }
 
@@ -453,8 +442,8 @@ class RaribleOpenBidActivityMaker(
 ) : OrderActivityMaker() {
     override val contractName: String = "RaribleOpenBid"
 
-    override suspend fun activities(events: List<FlowLogEvent>): List<BaseActivity> {
-        val result: MutableList<BaseActivity> = mutableListOf()
+    override suspend fun activities(events: List<FlowLogEvent>): Map<FlowLog, BaseActivity> {
+        val result: MutableMap<FlowLog, BaseActivity> = mutableMapOf()
         withSpan("generateOrderActivities", "event") {
             val canceledBids =
                 events.filter { it.type == FlowLogType.BID_COMPLETED && !cadenceParser.boolean(it.event.fields["purchased"]!!) }
@@ -462,15 +451,14 @@ class RaribleOpenBidActivityMaker(
                 events.filter { it.type == FlowLogType.BID_COMPLETED && cadenceParser.boolean(it.event.fields["purchased"]!!) }
             val openedBids = events.filter { it.type == FlowLogType.BID_AVAILABLE }
 
-            result.addAll(
-                canceledBids.map {
-                    val orderId = cadenceParser.long(it.event.fields["bidId"]!!)
-                    FlowNftOrderActivityCancelBid(
-                        hash = orderId.toString(),
-                        timestamp = it.log.timestamp
-                    )
-                }
-            )
+            canceledBids.forEach {
+                val orderId = cadenceParser.long(it.event.fields["bidId"]!!)
+                result[it.log] = FlowNftOrderActivityCancelBid(
+                    hash = orderId.toString(),
+                    timestamp = it.log.timestamp
+                )
+
+            }
 
             openedBids.forEach {
                 val price = cadenceParser.bigDecimal(it.event.fields["bidPrice"]!!)
@@ -484,32 +472,30 @@ class RaribleOpenBidActivityMaker(
                 val nftCollection = EventId.of(cadenceParser.string(it.event.fields["nftType"]!!)).collection()
                 val tokenId = cadenceParser.long(it.event.fields["nftId"]!!)
                 val maker = cadenceParser.address(it.event.fields["bidAddress"]!!)
-                result.add(
-                    FlowNftOrderActivityBid(
-                        price = price,
-                        priceUsd = priceUsd,
-                        tokenId = tokenId,
+                result[it.log] = FlowNftOrderActivityBid(
+                    price = price,
+                    priceUsd = priceUsd,
+                    tokenId = tokenId,
+                    contract = nftCollection,
+                    timestamp = it.log.timestamp,
+                    hash = orderId.toString(),
+                    maker = maker,
+                    make = FlowAssetFungible(
+                        contract = currencyContract,
+                        value = price
+                    ),
+                    take = FlowAssetNFT(
                         contract = nftCollection,
-                        timestamp = it.log.timestamp,
-                        hash = orderId.toString(),
-                        maker = maker,
-                        make = FlowAssetFungible(
-                            contract = currencyContract,
-                            value = price
-                        ),
-                        take = FlowAssetNFT(
-                            contract = nftCollection,
-                            value = BigDecimal.ONE,
-                            tokenId = tokenId
-                        ),
-                    )
+                        value = BigDecimal.ONE,
+                        tokenId = tokenId
+                    ),
                 )
 
                 flowBalanceService.initBalances(FlowAddress(maker), currencyContract)
             }
 
-            acceptedBids.forEach {
-                val allTxEvents = readEvents(blockHeight = it.log.blockHeight, txId = FlowId(it.log.transactionHash))
+            acceptedBids.forEach { flowLogEvent ->
+                val allTxEvents = readEvents(blockHeight = flowLogEvent.log.blockHeight, txId = FlowId(flowLogEvent.log.transactionHash))
                 val tokenEvents = allTxEvents.filter { it.eventId.toString() in nftCollectionEvents }
                 val currencyEvents = allTxEvents.filter { it.eventId.toString() in currenciesEvents }
 
@@ -530,50 +516,48 @@ class RaribleOpenBidActivityMaker(
                         it.type in arrayOf(PaymentType.SELLER_FEE, PaymentType.OTHER)
                     }.sumOf { it.amount }
                     val usdRate =
-                        usdRate(payInfo.first().currencyContract, it.log.timestamp.toEpochMilli()) ?: BigDecimal.ZERO
+                        usdRate(payInfo.first().currencyContract, flowLogEvent.log.timestamp.toEpochMilli()) ?: BigDecimal.ZERO
 
                     val priceUsd = if (usdRate > BigDecimal.ZERO) {
                         price * usdRate
                     } else BigDecimal.ZERO
                     val tokenId = cadenceParser.long(withdrawnEvent.fields["id"]!!)
-                    val hash = cadenceParser.long(it.event.fields["bidId"]!!).toString()
-                    result.add(
-                        FlowNftOrderActivityBidAccept(
-                            price = price,
-                            priceUsd = priceUsd,
-                            tokenId = tokenId,
-                            contract = withdrawnEvent.eventId.collection(),
-                            hash = hash,
-                            left = OrderActivityMatchSide(
-                                maker = sellerAddress,
-                                asset = FlowAssetNFT(
-                                    contract = withdrawnEvent.eventId.collection(),
-                                    tokenId = tokenId,
-                                    value = BigDecimal.ONE
-                                )
-                            ),
-                            right = OrderActivityMatchSide(
-                                maker = buyerAddress,
-                                asset = FlowAssetFungible(
-                                    contract = payInfo.first().currencyContract,
-                                    value = price
-                                )
-                            ),
-                            timestamp = it.log.timestamp,
-                            payments = payInfo.map {
-                                FlowNftOrderPayment(
-                                    type = it.type,
-                                    address = it.address,
-                                    amount = it.amount,
-                                    rate = BigDecimal.ZERO
-                                )
-                            }
-                        )
+                    val hash = cadenceParser.long(flowLogEvent.event.fields["bidId"]!!).toString()
+                    result[flowLogEvent.log] = FlowNftOrderActivityBidAccept(
+                        price = price,
+                        priceUsd = priceUsd,
+                        tokenId = tokenId,
+                        contract = withdrawnEvent.eventId.collection(),
+                        hash = hash,
+                        left = OrderActivityMatchSide(
+                            maker = sellerAddress,
+                            asset = FlowAssetNFT(
+                                contract = withdrawnEvent.eventId.collection(),
+                                tokenId = tokenId,
+                                value = BigDecimal.ONE
+                            )
+                        ),
+                        right = OrderActivityMatchSide(
+                            maker = buyerAddress,
+                            asset = FlowAssetFungible(
+                                contract = payInfo.first().currencyContract,
+                                value = price
+                            )
+                        ),
+                        timestamp = flowLogEvent.log.timestamp,
+                        payments = payInfo.map {
+                            FlowNftOrderPayment(
+                                type = it.type,
+                                address = it.address,
+                                amount = it.amount,
+                                rate = BigDecimal.ZERO
+                            )
+                        }
                     )
                 }
             }
         }
-        return result.toList()
+        return result.toMap()
     }
 
     private fun payInfos(
@@ -582,8 +566,8 @@ class RaribleOpenBidActivityMaker(
     ): List<PayInfo> {
         try {
             val payments = currencyEvents.filter { it.eventId.eventName == "TokensDeposited" }
-                .filter {
-                    cadenceParser.optional(it.fields["to"]!!) {
+                .filter { msg ->
+                    cadenceParser.optional(msg.fields["to"]!!) {
                         address(it)
                     } != null
                 }
@@ -591,12 +575,12 @@ class RaribleOpenBidActivityMaker(
 
             var feeFounded = false
             val payInfo = payments
-                .map {
-                    val to = cadenceParser.optional(it.fields["to"]!!) {
+                .map { msg ->
+                    val to = cadenceParser.optional(msg.fields["to"]!!) {
                         address(it)
                     }!!
 
-                    val amount = cadenceParser.bigDecimal(it.fields["amount"]!!)
+                    val amount = cadenceParser.bigDecimal(msg.fields["amount"]!!)
 
                     var type = paymentType(to)
                     if (type == PaymentType.OTHER && to == sellerAddress) {
@@ -611,7 +595,7 @@ class RaribleOpenBidActivityMaker(
                     PayInfo(
                         address = to,
                         amount = amount,
-                        currencyContract = it.eventId.collection(),
+                        currencyContract = msg.eventId.collection(),
                         type = type
                     )
                 }

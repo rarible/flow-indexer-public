@@ -10,7 +10,6 @@ import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.events.EventId
-import com.rarible.flow.log.Log
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.OrderService
 import kotlinx.coroutines.flow.onEach
@@ -242,9 +241,5 @@ class ItemIndexerEventProcessor(
             newOwnership?.let { protocolEventPublisher.onUpdate(it) }
         }
 
-    }
-
-    companion object {
-        val log by Log()
     }
 }
