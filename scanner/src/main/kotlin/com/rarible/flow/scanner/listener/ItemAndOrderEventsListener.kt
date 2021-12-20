@@ -32,18 +32,14 @@ class ItemAndOrderEventsListener(
         val history: MutableList<ItemHistory> = mutableListOf()
         try {
             blockEvent.records.filterIsInstance<FlowLogEvent>()
-                .groupBy {
-                    Key(tx = it.log.transactionHash).apply {
-                        log = it.log; collection = it.event.eventId.collection()
-                    }
-                }
+                .groupBy { Pair(it.log.transactionHash, it.event.eventId.collection()) }
                 .forEach { entry ->
-                    nftActivityMakers.find { it.isSupportedCollection(entry.key.collection) }?.let { maker ->
-                        history.addAll(maker.activities(entry.value).mapIndexed { index, activity ->
+                    nftActivityMakers.find { it.isSupportedCollection(entry.key.second) }?.let { maker ->
+                        history.addAll(maker.activities(entry.value).map { entry ->
                             ItemHistory(
-                                log = entry.key.log.copy(eventIndex = index),
-                                activity = activity,
-                                date = activity.timestamp
+                                log = entry.key,
+                                activity = entry.value,
+                                date = entry.value.timestamp
                             )
                         })
                     }
@@ -78,9 +74,4 @@ class ItemAndOrderEventsListener(
     override suspend fun onPendingLogsDropped(logs: List<FlowLogRecord<*>>) {
         /** do nothing */
     }
-}
-
-data class Key(val tx: String) {
-    lateinit var collection: String
-    lateinit var log: FlowLog
 }
