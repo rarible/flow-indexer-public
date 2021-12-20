@@ -32,10 +32,12 @@ internal class CnnNFTMetaProviderTest : FunSpec({
     }
 
     test("shoud read metadata for existing item") {
+        val itemId = ItemId("A.329feb3ab062d289.CNN_NFT", 2909)
         val metaProvider = CnnNFTMetaProvider(
             mockk("itemRepository") {
                 every { findById(any<ItemId>()) } returns Mono.just(
                     mockk("item") {
+                        every { id } returns itemId
                         every { owner } returns FlowAddress("0xe969a6097b773709")
                         every { tokenId } returns 2909
                     }
@@ -71,8 +73,8 @@ internal class CnnNFTMetaProviderTest : FunSpec({
             resource("ipfs")
         )
 
-        metaProvider.getMeta(ItemId("A.329feb3ab062d289.CNN_NFT", 2909)) should { meta ->
-            meta.itemId shouldBe ItemId("A.329feb3ab062d289.CNN_NFT", 2909)
+        metaProvider.getMeta(itemId) should { meta ->
+            meta.itemId shouldBe itemId
             meta.name shouldBe "2015: US Supreme Court Ruling Guarantees Right to Same-Sex Marriage"
             meta.description shouldStartWith "June 26, 2015"
         }
