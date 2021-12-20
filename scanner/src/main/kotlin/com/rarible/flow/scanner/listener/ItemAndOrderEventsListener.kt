@@ -53,16 +53,19 @@ class ItemAndOrderEventsListener(
                 }.toSet()
                 val items = itemRepository.findAllByIdIn(ids).asFlow().toSet()
 
-                saved.forEach { h ->
-                    indexerEventService.processEvent(
-                        IndexerEvent(
-                            history = h,
-                            source = blockEvent.event.eventSource,
-                            item = if (h.activity is NFTActivity) {
-                                val a = h.activity as NFTActivity
-                                items.find { it.contract == a.contract && it.tokenId == a.tokenId }
-                            } else null)
-                    )
+                saved.sortedBy { it.date }.groupBy { it.log.transactionHash }.forEach { tx ->
+                    tx.value.sortedBy { it.log.eventIndex }.forEach { h ->
+                        indexerEventService.processEvent(
+                            IndexerEvent(
+                                history = h,
+                                source = blockEvent.event.eventSource,
+                                item = if (h.activity is NFTActivity) {
+                                    val a = h.activity as NFTActivity
+                                    items.find { it.contract == a.contract && it.tokenId == a.tokenId }
+                                } else null)
+                        )
+
+                    }
                 }
             }
         } catch (e: Exception) {
