@@ -74,7 +74,7 @@ internal class OrderServiceTest: FunSpec({
     test("deactivateOrdersByItem - empty orders") {
         val orderRepository = mockk<OrderRepository>() {
             every {
-                findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(any(), any(), any(), any())
+                findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBeforeAndType(any(), any(), any(), any())
             } returns Flux.empty()
         }
         OrderService(orderRepository, publisher, orderConverter, currencyApi)
@@ -89,7 +89,7 @@ internal class OrderServiceTest: FunSpec({
     test("deactivateOrdersByItem - some orders") {
         val orderRepository = mockk<OrderRepository>() {
             every {
-                findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
+                findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBeforeAndType(
                     any(), any(), eq(OrderStatus.ACTIVE), any()
                 )
             } returns Flux.fromIterable(

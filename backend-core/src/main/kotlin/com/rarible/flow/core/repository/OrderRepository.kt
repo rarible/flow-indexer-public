@@ -4,6 +4,7 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderStatus
+import com.rarible.flow.core.domain.OrderType
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
 import org.springframework.data.mongodb.repository.Query
@@ -30,11 +31,12 @@ interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepository
     """)
     fun findAllByTake(contract: String, tokenId: Long): Flux<Order>
 
-    fun findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
+    fun findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBeforeAndType(
         make: FlowAsset,
         maker: FlowAddress,
         status: OrderStatus,
         lastUpdatedAt: LocalDateTime,
+        type: OrderType = OrderType.LIST
     ): Flux<Order>
 
     fun findAllByStatus(status: OrderStatus): Flux<Order>

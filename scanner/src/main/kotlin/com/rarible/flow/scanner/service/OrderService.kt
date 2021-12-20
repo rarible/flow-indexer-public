@@ -261,7 +261,7 @@ class OrderService(
     }
 
     suspend fun deactivateOrdersByOwnership(ownership: Ownership, before: Instant, needSendToKafka: Boolean): List<Order> = orderRepository
-        .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
+        .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBeforeAndType(
             FlowAssetNFT(ownership.contract, 1.toBigDecimal(), ownership.tokenId),
             ownership.owner,
             OrderStatus.ACTIVE,
@@ -277,7 +277,7 @@ class OrderService(
         .toList()
 
     suspend fun restoreOrdersForOwnership(ownership: Ownership, before: Instant, needSendToKafka: Boolean): List<Order> = orderRepository
-        .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
+        .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBeforeAndType(
             FlowAssetNFT(ownership.contract, BigDecimal.ONE, ownership.tokenId),
             ownership.owner,
             OrderStatus.INACTIVE,
@@ -294,7 +294,7 @@ class OrderService(
 
     suspend fun deactivateOrdersByItem(item: Item, before: LocalDateTime): List<Order> {
         return orderRepository
-            .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
+            .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBeforeAndType(
                 FlowAssetNFT(item.contract, 1.toBigDecimal(), item.tokenId),
                 item.owner!!,
                 OrderStatus.ACTIVE,
@@ -307,7 +307,7 @@ class OrderService(
     }
 
     suspend fun restoreOrdersForItem(item: Item, before: LocalDateTime): List<Order> = orderRepository
-        .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
+        .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBeforeAndType(
             FlowAssetNFT(item.contract, BigDecimal.ONE, item.tokenId),
             item.owner!!,
             OrderStatus.INACTIVE,
