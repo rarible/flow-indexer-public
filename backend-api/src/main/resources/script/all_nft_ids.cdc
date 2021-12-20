@@ -4,7 +4,7 @@ import Evolution from 0xEVOLUTIONTOKEN
 import MotoGPCard from 0xMOTOGPTOKEN
 import TopShot from 0xTOPSHOTTOKEN
 import MugenNFT from 0xMUGENNFT
-import CNN_NFT from 0xCNNFT
+import CNN_NFT from 0xCNNNFT
 
 pub fun idsRaribleNFT(_ account: PublicAccount): [UInt64] {
     return account.getCapability(RaribleNFT.collectionPublicPath)
