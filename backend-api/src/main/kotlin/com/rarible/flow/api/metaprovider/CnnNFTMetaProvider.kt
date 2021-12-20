@@ -2,17 +2,20 @@ package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.nftco.flow.sdk.Flow
+import com.nftco.flow.sdk.cadence.CompositeField
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
+import com.nftco.flow.sdk.cadence.OptionalField
+import com.nftco.flow.sdk.cadence.StringField
 import com.rarible.flow.api.service.ScriptExecutor
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.log.Log
-import kotlinx.coroutines.reactor.awaitSingleOrNull
-import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -22,11 +25,17 @@ import org.springframework.web.reactive.function.client.awaitBodyOrNull
 class CnnNFTMetaProvider(
     private val itemRepository: ItemRepository,
     private val scriptExecutor: ScriptExecutor,
+    private val pinataClient: WebClient,
+
+    @Value("classpath:script/get_cnn_nft.cdc")
+    private val cnnNftScript: Resource,
+
     @Value("classpath:script/cnn_meta.cdc")
-    private val scriptFile: Resource,
+    private val metaScript: Resource,
 ) : ItemMetaProvider {
 
-    private val scriptText = scriptFile.file.readText()
+    private val metaScriptText = metaScript.inputStream.bufferedReader().use { it.readText() }
+    private val cnnNftScriptText = cnnNftScript.inputStream.bufferedReader().use { it.readText() }
 
     private val cadenceBuilder = JsonCadenceBuilder()
 
@@ -35,40 +44,80 @@ class CnnNFTMetaProvider(
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("CNN_NFT")
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
-        if (item.meta.isNullOrEmpty()) return emptyMeta(itemId)
-        val meta = JacksonJsonParser().parseMap(item.meta)
-        val ipfsHash = scriptExecutor.execute(
-            code = scriptText,
-            args = mutableListOf(
-                cadenceBuilder.uint32(meta[CnnNFT::setId.name].toString()),
-                cadenceBuilder.uint32(meta[CnnNFT::editionNum.name].toString())
-            )
+        val item = itemRepository.coFindById(itemId) ?: return emptyMeta(itemId)
+
+        return getMeta(
+            item,
+            this::fetchNft,
+            this::fetchIpfsHash,
+            this::readIpfs
         )
+    }
 
+    suspend fun fetchNft(item: Item): CnnNFT? {
+        val jsonCadence = scriptExecutor.execute(
+            code = cnnNftScriptText,
+            args = mutableListOf(
+                cadenceBuilder.address((item.owner ?: item.creator).formatted),
+                cadenceBuilder.uint64(item.tokenId)
+            )
+        ).jsonCadence as OptionalField
+        return jsonCadence.value?.let {
+            it.value as CompositeField
+        }?.let {
+            Flow.unmarshall(CnnNFT::class, it)
+        }
+    }
 
-        val url = "https://rarible.mypinata.cloud/ipfs/${ipfsHash}"
+    suspend fun fetchIpfsHash(cnnNft: CnnNFT): String? {
+        val jsonCadence = scriptExecutor.execute(
+            code = metaScriptText,
+            args = mutableListOf(
+                cadenceBuilder.uint32(cnnNft.setId),
+                cadenceBuilder.uint32(cnnNft.editionNum)
+            )
+        ).jsonCadence as OptionalField
 
-        val client = WebClient.create()
+        return if (jsonCadence.value == null) {
+            null
+        } else (jsonCadence.value as StringField).value!!
+    }
+
+    suspend fun readIpfs(ipfsHash: String): CnnNFTMetaBody? {
         return try {
-            val data = client.get().uri(url)
-                .retrieve().awaitBodyOrNull<CnnNFTMetaBody>() ?: return emptyMeta(itemId)
-            ItemMeta(
-                itemId = itemId,
-                name = data.name,
-                description = data.description,
-                contentUrls = listOfNotNull(
-                    data.image,
-                    data.preview,
-                    data.externalUrl
-                ),
-                attributes = data.getAttributes()
-            ).apply {
-                raw = data.toString().toByteArray(charset = Charsets.UTF_8)
-            }
+            pinataClient
+                .get()
+                .uri(ipfsHash)
+                .retrieve()
+                .awaitBodyOrNull()
         } catch (e: Exception) {
-            logger.warn(e.message, e)
-            return emptyMeta(itemId)
+            logger.error("Failed to fetch CNN IPFS by hash [{}]", ipfsHash, e)
+            null
+        }
+    }
+
+    suspend fun getMeta(
+        item: Item,
+        fetchNft: suspend (Item) -> CnnNFT?,
+        fetchIpfsHash: suspend (CnnNFT) -> String?,
+        readIpfs: suspend (String) -> CnnNFTMetaBody?
+    ): ItemMeta {
+        val cnnNFT = fetchNft(item) ?: return emptyMeta(item.id)
+        val ipfsHash = fetchIpfsHash(cnnNFT) ?: return emptyMeta(item.id)
+        val ipfsMeta = readIpfs(ipfsHash) ?: return emptyMeta(item.id)
+
+        return ItemMeta(
+            itemId = item.id,
+            name = ipfsMeta.name,
+            description = ipfsMeta.description,
+            contentUrls = listOfNotNull(
+                ipfsMeta.image,
+                ipfsMeta.preview,
+                ipfsMeta.externalUrl
+            ),
+            attributes = ipfsMeta.getAttributes()
+        ).apply {
+            raw = ipfsMeta.toString().toByteArray(charset = Charsets.UTF_8)
         }
     }
 }
