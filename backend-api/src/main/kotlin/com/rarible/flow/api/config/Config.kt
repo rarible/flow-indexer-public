@@ -14,6 +14,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.event.EventListener
+import org.springframework.web.reactive.function.client.WebClient
 
 @Configuration
 @EnableConfigurationProperties(ApiProperties::class)
@@ -32,6 +33,11 @@ class Config(
 
     @Bean
     fun api(): AsyncFlowAccessApi = Flow.newAsyncAccessApi(apiProperties.flowAccessUrl, apiProperties.flowAccessPort)
+
+    @Bean
+    fun pinataClient(): WebClient {
+        return WebClient.create("https://rarible.mypinata.cloud/ipfs")
+    }
 
     @EventListener(ApplicationReadyEvent::class)
     fun configureFlow() {
