@@ -22,32 +22,26 @@ class ProtocolEventPublisher(
 ) {
 
     suspend fun onItemUpdate(item: Item): KafkaSendResult {
-        return items.send(
-            KafkaMessage(
-                item.id.toString(),
-                FlowNftItemUpdateEventDto(
-                    eventId = "${item.id}.${UUID.randomUUID()}",
-                    itemId = item.id.toString(),
-                    ItemToDtoConverter.convert(item)
-
-                )
-            )
+        val key = item.id.toString()
+        val message = FlowNftItemUpdateEventDto(
+            eventId = "${item.id}.${UUID.randomUUID()}",
+            itemId = key,
+            ItemToDtoConverter.convert(item)
         )
+        return send(items, key, message)
     }
 
     suspend fun onUpdate(ownership: Ownership): KafkaSendResult {
-        return ownerships.send(
-            KafkaMessage(
-                ownership.id.toString(),
-                FlowNftOwnershipUpdateEventDto(
-                    eventId = "${ownership.id}.${UUID.randomUUID()}",
-                    ownershipId = ownership.id.toString(),
-                    OwnershipToDtoConverter.convert(ownership)
-                )
-            )
+        val key = ownership.id.toString()
+        val message = FlowNftOwnershipUpdateEventDto(
+            eventId = "${ownership.id}.${UUID.randomUUID()}",
+            ownershipId = key,
+            OwnershipToDtoConverter.convert(ownership)
         )
+        return send(ownerships, key, message)
     }
 
+    // TODO !!!!
     fun onDelete(ownership: List<Ownership>): Flow<KafkaSendResult> {
         val msg: List<KafkaMessage<FlowOwnershipEventDto>> = ownership.map {
             KafkaMessage(
@@ -63,71 +57,66 @@ class ProtocolEventPublisher(
     }
 
     suspend fun onDelete(ownership: Ownership): KafkaSendResult {
-        return ownerships.send(
-            KafkaMessage(
-                ownership.id.toString(),
-                FlowNftOwnershipDeleteEventDto(
-                    eventId = "${ownership.id}.${UUID.randomUUID()}",
-                    ownershipId = ownership.id.toString(),
-                    OwnershipToDtoConverter.convert(ownership)
-                )
-            )
+        val key = ownership.id.toString()
+        val message = FlowNftOwnershipDeleteEventDto(
+            eventId = "${ownership.id}.${UUID.randomUUID()}",
+            ownershipId = key,
+            OwnershipToDtoConverter.convert(ownership)
         )
+        return send(ownerships, key, message)
     }
 
     suspend fun onOrderUpdate(order: Order, converter: OrderToDtoConverter): KafkaSendResult {
         val orderId = order.id
-        return orders.send(
-            KafkaMessage(
-                orderId.toString(),
-                FlowOrderUpdateEventDto(
-                    eventId = "$orderId.${UUID.randomUUID()}",
-                    orderId = orderId.toString(),
-                    converter.convert(order)
-                )
-            )
+        val key = orderId.toString()
+        val message = FlowOrderUpdateEventDto(
+            eventId = "$orderId.${UUID.randomUUID()}",
+            orderId = key,
+            converter.convert(order)
         )
+        return send(orders, key, message)
     }
 
     suspend fun onOrderUpdate(orders: List<Order>, converter: OrderToDtoConverter): List<KafkaSendResult> {
         return orders.map { this.onOrderUpdate(it, converter) }
     }
 
-
     suspend fun onItemDelete(itemId: ItemId): KafkaSendResult {
-        return items.send(
-            KafkaMessage(
-                itemId.toString(),
-                FlowNftItemDeleteEventDto(
-                    eventId = "${itemId}.${UUID.randomUUID()}",
-                    itemId = itemId.toString(),
-                    FlowNftDeletedItemDto(
-                        itemId.toString(),
-                        itemId.contract,
-                        itemId.tokenId
-                    )
-                )
-            )
+        val key = itemId.toString()
+        val message = FlowNftItemDeleteEventDto(
+            eventId = "${itemId}.${UUID.randomUUID()}",
+            itemId = key,
+            FlowNftDeletedItemDto(key, itemId.contract, itemId.tokenId)
         )
+        return send(items, key, message)
     }
-
-
 
     suspend fun activity(history: ItemHistory): KafkaSendResult? {
         return ItemHistoryToDtoConverter.convert(
             history
         )?.let { dto ->
             val a = history.activity as NFTActivity
-            return activities.send(
-                KafkaMessage(
-                    "${a.contract}:${a.tokenId}-${history.activity.timestamp}",
-                    dto
-                )
+            return send(
+                activities,
+                "${a.contract}:${a.tokenId}-${history.activity.timestamp}",
+                dto
             )
         }
     }
 
+    private suspend fun <V> send(producer: RaribleKafkaProducer<V>, key: String, message: V): KafkaSendResult {
+        logger.info("Sending to kafka: {} [hashCode={}]...", message, message.hashCode())
+        val sendResult = producer.send(
+            KafkaMessage(key, message)
+        )
+        when (sendResult) {
+            is KafkaSendResult.Success -> logger.debug("Message [hashCode={}] is successfully sent.", message.hashCode())
+            is KafkaSendResult.Fail -> logger.error("Failed to send message [hashCode={}]", message.hashCode())
+        }
+        return sendResult
+    }
+
     companion object {
-        val log by Log()
+        val logger by Log()
     }
 }

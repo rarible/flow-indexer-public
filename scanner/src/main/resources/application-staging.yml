@@ -13,7 +13,7 @@ blockchain:
         delay: 100
       job:
         reconciliation:
-          enabled: false
+          enabled: true
 
 app:
   environment: staging
