@@ -5,11 +5,14 @@ import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
-import com.rarible.flow.api.metaprovider.CnnNFT
-import com.rarible.flow.api.metaprovider.MugenNFT
+import com.rarible.flow.api.metaprovider.CnnNFTConverter
 import com.rarible.flow.api.metaprovider.RaribleNFT
 import com.rarible.flow.core.config.AppProperties
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.Part
+import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
@@ -100,16 +103,18 @@ class UserStorageService(
                     } else {
                         val item =
                             itemRepository.findById(ItemId(contract, it)).awaitSingle()
-                        saveItem(item.copy(
-                            owner = address,
-                            royalties = listOf(
-                                Part(
-                                    address = contractAddress("0xTOPSHOTTOKEN"),
-                                    fee = 0.05
-                                )
-                            ),
-                            updatedAt = Instant.now()
-                        ))
+                        saveItem(
+                            item.copy(
+                                owner = address,
+                                royalties = listOf(
+                                    Part(
+                                        address = contractAddress("0xTOPSHOTTOKEN"),
+                                        fee = 0.05
+                                    )
+                                ),
+                                updatedAt = Instant.now()
+                            )
+                        )
                     }
                 }
             }
@@ -144,8 +149,10 @@ class UserStorageService(
                 itemIds.forEach {
                     val contract = contract("0xEVOLUTIONTOKEN", "Evolution")
                     val item = if (notExistsItem(contract, it)) {
-                        val res = scriptExecutor.execute(scriptText("/script/get_evolution_nft.cdc"),
-                            mutableListOf(builder.address(address.bytes), builder.uint64(it)))
+                        val res = scriptExecutor.execute(
+                            scriptText("/script/get_evolution_nft.cdc"),
+                            mutableListOf(builder.address(address.bytes), builder.uint64(it))
+                        )
                         val initialMeta = parser.dictionaryMap(res.jsonCadence) { k, v ->
                             string(k) to int(v)
                         }
@@ -177,10 +184,12 @@ class UserStorageService(
                 itemIds.forEach { tokenId ->
                     val contract = contract("0xRARIBLETOKEN", "RaribleNFT")
                     val item = if (notExistsItem(contract, tokenId)) {
-                        val res = scriptExecutor.execute(scriptText("/script/get_rarible_nft.cdc"), mutableListOf(
-                            builder.address(address.bytes),
-                            builder.uint64(tokenId)
-                        ))
+                        val res = scriptExecutor.execute(
+                            scriptText("/script/get_rarible_nft.cdc"), mutableListOf(
+                                builder.address(address.bytes),
+                                builder.uint64(tokenId)
+                            )
+                        )
 
                         val token = parser.optional(res.jsonCadence) {
                             unmarshall<RaribleNFT>(it)
@@ -240,14 +249,14 @@ class UserStorageService(
                 itemIds.forEach { tokenId ->
                     val contract = contract("0xCNNNFT", "CNN_NFT")
                     val item = if (notExistsItem(contract, tokenId)) {
-                        val res = scriptExecutor.execute(scriptText("/script/get_cnn_nft.cdc"), mutableListOf(
-                            builder.address(address.bytes),
-                            builder.uint64(tokenId)
-                        ))
-
-                        val tokenData = parser.optional(res.jsonCadence) {
-                            unmarshall<CnnNFT>(it)
-                        }!!
+                        val tokenData = CnnNFTConverter.convert(
+                            scriptExecutor.execute(
+                                scriptText("/script/get_cnn_nft.cdc"), mutableListOf(
+                                    builder.address(address.bytes),
+                                    builder.uint64(tokenId)
+                                )
+                            )
+                        )
 
                         Item(
                             contract = contract,
