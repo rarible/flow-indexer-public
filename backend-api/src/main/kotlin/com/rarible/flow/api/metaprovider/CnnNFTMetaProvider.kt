@@ -2,8 +2,6 @@ package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.nftco.flow.sdk.Flow
-import com.nftco.flow.sdk.cadence.CompositeField
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.OptionalField
 import com.nftco.flow.sdk.cadence.StringField
@@ -51,22 +49,19 @@ class CnnNFTMetaProvider(
             this::fetchNft,
             this::fetchIpfsHash,
             this::readIpfs
-        )
+        ) { item -> emptyMeta(item.id) }
     }
 
     suspend fun fetchNft(item: Item): CnnNFT? {
-        val jsonCadence = scriptExecutor.execute(
-            code = cnnNftScriptText,
-            args = mutableListOf(
-                cadenceBuilder.address((item.owner ?: item.creator).formatted),
-                cadenceBuilder.uint64(item.tokenId)
+        return CnnNFTConverter.convert(
+            scriptExecutor.execute(
+                code = cnnNftScriptText,
+                args = mutableListOf(
+                    cadenceBuilder.address((item.owner ?: item.creator).formatted),
+                    cadenceBuilder.uint64(item.tokenId)
+                )
             )
-        ).jsonCadence as OptionalField
-        return jsonCadence.value?.let {
-            it.value as CompositeField
-        }?.let {
-            Flow.unmarshall(CnnNFT::class, it)
-        }
+        )
     }
 
     suspend fun fetchIpfsHash(cnnNft: CnnNFT): String? {
@@ -100,11 +95,12 @@ class CnnNFTMetaProvider(
         item: Item,
         fetchNft: suspend (Item) -> CnnNFT?,
         fetchIpfsHash: suspend (CnnNFT) -> String?,
-        readIpfs: suspend (String) -> CnnNFTMetaBody?
+        readIpfs: suspend (String) -> CnnNFTMetaBody?,
+        defaultValue: (Item) -> ItemMeta
     ): ItemMeta {
-        val cnnNFT = fetchNft(item) ?: return emptyMeta(item.id)
-        val ipfsHash = fetchIpfsHash(cnnNFT) ?: return emptyMeta(item.id)
-        val ipfsMeta = readIpfs(ipfsHash) ?: return emptyMeta(item.id)
+        val cnnNFT = fetchNft(item) ?: return defaultValue(item)
+        val ipfsHash = fetchIpfsHash(cnnNFT) ?: return defaultValue(item)
+        val ipfsMeta = readIpfs(ipfsHash) ?: return defaultValue(item)
 
         return ItemMeta(
             itemId = item.id,
@@ -139,16 +135,16 @@ data class CnnNFTMetaBody(
     val seriesDescription: String,
 
     @get:JsonProperty("series_id")
-    val seriesId: Integer,
+    val seriesId: Int,
 
     @get:JsonProperty("set_id")
-    val setId: Integer,
+    val setId: Int,
 
     @get:JsonProperty("edition")
-    val edition: Integer,
+    val edition: Int,
 
     @get:JsonProperty("max_editions")
-    val maxEditions: Integer
+    val maxEditions: Int
 ) {
     fun getAttributes(): List<ItemMetaAttribute> {
         return listOf(
