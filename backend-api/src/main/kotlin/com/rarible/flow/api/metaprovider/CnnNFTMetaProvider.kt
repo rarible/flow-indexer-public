@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBodyOrNull
+import org.springframework.web.reactive.function.client.awaitBody
 
 @Component
 class CnnNFTMetaProvider(
@@ -78,29 +78,24 @@ class CnnNFTMetaProvider(
         } else (jsonCadence.value as StringField).value!!
     }
 
-    suspend fun readIpfs(ipfsHash: String): CnnNFTMetaBody? {
-        return try {
-            pinataClient
-                .get()
-                .uri(ipfsHash)
-                .retrieve()
-                .awaitBodyOrNull()
-        } catch (e: Exception) {
-            logger.error("Failed to fetch CNN IPFS by hash [{}]", ipfsHash, e)
-            null
-        }
+    suspend fun readIpfs(ipfsHash: String): CnnNFTMetaBody {
+        return pinataClient
+            .get()
+            .uri("/$ipfsHash")
+            .retrieve()
+            .awaitBody()
     }
 
     suspend fun getMeta(
         item: Item,
         fetchNft: suspend (Item) -> CnnNFT?,
         fetchIpfsHash: suspend (CnnNFT) -> String?,
-        readIpfs: suspend (String) -> CnnNFTMetaBody?,
+        readIpfs: suspend (String) -> CnnNFTMetaBody,
         defaultValue: (Item) -> ItemMeta
     ): ItemMeta {
         val cnnNFT = fetchNft(item) ?: return defaultValue(item)
         val ipfsHash = fetchIpfsHash(cnnNFT) ?: return defaultValue(item)
-        val ipfsMeta = readIpfs(ipfsHash) ?: return defaultValue(item)
+        val ipfsMeta = readIpfs(ipfsHash)
 
         return ItemMeta(
             itemId = item.id,
