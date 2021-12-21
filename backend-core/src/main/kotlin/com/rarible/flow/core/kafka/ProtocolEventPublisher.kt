@@ -7,10 +7,23 @@ import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.converter.OwnershipToDtoConverter
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.NFTActivity
+import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.log.Log
-import com.rarible.protocol.dto.*
-import kotlinx.coroutines.flow.Flow
+import com.rarible.protocol.dto.FlowActivityDto
+import com.rarible.protocol.dto.FlowNftDeletedItemDto
+import com.rarible.protocol.dto.FlowNftItemDeleteEventDto
+import com.rarible.protocol.dto.FlowNftItemEventDto
+import com.rarible.protocol.dto.FlowNftItemUpdateEventDto
+import com.rarible.protocol.dto.FlowNftOwnershipDeleteEventDto
+import com.rarible.protocol.dto.FlowNftOwnershipUpdateEventDto
+import com.rarible.protocol.dto.FlowOrderEventDto
+import com.rarible.protocol.dto.FlowOrderUpdateEventDto
+import com.rarible.protocol.dto.FlowOwnershipEventDto
 import java.util.*
 
 
@@ -41,19 +54,17 @@ class ProtocolEventPublisher(
         return send(ownerships, key, message)
     }
 
-    // TODO !!!!
-    fun onDelete(ownership: List<Ownership>): Flow<KafkaSendResult> {
-        val msg: List<KafkaMessage<FlowOwnershipEventDto>> = ownership.map {
-            KafkaMessage(
-                it.id.toString(),
-                FlowNftOwnershipDeleteEventDto(
-                    eventId = "${it.id}.${UUID.randomUUID()}",
-                    ownershipId = it.id.toString(),
-                    OwnershipToDtoConverter.convert(it)
-                )
+    suspend fun onDelete(ownership: List<Ownership>) {
+        ownership.forEach {
+            val key = it.id.toString()
+            val message = FlowNftOwnershipDeleteEventDto(
+                eventId = "${it.id}.${UUID.randomUUID()}",
+                ownershipId = key,
+                OwnershipToDtoConverter.convert(it)
             )
+
+            send(ownerships, key, message)
         }
-        return ownerships.send(msg)
     }
 
     suspend fun onDelete(ownership: Ownership): KafkaSendResult {
