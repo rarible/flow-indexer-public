@@ -140,7 +140,7 @@ subprojects {
             from("${buildDir}/test-results/test") {
                 include("TEST-*.xml")
             }
-            into("${rootProject.projectDir}/target/surefire-reports")
+            into("${rootProject.projectDir}/surefire-reports")
         }
     }
 }
@@ -170,20 +170,20 @@ task<JacocoReport>("coverage") {
     executionData.setFrom(project.fileTree(".") {
         include("**/build/jacoco/*.exec")
         exclude("**/build/jacoco/coverageMerge.exec")
-        exclude("/target/jacoco.exec")
+        exclude("/target/jacoco-aggregate.exec")
     })
 
     reports {
         xml.required.set(true)
         xml.outputLocation.set(file("${buildDir}/reports/jacoco/coverage.xml"))
-        csv.required.set(false)
+        csv.required.set(true)
         html.required.set(true)
         html.outputLocation.set(file("${buildDir}/reports/jacoco/html"))
     }
 
     copy {
         from("$buildDir/jacoco/coverageMerge.exec")
-        rename("coverageMerge.exec", "jacoco.exec")
+        rename("coverageMerge.exec", "jacoco-aggregate.exec")
         into("target")
     }
 }
