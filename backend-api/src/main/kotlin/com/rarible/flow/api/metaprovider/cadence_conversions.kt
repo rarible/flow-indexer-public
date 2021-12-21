@@ -1,12 +1,14 @@
 package com.rarible.flow.api.metaprovider
 
+import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowScriptResponse
 import com.nftco.flow.sdk.cadence.CadenceNamespace
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion
 import com.nftco.flow.sdk.cadence.JsonCadenceConverter
+import com.nftco.flow.sdk.cadence.OptionalField
 import com.rarible.flow.core.domain.Part
-import com.rarible.flow.core.domain.Payout
 
 @JsonCadenceConversion(MotoGPNFTConverter::class)
 data class MotoGPNFT(
@@ -74,3 +76,59 @@ class RaribleNFTConverter : JsonCadenceConverter<RaribleNFT> {
             )
         }
 }
+
+@JsonCadenceConversion(MugenNFTConverter::class)
+data class MugenNFT(
+    val uuid: Long,
+    val id: Long,
+    val typeId: Long,
+)
+
+class MugenNFTConverter : JsonCadenceConverter<MugenNFT> {
+    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): MugenNFT =
+        com.nftco.flow.sdk.cadence.unmarshall(value) {
+            MugenNFT(
+                uuid = long(compositeValue.getRequiredField("uuid")),
+                id = long(compositeValue.getRequiredField("id")),
+                typeId = long(compositeValue.getRequiredField("typeID")),
+            )
+        }
+}
+
+@JsonCadenceConversion(CnnNFTConverter::class)
+data class CnnNFT(
+    val id: Long,
+    val setId: Int,
+    val editionNum: Int
+)
+
+class CnnNFTConverter : JsonCadenceConverter<CnnNFT> {
+    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): CnnNFT =
+        com.nftco.flow.sdk.cadence.unmarshall(value) {
+            CnnNFT(
+                id = long(compositeValue.getRequiredField("id")),
+                setId = int(compositeValue.getRequiredField("setId")),
+                editionNum = int(compositeValue.getRequiredField("editionNum")),
+            )
+        }
+
+    companion object {
+        fun convert(scriptResponse: FlowScriptResponse): CnnNFT? {
+            val json = scriptResponse.jsonCadence
+            return when (json) {
+                is OptionalField -> convert(json)
+                else -> Flow.unmarshall(CnnNFT::class, json)
+            }
+        }
+
+        fun convert(jsonOptional: OptionalField): CnnNFT? {
+            val value = jsonOptional.value
+            return when (value) {
+                null -> null
+                is OptionalField -> convert(value)
+                else -> Flow.unmarshall(CnnNFT::class, value)
+            }
+        }
+    }
+}
+

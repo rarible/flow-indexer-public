@@ -4,16 +4,14 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.OwnershipId
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.gt
-import org.springframework.data.mongodb.core.query.gte
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.mongodb.core.query.lt
-import org.springframework.data.mongodb.core.query.lte
-import org.springframework.data.mongodb.core.query.ne
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.util.regex.Pattern
 import kotlin.reflect.KProperty
 
 
@@ -73,6 +71,7 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
     }
 
     companion object {
+        val SPLITTER = Pattern.compile("_")
 
         fun parseInt(str: String): Int {
             return try {
@@ -107,7 +106,7 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
         }
 
         inline fun <reified P1, reified P2> asc(str: String): Cont<P1, P2> {
-            val (f, s) = str.split('_')
+            val (f, s) = str.split('_', limit = 2)
             return AscCont(
                 parseField(f),
                 parseField(s)
@@ -115,7 +114,7 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
         }
 
         inline fun <reified P1, reified P2> desc(str: String): Cont<P1, P2> {
-            val (f, s) = str.split('_')
+            val (f, s) = str.split('_', limit = 2)
             return DescCont(
                 parseField(f),
                 parseField(s)
