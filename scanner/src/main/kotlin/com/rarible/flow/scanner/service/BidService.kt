@@ -19,6 +19,7 @@ import kotlin.reflect.KProperty
 class BidService(
     private val orderRepository: OrderRepository
 ) {
+    val logger by Log()
 
     suspend fun deactivateBidsByBalance(balance: Balance) {
         val result = orderRepository.update(
@@ -61,7 +62,4 @@ class BidService(
             .set(Order::makeStock.name, newMakeStock)
     }
 
-    companion object {
-        val logger by Log()
-    }
 }

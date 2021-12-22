@@ -43,11 +43,10 @@ class OrderToDtoConverter(
                 createdAt = source.createdAt.toInstant(ZoneOffset.UTC),
                 lastUpdateAt = source.lastUpdatedAt!!.toInstant(ZoneOffset.UTC),
                 amount = source.amount,
-                offeredNftId = "", //TODO not needed
                 data = convert(source.data ?: OrderData(emptyList(), emptyList())),
                 priceUsd = usdRate * source.take.value,
                 collection = source.collection,
-                makeStock = source.makeStock.movePointRight(multiplier).toBigInteger(), //TODO make BigDecimal
+                makeStock = source.makeStock.movePointRight(multiplier).toBigInteger(),
                 status = convert(source.status)
             )
         } catch (e: Exception) {
