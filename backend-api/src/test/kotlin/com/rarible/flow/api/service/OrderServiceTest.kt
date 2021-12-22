@@ -18,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.time.LocalDateTime
 
 @IntegrationTest
@@ -189,6 +188,6 @@ internal class OrderServiceTest : BaseIntegrationTest() {
         fill = 13.37.toBigDecimal(),
         lastUpdatedAt = LocalDateTime.now(),
         createdAt = LocalDateTime.now(),
-        makeStock = BigInteger.TEN
+        makeStock = BigDecimal.TEN
     )
 }

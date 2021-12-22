@@ -4,7 +4,6 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.*
 import org.apache.activemq.artemis.utils.RandomUtil.randomLong
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.time.Instant
 import java.time.LocalDateTime
 
@@ -45,7 +44,7 @@ object Data {
                 "FLOW",
                 BigDecimal.TEN
             ),
-            makeStock = BigInteger.TEN,
+            makeStock = BigDecimal.TEN,
             lastUpdatedAt = LocalDateTime.now(),
             createdAt = LocalDateTime.now(),
             type = OrderType.LIST

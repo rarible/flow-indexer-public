@@ -4,7 +4,6 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.*
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
@@ -30,7 +29,7 @@ object data {
         fill = 13.37.toBigDecimal(),
         lastUpdatedAt = LocalDateTime.now(),
         createdAt = LocalDateTime.now(),
-        makeStock = BigInteger.TEN
+        makeStock = BigDecimal.TEN
     )
 
     fun createSellActivity() = FlowNftOrderActivitySell(
