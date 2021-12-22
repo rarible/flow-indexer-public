@@ -22,7 +22,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDateTime
@@ -200,7 +199,7 @@ class NftOrderItemControllerTest {
                 "FLOW",
                 BigDecimal.TEN
             ),
-            makeStock = BigInteger.TEN,
+            makeStock = BigDecimal.TEN,
             amount = 1000.toBigDecimal(),
             data = OrderData(
                 payouts = listOf(), originalFees = listOf()
@@ -276,7 +275,7 @@ class NftOrderItemControllerTest {
                 "FLOW",
                 BigDecimal.TEN
             ),
-            makeStock = BigInteger.TEN,
+            makeStock = BigDecimal.TEN,
             createdAt = LocalDateTime.now(ZoneOffset.UTC),
             type = OrderType.LIST
         )
@@ -354,7 +353,7 @@ class NftOrderItemControllerTest {
                 "FLOW",
                 BigDecimal.TEN
             ),
-            makeStock = BigInteger.TEN,
+            makeStock = BigDecimal.TEN,
             type = OrderType.LIST
         )
 

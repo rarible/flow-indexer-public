@@ -16,7 +16,6 @@ import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -42,7 +41,7 @@ class OrderService(
             amount = activity.price,
             createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             collection = activity.contract,
-            makeStock = activity.make.value.toBigInteger(),
+            makeStock = activity.make.value,
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             type = OrderType.LIST,
             takePriceUsd = activity.priceUsd
@@ -56,7 +55,7 @@ class OrderService(
             amount = activity.price,
             createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             collection = activity.contract,
-            makeStock = activity.make.value.toBigInteger(),
+            makeStock = activity.make.value,
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             type = OrderType.LIST,
             takePriceUsd = activity.priceUsd
@@ -76,7 +75,7 @@ class OrderService(
             amount = activity.price,
             createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             collection = activity.contract,
-            makeStock = activity.make.value.toBigInteger(),
+            makeStock = activity.make.value,
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             type = OrderType.BID,
             takePriceUsd = activity.priceUsd,
@@ -91,7 +90,7 @@ class OrderService(
             amount = activity.price,
             createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             collection = activity.contract,
-            makeStock = activity.make.value.toBigInteger(),
+            makeStock = activity.make.value,
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             type = OrderType.BID,
             takePriceUsd = activity.priceUsd
@@ -104,7 +103,7 @@ class OrderService(
     suspend fun close(activity: FlowNftOrderActivitySell): Order {
         val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
             fill = BigDecimal.ONE,
-            makeStock = BigInteger.ZERO,
+            makeStock = BigDecimal.ZERO,
             taker = FlowAddress(activity.right.maker),
             status = OrderStatus.FILLED,
             data = OrderData(
@@ -120,7 +119,7 @@ class OrderService(
         ) ?: Order(
             id = activity.hash.toLong(),
             fill = BigDecimal.ONE,
-            makeStock = BigInteger.ZERO,
+            makeStock = BigDecimal.ZERO,
             taker = FlowAddress(activity.right.maker),
             status = OrderStatus.FILLED,
             createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
@@ -153,8 +152,8 @@ class OrderService(
     suspend fun closeBid(activity: FlowNftOrderActivityBidAccept, item: Item?): Order {
         val order = orderRepository.coFindById(activity.hash.toLong())?.let {
             it.copy(
-                fill = it.makeStock.toBigDecimal(),
-                makeStock = BigInteger.ZERO,
+                fill = it.makeStock,
+                makeStock = BigDecimal.ZERO,
                 taker = FlowAddress(activity.left.maker),
                 status = OrderStatus.FILLED,
                 data = OrderData(
@@ -167,8 +166,8 @@ class OrderService(
             )
         } ?: Order(
             id = activity.hash.toLong(),
-            fill = BigDecimal.ONE,
-            makeStock = BigInteger.ZERO,
+            fill = activity.right.asset.value,
+            makeStock = BigDecimal.ZERO,
             taker = FlowAddress(activity.left.maker),
             status = OrderStatus.FILLED,
             createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
@@ -220,7 +219,7 @@ class OrderService(
             } else FlowAssetEmpty,
             take = FlowAssetEmpty,
             data = OrderData(emptyList(), emptyList()),
-            makeStock = BigInteger.ZERO,
+            makeStock = BigDecimal.ZERO,
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             type = OrderType.LIST,
         )
@@ -251,7 +250,7 @@ class OrderService(
                 )
             } else FlowAssetEmpty,
             data = OrderData(emptyList(), emptyList()),
-            makeStock = BigInteger.ZERO,
+            makeStock = BigDecimal.ZERO,
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             type = OrderType.BID
         )
