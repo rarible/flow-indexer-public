@@ -1,11 +1,15 @@
 package com.rarible.flow.core.repository
 
+import com.mongodb.client.result.UpdateResult
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderStatus
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
+import org.springframework.data.mongodb.core.query.UpdateDefinition
+import org.springframework.data.mongodb.core.update
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
@@ -44,6 +48,8 @@ interface OrderRepositoryCustom {
     fun search(
         filter: OrderFilter, cont: String?, limit: Int?, sort: OrderFilter.Sort = OrderFilter.Sort.LATEST_FIRST
     ): Flux<Order>
+
+    suspend fun update(filter: OrderFilter, updateDefinition: UpdateDefinition): UpdateResult
 }
 
 @Suppress("unused")
@@ -51,5 +57,14 @@ class OrderRepositoryCustomImpl(val mongo: ReactiveMongoTemplate): OrderReposito
     override fun search(filter: OrderFilter, cont: String?, limit: Int?, sort: OrderFilter.Sort): Flux<Order> {
         val query = sort.scroll(filter, cont, limit)
         return mongo.find(query)
+    }
+
+    override suspend fun update(filter: OrderFilter, updateDefinition: UpdateDefinition): UpdateResult {
+        return mongo
+            .update<Order>()
+            .matching(filter.criteria())
+            .apply(updateDefinition)
+            .all()
+            .awaitSingle()
     }
 }

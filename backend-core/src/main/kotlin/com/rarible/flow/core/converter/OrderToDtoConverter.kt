@@ -47,7 +47,7 @@ class OrderToDtoConverter(
                 data = convert(source.data ?: OrderData(emptyList(), emptyList())),
                 priceUsd = usdRate * source.take.value,
                 collection = source.collection,
-                makeStock = source.makeStock.movePointRight(multiplier).toBigInteger(),
+                makeStock = source.makeStock.movePointRight(multiplier).toBigInteger(), //TODO make BigDecimal
                 status = convert(source.status)
             )
         } catch (e: Exception) {

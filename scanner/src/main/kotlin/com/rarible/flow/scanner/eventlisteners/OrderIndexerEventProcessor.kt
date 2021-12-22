@@ -16,8 +16,7 @@ import org.springframework.stereotype.Component
 class OrderIndexerEventProcessor(
     private val orderService: OrderService,
     private val protocolEventPublisher: ProtocolEventPublisher,
-    private val orderConverter: OrderToDtoConverter,
-    private val itemRepository: ItemRepository
+    private val orderConverter: OrderToDtoConverter
 ) : IndexerEventsProcessor {
 
     private val supportedTypes = arrayOf(
@@ -49,13 +48,7 @@ class OrderIndexerEventProcessor(
             labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")
         ) {
             val o = orderService.openList(activity, event.item)
-            if (event.source != Source.REINDEX) {
-                protocolEventPublisher.onOrderUpdate(o, orderConverter)
-                if (event.item != null && event.item.updatedAt <= activity.timestamp) {
-                    protocolEventPublisher.onItemUpdate(itemRepository.coSave(event.item.copy(listed = true,
-                        updatedAt = activity.timestamp)))
-                }
-            }
+            sendUpdate(event, o)
         }
     }
 
@@ -76,13 +69,7 @@ class OrderIndexerEventProcessor(
             labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")
         ) {
             val o = orderService.close(activity)
-
-            if (event.source != Source.REINDEX) {
-                protocolEventPublisher.onOrderUpdate(o, orderConverter)
-                if (event.item != null && event.item.updatedAt <= activity.timestamp) {
-                    protocolEventPublisher.onItemUpdate(itemRepository.coSave(event.item.copy(listed = false, updatedAt = activity.timestamp)))
-                }
-            }
+            sendUpdate(event, o)
         }
     }
 
@@ -91,14 +78,7 @@ class OrderIndexerEventProcessor(
         withSpan("cancelOrderEvent", type = "event", labels = listOf("hash" to activity.hash)) {
             val o = orderService.cancel(activity, event.item)
 
-            if (event.source != Source.REINDEX) {
-                protocolEventPublisher.onOrderUpdate(o, orderConverter)
-                itemRepository.findById(o.itemId).awaitSingleOrNull()?.let {
-                    if (it.updatedAt <= activity.timestamp) {
-                        protocolEventPublisher.onItemUpdate(itemRepository.coSave(it.copy(listed = false, updatedAt = activity.timestamp)))
-                    }
-                }
-            }
+            sendUpdate(event, o)
         }
     }
 
@@ -106,9 +86,7 @@ class OrderIndexerEventProcessor(
         val activity = event.history.activity as FlowNftOrderActivityBid
         withSpan("openBidEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val o = orderService.openBid(activity, event.item)
-            if (event.source != Source.REINDEX) {
-                protocolEventPublisher.onOrderUpdate(o, orderConverter)
-            }
+            sendUpdate(event, o)
         }
     }
 
@@ -116,9 +94,7 @@ class OrderIndexerEventProcessor(
         val activity = event.history.activity as FlowNftOrderActivitySell
         withSpan("acceptBidEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val o = orderService.closeBid(activity, event.item)
-            if (event.source != Source.REINDEX) {
-                protocolEventPublisher.onOrderUpdate(o, orderConverter)
-            }
+            sendUpdate(event, o)
         }
     }
 
@@ -126,9 +102,16 @@ class OrderIndexerEventProcessor(
         val activity = event.history.activity as FlowNftOrderActivityCancelBid
         withSpan("cancelBidEvent", type = "event", labels = listOf("hash" to activity.hash)) {
             val o = orderService.cancelBid(activity, event.item)
-            if (event.source != Source.REINDEX) {
-                protocolEventPublisher.onOrderUpdate(o, orderConverter)
-            }
+            sendUpdate(event, o)
+        }
+    }
+
+    private suspend fun sendUpdate(
+        event: IndexerEvent,
+        o: Order
+    ) {
+        if (event.source != Source.REINDEX) {
+            protocolEventPublisher.onOrderUpdate(o, orderConverter)
         }
     }
 

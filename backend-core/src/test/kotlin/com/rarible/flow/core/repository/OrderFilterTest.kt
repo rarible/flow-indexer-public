@@ -18,10 +18,14 @@ import kotlinx.coroutines.flow.flowOf
 import org.springframework.data.domain.Sort
 import org.springframework.data.mapping.div
 import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.gt
 import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.lte
+import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlin.reflect.KProperty
 
 internal class OrderFilterTest : FunSpec({
 
@@ -120,6 +124,16 @@ internal class OrderFilterTest : FunSpec({
             sort.nextPageSafe(null) shouldBe null
         }
 
+    }
+
+    test("should make filter - by make value") {
+        OrderFilter.ByMakeValue(KProperty<BigDecimal>::lte, BigDecimal.TEN).shouldMakeCriteria(
+            Order::make / FlowAsset::value lte BigDecimal.TEN
+        )
+
+        OrderFilter.ByMakeValue(KProperty<BigDecimal>::gt, BigDecimal.TEN).shouldMakeCriteria(
+            Order::make / FlowAsset::value gt BigDecimal.TEN
+        )
     }
 
 

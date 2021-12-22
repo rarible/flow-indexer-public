@@ -55,7 +55,7 @@ data class Item (
     val owner: FlowAddress?,
     val mintedAt: Instant,
     val meta: String? = null,
-    val listed: Boolean = false,
+    val listed: Boolean = false, //TODO remove, not used
     @Indexed
     val collection: String,
     @Field(targetType = FieldType.DATE_TIME)
