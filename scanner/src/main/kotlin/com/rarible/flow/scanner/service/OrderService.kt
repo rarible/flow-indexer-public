@@ -149,7 +149,7 @@ class OrderService(
         return orderRepository.coSave(order)
     }
 
-    suspend fun closeBid(activity: FlowNftOrderActivityBidAccept, item: Item?): Order {
+    suspend fun closeBid(activity: FlowNftOrderActivitySell, item: Item?): Order {
         val order = orderRepository.coFindById(activity.hash.toLong())?.let {
             it.copy(
                 fill = it.makeStock,
@@ -188,7 +188,7 @@ class OrderService(
                     )
                 }.map { Payout(account = FlowAddress(it.address), value = it.amount) }),
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-            type = OrderType.LIST,
+            type = OrderType.BID,
             takePriceUsd = activity.priceUsd
         )
 
