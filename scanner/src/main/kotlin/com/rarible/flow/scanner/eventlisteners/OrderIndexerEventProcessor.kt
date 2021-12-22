@@ -26,7 +26,6 @@ class OrderIndexerEventProcessor(
         FlowActivityType.CANCEL_LIST,
         FlowActivityType.BID,
         FlowActivityType.CANCEL_BID,
-        FlowActivityType.ACCEPT_BID
     )
 
     override fun isSupported(event: IndexerEvent): Boolean = event.activityType() in supportedTypes
@@ -34,10 +33,9 @@ class OrderIndexerEventProcessor(
     override suspend fun process(event: IndexerEvent) {
         when (event.activityType()) {
             FlowActivityType.LIST -> list(event)
-            FlowActivityType.SELL -> orderClose(event)
+            FlowActivityType.SELL -> close(event)
             FlowActivityType.CANCEL_LIST -> orderCancelled(event)
             FlowActivityType.BID -> bid(event)
-            FlowActivityType.ACCEPT_BID -> acceptBid(event)
             FlowActivityType.CANCEL_BID -> cancelBid(event)
             else -> throw IllegalStateException("Unsupported order event! [${event.activityType()}]")
         }
@@ -54,9 +52,19 @@ class OrderIndexerEventProcessor(
             if (event.source != Source.REINDEX) {
                 protocolEventPublisher.onOrderUpdate(o, orderConverter)
                 if (event.item != null && event.item.updatedAt <= activity.timestamp) {
-                    protocolEventPublisher.onItemUpdate(itemRepository.coSave(event.item.copy(listed = true, updatedAt = activity.timestamp)))
+                    protocolEventPublisher.onItemUpdate(itemRepository.coSave(event.item.copy(listed = true,
+                        updatedAt = activity.timestamp)))
                 }
             }
+        }
+    }
+
+    private suspend fun close(event: IndexerEvent) {
+        val activity = event.history.activity as FlowNftOrderActivitySell
+        return when (activity.left.asset) {
+            is FlowAssetNFT -> orderClose(event)
+            is FlowAssetFungible -> acceptBid(event)
+            else -> throw IllegalStateException("Invalid order asset: ${activity.left.asset}, in activity: $activity")
         }
     }
 
@@ -105,7 +113,7 @@ class OrderIndexerEventProcessor(
     }
 
     private suspend fun acceptBid(event: IndexerEvent) {
-        val activity = event.history.activity as FlowNftOrderActivityBidAccept
+        val activity = event.history.activity as FlowNftOrderActivitySell
         withSpan("acceptBidEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val o = orderService.closeBid(activity, event.item)
             if (event.source != Source.REINDEX) {
