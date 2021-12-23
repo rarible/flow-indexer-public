@@ -17,10 +17,6 @@ import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 
 interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepositoryCustom {
-    @Query("""
-        {"_id": ?0, "cancelled": false}
-    """)
-    fun findActiveById(id: Long): Mono<Order>
 
     fun findAllByIdIn(ids: List<Long>): Flux<Order>
 

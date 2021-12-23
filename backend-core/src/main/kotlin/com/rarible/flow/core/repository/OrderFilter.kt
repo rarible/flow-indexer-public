@@ -10,8 +10,10 @@ import com.rarible.flow.core.repository.filters.ScrollingSort
 import org.springframework.data.mapping.div
 import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.gt
 import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.lte
 import java.math.BigDecimal
 import kotlin.reflect.KProperty
 import org.springframework.data.domain.Sort as SpringSort
@@ -134,9 +136,14 @@ sealed class OrderFilter : CriteriaProduct<OrderFilter> {
         }
     }
 
-    data class ByMakeValue(val cmp: KProperty<BigDecimal>.(BigDecimal) -> Criteria, val value: BigDecimal): OrderFilter() {
+    data class ByMakeValue(val cmp: Comparator, val value: BigDecimal): OrderFilter() {
+        enum class Comparator(val fn: KProperty<BigDecimal>.(BigDecimal) -> Criteria) {
+            LTE(KProperty<BigDecimal>::lte),
+            GT(KProperty<BigDecimal>::gt)
+        }
+
         override fun criteria(): Criteria {
-            return cmp(Order::make / FlowAsset::value, value)
+            return cmp.fn(Order::make / FlowAsset::value, value)
         }
     }
 
