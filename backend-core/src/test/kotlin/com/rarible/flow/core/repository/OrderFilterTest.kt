@@ -127,11 +127,17 @@ internal class OrderFilterTest : FunSpec({
     }
 
     test("should make filter - by make value") {
-        OrderFilter.ByMakeValue(KProperty<BigDecimal>::lte, BigDecimal.TEN).shouldMakeCriteria(
+        OrderFilter.ByMakeValue(
+            OrderFilter.ByMakeValue.Comparator.LTE,
+            BigDecimal.TEN
+        ).shouldMakeCriteria(
             Order::make / FlowAsset::value lte BigDecimal.TEN
         )
 
-        OrderFilter.ByMakeValue(KProperty<BigDecimal>::gt, BigDecimal.TEN).shouldMakeCriteria(
+        OrderFilter.ByMakeValue(
+            OrderFilter.ByMakeValue.Comparator.GT,
+            BigDecimal.TEN
+        ).shouldMakeCriteria(
             Order::make / FlowAsset::value gt BigDecimal.TEN
         )
     }

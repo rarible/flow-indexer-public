@@ -50,7 +50,16 @@ data class Order(
 
     @Field(targetType = FieldType.DECIMAL128)
     val takePriceUsd: BigDecimal = BigDecimal.ZERO
-)
+) {
+
+    fun deactivateBid(makeStock: BigDecimal): Order {
+        return this.copy(status = OrderStatus.INACTIVE, makeStock = makeStock)
+    }
+
+    fun reactivateBid(): Order {
+        return this.copy(status = OrderStatus.ACTIVE, makeStock = this.make.value)
+    }
+}
 
 enum class OrderType {
     LIST, BID
