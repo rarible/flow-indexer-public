@@ -12,6 +12,8 @@ import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
+import java.math.BigDecimal
+import kotlin.reflect.KProperty
 import org.springframework.data.domain.Sort as SpringSort
 
 sealed class OrderFilter : CriteriaProduct<OrderFilter> {
@@ -129,6 +131,12 @@ sealed class OrderFilter : CriteriaProduct<OrderFilter> {
             } else {
                 Order::status inValues status
             }
+        }
+    }
+
+    data class ByMakeValue(val cmp: KProperty<BigDecimal>.(BigDecimal) -> Criteria, val value: BigDecimal): OrderFilter() {
+        override fun criteria(): Criteria {
+            return cmp(Order::make / FlowAsset::value, value)
         }
     }
 

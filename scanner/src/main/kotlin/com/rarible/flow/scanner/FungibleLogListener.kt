@@ -9,13 +9,14 @@ import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.*
 import com.rarible.flow.log.Log
+import com.rarible.flow.scanner.service.BidService
 import kotlinx.coroutines.reactive.awaitFirstOrDefault
 import org.springframework.stereotype.Component
 
 @Component
 class FungibleLogListener(
     private val balanceRepository: BalanceRepository,
-    private val orderRepository: OrderRepository
+    private val bidService: BidService
 ) : FlowLogEventListener {
 
     private val logger by Log()
@@ -35,19 +36,10 @@ class FungibleLogListener(
                         )
                     )
 
-                    if(history.change.signum() == -1) {
-                        orderRepository.search(
-                            OrderFilter.OnlyBid * OrderFilter.ByMaker(updatedBalance.account), null, 1000
-                        ).collectList().awaitFirstOrDefault(emptyList()).forEach { bid ->
-                            logger.info("Found bid [{}] for possible deactivation", bid.id)
-                            val make = bid.make as FlowAssetFungible
-                            if(make.contract == updatedBalance.token && make.value.compareTo(updatedBalance.balance) == 1) {
-                                logger.info("Deactivating bid [{}]...", bid.id)
-                                orderRepository.coSave(
-                                    bid.copy(status = OrderStatus.INACTIVE)
-                                )
-                            }
-                        }
+                    if (history.change.signum() == -1) {
+                        bidService.deactivateBidsByBalance(updatedBalance)
+                    } else {
+                        bidService.activateBidsByBalance(updatedBalance)
                     }
                 }
             }

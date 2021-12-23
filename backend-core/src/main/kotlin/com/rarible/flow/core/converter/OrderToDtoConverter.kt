@@ -43,7 +43,6 @@ class OrderToDtoConverter(
                 createdAt = source.createdAt.toInstant(ZoneOffset.UTC),
                 lastUpdateAt = source.lastUpdatedAt!!.toInstant(ZoneOffset.UTC),
                 amount = source.amount,
-                offeredNftId = "", //TODO not needed
                 data = convert(source.data ?: OrderData(emptyList(), emptyList())),
                 priceUsd = usdRate * source.take.value,
                 collection = source.collection,

@@ -43,6 +43,7 @@ data class Order(
     val createdAt: LocalDateTime,
     var lastUpdatedAt: LocalDateTime? = null,
     val collection: String,
+
     @Field(targetType = FieldType.DECIMAL128)
     val makeStock: BigDecimal,
     val status: OrderStatus = OrderStatus.INACTIVE,
