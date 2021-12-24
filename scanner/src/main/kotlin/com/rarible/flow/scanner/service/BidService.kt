@@ -14,17 +14,8 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
-import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.data.mongodb.core.query.Update
-import org.springframework.data.mongodb.core.query.UpdateDefinition
-import org.springframework.data.mongodb.core.query.gt
 import org.springframework.stereotype.Component
-import org.springframework.data.mongodb.core.query.lte
-import java.awt.Cursor
-import java.math.BigDecimal
-import kotlin.reflect.KProperty
 
 @Component
 class BidService(
@@ -33,25 +24,17 @@ class BidService(
     val logger by Log()
 
     suspend fun deactivateBidsByBalance(balance: Balance): Flow<Order> {
-        val deactivated = updateByFilter(
+        return updateByFilter(
             match(OrderStatus.ACTIVE, balance, OrderFilter.ByMakeValue.Comparator.GT),
             { filter, cursor -> orderRepository.search(filter, cursor, 1000).asFlow() }
         ) { order -> orderRepository.coSave(order.deactivateBid(balance.balance)) }
-
-        val ids = deactivated.map { it.id }.toList()
-        logger.info("Deactivated orders by balance {}: {}", balance, ids)
-        return deactivated
     }
 
     suspend fun activateBidsByBalance(balance: Balance): Flow<Order> {
-        val reactivated = updateByFilter(
+        return updateByFilter(
             match(OrderStatus.INACTIVE, balance, OrderFilter.ByMakeValue.Comparator.LTE),
             { filter, cursor -> orderRepository.search(filter, cursor, 1000).asFlow() }
         ) { order -> orderRepository.coSave(order.reactivateBid()) }
-
-        val ids = reactivated.map { it.id }
-        logger.info("Deactivated orders by balance {}: {}", balance, ids)
-        return reactivated
     }
 
     private suspend fun updateByFilter(
@@ -70,8 +53,10 @@ class BidService(
         search: (OrderFilter, String?) -> Flow<Order>,
         fn: suspend (Order) -> Order
     ): Flow<Order> {
+        logger.debug("Searching bids by filter: {}; cursor: {}", filter.criteria().criteriaObject, cursor)
         val orders = search(filter, cursor)
         return if(orders.count() == 0) {
+            logger.debug("Returning bids for filter: {}", filter.criteria().criteriaObject)
             collected
         } else {
             val nextCollected = merge(collected, orders.map(fn))

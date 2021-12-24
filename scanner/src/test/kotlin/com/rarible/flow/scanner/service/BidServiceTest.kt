@@ -17,17 +17,24 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 internal class BidServiceTest: FunSpec({
-    val element = Data.createOrder()
+    val order1 = Data.createOrder()
+    val order2 = Data.createOrder()
 
     val repository = mockk<OrderRepository>("orderRepository") {
         every {
             search(any(), isNull(), any(), OrderFilter.Sort.LATEST_FIRST)
         } returns Flux.fromIterable(
-            listOf(element)
+            listOf(order1)
         )
 
         every {
-            search(any(), eq(OrderFilter.Sort.LATEST_FIRST.nextPage(element)), any(), OrderFilter.Sort.LATEST_FIRST)
+            search(any(), eq(OrderFilter.Sort.LATEST_FIRST.nextPage(order1)), any(), OrderFilter.Sort.LATEST_FIRST)
+        } returns Flux.fromIterable(
+            listOf(order2)
+        )
+
+        every {
+            search(any(), eq(OrderFilter.Sort.LATEST_FIRST.nextPage(order2)), any(), OrderFilter.Sort.LATEST_FIRST)
         } returns Flux.empty()
 
         every {
@@ -45,7 +52,7 @@ internal class BidServiceTest: FunSpec({
 
         coVerify {
             repository.search(any(), null, 1000)
-            repository.search(any(), OrderFilter.Sort.LATEST_FIRST.nextPage(element), 1000)
+            repository.search(any(), OrderFilter.Sort.LATEST_FIRST.nextPage(order1), 1000)
             repository.save(withArg {
                 it.makeStock shouldBe 11.3.toBigDecimal()
                 it.status shouldBe OrderStatus.INACTIVE
@@ -63,7 +70,7 @@ internal class BidServiceTest: FunSpec({
 
         coVerify {
             repository.search(any(), null, 1000)
-            repository.search(any(), OrderFilter.Sort.LATEST_FIRST.nextPage(element), 1000)
+            repository.search(any(), OrderFilter.Sort.LATEST_FIRST.nextPage(order1), 1000)
             repository.save(withArg {
                 it.makeStock shouldBe it.make.value
                 it.status shouldBe OrderStatus.ACTIVE

@@ -7,15 +7,14 @@ import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.filters.CriteriaProduct
 import com.rarible.flow.core.repository.filters.ScrollingSort
+import org.bson.types.Decimal128
 import org.springframework.data.mapping.div
 import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.data.mongodb.core.query.gt
 import org.springframework.data.mongodb.core.query.gte
 import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.mongodb.core.query.lt
-import org.springframework.data.mongodb.core.query.lte
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDateTime
@@ -142,13 +141,17 @@ sealed class OrderFilter : CriteriaProduct<OrderFilter> {
     }
 
     data class ByMakeValue(val cmp: Comparator, val value: BigDecimal): OrderFilter() {
-        enum class Comparator(val fn: KProperty<BigDecimal>.(BigDecimal) -> Criteria) {
-            LTE(KProperty<BigDecimal>::lte),
-            GT(KProperty<BigDecimal>::gt)
+        enum class Comparator {
+            LTE, GT
         }
 
         override fun criteria(): Criteria {
-            return cmp.fn(Order::make / FlowAsset::value, value)
+            val criteria = Criteria((Order::make / FlowAsset::value).toDotPath())
+            val decValue = Decimal128(value)
+            return when(cmp) {
+                Comparator.LTE -> criteria.lte(decValue)
+                Comparator.GT -> criteria.gt(decValue)
+            }
         }
     }
 
