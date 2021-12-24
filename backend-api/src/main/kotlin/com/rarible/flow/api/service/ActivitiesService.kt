@@ -42,36 +42,36 @@ class ActivitiesService(
 
         private val userCriteria = mapOf(
             FlowActivityType.TRANSFER_FROM to { u: List<String> ->
-                Criteria.where("activity.type").isEqualTo(FlowActivityType.TRANSFER)
+                Criteria.where("activity.type").isEqualTo(FlowActivityType.TRANSFER.name)
                     .and("activity.from").`in`(u)
             },
             FlowActivityType.TRANSFER_TO to { u: List<String> ->
-                Criteria.where("activity.type").isEqualTo(FlowActivityType.TRANSFER)
+                Criteria.where("activity.type").isEqualTo(FlowActivityType.TRANSFER.name)
                     .and("activity.to").`in`(u)
             },
             FlowActivityType.LIST to { u: List<String> ->
-                Criteria.where("activity.type").isEqualTo(FlowActivityType.LIST)
+                Criteria.where("activity.type").isEqualTo(FlowActivityType.LIST.name)
                     .and("activity.maker").`in`(u)
             },
             FlowActivityType.CANCEL_BID to { u: List<String> ->
-                Criteria.where("activity.type").isEqualTo(FlowActivityType.CANCEL_LIST)
+                Criteria.where("activity.type").isEqualTo(FlowActivityType.CANCEL_LIST.name)
                     .and("activity.maker").`in`(u)
             },
             FlowActivityType.MAKE_BID to { u: List<String> ->
-                Criteria.where("activity.type").`in`(listOf(FlowActivityType.BID, FlowActivityType.CANCEL_BID))
+                Criteria.where("activity.type").`in`(listOf(FlowActivityType.BID.name, FlowActivityType.CANCEL_BID.name))
                     .and("activity.maker").`in`(u)
             },
             FlowActivityType.GET_BID to { u: List<String> ->
-                Criteria.where("activity.type").isEqualTo(FlowActivityType.SELL)
+                Criteria.where("activity.type").isEqualTo(FlowActivityType.SELL.name)
                     .and("activity.left.asset.tokenId").exists(true)
                     .and("activity.right.maker").`in`(u)
             },
             FlowActivityType.BUY to { u: List<String> ->
-                Criteria.where("activity.type").isEqualTo(FlowActivityType.SELL)
+                Criteria.where("activity.type").isEqualTo(FlowActivityType.SELL.name)
                     .and("activity.right.maker").`in`(u)
             },
             FlowActivityType.SELL to { u: List<String> ->
-                Criteria.where("activity.type").isEqualTo(FlowActivityType.SELL)
+                Criteria.where("activity.type").isEqualTo(FlowActivityType.SELL.name)
                     .and("activity.left.maker").`in`(u)
             }
         )
@@ -110,12 +110,12 @@ class ActivitiesService(
         if (types.isEmpty()) return emptyActivities
 
         val arrayOfCriteria = types.map { t ->
-            userCriteria[t]?.let { it(user) } ?: Criteria.where("activity.type").isEqualTo(t)
+            userCriteria[t]?.let { it(user) } ?: Criteria.where("activity.type").isEqualTo(t.name)
         }.toTypedArray()
 
-        val criteria = defaultCriteria(types)
+        val criteria = Criteria()
             .orOperator(*arrayOfCriteria)
-            .andDates(from, to)
+//            .andDates(from, to)
 
         return getActivities(criteria, continuation, size, sort)
     }
