@@ -11,12 +11,10 @@ import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.*
 import com.rarible.protocol.flow.nft.api.controller.FlowOrderControllerApi
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.runBlocking
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
-import java.time.OffsetDateTime
 
 @RestController
 @CrossOrigin
@@ -26,8 +24,7 @@ class OrderApiController(
 ): FlowOrderControllerApi {
 
     override fun getBidCurrencies(itemId: String): ResponseEntity<Flow<FlowAssetDto>> {
-        val itemId = itemId.itemId()
-        return service.bidCurrenciesByItemId(itemId).map {
+        return service.bidCurrenciesByItemId(itemId.itemId()).map {
             FlowAssetFungibleDto(it.contract, it.value)
         }.okOr404IfNull()
     }
@@ -65,7 +62,7 @@ class OrderApiController(
     }
 
 
-    //TODO possible duplicate
+    //TODO deprecated!
     override suspend fun getOrderBidsByItem(
         contract: String,
         tokenId: String,
@@ -75,7 +72,7 @@ class OrderApiController(
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
-        return FlowOrdersPaginationDto(emptyList()).okOr404IfNull()
+        return ResponseEntity.badRequest().build()
     }
 
     override suspend fun getOrderBidsByMaker(
@@ -141,8 +138,7 @@ class OrderApiController(
     }
 
     override fun getSellCurrencies(itemId: String): ResponseEntity<Flow<FlowAssetDto>> {
-        val itemId = itemId.itemId()
-        return service.currenciesByItemId(itemId).map {
+        return service.sellCurrenciesByItemId(itemId.itemId()).map {
             FlowAssetFungibleDto(it.contract, it.value)
         }.okOr404IfNull()
     }

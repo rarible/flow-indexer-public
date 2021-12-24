@@ -11,10 +11,15 @@ import org.springframework.data.mapping.div
 import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.gt
+import org.springframework.data.mongodb.core.query.gte
 import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.lt
 import org.springframework.data.mongodb.core.query.lte
 import java.math.BigDecimal
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import kotlin.reflect.KProperty
 import org.springframework.data.domain.Sort as SpringSort
 
@@ -144,6 +149,34 @@ sealed class OrderFilter : CriteriaProduct<OrderFilter> {
 
         override fun criteria(): Criteria {
             return cmp.fn(Order::make / FlowAsset::value, value)
+        }
+    }
+
+    data class ByDateAfter(val dateField: KProperty<LocalDateTime>, val start: LocalDateTime?): OrderFilter() {
+        constructor(dateField: KProperty<LocalDateTime>, inst: Instant?): this(
+            dateField, inst?.atZone(ZoneOffset.UTC)?.toLocalDateTime()
+        )
+
+        override fun criteria(): Criteria {
+            return if(start == null) {
+                Criteria()
+            } else {
+                dateField gte start
+            }
+        }
+    }
+
+    data class ByDateBefore(val dateField: KProperty<LocalDateTime>, val end: LocalDateTime?): OrderFilter() {
+        constructor(dateField: KProperty<LocalDateTime>, inst: Instant?): this(
+            dateField, inst?.atZone(ZoneOffset.UTC)?.toLocalDateTime()
+        )
+
+        override fun criteria(): Criteria {
+            return if(end == null) {
+                Criteria()
+            } else {
+                dateField lt end
+            }
         }
     }
 

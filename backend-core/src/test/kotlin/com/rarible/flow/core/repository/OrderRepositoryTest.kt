@@ -1,23 +1,15 @@
 package com.rarible.flow.core.repository
 
-import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.domain.OrderData
 import com.rarible.flow.core.repository.data.createOrder
-import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.reactive.awaitLast
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -26,7 +18,6 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
-import reactor.core.publisher.Mono
 import java.math.BigDecimal
 
 @MongoTest
@@ -50,6 +41,40 @@ internal class OrderRepositoryTest(
     @BeforeEach
     fun beforeEach() {
         orderRepository.deleteAll().block()
+    }
+
+    @Test
+    fun `should return sell orders by make`() = runBlocking<Unit> {
+        val sellOrder = createOrder()
+        val bidOrder = createOrder().let {
+            it.copy(make = it.take, take = it.make)
+        }
+        orderRepository.coSaveAll(sellOrder, bidOrder)
+
+        (sellOrder.make as FlowAssetNFT).let { asset ->
+            orderRepository
+                .findAllByMake(asset.contract, asset.tokenId)
+                .collectList()
+                .awaitSingle()
+                .first() shouldBe sellOrder
+        }
+    }
+
+    @Test
+    fun `should return bid orders by make`() = runBlocking<Unit> {
+        val sellOrder = createOrder()
+        val bidOrder = createOrder().let {
+            it.copy(make = it.take, take = it.make)
+        }
+        orderRepository.coSaveAll(sellOrder, bidOrder)
+
+        (bidOrder.take as FlowAssetNFT).let { asset ->
+            orderRepository
+                .findAllByTake(asset.contract, asset.tokenId)
+                .collectList()
+                .awaitSingle()
+                .first() shouldBe bidOrder
+        }
     }
 
     @Test
