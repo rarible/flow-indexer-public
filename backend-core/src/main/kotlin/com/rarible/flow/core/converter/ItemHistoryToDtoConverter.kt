@@ -4,6 +4,8 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.*
 import org.springframework.core.convert.converter.Converter
+import java.math.BigDecimal
+import java.math.BigInteger
 
 
 object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
@@ -51,6 +53,19 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 logIndex = source.log.eventIndex,
             )
 
+            is TransferActivity -> FlowTransferDto(
+                id = source.id,
+                date = source.date,
+                tokenId = source.activity.tokenId.toBigInteger(),
+                contract = source.activity.contract,
+                from = source.activity.from,
+                owner = source.activity.to,
+                value = BigInteger.ONE,
+                transactionHash = source.log.transactionHash,
+                blockHash = source.log.blockHash,
+                blockNumber = source.log.blockHeight,
+                logIndex = source.log.eventIndex,
+            )
             is FlowNftOrderActivitySell -> FlowNftOrderActivitySellDto(
                 id = source.id,
                 date = source.date,
@@ -83,7 +98,7 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
             )
-            /*is FlowNftOrderActivityCancelList -> FlowNftOrderActivityCancelListDto(
+            is FlowNftOrderActivityBid -> FlowNftOrderActivityBidDto(
                 id = source.id,
                 date = source.date,
                 hash = source.activity.hash,
@@ -95,7 +110,33 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 blockHash = source.log.blockHash,
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
-            )*/
+            )
+            is FlowNftOrderActivityCancelList -> FlowNftOrderActivityCancelListDto(
+                id = source.id,
+                date = source.date,
+                hash = source.activity.hash,
+                maker = "maker", //source.activity.maker,
+                make = FlowAssetNFTDto("todo", BigDecimal.ONE, BigInteger.ZERO), // convertAsset(source.activity.make),
+                take = FlowAssetFungibleDto("todo", BigDecimal.ZERO), // convertAsset(source.activity.take),
+                price = BigDecimal.ZERO, // source.activity.price,
+                transactionHash = source.log.transactionHash,
+                blockHash = source.log.blockHash,
+                blockNumber = source.log.blockHeight,
+                logIndex = source.log.eventIndex,
+            )
+            is FlowNftOrderActivityCancelBid -> FlowNftOrderActivityCancelBidDto(
+                id = source.id,
+                date = source.date,
+                hash = source.activity.hash,
+                maker = "maker", //source.activity.maker,
+                make = FlowAssetNFTDto("todo", BigDecimal.ONE, BigInteger.ZERO), // convertAsset(source.activity.make),
+                take = FlowAssetFungibleDto("todo", BigDecimal.ZERO), // convertAsset(source.activity.take),
+                price = BigDecimal.ZERO, // source.activity.price,
+                transactionHash = source.log.transactionHash,
+                blockHash = source.log.blockHash,
+                blockNumber = source.log.blockHeight,
+                logIndex = source.log.eventIndex,
+            )
             else -> null
 //            is DepositActivity -> null
 //            is WithdrawnActivity -> null
