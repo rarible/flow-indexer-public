@@ -15,17 +15,15 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
+import org.bson.Document
 import org.springframework.data.domain.Sort
 import org.springframework.data.mapping.div
 import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.data.mongodb.core.query.gt
 import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
-import org.springframework.data.mongodb.core.query.lte
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import kotlin.reflect.KProperty
 
 internal class OrderFilterTest : FunSpec({
 
@@ -130,16 +128,22 @@ internal class OrderFilterTest : FunSpec({
         OrderFilter.ByMakeValue(
             OrderFilter.ByMakeValue.Comparator.LTE,
             BigDecimal.TEN
-        ).shouldMakeCriteria(
-            Order::make / FlowAsset::value lte BigDecimal.TEN
+        ).criteria().criteriaObject shouldBe Document.parse(
+            """
+                {"make.value": {${'$'}lte: NumberDecimal(10)}}
+            """.trimIndent()
         )
 
         OrderFilter.ByMakeValue(
             OrderFilter.ByMakeValue.Comparator.GT,
             BigDecimal.TEN
-        ).shouldMakeCriteria(
-            Order::make / FlowAsset::value gt BigDecimal.TEN
+        ).criteria().criteriaObject shouldBe Document.parse(
+            """
+                {"make.value": {${'$'}gt: NumberDecimal(10)}}
+            """.trimIndent()
         )
+
+
     }
 
 
@@ -150,7 +154,7 @@ internal class OrderFilterTest : FunSpec({
         }
 
         infix fun OrderFilter.shouldMakeCriteria(criteria: Criteria) {
-            this.criteria() shouldBe criteria
+            this.criteria().criteriaObject shouldBe criteria.criteriaObject
         }
     }
 }

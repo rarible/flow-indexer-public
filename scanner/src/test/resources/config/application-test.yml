@@ -22,3 +22,8 @@ flow-api:
   flow-access-url: "access.devnet.nodes.onflow.org"
   flow-access-port: 9000
   chain-id: TESTNET
+
+logging:
+  level:
+    com.rarible.flow: DEBUG
+    org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG

@@ -6,15 +6,13 @@ import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventListener
 import com.rarible.blockchain.scanner.subscriber.ProcessedBlockEvent
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.BalanceHistory
-import com.rarible.flow.core.domain.FlowAssetFungible
-import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
-import com.rarible.flow.core.repository.*
+import com.rarible.flow.core.repository.BalanceRepository
+import com.rarible.flow.core.repository.coFindById
+import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.log.Log
 import com.rarible.flow.scanner.service.BidService
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.forEach
-import kotlinx.coroutines.reactive.awaitFirstOrDefault
+import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
 
 @Component
@@ -36,7 +34,7 @@ class FungibleLogListener(
             }
     }
 
-    private suspend fun processBalance(history: BalanceHistory) {
+    suspend fun processBalance(history: BalanceHistory) {
         val balance = balanceRepository
             .coFindById(history.balanceId)
 
@@ -49,13 +47,20 @@ class FungibleLogListener(
                 )
             )
 
-            val updatedBids = if (history.change.signum() == -1) {
-                bidService.deactivateBidsByBalance(updatedBalance)
+            val (action, updatedBids) = if (history.change.signum() == -1) {
+                "Deactivated" to bidService.deactivateBidsByBalance(updatedBalance).toList()
             } else {
-                bidService.activateBidsByBalance(updatedBalance)
+                "Activated" to bidService.activateBidsByBalance(updatedBalance).toList()
             }
 
-            updatedBids.collect { o ->
+            logger.info(
+                "{} bids [{}] by balance {} of address {}",
+                action,
+                updatedBids.map { it.id },
+                updatedBalance.balance,
+                updatedBalance.account.formatted
+            )
+            updatedBids.forEach { o ->
                 protocolEventPublisher.onOrderUpdate(o, orderConverter)
             }
         }
