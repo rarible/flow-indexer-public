@@ -4,6 +4,7 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
+import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
@@ -13,6 +14,8 @@ import com.rarible.protocol.currency.dto.BlockchainDto
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
@@ -23,9 +26,10 @@ import java.time.ZoneOffset
 @Service
 class OrderService(
     private val orderRepository: OrderRepository,
+    private val itemHistoryRepository: ItemHistoryRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
     private val orderConverter: OrderToDtoConverter,
-    private val currencyApi: CurrencyControllerApi
+    private val currencyApi: CurrencyControllerApi,
 ) {
     val logger by Log()
 
@@ -227,6 +231,31 @@ class OrderService(
         return orderRepository.coSave(order)
     }
 
+    suspend fun enrichCancelList(orderId: String) {
+        val h = itemHistoryRepository
+            .findOrderActivity("CANCEL_LIST", orderId).awaitFirstOrNull()
+            ?: return
+
+        val openActivity = itemHistoryRepository
+            .findOrderActivity("LIST", orderId).awaitFirstOrNull()
+            ?.let { it.activity as? FlowNftOrderActivityList }
+            ?: return
+
+        val closeActivity = h.activity as? FlowNftOrderActivityCancelList
+            ?: return
+
+        val newActivity = closeActivity.copy(
+            price = openActivity.price,
+            priceUsd = openActivity.priceUsd,
+            tokenId = openActivity.tokenId,
+            contract = openActivity.contract,
+            maker = openActivity.maker,
+            make = openActivity.make,
+            take = openActivity.take,
+        )
+        itemHistoryRepository.save(h.copy(activity = newActivity)).awaitSingle()
+    }
+
     suspend fun cancelBid(activity: FlowNftOrderActivityCancelBid, item: Item?): Order {
         val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
             cancelled = true,
@@ -256,6 +285,31 @@ class OrderService(
         )
 
         return orderRepository.coSave(order)
+    }
+
+    suspend fun enrichCancelBid(orderId: String) {
+        val h = itemHistoryRepository
+            .findOrderActivity("CANCEL_BID", orderId).awaitFirstOrNull()
+            ?: return
+
+        val openActivity = itemHistoryRepository
+            .findOrderActivity("BID", orderId).awaitFirstOrNull()
+            ?.let { it.activity as? FlowNftOrderActivityBid }
+            ?: return
+
+        val closeActivity = h.activity as? FlowNftOrderActivityCancelBid
+            ?: return
+
+        val newActivity = closeActivity.copy(
+            price = openActivity.price,
+            priceUsd = openActivity.priceUsd,
+            tokenId = openActivity.tokenId,
+            contract = openActivity.contract,
+            maker = openActivity.maker,
+            make = openActivity.make,
+            take = openActivity.take,
+        )
+        itemHistoryRepository.save(h.copy(activity = newActivity)).awaitSingle()
     }
 
     suspend fun deactivateOrdersByOwnership(ownership: Ownership, before: Instant, needSendToKafka: Boolean): List<Order> = orderRepository

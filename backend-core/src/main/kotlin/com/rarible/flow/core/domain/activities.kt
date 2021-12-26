@@ -93,7 +93,14 @@ data class FlowNftOrderActivityList(
 data class FlowNftOrderActivityCancelList(
     override val type: FlowActivityType = FlowActivityType.CANCEL_LIST,
     override val timestamp: Instant,
-    val hash: String
+    val hash: String,
+    val price: BigDecimal? = null,
+    val priceUsd: BigDecimal? = null,
+    val tokenId: TokenId? = null,
+    val contract: String? = null,
+    val maker: String? = null,
+    val make: FlowAsset? = null,
+    val take: FlowAsset? = null,
 ) : BaseActivity()
 
 data class FlowNftOrderActivityBid(
@@ -113,6 +120,13 @@ data class FlowNftOrderActivityCancelBid(
     override val type: FlowActivityType = FlowActivityType.CANCEL_BID,
     override val timestamp: Instant,
     val hash: String,
+    val price: BigDecimal? = null,
+    val priceUsd: BigDecimal? = null,
+    val tokenId: TokenId? = null,
+    val contract: String? = null,
+    val maker: String? = null,
+    val make: FlowAsset? = null,
+    val take: FlowAsset? = null,
 ): BaseActivity()
 
 

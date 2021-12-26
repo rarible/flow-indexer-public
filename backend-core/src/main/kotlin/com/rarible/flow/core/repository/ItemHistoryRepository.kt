@@ -13,8 +13,10 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.gte
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.mongodb.core.query.lte
+import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import org.springframework.stereotype.Repository
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
 import java.time.Instant
@@ -29,6 +31,11 @@ interface ItemHistoryRepository:
 
         @Suppress("FunctionName")
         fun existsByLog_TransactionHashAndLog_EventIndex(txHash: String, eventIndex: Int): Mono<Boolean>
+
+        @Query("""
+            {"activity.type": ?0, "activity.hash": ?1}
+        """)
+        fun findOrderActivity(type: String, hash: String): Flux<ItemHistory>
     }
 
 interface ItemHistoryRepositoryCustom {
