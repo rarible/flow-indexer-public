@@ -5,6 +5,7 @@ import MotoGPCard from 0xMOTOGPTOKEN
 import TopShot from 0xTOPSHOTTOKEN
 import MugenNFT from 0xMUGENNFT
 import CNN_NFT from 0xCNNNFT
+import MatrixWorldVoucher from 0xMATRIXWORLD
 
 pub fun idsRaribleNFT(_ account: PublicAccount): [UInt64] {
     return account.getCapability(RaribleNFT.collectionPublicPath)
@@ -42,6 +43,12 @@ pub fun idsCnnNFT(_ account: PublicAccount): [UInt64] {
         ?.getIDs() ?? []
 }
 
+pub fun idsMatrixWorld(_ account: PublicAccount): [UInt64] {
+    return account.getCapability(MatrixWorldVoucher.CollectionPublicPath)
+        .borrow<&{NonFungibleToken.CollectionPublic}>()
+        ?.getIDs() ?? []
+}
+
 pub fun main(address: Address): {String: [UInt64]} {
     let account = getAccount(address)
     let results : {String: [UInt64]} = {}
@@ -52,6 +59,7 @@ pub fun main(address: Address): {String: [UInt64]} {
     results["TopShot"] = idsTopShot(account)
     results["MugenNFT"] = idsMugenNFT(account)
     results["CNN_NFT"] = idsCnnNFT(account)
+    results["MatrixWorld"] = idsMatrixWorld(account)
 
     return results
 }

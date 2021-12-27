@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.OptionalField
 import com.nftco.flow.sdk.cadence.StringField
+import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
@@ -96,20 +97,7 @@ class CnnNFTMetaProvider(
         val cnnNFT = fetchNft(item) ?: return defaultValue(item)
         val ipfsHash = fetchIpfsHash(cnnNFT) ?: return defaultValue(item)
         val ipfsMeta = readIpfs(ipfsHash)
-
-        return ItemMeta(
-            itemId = item.id,
-            name = ipfsMeta.name,
-            description = ipfsMeta.description,
-            contentUrls = listOfNotNull(
-                ipfsMeta.image,
-                ipfsMeta.preview,
-                ipfsMeta.externalUrl
-            ),
-            attributes = ipfsMeta.getAttributes()
-        ).apply {
-            raw = ipfsMeta.toString().toByteArray(charset = Charsets.UTF_8)
-        }
+        return ipfsMeta.toItemMeta(item.id)
     }
 }
 
@@ -140,8 +128,25 @@ data class CnnNFTMetaBody(
 
     @get:JsonProperty("max_editions")
     val maxEditions: Int
-) {
-    fun getAttributes(): List<ItemMetaAttribute> {
+): MetaBody {
+
+    override fun toItemMeta(itemId: ItemId): ItemMeta {
+        return ItemMeta(
+            itemId = itemId,
+            name = name,
+            description = description,
+            contentUrls = listOfNotNull(
+                image,
+                preview,
+                externalUrl
+            ),
+            attributes = getAttributes()
+        ).apply {
+            raw = toString().toByteArray(charset = Charsets.UTF_8)
+        }
+    }
+
+    private fun getAttributes(): List<ItemMetaAttribute> {
         return listOf(
             ItemMetaAttribute(
                 key = "seriesName",
