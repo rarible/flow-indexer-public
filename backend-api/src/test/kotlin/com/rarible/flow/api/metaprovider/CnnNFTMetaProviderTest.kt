@@ -29,6 +29,10 @@ internal class CnnNFTMetaProviderTest : FunSpec({
         every {
             inputStream
         } returns ByteArrayInputStream(script.toByteArray())
+
+        every {
+            filename
+        } returns "CnnNFTMetaProviderTest.cdc"
     }
 
     test("shoud read metadata for existing item") {

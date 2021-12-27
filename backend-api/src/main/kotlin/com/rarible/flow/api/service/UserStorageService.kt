@@ -48,7 +48,7 @@ class UserStorageService(
             }
         )
 
-        log.info("$data")
+        log.info("User {} NFTs: {}", address.formatted, data)
         val objectMapper = ObjectMapper()
 
         data.forEach { (collection, itemIds) ->
@@ -84,11 +84,11 @@ class UserStorageService(
                             {
                                 arg { address(address.bytes) }
                                 arg { uint64(tokenId) }
-                            }) {
-                            dictionaryMap(it) { k, v ->
-                                string(k) to long(v)
-                            }
-                        }
+                            }, {
+                                dictionaryMap(it) { k, v ->
+                                    string(k) to long(v)
+                                }
+                            })
                         Item(
                             contract = contract,
                             tokenId = tokenId,
