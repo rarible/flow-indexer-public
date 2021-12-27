@@ -30,18 +30,16 @@ class MotoGPItemMetaProvider(
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
         val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
-        val resp = scriptExecutor.execute(
-            code = scriptText,
-            args = mutableListOf(
-                builder.address(item.owner!!.formatted),
-                builder.uint64(itemId.tokenId)
-            )
-        )
+        val resp = scriptExecutor.executeText(scriptText) {
+            arg { address(item.owner!!.formatted) }
+            arg { uint64(itemId.tokenId) }
+        }
 
         val (nft, meta) = JsonCadenceParser().array(resp.jsonCadence) {
-            Pair(optional(it.value!!.first()) {
-                unmarshall<MotoGPNFT>(it)
-            }!!,
+            Pair(
+                optional(it.value!!.first()) {
+                    unmarshall<MotoGPNFT>(it)
+                }!!,
                 optional(it.value!!.last()) {
                     unmarshall<MotoGPMeta>(it)
                 }!!

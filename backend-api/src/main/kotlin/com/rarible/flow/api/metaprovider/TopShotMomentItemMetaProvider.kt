@@ -2,7 +2,6 @@ package com.rarible.flow.api.metaprovider
 
 import com.jayway.jsonpath.TypeRef
 import com.netflix.graphql.dgs.client.MonoGraphQLClient
-import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.ItemId
@@ -64,14 +63,10 @@ class TopShotMomentItemMetaProvider(
         val metaMap = JacksonJsonParser().parseMap(item.meta)
         val playID = metaMap["playID"].toString()
         val setID = metaMap["setID"].toString()
-        val jsonCadenceBuilder = JsonCadenceBuilder()
-        val playData = scriptExecutor.execute(
-            code = scriptText,
-            args = mutableListOf(
-                jsonCadenceBuilder.uint32(playID),
-                jsonCadenceBuilder.uint32(setID),
-            )
-        )
+        val playData = scriptExecutor.executeText(scriptText) {
+                arg { uint32(playID) }
+                arg { uint32(setID) }
+        }
 
 
         val playMap = JsonCadenceParser().dictionaryMap(playData.jsonCadence) { k, v ->

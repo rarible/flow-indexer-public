@@ -3,8 +3,6 @@ package com.rarible.flow.api.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
-import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.api.metaprovider.CnnNFTConverter
 import com.rarible.flow.api.metaprovider.RaribleNFT
 import com.rarible.flow.core.config.AppProperties
@@ -12,7 +10,6 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.Part
-import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
@@ -39,23 +36,24 @@ class UserStorageService(
 
     suspend fun scanNFT(address: FlowAddress) {
         log.info("Scan user NFT's for address ${address.formatted}")
-        val builder = JsonCadenceBuilder()
-        val response =
-            scriptExecutor.execute(scriptText("/script/all_nft_ids.cdc"), mutableListOf(builder.address(address.bytes)))
-        log.info(response.stringValue)
-
-        val parser = JsonCadenceParser()
-        val data = parser.dictionaryMap(response.jsonCadence) { k, v ->
-            string(k) to arrayValues(v) {
-                long(it)
+        val data = scriptExecutor.executeFile("/script/all_nft_ids.cdc", {
+            arg { address(address.bytes) }
+        },
+            {
+                dictionaryMap(it) { k, v ->
+                    string(k) to arrayValues(v) { field ->
+                        long(field)
+                    }
+                }
             }
-        }
+        )
+
         log.info("$data")
         val objectMapper = ObjectMapper()
 
         data.forEach { (collection, itemIds) ->
             try {
-                processItems(collection, itemIds, objectMapper, builder, parser, address).forEach { item ->
+                processItems(collection, itemIds, objectMapper, address).forEach { item ->
                     saveItem(item)
                 }
             } catch (e: Exception) {
@@ -65,12 +63,11 @@ class UserStorageService(
         log.info("Scan NFT's for address [${address.formatted}] complete!")
     }
 
+
     private suspend fun processItems(
         collection: String,
         itemIds: List<Long>,
         objectMapper: ObjectMapper,
-        builder: JsonCadenceBuilder,
-        parser: JsonCadenceParser,
         address: FlowAddress
     ): List<Item?> {
         return when (collection) {
@@ -81,13 +78,16 @@ class UserStorageService(
                 ).toIterable().associateBy { it.tokenId }
                 itemIds.map { tokenId ->
                     val item = items[tokenId]
-                    if(item == null) {
-                        val res = scriptExecutor.execute(
-                            scriptText("/script/get_topshot_moment.cdc"),
-                            mutableListOf(builder.address(address.bytes), builder.uint64(tokenId))
-                        )
-                        val momentData = parser.dictionaryMap(res.jsonCadence) { k, v ->
-                            string(k) to long(v)
+                    if (item == null) {
+                        val momentData = scriptExecutor.executeFile(
+                            "/script/get_topshot_moment.cdc",
+                            {
+                                arg { address(address.bytes) }
+                                arg { uint64(tokenId) }
+                            }) {
+                            dictionaryMap(it) { k, v ->
+                                string(k) to long(v)
+                            }
                         }
                         Item(
                             contract = contract,
@@ -126,7 +126,7 @@ class UserStorageService(
                 ).toIterable().associateBy { it.tokenId }
                 itemIds.map { tokenId ->
                     val item = items[tokenId]
-                    if(item == null) {
+                    if (item == null) {
                         Item(
                             contract = contract,
                             tokenId = tokenId,
@@ -156,13 +156,17 @@ class UserStorageService(
                 itemIds.map { tokenId ->
                     val item = items[tokenId]
                     if (item == null) {
-                        val res = scriptExecutor.execute(
-                            scriptText("/script/get_evolution_nft.cdc"),
-                            mutableListOf(builder.address(address.bytes), builder.uint64(tokenId))
+                        val initialMeta = scriptExecutor.executeFile(
+                            "/script/get_evolution_nft.cdc",
+                            {
+                                arg { address(address.bytes) }
+                                arg { uint64(tokenId) }
+                            }, {
+                                dictionaryMap(it) { k, v ->
+                                    string(k) to int(v)
+                                }
+                            }
                         )
-                        val initialMeta = parser.dictionaryMap(res.jsonCadence) { k, v ->
-                            string(k) to int(v)
-                        }
                         Item(
                             contract = contract,
                             tokenId = tokenId,
@@ -192,16 +196,17 @@ class UserStorageService(
                 itemIds.map { tokenId ->
                     val item = items[tokenId]
                     if (item == null) {
-                        val res = scriptExecutor.execute(
-                            scriptText("/script/get_rarible_nft.cdc"), mutableListOf(
-                                builder.address(address.bytes),
-                                builder.uint64(tokenId)
-                            )
+                        val token = scriptExecutor.executeFile(
+                            "/script/get_rarible_nft.cdc",
+                            {
+                                arg { address(address.bytes) }
+                                arg { uint64(tokenId) }
+                            }, {
+                                optional(it) { json ->
+                                    unmarshall<RaribleNFT>(json)
+                                }!!
+                            }
                         )
-
-                        val token = parser.optional(res.jsonCadence) {
-                            unmarshall<RaribleNFT>(it)
-                        }!!
                         Item(
                             contract = contract,
                             tokenId = tokenId,
@@ -320,12 +325,12 @@ class UserStorageService(
                     val item = items[tokenId]
                     if (item == null) {
                         val tokenData = CnnNFTConverter.convert(
-                            scriptExecutor.execute(
-                                scriptText("/script/get_cnn_nft.cdc"), mutableListOf(
-                                    builder.address(address.bytes),
-                                    builder.uint64(tokenId)
-                                )
-                            )
+                            scriptExecutor.executeText(
+                                scriptText("/script/get_cnn_nft.cdc")
+                            ) {
+                                arg { address(address.bytes) }
+                                arg { uint64(tokenId) }
+                            }
                         )
 
                         Item(
@@ -363,15 +368,6 @@ class UserStorageService(
     private fun contract(tokenAlias: String, contractName: String): String {
         val address = Flow.DEFAULT_ADDRESS_REGISTRY.addressOf(tokenAlias, appProperties.chainId)!!
         return "A.${address.base16Value}.$contractName"
-    }
-
-    private suspend fun notExistsItem(contract: String, tokenId: TokenId): Boolean {
-        return !itemRepository.existsById(
-            ItemId(
-                contract = contract,
-                tokenId = tokenId
-            )
-        ).awaitSingle()
     }
 
     private suspend fun saveItem(item: Item?) {

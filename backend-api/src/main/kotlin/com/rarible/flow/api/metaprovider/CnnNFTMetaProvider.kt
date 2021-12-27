@@ -2,7 +2,6 @@ package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.OptionalField
 import com.nftco.flow.sdk.cadence.StringField
 import com.rarible.flow.api.metaprovider.body.MetaBody
@@ -33,13 +32,6 @@ class CnnNFTMetaProvider(
     private val metaScript: Resource,
 ) : ItemMetaProvider {
 
-    private val metaScriptText = metaScript.inputStream.bufferedReader().use { it.readText() }
-    private val cnnNftScriptText = cnnNftScript.inputStream.bufferedReader().use { it.readText() }
-
-    private val cadenceBuilder = JsonCadenceBuilder()
-
-    private val logger by Log()
-
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("CNN_NFT")
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
@@ -54,29 +46,30 @@ class CnnNFTMetaProvider(
     }
 
     suspend fun fetchNft(item: Item): CnnNFT? {
-        return CnnNFTConverter.convert(
-            scriptExecutor.execute(
-                code = cnnNftScriptText,
-                args = mutableListOf(
-                    cadenceBuilder.address((item.owner ?: item.creator).formatted),
-                    cadenceBuilder.uint64(item.tokenId)
+        return scriptExecutor.executeFile(
+            cnnNftScript,
+            {
+                arg { address((item.owner ?: item.creator).formatted) }
+                arg { uint64(item.tokenId) }
+            }, {
+                CnnNFTConverter.convert(
+                    it as OptionalField
                 )
-            )
+            }
         )
+
     }
 
     suspend fun fetchIpfsHash(cnnNft: CnnNFT): String? {
-        val jsonCadence = scriptExecutor.execute(
-            code = metaScriptText,
-            args = mutableListOf(
-                cadenceBuilder.uint32(cnnNft.setId),
-                cadenceBuilder.uint32(cnnNft.editionNum)
-            )
-        ).jsonCadence as OptionalField
-
-        return if (jsonCadence.value == null) {
-            null
-        } else (jsonCadence.value as StringField).value!!
+        return scriptExecutor.executeFile(metaScript, {
+            arg { uint32(cnnNft.setId) }
+            arg { uint32(cnnNft.editionNum) }
+        }, { json ->
+            json as OptionalField
+            if (json.value == null) {
+                null
+            } else (json.value as StringField).value!!
+        })
     }
 
     suspend fun readIpfs(ipfsHash: String): CnnNFTMetaBody {
@@ -128,7 +121,7 @@ data class CnnNFTMetaBody(
 
     @get:JsonProperty("max_editions")
     val maxEditions: Int
-): MetaBody {
+) : MetaBody {
 
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         return ItemMeta(

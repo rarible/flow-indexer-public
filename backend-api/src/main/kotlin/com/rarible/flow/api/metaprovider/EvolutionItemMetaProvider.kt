@@ -1,7 +1,6 @@
 package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.cadence.Field
-import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.ItemId
@@ -23,8 +22,6 @@ class EvolutionItemMetaProvider(
     private val scriptExecutor: ScriptExecutor
 ): ItemMetaProvider {
 
-    private val cadenceBuilder = JsonCadenceBuilder()
-
     private lateinit var scriptText: String
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("Evolution")
@@ -33,14 +30,11 @@ class EvolutionItemMetaProvider(
         val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
         if (item.meta.isNullOrEmpty()) return emptyMeta(itemId)
         val meta = JacksonJsonParser().parseMap(item.meta)
-        val resp = scriptExecutor.execute(
-            code = scriptText,
-            args = mutableListOf(
-                cadenceBuilder.uint32(meta["itemId"].toString()),
-                cadenceBuilder.uint32(meta["setId"].toString()),
-                cadenceBuilder.uint32(meta["serialNumber"].toString())
-            )
-        )
+        val resp = scriptExecutor.executeText(scriptText) {
+            arg {uint32(meta["itemId"].toString())}
+            arg {uint32(meta["setId"].toString())}
+            arg {uint32(meta["serialNumber"].toString())}
+        }
 
         val jsonCadenceParser = JsonCadenceParser()
         val data: Map<String, Field<*>> = jsonCadenceParser.optional(resp.jsonCadence) {
