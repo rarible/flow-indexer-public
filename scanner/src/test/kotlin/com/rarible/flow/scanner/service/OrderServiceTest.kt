@@ -3,6 +3,7 @@ package com.rarible.flow.scanner.service
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
+import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.scanner.Data
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
@@ -37,6 +38,11 @@ internal class OrderServiceTest: FunSpec({
 
     val orderConverter = mockk<OrderToDtoConverter>("orderConverter")
     val publisher = mockk<ProtocolEventPublisher>("publisher")
+    val itemHistoryRepository = mockk<ItemHistoryRepository>("itemHistoryRepository") {
+        every {
+            findOrderActivity(any(), any())
+        } returns Flux.empty()
+    }
 
 
     test("should list order") {
@@ -49,8 +55,8 @@ internal class OrderServiceTest: FunSpec({
                 save(any())
             } answers { Mono.just(arg(0)) }
         }
-        val service = OrderService(orderRepository, publisher, orderConverter, currencyApi)
-        val activiy = FlowNftOrderActivityList(
+        val service = OrderService(orderRepository, itemHistoryRepository, publisher, orderConverter, currencyApi)
+        val activity = FlowNftOrderActivityList(
             price = BigDecimal("13.37"),
             priceUsd = BigDecimal("26.74"),
             contract = "RaribleOrder",
@@ -62,7 +68,7 @@ internal class OrderServiceTest: FunSpec({
             take = FlowAssetFungible("Flow", BigDecimal("13.37")),
         )
 
-        service.openList(activiy, null) should { order ->
+        service.openList(activity, null) should { order ->
             order.itemId shouldBe ItemId("RaribleNFT", 13)
         }
 
@@ -72,12 +78,12 @@ internal class OrderServiceTest: FunSpec({
     }
 
     test("deactivateOrdersByItem - empty orders") {
-        val orderRepository = mockk<OrderRepository>() {
+        val orderRepository = mockk<OrderRepository> {
             every {
                 findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(any(), any(), any(), any())
             } returns Flux.empty()
         }
-        OrderService(orderRepository, publisher, orderConverter, currencyApi)
+        OrderService(orderRepository, itemHistoryRepository, publisher, orderConverter, currencyApi)
             .deactivateOrdersByItem(Data.createItem(), LocalDateTime.now())
             .count() shouldBe 0
 
@@ -87,7 +93,7 @@ internal class OrderServiceTest: FunSpec({
     }
 
     test("deactivateOrdersByItem - some orders") {
-        val orderRepository = mockk<OrderRepository>() {
+        val orderRepository = mockk<OrderRepository> {
             every {
                 findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
                     any(), any(), eq(OrderStatus.ACTIVE), any()
@@ -101,7 +107,7 @@ internal class OrderServiceTest: FunSpec({
             every { save(any()) } answers { Mono.just(arg(0)) }
         }
 
-        OrderService(orderRepository, publisher, orderConverter, currencyApi)
+        OrderService(orderRepository, itemHistoryRepository, publisher, orderConverter, currencyApi)
             .deactivateOrdersByItem(Data.createItem(), LocalDateTime.now())
             .count() shouldBe 1
 
@@ -123,7 +129,7 @@ internal class OrderServiceTest: FunSpec({
             every { save(any()) } answers { Mono.just(arg(0)) }
         }
 
-        OrderService(orderRepository, publisher, orderConverter, currencyApi)
+        OrderService(orderRepository, itemHistoryRepository, publisher, orderConverter, currencyApi)
             .updateOrdersPrices()
 
         verifySequence {
