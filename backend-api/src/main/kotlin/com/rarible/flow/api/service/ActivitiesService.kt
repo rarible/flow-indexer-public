@@ -10,7 +10,6 @@ import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.data.domain.Sort
@@ -24,7 +23,7 @@ import java.time.Instant
 @FlowPreview
 @Service
 class ActivitiesService(
-    private val mongoTemplate: ReactiveMongoTemplate
+    private val mongoTemplate: ReactiveMongoTemplate,
 ) {
 
     companion object {
@@ -58,7 +57,8 @@ class ActivitiesService(
                     .and("activity.maker").`in`(u)
             },
             FlowActivityType.MAKE_BID to { u: List<String> ->
-                Criteria.where("activity.type").`in`(listOf(FlowActivityType.BID.name, FlowActivityType.CANCEL_BID.name))
+                Criteria.where("activity.type")
+                    .`in`(listOf(FlowActivityType.BID.name, FlowActivityType.CANCEL_BID.name))
                     .and("activity.maker").`in`(u)
             },
             FlowActivityType.GET_BID to { u: List<String> ->
@@ -115,7 +115,7 @@ class ActivitiesService(
 
         val criteria = Criteria()
             .orOperator(*arrayOfCriteria)
-//            .andDates(from, to)
+            .andDates(from, to)
 
         return getActivities(criteria, continuation, size, sort)
     }
@@ -160,7 +160,7 @@ class ActivitiesService(
         val query = defaultQuery(size).with(defaultSort(sort)).addCriteria(criteria)
         val items = mongoTemplate
             .find(query, ItemHistory::class.java).asFlow()
-            .mapNotNull { ItemHistoryToDtoConverter.convert(it) } // TODO drop not null after fix converter
+            .map { ItemHistoryToDtoConverter.convert(it)!! }
             .toList()
         val limit = ScrollingSort.Companion.pageSize(size)
         val outCont = (if (items.size > limit) answerContinuation(items) else null)?.toString()
@@ -172,11 +172,13 @@ class ActivitiesService(
         )
     }
 
-    private fun Criteria.andDates(from: Instant?, to: Instant?) =
-        listOf(from to and("date")::gte, to to and("date")::lte)
-            .fold(this) { a, (value, block) ->
-                if (value != null) a.let(block) else a
-            }
+    private fun Criteria.andDates(from: Instant?, to: Instant?) = apply {
+        val c = listOfNotNull(
+            from?.let { Criteria.where("date").gte(it) },
+            to?.let { Criteria.where("date").gte(it) }
+        )
+        if (c.isNotEmpty()) andOperator(*c.toTypedArray())
+    }
 
     private fun addContinuation(cont: ActivityContinuation?, criteria: Criteria, sort: String) {
         if (cont != null) {

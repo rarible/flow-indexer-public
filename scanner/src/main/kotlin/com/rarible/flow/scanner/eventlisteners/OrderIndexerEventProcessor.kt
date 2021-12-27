@@ -5,11 +5,8 @@ import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
-import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.OrderService
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Component
 
 @Component
@@ -47,6 +44,7 @@ class OrderIndexerEventProcessor(
             type = "event",
             labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")
         ) {
+            orderService.enrichCancelList(activity.hash)
             val o = orderService.openList(activity, event.item)
             sendUpdate(event, o)
         }
@@ -76,8 +74,8 @@ class OrderIndexerEventProcessor(
     private suspend fun orderCancelled(event: IndexerEvent) {
         val activity = event.history.activity as FlowNftOrderActivityCancelList
         withSpan("cancelOrderEvent", type = "event", labels = listOf("hash" to activity.hash)) {
+            orderService.enrichCancelList(activity.hash)
             val o = orderService.cancel(activity, event.item)
-
             sendUpdate(event, o)
         }
     }
@@ -85,6 +83,7 @@ class OrderIndexerEventProcessor(
     private suspend fun bid(event: IndexerEvent) {
         val activity = event.history.activity as FlowNftOrderActivityBid
         withSpan("openBidEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
+            orderService.enrichCancelBid(activity.hash)
             val o = orderService.openBid(activity, event.item)
             sendUpdate(event, o)
         }
@@ -101,6 +100,7 @@ class OrderIndexerEventProcessor(
     private suspend fun cancelBid(event: IndexerEvent) {
         val activity = event.history.activity as FlowNftOrderActivityCancelBid
         withSpan("cancelBidEvent", type = "event", labels = listOf("hash" to activity.hash)) {
+            orderService.enrichCancelBid(activity.hash)
             val o = orderService.cancelBid(activity, event.item)
             sendUpdate(event, o)
         }

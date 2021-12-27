@@ -10,7 +10,9 @@ import java.math.BigInteger
 
 object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
 
-    val logger by Log()
+    private val logger by Log()
+    private val emptyNftAsset = FlowAssetNFTDto("todo", BigDecimal.ONE, BigInteger.ZERO)
+    private val emptyFtAsset = FlowAssetFungibleDto("todo", BigDecimal.ZERO)
 
     private fun convertAsset(asset: FlowAsset) = when (asset) {
         is FlowAssetNFT -> FlowAssetNFTDto(
@@ -115,31 +117,31 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 id = source.id,
                 date = source.date,
                 hash = source.activity.hash,
-                maker = "maker", //source.activity.maker,
-                make = FlowAssetNFTDto("todo", BigDecimal.ONE, BigInteger.ZERO), // convertAsset(source.activity.make),
-                take = FlowAssetFungibleDto("todo", BigDecimal.ZERO), // convertAsset(source.activity.take),
-                price = BigDecimal.ZERO, // source.activity.price,
+                maker = source.activity.maker.orEmpty(),
+                make = source.activity.make?.let(::convertAsset) ?: emptyNftAsset,
+                take = source.activity.take?.let(::convertAsset) ?: emptyFtAsset,
+                price = source.activity.price ?: BigDecimal.ZERO,
                 transactionHash = source.log.transactionHash,
                 blockHash = source.log.blockHash,
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
             )
-            is FlowNftOrderActivityCancelBid -> FlowNftOrderActivityCancelBidDto(
-                id = source.id,
-                date = source.date,
-                hash = source.activity.hash,
-                maker = "maker", //source.activity.maker,
-                make = FlowAssetNFTDto("todo", BigDecimal.ONE, BigInteger.ZERO), // convertAsset(source.activity.make),
-                take = FlowAssetFungibleDto("todo", BigDecimal.ZERO), // convertAsset(source.activity.take),
-                price = BigDecimal.ZERO, // source.activity.price,
-                transactionHash = source.log.transactionHash,
-                blockHash = source.log.blockHash,
-                blockNumber = source.log.blockHeight,
-                logIndex = source.log.eventIndex,
-            )
+            is FlowNftOrderActivityCancelBid -> {
+                FlowNftOrderActivityCancelBidDto(
+                    id = source.id,
+                    date = source.date,
+                    hash = source.activity.hash,
+                    maker = source.activity.maker.orEmpty(),
+                    make = source.activity.make?.let(::convertAsset) ?: emptyFtAsset,
+                    take = source.activity.take?.let(::convertAsset) ?: emptyNftAsset,
+                    price = source.activity.price ?: BigDecimal.ZERO,
+                    transactionHash = source.log.transactionHash,
+                    blockHash = source.log.blockHash,
+                    blockNumber = source.log.blockHeight,
+                    logIndex = source.log.eventIndex,
+                )
+            }
             else -> null
-//            is DepositActivity -> null
-//            is WithdrawnActivity -> null
         }
     }
 }
