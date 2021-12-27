@@ -1,6 +1,5 @@
 package com.rarible.flow.api.service
 
-import com.mongodb.client.model.Filters
 import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
 import com.rarible.flow.core.domain.FlowActivityType
 import com.rarible.flow.core.domain.ItemHistory
@@ -24,7 +23,7 @@ import java.time.Instant
 @FlowPreview
 @Service
 class ActivitiesService(
-    private val mongoTemplate: ReactiveMongoTemplate
+    private val mongoTemplate: ReactiveMongoTemplate,
 ) {
 
     companion object {
@@ -58,7 +57,8 @@ class ActivitiesService(
                     .and("activity.maker").`in`(u)
             },
             FlowActivityType.MAKE_BID to { u: List<String> ->
-                Criteria.where("activity.type").`in`(listOf(FlowActivityType.BID.name, FlowActivityType.CANCEL_BID.name))
+                Criteria.where("activity.type")
+                    .`in`(listOf(FlowActivityType.BID.name, FlowActivityType.CANCEL_BID.name))
                     .and("activity.maker").`in`(u)
             },
             FlowActivityType.GET_BID to { u: List<String> ->
