@@ -1,5 +1,6 @@
 package com.rarible.flow.core.domain
 
+import com.nftco.flow.sdk.FlowAddress
 import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.mapping.FieldType
 import java.math.BigDecimal
@@ -22,7 +23,7 @@ sealed class BaseActivity : TypedFlowActivity() {
     abstract val timestamp: Instant
 }
 
-sealed class NFTActivity: BaseActivity() {
+sealed class NFTActivity : BaseActivity() {
     abstract val contract: String
     abstract val tokenId: TokenId /* = kotlin.Long */
 
@@ -128,13 +129,13 @@ data class FlowNftOrderActivityBid(
     val maker: String,
     val make: FlowAsset,
     val take: FlowAsset,
-): FlowNftOrderActivity()
+) : FlowNftOrderActivity()
 
 data class FlowNftOrderActivityCancelBid(
     override val type: FlowActivityType = FlowActivityType.CANCEL_BID,
     override val timestamp: Instant,
     val hash: String,
-): BaseActivity()
+) : BaseActivity()
 
 
 data class FlowNftOrderPayment(
@@ -240,6 +241,14 @@ enum class FlowActivityType {
      * NFT deposit
      */
     DEPOSIT,
+
+    LOT_AVAILABLE,
+    LOT_COMPLETED,
+    LOT_END_TIME_CHANGED,
+    LOT_CLEANED,
+    OPEN_BID,
+    CLOSE_BID
+
 }
 
 sealed class FlowAsset {
@@ -270,16 +279,6 @@ data class OrderActivityMatchSide(
     val asset: FlowAsset,
 )
 
-data class FlowTokenWithdrawnActivity(
-    val from: String?,
-    val amount: BigDecimal,
-) : FlowActivity
-
-data class FlowTokenDepositedActivity(
-    val to: String?,
-    val amount: BigDecimal,
-) : FlowActivity
-
 @Deprecated(message = "should generate TransferActivities only")
 data class WithdrawnActivity(
     override val type: FlowActivityType = FlowActivityType.WITHDRAWN,
@@ -306,3 +305,67 @@ data class TransferActivity(
     val from: String,
     val to: String
 ) : NFTActivity()
+
+data class AuctionActivityLot(
+    override val type: FlowActivityType = FlowActivityType.LOT_AVAILABLE,
+    override val timestamp: Instant,
+    override val contract: String,
+    override val tokenId: TokenId,
+    val lotId: Long,
+    val currency: String,
+    val minStep: BigDecimal,
+    val startPrice: BigDecimal,
+    val buyoutPrice: BigDecimal?,
+    val startAt: Instant,
+    val duration: Long,
+    val finishAt: Instant?,
+    val seller: String
+) : NFTActivity()
+
+data class AuctionActivityLotCanceled(
+    override val type: FlowActivityType,
+    override val timestamp: Instant,
+    val lotId: Long
+) : BaseActivity()
+
+data class AuctionActivityLotHammered(
+    override val type: FlowActivityType = FlowActivityType.LOT_COMPLETED,
+    override val timestamp: Instant,
+    override val contract: String,
+    override val tokenId: TokenId,
+    val winner: FlowAddress,
+    val hammerPrice: BigDecimal,
+    val hammerPriceUsd: BigDecimal,
+    val lotId: Long,
+    val payments: List<Payout>,
+    val originFees: List<Payout>
+) : NFTActivity()
+
+data class AuctionActivityBidOpened(
+    override val type: FlowActivityType = FlowActivityType.OPEN_BID,
+    override val timestamp: Instant,
+    val lotId: Long,
+    val bidder: String,
+    val amount: BigDecimal
+) : BaseActivity()
+
+data class AuctionActivityBidClosed(
+    override val type: FlowActivityType = FlowActivityType.CLOSE_BID,
+    override val timestamp: Instant,
+    val lotId: Long,
+    val bidder: String,
+    val isWinner: Boolean
+) : BaseActivity()
+
+data class AuctionActivityLotEndTimeChanged(
+    override val type: FlowActivityType = FlowActivityType.LOT_END_TIME_CHANGED,
+    override val timestamp: Instant,
+    val lotId: Long,
+    val endTime: Long
+) : BaseActivity()
+
+data class AuctionActivityLotCleaned(
+    override val type: FlowActivityType = FlowActivityType.LOT_CLEANED,
+    override val timestamp: Instant,
+    val lotId: Long
+) : BaseActivity()

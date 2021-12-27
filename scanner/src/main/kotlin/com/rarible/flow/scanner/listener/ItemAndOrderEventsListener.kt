@@ -11,6 +11,7 @@ import com.rarible.flow.core.domain.NFTActivity
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.log.Log
+import com.rarible.flow.scanner.activitymaker.ActivityMaker
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.IndexerEventService
 import kotlinx.coroutines.flow.toList
