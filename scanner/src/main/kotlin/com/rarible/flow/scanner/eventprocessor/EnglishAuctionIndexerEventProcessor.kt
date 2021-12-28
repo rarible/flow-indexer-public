@@ -28,14 +28,18 @@ class EnglishAuctionIndexerEventProcessor(
             FlowActivityType.LOT_COMPLETED -> completeLot(event)
             FlowActivityType.LOT_END_TIME_CHANGED -> changeLotEndTime(event)
             FlowActivityType.LOT_CLEANED -> cleanLot(event)
+            FlowActivityType.LOT_CANCELED -> cancelLot(event)
             FlowActivityType.OPEN_BID -> openBid(event)
-            FlowActivityType.CLOSE_BID -> closeBid(event)
+            FlowActivityType.CLOSE_BID -> {/** do nothing */}
             else -> throw IllegalStateException("Unsupported activity type [${event.activityType()}]")
         }
     }
 
-    private fun closeBid(event: IndexerEvent) {
-
+    private suspend fun cancelLot(event: IndexerEvent) {
+        val activity = event.history.activity as AuctionActivityLotCanceled
+        withSpan("cancelLot") {
+            englishAuctionService.cancelLot(activity)
+        }
     }
 
     private suspend fun openBid(event: IndexerEvent) {

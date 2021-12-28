@@ -7,7 +7,6 @@ import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
-import java.time.Instant
 
 @Service
 class EnglishAuctionService(
@@ -27,8 +26,8 @@ class EnglishAuctionService(
             ),
             currency = activityLot.currency,
             createdAt = activityLot.timestamp,
-            startTime = activityLot.startAt,
-            endTime = activityLot.finishAt,
+            startAt = activityLot.startAt,
+            finishAt = activityLot.finishAt,
             startPrice = activityLot.startPrice,
             buyoutPrice = activityLot.buyoutPrice,
             minStep = activityLot.minStep,
@@ -45,8 +44,8 @@ class EnglishAuctionService(
             currency = activityLot.currency,
             createdAt = activityLot.timestamp,
             lastUpdatedAt = activityLot.timestamp,
-            startTime = activityLot.startAt,
-            endTime = activityLot.finishAt,
+            startAt = activityLot.startAt,
+            finishAt = activityLot.finishAt,
             startPrice = activityLot.startPrice,
             buyoutPrice = activityLot.buyoutPrice,
             minStep = activityLot.minStep,
@@ -95,7 +94,7 @@ class EnglishAuctionService(
 
         return repo.coSave(
             lot.copy(
-                endTime = Instant.ofEpochSecond(activity.endTime),
+                finishAt = activity.finishAt,
                 lastUpdatedAt = activity.timestamp
             )
         )
@@ -107,9 +106,18 @@ class EnglishAuctionService(
 
         return repo.coSave(
             lot.copy(
-                finalized = true,
+                cleaned = true,
                 lastUpdatedAt = activity.timestamp
             )
+        )
+    }
+
+    suspend fun cancelLot(activity: AuctionActivityLotCanceled): EnglishAuctionLot {
+        val lot = repo.coFindById(activity.lotId)
+            ?: throw IllegalStateException("English auction lot ${activity.lotId} not founded!")
+
+        return repo.coSave(
+            lot.copy(status = AuctionStatus.CANCELED, lastUpdatedAt = activity.timestamp)
         )
     }
 }

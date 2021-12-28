@@ -2,6 +2,7 @@ package com.rarible.flow.core.domain
 
 import com.nftco.flow.sdk.FlowAddress
 import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.mapping.FieldType
 import org.springframework.data.mongodb.core.mapping.MongoId
 import java.math.BigDecimal
@@ -19,13 +20,15 @@ sealed interface AuctionLot {
     val lastBid: Bid?
     val createdAt: Instant
     val lastUpdatedAt: Instant
-    val startTime: Instant?
-    val endTime: Instant?
+    val startAt: Instant?
+    val finishAt: Instant?
     val hammerPrice: BigDecimal?
 }
 
 @Document("auction")
 data class EnglishAuctionLot(
+    @MongoId(targetType = FieldType.INT64)
+    val id: Long,
     override val type: AuctionType = AuctionType.ENGLISH,
     override val status: AuctionStatus,
     override val seller: FlowAddress,
@@ -35,22 +38,27 @@ data class EnglishAuctionLot(
     override val lastBid: Bid? = null,
     override val createdAt: Instant,
     override val lastUpdatedAt: Instant,
-    override val startTime: Instant? = null,
-    override val endTime: Instant? = null,
+    override val startAt: Instant? = null,
+    override val finishAt: Instant? = null,
+    @Field(targetType = FieldType.DECIMAL128)
     override val startPrice: BigDecimal,
+    @Field(targetType = FieldType.DECIMAL128)
     override val minStep: BigDecimal,
+    @Field(targetType = FieldType.DECIMAL128)
     override val hammerPrice: BigDecimal? = null,
-    @MongoId(targetType = FieldType.INT64)
-    val id: Long,
     val payments: List<Payout> = emptyList(),
     val originFees: List<Payout> = emptyList(),
+    @Field(targetType = FieldType.DECIMAL128)
     val buyoutPrice: BigDecimal? = null,
+    @Field(targetType = FieldType.INT64)
     val duration: Long? = null,
-    val finalized: Boolean = false,
+    val cleaned: Boolean = false,
+    @Field(targetType = FieldType.DECIMAL128)
     val hammerPriceUsd: BigDecimal? = null
 ): AuctionLot
 
 data class Bid(
+    @Field(targetType = FieldType.DECIMAL128)
     val amount: BigDecimal,
     val address: FlowAddress,
     val bidAt: Instant

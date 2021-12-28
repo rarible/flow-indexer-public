@@ -244,6 +244,7 @@ enum class FlowActivityType {
 
     LOT_AVAILABLE,
     LOT_COMPLETED,
+    LOT_CANCELED,
     LOT_END_TIME_CHANGED,
     LOT_CLEANED,
     OPEN_BID,
@@ -323,7 +324,7 @@ data class AuctionActivityLot(
 ) : NFTActivity()
 
 data class AuctionActivityLotCanceled(
-    override val type: FlowActivityType,
+    override val type: FlowActivityType = FlowActivityType.LOT_CANCELED,
     override val timestamp: Instant,
     val lotId: Long
 ) : BaseActivity()
@@ -361,7 +362,7 @@ data class AuctionActivityLotEndTimeChanged(
     override val type: FlowActivityType = FlowActivityType.LOT_END_TIME_CHANGED,
     override val timestamp: Instant,
     val lotId: Long,
-    val endTime: Long
+    val finishAt: Instant
 ) : BaseActivity()
 
 data class AuctionActivityLotCleaned(
