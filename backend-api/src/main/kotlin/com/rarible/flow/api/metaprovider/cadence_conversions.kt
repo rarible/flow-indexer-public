@@ -2,7 +2,6 @@ package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.FlowScriptResponse
 import com.nftco.flow.sdk.cadence.CadenceNamespace
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion
@@ -113,14 +112,6 @@ class CnnNFTConverter : JsonCadenceConverter<CnnNFT> {
         }
 
     companion object {
-        fun convert(scriptResponse: FlowScriptResponse): CnnNFT? {
-            val json = scriptResponse.jsonCadence
-            return when (json) {
-                is OptionalField -> convert(json)
-                else -> Flow.unmarshall(CnnNFT::class, json)
-            }
-        }
-
         fun convert(jsonOptional: OptionalField): CnnNFT? {
             val value = jsonOptional.value
             return when (value) {

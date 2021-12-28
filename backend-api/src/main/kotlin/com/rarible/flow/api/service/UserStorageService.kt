@@ -3,6 +3,7 @@ package com.rarible.flow.api.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.cadence.OptionalField
 import com.rarible.flow.api.metaprovider.CnnNFTConverter
 import com.rarible.flow.api.metaprovider.RaribleNFT
 import com.rarible.flow.core.config.AppProperties
@@ -13,13 +14,14 @@ import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
+import com.rarible.flow.pflatMap
+import com.rarible.flow.pmap
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -36,11 +38,13 @@ class UserStorageService(
 
     suspend fun scanNFT(address: FlowAddress) {
         log.info("Scan user NFT's for address ${address.formatted}")
-        val data = scriptExecutor.executeFile("/script/all_nft_ids.cdc", {
-            arg { address(address.bytes) }
-        },
+        val data = scriptExecutor.executeFile(
+            "/script/all_nft_ids.cdc",
             {
-                dictionaryMap(it) { k, v ->
+                arg { address(address.bytes) }
+            },
+            { json ->
+                dictionaryMap(json) { k, v ->
                     string(k) to arrayValues(v) { field ->
                         long(field)
                     }
@@ -51,14 +55,15 @@ class UserStorageService(
         log.info("User {} NFTs: {}", address.formatted, data)
         val objectMapper = ObjectMapper()
 
-        data.forEach { (collection, itemIds) ->
+        data.pflatMap { (collection, itemIds) ->
             try {
-                processItems(collection, itemIds, objectMapper, address).forEach { item ->
-                    saveItem(item)
-                }
+                processItems(collection, itemIds, objectMapper, address)
             } catch (e: Exception) {
                 log.error("Failed to save [{}] ids: {}", collection, itemIds, e)
+                emptyList<Item>()
             }
+        }.forEach { item ->
+            saveItem(item)
         }
         log.info("Scan NFT's for address [${address.formatted}] complete!")
     }
@@ -76,7 +81,7 @@ class UserStorageService(
                 val items = itemRepository.findAllByIdIn(
                     itemIds.map { ItemId(contract, it) }.toSet()
                 ).toIterable().associateBy { it.tokenId }
-                itemIds.map { tokenId ->
+                itemIds.pmap { tokenId ->
                     val item = items[tokenId]
                     if (item == null) {
                         val momentData = scriptExecutor.executeFile(
@@ -84,8 +89,8 @@ class UserStorageService(
                             {
                                 arg { address(address.bytes) }
                                 arg { uint64(tokenId) }
-                            }, {
-                                dictionaryMap(it) { k, v ->
+                            }, { json ->
+                                dictionaryMap(json) { k, v ->
                                     string(k) to long(v)
                                 }
                             })
@@ -124,7 +129,7 @@ class UserStorageService(
                 val items = itemRepository.findAllByIdIn(
                     itemIds.map { ItemId(contract, it) }.toSet()
                 ).toIterable().associateBy { it.tokenId }
-                itemIds.map { tokenId ->
+                itemIds.pmap { tokenId ->
                     val item = items[tokenId]
                     if (item == null) {
                         Item(
@@ -153,7 +158,7 @@ class UserStorageService(
                 val items = itemRepository.findAllByIdIn(
                     itemIds.map { ItemId(contract, it) }.toSet()
                 ).toIterable().associateBy { it.tokenId }
-                itemIds.map { tokenId ->
+                itemIds.pmap { tokenId ->
                     val item = items[tokenId]
                     if (item == null) {
                         val initialMeta = scriptExecutor.executeFile(
@@ -193,7 +198,7 @@ class UserStorageService(
                 val items = itemRepository.findAllByIdIn(
                     itemIds.map { ItemId(contract, it) }.toSet()
                 ).toIterable().associateBy { it.tokenId }
-                itemIds.map { tokenId ->
+                itemIds.pmap { tokenId ->
                     val item = items[tokenId]
                     if (item == null) {
                         val token = scriptExecutor.executeFile(
@@ -233,7 +238,7 @@ class UserStorageService(
                 val items = itemRepository.findAllByIdIn(
                     itemIds.map { ItemId(contract, it) }.toSet()
                 ).toIterable().associateBy { it.tokenId }
-                itemIds.map { tokenId ->
+                itemIds.pmap { tokenId ->
                     val item = items[tokenId]
                     if (item == null) {
                         Item(
@@ -263,7 +268,7 @@ class UserStorageService(
                 val items = itemRepository.findAllByIdIn(
                     itemIds.map { ItemId(contract, it) }.toSet()
                 ).toIterable().associateBy { it.tokenId }
-                itemIds.map { tokenId ->
+                itemIds.pmap { tokenId ->
                     val item = items[tokenId]
                     if (item == null) {
                         Item(
@@ -321,17 +326,20 @@ class UserStorageService(
                 val items = itemRepository.findAllByIdIn(
                     itemIds.map { ItemId(contract, it) }.toSet()
                 ).toIterable().associateBy { it.tokenId }
-                itemIds.map { tokenId ->
+                itemIds.pmap { tokenId ->
                     val item = items[tokenId]
                     if (item == null) {
-                        val tokenData = CnnNFTConverter.convert(
-                            scriptExecutor.executeText(
-                                scriptText("/script/get_cnn_nft.cdc")
-                            ) {
-                                arg { address(address.bytes) }
-                                arg { uint64(tokenId) }
-                            }
-                        )
+                        val tokenData =
+                            scriptExecutor.executeFile(
+                                "/script/get_cnn_nft.cdc",
+                                {
+                                    arg { address(address.bytes) }
+                                    arg { uint64(tokenId) }
+                                },
+                                {
+                                    CnnNFTConverter.convert(it as OptionalField)
+                                }
+                            )
 
                         Item(
                             contract = contract,
@@ -385,10 +393,5 @@ class UserStorageService(
         val o = ownershipRepository.findById(item.ownershipId(to)).awaitSingleOrNull()
             ?: Ownership(item.ownershipId(to), item.creator)
         protocolEventPublisher.onUpdate(ownershipRepository.save(o).awaitSingle())
-    }
-
-    private fun scriptText(resourcePath: String): String {
-        val resource = ClassPathResource(resourcePath)
-        return resource.inputStream.bufferedReader().use { it.readText() }
     }
 }

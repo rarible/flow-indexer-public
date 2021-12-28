@@ -2,6 +2,7 @@ package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowScriptResponse
+import com.nftco.flow.sdk.cadence.OptionalField
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -13,7 +14,7 @@ internal class CnnNFTConverterTest: FunSpec({
         CnnNFTConverter.convert(
             FlowScriptResponse(
                 Flow.decodeJsonCadence(SCRIPT_RESPONSE)
-            )
+            ).jsonCadence as OptionalField
         ) shouldBe expected
     }
 
@@ -21,7 +22,7 @@ internal class CnnNFTConverterTest: FunSpec({
         CnnNFTConverter.convert(
             FlowScriptResponse(
                 Flow.decodeJsonCadence(SINGLE_OPTIONAL_WRAP)
-            )
+            ).jsonCadence as OptionalField
         ) shouldBe expected
     }
 
@@ -29,7 +30,7 @@ internal class CnnNFTConverterTest: FunSpec({
         CnnNFTConverter.convert(
             FlowScriptResponse(
                 Flow.decodeJsonCadence(SINGLE_OPTIONAL_WRAP)
-            )
+            ).jsonCadence as OptionalField
         ) shouldBe expected
     }
 
@@ -37,7 +38,7 @@ internal class CnnNFTConverterTest: FunSpec({
         CnnNFTConverter.convert(
             FlowScriptResponse(
                 Flow.decodeJsonCadence(NULL)
-            )
+            ).jsonCadence as OptionalField
         ) shouldBe null
     }
 }) {
