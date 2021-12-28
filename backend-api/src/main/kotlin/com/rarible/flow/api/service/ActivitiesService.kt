@@ -157,18 +157,21 @@ class ActivitiesService(
         sort: String,
     ): FlowActivitiesDto {
         addContinuation(ActivityContinuation.of(inCont), criteria, sort)
-        val query = defaultQuery(size).with(defaultSort(sort)).addCriteria(criteria)
+        val limit = ScrollingSort.Companion.pageSize(size)
+        val query = Query()
+            .addCriteria(criteria)
+            .limit(limit)
+            .with(defaultSort(sort))
         val items = mongoTemplate
             .find(query, ItemHistory::class.java).asFlow()
             .map { ItemHistoryToDtoConverter.convert(it)!! }
             .toList()
-        val limit = ScrollingSort.Companion.pageSize(size)
-        val outCont = (if (items.size > limit) answerContinuation(items) else null)?.toString()
+        val outCont = answerContinuation(items, limit)
 
         return FlowActivitiesDto(
             items = items,
             total = items.size,
-            continuation = outCont
+            continuation = outCont.toString()
         )
     }
 
@@ -193,16 +196,13 @@ class ActivitiesService(
     private fun defaultCriteria(types: Collection<FlowActivityType>) =
         Criteria.where("activity.type").`in`(types.map(FlowActivityType::name))
 
-    private fun defaultQuery(limit: Int?): Query = Query().limit(
-        ScrollingSort.Companion.pageSize(limit) * 3
-    )
-
     private fun defaultSort(sort: String): Sort = when (sort) {
         "EARLIEST_FIRST" -> Sort.by(Sort.Direction.ASC, "date", "log.transactionHash", "log.eventIndex")
         else -> Sort.by(Sort.Direction.DESC, "date", "log.transactionHash", "log.eventIndex")
     }
 
-    private fun answerContinuation(items: List<FlowActivityDto>): ActivityContinuation? =
-        if (items.isEmpty()) null else ActivityContinuation(beforeDate = items.last().date, beforeId = items.last().id)
+    private fun answerContinuation(items: List<FlowActivityDto>, limit: Int): ActivityContinuation? =
+        if (items.size < limit) null
+        else ActivityContinuation(beforeDate = items.last().date, beforeId = items.last().id)
 
 }

@@ -36,12 +36,7 @@ interface ScrollingSort<T> {
         const val DEFAULT_LIMIT = 50
         const val MAX_LIMIT = 1000
 
-        fun pageSize(incomingSize: Int?): Int {
-            return when {
-                incomingSize == null || incomingSize < 0 -> DEFAULT_LIMIT
-                incomingSize > MAX_LIMIT -> MAX_LIMIT
-                else -> incomingSize
-            }
-        }
+        fun pageSize(incomingSize: Int?): Int =
+            minOf(incomingSize?.takeIf { it > 0 } ?: DEFAULT_LIMIT, MAX_LIMIT)
     }
 }
