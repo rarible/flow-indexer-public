@@ -50,18 +50,6 @@ internal class ItemHistoryToDtoConverterTest: FunSpec({
         )
     }
 
-    test("should skip Deposit") {
-        convert(
-            createItemHistory(date, depositActivity(date))
-        ) shouldBe null
-    }
-
-    test("should skip Withdraw") {
-        convert(
-            createItemHistory(date, withdrawActivity(date))
-        ) shouldBe null
-    }
-
 })
 
 private fun createItemHistory(date: Instant, activity: BaseActivity): ItemHistory {
@@ -92,18 +80,4 @@ private fun burnActivity(date: Instant) = BurnActivity(
     contract = "Rarible",
     tokenId = 1337,
     timestamp = date
-)
-
-private fun depositActivity(date: Instant) = DepositActivity(
-    contract = "Rarible",
-    tokenId = 1337,
-    timestamp = date,
-    to = FlowAddress("0x42").formatted
-)
-
-private fun withdrawActivity(date: Instant) = WithdrawnActivity(
-    contract = "Rarible",
-    tokenId = 1337,
-    timestamp = date,
-    from = FlowAddress("0x42").formatted
 )

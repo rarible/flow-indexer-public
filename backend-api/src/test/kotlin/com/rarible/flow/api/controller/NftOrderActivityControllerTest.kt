@@ -95,7 +95,6 @@ class NftOrderActivityControllerTest {
         val contract = randomAddress()
 
         repo.saveAll(listOf(
-            randomItemHistory(date = date, activity = randomWithdraw().copy(tokenId = tokenId, from = expectedUser, contract = contract), log = randomLog().copy(transactionHash = hash)),
             randomItemHistory(date = date, activity = randomBurn().copy(tokenId = tokenId, owner = null, contract = contract), log = randomLog().copy(transactionHash = hash, eventIndex = 2)),
         )
         ).then().block()
@@ -159,18 +158,8 @@ class NftOrderActivityControllerTest {
                 flowLog1.copy(eventIndex = 0, eventType = "A.ebf4ae01d1284af8.RaribleNFT.Mint")
             ),
             ItemHistory(
-                date1,
-                DepositActivity(FlowActivityType.DEPOSIT, contract, tokenId, date1, acc1),
-                flowLog1.copy(eventIndex = 1, eventType = "A.ebf4ae01d1284af8.RaribleNFT.Deposit")
-            ),
-            ItemHistory(
                 date2,
-                WithdrawnActivity(FlowActivityType.WITHDRAWN, contract, tokenId, date2, acc1),
-                flowLog2.copy(eventIndex = 0, eventType = "A.ebf4ae01d1284af8.RaribleNFT.Withdraw")
-            ),
-            ItemHistory(
-                date2,
-                BurnActivity(FlowActivityType.BURN, contract, tokenId, 1, null, date2),
+                BurnActivity(FlowActivityType.BURN, contract, tokenId, 1, acc1, date2),
                 flowLog2.copy(eventIndex = 1, eventType = "A.ebf4ae01d1284af8.RaribleNFT.Destroy")
             ),
         )
@@ -213,45 +202,26 @@ class NftOrderActivityControllerTest {
                 ),
                 log = randomLog().copy(eventIndex = 1, transactionHash = "1")
             ),
-            ItemHistory(
-                date = date1,
-                activity = deposit(date1, contract, tokenId, account1),
-                log = randomLog().copy(eventIndex = 2, transactionHash = "1")
-            ),
             // transfer
             ItemHistory(
                 date = date2,
-                activity = randomWithdraw().copy(
+                activity = TransferActivity(
                     timestamp = date2,
                     contract = contract,
                     tokenId = tokenId,
                     from = account1,
+                    to = account2,
                 ),
                 log = randomLog().copy(eventIndex = 1, transactionHash = "2")
             ),
-            ItemHistory(
-                date = date2,
-                activity = deposit(date1, contract, tokenId, account2),
-                log = randomLog().copy(eventIndex = 2, transactionHash = "2")
-            ),
             // burn
-            ItemHistory(
-                date = date3,
-                activity = randomWithdraw().copy(
-                    timestamp = date2,
-                    contract = contract,
-                    tokenId = tokenId,
-                    from = account2,
-                ),
-                log = randomLog().copy(eventIndex = 1, transactionHash = "3")
-            ),
             ItemHistory(
                 date = date3,
                 activity = randomBurn().copy(
                     timestamp = date2,
                     contract = contract,
                     tokenId = tokenId,
-                    owner = null,
+                    owner = account2,
                 ),
                 log = randomLog().copy(eventIndex = 2, transactionHash = "3")
             ),
@@ -284,11 +254,6 @@ class NftOrderActivityControllerTest {
             listOf(
                 ItemHistory(
                     activity = randomMint(),
-                    log = randomLog(),
-                    date = Instant.now()
-                ),
-                ItemHistory(
-                    activity = randomWithdraw(),
                     log = randomLog(),
                     date = Instant.now()
                 ),
@@ -507,25 +472,6 @@ class NftOrderActivityControllerTest {
                 )
             ),
             ItemHistory(
-                ZonedDateTime.parse("2021-11-10T11:10:46.461Z").toInstant(),
-                DepositActivity(
-                    type = FlowActivityType.DEPOSIT,
-                    contract = contract,
-                    tokenId = tokenId,
-                    timestamp = ZonedDateTime.parse("2021-11-10T11:10:46.461Z").toInstant(),
-                    to = acc1,
-                ),
-                FlowLog(
-                    transactionHash = "5ee6a33e2b2a41e62eb5e585134231c9597a2212d14afc3de21a23d412292dc8",
-                    status = Log.Status.CONFIRMED,
-                    eventIndex = 1,
-                    eventType = "A.01ab36aaf654a13e.RaribleNFT.Deposit",
-                    timestamp = ZonedDateTime.parse("2021-11-10T11:10:46.461Z").toInstant(),
-                    blockHeight = 20231636L,
-                    blockHash = "ab5ec380bc5a4a64ea0af55a2f79ccbff8d1bdb5f86eeaad2709da258fb96e26"
-                )
-            ),
-            ItemHistory(
                 ZonedDateTime.parse("2021-11-10T11:11:36.543Z").toInstant(),
                 FlowNftOrderActivityList(
                     type = FlowActivityType.LIST,
@@ -568,37 +514,19 @@ class NftOrderActivityControllerTest {
             ),
             ItemHistory(
                 ZonedDateTime.parse("2021-11-10T11:13:29.236Z").toInstant(),
-                WithdrawnActivity(
-                    type = FlowActivityType.WITHDRAWN,
+                TransferActivity(
+                    type = FlowActivityType.TRANSFER,
                     contract = contract,
                     tokenId = tokenId,
                     timestamp = ZonedDateTime.parse("2021-11-10T11:13:29.236Z").toInstant(),
                     from = acc1,
+                    to = acc1,
                 ),
                 FlowLog(
                     transactionHash = "792410fde65b1b9b49d0b723fe6798ae2ab056535a1060f8a0e220e2acbd1e60",
                     status = Log.Status.CONFIRMED,
                     eventIndex = 0,
                     eventType = "A.01ab36aaf654a13e.RaribleNFT.Withdraw",
-                    timestamp = ZonedDateTime.parse("2021-11-10T11:13:29.236Z").toInstant(),
-                    blockHeight = 20231715L,
-                    blockHash = "d21b65206fb357d5d10fdb2c0a059400d3a36c77a4e54c436818937f011f74e7"
-                )
-            ),
-            ItemHistory(
-                ZonedDateTime.parse("2021-11-10T11:13:29.236Z").toInstant(),
-                DepositActivity(
-                    type = FlowActivityType.DEPOSIT,
-                    contract = contract,
-                    tokenId = tokenId,
-                    timestamp = ZonedDateTime.parse("2021-11-10T11:13:29.236Z").toInstant(),
-                    to = acc1,
-                ),
-                FlowLog(
-                    transactionHash = "792410fde65b1b9b49d0b723fe6798ae2ab056535a1060f8a0e220e2acbd1e60",
-                    status = Log.Status.CONFIRMED,
-                    eventIndex = 1,
-                    eventType = "A.01ab36aaf654a13e.RaribleNFT.Deposit",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:13:29.236Z").toInstant(),
                     blockHeight = 20231715L,
                     blockHash = "d21b65206fb357d5d10fdb2c0a059400d3a36c77a4e54c436818937f011f74e7"
@@ -729,28 +657,9 @@ class NftOrderActivityControllerTest {
             ),
             ItemHistory(
                 ZonedDateTime.parse("2021-11-10T11:40:14.676Z").toInstant(),
-                WithdrawnActivity(
-                    type = FlowActivityType.WITHDRAWN,
-                    contract = contract,
-                    tokenId = tokenId,
-                    timestamp = ZonedDateTime.parse("2021-11-10T11:40:14.676Z").toInstant(),
-                    from = acc1,
-                ),
-                FlowLog(
-                    transactionHash = "7640ec0cc8416e461740f4a7670eb7f4251bba3dad1129e867a49e12f932e18a",
-                    status = Log.Status.CONFIRMED,
-                    eventIndex = 0,
-                    eventType = "A.01ab36aaf654a13e.RaribleNFT.Withdraw",
-                    timestamp = ZonedDateTime.parse("2021-11-10T11:40:14.676Z").toInstant(),
-                    blockHeight = 20232450L,
-                    blockHash = "5048dbc3029ff9fcf780ee3c31d1646f7bdd7c1df79487e8253c12842e80bf8f"
-                )
-            ),
-            ItemHistory(
-                ZonedDateTime.parse("2021-11-10T11:40:14.676Z").toInstant(),
                 BurnActivity(
                     type = FlowActivityType.BURN,
-                    owner = null,
+                    owner = acc1,
                     contract = contract,
                     tokenId = tokenId,
                     value = 1,
@@ -807,21 +716,6 @@ class NftOrderActivityControllerTest {
         tokenId = randomLong(),
         value = 1,
     )
-
-    private fun randomWithdraw() = WithdrawnActivity(
-        type = FlowActivityType.WITHDRAWN,
-        timestamp = Instant.now(Clock.systemUTC()),
-        from = randomAddress(),
-        contract = randomAddress(),
-        tokenId = randomLong(),
-    )
-
-    private fun deposit(
-        timestamp: Instant,
-        contract: String = randomAddress(),
-        tokenId: Long = randomLong(),
-        to: String? = randomAddress(),
-    ) = DepositActivity(FlowActivityType.DEPOSIT, contract, tokenId, timestamp, to)
 
     private fun randomItemHistory(
         date: Instant = Instant.now(Clock.systemUTC()),
