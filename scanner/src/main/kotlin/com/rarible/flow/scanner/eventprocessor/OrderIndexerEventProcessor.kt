@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.eventlisteners
+package com.rarible.flow.scanner.eventprocessor
 
 import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.core.apm.withSpan
