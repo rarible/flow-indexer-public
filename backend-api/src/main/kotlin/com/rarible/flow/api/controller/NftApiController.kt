@@ -61,7 +61,7 @@ class NftApiController(
             val meta = nftItemMetaService.getMetaByItemId(itemId.itemId())
             ItemMetaToDtoConverter.convert(meta).okOr404IfNull()
         } catch (flowEx: FlowException) {
-            logger.error("Failed to get meta of [{}] from blockchain", flowEx)
+            logger.error("Failed to get meta of [{}] from blockchain", itemId, flowEx)
             ResponseEntity.notFound().build()
         }
     }
