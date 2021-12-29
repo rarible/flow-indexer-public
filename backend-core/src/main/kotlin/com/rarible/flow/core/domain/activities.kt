@@ -218,16 +218,6 @@ enum class FlowActivityType {
     TRANSFER,
     TRANSFER_FROM,
     TRANSFER_TO,
-
-    /**
-     * NFT withdrawn
-     */
-    WITHDRAWN,
-
-    /**
-     * NFT deposit
-     */
-    DEPOSIT,
 }
 
 sealed class FlowAsset {
@@ -267,24 +257,6 @@ data class FlowTokenDepositedActivity(
     val to: String?,
     val amount: BigDecimal,
 ) : FlowActivity
-
-@Deprecated(message = "should generate TransferActivities only")
-data class WithdrawnActivity(
-    override val type: FlowActivityType = FlowActivityType.WITHDRAWN,
-    override val contract: String,
-    override val tokenId: TokenId, /* = kotlin.Long */
-    override val timestamp: Instant,
-    val from: String?,
-) : NFTActivity()
-
-@Deprecated(message = "should generate TransferActivities only")
-data class DepositActivity(
-    override val type: FlowActivityType = FlowActivityType.DEPOSIT,
-    override val contract: String,
-    override val tokenId: TokenId, /* = kotlin.Long */
-    override val timestamp: Instant,
-    val to: String?,
-) : NFTActivity()
 
 data class TransferActivity(
     override val type: FlowActivityType = FlowActivityType.TRANSFER,
