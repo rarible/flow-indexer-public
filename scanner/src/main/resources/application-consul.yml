@@ -18,3 +18,8 @@ spring:
 
 scanner:
   kafka-replica-set: ${kafka.hosts}
+
+flow-api:
+  service-account:
+    address: ${service-account.address}
+    private-key: ${service-account.private-key}

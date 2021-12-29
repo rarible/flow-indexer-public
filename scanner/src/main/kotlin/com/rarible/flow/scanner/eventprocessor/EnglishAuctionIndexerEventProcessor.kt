@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class EnglishAuctionIndexerEventProcessor(
-    private val englishAuctionService: EnglishAuctionService
+    private val englishAuctionService: EnglishAuctionService,
 ) : IndexerEventsProcessor {
 
     private val supportedTypes = setOf(
@@ -16,8 +16,10 @@ class EnglishAuctionIndexerEventProcessor(
         FlowActivityType.LOT_COMPLETED,
         FlowActivityType.LOT_END_TIME_CHANGED,
         FlowActivityType.LOT_CLEANED,
+        FlowActivityType.LOT_CANCELED,
         FlowActivityType.OPEN_BID,
-        FlowActivityType.CLOSE_BID
+        FlowActivityType.CLOSE_BID,
+        FlowActivityType.INCREASE_BID
     )
 
     override fun isSupported(event: IndexerEvent): Boolean = event.activityType() in supportedTypes
@@ -31,7 +33,15 @@ class EnglishAuctionIndexerEventProcessor(
             FlowActivityType.LOT_CANCELED -> cancelLot(event)
             FlowActivityType.OPEN_BID -> openBid(event)
             FlowActivityType.CLOSE_BID -> {/** do nothing */}
+            FlowActivityType.INCREASE_BID -> increaseBid(event)
             else -> throw IllegalStateException("Unsupported activity type [${event.activityType()}]")
+        }
+    }
+
+    private suspend fun increaseBid(event: IndexerEvent) {
+        val activity = event.history.activity as AuctionActivityBidIncreased
+        withSpan("increaseBid") {
+            englishAuctionService.increaseBid(activity)
         }
     }
 

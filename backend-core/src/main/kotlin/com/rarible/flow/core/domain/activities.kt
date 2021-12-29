@@ -248,7 +248,8 @@ enum class FlowActivityType {
     LOT_END_TIME_CHANGED,
     LOT_CLEANED,
     OPEN_BID,
-    CLOSE_BID
+    CLOSE_BID,
+    INCREASE_BID
 
 }
 
@@ -370,3 +371,11 @@ data class AuctionActivityLotCleaned(
     override val timestamp: Instant,
     val lotId: Long
 ) : BaseActivity()
+
+data class AuctionActivityBidIncreased(
+    override val type: FlowActivityType = FlowActivityType.INCREASE_BID,
+    override val timestamp: Instant,
+    val lotId: Long,
+    val bidder: String,
+    val amount: BigDecimal
+): BaseActivity()

@@ -5,6 +5,7 @@ import com.nftco.flow.sdk.FlowId
 import com.nftco.flow.sdk.cadence.*
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.flow.core.domain.*
+import com.rarible.flow.events.EventId
 import com.rarible.flow.log.Log
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
@@ -35,7 +36,8 @@ class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
                     .associate { it.log to lotHammeredActivity(it) }
             val lotCleaned =
                 events.filter { it.type == FlowLogType.LOT_CLEANED }.associate { it.log to lotFinalizedActivity(it) }
-            return (lotOpened + bidOpened + changeTime + bidClosed + lotCanceled + lotHammered + lotCleaned)
+            val bidIncreased = events.filter { it.type == FlowLogType.INCREASE_BID }.associate { it.log to bidIncreased(it) }
+            return (lotOpened + bidOpened + changeTime + bidClosed + lotCanceled + lotHammered + lotCleaned + bidIncreased)
                 .toSortedMap(compareBy { it.eventIndex })
         } catch (e: Exception) {
             logger.error("EnglishAuctionActivityMaker::activities failed! ${e.message}", e)
@@ -43,12 +45,25 @@ class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
         }
     }
 
+    private fun bidIncreased(event: FlowLogEvent): BaseActivity {
+        val lotId by event.event.fields
+        val bidder by event.event.fields
+        val amount by event.event.fields
+
+        return AuctionActivityBidIncreased(
+            lotId = cadenceParser.long(lotId),
+            bidder = cadenceParser.address(bidder),
+            amount = cadenceParser.bigDecimal(amount),
+            timestamp = event.log.timestamp
+        )
+    }
+
     private fun changeEndTime(flowLogEvent: FlowLogEvent): BaseActivity {
         val lotId: NumberField by flowLogEvent.event.fields
         val finishAt: NumberField by flowLogEvent.event.fields
         return AuctionActivityLotEndTimeChanged(
             lotId = cadenceParser.long(lotId),
-            finishAt = Instant.ofEpochSecond(cadenceParser.double(finishAt).toLong()),
+            finishAt = Instant.ofEpochSecond(cadenceParser.bigDecimal(finishAt).longValueExact()),
             timestamp = flowLogEvent.log.timestamp
         )
     }
@@ -100,7 +115,10 @@ class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
             txEvents.filter { "${it.eventId}" in nftCollectionEvents }.first { it.eventId.eventName == "Deposit" }
         val currencyEvents = txEvents.filter { "${it.eventId}" in currenciesEvents }
 
-        val payInfos = payInfos(currencyEvents, "") //todo add seller address
+        val sellerAddress = if (event.event.fields["seller"] != null) {
+            cadenceParser.address(event.event.fields["seller"]!!)
+        } else ""
+        val payInfos = payInfos(currencyEvents, sellerAddress)
         return AuctionActivityLotHammered(
             lotId = lotId,
             contract = depositNft.eventId.collection(),
@@ -124,28 +142,44 @@ class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
     )
 
     private fun lotAvailableActivity(event: FlowLogEvent): BaseActivity {
-        val lotId: NumberField by event.event.fields
-        val itemType: StringField by event.event.fields
-        val itemId: NumberField by event.event.fields
-        val bidType: StringField by event.event.fields
-        val increment: NumberField by event.event.fields
-        val minimumBid: NumberField by event.event.fields
-        val buyoutPrice: OptionalField by event.event.fields
-        val startAt: NumberField by event.event.fields
-        val finishAt: NumberField by event.event.fields
-        return AuctionActivityLot(
-            lotId = cadenceParser.long(lotId),
-            contract = cadenceParser.string(itemType),
-            tokenId = cadenceParser.long(itemId),
-            timestamp = event.log.timestamp,
-            currency = cadenceParser.string(bidType),
-            minStep = cadenceParser.bigDecimal(increment),
-            startPrice = cadenceParser.bigDecimal(minimumBid),
-            buyoutPrice = cadenceParser.optional(buyoutPrice) { bigDecimal(it) },
-            startAt = Instant.ofEpochSecond(cadenceParser.bigDecimal(startAt).longValueExact()),
-            finishAt = Instant.ofEpochSecond(cadenceParser.bigDecimal(finishAt).longValueExact()),
-            duration = -1L, //todo read duration from event
-            seller = "0x00" //todo read seller from event
+        try {
+            val lotId by event.event.fields
+            val seller by event.event.fields.withDefault { AddressField("0x00") }
+            val itemType by event.event.fields
+            val itemId by event.event.fields
+            val bidType by event.event.fields
+            val increment by event.event.fields
+            val minimumBid by event.event.fields
+            val buyoutPrice by event.event.fields
+            val startAt by event.event.fields
+            val finishAt by event.event.fields
+            val duration by event.event.fields.withDefault { NumberField("UFix64", "0.0") }
+            return AuctionActivityLot(
+                lotId = cadenceParser.long(lotId),
+                contract = EventId.of(cadenceParser.string(itemType)).collection(),
+                tokenId = cadenceParser.long(itemId),
+                timestamp = event.log.timestamp,
+                currency = cadenceParser.string(bidType),
+                minStep = cadenceParser.bigDecimal(increment),
+                startPrice = cadenceParser.bigDecimal(minimumBid),
+                buyoutPrice = cadenceParser.optional(buyoutPrice) { bigDecimal(it) },
+                startAt = Instant.ofEpochSecond(cadenceParser.bigDecimal(startAt).longValueExact()),
+                finishAt = resolveFinishAt(finishAt),
+                duration = cadenceParser.bigDecimal(duration).longValueExact(),
+                seller = cadenceParser.address(seller)
+            )
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+
+    private fun resolveFinishAt(finishAt: Field<*>): Instant? = when(finishAt) {
+        is OptionalField -> cadenceParser.optional(finishAt) {
+            Instant.ofEpochSecond(bigDecimal(it).longValueExact())
+        }
+        is NumberField -> Instant.ofEpochSecond(
+            cadenceParser.bigDecimal(finishAt).longValueExact()
         )
+        else -> null
     }
 }
