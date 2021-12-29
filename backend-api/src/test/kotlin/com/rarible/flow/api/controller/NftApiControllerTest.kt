@@ -1,16 +1,20 @@
 package com.rarible.flow.api.controller
 
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowException
 import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.api.service.NftItemMetaService
 import com.rarible.flow.api.service.NftItemService
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.protocol.dto.FlowCreatorDto
+import com.rarible.protocol.dto.FlowItemMetaDto
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemRoyaltyDto
 import com.rarible.protocol.dto.FlowNftItemsDto
@@ -340,6 +344,48 @@ internal class NftApiControllerTest {
 
     }
 
+    @Test
+    fun `should return item meta`() {
+        val goodItem = ItemId("TEST", 1L)
+        coEvery {
+            nftItemMetaService.getMetaByItemId(goodItem)
+        } returns ItemMeta(goodItem, "good", "good", emptyList(), emptyList())
+
+        client
+            .get()
+            .uri(
+                "/v0.1/items/meta/{itemId}",
+                goodItem.toString()
+            )
+            .exchange().expectStatus().isOk.expectBody<FlowItemMetaDto>()
+    }
+
+    @Test
+    fun `should return 404 for item meta with script error`() {
+        val goodItem = ItemId("TEST", 1L)
+        coEvery {
+            nftItemMetaService.getMetaByItemId(goodItem)
+        } throws FlowException("Script error")
+
+        client
+            .get()
+            .uri(
+                "/v0.1/items/meta/{itemId}",
+                goodItem.toString()
+            )
+            .exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `should return BAD_REQUEST for item meta with malformed id`() {
+        client
+            .get()
+            .uri(
+                "/v0.1/items/meta/{itemId}",
+                "malformed"
+            )
+            .exchange().expectStatus().isBadRequest
+    }
 
     private fun createItem(tokenId: TokenId = 42) = Item(
         "0x01",

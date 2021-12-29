@@ -1,11 +1,14 @@
 package com.rarible.flow.api.controller
 
 import com.nftco.flow.sdk.FlowAddress
+import com.rarible.flow.core.domain.ItemId
 import org.springframework.http.ResponseEntity
 
 class IncorrectTokenId(override val message: String, override val cause: Throwable?): Exception(message, cause)
 
 class IncorrectAddress(override val message: String, override val cause: Throwable?): Exception(message, cause)
+
+class IncorrectItemId(override val message: String, override val cause: Throwable?): Exception(message, cause)
 
 fun <T> T?.okOr404IfNull(): ResponseEntity<T> = if (this == null) {
     ResponseEntity.status(404).build()
@@ -30,5 +33,13 @@ fun String?.flowAddress(): FlowAddress? {
         }
     } catch (ex: IllegalArgumentException) {
         throw IncorrectAddress("Could not convert $this to FlowAddress", ex)
+    }
+}
+
+fun String.itemId(): ItemId {
+    try {
+        return ItemId.parse(this)
+    } catch  (ex: IllegalArgumentException) {
+        throw IncorrectItemId("Could not convert $this to ItemId", ex)
     }
 }

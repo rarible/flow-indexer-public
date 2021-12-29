@@ -26,7 +26,7 @@ class ErrorHandler: ErrorWebExceptionHandler {
     override fun handle(exchange: ServerWebExchange, ex: Throwable): Mono<Void> {
         log.error(ex.message, ex)
         val error = when (ex) {
-            is IncorrectTokenId, is IncorrectAddress -> HttpError(
+            is IncorrectTokenId, is IncorrectAddress, is IncorrectItemId -> HttpError(
                 status = HttpStatus.BAD_REQUEST.value(),
                 message = ex.message
             )

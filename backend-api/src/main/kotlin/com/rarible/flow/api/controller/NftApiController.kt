@@ -1,9 +1,11 @@
 package com.rarible.flow.api.controller
 
+import com.nftco.flow.sdk.FlowException
 import com.rarible.flow.api.service.NftItemMetaService
 import com.rarible.flow.api.service.NftItemService
 import com.rarible.flow.core.converter.ItemMetaToDtoConverter
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemRoyaltyDto
 import com.rarible.protocol.dto.FlowNftItemsDto
@@ -21,6 +23,8 @@ class NftApiController(
     private val nftItemService: NftItemService,
     private val nftItemMetaService: NftItemMetaService
 ) : FlowNftItemControllerApi {
+
+    private val logger by Log()
 
     override suspend fun getNftAllItems(
         continuation: String?,
@@ -53,9 +57,13 @@ class NftApiController(
     }
 
     override suspend fun getNftItemMetaById(itemId: String): ResponseEntity<MetaDto> {
-        return ResponseEntity.ok(nftItemMetaService.getMetaByItemId(ItemId.parse(itemId)).let {
-            if (it != null) ItemMetaToDtoConverter.convert(it) else null
-        })
+        return try {
+            val meta = nftItemMetaService.getMetaByItemId(itemId.itemId())
+            ItemMetaToDtoConverter.convert(meta).okOr404IfNull()
+        } catch (flowEx: FlowException) {
+            logger.error("Failed to get meta of [{}] from blockchain", flowEx)
+            ResponseEntity.notFound().build()
+        }
     }
 
     override suspend fun getNftItemsByOwner(
