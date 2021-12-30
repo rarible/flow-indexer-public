@@ -15,7 +15,8 @@ import org.springframework.web.reactive.function.client.awaitBodyOrNull
 
 @Component
 class RaribleNFTMetaProvider(
-    private val itemRepository: ItemRepository
+    private val itemRepository: ItemRepository,
+    //TODO private val pinataClient: WebClient
 ) : ItemMetaProvider {
 
     private val logger by Log()
@@ -40,6 +41,7 @@ class RaribleNFTMetaProvider(
             return emptyMeta(itemId)
         }
 
+        //TODO inject pinataClient
         val client = WebClient.create("https://rarible.mypinata.cloud/")
         return try {
             val data = client.get().uri(url)
