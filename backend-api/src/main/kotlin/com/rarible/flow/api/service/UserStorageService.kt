@@ -273,6 +273,34 @@ class UserStorageService(
                 }
             }
 
+            "MatrixWorldFlowFestNFT" -> {
+                itemIds.forEach { tokenId ->
+                    val contract = contract("0xMATRIXWORLDFLOWFEST", "MatrixWorldFlowFestNFT")
+                    val item = if (notExistsItem(contract, tokenId)) {
+                        Item(
+                            contract = contract,
+                            tokenId = tokenId,
+                            creator = contractAddress("0xMATRIXWORLDFLOWFEST"),
+                            royalties = emptyList(),
+                            owner = address,
+                            mintedAt = Instant.now(),
+                            meta = "{}",
+                            collection = contract,
+                            updatedAt = Instant.now()
+                        )
+                    } else {
+                        val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
+                        } else {
+                            checkOwnership(i, address)
+                            null
+                        }
+                    }
+                    saveItem(item)
+                }
+            }
+
             "CNN_NFT" -> {
                 itemIds.forEach { tokenId ->
                     val contract = contract("0xCNNNFT", "CNN_NFT")
