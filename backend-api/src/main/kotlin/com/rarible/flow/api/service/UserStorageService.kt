@@ -294,9 +294,13 @@ class UserStorageService(
             }
 
             "MatrixWorldFlowFestNFT" -> {
-                itemIds.forEach { tokenId ->
-                    val contract = contract("0xMATRIXWORLDFLOWFEST", "MatrixWorldFlowFestNFT")
-                    val item = if (notExistsItem(contract, tokenId)) {
+                val contract = contract("0xMATRIXWORLD", "MatrixWorldVoucher")
+                val items = itemRepository.findAllByIdIn(
+                    itemIds.map { ItemId(contract, it) }.toSet()
+                ).toIterable().associateBy { it.tokenId }
+                itemIds.pmap { tokenId ->
+                    val item = items[tokenId]
+                    if (item == null) {
                         Item(
                             contract = contract,
                             tokenId = tokenId,
@@ -317,7 +321,6 @@ class UserStorageService(
                             null
                         }
                     }
-                    saveItem(item)
                 }
             }
 
