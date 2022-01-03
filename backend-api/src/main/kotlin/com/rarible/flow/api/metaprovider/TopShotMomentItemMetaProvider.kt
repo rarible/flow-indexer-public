@@ -47,13 +47,6 @@ class TopShotMomentItemMetaProvider(
         "Hero_375_375_Transparent.png"
     )
 
-    private lateinit var scriptText: String
-
-    @PostConstruct
-    private fun readScript() {
-        scriptText = scriptFile.inputStream.bufferedReader().use { it.readText() }
-    }
-
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("TopShot")
 
 
@@ -63,15 +56,14 @@ class TopShotMomentItemMetaProvider(
         val metaMap = JacksonJsonParser().parseMap(item.meta)
         val playID = metaMap["playID"].toString()
         val setID = metaMap["setID"].toString()
-        val playData = scriptExecutor.executeText(scriptText) {
+        val playMap = scriptExecutor.executeFile(scriptFile, {
                 arg { uint32(playID) }
                 arg { uint32(setID) }
-        }
-
-
-        val playMap = JsonCadenceParser().dictionaryMap(playData.jsonCadence) { k, v ->
-            string(k) to string(v)
-        }
+        }, { json ->
+            dictionaryMap(json) { k, v ->
+                string(k) to string(v)
+            }
+        })
 
         val attrs = playMap.filterKeys { it != "FullName" }.map { e ->
             ItemMetaAttribute(

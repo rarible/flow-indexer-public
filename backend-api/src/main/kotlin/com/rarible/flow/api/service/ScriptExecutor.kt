@@ -21,20 +21,7 @@ class ScriptExecutor(
 ) {
     private val parser = JsonCadenceParser()
 
-    suspend fun executeText(code: String, args: ScriptBuilder.() -> Unit): FlowScriptResponse {
-        val response = api.simpleScript {
-            script(code, appProperties.chainId)
-            args(this)
-        }
-        logger.info(
-            "Running script {}. Result: {}",
-            DigestUtils.md5Digest(code.toByteArray()).decodeToString(),
-            response.stringValue
-        )
-        return response
-    }
-
-    suspend fun <T> executeText(
+    private suspend fun <T> executeText(
         code: String,
         args: ScriptBuilder.() -> Unit,
         result: JsonCadenceParser.(Field<*>) -> T

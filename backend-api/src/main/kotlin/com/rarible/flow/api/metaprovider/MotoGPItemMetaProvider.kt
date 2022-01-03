@@ -1,8 +1,5 @@
 package com.rarible.flow.api.metaprovider
 
-import com.nftco.flow.sdk.Flow
-import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
-import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
@@ -12,7 +9,6 @@ import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
-import javax.annotation.PostConstruct
 
 @Component
 class MotoGPItemMetaProvider(
@@ -22,29 +18,25 @@ class MotoGPItemMetaProvider(
     private val itemRepository: ItemRepository
 ) : ItemMetaProvider {
 
-    private val builder = JsonCadenceBuilder()
-
-    private lateinit var scriptText: String
-
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("MotoGPCard", true)
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
         val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
-        val resp = scriptExecutor.executeText(scriptText) {
+        val (nft, meta) = scriptExecutor.executeFile(scriptFile, {
             arg { address(item.owner!!.formatted) }
             arg { uint64(itemId.tokenId) }
-        }
-
-        val (nft, meta) = JsonCadenceParser().array(resp.jsonCadence) {
-            Pair(
-                optional(it.value!!.first()) {
-                    unmarshall<MotoGPNFT>(it)
-                }!!,
-                optional(it.value!!.last()) {
-                    unmarshall<MotoGPMeta>(it)
-                }!!
-            )
-        }
+        }, { json ->
+            array(json) { arr ->
+                Pair(
+                    optional(arr.value!!.first()) {
+                        unmarshall<MotoGPNFT>(it)
+                    }!!,
+                    optional(arr.value!!.last()) {
+                        unmarshall<MotoGPMeta>(it)
+                    }!!
+                )
+            }
+        })
 
         val attributes = meta.data.filterNot { "videoUrl" == it.key }.map { e ->
             ItemMetaAttribute(
@@ -63,12 +55,7 @@ class MotoGPItemMetaProvider(
             attributes = attributes.toList(),
             contentUrls = listOf(meta.imageUrl, meta.data["videoUrl"].orEmpty())
         ).apply {
-            raw = Flow.encodeJsonCadence(resp.jsonCadence)
+            raw = this.toString().toByteArray(charset = Charsets.UTF_8)
         }
-    }
-
-    @PostConstruct
-    private fun readScript() {
-        scriptText = scriptFile.inputStream.bufferedReader().use { it.readText() }
     }
 }

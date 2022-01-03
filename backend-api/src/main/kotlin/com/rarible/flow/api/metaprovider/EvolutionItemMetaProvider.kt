@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
-import javax.annotation.PostConstruct
 
 @Component
 class EvolutionItemMetaProvider(
@@ -22,24 +21,23 @@ class EvolutionItemMetaProvider(
     private val scriptExecutor: ScriptExecutor
 ): ItemMetaProvider {
 
-    private lateinit var scriptText: String
-
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("Evolution")
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
         val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
         if (item.meta.isNullOrEmpty()) return emptyMeta(itemId)
         val meta = JacksonJsonParser().parseMap(item.meta)
-        val resp = scriptExecutor.executeText(scriptText) {
+        val data: Map<String, Field<*>> = scriptExecutor.executeFile(scriptFile, {
             arg {uint32(meta["itemId"].toString())}
             arg {uint32(meta["setId"].toString())}
             arg {uint32(meta["serialNumber"].toString())}
-        }
+        }, { json ->
+            optional(json) {
+                dictionaryMap(it) { k, v -> string(k) to v }
+            }
+        }) ?: return emptyMeta(itemId)
 
-        val jsonCadenceParser = JsonCadenceParser()
-        val data: Map<String, Field<*>> = jsonCadenceParser.optional(resp.jsonCadence) {
-            dictionaryMap(it) { k, v -> string(k) to v }
-        } ?: return emptyMeta(itemId)
+        val jsonCadenceParser = JsonCadenceParser() // TODO parse proper structure
 
         val attributes = listOf(
             ItemMetaAttribute(
@@ -84,10 +82,5 @@ class EvolutionItemMetaProvider(
         ).apply {
             raw = toString().toByteArray(Charsets.UTF_8)
         }
-    }
-
-    @PostConstruct
-    private fun readScript() {
-        scriptText = scriptFile.inputStream.bufferedReader().use { it.readText() }
     }
 }

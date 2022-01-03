@@ -1,15 +1,18 @@
 package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.Flow
+import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.CadenceNamespace
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion
 import com.nftco.flow.sdk.cadence.JsonCadenceConverter
 import com.nftco.flow.sdk.cadence.StructField
+import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
+import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coFindById
 import org.springframework.beans.factory.annotation.Value
@@ -17,44 +20,41 @@ import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
 
 @Component
-class MatrixWorldFlowFestMetaProvider(
+class MatrixWorldFlowFestMetaScript(
     @Value("classpath:script/matrix_flow_fest_meta.cdc")
     private val scriptFile: Resource,
-    private val itemRepository: ItemRepository,
     private val scriptExecutor: ScriptExecutor
-): ItemMetaProvider {
-
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("Evolution")
-
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        val item = itemRepository.coFindById(itemId) ?: return emptyMeta(itemId)
-        val meta = scriptExecutor.executeFile(
+) {
+    suspend fun invoke(owner: FlowAddress, tokenId: TokenId): MatrixWorldFlowFestNftMeta? {
+        return scriptExecutor.executeFile(
             scriptFile,
             {
-                arg { address(item.owner!!.formatted) }
-                arg { uint64(item.tokenId) }
+                arg { address(owner.formatted) }
+                arg { uint64(tokenId) }
             },
             { json ->
                 if(json.value == null) null
                 else Flow.unmarshall(MatrixWorldFlowFestNftMeta::class, json.value as StructField)
             }
-        ) ?: return emptyMeta(itemId)
+        )
+    }
+}
 
+@Component
+class MatrixWorldFlowFestMetaProvider(
+    private val matrixWorldFlowFestMetaScript: MatrixWorldFlowFestMetaScript,
+    private val itemRepository: ItemRepository
+): ItemMetaProvider {
 
+    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("MatrixWorldFlowFestNFT")
 
-        return ItemMeta(
-            itemId = itemId,
-            name = meta.name,
-            description = meta.description,
-            attributes = listOf(
-                ItemMetaAttribute(key = "type", value = meta.type)
-            ),
-            contentUrls = listOf(
-                meta.animationUrl
-            ),
-        ).apply {
-            raw = toString().toByteArray(Charsets.UTF_8)
-        }
+    override suspend fun getMeta(itemId: ItemId): ItemMeta {
+        val item = itemRepository.coFindById(itemId) ?: return emptyMeta(itemId)
+        val meta = matrixWorldFlowFestMetaScript
+            .invoke(item.owner!!, item.tokenId)
+            ?: return emptyMeta(itemId)
+
+        return meta.toItemMeta(itemId)
     }
 }
 
@@ -64,7 +64,23 @@ data class MatrixWorldFlowFestNftMeta(
     val description: String,
     val animationUrl: String,
     val type: String
-)
+): MetaBody {
+    override fun toItemMeta(itemId: ItemId): ItemMeta {
+        return ItemMeta(
+            itemId = itemId,
+            name = name,
+            description = description,
+            attributes = listOf(
+                ItemMetaAttribute(key = "type", value = type)
+            ),
+            contentUrls = listOf(
+                animationUrl
+            ),
+        ).apply {
+            raw = toString().toByteArray(Charsets.UTF_8)
+        }
+    }
+}
 
 class MatrixWorldFlowFestNftMetaConverter: JsonCadenceConverter<MatrixWorldFlowFestNftMeta> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): MatrixWorldFlowFestNftMeta {
