@@ -53,9 +53,11 @@ class NftApiController(
     }
 
     override suspend fun getNftItemMetaById(itemId: String): ResponseEntity<MetaDto> {
-        return ResponseEntity.ok(nftItemMetaService.getMetaByItemId(ItemId.parse(itemId)).let {
-            ItemMetaToDtoConverter.convert(it)
-        })
+        return ResponseEntity.ok(
+            ItemMetaToDtoConverter.convert(
+                nftItemMetaService.getMetaByItemId(itemId.itemId())
+            )
+        )
     }
 
     override suspend fun getNftItemsByOwner(

@@ -2,12 +2,11 @@ package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.log.Log
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -15,7 +14,6 @@ import org.springframework.web.reactive.function.client.awaitBodyOrNull
 
 @Component
 class RaribleNFTMetaProvider(
-    private val itemRepository: ItemRepository,
     //TODO private val pinataClient: WebClient
 ) : ItemMetaProvider {
 
@@ -23,13 +21,11 @@ class RaribleNFTMetaProvider(
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("RaribleNFT")
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        val item = itemRepository.findById(itemId).awaitSingleOrNull()
-            ?: return emptyMeta(itemId)
-        var url = item.meta ?: return emptyMeta(itemId)
+    override suspend fun getMeta(item: Item): ItemMeta? {
+        var url = item.meta ?: return null
         if (url.startsWith("{")) {
             url = JacksonJsonParser().parseMap(url)["metaURI"] as String?
-                ?: return emptyMeta(itemId)
+                ?: return null
         }
 
 
@@ -38,16 +34,16 @@ class RaribleNFTMetaProvider(
         }
 
         if (url.isEmpty()) {
-            return emptyMeta(itemId)
+            return null
         }
 
         //TODO inject pinataClient
         val client = WebClient.create("https://rarible.mypinata.cloud/")
         return try {
             val data = client.get().uri(url)
-                .retrieve().awaitBodyOrNull<RaribleNFTMetaBody>() ?: return emptyMeta(itemId)
+                .retrieve().awaitBodyOrNull<RaribleNFTMetaBody>() ?: return null
             ItemMeta(
-                itemId = itemId,
+                itemId = item.id,
                 name = data.name,
                 description = data.description,
                 attributes = data.attributes.map {
@@ -61,10 +57,11 @@ class RaribleNFTMetaProvider(
                 raw = data.toString().toByteArray(charset = Charsets.UTF_8)
             }
         } catch (e: Exception) {
-            logger.warn(e.message, e)
-            return emptyMeta(itemId)
+            logger.warn("Failed RaribleNFTMetaProvider.getMeta({})", item, e)
+            return null
         }
     }
+
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)

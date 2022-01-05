@@ -11,8 +11,6 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.coFindById
-import com.rarible.flow.log.Log
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -21,7 +19,6 @@ import org.springframework.web.reactive.function.client.awaitBody
 
 @Component
 class CnnNFTMetaProvider(
-    private val itemRepository: ItemRepository,
     private val scriptExecutor: ScriptExecutor,
     private val pinataClient: WebClient,
 
@@ -34,15 +31,13 @@ class CnnNFTMetaProvider(
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("CNN_NFT")
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        val item = itemRepository.coFindById(itemId) ?: return emptyMeta(itemId)
-
+    override suspend fun getMeta(item: Item): ItemMeta? {
         return getMeta(
             item,
             this::fetchNft,
             this::fetchIpfsHash,
             this::readIpfs
-        ) { item -> emptyMeta(item.id) }
+        )
     }
 
     suspend fun fetchNft(item: Item): CnnNFT? {
@@ -84,11 +79,10 @@ class CnnNFTMetaProvider(
         item: Item,
         fetchNft: suspend (Item) -> CnnNFT?,
         fetchIpfsHash: suspend (CnnNFT) -> String?,
-        readIpfs: suspend (String) -> CnnNFTMetaBody,
-        defaultValue: (Item) -> ItemMeta
-    ): ItemMeta {
-        val cnnNFT = fetchNft(item) ?: return defaultValue(item)
-        val ipfsHash = fetchIpfsHash(cnnNFT) ?: return defaultValue(item)
+        readIpfs: suspend (String) -> CnnNFTMetaBody
+    ): ItemMeta? {
+        val cnnNFT = fetchNft(item) ?: return null
+        val ipfsHash = fetchIpfsHash(cnnNFT) ?: return null
         val ipfsMeta = readIpfs(ipfsHash)
         return ipfsMeta.toItemMeta(item.id)
     }

@@ -1,7 +1,6 @@
 package com.rarible.flow.api.service
 
 import com.nftco.flow.sdk.AsyncFlowAccessApi
-import com.nftco.flow.sdk.FlowScriptResponse
 import com.nftco.flow.sdk.ScriptBuilder
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
@@ -11,7 +10,6 @@ import com.rarible.flow.sdk.simpleScript
 import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Service
-import org.springframework.util.DigestUtils
 import java.io.InputStream
 
 @Service
@@ -24,21 +22,21 @@ class ScriptExecutor(
     private suspend fun <T> executeText(
         code: String,
         args: ScriptBuilder.() -> Unit,
-        result: JsonCadenceParser.(Field<*>) -> T
+        parse: JsonCadenceParser.(Field<*>) -> T
     ): T {
         val response = api.simpleScript {
             script(code, appProperties.chainId)
             args(this)
         }
-        return result(parser, response.jsonCadence)
+        return parse(parser, response.jsonCadence)
     }
 
     suspend fun <T> executeFile(
         path: String,
         args: ScriptBuilder.() -> Unit,
-        result: JsonCadenceParser.(Field<*>) -> T
+        parse: JsonCadenceParser.(Field<*>) -> T
     ): T {
-        val result = executeText(scriptText(path), args, result)
+        val result = executeText(scriptText(path), args, parse)
         logger.info(
             "Running script {}. Result: {}",
             path,
@@ -50,9 +48,9 @@ class ScriptExecutor(
     suspend fun <T> executeFile(
         resource: Resource,
         args: ScriptBuilder.() -> Unit,
-        result: JsonCadenceParser.(Field<*>) -> T
+        parse: JsonCadenceParser.(Field<*>) -> T
     ): T {
-        val result = executeText(scriptText(resource.inputStream), args, result)
+        val result = executeText(scriptText(resource.inputStream), args, parse)
         logger.info(
             "Running script {}. Result: {}",
             resource.filename,

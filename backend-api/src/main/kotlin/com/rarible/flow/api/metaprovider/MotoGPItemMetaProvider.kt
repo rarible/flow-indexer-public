@@ -1,11 +1,11 @@
 package com.rarible.flow.api.metaprovider
 
 import com.rarible.flow.api.service.ScriptExecutor
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.repository.ItemRepository
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -14,17 +14,15 @@ import org.springframework.stereotype.Component
 class MotoGPItemMetaProvider(
     private val scriptExecutor: ScriptExecutor,
     @Value("classpath:script/motogp-card-metadata.cdc")
-    private val scriptFile: Resource,
-    private val itemRepository: ItemRepository
+    private val scriptFile: Resource
 ) : ItemMetaProvider {
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("MotoGPCard", true)
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
+    override suspend fun getMeta(item: Item): ItemMeta? {
         val (nft, meta) = scriptExecutor.executeFile(scriptFile, {
             arg { address(item.owner!!.formatted) }
-            arg { uint64(itemId.tokenId) }
+            arg { uint64(item.tokenId) }
         }, { json ->
             array(json) { arr ->
                 Pair(
@@ -49,7 +47,7 @@ class MotoGPItemMetaProvider(
         attributes.add(ItemMetaAttribute(key = "cardID", value = "${nft.cardID}"))
         attributes.add(ItemMetaAttribute(key = "serial", value = "${nft.serial}"))
         return ItemMeta(
-            itemId = itemId,
+            itemId = item.id,
             name = meta.name,
             description = meta.description,
             attributes = attributes.toList(),
@@ -58,4 +56,5 @@ class MotoGPItemMetaProvider(
             raw = this.toString().toByteArray(charset = Charsets.UTF_8)
         }
     }
+
 }

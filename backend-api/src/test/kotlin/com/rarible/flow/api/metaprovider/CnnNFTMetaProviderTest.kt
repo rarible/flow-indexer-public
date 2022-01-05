@@ -6,7 +6,9 @@ import com.nftco.flow.sdk.FlowScript
 import com.nftco.flow.sdk.FlowScriptResponse
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.config.AppProperties
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.ItemMeta
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -15,7 +17,6 @@ import io.mockk.every
 import io.mockk.mockk
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpStatus
-import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
@@ -37,16 +38,12 @@ internal class CnnNFTMetaProviderTest : FunSpec({
 
     test("shoud read metadata for existing item") {
         val itemId = ItemId("A.329feb3ab062d289.CNN_NFT", 2909)
+        val item = mockk<Item>("item") {
+            every { id } returns itemId
+            every { owner } returns FlowAddress("0xe969a6097b773709")
+            every { tokenId } returns 2909
+        }
         val metaProvider = CnnNFTMetaProvider(
-            mockk("itemRepository") {
-                every { findById(any<ItemId>()) } returns Mono.just(
-                    mockk("item") {
-                        every { id } returns itemId
-                        every { owner } returns FlowAddress("0xe969a6097b773709")
-                        every { tokenId } returns 2909
-                    }
-                )
-            },
             ScriptExecutor(
                 mockk() {
                     every {
@@ -64,7 +61,7 @@ internal class CnnNFTMetaProviderTest : FunSpec({
                 AppProperties("test", "", FlowChainId.EMULATOR)
             ),
             WebClient.builder()
-                .exchangeFunction { clientRequest: ClientRequest? ->
+                .exchangeFunction {
                     Mono.just(
                         ClientResponse.create(HttpStatus.OK)
                             .header("content-type", "application/json")
@@ -77,7 +74,8 @@ internal class CnnNFTMetaProviderTest : FunSpec({
             resource("ipfs")
         )
 
-        metaProvider.getMeta(itemId) should { meta ->
+        metaProvider.getMeta(item) should { meta ->
+            meta as ItemMeta
             meta.itemId shouldBe itemId
             meta.name shouldBe "2015: US Supreme Court Ruling Guarantees Right to Same-Sex Marriage"
             meta.description shouldStartWith "June 26, 2015"
