@@ -70,7 +70,7 @@ class CnnNFTMetaProvider(
     suspend fun readIpfs(ipfsHash: String): CnnNFTMetaBody {
         return pinataClient
             .get()
-            .uri("/$ipfsHash")
+            .uri("/ipfs/$ipfsHash")
             .retrieve()
             .awaitBody()
     }

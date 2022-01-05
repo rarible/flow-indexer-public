@@ -36,7 +36,7 @@ class Config(
 
     @Bean
     fun pinataClient(): WebClient {
-        return WebClient.create("https://rarible.mypinata.cloud/ipfs")
+        return WebClient.create("https://rarible.mypinata.cloud")
     }
 
     @Bean
