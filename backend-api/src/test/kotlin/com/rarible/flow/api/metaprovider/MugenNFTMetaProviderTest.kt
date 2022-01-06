@@ -1,5 +1,6 @@
 package com.rarible.flow.api.metaprovider
 
+import com.rarible.flow.api.mocks
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import io.kotest.core.spec.style.FunSpec
@@ -22,17 +23,7 @@ internal class MugenNFTMetaProviderTest : FunSpec({
 
     test("should return metadata") {
         val provider = MugenNFTMetaProvider(
-            WebClient.builder()
-                .exchangeFunction { req ->
-                    req.url().path shouldBe "/1337"
-
-                    Mono.just(
-                        ClientResponse.create(HttpStatus.OK)
-                            .header("content-type", "application/json")
-                            .body(MUGEN_RESPONSE)
-                            .build()
-                    )
-                }.build(),
+            mocks.webClient("/1337", MUGEN_RESPONSE)
         )
 
         provider.getMeta(item) shouldNotBe null

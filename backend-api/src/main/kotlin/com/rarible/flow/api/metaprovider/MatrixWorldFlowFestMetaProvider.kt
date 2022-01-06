@@ -14,7 +14,6 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.domain.TokenId
-import com.rarible.flow.core.repository.ItemRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -25,7 +24,7 @@ class MatrixWorldFlowFestMetaScript(
     private val scriptFile: Resource,
     private val scriptExecutor: ScriptExecutor
 ) {
-    suspend fun invoke(owner: FlowAddress, tokenId: TokenId): MatrixWorldFlowFestNftMeta? {
+    suspend fun call(owner: FlowAddress, tokenId: TokenId): MatrixWorldFlowFestNftMeta? {
         return scriptExecutor.executeFile(
             scriptFile,
             {
@@ -49,7 +48,7 @@ class MatrixWorldFlowFestMetaProvider(
 
     override suspend fun getMeta(item: Item): ItemMeta? {
         return matrixWorldFlowFestMetaScript
-            .invoke(item.owner!!, item.tokenId)
+            .call(item.owner!!, item.tokenId)
             ?.toItemMeta(item.id)
     }
 
