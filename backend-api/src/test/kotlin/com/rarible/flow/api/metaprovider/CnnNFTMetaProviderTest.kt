@@ -61,7 +61,9 @@ internal class CnnNFTMetaProviderTest : FunSpec({
                 AppProperties("test", "", FlowChainId.EMULATOR)
             ),
             WebClient.builder()
-                .exchangeFunction {
+                .exchangeFunction { req ->
+                    req.url().path shouldBe "/ipfs/Qmb1QwvaUF5xiqp2bXiRo4jzwXZ4MLJuk5srt1FYvH3Zqc"
+
                     Mono.just(
                         ClientResponse.create(HttpStatus.OK)
                             .header("content-type", "application/json")
