@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.query.Query
 interface ScrollingSort<T> {
     fun springSort(): org.springframework.data.domain.Sort
     fun scroll(criteria: Criteria, continuation: String?): Criteria
-    fun scroll(filter: BuildsCriteria, continuation: String?, limit: Int?): Query =
+    fun scroll(filter: DbFilter<T>, continuation: String?, limit: Int?): Query =
         Query
             .query(this.scroll(filter.criteria(), continuation))
             .with(this.springSort())

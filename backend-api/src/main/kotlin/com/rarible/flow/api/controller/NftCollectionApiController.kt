@@ -26,8 +26,7 @@ class NftCollectionApiController(
         size: Int?
     ): ResponseEntity<FlowNftCollectionsDto> {
         return convert(
-            service
-            .searchAll(continuation, size), size
+            service.searchAll(continuation, size), size
         ).okOr404IfNull()
     }
 

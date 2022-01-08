@@ -8,8 +8,6 @@ import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TokenId
-import com.rarible.flow.core.repository.ItemMetaRepository
-import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.protocol.dto.FlowCreatorDto
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemRoyaltyDto
@@ -44,12 +42,6 @@ import java.time.temporal.ChronoUnit
 @ActiveProfiles("test")
 internal class NftApiControllerTest {
     @Autowired lateinit var client: WebTestClient
-
-    @MockkBean
-    lateinit var itemRepository: ItemRepository
-
-    @MockkBean
-    lateinit var itemMetaRepository: ItemMetaRepository
 
     @MockkBean
     lateinit var nftItemService: NftItemService

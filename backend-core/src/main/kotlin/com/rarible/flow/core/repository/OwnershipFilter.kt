@@ -2,13 +2,13 @@ package com.rarible.flow.core.repository
 
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Ownership
-import com.rarible.flow.core.repository.filters.BuildsCriteria
+import com.rarible.flow.core.repository.filters.DbFilter
 import com.rarible.flow.core.repository.filters.ScrollingSort
-import org.springframework.data.domain.Sort as SpringSort
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.domain.Sort as SpringSort
 
-sealed class OwnershipFilter: BuildsCriteria {
+sealed class OwnershipFilter: DbFilter<Ownership> {
 
     enum class Sort: ScrollingSort<Ownership> {
         LATEST_FIRST;

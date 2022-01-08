@@ -9,6 +9,7 @@ import io.mockk.mockk
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
+import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import java.time.Instant
 
@@ -17,7 +18,7 @@ class TestPropertiesConfiguration {
 
     @Bean
     @Primary
-    fun currencyApi(): CurrencyControllerApi {
+    fun testCurrencyApi(): CurrencyControllerApi {
         return mockk {
             every {
                 getCurrencyRate(eq(BlockchainDto.FLOW), any(), any())
@@ -29,8 +30,11 @@ class TestPropertiesConfiguration {
 
     @Bean
     @Primary
-    fun orderConverter(currencyApi: CurrencyControllerApi): OrderToDtoConverter {
+    fun testOrderConverter(currencyApi: CurrencyControllerApi): OrderToDtoConverter {
         return OrderToDtoConverter(currencyApi)
     }
 
+    @Bean
+    @Primary
+    fun webClient(): WebClient = WebClient.create()
 }
