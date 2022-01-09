@@ -7,7 +7,6 @@ import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion
 import com.nftco.flow.sdk.cadence.JsonCadenceConverter
 import com.nftco.flow.sdk.cadence.StructField
-import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId

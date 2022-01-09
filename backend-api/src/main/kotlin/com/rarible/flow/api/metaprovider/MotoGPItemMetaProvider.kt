@@ -1,7 +1,6 @@
 package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId

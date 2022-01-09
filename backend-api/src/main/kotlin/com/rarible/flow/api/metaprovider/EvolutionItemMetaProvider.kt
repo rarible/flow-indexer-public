@@ -7,7 +7,6 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.repository.ItemRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.core.io.Resource
