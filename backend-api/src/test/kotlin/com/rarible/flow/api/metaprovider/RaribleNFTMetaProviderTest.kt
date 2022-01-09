@@ -44,6 +44,4 @@ internal class RaribleNFTMetaProviderTest: FunSpec({
         }
     }
 
-
-
 })
