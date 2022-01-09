@@ -32,7 +32,6 @@ class RaribleNFTMetaProvider(
                 .retrieve()
                 .awaitBodyOrNull<RaribleNFTMetaBody>()
                 ?.toItemMeta(item.id)
-
         } catch (e: Exception) {
             logger.warn("Failed RaribleNFTMetaProvider.getMeta({})", item, e)
             null
