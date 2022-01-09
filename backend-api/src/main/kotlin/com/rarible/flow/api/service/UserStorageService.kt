@@ -6,6 +6,8 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.OptionalField
 import com.rarible.flow.api.metaprovider.CnnNFTConverter
 import com.rarible.flow.api.metaprovider.RaribleNFT
+import com.rarible.flow.api.service.flowrpc.ScanUserNftScript
+import com.rarible.flow.api.service.flowrpc.TopShotMomentScript
 import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
@@ -22,8 +24,12 @@ import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.Resource
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.time.Instant
+
 
 @Service
 class UserStorageService(
@@ -32,27 +38,16 @@ class UserStorageService(
     private val appProperties: AppProperties,
     private val protocolEventPublisher: ProtocolEventPublisher,
     private val ownershipRepository: OwnershipRepository,
+    private val scanUserNftScript: ScanUserNftScript,
+    private val topShotMomentScript: TopShotMomentScript
 ) {
 
     private val log: Logger = LoggerFactory.getLogger(UserStorageService::class.java)
 
     suspend fun scanNFT(address: FlowAddress) {
         log.info("Scan user NFT's for address ${address.formatted}")
-        val data = scriptExecutor.executeFile(
-            "/script/all_nft_ids.cdc",
-            {
-                arg { address(address.bytes) }
-            },
-            { json ->
-                dictionaryMap(json) { k, v ->
-                    string(k) to arrayValues(v) { field ->
-                        long(field)
-                    }
-                }
-            }
-        )
+        val data: Map<String, List<Long>> = scanUserNftScript.call(address)
 
-        log.info("User {} NFTs: {}", address.formatted, data)
         val objectMapper = ObjectMapper()
 
         data.pflatMap { (collection, itemIds) ->
@@ -83,24 +78,16 @@ class UserStorageService(
                 ).toIterable().associateBy { it.tokenId }
                 itemIds.pmap { tokenId ->
                     val item = items[tokenId]
+                    val topShotContractAddress = contractAddress("0xTOPSHOTTOKEN")
                     if (item == null) {
-                        val momentData = scriptExecutor.executeFile(
-                            "/script/get_topshot_moment.cdc",
-                            {
-                                arg { address(address.bytes) }
-                                arg { uint64(tokenId) }
-                            }, { json ->
-                                dictionaryMap(json) { k, v ->
-                                    string(k) to long(v)
-                                }
-                            })
+                        val momentData: Map<String, Long> = topShotMomentScript.call(address, tokenId)
                         Item(
                             contract = contract,
                             tokenId = tokenId,
-                            creator = contractAddress("0xTOPSHOTTOKEN"),
+                            creator = topShotContractAddress,
                             royalties = listOf(
                                 Part(
-                                    address = contractAddress("0xTOPSHOTTOKEN"),
+                                    address = topShotContractAddress,
                                     fee = 0.05
                                 )
                             ),
@@ -115,7 +102,7 @@ class UserStorageService(
                             owner = address,
                             royalties = listOf(
                                 Part(
-                                    address = contractAddress("0xTOPSHOTTOKEN"),
+                                    address = topShotContractAddress,
                                     fee = 0.05
                                 )
                             ),
