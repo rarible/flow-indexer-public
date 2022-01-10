@@ -14,7 +14,7 @@ class InstrumentationFilter: WebFilter {
 
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
         val name = "${exchange.request.methodValue} ${exchange.request.path.pathWithinApplication().value()}"
-        val labels = exchange.attributes.toList()
+        val labels = exchange.request.queryParams.toList()
         logger.trace("Instrumentation of HTTP request: {} with attributes {}", name, labels)
         return chain.filter(exchange).withSpan(
             name = name,
