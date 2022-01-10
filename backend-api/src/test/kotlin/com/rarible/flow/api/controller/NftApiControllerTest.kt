@@ -101,12 +101,12 @@ internal class NftApiControllerTest {
 
         val item = client
             .get()
-            .uri("/v0.1/items/{itemId}", mapOf("itemId" to "0x01:42"))
+            .uri("/v0.1/items/{itemId}", mapOf("itemId" to "A.1234.RaribleNFT:42"))
             .exchange()
             .expectStatus().isOk
             .expectBody<FlowNftItemDto>()
             .returnResult().responseBody!!
-        item.id shouldBe "0x01:42"
+        item.id shouldBe "A.1234.RaribleNFT:42"
         item.creators shouldBe listOf(FlowCreatorDto(FlowAddress("0x01").formatted, BigDecimal.ONE))
         item.owner shouldBe FlowAddress("0x02").formatted
     }
@@ -263,7 +263,7 @@ internal class NftApiControllerTest {
 
         var response = client
             .get()
-            .uri("/v0.1/items/byCollection?collection={collection}", mapOf("collection" to "collection"))
+            .uri("/v0.1/items/byCollection?collection={collection}", mapOf("collection" to "A.1234.RaribleNFT"))
             .exchange()
             .expectStatus().isOk
             .expectBody<FlowNftItemsDto>()
