@@ -49,7 +49,7 @@ class CnnNFTMetaProvider(
             this::fetchNft,
             this::fetchIpfsHash,
             this::readIpfs
-        ) { item -> emptyMeta(item.id) }
+        ) { eritem -> emptyMeta(item.id) }
     }
 
     suspend fun fetchNft(item: Item): CnnNFT? {
