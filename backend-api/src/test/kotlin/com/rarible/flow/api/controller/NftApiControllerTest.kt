@@ -394,12 +394,18 @@ internal class NftApiControllerTest {
         } returns Unit
 
         coEvery {
-            nftItemService.byCollectionRaw(any(), any(), 1000)
+            nftItemService.byCollectionRaw(any(), isNull(true), 1000) // isNull(true) == not null
         } returns listOf(
-            createItem(),
-            createItem(tokenId = 43),
+            createItem(tokenId = 1335),
+            createItem(tokenId = 1336),
             createItem(tokenId = 1337)
         ).asFlow()
+
+        coEvery {
+            nftItemService.byCollectionRaw(any(), null, 1000)
+        } returns (0L..999L).map {
+            createItem(tokenId = it)
+        }.asFlow()
 
         client
             .put()
@@ -411,7 +417,13 @@ internal class NftApiControllerTest {
 
         coVerifyOrder {
             nftItemService.byCollectionRaw("A.1234.RaribleNFT", null, 1000)
-            listOf(42L, 43L, 1337L).forEach { tokenId ->
+
+            (0L..999L).forEach { tokenId ->
+                nftItemMetaService.resetMeta(ItemId("A.1234.RaribleNFT", tokenId))
+                nftItemMetaService.getMetaByItemId(ItemId("A.1234.RaribleNFT", tokenId))
+            }
+
+            listOf(1335L, 1336L, 1337L).forEach { tokenId ->
                 nftItemMetaService.resetMeta(ItemId("A.1234.RaribleNFT", tokenId))
                 nftItemMetaService.getMetaByItemId(ItemId("A.1234.RaribleNFT", tokenId))
             }
