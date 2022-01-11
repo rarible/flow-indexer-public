@@ -85,7 +85,7 @@ class OrderService(
                 OrderFilter.ByItemId(itemId),
                 OrderFilter.ByMaker(makerAddress),
                 OrderFilter.ByStatus(status),
-                OrderFilter.ByCurrency(currency)
+                OrderFilter.BySellingCurrency(currency)
             ),
             continuation,
             size,
@@ -129,7 +129,7 @@ class OrderService(
                 OrderFilter.ByItemId(itemId),
                 OrderFilter.ByMaker(makerAddress),
                 OrderFilter.ByStatus(status),
-                OrderFilter.ByCurrency(currency),
+                OrderFilter.ByBiddingCurrency(currency),
                 OrderFilter.ByDateAfter(Order::createdAt, startDate),
                 OrderFilter.ByDateBefore(Order::createdAt, endDate)
             ),
