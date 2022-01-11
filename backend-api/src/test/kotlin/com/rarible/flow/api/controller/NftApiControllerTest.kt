@@ -21,6 +21,8 @@ import com.rarible.protocol.dto.FlowNftItemsDto
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.coVerifyOrder
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -50,12 +52,6 @@ internal class NftApiControllerTest {
     @Autowired lateinit var client: WebTestClient
 
     @MockkBean
-    lateinit var itemRepository: ItemRepository
-
-    @MockkBean
-    lateinit var itemMetaRepository: ItemMetaRepository
-
-    @MockkBean
     lateinit var nftItemService: NftItemService
 
     @MockkBean
@@ -65,7 +61,7 @@ internal class NftApiControllerTest {
     fun `should return all items and stop`() = runBlocking<Unit> {
         val items = listOf(
             createItem(),
-            createItem(43).copy(mintedAt = Instant.now(Clock.systemUTC()).minus(1, ChronoUnit.DAYS))
+            createItem(tokenId = 43).copy(mintedAt = Instant.now(Clock.systemUTC()).minus(1, ChronoUnit.DAYS))
         )
 
         coEvery {
@@ -105,12 +101,12 @@ internal class NftApiControllerTest {
 
         val item = client
             .get()
-            .uri("/v0.1/items/{itemId}", mapOf("itemId" to "0x01:42"))
+            .uri("/v0.1/items/{itemId}", mapOf("itemId" to "A.1234.RaribleNFT:42"))
             .exchange()
             .expectStatus().isOk
             .expectBody<FlowNftItemDto>()
             .returnResult().responseBody!!
-        item.id shouldBe "0x01:42"
+        item.id shouldBe "A.1234.RaribleNFT:42"
         item.creators shouldBe listOf(FlowCreatorDto(FlowAddress("0x01").formatted, BigDecimal.ONE))
         item.owner shouldBe FlowAddress("0x02").formatted
     }
@@ -267,7 +263,7 @@ internal class NftApiControllerTest {
 
         var response = client
             .get()
-            .uri("/v0.1/items/byCollection?collection={collection}", mapOf("collection" to "collection"))
+            .uri("/v0.1/items/byCollection?collection={collection}", mapOf("collection" to "A.1234.RaribleNFT"))
             .exchange()
             .expectStatus().isOk
             .expectBody<FlowNftItemsDto>()
@@ -362,16 +358,16 @@ internal class NftApiControllerTest {
 
     @Test
     fun `should return 404 for item meta with script error`() {
-        val goodItem = ItemId("TEST", 1L)
+        val badItem = ItemId("TEST", 1L)
         coEvery {
-            nftItemMetaService.getMetaByItemId(goodItem)
+            nftItemMetaService.getMetaByItemId(badItem)
         } throws FlowException("Script error")
 
         client
             .get()
             .uri(
                 "/v0.1/items/meta/{itemId}",
-                goodItem.toString()
+                badItem.toString()
             )
             .exchange().expectStatus().isNotFound
     }
@@ -387,8 +383,43 @@ internal class NftApiControllerTest {
             .exchange().expectStatus().isBadRequest
     }
 
-    private fun createItem(tokenId: TokenId = 42) = Item(
-        "0x01",
+    @Test
+    fun `should process refresh collection meta`() {
+        coEvery {
+            nftItemMetaService.getMetaByItemId(any())
+        } returns ItemMeta(ItemId("A.1234.RaribleNFT", 1), "good", "good", emptyList(), emptyList())
+
+        coEvery {
+            nftItemMetaService.resetMeta(any())
+        } returns Unit
+
+        coEvery {
+            nftItemService.byCollectionRaw(any(), any(), 1000)
+        } returns listOf(
+            createItem(),
+            createItem(tokenId = 43),
+            createItem(tokenId = 1337)
+        ).asFlow()
+
+        client
+            .put()
+            .uri(
+                "/v0.1/items/refreshCollectionMeta/{collection}",
+                "A.1234.RaribleNFT"
+            )
+            .exchange().expectStatus().isOk
+
+        coVerifyOrder {
+            nftItemService.byCollectionRaw("A.1234.RaribleNFT", null, 1000)
+            listOf(42L, 43L, 1337L).forEach { tokenId ->
+                nftItemMetaService.resetMeta(ItemId("A.1234.RaribleNFT", tokenId))
+                nftItemMetaService.getMetaByItemId(ItemId("A.1234.RaribleNFT", tokenId))
+            }
+        }
+    }
+
+    private fun createItem(collection: String = "A.1234.RaribleNFT", tokenId: TokenId = 42) = Item(
+        collection,
         tokenId,
         FlowAddress("0x01"),
         listOf(
@@ -397,7 +428,7 @@ internal class NftApiControllerTest {
         ),
         FlowAddress("0x02"),
         Instant.now(Clock.systemUTC()),
-        collection = "collection",
+        collection = collection,
         updatedAt = Instant.now()
     )
 }
