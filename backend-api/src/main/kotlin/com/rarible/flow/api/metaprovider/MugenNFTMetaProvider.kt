@@ -40,6 +40,7 @@ class MugenNFTMetaProvider : ItemMetaProvider {
                     )
                 ),
                 contentUrls = listOfNotNull(
+                    data.imageBlocto,
                     data.icon,
                     data.image,
                     data.imagePreview,
@@ -85,6 +86,8 @@ data class MugenNFTMetaBody(
     @get:JsonProperty("youtube_url")
     val youtubeUrl: String? = null,
     val name: String,
+    @get:JsonProperty("image_blocto")
+    val imageBlocto: String?,
 )
 
 data class MugenNftAttr(
