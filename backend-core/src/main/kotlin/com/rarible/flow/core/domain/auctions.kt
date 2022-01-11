@@ -20,7 +20,7 @@ sealed interface AuctionLot {
     val lastBid: Bid?
     val createdAt: Instant
     val lastUpdatedAt: Instant
-    val startAt: Instant?
+    val startAt: Instant
     val finishAt: Instant?
     val hammerPrice: BigDecimal?
 }
@@ -38,7 +38,7 @@ data class EnglishAuctionLot(
     override val lastBid: Bid? = null,
     override val createdAt: Instant,
     override val lastUpdatedAt: Instant,
-    override val startAt: Instant? = null,
+    override val startAt: Instant,
     override val finishAt: Instant? = null,
     @Field(targetType = FieldType.DECIMAL128)
     override val startPrice: BigDecimal,
