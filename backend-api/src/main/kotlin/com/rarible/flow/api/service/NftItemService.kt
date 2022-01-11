@@ -13,8 +13,8 @@ import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemsDto
 import com.rarible.protocol.dto.MetaDto
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -54,8 +54,8 @@ class NftItemService(
     suspend fun byCollectionRaw(collection: String, continuation: String?, size: Int?): Flow<Item> {
         val sort = ItemFilter.Sort.LAST_UPDATE
         return itemRepository
-                .search(ItemFilter.ByCollection(collection), continuation, size, sort)
-                .asFlow()
+            .search(ItemFilter.ByCollection(collection), continuation, size, sort)
+            .asFlow()
     }
 
     suspend fun byCollection(collection: String, continuation: String?, size: Int?): FlowNftItemsDto {
@@ -114,8 +114,11 @@ suspend fun NftItemService.withItemsByCollection(
     fn: suspend (Item) -> Unit
 ) {
     val items = this.byCollectionRaw(collection, continuation, size)
-    items.collect(fn)
-    if (items.count() <= size) return
+    val count = items.fold(0) { count, item ->
+        fn(item)
+        count + 1
+    }
+    if (count < size) return
     else {
         withItemsByCollection(collection, size, ItemFilter.Sort.LAST_UPDATE.nextPage(items, size), fn)
     }
