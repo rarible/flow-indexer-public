@@ -3,6 +3,7 @@ package com.rarible.flow.core.repository
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.repository.filters.CriteriaProduct
+import com.rarible.flow.core.repository.filters.DbFilter
 import com.rarible.flow.core.repository.filters.ScrollingSort
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.exists
@@ -14,7 +15,7 @@ import java.time.Instant
 import org.springframework.data.domain.Sort as SpringSort
 
 
-sealed class ItemFilter(open val sort: Sort = Sort.LAST_UPDATE) : CriteriaProduct<ItemFilter> {
+sealed class ItemFilter(open val sort: Sort = Sort.LAST_UPDATE) : DbFilter<Item>, CriteriaProduct<ItemFilter> {
     enum class Sort: ScrollingSort<Item> {
         LAST_UPDATE {
             override fun springSort(): SpringSort =

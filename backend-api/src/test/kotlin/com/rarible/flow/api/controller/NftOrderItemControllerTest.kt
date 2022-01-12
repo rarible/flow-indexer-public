@@ -4,7 +4,13 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.api.config.Config
 import com.rarible.flow.core.config.CoreConfig
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderData
+import com.rarible.flow.core.domain.OrderType
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.randomAddress
@@ -13,6 +19,7 @@ import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemsDto
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
@@ -41,6 +48,7 @@ import java.time.ZoneOffset
 @MongoTest
 @ActiveProfiles("test")
 @Import(Config::class, CoreConfig::class)
+@Disabled("TODO unused controller?")
 class NftOrderItemControllerTest {
 
     @Autowired

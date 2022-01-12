@@ -6,6 +6,7 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.filters.CriteriaProduct
+import com.rarible.flow.core.repository.filters.DbFilter
 import com.rarible.flow.core.repository.filters.ScrollingSort
 import org.bson.types.Decimal128
 import org.springframework.data.mapping.div
@@ -22,7 +23,7 @@ import java.time.ZoneOffset
 import kotlin.reflect.KProperty
 import org.springframework.data.domain.Sort as SpringSort
 
-sealed class OrderFilter : CriteriaProduct<OrderFilter> {
+sealed class OrderFilter : DbFilter<Order>, CriteriaProduct<OrderFilter> {
     enum class Sort: ScrollingSort<Order> {
         LATEST_FIRST {
             override fun springSort(): SpringSort = SpringSort.by(
