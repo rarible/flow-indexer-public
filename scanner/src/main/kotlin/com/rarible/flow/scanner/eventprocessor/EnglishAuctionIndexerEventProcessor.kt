@@ -83,7 +83,7 @@ class EnglishAuctionIndexerEventProcessor(
     private suspend fun openLot(event: IndexerEvent) {
         val activity = event.history.activity as AuctionActivityLot
         withSpan("openLot", type = "event") {
-            englishAuctionService.openLot(activity, event.item)
+            englishAuctionService.openLot(activity)
         }
     }
 }

@@ -14,10 +14,9 @@ class EnglishAuctionService(
     private val repo: EnglishAuctionLotRepository
 ) {
 
-    suspend fun openLot(activityLot: AuctionActivityLot, item: Item?): EnglishAuctionLot {
+    suspend fun openLot(activityLot: AuctionActivityLot): EnglishAuctionLot {
         val status = when {
-            item == null -> AuctionStatus.INACTIVE
-            activityLot.finishAt != null && activityLot.finishAt!! > Instant.now() -> AuctionStatus.INACTIVE
+            activityLot.finishAt != null && activityLot.finishAt!!.isBefore(Instant.now()) -> AuctionStatus.FINISHED
             else -> AuctionStatus.ACTIVE
         }
 
@@ -123,7 +122,10 @@ class EnglishAuctionService(
         }
 
         return repo.coSave(
-            lot.copy(lastBid = lot.lastBid!!.copy(amount = activity.amount), lastUpdatedAt = activity.timestamp)
+            lot.copy(
+                lastBid = lot.lastBid!!.copy(amount = activity.amount, bidAt = activity.timestamp),
+                lastUpdatedAt = activity.timestamp
+            )
         )
     }
 }
