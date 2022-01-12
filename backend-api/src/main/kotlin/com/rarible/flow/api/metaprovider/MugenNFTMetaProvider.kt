@@ -6,7 +6,6 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.log.Log
-import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
@@ -38,10 +37,6 @@ class MugenNFTMetaProvider : ItemMetaProvider {
                     ItemMetaAttribute(
                         key = "backgroundColor",
                         value = data.backgroundColor,
-                    ),
-                    ItemMetaAttribute(
-                        key = "baiduModelKey",
-                        value = data.baiduModelKey,
                     )
                 ),
                 contentUrls = listOfNotNull(
@@ -88,8 +83,6 @@ data class MugenNFTMetaBody(
     val animationUrl: String? = null,
     @get:JsonProperty("animation_url_2")
     val animationUrl2: String? = null,
-    @get:JsonProperty("baidu_model_key")
-    val baiduModelKey: String? = null,
     @get:JsonProperty("youtube_url")
     val youtubeUrl: String? = null,
     val name: String,

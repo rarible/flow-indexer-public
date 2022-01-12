@@ -43,3 +43,11 @@ fun String?.flowAddress(): FlowAddress? {
         throw IncorrectAddress("Could not convert $this to FlowAddress", ex)
     }
 }
+
+fun String.itemId(): ItemId {
+    try {
+        return ItemId.parse(this)
+    } catch  (ex: IllegalArgumentException) {
+        throw IncorrectItemId("Could not convert $this to ItemId", ex)
+    }
+}
