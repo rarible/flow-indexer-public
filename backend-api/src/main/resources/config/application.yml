@@ -11,3 +11,11 @@ flow-indexer-api:
 
 application:
   service-name: flow-nft-indexer-api
+
+rarible:
+  core:
+    apm:
+      agent:
+        enabled: true
+        server: http://elk_apm-server:8200
+        packages: org.rarible.flow.api

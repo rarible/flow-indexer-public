@@ -9,4 +9,5 @@ import org.springframework.boot.context.properties.ConstructorBinding
 data class ApiProperties(
     val flowAccessUrl: String,
     val flowAccessPort: Int,
+    val chainId: FlowChainId
 )

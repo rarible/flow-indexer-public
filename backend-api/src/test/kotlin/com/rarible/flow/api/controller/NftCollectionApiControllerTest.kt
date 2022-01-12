@@ -1,24 +1,24 @@
 package com.rarible.flow.api.controller
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.api.config.Config
-import com.rarible.flow.core.config.CoreConfig
+import com.ninjasquad.springmockk.MockkBean
+import com.rarible.flow.api.service.CollectionService
 import com.rarible.flow.core.domain.ItemCollection
-import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.randomAddress
 import com.rarible.protocol.dto.FlowNftCollectionDto
 import com.rarible.protocol.dto.FlowNftCollectionsDto
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
+import kotlinx.coroutines.flow.asFlow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 
-@SpringBootTest(
+@WebFluxTest(
+    controllers = [NftCollectionApiController::class],
     properties = [
         "application.environment = dev",
         "spring.cloud.service-registry.auto-registration.enabled = false",
@@ -26,24 +26,18 @@ import org.springframework.test.web.reactive.server.WebTestClient
         "spring.cloud.consul.config.enabled = false",
         "logging.logstash.tcp-socket.enabled = false",
         "blockchain.scanner.flow.chainId = TESTNET"
-    ],
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+    ]
 )
-@AutoConfigureWebTestClient(timeout = "60000")
 @ActiveProfiles("test")
-@Import(Config::class, CoreConfig::class)
-class NftCollectionApiControllerTest {
+class NftCollectionApiControllerTest(
+    @Autowired val client: WebTestClient
+) {
 
-    @Autowired
-    private lateinit var repo: ItemCollectionRepository
-
-    @Autowired
-    private lateinit var client: WebTestClient
-
+    @MockkBean
+    private lateinit var service: CollectionService
 
     @BeforeEach
     internal fun setUp() {
-        repo.deleteAll().block()
         val collection = ItemCollection(
             id = "ID1",
             owner = FlowAddress(randomAddress()),
@@ -51,13 +45,39 @@ class NftCollectionApiControllerTest {
             symbol = "TC1"
         )
 
-        repo.saveAll(
-            listOf(
-                collection,
-                collection.copy(id = "ID2", owner = FlowAddress("0x01")),
-                collection.copy(id = "ID4", owner = FlowAddress("0x02"))
-            )
-        ).then().block()
+        val collection2 = collection.copy(id = "ID2", owner = FlowAddress("0x01"))
+
+        val collection3 = collection.copy(id = "ID4", owner = FlowAddress("0x02"))
+
+        val all = listOf(
+            collection,
+            collection2,
+            collection3
+        )
+
+        coEvery {
+            service.byId(eq("ID1"))
+        } returns collection
+
+        coEvery {
+            service.byId(eq("ID2"))
+        } returns collection2
+
+        coEvery {
+            service.byId(eq("ID4"))
+        } returns collection3
+
+        coEvery {
+            service.searchAll(any(), any())
+        } returns all.asFlow()
+
+        coEvery {
+            service.searchByOwner(eq(FlowAddress("0x01")), any(), any())
+        } returns listOf(collection2).asFlow()
+
+        coEvery {
+            service.searchByOwner(eq(FlowAddress("0x02")), any(), any())
+        } returns listOf(collection3).asFlow()
     }
 
     @Test

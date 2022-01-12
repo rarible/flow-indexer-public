@@ -94,3 +94,4 @@ build/
 data/
 **/target/**
 .run/
+/surefire-reports/

@@ -7,10 +7,12 @@ logging:
     org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG
     org.springframework.web.reactive.HandlerMapping.Mapping: DEBUG
     org.springframework.web.reactive.handler.SimpleUrlHandlerMapping: DEBUG
+    com.rarible.flow: TRACE
 
 flow-indexer-api:
   flow-access-url: "access.devnet.nodes.onflow.org"
   flow-access-port: 9000
+  chain-id: TESTNET
 
 app:
   chain-id: TESTNET

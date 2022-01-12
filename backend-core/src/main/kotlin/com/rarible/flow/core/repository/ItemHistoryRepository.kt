@@ -6,15 +6,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.data.domain.Sort
+import org.springframework.data.mapping.div
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.gte
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.mongodb.core.query.lte
+import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
-import org.springframework.data.querydsl.ReactiveQuerydslPredicateExecutor
 import org.springframework.stereotype.Repository
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
 import java.time.Instant
@@ -25,11 +27,15 @@ import java.time.Instant
 @Repository
 interface ItemHistoryRepository:
     ReactiveMongoRepository<ItemHistory, String>,
-    ReactiveQuerydslPredicateExecutor<ItemHistory>,
     ItemHistoryRepositoryCustom {
 
         @Suppress("FunctionName")
         fun existsByLog_TransactionHashAndLog_EventIndex(txHash: String, eventIndex: Int): Mono<Boolean>
+
+        @Query("""
+            {"activity.type": ?0, "activity.hash": ?1}
+        """)
+        fun findOrderActivity(type: String, hash: String): Flux<ItemHistory>
     }
 
 interface ItemHistoryRepositoryCustom {
@@ -46,6 +52,7 @@ interface ItemHistoryRepositoryCustom {
     ): Flow<FlowAggregationDataDto>
 }
 
+@Suppress("unused")
 class ItemHistoryRepositoryCustomImpl(
     private val mongo: ReactiveMongoTemplate
 ) : ItemHistoryRepositoryCustom {
@@ -89,9 +96,10 @@ class ItemHistoryRepositoryCustomImpl(
                 Criteria("${ItemHistory::activity.name}.${BaseActivity::type.name}").isEqualTo(FlowActivityType.SELL)
             )
         )
+
         val group = Aggregation
             .group(groupByField)
-            .sum("activity.right.asset.value").`as`(FlowAggregationDataDto::sum.name)
+            .sum("activity.priceUsd").`as`(FlowAggregationDataDto::sum.name)
             .count().`as`(FlowAggregationDataDto::count.name)
 
         val sort = Aggregation.sort(Sort.by(Sort.Direction.DESC, FlowAggregationDataDto::sum.name))

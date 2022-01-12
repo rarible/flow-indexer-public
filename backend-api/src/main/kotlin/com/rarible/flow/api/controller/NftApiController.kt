@@ -50,7 +50,7 @@ class NftApiController(
     }
 
     override suspend fun getNftItemById(itemId: String): ResponseEntity<FlowNftItemDto> {
-        return nftItemService.getItemById(itemId).okOr404IfNull()
+        return nftItemService.getItemById(itemId.itemId()).okOr404IfNull()
     }
 
     override suspend fun getNftItemsByCollection(
@@ -114,7 +114,7 @@ class NftApiController(
     }
 
     override suspend fun getNftItemRoyaltyById(itemId: String): ResponseEntity<FlowNftItemRoyaltyDto> {
-        val itemDto = nftItemService.getItemById(itemId)
+        val itemDto = nftItemService.getItemById(itemId.itemId())
 
         return itemDto?.royalties?.map {
             PayInfoDto(it.account, it.value)

@@ -24,10 +24,10 @@ class Config(
 ) {
 
     @Bean
-    fun signatureService(): FlowSignatureService {
+    fun signatureService(api: AsyncFlowAccessApi): FlowSignatureService {
         return FlowSignatureService(
             appProperties.chainId,
-            Flow.newAccessApi(apiProperties.flowAccessUrl, apiProperties.flowAccessPort)
+            api
         )
     }
 
@@ -37,6 +37,11 @@ class Config(
     @Bean
     fun pinataClient(): WebClient {
         return WebClient.create("https://rarible.mypinata.cloud/ipfs")
+    }
+
+    @Bean
+    fun matrixWorldClient(): WebClient {
+        return WebClient.create("https://api.matrixworld.org/land/api/v1/land/metadata/estate/flow/")
     }
 
     @EventListener(ApplicationReadyEvent::class)
@@ -49,6 +54,9 @@ class Config(
             register("0xTOPSHOTROYALTIES", FlowAddress("0xebf4ae01d1284af8"), FlowChainId.TESTNET)
             register("0xMUGENNFT", FlowAddress("0xebf4ae01d1284af8"), FlowChainId.TESTNET)
             register("0xCNNNFT", FlowAddress("0xebf4ae01d1284af8"), FlowChainId.TESTNET)
+            register("0xMATRIXWORLDFLOWFEST", FlowAddress("0xe2f1b000e0203c1d"), FlowChainId.TESTNET)
+            register("0xMATRIXWORLD", FlowAddress("0xe2f1b000e0203c1d"), FlowChainId.TESTNET)
+
 
             register("0xMOTOGPTOKEN", FlowAddress("0xa49cc0ee46c54bfb"), FlowChainId.MAINNET)
             register("0xEVOLUTIONTOKEN", FlowAddress("0xf4264ac8f3256818"), FlowChainId.MAINNET)
@@ -57,6 +65,9 @@ class Config(
             register("0xTOPSHOTROYALTIES", FlowAddress("0xbd69b6abdfcf4539"), FlowChainId.MAINNET)
             register("0xMUGENNFT", FlowAddress("0x2cd46d41da4ce262"), FlowChainId.MAINNET)
             register("0xCNNNFT", FlowAddress("0x329feb3ab062d289"), FlowChainId.MAINNET)
+            register("0xMATRIXWORLDFLOWFEST", FlowAddress("0x2d2750f240198f91"), FlowChainId.MAINNET)
+            register("0xMATRIXWORLD", FlowAddress("0xebf4ae01d1284af8"), FlowChainId.MAINNET)
+
         }
 
         Flow.configureDefaults(chainId = appProperties.chainId)

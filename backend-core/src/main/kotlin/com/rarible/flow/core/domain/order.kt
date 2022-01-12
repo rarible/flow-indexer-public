@@ -2,30 +2,16 @@ package com.rarible.flow.core.domain
 
 
 import com.nftco.flow.sdk.FlowAddress
-import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.mapping.FieldType
 import org.springframework.data.mongodb.core.mapping.MongoId
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 const val ORDER_COLLECTION = "order"
 
-@Document(collection = ORDER_COLLECTION)
-sealed class BaseOrder(
-    @MongoId
-    val id: Long,
 
-    val data: OrderData,
-
-    val createdAt: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC),
-
-    @field:LastModifiedDate
-    var lastUpdatedAt: LocalDateTime? = null,
-)
 
 /**
  * Description of an order
@@ -34,11 +20,8 @@ sealed class BaseOrder(
  * @property taker          - buyer
  * @property maker          - seller
  * @property amount         - amount in flow
- * @property offeredNftId   - nft id for nft-nft exchange
  * @property fill           - TODO add  doc
  * @property cancelled       - order canceled
- * @property buyerFee       - fee for buyer
- * @property sellerFee      - fee for seller
  * @property collection     - item collection
  */
 @Document(collection = ORDER_COLLECTION)
@@ -50,20 +33,37 @@ data class Order(
     val taker: FlowAddress? = null,
     val make: FlowAsset,
     val take: FlowAsset,
-
+    val type: OrderType,
     @Field(targetType = FieldType.DECIMAL128)
     val amount: BigDecimal,
     @Field(targetType = FieldType.DECIMAL128)
     val fill: BigDecimal = BigDecimal.ZERO,
     val cancelled: Boolean = false,
-    val data: OrderData,
-
-    val createdAt: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC),
+    val data: OrderData? = null,
+    val createdAt: LocalDateTime,
     var lastUpdatedAt: LocalDateTime? = null,
     val collection: String,
-    val makeStock: BigInteger,
+
+    @Field(targetType = FieldType.DECIMAL128)
+    val makeStock: BigDecimal,
     val status: OrderStatus = OrderStatus.INACTIVE,
-)
+
+    @Field(targetType = FieldType.DECIMAL128)
+    val takePriceUsd: BigDecimal = BigDecimal.ZERO
+) {
+
+    fun deactivateBid(makeStock: BigDecimal): Order {
+        return this.copy(status = OrderStatus.INACTIVE, makeStock = makeStock)
+    }
+
+    fun reactivateBid(): Order {
+        return this.copy(status = OrderStatus.ACTIVE, makeStock = this.make.value)
+    }
+}
+
+enum class OrderType {
+    LIST, BID
+}
 
 enum class OrderStatus {
     ACTIVE,

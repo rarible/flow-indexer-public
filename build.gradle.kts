@@ -42,6 +42,14 @@ allprojects {
         }
 
         maven {
+            url = uri("https://repo.rarible.org/repository/maven-public")
+            metadataSources {
+                mavenPom()
+                artifact()
+            }
+        }
+
+        maven {
             name = "nexus-maven-public"
             url = uri("http://nexus.rarible.int/repository/maven-public/")
             isAllowInsecureProtocol = true
@@ -72,16 +80,6 @@ allprojects {
         }
 
     }
-
-    tasks.withType<Test> {
-        useJUnitPlatform()
-        testLogging {
-            this.events = setOf(
-                org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
-                org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED,
-            )
-        }
-    }
 }
 
 subprojects {
@@ -93,6 +91,7 @@ subprojects {
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
         implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
         implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
         implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
@@ -116,6 +115,19 @@ subprojects {
         }
     }
 
+    tasks.withType<Test> {
+        useJUnitPlatform()
+        testLogging {
+            events("passed", "skipped", "failed")
+        }
+        reports {
+            junitXml.required.set(true)
+            junitXml.mergeReruns.set(true)
+            junitXml.outputLocation.set(
+                project.buildDir.resolve("surefire-reports")
+            )
+        }
+    }
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
@@ -143,14 +155,21 @@ task<JacocoReport>("coverage") {
     executionData.setFrom(project.fileTree(".") {
         include("**/build/jacoco/*.exec")
         exclude("**/build/jacoco/coverageMerge.exec")
+        exclude("/target/jacoco-aggregate.exec")
     })
 
     reports {
         xml.required.set(true)
         xml.outputLocation.set(file("${buildDir}/reports/jacoco/coverage.xml"))
-        csv.required.set(false)
+        csv.required.set(true)
         html.required.set(true)
         html.outputLocation.set(file("${buildDir}/reports/jacoco/html"))
+    }
+
+    copy {
+        from("$buildDir/jacoco/coverageMerge.exec")
+        rename("coverageMerge.exec", "jacoco.exec")
+        into("target/reports/jacoco")
     }
 }
 

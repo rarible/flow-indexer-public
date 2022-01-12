@@ -16,6 +16,14 @@ fun <T> T?.okOr404IfNull(): ResponseEntity<T> = if (this == null) {
     ResponseEntity.ok(this)
 }
 
+fun String.itemId(): ItemId {
+    return try {
+        ItemId.parse(this)
+    } catch (e: Exception) {
+        throw IncorrectItemId("Could not parse ItemId from $this", e)
+    }
+}
+
 fun String.tokenId(): Long {
     try {
         return this.toLong()

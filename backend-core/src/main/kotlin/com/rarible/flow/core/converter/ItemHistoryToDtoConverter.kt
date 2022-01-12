@@ -1,33 +1,34 @@
 package com.rarible.flow.core.converter
 
-import com.rarible.flow.core.domain.BurnActivity
-import com.rarible.flow.core.domain.DepositActivity
-import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
-import com.rarible.flow.core.domain.FlowNftOrderActivityList
-import com.rarible.flow.core.domain.FlowNftOrderActivitySell
-import com.rarible.flow.core.domain.ItemHistory
-import com.rarible.flow.core.domain.MintActivity
-import com.rarible.flow.core.domain.WithdrawnActivity
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.log.Log
-import com.rarible.protocol.dto.FlowActivityDto
-import com.rarible.protocol.dto.FlowAssetFungibleDto
-import com.rarible.protocol.dto.FlowAssetNFTDto
-import com.rarible.protocol.dto.FlowBurnDto
-import com.rarible.protocol.dto.FlowMintDto
-import com.rarible.protocol.dto.FlowNftOrderActivityCancelListDto
-import com.rarible.protocol.dto.FlowNftOrderActivityListDto
-import com.rarible.protocol.dto.FlowNftOrderActivitySellDto
-import com.rarible.protocol.dto.FlowOrderActivityMatchSideDto
+import com.rarible.protocol.dto.*
 import org.springframework.core.convert.converter.Converter
+import java.math.BigDecimal
+import java.math.BigInteger
 
 
 object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
 
-    val logger by Log()
+    private val logger by Log()
+    private val emptyNftAsset = FlowAssetNFTDto("todo", BigDecimal.ONE, BigInteger.ZERO)
+    private val emptyFtAsset = FlowAssetFungibleDto("todo", BigDecimal.ZERO)
+
+    private fun convertAsset(asset: FlowAsset) = when (asset) {
+        is FlowAssetNFT -> FlowAssetNFTDto(
+            contract = asset.contract,
+            value = asset.value,
+            tokenId = asset.tokenId.toBigInteger(),
+        )
+        is FlowAssetFungible -> FlowAssetFungibleDto(
+            contract = asset.contract,
+            value = asset.value,
+        )
+        else -> throw IllegalStateException("Invalid asset: ${asset.javaClass}")
+    }
 
     override fun convert(source: ItemHistory): FlowActivityDto? {
-        return when(source.activity) {
+        return when (source.activity) {
             is MintActivity -> FlowMintDto(
                 id = source.id,
                 date = source.date,
@@ -54,24 +55,30 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 logIndex = source.log.eventIndex,
             )
 
+            is TransferActivity -> FlowTransferDto(
+                id = source.id,
+                date = source.date,
+                tokenId = source.activity.tokenId.toBigInteger(),
+                contract = source.activity.contract,
+                from = source.activity.from,
+                owner = source.activity.to,
+                value = BigInteger.ONE,
+                transactionHash = source.log.transactionHash,
+                blockHash = source.log.blockHash,
+                blockNumber = source.log.blockHeight,
+                logIndex = source.log.eventIndex,
+            )
             is FlowNftOrderActivitySell -> FlowNftOrderActivitySellDto(
                 id = source.id,
                 date = source.date,
                 left = FlowOrderActivityMatchSideDto(
                     maker = source.activity.left.maker,
-                    asset = FlowAssetNFTDto(
-                        contract = source.activity.left.asset.contract,
-                        value = source.activity.left.asset.value,
-                        tokenId = (source.activity.left.asset as FlowAssetNFT).tokenId.toBigInteger()
-                    ),
+                    asset = convertAsset(source.activity.left.asset),
                     type = FlowOrderActivityMatchSideDto.Type.SELL
                 ),
                 right = FlowOrderActivityMatchSideDto(
                     maker = source.activity.right.maker,
-                    asset = FlowAssetFungibleDto(
-                        contract = source.activity.right.asset.contract,
-                        value = source.activity.right.asset.value
-                    ),
+                    asset = convertAsset(source.activity.right.asset),
                     type = FlowOrderActivityMatchSideDto.Type.BID
                 ),
                 price = source.activity.price,
@@ -85,15 +92,21 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 date = source.date,
                 hash = source.activity.hash,
                 maker = source.activity.maker,
-                make = FlowAssetNFTDto(
-                    contract = source.activity.make.contract,
-                    value = source.activity.make.value,
-                    tokenId = (source.activity.make as FlowAssetNFT).tokenId.toBigInteger()
-                ),
-                take = FlowAssetFungibleDto(
-                    contract = source.activity.take.contract,
-                    value = source.activity.take.value
-                ),
+                make = convertAsset(source.activity.make),
+                take = convertAsset(source.activity.take),
+                price = source.activity.price,
+                transactionHash = source.log.transactionHash,
+                blockHash = source.log.blockHash,
+                blockNumber = source.log.blockHeight,
+                logIndex = source.log.eventIndex,
+            )
+            is FlowNftOrderActivityBid -> FlowNftOrderActivityBidDto(
+                id = source.id,
+                date = source.date,
+                hash = source.activity.hash,
+                maker = source.activity.maker,
+                make = convertAsset(source.activity.make),
+                take = convertAsset(source.activity.take),
                 price = source.activity.price,
                 transactionHash = source.log.transactionHash,
                 blockHash = source.log.blockHash,
@@ -104,25 +117,31 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 id = source.id,
                 date = source.date,
                 hash = source.activity.hash,
-                maker = source.activity.maker,
-                make = FlowAssetNFTDto(
-                    contract = source.activity.make.contract,
-                    value = source.activity.make.value,
-                    tokenId = (source.activity.make as FlowAssetNFT).tokenId.toBigInteger()
-                ),
-                take = FlowAssetFungibleDto(
-                    contract = source.activity.take.contract,
-                    value = source.activity.take.value
-                ),
-                price = source.activity.price,
+                maker = source.activity.maker.orEmpty(),
+                make = source.activity.make?.let(::convertAsset) ?: emptyNftAsset,
+                take = source.activity.take?.let(::convertAsset) ?: emptyFtAsset,
+                price = source.activity.price ?: BigDecimal.ZERO,
                 transactionHash = source.log.transactionHash,
                 blockHash = source.log.blockHash,
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
             )
-
-            is DepositActivity -> null
-            is WithdrawnActivity -> null
+            is FlowNftOrderActivityCancelBid -> {
+                FlowNftOrderActivityCancelBidDto(
+                    id = source.id,
+                    date = source.date,
+                    hash = source.activity.hash,
+                    maker = source.activity.maker.orEmpty(),
+                    make = source.activity.make?.let(::convertAsset) ?: emptyFtAsset,
+                    take = source.activity.take?.let(::convertAsset) ?: emptyNftAsset,
+                    price = source.activity.price ?: BigDecimal.ZERO,
+                    transactionHash = source.log.transactionHash,
+                    blockHash = source.log.blockHash,
+                    blockNumber = source.log.blockHeight,
+                    logIndex = source.log.eventIndex,
+                )
+            }
+            else -> null
         }
     }
 }

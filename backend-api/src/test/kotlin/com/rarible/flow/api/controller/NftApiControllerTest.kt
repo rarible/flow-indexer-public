@@ -11,8 +11,6 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TokenId
-import com.rarible.flow.core.repository.ItemMetaRepository
-import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.protocol.dto.FlowCreatorDto
 import com.rarible.protocol.dto.FlowItemMetaDto
 import com.rarible.protocol.dto.FlowNftItemDto

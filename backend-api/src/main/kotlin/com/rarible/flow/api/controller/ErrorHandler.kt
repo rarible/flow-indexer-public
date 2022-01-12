@@ -12,9 +12,8 @@ import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
-/**
- * Created by TimochkinEA at 21.07.2021
- */
+data class HttpError(val status: Int, val code: String = "UNKNOWN", val message: String?)
+
 @Configuration
 @Order(-2)
 class ErrorHandler: ErrorWebExceptionHandler {
@@ -40,6 +39,4 @@ class ErrorHandler: ErrorWebExceptionHandler {
         exchange.response.statusCode = HttpStatus.valueOf(error.status)
         return exchange.response.writeWith(buffer.toMono())
     }
-
-    data class HttpError(val status: Int, val code: String = "UNKNOWN", val message: String?)
 }

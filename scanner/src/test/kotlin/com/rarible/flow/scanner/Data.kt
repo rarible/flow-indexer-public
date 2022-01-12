@@ -1,16 +1,10 @@
 package com.rarible.flow.scanner
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.core.domain.FlowAssetFungible
-import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.Item
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.domain.OrderData
-import com.rarible.flow.core.domain.Payout
+import com.rarible.flow.core.domain.*
 import org.apache.activemq.artemis.utils.RandomUtil.randomLong
+import org.apache.activemq.artemis.utils.RandomUtil.randomPositiveLong
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.time.Instant
 import java.time.LocalDateTime
 
@@ -32,7 +26,7 @@ object Data {
     fun createOrder(tokenId: Long = randomLong()): Order {
         val itemId = ItemId("0x1a2b3c4d", tokenId)
         val order = Order(
-            id = randomLong(),
+            id = randomPositiveLong(),
             itemId = itemId,
             maker = FlowAddress("0x01"),
             make = FlowAssetNFT(
@@ -51,8 +45,10 @@ object Data {
                 "FLOW",
                 BigDecimal.TEN
             ),
-            makeStock = BigInteger.TEN,
-            lastUpdatedAt = LocalDateTime.now()
+            makeStock = BigDecimal.TEN,
+            lastUpdatedAt = LocalDateTime.now(),
+            createdAt = LocalDateTime.now(),
+            type = OrderType.LIST
         )
         return order
     }

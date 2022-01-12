@@ -1,21 +1,24 @@
 package com.rarible.flow.core.repository
 
-import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.domain.OrderData
 import com.rarible.flow.core.repository.data.createOrder
-import io.kotest.matchers.equality.shouldBeEqualToComparingFields
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
+import org.springframework.data.mongodb.core.query.Update
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
+import java.math.BigDecimal
 
 @MongoTest
 @DataMongoTest(
@@ -41,23 +44,61 @@ internal class OrderRepositoryTest(
     }
 
     @Test
-    fun `should return only active orders`() {
-        val active = createOrder()
-        val cancelled = active.copy(cancelled = true, id = 2L)
-        val filled = active.copy(fill = 1.toBigDecimal(), id = 3L)
-        orderRepository.saveAll(listOf(active, cancelled, filled))
+    fun `should return sell orders by make`() = runBlocking<Unit> {
+        val sellOrder = createOrder()
+        val bidOrder = createOrder().let {
+            it.copy(make = it.take, take = it.make)
+        }
+        orderRepository.coSaveAll(sellOrder, bidOrder)
 
-        orderRepository.findActiveById(1L).subscribe {
-            it shouldBeEqualToComparingFields active
+        (sellOrder.make as FlowAssetNFT).let { asset ->
+            orderRepository
+                .findAllByMake(asset.contract, asset.tokenId)
+                .collectList()
+                .awaitSingle()
+                .first() shouldBe sellOrder
+        }
+    }
+
+    @Test
+    fun `should return bid orders by make`() = runBlocking<Unit> {
+        val sellOrder = createOrder()
+        val bidOrder = createOrder().let {
+            it.copy(make = it.take, take = it.make)
+        }
+        orderRepository.coSaveAll(sellOrder, bidOrder)
+
+        (bidOrder.take as FlowAssetNFT).let { asset ->
+            orderRepository
+                .findAllByTake(asset.contract, asset.tokenId)
+                .collectList()
+                .awaitSingle()
+                .first() shouldBe bidOrder
+        }
+    }
+
+    @Test
+    fun `should update orders`() = runBlocking<Unit> {
+        val sellOrder = createOrder()
+        val bidOrder = createOrder().let {
+            it.copy(make = it.take, take = it.make)
         }
 
-        orderRepository.findActiveById(2L).subscribe {
-            it shouldBe null
+        orderRepository.coSaveAll(sellOrder, bidOrder)
+        orderRepository.update(
+            OrderFilter.OnlyBid,
+            Update().set(Order::makeStock.name, 0.5.toBigDecimal())
+        ) should {
+            it.matchedCount shouldBe 1
+            it.modifiedCount shouldBe 1
+            it.upsertedId shouldBe null
         }
 
-        orderRepository.findActiveById(3L).subscribe {
-            it shouldBe null
-        }
+        val updated = orderRepository.search(OrderFilter.OnlyBid, null, null).asFlow().first()
+        updated.makeStock shouldBe 0.5.toBigDecimal()
+
+        val skipped = orderRepository.search(OrderFilter.OnlySell, null, null).asFlow().first()
+        skipped.makeStock shouldBe BigDecimal.TEN
     }
 
 }

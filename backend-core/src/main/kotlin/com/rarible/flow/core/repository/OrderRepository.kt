@@ -1,22 +1,22 @@
 package com.rarible.flow.core.repository
 
+import com.mongodb.client.result.UpdateResult
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderStatus
+import com.rarible.flow.core.repository.filters.ScrollingSort
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
+import org.springframework.data.mongodb.core.query.UpdateDefinition
+import org.springframework.data.mongodb.core.update
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 
 interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepositoryCustom {
-    @Query("""
-        {"_id": ?0, "cancelled": false}
-    """)
-    fun findActiveById(id: Long): Mono<Order>
 
     fun findAllByIdIn(ids: List<Long>): Flux<Order>
 
@@ -25,24 +25,42 @@ interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepository
     """)
     fun findAllByMake(contract: String, tokenId: Long): Flux<Order>
 
+    @Query("""
+        {"take.contract": ?0, "take.tokenId": ?1}
+    """)
+    fun findAllByTake(contract: String, tokenId: Long): Flux<Order>
+
     fun findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
         make: FlowAsset,
         maker: FlowAddress,
         status: OrderStatus,
         lastUpdatedAt: LocalDateTime,
     ): Flux<Order>
+
+    fun findAllByStatus(status: OrderStatus): Flux<Order>
 }
 
-interface OrderRepositoryCustom {
-    fun search(
-        filter: OrderFilter, cont: String?, limit: Int?, sort: OrderFilter.Sort = OrderFilter.Sort.LATEST_FIRST
-    ): Flux<Order>
+interface OrderRepositoryCustom: ScrollingRepository<Order> {
+
+    suspend fun update(filter: OrderFilter, updateDefinition: UpdateDefinition): UpdateResult
 }
 
 @Suppress("unused")
 class OrderRepositoryCustomImpl(val mongo: ReactiveMongoTemplate): OrderRepositoryCustom {
-    override fun search(filter: OrderFilter, cont: String?, limit: Int?, sort: OrderFilter.Sort): Flux<Order> {
-        val query = sort.scroll(filter, cont, limit)
+    override fun defaultSort(): ScrollingSort<Order> {
+        return OrderFilter.Sort.LATEST_FIRST
+    }
+
+    override fun findByQuery(query: org.springframework.data.mongodb.core.query.Query): Flux<Order> {
         return mongo.find(query)
+    }
+
+    override suspend fun update(filter: OrderFilter, updateDefinition: UpdateDefinition): UpdateResult {
+        return mongo
+            .update<Order>()
+            .matching(filter.criteria())
+            .apply(updateDefinition)
+            .all()
+            .awaitSingle()
     }
 }

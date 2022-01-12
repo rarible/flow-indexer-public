@@ -3,24 +3,19 @@ package com.rarible.flow.api.controller
 import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.api.TestPropertiesConfiguration
 import com.rarible.flow.api.service.OrderService
-import com.rarible.flow.core.config.CoreConfig
-import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.randomFlowAddress
 import com.rarible.flow.randomLong
-import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.dto.FlowOrderDto
 import com.rarible.protocol.dto.FlowOrderIdsDto
 import com.rarible.protocol.dto.FlowOrdersPaginationDto
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.mockk
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
-import org.junit.jupiter.api.BeforeEach
+import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
@@ -29,8 +24,8 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @WebFluxTest(
     controllers = [OrderApiController::class],
@@ -112,7 +107,7 @@ class OrderApiControllerTest {
     @Test
     fun `should find all sell orders`() {
         coEvery {
-            orderService.findAll(any(), any(), OrderFilter.Sort.LATEST_FIRST)
+            orderService.findAllSell(any(), any(), OrderFilter.Sort.LATEST_FIRST)
         } returns (1L..10L).map { createOrder(it) }.asFlow()
 
         shouldGetPaginatedResult("/v0.1/orders/sell")
@@ -216,25 +211,33 @@ class OrderApiControllerTest {
     }
 
     @Test
-    fun `should find orders bids by item - success`() {
-        val page = shouldGetPaginatedResult(
-            "/v0.1/orders/bids/byItem?contract={contract}&tokenId={tokenId}",
-            "contract" to "ABC",
-            "tokenId" to 1337L
-        )
-
-        page.items shouldHaveSize 0 // for now we return empty bids list
-    }
-
-    @Test
     fun `should find bids by item - success`() {
+        coEvery {
+            orderService.getBidOrdersByItem(any(), any(), any(), any(), any(), any(), any(), any(), OrderFilter.Sort.TAKE_PRICE_DESC)
+        } returns (1L..10L).map { createBidOrder(it) }.asFlow()
+
         val page = shouldGetPaginatedResult(
             "/v0.1/bids/byItem?contract={contract}&tokenId={tokenId}&status=",
             "contract" to "ABC",
             "tokenId" to 1337L
         )
 
-        page.items shouldHaveSize 0 // for now we return empty bids list
+        page.items shouldHaveSize 10
+    }
+
+    @Test
+    fun `should find bid currencies`() {
+        coEvery {
+            orderService.bidCurrenciesByItemId(any())
+        } returns flowOf(FlowAssetFungible("FLOW", BigDecimal.ZERO))
+
+        client.get()
+            .uri("/v0.1/bids/currencies/A.0b2a3299cc857e29.TopShot:1000")
+            .exchange()
+            .expectStatus().isOk
+
+        shouldGetBadRequest("/v0.1/bids/currencies/A.0b2a3299cc857e29.TopShot+1000")
+        shouldGetBadRequest("/v0.1/bids/currencies/A.0b2a3299cc857e29.TopShot:10T0")
     }
 
     private fun shouldGetPaginatedResult(url: String, params: Map<String, Any> = emptyMap()): FlowOrdersPaginationDto {
@@ -283,9 +286,41 @@ class OrderApiControllerTest {
                 "FLOW",
                 BigDecimal.TEN
             ),
-            makeStock = BigInteger.TEN,
-            lastUpdatedAt = LocalDateTime.now()
+            makeStock = BigDecimal.TEN,
+            lastUpdatedAt = LocalDateTime.now(ZoneOffset.UTC),
+            createdAt = LocalDateTime.now(ZoneOffset.UTC),
+            type = OrderType.LIST
         )
+        return order
+    }
+
+    private fun createBidOrder(tokenId: Long = randomLong()): Order {
+        val itemId = ItemId("0x1a2b3c4d", tokenId)
+        val order = Order(
+            id = randomLong(),
+            itemId = itemId,
+            maker = randomFlowAddress(),
+            make = FlowAssetFungible(
+                "FLOW",
+                BigDecimal.TEN
+            ),
+            amount = BigDecimal.valueOf(100L),
+//            amountUsd = BigDecimal.valueOf(100L),
+            data = OrderData(
+                payouts = listOf(Payout(randomFlowAddress(), BigDecimal.valueOf(1L))),
+                originalFees = listOf(Payout(randomFlowAddress(), BigDecimal.valueOf(1L)))
+            ),
+            collection = "collection",
+            take = FlowAssetNFT(
+                contract = itemId.contract,
+                value = BigDecimal.valueOf(100L),
+                tokenId = itemId.tokenId
+            ),
+            makeStock = BigDecimal.TEN,
+            lastUpdatedAt = LocalDateTime.now(ZoneOffset.UTC),
+            createdAt = LocalDateTime.now(ZoneOffset.UTC),
+            type = OrderType.LIST
+            )
         return order
     }
 }

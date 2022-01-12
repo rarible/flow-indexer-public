@@ -17,7 +17,8 @@ class AppReadyListener(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemCollectionRepository: ItemCollectionRepository,
     private val scannerProperties: FlowBlockchainScannerProperties,
-    private val sporkService: SporkService,
+    private val scannerMonitoring: ScannerMonitoring,
+    private val sporkService: SporkService
 ) : ApplicationListener<ApplicationReadyEvent> {
 
     private val supportedCollections = mapOf(
@@ -43,11 +44,18 @@ class AppReadyListener(
      * Save default item collection's
      */
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
+        scannerMonitoring.start()
         if (scannerProperties.chainId != FlowChainId.EMULATOR) {
             runBlocking {
                 itemCollectionRepository.deleteAll().awaitFirstOrNull()
                 itemCollectionRepository.saveAll(supportedCollections[scannerProperties.chainId]!!).then()
                     .awaitFirstOrNull()
+
+                if (scannerProperties.chainId == FlowChainId.TESTNET) {
+                    sporkService.allSporks.replace(FlowChainId.TESTNET, listOf(
+                        SporkService.Spork(from = 53376277L, nodeUrl = "access.devnet.nodes.onflow.org"),
+                    ))
+                }
 
                 if (scannerProperties.chainId == FlowChainId.MAINNET) {
                     val head = listOf(

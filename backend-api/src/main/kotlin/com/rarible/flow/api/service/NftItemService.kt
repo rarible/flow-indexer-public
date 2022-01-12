@@ -45,8 +45,8 @@ class NftItemService(
         return convert(items, sort, size)
     }
 
-    suspend fun getItemById(itemId: String): FlowNftItemDto? {
-        return itemRepository.coFindById(ItemId.parse(itemId))?.let {
+    suspend fun getItemById(itemId: ItemId): FlowNftItemDto? {
+        return itemRepository.coFindById(itemId)?.let {
             convertItem(it, fillMeta(it.id))
         }
     }
@@ -79,7 +79,7 @@ class NftItemService(
         }
     }
 
-    private suspend fun convertItem(item: Item, metaDto: MetaDto?): FlowNftItemDto {
+    private fun convertItem(item: Item, metaDto: MetaDto?): FlowNftItemDto {
         return ItemToDtoConverter.convert(item).copy(meta = metaDto)
     }
 

@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
+import java.time.Instant
 
 
 @Service
@@ -35,6 +36,12 @@ class OrderService(
     fun findAll(cont: String?, size: Int?, sort: OrderFilter.Sort): Flow<Order> {
         return orderRepository.search(
             OrderFilter.All, cont, size, sort
+        ).asFlow()
+    }
+
+    fun findAllSell(cont: String?, size: Int?, sort: OrderFilter.Sort): Flow<Order> {
+        return orderRepository.search(
+            sellOrders(OrderFilter.All), cont, size, sort
         ).asFlow()
     }
 
@@ -74,20 +81,84 @@ class OrderService(
         sort: OrderFilter.Sort
     ): Flow<Order> {
         return orderRepository.search(
-            OrderFilter.ByItemId(itemId) *
-                    OrderFilter.ByMaker(makerAddress) *
-                    OrderFilter.ByStatus(status) *
-                    OrderFilter.ByCurrency(currency),
+            sellOrders(
+                OrderFilter.ByItemId(itemId),
+                OrderFilter.ByMaker(makerAddress),
+                OrderFilter.ByStatus(status),
+                OrderFilter.BySellingCurrency(currency)
+            ),
             continuation,
             size,
             sort
         ).asFlow()
     }
 
-    fun currenciesByItemId(itemId: String): Flow<FlowAsset> = flow {
-        val id = ItemId.parse(itemId)
-        emitAll(orderRepository.findAllByMake(id.contract, id.tokenId).asFlow().map {
+    fun sellCurrenciesByItemId(itemId: ItemId): Flow<FlowAssetFungible> {
+        return orderRepository.findAllByMake(itemId.contract, itemId.tokenId).asFlow().map {
             FlowAssetFungible(it.take.contract, BigDecimal.ZERO)
-        }.toSet().asFlow())
+        }
+    }
+
+    fun bidCurrenciesByItemId(itemId: ItemId): Flow<FlowAssetFungible> {
+        return orderRepository.findAllByTake(itemId.contract, itemId.tokenId).asFlow().map {
+            FlowAssetFungible(it.make.contract, BigDecimal.ZERO)
+        }
+    }
+
+    private fun sellOrders(vararg filters: OrderFilter): OrderFilter {
+        return filters.foldRight(OrderFilter.OnlySell as OrderFilter) { filter, acc -> filter * acc}
+    }
+
+    private fun bidOrders(vararg filters: OrderFilter): OrderFilter {
+        return filters.foldRight(OrderFilter.OnlyBid as OrderFilter) { filter, acc -> filter * acc}
+    }
+
+    fun getBidOrdersByItem(
+        itemId: ItemId,
+        makerAddress: FlowAddress?,
+        currency: String?,
+        status: List<OrderStatus>,
+        startDate: Instant?,
+        endDate: Instant?,
+        continuation: String?,
+        size: Int?,
+        sort: OrderFilter.Sort
+    ): Flow<Order> {
+        return orderRepository.search(
+            bidOrders(
+                OrderFilter.ByItemId(itemId),
+                OrderFilter.ByMaker(makerAddress),
+                OrderFilter.ByStatus(status),
+                OrderFilter.ByBiddingCurrency(currency),
+                OrderFilter.ByDateAfter(Order::createdAt, startDate),
+                OrderFilter.ByDateBefore(Order::createdAt, endDate)
+            ),
+            continuation,
+            size,
+            sort
+        ).asFlow()
+    }
+
+    fun getBidOrdersByMaker(
+        makerAddress: FlowAddress?,
+        status: List<OrderStatus>,
+        origin: String?,
+        startDate: Instant?,
+        endDate: Instant?,
+        continuation: String?,
+        size: Int?,
+        sort: OrderFilter.Sort
+    ): Flow<Order> {
+        return orderRepository.search(
+            bidOrders(
+                OrderFilter.ByMaker(makerAddress),
+                OrderFilter.ByStatus(status),
+                OrderFilter.ByDateAfter(Order::createdAt, startDate),
+                OrderFilter.ByDateBefore(Order::createdAt, endDate)
+            ),
+            continuation,
+            size,
+            sort
+        ).asFlow()
     }
 }

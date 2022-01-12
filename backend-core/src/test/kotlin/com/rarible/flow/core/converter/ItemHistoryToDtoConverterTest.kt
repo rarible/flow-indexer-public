@@ -3,13 +3,7 @@ package com.rarible.flow.core.converter
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.framework.model.Log
-import com.rarible.flow.core.domain.BaseActivity
-import com.rarible.flow.core.domain.BurnActivity
-import com.rarible.flow.core.domain.DepositActivity
-import com.rarible.flow.core.domain.ItemHistory
-import com.rarible.flow.core.domain.MintActivity
-import com.rarible.flow.core.domain.Part
-import com.rarible.flow.core.domain.WithdrawnActivity
+import com.rarible.flow.core.domain.*
 import com.rarible.protocol.dto.FlowBurnDto
 import com.rarible.protocol.dto.FlowMintDto
 import io.kotest.core.spec.style.FunSpec
@@ -56,18 +50,6 @@ internal class ItemHistoryToDtoConverterTest: FunSpec({
         )
     }
 
-    test("should skip Deposit") {
-        convert(
-            createItemHistory(date, depositActivity(date))
-        ) shouldBe null
-    }
-
-    test("should skip Withdraw") {
-        convert(
-            createItemHistory(date, withdrawActivity(date))
-        ) shouldBe null
-    }
-
 })
 
 private fun createItemHistory(date: Instant, activity: BaseActivity): ItemHistory {
@@ -83,6 +65,7 @@ private fun createItemHistory(date: Instant, activity: BaseActivity): ItemHistor
 
 private fun mintActivity(date: Instant) = MintActivity(
     owner = FlowAddress("0x01").formatted,
+    creator = FlowAddress("0x01").formatted,
     contract = "Rarible",
     tokenId = 1337,
     timestamp = date,
@@ -97,18 +80,4 @@ private fun burnActivity(date: Instant) = BurnActivity(
     contract = "Rarible",
     tokenId = 1337,
     timestamp = date
-)
-
-private fun depositActivity(date: Instant) = DepositActivity(
-    contract = "Rarible",
-    tokenId = 1337,
-    timestamp = date,
-    to = FlowAddress("0x42").formatted
-)
-
-private fun withdrawActivity(date: Instant) = WithdrawnActivity(
-    contract = "Rarible",
-    tokenId = 1337,
-    timestamp = date,
-    from = FlowAddress("0x42").formatted
 )
