@@ -94,23 +94,33 @@ class OrderService(
     }
 
     fun sellCurrenciesByItemId(itemId: ItemId): Flow<FlowAssetFungible> {
-        return orderRepository.findAllByMake(itemId.contract, itemId.tokenId).asFlow().map {
-            FlowAssetFungible(it.take.contract, BigDecimal.ZERO)
-        }
+        return orderRepository
+            .findAllByMake(itemId.contract, itemId.tokenId)
+            .asFlow()
+            .map { it.take.contract }
+            .distinctUntilChanged()
+            .map {
+                FlowAssetFungible(it, BigDecimal.ZERO)
+            }
     }
 
     fun bidCurrenciesByItemId(itemId: ItemId): Flow<FlowAssetFungible> {
-        return orderRepository.findAllByTake(itemId.contract, itemId.tokenId).asFlow().map {
-            FlowAssetFungible(it.make.contract, BigDecimal.ZERO)
-        }
+        return orderRepository
+            .findAllByTake(itemId.contract, itemId.tokenId)
+            .asFlow()
+            .map { it.make.contract }
+            .distinctUntilChanged()
+            .map {
+                FlowAssetFungible(it, BigDecimal.ZERO)
+            }
     }
 
     private fun sellOrders(vararg filters: OrderFilter): OrderFilter {
-        return filters.foldRight(OrderFilter.OnlySell as OrderFilter) { filter, acc -> filter * acc}
+        return filters.foldRight(OrderFilter.OnlySell as OrderFilter) { filter, acc -> filter * acc }
     }
 
     private fun bidOrders(vararg filters: OrderFilter): OrderFilter {
-        return filters.foldRight(OrderFilter.OnlyBid as OrderFilter) { filter, acc -> filter * acc}
+        return filters.foldRight(OrderFilter.OnlyBid as OrderFilter) { filter, acc -> filter * acc }
     }
 
     fun getBidOrdersByItem(

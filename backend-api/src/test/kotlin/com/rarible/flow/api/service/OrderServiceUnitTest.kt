@@ -7,6 +7,8 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.repository.OrderRepository
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.mockk.every
 import io.mockk.mockk
@@ -21,13 +23,14 @@ internal class OrderServiceUnitTest: FunSpec({
             every { findAllByMake(any(), any()) } returns Flux.fromIterable(
                 listOf(
                     createOrder(),
+                    createOrder(),
                     createOrder().copy(take = FlowAssetFungible("FUSD", BigDecimal.TEN)),
                 )
             )
         }
         OrderService(repo).sellCurrenciesByItemId(
             ItemId(FlowAddress("0x01").formatted, 1)
-        ).toList() shouldContainAll listOf(
+        ).toList() shouldContainExactlyInAnyOrder listOf(
             FlowAssetFungible("FLOW", BigDecimal.ZERO),
             FlowAssetFungible("FUSD", BigDecimal.ZERO),
         )
@@ -50,12 +53,13 @@ internal class OrderServiceUnitTest: FunSpec({
                        it.copy(make = it.take, take = it.make)
                     },
                     createOrder().copy(make = FlowAssetFungible("FUSD", BigDecimal.TEN)),
+                    createOrder().copy(make = FlowAssetFungible("FUSD", BigDecimal.TEN))
                 )
             )
         }
         OrderService(repo).bidCurrenciesByItemId(
             ItemId(FlowAddress("0x01").formatted, 1)
-        ).toList() shouldContainAll listOf(
+        ).toList() shouldContainExactlyInAnyOrder listOf(
             FlowAssetFungible("FLOW", BigDecimal.ZERO),
             FlowAssetFungible("FUSD", BigDecimal.ZERO),
         )
