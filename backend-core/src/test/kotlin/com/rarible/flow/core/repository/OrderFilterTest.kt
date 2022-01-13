@@ -33,16 +33,16 @@ internal class OrderFilterTest : FunSpec({
 
     test("should make filter - by item id") {
         OrderFilter.ByItemId(ItemId("ABC", 1337L)) shouldMakeCriteria (
-                Order::itemId isEqualTo ItemId("ABC", 1337L)
-                )
+            Order::itemId isEqualTo ItemId("ABC", 1337L)
+        )
     }
 
     test("should make filter - by currency - null") {
-        shouldBeEmpty(OrderFilter.ByCurrency(null))
+        shouldBeEmpty(OrderFilter.BySellingCurrency(null))
     }
 
     test("should make filter - by currency") {
-        OrderFilter.ByCurrency("A.1234.FUSD") shouldMakeCriteria (
+        OrderFilter.BySellingCurrency("A.1234.FUSD") shouldMakeCriteria (
                 (Order::take / FlowAsset::contract).isEqualTo("A.1234.FUSD")
                 )
     }
@@ -85,7 +85,7 @@ internal class OrderFilterTest : FunSpec({
 
     test("should multiply filters") {
         OrderFilter.ByMaker(FlowAddress("0x01")) *
-                OrderFilter.ByCurrency("A.1234.Flow") shouldMakeCriteria Criteria().andOperator(
+                OrderFilter.BySellingCurrency("A.1234.Flow") shouldMakeCriteria Criteria().andOperator(
             Order::maker isEqualTo FlowAddress("0x01"),
             Order::take / FlowAsset::contract isEqualTo "A.1234.Flow"
         )
@@ -128,24 +128,31 @@ internal class OrderFilterTest : FunSpec({
         OrderFilter.ByMakeValue(
             OrderFilter.ByMakeValue.Comparator.LTE,
             BigDecimal.TEN
-        ).criteria().criteriaObject shouldBe Document.parse(
-            """
-                {"make.value": {${'$'}lte: NumberDecimal(10)}}
-            """.trimIndent()
-        )
+        ) shouldMakeCriteria """
+            {"make.value": {${'$'}lte: NumberDecimal(10)}}
+        """.trimIndent()
+
 
         OrderFilter.ByMakeValue(
             OrderFilter.ByMakeValue.Comparator.GT,
             BigDecimal.TEN
-        ).criteria().criteriaObject shouldBe Document.parse(
-            """
-                {"make.value": {${'$'}gt: NumberDecimal(10)}}
-            """.trimIndent()
-        )
-
+        ) shouldMakeCriteria  """
+            {"make.value": {${'$'}gt: NumberDecimal(10)}}
+        """.trimIndent()
 
     }
 
+    test("should make filter - by selling currency") {
+        OrderFilter.BySellingCurrency("FLOW") shouldMakeCriteria """
+            {"take.contract": "FLOW"}
+        """.trimIndent()
+    }
+
+    test("should make filter - by bidding currency") {
+        OrderFilter.ByBiddingCurrency("FLOW") shouldMakeCriteria  """
+                {"make.contract": "FLOW"}
+            """.trimIndent()
+    }
 
 }) {
     companion object {
@@ -155,6 +162,10 @@ internal class OrderFilterTest : FunSpec({
 
         infix fun OrderFilter.shouldMakeCriteria(criteria: Criteria) {
             this.criteria().criteriaObject shouldBe criteria.criteriaObject
+        }
+
+        infix fun OrderFilter.shouldMakeCriteria(json: String) {
+            this.criteria().criteriaObject shouldBe Document.parse(json)
         }
     }
 }

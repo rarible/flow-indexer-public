@@ -59,8 +59,6 @@ data class MugenNFTMetaBody(
     val animationUrl: String? = null,
     @get:JsonProperty("animation_url_2")
     val animationUrl2: String? = null,
-    @get:JsonProperty("baidu_model_key")
-    val baiduModelKey: String? = null,
     @get:JsonProperty("youtube_url")
     val youtubeUrl: String? = null,
     val name: String,
@@ -81,10 +79,6 @@ data class MugenNFTMetaBody(
                 ItemMetaAttribute(
                     key = "backgroundColor",
                     value = backgroundColor,
-                ),
-                ItemMetaAttribute(
-                    key = "baiduModelKey",
-                    value = baiduModelKey,
                 )
             ),
             contentUrls = listOfNotNull(

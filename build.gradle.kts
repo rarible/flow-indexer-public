@@ -82,16 +82,6 @@ allprojects {
     }
 }
 
-val testReport = tasks.register<TestReport>("testReport") {
-    destinationDir = file("$buildDir/reports/tests/test")
-
-    reportOn(subprojects.mapNotNull {
-        it.tasks.findByPath("test")
-    })
-}
-
-
-
 subprojects {
     dependencies {
         implementation(enforcedPlatform("org.springframework.boot:spring-boot-dependencies:2.5.5"))
@@ -127,20 +117,15 @@ subprojects {
 
     tasks.withType<Test> {
         useJUnitPlatform()
-        finalizedBy(testReport)
         testLogging {
             events("passed", "skipped", "failed")
         }
         reports {
             junitXml.required.set(true)
-        }
-
-        copy {
-            logger.info("merging test reports from ${project.name}")
-            from("${buildDir}/test-results/test") {
-                include("TEST-*.xml")
-            }
-            into("${rootProject.projectDir}/surefire-reports")
+            junitXml.mergeReruns.set(true)
+            junitXml.outputLocation.set(
+                project.buildDir.resolve("surefire-reports")
+            )
         }
     }
 }
@@ -183,8 +168,8 @@ task<JacocoReport>("coverage") {
 
     copy {
         from("$buildDir/jacoco/coverageMerge.exec")
-        rename("coverageMerge.exec", "jacoco-aggregate.exec")
-        into("target")
+        rename("coverageMerge.exec", "jacoco.exec")
+        into("target/reports/jacoco")
     }
 }
 

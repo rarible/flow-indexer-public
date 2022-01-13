@@ -118,12 +118,22 @@ sealed class OrderFilter : DbFilter<Order>, CriteriaProduct<OrderFilter> {
         }
     }
 
-    class ByCurrency(val currency: String?): OrderFilter() {
+    class BySellingCurrency(val currency: String?): OrderFilter() {
         override fun criteria(): Criteria {
             return if(currency == null) {
                 Criteria()
             } else {
                 (Order::take / FlowAsset::contract).isEqualTo(currency)
+            }
+        }
+    }
+
+    class ByBiddingCurrency(val currency: String?): OrderFilter() {
+        override fun criteria(): Criteria {
+            return if(currency == null) {
+                Criteria()
+            } else {
+                (Order::make / FlowAsset::contract).isEqualTo(currency)
             }
         }
     }
