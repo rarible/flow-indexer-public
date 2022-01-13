@@ -16,6 +16,12 @@ suspend fun <T, ID : Any> ReactiveMongoRepository<T, ID>.coFindById(id: ID): T? 
 fun <T : Any> ReactiveMongoRepository<T, *>.coFindAll(): Flow<T> =
     this.findAll().asFlow()
 
+suspend fun <T : Any> ReactiveMongoRepository<T, *>.coSaveAll(entities: Collection<T>): List<T> =
+    this.saveAll(entities).collectList().awaitSingle()
+
+suspend fun <T : Any> ReactiveMongoRepository<T, *>.coSaveAll(vararg entities: T): List<T> =
+    this.coSaveAll(entities.toList())
+
 
 suspend fun <T : Any, ID : Any, R> ReactiveMongoRepository<T, ID>.withEntity(id: ID, fn: suspend (T) -> R): R? {
     return this.coFindById(id)?.let {

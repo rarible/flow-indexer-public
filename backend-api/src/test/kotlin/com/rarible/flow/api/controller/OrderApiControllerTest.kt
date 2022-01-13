@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -212,17 +211,6 @@ class OrderApiControllerTest {
     }
 
     @Test
-    fun `should find orders bids by item - success`() {
-        val page = shouldGetPaginatedResult(
-            "/v0.1/orders/bids/byItem?contract={contract}&tokenId={tokenId}",
-            "contract" to "ABC",
-            "tokenId" to 1337L
-        )
-
-        page.items shouldHaveSize 0 // for now we return empty bids list
-    }
-
-    @Test
     fun `should find bids by item - success`() {
         coEvery {
             orderService.getBidOrdersByItem(any(), any(), any(), any(), any(), any(), any(), any(), OrderFilter.Sort.TAKE_PRICE_DESC)
@@ -298,7 +286,7 @@ class OrderApiControllerTest {
                 "FLOW",
                 BigDecimal.TEN
             ),
-            makeStock = BigInteger.TEN,
+            makeStock = BigDecimal.TEN,
             lastUpdatedAt = LocalDateTime.now(ZoneOffset.UTC),
             createdAt = LocalDateTime.now(ZoneOffset.UTC),
             type = OrderType.LIST
@@ -328,7 +316,7 @@ class OrderApiControllerTest {
                 value = BigDecimal.valueOf(100L),
                 tokenId = itemId.tokenId
             ),
-            makeStock = BigInteger.TEN,
+            makeStock = BigDecimal.TEN,
             lastUpdatedAt = LocalDateTime.now(ZoneOffset.UTC),
             createdAt = LocalDateTime.now(ZoneOffset.UTC),
             type = OrderType.LIST

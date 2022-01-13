@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.mapping.FieldType
 import org.springframework.data.mongodb.core.mapping.MongoId
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.time.LocalDateTime
 
 const val ORDER_COLLECTION = "order"
@@ -44,12 +43,23 @@ data class Order(
     val createdAt: LocalDateTime,
     var lastUpdatedAt: LocalDateTime? = null,
     val collection: String,
-    val makeStock: BigInteger,
+
+    @Field(targetType = FieldType.DECIMAL128)
+    val makeStock: BigDecimal,
     val status: OrderStatus = OrderStatus.INACTIVE,
 
     @Field(targetType = FieldType.DECIMAL128)
     val takePriceUsd: BigDecimal = BigDecimal.ZERO
-)
+) {
+
+    fun deactivateBid(makeStock: BigDecimal): Order {
+        return this.copy(status = OrderStatus.INACTIVE, makeStock = makeStock)
+    }
+
+    fun reactivateBid(): Order {
+        return this.copy(status = OrderStatus.ACTIVE, makeStock = this.make.value)
+    }
+}
 
 enum class OrderType {
     LIST, BID

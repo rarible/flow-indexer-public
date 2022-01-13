@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: flow-scanner
+
+application:
+  environment: e2e
+
+logging:
+  level:
+    com.rarible.flow: DEBUG
+
+app:
+  environment: e2e
+  chain-id: TESTNET
+  kafka-replica-set: ${kafka.hosts}
+
+flow-api:
+  flow-access-url: "access.devnet.nodes.onflow.org"
+  flow-access-port: 9000
+  chain-id: TESTNET
+
+blockchain:
+  scanner:
+    flow:
+      chainId: TESTNET
+      poller:
+        delay: 100
+      job:
+        reconciliation:
+          batchSize: 25
+      retryPolycy:
+        scan:
+          maxProcessTime: 1m

@@ -25,3 +25,9 @@ flow-api:
   service-account:
     address: "0xebf4ae01d1284af8"
     private-key: "c9c26ffea639ac653130127a6fdba7448d7752aadb26c9027accd504b2b7bcd3"
+
+
+logging:
+  level:
+    com.rarible.flow: DEBUG
+    org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG

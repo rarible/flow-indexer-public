@@ -45,12 +45,6 @@ class OrderService(
         ).asFlow()
     }
 
-    fun findAllBids(cont: String?, size: Int?, sort: OrderFilter.Sort): Flow<Order> {
-        return orderRepository.search(
-            bidOrders(OrderFilter.All), cont, size, sort
-        ).asFlow()
-    }
-
     fun getSellOrdersByCollection(
         collection: String,
         cont: String?,
@@ -91,7 +85,7 @@ class OrderService(
                 OrderFilter.ByItemId(itemId),
                 OrderFilter.ByMaker(makerAddress),
                 OrderFilter.ByStatus(status),
-                OrderFilter.ByCurrency(currency)
+                OrderFilter.BySellingCurrency(currency)
             ),
             continuation,
             size,
@@ -99,15 +93,15 @@ class OrderService(
         ).asFlow()
     }
 
-    fun currenciesByItemId(itemId: ItemId): Flow<FlowAsset> {
+    fun sellCurrenciesByItemId(itemId: ItemId): Flow<FlowAssetFungible> {
         return orderRepository.findAllByMake(itemId.contract, itemId.tokenId).asFlow().map {
             FlowAssetFungible(it.take.contract, BigDecimal.ZERO)
         }
     }
 
-    fun bidCurrenciesByItemId(itemId: ItemId): Flow<FlowAsset> {
+    fun bidCurrenciesByItemId(itemId: ItemId): Flow<FlowAssetFungible> {
         return orderRepository.findAllByTake(itemId.contract, itemId.tokenId).asFlow().map {
-            FlowAssetFungible(it.take.contract, BigDecimal.ZERO)
+            FlowAssetFungible(it.make.contract, BigDecimal.ZERO)
         }
     }
 
@@ -119,7 +113,6 @@ class OrderService(
         return filters.foldRight(OrderFilter.OnlyBid as OrderFilter) { filter, acc -> filter * acc}
     }
 
-    // TODO start/end date are not supported
     fun getBidOrdersByItem(
         itemId: ItemId,
         makerAddress: FlowAddress?,
@@ -136,7 +129,9 @@ class OrderService(
                 OrderFilter.ByItemId(itemId),
                 OrderFilter.ByMaker(makerAddress),
                 OrderFilter.ByStatus(status),
-                OrderFilter.ByCurrency(currency),
+                OrderFilter.ByBiddingCurrency(currency),
+                OrderFilter.ByDateAfter(Order::createdAt, startDate),
+                OrderFilter.ByDateBefore(Order::createdAt, endDate)
             ),
             continuation,
             size,
@@ -144,7 +139,6 @@ class OrderService(
         ).asFlow()
     }
 
-    // TODO start/end date are not supported
     fun getBidOrdersByMaker(
         makerAddress: FlowAddress?,
         status: List<OrderStatus>,
@@ -159,6 +153,8 @@ class OrderService(
             bidOrders(
                 OrderFilter.ByMaker(makerAddress),
                 OrderFilter.ByStatus(status),
+                OrderFilter.ByDateAfter(Order::createdAt, startDate),
+                OrderFilter.ByDateBefore(Order::createdAt, endDate)
             ),
             continuation,
             size,

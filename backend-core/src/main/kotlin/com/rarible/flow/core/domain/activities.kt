@@ -73,27 +73,6 @@ data class FlowNftOrderActivitySell(
 ) : FlowNftOrderActivity()
 
 /**
- * Buy activity
- *
- * @property left               buyer
- * @property right              seller
- */
-data class FlowNftOrderActivityBidAccept(
-    override val type: FlowActivityType = FlowActivityType.ACCEPT_BID,
-    override val price: BigDecimal,
-
-    @Field(targetType = FieldType.DECIMAL128)
-    override val priceUsd: BigDecimal,
-    override val tokenId: TokenId,
-    override val contract: String,
-    override val timestamp: Instant,
-    val hash: String,
-    val left: OrderActivityMatchSide,
-    val right: OrderActivityMatchSide,
-    val payments: List<FlowNftOrderPayment>,
-) : FlowNftOrderActivity()
-
-/**
  * Sell (List) activity
  *
  * @property hash           TODO????
@@ -115,7 +94,14 @@ data class FlowNftOrderActivityList(
 data class FlowNftOrderActivityCancelList(
     override val type: FlowActivityType = FlowActivityType.CANCEL_LIST,
     override val timestamp: Instant,
-    val hash: String
+    val hash: String,
+    val price: BigDecimal? = null,
+    val priceUsd: BigDecimal? = null,
+    val tokenId: TokenId? = null,
+    val contract: String? = null,
+    val maker: String? = null,
+    val make: FlowAsset? = null,
+    val take: FlowAsset? = null,
 ) : BaseActivity()
 
 data class FlowNftOrderActivityBid(
@@ -135,6 +121,13 @@ data class FlowNftOrderActivityCancelBid(
     override val type: FlowActivityType = FlowActivityType.CANCEL_BID,
     override val timestamp: Instant,
     val hash: String,
+    val price: BigDecimal? = null,
+    val priceUsd: BigDecimal? = null,
+    val tokenId: TokenId? = null,
+    val contract: String? = null,
+    val maker: String? = null,
+    val make: FlowAsset? = null,
+    val take: FlowAsset? = null,
 ) : BaseActivity()
 
 
@@ -223,24 +216,9 @@ enum class FlowActivityType {
      */
     CANCEL_BID,
 
-    /**
-     * Bid accepted
-     */
-    ACCEPT_BID,
-
     TRANSFER,
     TRANSFER_FROM,
     TRANSFER_TO,
-
-    /**
-     * NFT withdrawn
-     */
-    WITHDRAWN,
-
-    /**
-     * NFT deposit
-     */
-    DEPOSIT,
 
     LOT_AVAILABLE,
     LOT_COMPLETED,
@@ -281,23 +259,15 @@ data class OrderActivityMatchSide(
     val asset: FlowAsset,
 )
 
-@Deprecated(message = "should generate TransferActivities only")
-data class WithdrawnActivity(
-    override val type: FlowActivityType = FlowActivityType.WITHDRAWN,
-    override val contract: String,
-    override val tokenId: TokenId, /* = kotlin.Long */
-    override val timestamp: Instant,
+data class FlowTokenWithdrawnActivity(
     val from: String?,
-) : NFTActivity()
+    val amount: BigDecimal,
+) : FlowActivity
 
-@Deprecated(message = "should generate TransferActivities only")
-data class DepositActivity(
-    override val type: FlowActivityType = FlowActivityType.DEPOSIT,
-    override val contract: String,
-    override val tokenId: TokenId, /* = kotlin.Long */
-    override val timestamp: Instant,
+data class FlowTokenDepositedActivity(
     val to: String?,
-) : NFTActivity()
+    val amount: BigDecimal,
+) : FlowActivity
 
 data class TransferActivity(
     override val type: FlowActivityType = FlowActivityType.TRANSFER,

@@ -6,15 +6,24 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.filters.CriteriaProduct
+import com.rarible.flow.core.repository.filters.DbFilter
 import com.rarible.flow.core.repository.filters.ScrollingSort
+import org.bson.types.Decimal128
 import org.springframework.data.mapping.div
 import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.gte
 import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.lt
+import java.math.BigDecimal
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import kotlin.reflect.KProperty
 import org.springframework.data.domain.Sort as SpringSort
 
-sealed class OrderFilter : CriteriaProduct<OrderFilter> {
+sealed class OrderFilter : DbFilter<Order>, CriteriaProduct<OrderFilter> {
     enum class Sort: ScrollingSort<Order> {
         LATEST_FIRST {
             override fun springSort(): SpringSort = SpringSort.by(
@@ -109,12 +118,22 @@ sealed class OrderFilter : CriteriaProduct<OrderFilter> {
         }
     }
 
-    class ByCurrency(val currency: String?): OrderFilter() {
+    class BySellingCurrency(val currency: String?): OrderFilter() {
         override fun criteria(): Criteria {
             return if(currency == null) {
                 Criteria()
             } else {
                 (Order::take / FlowAsset::contract).isEqualTo(currency)
+            }
+        }
+    }
+
+    class ByBiddingCurrency(val currency: String?): OrderFilter() {
+        override fun criteria(): Criteria {
+            return if(currency == null) {
+                Criteria()
+            } else {
+                (Order::make / FlowAsset::contract).isEqualTo(currency)
             }
         }
     }
@@ -128,6 +147,49 @@ sealed class OrderFilter : CriteriaProduct<OrderFilter> {
                 Criteria()
             } else {
                 Order::status inValues status
+            }
+        }
+    }
+
+    data class ByMakeValue(val cmp: Comparator, val value: BigDecimal): OrderFilter() {
+        enum class Comparator {
+            LTE, GT
+        }
+
+        override fun criteria(): Criteria {
+            val criteria = Criteria((Order::make / FlowAsset::value).toDotPath())
+            val decValue = Decimal128(value)
+            return when(cmp) {
+                Comparator.LTE -> criteria.lte(decValue)
+                Comparator.GT -> criteria.gt(decValue)
+            }
+        }
+    }
+
+    data class ByDateAfter(val dateField: KProperty<LocalDateTime>, val start: LocalDateTime?): OrderFilter() {
+        constructor(dateField: KProperty<LocalDateTime>, inst: Instant?): this(
+            dateField, inst?.atZone(ZoneOffset.UTC)?.toLocalDateTime()
+        )
+
+        override fun criteria(): Criteria {
+            return if(start == null) {
+                Criteria()
+            } else {
+                dateField gte start
+            }
+        }
+    }
+
+    data class ByDateBefore(val dateField: KProperty<LocalDateTime>, val end: LocalDateTime?): OrderFilter() {
+        constructor(dateField: KProperty<LocalDateTime>, inst: Instant?): this(
+            dateField, inst?.atZone(ZoneOffset.UTC)?.toLocalDateTime()
+        )
+
+        override fun criteria(): Criteria {
+            return if(end == null) {
+                Criteria()
+            } else {
+                dateField lt end
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.rarible.flow.api.controller
 
-import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.api.service.OrderService
 import com.rarible.flow.core.converter.OderStatusDtoConverter
 import com.rarible.flow.core.converter.OrderToDtoConverter
@@ -8,15 +7,21 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.enum.safeOf
-import com.rarible.protocol.dto.*
+import com.rarible.protocol.dto.FlowAssetDto
+import com.rarible.protocol.dto.FlowAssetFungibleDto
+import com.rarible.protocol.dto.FlowOrderDto
+import com.rarible.protocol.dto.FlowOrderIdsDto
+import com.rarible.protocol.dto.FlowOrderStatusDto
+import com.rarible.protocol.dto.FlowOrdersPaginationDto
 import com.rarible.protocol.flow.nft.api.controller.FlowOrderControllerApi
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
-import java.time.OffsetDateTime
 
 @RestController
 @CrossOrigin
@@ -26,8 +31,7 @@ class OrderApiController(
 ): FlowOrderControllerApi {
 
     override fun getBidCurrencies(itemId: String): ResponseEntity<Flow<FlowAssetDto>> {
-        val itemId = itemId.itemId()
-        return service.bidCurrenciesByItemId(itemId).map {
+        return service.bidCurrenciesByItemId(itemId.itemId()).map {
             FlowAssetFungibleDto(it.contract, it.value)
         }.okOr404IfNull()
     }
@@ -65,7 +69,7 @@ class OrderApiController(
     }
 
 
-    //TODO possible duplicate
+    //TODO deprecated!
     override suspend fun getOrderBidsByItem(
         contract: String,
         tokenId: String,
@@ -75,7 +79,7 @@ class OrderApiController(
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
-        return FlowOrdersPaginationDto(emptyList()).okOr404IfNull()
+        return ResponseEntity.badRequest().build()
     }
 
     override suspend fun getOrderBidsByMaker(
@@ -141,8 +145,7 @@ class OrderApiController(
     }
 
     override fun getSellCurrencies(itemId: String): ResponseEntity<Flow<FlowAssetDto>> {
-        val itemId = itemId.itemId()
-        return service.currenciesByItemId(itemId).map {
+        return service.sellCurrenciesByItemId(itemId.itemId()).map {
             FlowAssetFungibleDto(it.contract, it.value)
         }.okOr404IfNull()
     }
@@ -221,7 +224,7 @@ class OrderApiController(
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
-        val makerAddress = maker.flowAddress() as FlowAddress
+        val makerAddress = maker.flowAddress()!!
         val originAddress = origin.flowAddress()
         val sort = OrderFilter.Sort.LATEST_FIRST
         return result(

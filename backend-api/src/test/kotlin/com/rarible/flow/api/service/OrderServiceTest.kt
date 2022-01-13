@@ -3,11 +3,15 @@ package com.rarible.flow.api.service
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.api.BaseIntegrationTest
 import com.rarible.flow.api.IntegrationTest
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.api.createOrder
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coSave
-import com.rarible.flow.randomLong
 import io.kotest.matchers.collections.shouldBeSortedWith
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
@@ -18,8 +22,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
-import java.math.BigInteger
-import java.time.LocalDateTime
 
 @IntegrationTest
 internal class OrderServiceTest : BaseIntegrationTest() {
@@ -175,20 +177,5 @@ internal class OrderServiceTest : BaseIntegrationTest() {
         }
     }
 
-    fun createOrder(id: Long = randomLong()) = Order(
-        id = id,
-        itemId = ItemId(FlowAddress("0x01").formatted, 1),
-        maker = FlowAddress("0x1000"),
-        taker = null,
-        make = FlowAssetNFT("0x01", 1.toBigDecimal(), 1),
-        take = FlowAssetFungible("FLOW", BigDecimal.TEN),
-        amount = BigDecimal.TEN,
-        type = OrderType.LIST,
-        data = OrderData(emptyList(), emptyList()),
-        collection = "ABC",
-        fill = 13.37.toBigDecimal(),
-        lastUpdatedAt = LocalDateTime.now(),
-        createdAt = LocalDateTime.now(),
-        makeStock = BigInteger.TEN
-    )
+
 }

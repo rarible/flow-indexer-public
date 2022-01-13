@@ -1,5 +1,6 @@
 package com.rarible.flow.scanner
 
+import com.rarible.core.test.ext.KafkaTest
 import com.rarible.core.test.ext.MongoCleanup
 import com.rarible.core.test.ext.MongoTest
 import org.springframework.beans.factory.annotation.Autowired
@@ -9,6 +10,7 @@ import javax.annotation.PostConstruct
 
 @MongoTest
 @MongoCleanup
+@KafkaTest
 abstract class BaseIntegrationTest {
 
     @Autowired
