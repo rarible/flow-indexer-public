@@ -237,7 +237,7 @@ class RaribleOpenBidActivityMaker(
                     } else BigDecimal.ZERO
                     val tokenId = cadenceParser.long(withdrawnEvent.fields["id"]!!)
                     val hash = cadenceParser.long(flowLogEvent.event.fields["bidId"]!!).toString()
-                    result[flowLogEvent.log] = FlowNftOrderActivityBidAccept(
+                    result[flowLogEvent.log] = FlowNftOrderActivitySell(
                         price = price,
                         priceUsd = priceUsd,
                         tokenId = tokenId,
