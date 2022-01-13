@@ -5,6 +5,7 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderStatus
+import com.rarible.flow.core.repository.filters.ScrollingSort
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
@@ -13,7 +14,6 @@ import org.springframework.data.mongodb.core.update
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 
 interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepositoryCustom {
@@ -40,18 +40,18 @@ interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepository
     fun findAllByStatus(status: OrderStatus): Flux<Order>
 }
 
-interface OrderRepositoryCustom {
-    fun search(
-        filter: OrderFilter, cont: String?, limit: Int?, sort: OrderFilter.Sort = OrderFilter.Sort.LATEST_FIRST
-    ): Flux<Order>
+interface OrderRepositoryCustom: ScrollingRepository<Order> {
 
     suspend fun update(filter: OrderFilter, updateDefinition: UpdateDefinition): UpdateResult
 }
 
 @Suppress("unused")
 class OrderRepositoryCustomImpl(val mongo: ReactiveMongoTemplate): OrderRepositoryCustom {
-    override fun search(filter: OrderFilter, cont: String?, limit: Int?, sort: OrderFilter.Sort): Flux<Order> {
-        val query = sort.scroll(filter, cont, limit)
+    override fun defaultSort(): ScrollingSort<Order> {
+        return OrderFilter.Sort.LATEST_FIRST
+    }
+
+    override fun findByQuery(query: org.springframework.data.mongodb.core.query.Query): Flux<Order> {
         return mongo.find(query)
     }
 

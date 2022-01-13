@@ -1,24 +1,23 @@
 package com.rarible.flow.api.controller
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.core.test.ext.MongoTest
-import com.rarible.flow.api.config.Config
-import com.rarible.flow.core.config.CoreConfig
+import com.ninjasquad.springmockk.MockkBean
+import com.rarible.flow.api.service.OwnershipsService
+import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Ownership
-import com.rarible.flow.core.repository.OwnershipRepository
+import com.rarible.flow.core.domain.OwnershipId
 import com.rarible.flow.randomAddress
-import com.rarible.flow.randomLong
 import com.rarible.protocol.dto.FlowNftOwnershipDto
 import com.rarible.protocol.dto.FlowNftOwnershipsDto
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Assertions
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.mockk.coEvery
+import kotlinx.coroutines.flow.asFlow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
@@ -26,8 +25,8 @@ import java.time.Clock
 import java.time.Instant
 import kotlin.random.Random
 
-@InternalCoroutinesApi
-@SpringBootTest(
+@WebFluxTest(
+    controllers = [OwnershipsApiController::class],
     properties = [
         "application.environment = dev",
         "spring.cloud.service-registry.auto-registration.enabled = false",
@@ -35,255 +34,92 @@ import kotlin.random.Random
         "spring.cloud.consul.config.enabled = false",
         "logging.logstash.tcp-socket.enabled = false",
         "spring.data.mongodb.auto-index-creation = true"
-    ],
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+    ]
 )
-@AutoConfigureWebTestClient(timeout = "60000")
-@MongoTest
 @ActiveProfiles("test")
-class OwnershipsApiControllerTest {
+class OwnershipsApiControllerTest(
+    @Autowired val client: WebTestClient
+) {
 
-    @Autowired
-    private lateinit var ownershipRepository: OwnershipRepository
+    @MockkBean
+    private lateinit var service: OwnershipsService
 
-    @Autowired
-    private lateinit var client: WebTestClient
+    val contract = randomAddress()
+    val owner = FlowAddress(randomAddress())
+    val tokenId = Random.Default.nextLong(0L, Long.MAX_VALUE)
+
+    val ownership1 = Ownership(
+        contract = contract,
+        tokenId = tokenId,
+        owner = owner,
+        date = Instant.now(Clock.systemUTC()),
+        creator = FlowAddress(randomAddress())
+    )
+
+    val ownership2 = ownership1.copy(tokenId = tokenId, owner = FlowAddress(randomAddress()))
+    val ownership3 = ownership2.copy(tokenId = tokenId + 1)
+    val all = listOf(ownership1, ownership2, ownership3)
 
     @BeforeEach
-    internal fun setUp() {
-        ownershipRepository.deleteAll().block()
+    fun setUp() {
+        coEvery {
+            service.byId(eq(OwnershipId(contract, tokenId, owner)))
+        } returns ownership1
+
+        coEvery {
+            service.all(any(), any(), any())
+        } returns all.asFlow()
+
+        coEvery {
+            service.byItem(eq(ItemId(contract, tokenId)), any(), any(), any())
+        } returns listOf(ownership1, ownership2).asFlow()
     }
+
 
     @Test
     internal fun `should return ownership by id`() {
-        runBlocking {
-            val contract = randomAddress()
-            val owner = FlowAddress(randomAddress())
-            val tokenId = Random.Default.nextLong(0L, Long.MAX_VALUE)
-            val ownership = Ownership(
-                contract = contract,
-                tokenId = tokenId,
-                owner = owner,
-                date = Instant.now(Clock.systemUTC()),
-                creator = FlowAddress(randomAddress())
-            )
-
-        ownershipRepository.save(ownership).block()
-
-            client.get()
-                .uri("/v0.1/ownerships/{ownershipId}", mapOf("ownershipId" to ownership.id.toString()))
-                .exchange()
-                .expectStatus().isOk
-                .expectBody<FlowNftOwnershipDto>()
-                .consumeWith {
-                    Assertions.assertNotNull(it.responseBody)
-                    val ownershipDto = it.responseBody!!
-                    Assertions.assertEquals(contract, ownershipDto.contract, "Token is not equals!")
-                    Assertions.assertEquals(owner.formatted, ownershipDto.owner, "Owner is not equals!")
-                    Assertions.assertEquals(tokenId.toBigInteger(), ownershipDto.tokenId, "Token ID is not equals!")
-                }
-        }
+        client.get()
+            .uri("/v0.1/ownerships/{ownershipId}", mapOf("ownershipId" to ownership1.id.toString()))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftOwnershipDto>()
+            .consumeWith {
+                it.responseBody shouldNotBe null
+                val ownershipDto = it.responseBody!!
+                ownershipDto.contract shouldBe contract
+                ownershipDto.owner shouldBe owner.formatted
+                ownershipDto.tokenId shouldBe tokenId.toBigInteger()
+            }
     }
 
     @Test
     internal fun `should return all ownerships`() {
-        runBlocking {
-            ownershipRepository.saveAll(
-                listOf(
-                    Ownership(
-                        contract = randomAddress(),
-                        tokenId = randomLong(),
-                        owner = FlowAddress(randomAddress()),
-                        date = Instant.now(Clock.systemUTC()),
-                        creator = FlowAddress(randomAddress())
-                    ),
-                    Ownership(
-                        contract = randomAddress(),
-                        tokenId = randomLong(),
-                        owner = FlowAddress(randomAddress()),
-                        date = Instant.now(Clock.systemUTC()),
-                        creator = FlowAddress(randomAddress())
-                    ),
-                    Ownership(
-                        contract = randomAddress(),
-                        tokenId = randomLong(),
-                        owner = FlowAddress(randomAddress()),
-                        date = Instant.now(Clock.systemUTC()),
-                        creator = FlowAddress(randomAddress())
-                    ),
-                )
-            ).then().block()
-
-            client.get().uri("/v0.1/ownerships/all")
-                .exchange()
-                .expectStatus().isOk
-                .expectBody<FlowNftOwnershipsDto>()
-                .consumeWith {
-                    val list = it.responseBody!!
-                    Assertions.assertTrue(list.ownerships.isNotEmpty())
-                    Assertions.assertTrue(list.ownerships.size == 3)
-                    Assertions.assertNotNull(list.total)
-                    Assertions.assertEquals(list.total, list.ownerships.size.toLong())
-                }
-        }
-
+        client
+            .get()
+            .uri("/v0.1/ownerships/all")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftOwnershipsDto>()
+            .consumeWith {
+                val list = it.responseBody!!
+                list.ownerships shouldHaveSize 3
+            }
     }
-
 
     @Test
     internal fun `should return all ownerships by item`() {
-        runBlocking {
-            val tokenId = randomLong()
-            val contract = randomAddress()
-
-            ownershipRepository.saveAll(
-                listOf(
-                    Ownership(
-                        contract = contract,
-                        tokenId = tokenId,
-                        owner = FlowAddress(randomAddress()),
-                        date = Instant.now(Clock.systemUTC()),
-                        creator = FlowAddress(randomAddress())
-                    ),
-                    Ownership(
-                        contract = contract,
-                        tokenId = tokenId,
-                        owner = FlowAddress(randomAddress()),
-                        date = Instant.now(Clock.systemUTC()),
-                        creator = FlowAddress(randomAddress())
-                    ),
-                    Ownership(
-                        contract = randomAddress(),
-                        tokenId = tokenId,
-                        owner = FlowAddress(randomAddress()),
-                        date = Instant.now(Clock.systemUTC()),
-                        creator = FlowAddress(randomAddress())
-                    ),
-                    Ownership(
-                        contract = contract,
-                        tokenId = randomLong(),
-                        owner = FlowAddress(randomAddress()),
-                        date = Instant.now(Clock.systemUTC()),
-                        creator = FlowAddress(randomAddress())
-                    ),
-
-                    )
-            ).then().block()
-
-            client.get().uri(
+        client
+            .get()
+            .uri(
                 "/v0.1/ownerships/byItem?contract={contract}&tokenId={tokenId}",
                 mapOf("contract" to contract, "tokenId" to tokenId)
             )
-                .exchange()
-                .expectStatus().isOk
-                .expectBody<FlowNftOwnershipsDto>()
-                .consumeWith {
-                    Assertions.assertNotNull(it.responseBody?.ownerships)
-                    val response = it.responseBody!!
-                    Assertions.assertTrue(response.ownerships.isNotEmpty())
-                    Assertions.assertTrue(response.ownerships.size == 2)
-                    response.ownerships.forEach { o ->
-                        Assertions.assertEquals(contract, o.contract)
-                        Assertions.assertEquals(tokenId.toBigInteger(), o.tokenId)
-                    }
-                }
-        }
-    }
-
-    @Test
-    internal fun `ownerships continuation test`() {
-        runBlocking {
-            var tokenId = randomLong()
-            val contract = randomAddress()
-
-            val ownerships = listOf(
-                Ownership(
-                    contract = contract,
-                    tokenId = ++tokenId,
-                    owner = FlowAddress(randomAddress()),
-                    date = Instant.now(Clock.systemUTC()).plusSeconds(1L),
-                    creator = FlowAddress(randomAddress())
-                ),
-                Ownership(
-                    contract = contract,
-                    tokenId = ++tokenId,
-                    owner = FlowAddress(randomAddress()),
-                    date = Instant.now(Clock.systemUTC()).plusSeconds(2L),
-                    creator = FlowAddress(randomAddress())
-                ),
-                Ownership(
-                    contract = randomAddress(),
-                    tokenId = ++tokenId,
-                    owner = FlowAddress(randomAddress()),
-                    date = Instant.now(Clock.systemUTC()).plusSeconds(3L),
-                    creator = FlowAddress(randomAddress())
-                ),
-                Ownership(
-                    contract = contract,
-                    tokenId = ++tokenId,
-                    owner = FlowAddress(randomAddress()),
-                    date = Instant.now(Clock.systemUTC()).plusSeconds(5L),
-                    creator = FlowAddress(randomAddress())
-                ),
-            )
-
-            ownershipRepository.saveAll(
-                ownerships
-            ).then().block()
-
-            val allOwnerships = client.get().uri("/v0.1/ownerships/all")
-                .exchange()
-                .expectStatus().isOk
-                .expectBody<FlowNftOwnershipsDto>()
-                .consumeWith { response ->
-                    Assertions.assertNotNull(response.responseBody)
-                    val ownershipsDto = response.responseBody!!
-                    Assertions.assertNotNull(ownershipsDto.total)
-                    Assertions.assertEquals(ownershipsDto.total, ownershipsDto.ownerships.size.toLong())
-                }.returnResult().responseBody!!
-
-            client.get().uri("/v0.1/ownerships/all?size=1")
-                .exchange()
-                .expectStatus().isOk
-                .expectBody<FlowNftOwnershipsDto>()
-                .consumeWith { response ->
-                    Assertions.assertNotNull(response.responseBody)
-                    val oneOwnershipsDto = response.responseBody!!
-                    Assertions.assertNotNull(oneOwnershipsDto.total)
-                    Assertions.assertEquals(oneOwnershipsDto.total, oneOwnershipsDto.ownerships.size.toLong())
-                    Assertions.assertEquals(allOwnerships.ownerships[0].id, oneOwnershipsDto.ownerships[0].id)
-
-                    client.get().uri(
-                        "/v0.1/ownerships/all?size=1&continuation={continuation}",
-                        mapOf("continuation" to oneOwnershipsDto.continuation)
-                    )
-                        .exchange().expectStatus().isOk
-                        .expectBody<FlowNftOwnershipsDto>()
-                        .consumeWith { nextResponse ->
-                            Assertions.assertNotNull(nextResponse.responseBody)
-                            val nextOwnershipsDto = nextResponse.responseBody!!
-                            Assertions.assertNotNull(nextOwnershipsDto.total)
-                            Assertions.assertEquals(nextOwnershipsDto.total, nextOwnershipsDto.ownerships.size.toLong())
-
-                            Assertions.assertEquals(allOwnerships.ownerships[1].id, nextOwnershipsDto.ownerships[0].id)
-                        }
-
-                    client.get().uri(
-                        "/v0.1/ownerships/all?size=2&continuation={continuation}",
-                        mapOf("continuation" to oneOwnershipsDto.continuation)
-                    )
-                        .exchange().expectStatus().isOk
-                        .expectBody<FlowNftOwnershipsDto>()
-                        .consumeWith { nextResponse ->
-                            Assertions.assertNotNull(nextResponse.responseBody)
-                            val nextOwnershipsDto = nextResponse.responseBody!!
-                            Assertions.assertNotNull(nextOwnershipsDto.total)
-                            Assertions.assertEquals(nextOwnershipsDto.total, nextOwnershipsDto.ownerships.size.toLong())
-
-                            Assertions.assertEquals(allOwnerships.ownerships[1].id, nextOwnershipsDto.ownerships[0].id)
-                            Assertions.assertEquals(allOwnerships.ownerships[2].id, nextOwnershipsDto.ownerships[1].id)
-                        }
-                }
-        }
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftOwnershipsDto>()
+            .consumeWith {
+                val ownerships = it.responseBody!!.ownerships
+                ownerships shouldHaveSize 2
+            }
     }
 }

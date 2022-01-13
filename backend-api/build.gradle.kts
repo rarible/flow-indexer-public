@@ -20,6 +20,7 @@ dependencies {
     implementation(rootProject.libs.rarible.core.kafka)
     implementation(rootProject.libs.blockchain.scanner.model)
     implementation(rootProject.libs.rarible.currency.starer)
+    implementation(rootProject.libs.rarible.core.apm.starter)
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {

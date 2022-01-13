@@ -2,14 +2,14 @@ package com.rarible.flow.core.repository
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.ItemCollection
-import com.rarible.flow.core.repository.filters.BuildsCriteria
+import com.rarible.flow.core.repository.filters.DbFilter
 import com.rarible.flow.core.repository.filters.ScrollingSort
-import org.springframework.data.domain.Sort as SpringSort
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.domain.Sort as SpringSort
 
 
-sealed class CollectionFilter: BuildsCriteria {
+sealed class CollectionFilter: DbFilter<ItemCollection> {
 
     enum class Sort: ScrollingSort<ItemCollection> {
         LATEST_UPDATE {

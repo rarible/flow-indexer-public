@@ -40,6 +40,10 @@ internal class BidServiceTest: FunSpec({
         every {
             save(any())
         } answers { Mono.just(arg(0)) }
+
+        every {
+            defaultSort()
+        } returns OrderFilter.Sort.LATEST_FIRST
     }
 
     test("should deactivate bids by balance") {
@@ -51,8 +55,8 @@ internal class BidServiceTest: FunSpec({
         order.status shouldBe OrderStatus.INACTIVE
 
         coVerify {
-            repository.search(any(), null, 1000)
-            repository.search(any(), OrderFilter.Sort.LATEST_FIRST.nextPage(order1), 1000)
+            repository.search(any(), null, 1000, OrderFilter.Sort.LATEST_FIRST)
+            repository.search(any(), OrderFilter.Sort.LATEST_FIRST.nextPage(order1), 1000, OrderFilter.Sort.LATEST_FIRST)
             repository.save(withArg {
                 it.makeStock shouldBe 11.3.toBigDecimal()
                 it.status shouldBe OrderStatus.INACTIVE
@@ -69,8 +73,8 @@ internal class BidServiceTest: FunSpec({
         order.status shouldBe OrderStatus.ACTIVE
 
         coVerify {
-            repository.search(any(), null, 1000)
-            repository.search(any(), OrderFilter.Sort.LATEST_FIRST.nextPage(order1), 1000)
+            repository.search(any(), null, 1000, OrderFilter.Sort.LATEST_FIRST)
+            repository.search(any(), OrderFilter.Sort.LATEST_FIRST.nextPage(order1), 1000, OrderFilter.Sort.LATEST_FIRST)
             repository.save(withArg {
                 it.makeStock shouldBe it.make.value
                 it.status shouldBe OrderStatus.ACTIVE
