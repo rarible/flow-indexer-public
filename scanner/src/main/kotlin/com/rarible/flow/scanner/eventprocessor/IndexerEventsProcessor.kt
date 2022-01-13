@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.eventlisteners
+package com.rarible.flow.scanner.eventprocessor
 
 import com.rarible.flow.scanner.model.IndexerEvent
 

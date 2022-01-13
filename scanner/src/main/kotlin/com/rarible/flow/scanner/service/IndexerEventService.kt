@@ -1,6 +1,6 @@
 package com.rarible.flow.scanner.service
 
-import com.rarible.flow.scanner.eventlisteners.IndexerEventsProcessor
+import com.rarible.flow.scanner.eventprocessor.IndexerEventsProcessor
 import com.rarible.flow.scanner.model.IndexerEvent
 import org.springframework.stereotype.Service
 
