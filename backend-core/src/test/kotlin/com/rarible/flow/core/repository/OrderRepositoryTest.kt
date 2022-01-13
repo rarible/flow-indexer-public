@@ -56,7 +56,7 @@ internal class OrderRepositoryTest(
                 .findAllByMake(asset.contract, asset.tokenId)
                 .collectList()
                 .awaitSingle()
-                .first() shouldBe sellOrder
+                .first().id shouldBe sellOrder.id
         }
     }
 
@@ -73,7 +73,7 @@ internal class OrderRepositoryTest(
                 .findAllByTake(asset.contract, asset.tokenId)
                 .collectList()
                 .awaitSingle()
-                .first() shouldBe bidOrder
+                .first().id shouldBe bidOrder.id
         }
     }
 
