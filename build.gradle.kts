@@ -5,7 +5,7 @@ plugins {
     kotlin("jvm") version "1.5.31"
     kotlin("plugin.spring") version "1.5.31"
     kotlin("plugin.serialization") version "1.5.31"
-    jacoco
+    id("org.jetbrains.kotlinx.kover") version "0.5.0-RC"
 }
 
 group = "com.rarible.flow"
@@ -127,6 +127,18 @@ subprojects {
                 project.buildDir.resolve("surefire-reports")
             )
         }
+
+        extensions.configure(kotlinx.kover.api.KoverTaskExtension::class) {
+            isDisabled = true
+            //binaryReportFile.set(file("$buildDir/custom/result.bin"))
+            includes = listOf("com.rarible.flow.*")
+            excludes = listOf(
+                "com.rarible.flow.core.config.*",
+                "com.rarible.flow.api.config.*",
+                "com.rarible.flow.scanner.config.*",
+                "com.rarible.flow.scanner.ScannerApplicationKt"
+            )
+        }
     }
 }
 
@@ -138,13 +150,8 @@ tasks.getByName<Jar>("jar") {
     enabled = true
 }
 
-task<JacocoMerge>("coverageMerge") {
-    dependsOn(subprojects.map { it.tasks.withType<Test>() })
-    dependsOn(subprojects.map { it.tasks.withType<JacocoReport>() })
-
-    executionData = (project.fileTree(".") {
-        include("**/build/jacoco/*.exec")
-    })
+tasks.koverCollectProjectsReports {
+    outputDir.set(layout.buildDirectory.dir("all-projects-reports") )
 }
 
 task<JacocoReport>("coverage") {
@@ -181,4 +188,10 @@ project("e2e") {
             project.hasProperty("runE2e")
         }
     }
+}
+
+kover {
+    isDisabled = true
+    this.coverageEngine.set(kotlinx.kover.api.CoverageEngine.JACOCO)
+    instrumentAndroidPackage = false
 }
