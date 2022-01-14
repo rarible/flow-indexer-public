@@ -5,6 +5,7 @@ import com.rarible.flow.core.domain.FlowActivityType
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.repository.ItemFilter
+import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.filters.ScrollingSort
 import com.rarible.flow.core.repository.forEach
@@ -27,7 +28,8 @@ import org.springframework.data.mongodb.core.query.isEqualTo
 )
 class ChangeLog00012ActivityDataMigration(
     private val itemRepository: ItemRepository,
-    private val mongoTemplate: ReactiveMongoTemplate
+    private val mongoTemplate: ReactiveMongoTemplate,
+    private val itemHistoryRepository: ItemHistoryRepository
 ) {
 
     @Execution
@@ -39,7 +41,7 @@ class ChangeLog00012ActivityDataMigration(
                 ScrollingSort.MAX_LIMIT,
                 ItemFilter.Sort.LAST_UPDATE
             ) { item ->
-                mongoTemplate.find<ItemHistory>(
+                val itemHistory = mongoTemplate.find<ItemHistory>(
                     Query(
                         Criteria().andOperator(
                             ItemHistory::activity / BaseActivity::type isEqualTo FlowActivityType.MINT,
@@ -48,16 +50,16 @@ class ChangeLog00012ActivityDataMigration(
                             Criteria("${ItemHistory::activity.name}.${MintActivity::creator.name}").exists(false)
                         )
                     )
-                ).flatMap { itemHistory ->
-                    val toSave = itemHistory.copy(
+                ).map { itemHistory ->
+                    itemHistory.copy(
                         activity = (itemHistory.activity as MintActivity).copy(
                             creator = item.creator.formatted
                         )
                     )
-                    mongoTemplate.save(toSave)
-                }.awaitLast()
-            }
+                }
 
+                itemHistoryRepository.saveAll(itemHistory).awaitLast()
+            }
         }
     }
 
