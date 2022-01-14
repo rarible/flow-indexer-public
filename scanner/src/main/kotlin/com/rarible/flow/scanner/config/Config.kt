@@ -1,9 +1,6 @@
 package com.rarible.flow.scanner.config
 
-import com.nftco.flow.sdk.AsyncFlowAccessApi
-import com.nftco.flow.sdk.Flow
-import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.FlowChainId
+import com.nftco.flow.sdk.*
 import com.rarible.blockchain.scanner.flow.EnableFlowBlockchainScanner
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.repository.BalanceRepository
@@ -26,7 +23,7 @@ import org.springframework.context.annotation.Configuration
 @EnableFlowBlockchainScanner
 @EnableConfigurationProperties(FlowApiProperties::class)
 class Config(
-    val flowApiProperties: FlowApiProperties
+    private val flowApiProperties: FlowApiProperties
 ) {
     @Bean
     fun currencyApi(factory: CurrencyApiClientFactory): CurrencyControllerApi {
@@ -69,5 +66,8 @@ class Config(
     }
 
     @Bean
-    fun api(): AsyncFlowAccessApi = Flow.newAsyncAccessApi(flowApiProperties.flowAccessUrl, flowApiProperties.flowAccessPort)
+    fun asyncApi(): AsyncFlowAccessApi = Flow.newAsyncAccessApi(flowApiProperties.flowAccessUrl, flowApiProperties.flowAccessPort)
+
+    @Bean
+    fun syncApy(): FlowAccessApi = Flow.newAccessApi(flowApiProperties.flowAccessUrl, flowApiProperties.flowAccessPort)
 }
