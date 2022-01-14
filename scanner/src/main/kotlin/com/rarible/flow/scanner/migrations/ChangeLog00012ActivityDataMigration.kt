@@ -7,13 +7,11 @@ import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.repository.ItemFilter
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.coSaveAll
 import com.rarible.flow.core.repository.filters.ScrollingSort
 import com.rarible.flow.core.repository.forEach
 import io.mongock.api.annotations.ChangeUnit
 import io.mongock.api.annotations.Execution
 import io.mongock.api.annotations.RollbackExecution
-import kotlinx.coroutines.reactive.awaitFirstOrDefault
 import kotlinx.coroutines.reactive.awaitLast
 import kotlinx.coroutines.runBlocking
 import org.springframework.data.mapping.div
@@ -22,7 +20,6 @@ import org.springframework.data.mongodb.core.find
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.isEqualTo
-import reactor.core.publisher.Flux
 
 @ChangeUnit(
     id = "ChangeLog00012ActivityDataMigration",
