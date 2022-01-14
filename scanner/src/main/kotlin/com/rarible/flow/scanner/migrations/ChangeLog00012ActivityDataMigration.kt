@@ -11,6 +11,7 @@ import com.rarible.flow.core.repository.forEach
 import io.mongock.api.annotations.ChangeUnit
 import io.mongock.api.annotations.Execution
 import io.mongock.api.annotations.RollbackExecution
+import kotlinx.coroutines.reactive.awaitLast
 import kotlinx.coroutines.runBlocking
 import org.springframework.data.mapping.div
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
@@ -47,14 +48,14 @@ class ChangeLog00012ActivityDataMigration(
                             Criteria("${ItemHistory::activity.name}.${MintActivity::creator.name}").exists(false)
                         )
                     )
-                ).subscribe { itemHistory ->
+                ).flatMap { itemHistory ->
                     val toSave = itemHistory.copy(
                         activity = (itemHistory.activity as MintActivity).copy(
                             creator = item.creator.formatted
                         )
                     )
                     mongoTemplate.save(toSave)
-                }
+                }.awaitLast()
             }
 
         }
