@@ -68,7 +68,7 @@ data class FlowNftOrderActivitySell(
     val hash: String,
     val left: OrderActivityMatchSide,
     val right: OrderActivityMatchSide,
-    val payments: List<FlowNftOrderPayment>,
+    val payments: List<FlowNftOrderPayment> = emptyList(),
 ) : FlowNftOrderActivity()
 
 /**
