@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import reactor.core.publisher.Mono
 
 internal class RaribleNFTMetaProviderTest: FunSpec({
 
@@ -26,7 +27,7 @@ internal class RaribleNFTMetaProviderTest: FunSpec({
             """{"name":"flying toffee","description":"my puppy <3 ","image":"ipfs://ipfs/QmbV7WN7EmhP83nK4hH2K9oitxEvjBLYRpa2NuRb86ubZN/image.jpeg","attributes":[]}"""
         ),
         mockk() {
-            coEvery { coFindById(any()) } returns item
+            every { findById(any<ItemId>()) } returns Mono.just(item)
         }
     )
 

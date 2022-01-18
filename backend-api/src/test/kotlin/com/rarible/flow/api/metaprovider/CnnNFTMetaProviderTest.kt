@@ -26,8 +26,8 @@ internal class CnnNFTMetaProviderTest : FunSpec({
                     }
                 )
             },
-            mocks.scriptExecutor("cnnNft" to CNN_NFT, "ifps" to IPFS_HASH),
-            mocks.webClient("Qmb1QwvaUF5xiqp2bXiRo4jzwXZ4MLJuk5srt1FYvH3Zqc", IPFS_META),
+            mocks.scriptExecutor("cnnNft" to CNN_NFT, "ipfs" to IPFS_HASH),
+            mocks.webClient("/Qmb1QwvaUF5xiqp2bXiRo4jzwXZ4MLJuk5srt1FYvH3Zqc", IPFS_META),
             mocks.resource("cnnNft"),
             mocks.resource("ipfs")
         )
