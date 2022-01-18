@@ -1,49 +1,124 @@
 package com.rarible.flow.api.controller
 
-import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.api.config.Config
-import com.rarible.flow.core.config.CoreConfig
-import com.rarible.flow.core.domain.*
-import com.rarible.flow.core.repository.OrderRepository
-import com.rarible.flow.randomAddress
-import com.rarible.protocol.dto.FlowOrderDto
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
+import com.ninjasquad.springmockk.MockkBean
+import com.rarible.flow.core.repository.ItemHistoryRepository
+import com.rarible.protocol.dto.FlowAggregationDataDto
+import io.mockk.coVerify
+import io.mockk.every
+import kotlinx.coroutines.flow.asFlow
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.math.BigDecimal
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
-@SpringBootTest(
+@WebFluxTest(
+    controllers = [OrderAggregationController::class],
     properties = [
-        "application.environment = dev",
+        "application.environment = test",
         "spring.cloud.service-registry.auto-registration.enabled = false",
         "spring.cloud.discovery.enabled = false",
         "spring.cloud.consul.config.enabled = false",
         "logging.logstash.tcp-socket.enabled = false",
-    ],
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+    ]
 )
-@AutoConfigureWebTestClient(timeout = "60000")
 @ActiveProfiles("test")
-@Import(Config::class, CoreConfig::class)
-class OrderAggregationControllerTest {
+class OrderAggregationControllerTest(
+    @Autowired val client: WebTestClient
+) {
 
+    @MockkBean
+    lateinit var itemHistoryRepository: ItemHistoryRepository
 
-    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
-    @Autowired
-    private lateinit var repo: OrderRepository
+    @Test
+    fun `should aggregate NFT purchase by collection`() {
+        every {
+            itemHistoryRepository.aggregatePurchaseByCollection(
+                any(), any(), any()
+            )
+        } returns listOf(
+            FlowAggregationDataDto("0x01", BigDecimal.TEN, 12)
+        ).asFlow()
 
-    @Autowired
-    lateinit var client: WebTestClient
+        val start = Instant.now().minus(1, ChronoUnit.DAYS)
+        val end = Instant.now()
+        client
+            .get()
+            .uri(
+                "/v0.1/aggregations/nftPurchaseByCollection?startDate={startDate}&endDate={endDate}&size=10",
+                mapOf(
+                    "startDate" to start.toEpochMilli(),
+                    "endDate" to end.toEpochMilli()
+                )
+            )
+            .exchange()
+            .expectStatus().isOk
 
-    @BeforeEach
-    internal fun setUp() {
-        repo.deleteAll().block()
+        coVerify {
+            itemHistoryRepository.aggregatePurchaseByCollection(start, end, 10)
+        }
+    }
+
+    @Test
+    fun `should aggregate NFT purchase by taker`() {
+        every {
+            itemHistoryRepository.aggregatePurchaseByTaker(
+                any(), any(), any()
+            )
+        } returns listOf(
+            FlowAggregationDataDto("0x01", BigDecimal.TEN, 12)
+        ).asFlow()
+
+        val start = Instant.now().minus(1, ChronoUnit.DAYS)
+        val end = Instant.now()
+
+        client
+            .get()
+            .uri(
+                "/v0.1/aggregations/nftPurchaseByTaker?startDate={startDate}&endDate={endDate}&size=10",
+                mapOf(
+                    "startDate" to start.toEpochMilli(),
+                    "endDate" to end.toEpochMilli()
+                )
+            )
+            .exchange()
+            .expectStatus().isOk
+
+        coVerify {
+            itemHistoryRepository.aggregatePurchaseByTaker(start, end, 10)
+        }
+    }
+
+    @Test
+    fun `should aggregate NFT sell by maker`() {
+        every {
+            itemHistoryRepository.aggregateSellByMaker(
+                any(), any(), any()
+            )
+        } returns listOf(
+            FlowAggregationDataDto("0x01", BigDecimal.TEN, 12)
+        ).asFlow()
+
+        val start = Instant.now().minus(1, ChronoUnit.DAYS)
+        val end = Instant.now()
+        client
+            .get()
+            .uri(
+                "/v0.1/aggregations/nftSellByMaker?startDate={startDate}&endDate={endDate}&size=10",
+                mapOf(
+                    "startDate" to start.toEpochMilli(),
+                    "endDate" to end.toEpochMilli()
+                )
+            )
+            .exchange()
+            .expectStatus().isOk
+
+        coVerify {
+            itemHistoryRepository.aggregateSellByMaker(start, end, 10)
+        }
     }
 
 }
