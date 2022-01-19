@@ -326,7 +326,7 @@ class NftOrderActivityControllerTest {
                     transactionHash = "052dd413b2fb22fb078f03b3d5cb93238376f801513a8996b45e848e92700535",
                     status = Log.Status.CONFIRMED,
                     eventIndex = 1,
-                    eventType = "A.1d56d7ba49283a88.RaribleOpenBid.BidAvailable",
+                    eventType = "A.01ab36aaf654a13e.RaribleOpenBid.BidAvailable",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:11:36.543Z").toInstant(),
                     blockHeight = 20231662L,
                     blockHash = "d3265903abde4ab6518347f40f7aa2720539ef499925fd27481c0e08a1a81824"
@@ -343,7 +343,7 @@ class NftOrderActivityControllerTest {
                     transactionHash = "a1b589c6a8f969f5f219b04457f3ff214c7fdce7a87eae9176805569fab89dc6",
                     status = Log.Status.CONFIRMED,
                     eventIndex = 0,
-                    eventType = "A.1d56d7ba49283a88.RaribleOpenBid.BidCompleted",
+                    eventType = "A.01ab36aaf654a13e.RaribleOpenBid.BidCompleted",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:12:24.761Z").toInstant(),
                     blockHeight = 20231684L,
                     blockHash = "f5f672878a5d2311e5742e82f5334abcf34f2ec1df813336b68d4c64264fd8c6"
@@ -399,7 +399,7 @@ class NftOrderActivityControllerTest {
                     transactionHash = "a1b589c6a8f969f5f219b04457f3ff214c7fdce7a87eae9176805569fab89dd6",
                     status = Log.Status.CONFIRMED,
                     eventIndex = 0,
-                    eventType = "A.1d56d7ba49283a88.RaribleOpenBid.BidCompleted",
+                    eventType = "A.01ab36aaf654a13e.RaribleOpenBid.BidCompleted",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:12:24.761Z").toInstant(),
                     blockHeight = 20231684L,
                     blockHash = "f5f672878a5d2311e5742e82f5334abcf34f2ec1df813336b68d4c64264fd8d6"
@@ -423,7 +423,7 @@ class NftOrderActivityControllerTest {
                     transactionHash = "a1b589c6a8f969f5f219b04457f3ff214c7fdce7a87eae9176805569fab89de6",
                     status = Log.Status.CONFIRMED,
                     eventIndex = 0,
-                    eventType = "A.1d56d7ba49283a88.RaribleOpenBid.BidCompleted",
+                    eventType = "A.01ab36aaf654a13e.RaribleOpenBid.BidCompleted",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:12:24.761Z").toInstant(),
                     blockHeight = 20231684L,
                     blockHash = "f5f672878a5d2311e5742e82f5334abcf34f2ec1df813336b68d4c64264fd8e6"
