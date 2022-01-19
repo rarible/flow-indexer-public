@@ -63,7 +63,7 @@ class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
         val finishAt: NumberField by flowLogEvent.event.fields
         return AuctionActivityLotEndTimeChanged(
             lotId = cadenceParser.long(lotId),
-            finishAt = Instant.ofEpochSecond(cadenceParser.bigDecimal(finishAt).longValueExact()),
+            finishAt = resolveTimeAt(finishAt)!!,
             timestamp = flowLogEvent.log.timestamp
         )
     }
@@ -136,10 +136,12 @@ class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
         )
     }
 
-    private fun lotCanceledActivity(event: FlowLogEvent): BaseActivity = AuctionActivityLotCanceled(
-        lotId = cadenceParser.long(event.event.fields["lotId"]!!),
-        timestamp = event.log.timestamp
-    )
+    private fun lotCanceledActivity(event: FlowLogEvent): BaseActivity = with(cadenceParser) {
+        AuctionActivityLotCanceled(
+            lotId = long(event.event.fields["lotId"]!!),
+            timestamp = event.log.timestamp
+        )
+    }
 
     private fun lotAvailableActivity(event: FlowLogEvent): BaseActivity {
         try {
@@ -163,8 +165,8 @@ class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
                 minStep = cadenceParser.bigDecimal(increment),
                 startPrice = cadenceParser.bigDecimal(minimumBid),
                 buyoutPrice = cadenceParser.optional(buyoutPrice) { bigDecimal(it) },
-                startAt = Instant.ofEpochSecond(cadenceParser.bigDecimal(startAt).longValueExact()),
-                finishAt = resolveFinishAt(finishAt),
+                startAt = resolveTimeAt(startAt)!!,
+                finishAt = resolveTimeAt(finishAt),
                 duration = cadenceParser.bigDecimal(duration).longValueExact(),
                 seller = cadenceParser.address(seller)
             )
@@ -173,12 +175,12 @@ class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
         }
     }
 
-    private fun resolveFinishAt(finishAt: Field<*>): Instant? = when(finishAt) {
-        is OptionalField -> cadenceParser.optional(finishAt) {
+    private fun resolveTimeAt(timeField: Field<*>): Instant? = when(timeField) {
+        is OptionalField -> cadenceParser.optional(timeField) {
             Instant.ofEpochSecond(bigDecimal(it).longValueExact())
         }
         is NumberField -> Instant.ofEpochSecond(
-            cadenceParser.bigDecimal(finishAt).longValueExact()
+            cadenceParser.bigDecimal(timeField).longValueExact()
         )
         else -> null
     }
