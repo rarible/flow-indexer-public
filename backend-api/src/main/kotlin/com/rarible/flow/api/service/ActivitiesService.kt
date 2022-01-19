@@ -164,7 +164,7 @@ class ActivitiesService(
             .with(defaultSort(sort))
         val items = mongoTemplate
             .find(query, ItemHistory::class.java).asFlow()
-            .map { ItemHistoryToDtoConverter.convert(it)!! }
+            .map { ItemHistoryToDtoConverter.convert(it) }
             .toList()
         val outCont = answerContinuation(items, limit)
 

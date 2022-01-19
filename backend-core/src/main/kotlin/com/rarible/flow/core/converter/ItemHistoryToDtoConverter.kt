@@ -1,7 +1,6 @@
 package com.rarible.flow.core.converter
 
 import com.rarible.flow.core.domain.*
-import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.*
 import org.springframework.core.convert.converter.Converter
 import java.math.BigDecimal
@@ -9,8 +8,6 @@ import java.math.BigInteger
 
 
 object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
-
-    private val logger by Log()
 
     private fun convertAsset(asset: FlowAsset) = when (asset) {
         is FlowAssetNFT -> FlowAssetNFTDto(
@@ -25,7 +22,7 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
         else -> throw IllegalStateException("Invalid asset: ${asset.javaClass}")
     }
 
-    override fun convert(source: ItemHistory): FlowActivityDto? {
+    override fun convert(source: ItemHistory): FlowActivityDto {
         return when (source.activity) {
             is MintActivity -> FlowMintDto(
                 id = source.id,
@@ -139,7 +136,6 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                     logIndex = source.log.eventIndex,
                 )
             }
-            else -> null
         }
     }
 }
