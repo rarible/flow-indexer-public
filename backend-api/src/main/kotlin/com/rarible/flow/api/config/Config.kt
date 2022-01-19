@@ -9,12 +9,17 @@ import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.protocol.currency.api.client.CurrencyApiClientFactory
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
+import io.netty.handler.logging.LogLevel
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.event.EventListener
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.netty.http.client.HttpClient
+import reactor.netty.transport.logging.AdvancedByteBufFormat
+
 
 @Configuration
 @EnableConfigurationProperties(ApiProperties::class)
@@ -36,8 +41,25 @@ class Config(
 
     @Bean
     fun pinataClient(): WebClient {
-        return WebClient.create("https://rarible.mypinata.cloud/ipfs")
+        return buildWebClient("PinataClient", "https://rarible.mypinata.cloud/ipfs")
     }
+
+    private fun buildWebClient(loggerName: String, baseUrl: String): WebClient {
+        val httpClient: HttpClient = HttpClient
+            .create()
+            .wiretap(
+                loggerName,
+                LogLevel.INFO,
+                AdvancedByteBufFormat.TEXTUAL
+            )
+
+        return WebClient
+            .builder()
+            .baseUrl(baseUrl)
+            .clientConnector(ReactorClientHttpConnector(httpClient))
+            .build()
+    }
+
 
     @EventListener(ApplicationReadyEvent::class)
     fun configureFlow() {
