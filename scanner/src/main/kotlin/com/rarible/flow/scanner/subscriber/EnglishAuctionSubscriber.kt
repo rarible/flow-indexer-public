@@ -12,7 +12,7 @@ class EnglishAuctionSubscriber: BaseFlowLogEventSubscriber() {
 
     private val contractName = "EnglishAuction"
 
-    private val events = setOf("LotAvailable", "LotCompleted", "LotEndTimeChanged", "LotCleaned", "OpenBid", "CloseBid")
+    private val events = setOf("LotAvailable", "LotCompleted", "LotEndTimeChanged", "LotCleaned", "OpenBid", "CloseBid", "IncreaseBid")
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
@@ -32,6 +32,7 @@ class EnglishAuctionSubscriber: BaseFlowLogEventSubscriber() {
         "LotCleaned" -> FlowLogType.LOT_CLEANED
         "OpenBid" -> FlowLogType.OPEN_BID
         "CloseBid" -> FlowLogType.CLOSE_BID
+        "IncreaseBid" -> FlowLogType.INCREASE_BID
         else -> throw IllegalStateException("Unsupported event type [${log.event.type}]")
     }
 }
