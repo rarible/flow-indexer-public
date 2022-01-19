@@ -7,12 +7,7 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.enum.safeOf
-import com.rarible.protocol.dto.FlowAssetDto
-import com.rarible.protocol.dto.FlowAssetFungibleDto
-import com.rarible.protocol.dto.FlowOrderDto
-import com.rarible.protocol.dto.FlowOrderIdsDto
-import com.rarible.protocol.dto.FlowOrderStatusDto
-import com.rarible.protocol.dto.FlowOrdersPaginationDto
+import com.rarible.protocol.dto.*
 import com.rarible.protocol.flow.nft.api.controller.FlowOrderControllerApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.count
@@ -50,7 +45,7 @@ class OrderApiController(
     ): ResponseEntity<FlowOrdersPaginationDto> {
         val makerAddress = maker.flowAddress()
         val itemId = ItemId(contract, tokenId.tokenId())
-        val sort = OrderFilter.Sort.TAKE_PRICE_DESC
+        val sort = OrderFilter.Sort.MAKE_PRICE_DESC
         val orderStatuses = OderStatusDtoConverter.convert(status)
         return result(
             service.getBidOrdersByItem(
@@ -92,7 +87,7 @@ class OrderApiController(
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
         val makerAddress = maker.flowAddress()
-        val sort = OrderFilter.Sort.TAKE_PRICE_DESC
+        val sort = OrderFilter.Sort.MAKE_PRICE_DESC
         val orderStatuses = OderStatusDtoConverter.convert(status)
         return result(
             service.getBidOrdersByMaker(

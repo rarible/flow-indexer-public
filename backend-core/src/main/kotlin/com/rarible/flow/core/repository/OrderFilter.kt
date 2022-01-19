@@ -11,11 +11,7 @@ import com.rarible.flow.core.repository.filters.ScrollingSort
 import org.bson.types.Decimal128
 import org.springframework.data.mapping.div
 import org.springframework.data.mapping.toDotPath
-import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.data.mongodb.core.query.gte
-import org.springframework.data.mongodb.core.query.inValues
-import org.springframework.data.mongodb.core.query.isEqualTo
-import org.springframework.data.mongodb.core.query.lt
+import org.springframework.data.mongodb.core.query.*
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDateTime
@@ -76,7 +72,21 @@ sealed class OrderFilter : DbFilter<Order>, CriteriaProduct<OrderFilter> {
             override fun nextPage(entity: Order): String {
                 return Cont.toString(entity.take.value, entity.id)
             }
-        };
+        },
+        MAKE_PRICE_DESC {
+            override fun springSort(): SpringSort = SpringSort.by(
+                SpringSort.Order.desc((Order::make / FlowAsset::value).toDotPath()),
+                SpringSort.Order.desc(Order::id.name)
+            )
+
+            override fun scroll(criteria: Criteria, continuation: String?): Criteria =
+                Cont.scrollDesc(criteria, continuation, (Order::make / FlowAsset::value), Order::id)
+
+            override fun nextPage(entity: Order): String {
+                return Cont.toString(entity.make.value, entity.id)
+            }
+        },
+        ;
 
     }
 
