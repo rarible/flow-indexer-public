@@ -33,7 +33,7 @@ class RaribleNFTMetaProvider(
                 ?.let { ipfs ->
                     pinataClient
                         .get()
-                        .uri("/$ipfs")
+                        .uri("$ipfs")
                         .retrieve()
                         .bodyToMono(RaribleNFTMetaBody::class.java)
                         .retryExponentialBackoff(3, Duration.ofMillis(500))
@@ -54,7 +54,7 @@ class RaribleNFTMetaProvider(
         }
 
         if (url.startsWith("ipfs://")) {
-            url = url.substring("ipfs:/".length)
+            url = url.substring("ipfs://ipfs".length)
         }
 
         if (url.isEmpty()) {
