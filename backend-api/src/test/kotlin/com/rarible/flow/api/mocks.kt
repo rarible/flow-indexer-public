@@ -5,7 +5,6 @@ import com.nftco.flow.sdk.FlowScript
 import com.nftco.flow.sdk.FlowScriptResponse
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.config.AppProperties
-import com.rarible.flow.log.Log
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -48,9 +47,10 @@ object mocks {
         } returns (fileName ?: script)
     }
 
-    fun webClient(expectedPath: String, response: String) = WebClient.builder()
+    fun webClient(expectedPath: String, response: String) = WebClient
+        .builder()
         .exchangeFunction { req ->
-            req.url().path shouldBe expectedPath
+            req.url().toString() shouldBe expectedPath
 
             Mono.just(
                 ClientResponse.create(HttpStatus.OK)
