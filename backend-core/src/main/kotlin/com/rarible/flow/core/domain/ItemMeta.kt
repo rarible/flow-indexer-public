@@ -25,6 +25,16 @@ data class ItemMeta(
 ) {
     @Field(targetType = FieldType.BINARY)
     var raw: ByteArray? = null
+
+    companion object {
+        fun empty(itemId: ItemId): ItemMeta = ItemMeta(
+            itemId = itemId,
+            name = "Untitled",
+            description = "",
+            attributes = emptyList(),
+            contentUrls = emptyList()
+        )
+    }
 }
 
 data class ItemMetaAttribute(
