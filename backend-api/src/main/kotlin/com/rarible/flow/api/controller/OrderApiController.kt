@@ -114,7 +114,7 @@ class OrderApiController(
     ): ResponseEntity<FlowOrdersPaginationDto> {
         val sort = OrderFilter.Sort.LATEST_FIRST
         return result(
-            service.findAll(continuation, size, sort),
+            service.findAllSell(continuation, size, sort),
             sort, size
         )
     }
