@@ -11,7 +11,6 @@ import java.math.BigInteger
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import java.util.regex.Pattern
 import kotlin.reflect.KProperty
 
 
@@ -41,7 +40,7 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
     abstract operator fun invoke(
         criteria: Criteria,
         primaryProp: KProperty<P1>,
-        secondaryProp: KProperty<P2>
+        secondaryProp: KProperty<P2>,
     ): Criteria
 
     data class AscCont<P1, P2>(override val primary: P1, override val secondary: P2) :
@@ -71,8 +70,6 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
     }
 
     companion object {
-        val SPLITTER = Pattern.compile("_")
-
         fun parseInt(str: String): Int {
             return try {
                 str.toInt()
@@ -123,7 +120,7 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
 
         inline fun <reified P1, reified P2> scrollAsc(
             criteria: Criteria, continuation: String?,
-            primary: KProperty<P1>, secondary: KProperty<P2>
+            primary: KProperty<P1>, secondary: KProperty<P2>,
         ): Criteria {
             return if (continuation == null) {
                 criteria
@@ -134,7 +131,7 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
 
         inline fun <reified P1, reified P2> scrollDesc(
             criteria: Criteria, continuation: String?,
-            primary: KProperty<P1>, secondary: KProperty<P2>
+            primary: KProperty<P1>, secondary: KProperty<P2>,
         ): Criteria {
             return if (continuation == null) {
                 criteria
@@ -144,7 +141,7 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
         }
 
         inline fun <reified P1, reified P2> toString(
-            primary: P1, secondary: P2
+            primary: P1, secondary: P2,
         ): String {
             return toString(primary) + "_" + toString(secondary)
         }
