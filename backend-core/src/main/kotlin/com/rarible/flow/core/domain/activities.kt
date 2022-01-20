@@ -61,7 +61,9 @@ sealed class FlowNftOrderActivity : BaseActivity() {
 @QueryEmbeddable
 data class FlowNftOrderActivitySell(
     override val type: FlowActivityType = FlowActivityType.SELL,
+    @Field(targetType = FieldType.DECIMAL128)
     override val price: BigDecimal,
+    @Field(targetType = FieldType.DECIMAL128)
     override val priceUsd: BigDecimal,
     override val tokenId: TokenId,
     override val contract: String,
@@ -80,7 +82,9 @@ data class FlowNftOrderActivitySell(
 @QueryEmbeddable
 data class FlowNftOrderActivityList(
     override val type: FlowActivityType = FlowActivityType.LIST,
+    @Field(targetType = FieldType.DECIMAL128)
     override val price: BigDecimal,
+    @Field(targetType = FieldType.DECIMAL128)
     override val priceUsd: BigDecimal,
     override val tokenId: TokenId,
     override val contract: String,
@@ -95,7 +99,9 @@ data class FlowNftOrderActivityList(
 @QueryEmbeddable
 data class FlowNftOrderActivityCancelList(
     override val type: FlowActivityType = FlowActivityType.CANCEL_LIST,
+    @Field(targetType = FieldType.DECIMAL128)
     override val price: BigDecimal,
+    @Field(targetType = FieldType.DECIMAL128)
     override val priceUsd: BigDecimal,
     override val tokenId: TokenId,
     override val contract: String,

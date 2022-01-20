@@ -58,6 +58,7 @@ class ItemHistoryAggregationsTest {
             ItemHistory(Instant.now(), sell, log),
             ItemHistory(Instant.now(), sell.copy(
                 price = BigDecimal.valueOf(10L),
+                priceUsd = BigDecimal.valueOf(13L),
                 tokenId = 2,
                 left = OrderActivityMatchSide(
                     FlowAddress("0x01").formatted,
@@ -72,6 +73,7 @@ class ItemHistoryAggregationsTest {
                 Instant.now(), sell.copy(
                 contract = "c2",
                 price = BigDecimal.valueOf(100L),
+                priceUsd = BigDecimal.valueOf(100L),
                 tokenId = 3,
                 left = OrderActivityMatchSide(
                     FlowAddress("0x02").formatted,
