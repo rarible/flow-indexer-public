@@ -91,7 +91,7 @@ class ItemHistoryRepositoryCustomImpl(
         )
         val group = Aggregation
             .group(groupByField)
-            .sum("activity.right.asset.value").`as`(FlowAggregationDataDto::sum.name)
+            .sum("activity.priceUsd").`as`(FlowAggregationDataDto::sum.name)
             .count().`as`(FlowAggregationDataDto::count.name)
 
         val sort = Aggregation.sort(Sort.by(Sort.Direction.DESC, FlowAggregationDataDto::sum.name))
