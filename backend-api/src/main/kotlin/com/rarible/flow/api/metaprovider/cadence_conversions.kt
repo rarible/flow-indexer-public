@@ -3,11 +3,7 @@ package com.rarible.flow.api.metaprovider
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowScriptResponse
-import com.nftco.flow.sdk.cadence.CadenceNamespace
-import com.nftco.flow.sdk.cadence.Field
-import com.nftco.flow.sdk.cadence.JsonCadenceConversion
-import com.nftco.flow.sdk.cadence.JsonCadenceConverter
-import com.nftco.flow.sdk.cadence.OptionalField
+import com.nftco.flow.sdk.cadence.*
 import com.rarible.flow.core.domain.Part
 
 @JsonCadenceConversion(MotoGPNFTConverter::class)
@@ -132,3 +128,25 @@ class CnnNFTConverter : JsonCadenceConverter<CnnNFT> {
     }
 }
 
+@JsonCadenceConversion(DisruptArtNFTConversion::class)
+data class DisruptArtNFT(
+    val id: Long,
+    val name: String,
+    val creator: String,
+    val metaData: Map<String, String>
+)
+
+class DisruptArtNFTConversion: JsonCadenceConverter<DisruptArtNFT> {
+    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): DisruptArtNFT = com.nftco.flow.sdk.cadence.unmarshall(value) {
+        DisruptArtNFT(
+            id = long(compositeValue.getRequiredField("id")),
+            name = string(compositeValue.getRequiredField("name")),
+            creator = optional(compositeValue.getRequiredField("creator")) {
+                address(it)
+            }!!,
+            metaData = dictionaryMap(compositeValue.getRequiredField("metaData")) { k, v ->
+                string(k) to string(v)
+            }
+        )
+    }
+}

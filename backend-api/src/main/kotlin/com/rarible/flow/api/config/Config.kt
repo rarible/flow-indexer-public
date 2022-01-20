@@ -56,6 +56,8 @@ class Config(
             register("0xCNNNFT", FlowAddress("0xebf4ae01d1284af8"), FlowChainId.TESTNET)
             register("0xMATRIXWORLDFLOWFEST", FlowAddress("0xe2f1b000e0203c1d"), FlowChainId.TESTNET)
             register("0xMATRIXWORLD", FlowAddress("0xe2f1b000e0203c1d"), FlowChainId.TESTNET)
+            register("0xDISRUPTART", FlowAddress("0x439c2b49c0b2f62b"), FlowChainId.TESTNET)
+            register("0xDISRUPTARTROYALTY", FlowAddress("0x439c2b49c0b2f62b"), FlowChainId.TESTNET)
 
 
             register("0xMOTOGPTOKEN", FlowAddress("0xa49cc0ee46c54bfb"), FlowChainId.MAINNET)
@@ -67,7 +69,8 @@ class Config(
             register("0xCNNNFT", FlowAddress("0x329feb3ab062d289"), FlowChainId.MAINNET)
             register("0xMATRIXWORLDFLOWFEST", FlowAddress("0x2d2750f240198f91"), FlowChainId.MAINNET)
             register("0xMATRIXWORLD", FlowAddress("0xebf4ae01d1284af8"), FlowChainId.MAINNET)
-
+            register("0xDISRUPTART", FlowAddress("0xcd946ef9b13804c6"), FlowChainId.MAINNET)
+            register("0xDISRUPTARTROYALTY", FlowAddress("0x420f47f16a214100"), FlowChainId.MAINNET)
         }
 
         Flow.configureDefaults(chainId = appProperties.chainId)
