@@ -3,6 +3,8 @@ package com.rarible.flow.api.controller
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowException
 import com.ninjasquad.springmockk.MockkBean
+import com.rarible.flow.api.royaltyprovider.Royalty
+import com.rarible.flow.api.service.ItemRoyaltyService
 import com.rarible.flow.api.service.NftItemMetaService
 import com.rarible.flow.api.service.NftItemService
 import com.rarible.flow.core.converter.ItemToDtoConverter
@@ -54,6 +56,9 @@ internal class NftApiControllerTest {
 
     @MockkBean
     lateinit var nftItemMetaService: NftItemMetaService
+
+    @MockkBean
+    lateinit var itemRoyaltyService: ItemRoyaltyService
 
     @Test
     fun `should return all items and stop`() = runBlocking<Unit> {
@@ -128,6 +133,10 @@ internal class NftApiControllerTest {
             nftItemService.getItemById(any())
         } returns ItemToDtoConverter.convert(createItem())
 
+        coEvery {
+            itemRoyaltyService.getRoyaltyByItemId(any())
+        } returns listOf(Royalty(FlowAddress("0x01").formatted, BigDecimal("0.5")))
+
         client
             .get()
             .uri("/v0.1/items/{itemId}/royalty", mapOf("itemId" to "0x01:42"))
@@ -140,6 +149,10 @@ internal class NftApiControllerTest {
     fun `should return 404 for royalties by id`() {
         coEvery {
             nftItemService.getItemById(any())
+        } returns null
+
+        coEvery {
+            itemRoyaltyService.getRoyaltyByItemId(any())
         } returns null
 
         client
