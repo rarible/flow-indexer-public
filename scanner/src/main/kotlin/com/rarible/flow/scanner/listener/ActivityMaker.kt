@@ -314,7 +314,7 @@ abstract class OrderActivityMaker : ActivityMaker {
 
     private val currencies = mapOf(
         FlowChainId.MAINNET to setOf("A.1654653399040a61.FlowToken", "A.3c5959b568896393.FUSD"),
-        FlowChainId.TESTNET to setOf("A.7e60df042a9c0868.FlowToken", "A.9a0766d93b6608b7.FUSD"),
+        FlowChainId.TESTNET to setOf("A.7e60df042a9c0868.FlowToken", "A.e223d8a629e49c68.FUSD"),
         FlowChainId.EMULATOR to setOf("A.7e60df042a9c0868.FlowToken", "A.9a0766d93b6608b7.FUSD")
     )
 
