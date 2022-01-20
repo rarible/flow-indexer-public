@@ -7,23 +7,9 @@ import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.converter.OwnershipToDtoConverter
-import com.rarible.flow.core.domain.Item
-import com.rarible.flow.core.domain.ItemHistory
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.NFTActivity
-import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.log.Log
-import com.rarible.protocol.dto.FlowActivityDto
-import com.rarible.protocol.dto.FlowNftDeletedItemDto
-import com.rarible.protocol.dto.FlowNftItemDeleteEventDto
-import com.rarible.protocol.dto.FlowNftItemEventDto
-import com.rarible.protocol.dto.FlowNftItemUpdateEventDto
-import com.rarible.protocol.dto.FlowNftOwnershipDeleteEventDto
-import com.rarible.protocol.dto.FlowNftOwnershipUpdateEventDto
-import com.rarible.protocol.dto.FlowOrderEventDto
-import com.rarible.protocol.dto.FlowOrderUpdateEventDto
-import com.rarible.protocol.dto.FlowOwnershipEventDto
+import com.rarible.protocol.dto.*
 import java.util.*
 
 
@@ -88,10 +74,6 @@ class ProtocolEventPublisher(
         return send(orders, key, message)
     }
 
-    suspend fun onOrderUpdate(orders: List<Order>, converter: OrderToDtoConverter): List<KafkaSendResult> {
-        return orders.map { this.onOrderUpdate(it, converter) }
-    }
-
     suspend fun onItemDelete(itemId: ItemId): KafkaSendResult {
         val key = itemId.toString()
         val message = FlowNftItemDeleteEventDto(
@@ -102,17 +84,14 @@ class ProtocolEventPublisher(
         return send(items, key, message)
     }
 
-    suspend fun activity(history: ItemHistory): KafkaSendResult? {
-        return ItemHistoryToDtoConverter.convert(
-            history
-        )?.let { dto ->
+    suspend fun activity(history: ItemHistory): KafkaSendResult {
             val a = history.activity as NFTActivity
             return send(
                 activities,
                 "${a.contract}:${a.tokenId}-${history.activity.timestamp}",
-                dto
+                ItemHistoryToDtoConverter.convert(history)
             )
-        }
+
     }
 
     private suspend fun <V> send(producer: RaribleKafkaProducer<V>, key: String, message: V): KafkaSendResult {

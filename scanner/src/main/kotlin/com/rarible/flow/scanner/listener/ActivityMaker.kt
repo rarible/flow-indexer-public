@@ -166,7 +166,7 @@ abstract class NFTActivityMaker : ActivityMaker {
 @Component
 class TopShotActivityMaker(
     @Value("\${blockchain.scanner.flow.chainId}")
-    private val chainId: FlowChainId
+    private val chainId: FlowChainId,
 ) : NFTActivityMaker() {
     override val contractName: String = "TopShot"
 
@@ -499,7 +499,7 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
 
 @Component
 class RaribleOpenBidActivityMaker(
-    val flowBalanceService: FlowBalanceService
+    val flowBalanceService: FlowBalanceService,
 ) : OrderActivityMaker() {
     override val contractName: String = "RaribleOpenBid"
 
@@ -556,7 +556,8 @@ class RaribleOpenBidActivityMaker(
             }
 
             acceptedBids.forEach { flowLogEvent ->
-                val allTxEvents = readEvents(blockHeight = flowLogEvent.log.blockHeight, txId = FlowId(flowLogEvent.log.transactionHash))
+                val allTxEvents = readEvents(blockHeight = flowLogEvent.log.blockHeight,
+                    txId = FlowId(flowLogEvent.log.transactionHash))
                 val tokenEvents = allTxEvents.filter { it.eventId.toString() in nftCollectionEvents }
                 val currencyEvents = allTxEvents.filter { it.eventId.toString() in currenciesEvents }
 
@@ -577,7 +578,8 @@ class RaribleOpenBidActivityMaker(
                         it.type in arrayOf(PaymentType.SELLER_FEE, PaymentType.OTHER)
                     }.sumOf { it.amount }
                     val usdRate =
-                        usdRate(payInfo.first().currencyContract, flowLogEvent.log.timestamp.toEpochMilli()) ?: BigDecimal.ZERO
+                        usdRate(payInfo.first().currencyContract, flowLogEvent.log.timestamp.toEpochMilli())
+                            ?: BigDecimal.ZERO
 
                     val priceUsd = if (usdRate > BigDecimal.ZERO) {
                         price * usdRate
@@ -623,7 +625,7 @@ class RaribleOpenBidActivityMaker(
 
     private fun payInfos(
         currencyEvents: List<EventMessage>,
-        sellerAddress: String
+        sellerAddress: String,
     ): List<PayInfo> {
         try {
             val payments = currencyEvents.filter { it.eventId.eventName == "TokensDeposited" }
@@ -668,9 +670,43 @@ class RaribleOpenBidActivityMaker(
 
 }
 
+@Component
+class DisruptArtActivityMaker(
+    @Value("\${blockchain.scanner.flow.chainId}")
+    private val chainId: FlowChainId,
+) : NFTActivityMaker() {
+    override val contractName: String = "DisruptArt"
+
+    private val royaltyAddress = mapOf(
+        FlowChainId.MAINNET to FlowAddress("0x420f47f16a214100"),
+        FlowChainId.TESTNET to FlowAddress("0x439c2b49c0b2f62b"),
+    )
+
+
+    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
+
+    override fun meta(logEvent: FlowLogEvent): Map<String, String> {
+        val res = mutableMapOf(
+            "content" to cadenceParser.string(logEvent.event.fields["content"]!!),
+            "name" to cadenceParser.string(logEvent.event.fields["name"]!!)
+        )
+
+        if (logEvent.event.eventId.eventName == "GroupMint") {
+            res["tokenGroupId"] = "${cadenceParser.long(logEvent.event.fields["tokenGroupId"]!!)}"
+        }
+        return res.toMap()
+    }
+
+    override fun creator(logEvent: FlowLogEvent): String = cadenceParser.optional(logEvent.event.fields["owner"]!!) {
+        address(it)
+    } ?: super.creator(logEvent)
+
+    override fun royalties(logEvent: FlowLogEvent): List<Part> = listOf(Part(address = royaltyAddress[chainId]!!, fee = 0.15))
+}
+
 data class PayInfo(
     val address: String,
     val amount: BigDecimal,
     val currencyContract: String,
-    val type: PaymentType
+    val type: PaymentType,
 )

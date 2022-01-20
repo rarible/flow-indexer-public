@@ -6,13 +6,10 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.api.metaprovider.CnnNFTConverter
+import com.rarible.flow.api.metaprovider.DisruptArtNFT
 import com.rarible.flow.api.metaprovider.RaribleNFT
 import com.rarible.flow.core.config.AppProperties
-import com.rarible.flow.core.domain.Item
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Ownership
-import com.rarible.flow.core.domain.Part
-import com.rarible.flow.core.domain.TokenId
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
@@ -324,6 +321,49 @@ class UserStorageService(
                             meta = objectMapper.writeValueAsString(tokenData),
                             collection = contract,
                             updatedAt = Instant.now()
+                        )
+                    } else {
+                        val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
+                        } else {
+                            checkOwnership(i, address)
+                            null
+                        }
+                    }
+                    saveItem(item)
+                }
+            }
+            "DisruptArt" -> {
+                itemIds.forEach { tokenId ->
+                    val contract = contract("0xDISRUPTART", "DisruptArt")
+                    val item = if (notExistsItem(contract, tokenId)) {
+                        val tokenData = Flow.unmarshall(
+                            DisruptArtNFT::class,
+                            scriptExecutor.execute(
+                                code = scriptText("/script/disrupt_art_nft.cdc"),
+                                args = mutableListOf(
+                                    builder.address(address.bytes),
+                                    builder.uint64(tokenId)
+                                )
+                            ).jsonCadence
+                        )
+
+                        Item(
+                            contract = contract,
+                            tokenId = tokenId,
+                            creator = FlowAddress(tokenData.creator),
+                            royalties = listOf(
+                                Part(
+                                    address = contractAddress("0xDISRUPTARTROYALTY"),
+                                    fee = 0.15
+                                )
+                            ),
+                            collection = contract,
+                            mintedAt = Instant.now(),
+                            updatedAt = Instant.now(),
+                            owner = address,
+                            meta = objectMapper.writeValueAsString(tokenData.metaData)
                         )
                     } else {
                         val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()

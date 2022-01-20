@@ -158,7 +158,7 @@ class OrderService(
             it.copy(
                 fill = it.makeStock,
                 makeStock = BigDecimal.ZERO,
-                taker = FlowAddress(activity.left.maker),
+                taker = FlowAddress(activity.right.maker),
                 status = OrderStatus.FILLED,
                 data = OrderData(
                     activity.payments.filter {
@@ -172,15 +172,15 @@ class OrderService(
             id = activity.hash.toLong(),
             fill = activity.right.asset.value,
             makeStock = BigDecimal.ZERO,
-            taker = FlowAddress(activity.left.maker),
+            taker = FlowAddress(activity.right.maker),
             status = OrderStatus.FILLED,
             createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-            maker = FlowAddress(activity.right.maker),
-            itemId = ItemId(activity.left.asset.contract, activity.tokenId),
+            maker = FlowAddress(activity.left.maker),
+            itemId = ItemId(activity.right.asset.contract, activity.tokenId),
             amount = activity.price,
             collection = activity.contract,
-            make = activity.left.asset,
-            take = activity.right.asset,
+            make = activity.right.asset,
+            take = activity.left.asset,
             data = OrderData(
                 payouts = activity.payments.filter {
                     it.type == PaymentType.REWARD

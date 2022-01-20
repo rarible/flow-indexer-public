@@ -45,7 +45,6 @@ internal class OrderRepositoryTest(
     }
 
     @Test
-    @Disabled("Fail LocalDateTime fields comparison")
     fun `should return sell orders by make`() = runBlocking<Unit> {
         val sellOrder = createOrder()
         val bidOrder = createOrder().let {
@@ -58,12 +57,11 @@ internal class OrderRepositoryTest(
                 .findAllByMake(asset.contract, asset.tokenId)
                 .collectList()
                 .awaitSingle()
-                .first() shouldBe sellOrder
+                .first().id shouldBe sellOrder.id
         }
     }
 
     @Test
-    @Disabled("Fail LocalDateTime fields comparison")
     fun `should return bid orders by make`() = runBlocking<Unit> {
         val sellOrder = createOrder()
         val bidOrder = createOrder().let {
@@ -76,7 +74,7 @@ internal class OrderRepositoryTest(
                 .findAllByTake(asset.contract, asset.tokenId)
                 .collectList()
                 .awaitSingle()
-                .first() shouldBe bidOrder
+                .first().id shouldBe bidOrder.id
         }
     }
 
