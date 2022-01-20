@@ -1,6 +1,7 @@
 package com.rarible.flow.api.controller
 
 import com.nftco.flow.sdk.FlowException
+import com.rarible.flow.api.service.ItemRoyaltyService
 import com.rarible.flow.api.service.NftItemMetaService
 import com.rarible.flow.api.service.NftItemService
 import com.rarible.flow.api.service.withItemsByCollection
@@ -26,7 +27,8 @@ import java.time.Instant
 @RestController
 class NftApiController(
     private val nftItemService: NftItemService,
-    private val nftItemMetaService: NftItemMetaService
+    private val nftItemMetaService: NftItemMetaService,
+    private val itemRoyaltyService: ItemRoyaltyService,
 ) : FlowNftItemControllerApi {
 
     private val logger by Log()
@@ -108,19 +110,16 @@ class NftApiController(
     override suspend fun getNftItemsByCreator(
         address: String,
         continuation: String?,
-        size: Int?
+        size: Int?,
     ): ResponseEntity<FlowNftItemsDto> {
         return ResponseEntity.ok(nftItemService.byCreator(address, continuation, size))
     }
 
-    override suspend fun getNftItemRoyaltyById(itemId: String): ResponseEntity<FlowNftItemRoyaltyDto> {
-        val itemDto = nftItemService.getItemById(itemId.itemId())
-
-        return itemDto?.royalties?.map {
-            PayInfoDto(it.account, it.value)
-        }?.let {
-            FlowNftItemRoyaltyDto(it)
-        }.okOr404IfNull()
-    }
+    override suspend fun getNftItemRoyaltyById(itemId: String): ResponseEntity<FlowNftItemRoyaltyDto> =
+        itemRoyaltyService
+            .getRoyaltyByItemId(itemId.itemId())
+            ?.map { PayInfoDto(it.address, it.fee) }
+            ?.let(::FlowNftItemRoyaltyDto)
+            .okOr404IfNull()
 
 }

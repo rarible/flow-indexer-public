@@ -29,6 +29,7 @@ class AppReadyListener(
             ItemCollection(id = "A.01658d9b94068f3c.Evolution", name = "Evolution", owner = FlowAddress("0x01658d9b94068f3c"), symbol = "EVOLUTION", features = setOf("BURN")),
             ItemCollection(id = "A.ebf4ae01d1284af8.MugenNFT", name = "Mugen", owner = FlowAddress("0xebf4ae01d1284af8"), symbol = "MUGEN", features = emptySet()),
             ItemCollection(id = "A.ebf4ae01d1284af8.CNN_NFT", name = "CNN", owner = FlowAddress("0xebf4ae01d1284af8"), symbol = "CNN", features = setOf("BURN")),
+            ItemCollection(id = "A.ebf4ae01d1284af8.Art", name = "VersusArt", owner = FlowAddress("0xebf4ae01d1284af8"), symbol = "VERSUS", features = setOf()),
             ItemCollection(id = "A.439c2b49c0b2f62b.DisruptArt", name = "DisruptArt", owner = FlowAddress("0x439c2b49c0b2f62b"), symbol = "DA", features = emptySet()),
         ),
         FlowChainId.MAINNET to listOf(
@@ -38,6 +39,7 @@ class AppReadyListener(
             ItemCollection(id = "A.f4264ac8f3256818.Evolution", name = "Evolution", owner = FlowAddress("0xf4264ac8f3256818"), symbol = "EVOLUTION", features = setOf("BURN")),
             ItemCollection(id = "A.2cd46d41da4ce262.MugenNFT", name = "Mugen", owner = FlowAddress("0x2cd46d41da4ce262"), symbol = "MUGEN", features = emptySet()),
             ItemCollection(id = "A.329feb3ab062d289.CNN_NFT", name = "CNN", owner = FlowAddress("0x329feb3ab062d289"), symbol = "CNN", features = setOf("BURN")),
+            ItemCollection(id = "A.d796ff17107bbff6.Art", name = "VersusArt", owner = FlowAddress("0xd796ff17107bbff6"), symbol = "VERSUS", features = setOf()),
             ItemCollection(id = "A.cd946ef9b13804c6.DisruptArt", name = "DisruptArt", owner = FlowAddress("0xcd946ef9b13804c6"), symbol = "DISRUPT ART", features = emptySet()),
         )
     )
