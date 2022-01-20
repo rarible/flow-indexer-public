@@ -86,6 +86,20 @@ sealed class OrderFilter : DbFilter<Order>, CriteriaProduct<OrderFilter> {
                 return Cont.toString(entity.make.value, entity.id)
             }
         },
+
+        AMOUNT_DESC {
+            override fun springSort(): SpringSort = SpringSort.by(
+                SpringSort.Order.desc(Order::amount.name),
+                SpringSort.Order.desc(Order::id.name)
+            )
+
+            override fun scroll(criteria: Criteria, continuation: String?): Criteria =
+                Cont.scrollDesc(criteria, continuation, Order::amount, Order::id)
+
+            override fun nextPage(entity: Order): String {
+                return Cont.toString(entity.amount, entity.id)
+            }
+        }
         ;
 
     }
