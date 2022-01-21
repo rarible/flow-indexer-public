@@ -10,23 +10,7 @@ import com.nftco.flow.sdk.cadence.OptionalField
 import com.nftco.flow.sdk.cadence.StructField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.apm.withSpan
-import com.rarible.flow.core.domain.BaseActivity
-import com.rarible.flow.core.domain.BurnActivity
-import com.rarible.flow.core.domain.FlowAssetFungible
-import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.FlowLogEvent
-import com.rarible.flow.core.domain.FlowLogType
-import com.rarible.flow.core.domain.FlowNftOrderActivityBid
-import com.rarible.flow.core.domain.FlowNftOrderActivityCancelBid
-import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
-import com.rarible.flow.core.domain.FlowNftOrderActivityList
-import com.rarible.flow.core.domain.FlowNftOrderActivitySell
-import com.rarible.flow.core.domain.FlowNftOrderPayment
-import com.rarible.flow.core.domain.MintActivity
-import com.rarible.flow.core.domain.OrderActivityMatchSide
-import com.rarible.flow.core.domain.Part
-import com.rarible.flow.core.domain.PaymentType
-import com.rarible.flow.core.domain.TransferActivity
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
@@ -592,7 +576,7 @@ class RaribleOpenBidActivityMaker(
                         tokenId = tokenId,
                         contract = withdrawnEvent.eventId.collection(),
                         hash = hash,
-                        left = OrderActivityMatchSide(
+                        right = OrderActivityMatchSide(
                             maker = sellerAddress,
                             asset = FlowAssetNFT(
                                 contract = withdrawnEvent.eventId.collection(),
@@ -600,7 +584,7 @@ class RaribleOpenBidActivityMaker(
                                 value = BigDecimal.ONE
                             )
                         ),
-                        right = OrderActivityMatchSide(
+                        left = OrderActivityMatchSide(
                             maker = buyerAddress,
                             asset = FlowAssetFungible(
                                 contract = payInfo.first().currencyContract,
