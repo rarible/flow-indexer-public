@@ -45,7 +45,7 @@ class OrderApiController(
     ): ResponseEntity<FlowOrdersPaginationDto> {
         val makerAddress = maker.flowAddress()
         val itemId = ItemId(contract, tokenId.tokenId())
-        val sort = OrderFilter.Sort.MAKE_PRICE_DESC
+        val sort = OrderFilter.Sort.AMOUNT_DESC
         val orderStatuses = OderStatusDtoConverter.convert(status)
         return result(
             service.getBidOrdersByItem(
@@ -87,7 +87,7 @@ class OrderApiController(
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
         val makerAddress = maker.flowAddress()
-        val sort = OrderFilter.Sort.MAKE_PRICE_DESC
+        val sort = OrderFilter.Sort.AMOUNT_DESC
         val orderStatuses = OderStatusDtoConverter.convert(status)
         return result(
             service.getBidOrdersByMaker(

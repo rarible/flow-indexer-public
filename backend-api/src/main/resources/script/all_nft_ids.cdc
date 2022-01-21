@@ -7,6 +7,8 @@ import MugenNFT from 0xMUGENNFT
 import CNN_NFT from 0xCNNNFT
 import MatrixWorldVoucher from 0xMATRIXWORLD
 import MatrixWorldFlowFestNFT from 0xMATRIXWORLDFLOWFEST
+import Art from 0xVERSUSART
+import DisruptArt from 0xDISRUPTART
 
 pub fun idsRaribleNFT(_ account: PublicAccount): [UInt64] {
     return account.getCapability(RaribleNFT.collectionPublicPath)
@@ -56,6 +58,19 @@ pub fun idsMatrixWorldFlowFest(_ account: PublicAccount): [UInt64] {
         ?.getIDs() ?? []
 }
 
+
+pub fun idsVersusArt(_ account: PublicAccount): [UInt64] {
+    return account.getCapability(Art.CollectionPublicPath)
+        .borrow<&{Art.CollectionPublic}>()
+        ?.getIDs() ?? []
+}
+
+pub fun idsDisruptArt(_ account: PublicAccount): [UInt64] {
+    return account.getCapability(DisruptArt.disruptArtPublicPath)
+        .borrow<&{NonFungibleToken.CollectionPublic}>()
+        ?.getIDs() ?? []
+}
+
 pub fun main(address: Address): {String: [UInt64]} {
     let account = getAccount(address)
     let results : {String: [UInt64]} = {}
@@ -68,6 +83,8 @@ pub fun main(address: Address): {String: [UInt64]} {
     results["CNN_NFT"] = idsCnnNFT(account)
     results["MatrixWorld"] = idsMatrixWorld(account)
     results["MatrixWorldFlowFestNFT"] = idsMatrixWorldFlowFest(account)
+    results["VersusArt"] = idsVersusArt(account)
+    results["DisruptArt"] = idsDisrupArt(account)
 
     return results
 }

@@ -14,11 +14,13 @@ import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.log.Log
+import kotlinx.coroutines.reactive.awaitFirst
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBody
+import reactor.kotlin.extra.retry.retryExponentialBackoff
+import java.time.Duration
 
 @Component
 class CnnNFTMetaProvider(
@@ -84,7 +86,9 @@ class CnnNFTMetaProvider(
             .get()
             .uri("/$ipfsHash")
             .retrieve()
-            .awaitBody()
+            .bodyToMono(CnnNFTMetaBody::class.java)
+            .retryExponentialBackoff(3, Duration.ofMillis(500))
+            .awaitFirst()
     }
 
     suspend fun getMeta(
