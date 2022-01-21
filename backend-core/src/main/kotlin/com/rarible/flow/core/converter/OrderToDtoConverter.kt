@@ -35,7 +35,7 @@ class OrderToDtoConverter(
                 id = source.id,
                 itemId = "${source.itemId}",
                 maker = source.maker.formatted,
-                taker = source.taker?.formatted,
+                taker = null,
                 make = convert(source.make),
                 take = convert(source.take),
                 fill = source.fill,
