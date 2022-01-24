@@ -45,13 +45,9 @@ class Config(
     }
 
     private fun buildWebClient(loggerName: String, baseUrl: String): WebClient {
-        val httpClient: HttpClient = HttpClient
+        val httpClient = HttpClient
             .create()
-            .wiretap(
-                loggerName,
-                LogLevel.INFO,
-                AdvancedByteBufFormat.TEXTUAL
-            )
+            .wiretap(loggerName, LogLevel.WARN, AdvancedByteBufFormat.SIMPLE)
 
         return WebClient
             .builder()
