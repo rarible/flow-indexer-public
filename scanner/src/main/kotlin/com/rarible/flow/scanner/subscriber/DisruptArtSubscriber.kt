@@ -5,9 +5,11 @@ import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.events.EventId
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.stereotype.Component
 
 @Component
+@ConditionalOnExpression("false")
 class DisruptArtSubscriber: BaseFlowLogEventSubscriber() {
 
     private val contractName = "DisruptArt"
