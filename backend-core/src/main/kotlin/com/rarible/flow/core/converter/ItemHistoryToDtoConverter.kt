@@ -137,5 +137,6 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 )
             }
         }
+
     }
 }
