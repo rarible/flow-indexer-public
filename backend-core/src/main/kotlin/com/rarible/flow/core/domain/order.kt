@@ -33,7 +33,7 @@ data class Order(
     val taker: FlowAddress? = null,
     val make: FlowAsset,
     val take: FlowAsset,
-    val type: OrderType,
+    val type: OrderType? = OrderType.LIST,
     @Field(targetType = FieldType.DECIMAL128)
     val amount: BigDecimal,
     @Field(targetType = FieldType.DECIMAL128)
@@ -45,11 +45,11 @@ data class Order(
     val collection: String,
 
     @Field(targetType = FieldType.DECIMAL128)
-    val makeStock: BigDecimal,
+    val makeStock: BigDecimal? = BigDecimal.ZERO,
     val status: OrderStatus = OrderStatus.INACTIVE,
 
     @Field(targetType = FieldType.DECIMAL128)
-    val takePriceUsd: BigDecimal = BigDecimal.ZERO
+    val takePriceUsd: BigDecimal? = BigDecimal.ZERO
 ) {
 
     fun deactivateBid(makeStock: BigDecimal): Order {

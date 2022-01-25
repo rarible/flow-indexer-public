@@ -154,9 +154,9 @@ class OrderService(
     }
 
     suspend fun closeBid(activity: FlowNftOrderActivitySell, item: Item?): Order {
-        val order = orderRepository.coFindById(activity.hash.toLong())?.let {
-            it.copy(
-                fill = it.makeStock,
+        val order = orderRepository.coFindById(activity.hash.toLong())?.let { order ->
+            order.copy(
+                fill = order.makeStock!!,
                 makeStock = BigDecimal.ZERO,
                 taker = FlowAddress(activity.right.maker),
                 status = OrderStatus.FILLED,

@@ -12,7 +12,7 @@ import com.rarible.flow.core.repository.forEach
 import io.mongock.api.annotations.ChangeUnit
 import io.mongock.api.annotations.Execution
 import io.mongock.api.annotations.RollbackExecution
-import kotlinx.coroutines.reactive.awaitLast
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import org.springframework.data.mapping.div
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
@@ -58,7 +58,7 @@ class ChangeLog00012ActivityDataMigration(
                     )
                 }
 
-                itemHistoryRepository.saveAll(itemHistory).awaitLast()
+                itemHistoryRepository.saveAll(itemHistory).then().awaitSingleOrNull()
             }
         }
     }
