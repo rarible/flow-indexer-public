@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBodyOrNull
 import reactor.kotlin.extra.retry.retryExponentialBackoff
 import java.time.Duration
 
@@ -45,14 +46,14 @@ class CnnNFTMetaProvider(
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("CNN_NFT")
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        val item = itemRepository.coFindById(itemId) ?: return emptyMeta(itemId)
+        val item = itemRepository.coFindById(itemId) ?: return ItemMeta.empty(itemId)
 
         return getMeta(
             item,
             this::fetchNft,
             this::fetchIpfsHash,
             this::readIpfs
-        ) { item -> emptyMeta(item.id) }
+        ) { ItemMeta.empty(itemId) }
     }
 
     suspend fun fetchNft(item: Item): CnnNFT? {
@@ -81,26 +82,24 @@ class CnnNFTMetaProvider(
         } else (jsonCadence.value as StringField).value!!
     }
 
-    suspend fun readIpfs(ipfsHash: String): CnnNFTMetaBody {
+    suspend fun readIpfs(ipfsHash: String): CnnNFTMetaBody? {
         return pinataClient
             .get()
             .uri("/$ipfsHash")
             .retrieve()
-            .bodyToMono(CnnNFTMetaBody::class.java)
-            .retryExponentialBackoff(3, Duration.ofMillis(500))
-            .awaitFirst()
+            .awaitBodyOrNull()
     }
 
     suspend fun getMeta(
         item: Item,
         fetchNft: suspend (Item) -> CnnNFT?,
         fetchIpfsHash: suspend (CnnNFT) -> String?,
-        readIpfs: suspend (String) -> CnnNFTMetaBody,
+        readIpfs: suspend (String) -> CnnNFTMetaBody?,
         defaultValue: (Item) -> ItemMeta
     ): ItemMeta {
         val cnnNFT = fetchNft(item) ?: return defaultValue(item)
         val ipfsHash = fetchIpfsHash(cnnNFT) ?: return defaultValue(item)
-        val ipfsMeta = readIpfs(ipfsHash)
+        val ipfsMeta = readIpfs(ipfsHash) ?: return defaultValue(item)
         return ipfsMeta.toItemMeta(item.id)
     }
 }

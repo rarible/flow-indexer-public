@@ -45,13 +45,9 @@ class Config(
     }
 
     private fun buildWebClient(loggerName: String, baseUrl: String): WebClient {
-        val httpClient: HttpClient = HttpClient
+        val httpClient = HttpClient
             .create()
-            .wiretap(
-                loggerName,
-                LogLevel.INFO,
-                AdvancedByteBufFormat.TEXTUAL
-            )
+            .wiretap(loggerName, LogLevel.WARN, AdvancedByteBufFormat.SIMPLE)
 
         return WebClient
             .builder()
@@ -81,6 +77,7 @@ class Config(
             register("0xVERSUSART", FlowAddress("0x99ca04281098b33d"), FlowChainId.TESTNET)
             register("0xDISRUPTART", FlowAddress("0x439c2b49c0b2f62b"), FlowChainId.TESTNET)
             register("0xDISRUPTARTROYALTY", FlowAddress("0x439c2b49c0b2f62b"), FlowChainId.TESTNET)
+            register("0xONEFOOTBALL", FlowAddress("0x01984fb4ca279d9a"), FlowChainId.TESTNET)
 
 
             register("0xMOTOGPTOKEN", FlowAddress("0xa49cc0ee46c54bfb"), FlowChainId.MAINNET)
@@ -95,6 +92,7 @@ class Config(
             register("0xVERSUSART", FlowAddress("0xd796ff17107bbff6"), FlowChainId.MAINNET)
             register("0xDISRUPTART", FlowAddress("0xcd946ef9b13804c6"), FlowChainId.MAINNET)
             register("0xDISRUPTARTROYALTY", FlowAddress("0x420f47f16a214100"), FlowChainId.MAINNET)
+            register("0xONEFOOTBALL", FlowAddress("0x6831760534292098"), FlowChainId.MAINNET)
         }
 
         Flow.configureDefaults(chainId = appProperties.chainId)

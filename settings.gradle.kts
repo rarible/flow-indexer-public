@@ -45,7 +45,7 @@ dependencyResolutionManagement {
         }
 
         create("testLibs") {
-            version("kotest", "4.6.2")
+            version("kotest", "4.6.4")
             version("rarible-core", "2.0.0")
 
             alias("kotest-runner").to("io.kotest", "kotest-runner-junit5").versionRef("kotest")

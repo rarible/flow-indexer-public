@@ -13,6 +13,7 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBodyOrNull
 import reactor.kotlin.extra.retry.retryExponentialBackoff
 import java.time.Duration
 
@@ -35,9 +36,7 @@ class RaribleNFTMetaProvider(
                         .get()
                         .uri("$ipfs")
                         .retrieve()
-                        .bodyToMono(RaribleNFTMetaBody::class.java)
-                        .retryExponentialBackoff(3, Duration.ofMillis(500))
-                        .awaitFirstOrNull()
+                        .awaitBodyOrNull<RaribleNFTMetaBody>()
                 }
                 ?.toItemMeta(itemId)
         } catch (e: Exception) {
