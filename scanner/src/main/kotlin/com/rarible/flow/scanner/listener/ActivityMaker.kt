@@ -1,5 +1,6 @@
 package com.rarible.flow.scanner.listener
 
+import com.nftco.flow.sdk.AddressRegistry.Companion.FLOW_FEES
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
@@ -336,9 +337,10 @@ abstract class OrderActivityMaker : ActivityMaker {
         try {
             val payments = currencyEvents.filter { it.eventId.eventName == "TokensDeposited" }
                 .filter { msg ->
-                    cadenceParser.optional(msg.fields["to"]!!) {
+                    val a = cadenceParser.optional(msg.fields["to"]!!) {
                         address(it)
-                    } != null
+                    }
+                    a != null && a != Flow.DEFAULT_ADDRESS_REGISTRY.addressOf(FLOW_FEES, chainId)!!.formatted
                 }
 
 
@@ -441,8 +443,8 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
                     )
                 )
             }
-            orderPurchased.forEach {
-                val allTxEvents = readEvents(blockHeight = it.log.blockHeight, txId = FlowId(it.log.transactionHash))
+            orderPurchased.forEach { event ->
+                val allTxEvents = readEvents(blockHeight = event.log.blockHeight, txId = FlowId(event.log.transactionHash))
                 val tokenEvents = allTxEvents.filter { it.eventId.toString() in nftCollectionEvents }
                 val currencyEvents = allTxEvents.filter { it.eventId.toString() in currenciesEvents }
 
@@ -459,16 +461,16 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
 
                     val payInfo = payInfos(currencyEvents, sellerAddress)
                     val price = payInfo.filterNot {
-                        it.type in setOf(PaymentType.OTHER, PaymentType.BUYER_FEE)
+                        it.type == PaymentType.BUYER_FEE
                     }.sumOf { it.amount }
                     val usdRate =
-                        usdRate(payInfo.first().currencyContract, it.log.timestamp.toEpochMilli()) ?: BigDecimal.ZERO
+                        usdRate(payInfo.first().currencyContract, event.log.timestamp.toEpochMilli()) ?: BigDecimal.ZERO
                     val priceUsd = if (usdRate > BigDecimal.ZERO) {
                         price * usdRate
                     } else BigDecimal.ZERO
                     val tokenId = cadenceParser.long(withdrawnEvent.fields["id"]!!)
-                    val hash = cadenceParser.long(it.event.fields["listingResourceID"]!!).toString()
-                    result[it.log] = FlowNftOrderActivitySell(
+                    val hash = cadenceParser.long(event.event.fields["listingResourceID"]!!).toString()
+                    result[event.log] = FlowNftOrderActivitySell(
                         price = price,
                         priceUsd = priceUsd,
                         tokenId = tokenId,
@@ -489,7 +491,7 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
                                 value = price
                             )
                         ),
-                        timestamp = it.log.timestamp,
+                        timestamp = event.log.timestamp,
                         payments = payInfo.map {
                             FlowNftOrderPayment(
                                 type = it.type,
@@ -584,7 +586,7 @@ class RaribleOpenBidActivityMaker(
                     val payInfo = payInfos(currencyEvents, sellerAddress)
 
                     val price = payInfo.filterNot {
-                        it.type in arrayOf(PaymentType.SELLER_FEE, PaymentType.OTHER)
+                        it.type == PaymentType.SELLER_FEE
                     }.sumOf { it.amount }
                     val usdRate =
                         usdRate(payInfo.first().currencyContract, flowLogEvent.log.timestamp.toEpochMilli())
