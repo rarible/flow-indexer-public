@@ -329,6 +329,51 @@ abstract class OrderActivityMaker : ActivityMaker {
         return pTypes[chainId]!!.firstNotNullOfOrNull { if (it.value == address) it.key else null } ?: PaymentType.OTHER
     }
 
+    protected fun payInfos(
+        currencyEvents: List<EventMessage>,
+        sellerAddress: String,
+    ): List<PayInfo> {
+        try {
+            val payments = currencyEvents.filter { it.eventId.eventName == "TokensDeposited" }
+                .filter { msg ->
+                    cadenceParser.optional(msg.fields["to"]!!) {
+                        address(it)
+                    } != null
+                }
+
+
+            var feeFounded = false
+            val payInfo = payments
+                .map { msg ->
+                    val to = cadenceParser.optional(msg.fields["to"]!!) {
+                        address(it)
+                    }!!
+
+                    val amount = cadenceParser.bigDecimal(msg.fields["amount"]!!)
+
+                    var type = paymentType(to)
+                    if (type == PaymentType.OTHER && to == sellerAddress) {
+                        type = PaymentType.REWARD
+                    } else if (type == PaymentType.BUYER_FEE) {
+                        if (!feeFounded) {
+                            feeFounded = true
+                        } else {
+                            type = PaymentType.SELLER_FEE
+                        }
+                    }
+                    PayInfo(
+                        address = to,
+                        amount = amount,
+                        currencyContract = msg.eventId.collection(),
+                        type = type
+                    )
+                }
+            return payInfo
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+
     private val pTypes: Map<FlowChainId, Map<PaymentType, String>> = mapOf(
         FlowChainId.MAINNET to mapOf(
             PaymentType.ROYALTY to "0xbd69b6abdfcf4539",
@@ -412,29 +457,9 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
                         address(it)
                     }!!
 
-                    val payInfo = currencyEvents.filter { it.eventId.eventName == "TokensDeposited" }
-                        .filter { cadenceParser.optional(it.fields["to"]!!) { address(it) } != null }
-                        .map {
-                            val to = cadenceParser.optional(it.fields["to"]!!) {
-                                address(it)
-                            }!!
-
-                            val amount = cadenceParser.bigDecimal(it.fields["amount"]!!)
-
-                            var type = paymentType(to)
-                            if (type == PaymentType.OTHER && to == sellerAddress) {
-                                type = PaymentType.REWARD
-                            }
-                            PayInfo(
-                                address = to,
-                                amount = amount,
-                                currencyContract = it.eventId.collection(),
-                                type = type
-                            )
-                        }
-
+                    val payInfo = payInfos(currencyEvents, sellerAddress)
                     val price = payInfo.filterNot {
-                        it.type == PaymentType.OTHER
+                        it.type in setOf(PaymentType.OTHER, PaymentType.BUYER_FEE)
                     }.sumOf { it.amount }
                     val usdRate =
                         usdRate(payInfo.first().currencyContract, it.log.timestamp.toEpochMilli()) ?: BigDecimal.ZERO
@@ -606,52 +631,6 @@ class RaribleOpenBidActivityMaker(
         }
         return result.toMap()
     }
-
-    private fun payInfos(
-        currencyEvents: List<EventMessage>,
-        sellerAddress: String,
-    ): List<PayInfo> {
-        try {
-            val payments = currencyEvents.filter { it.eventId.eventName == "TokensDeposited" }
-                .filter { msg ->
-                    cadenceParser.optional(msg.fields["to"]!!) {
-                        address(it)
-                    } != null
-                }
-
-
-            var feeFounded = false
-            val payInfo = payments
-                .map { msg ->
-                    val to = cadenceParser.optional(msg.fields["to"]!!) {
-                        address(it)
-                    }!!
-
-                    val amount = cadenceParser.bigDecimal(msg.fields["amount"]!!)
-
-                    var type = paymentType(to)
-                    if (type == PaymentType.OTHER && to == sellerAddress) {
-                        type = PaymentType.REWARD
-                    } else if (type == PaymentType.BUYER_FEE) {
-                        if (!feeFounded) {
-                            feeFounded = true
-                        } else {
-                            type = PaymentType.SELLER_FEE
-                        }
-                    }
-                    PayInfo(
-                        address = to,
-                        amount = amount,
-                        currencyContract = msg.eventId.collection(),
-                        type = type
-                    )
-                }
-            return payInfo
-        } catch (e: Exception) {
-            throw e
-        }
-    }
-
 }
 
 @Component
