@@ -586,7 +586,7 @@ class RaribleOpenBidActivityMaker(
                     val payInfo = payInfos(currencyEvents, sellerAddress)
 
                     val price = payInfo.filterNot {
-                        it.type == PaymentType.SELLER_FEE
+                        it.type == PaymentType.BUYER_FEE
                     }.sumOf { it.amount }
                     val usdRate =
                         usdRate(payInfo.first().currencyContract, flowLogEvent.log.timestamp.toEpochMilli())
