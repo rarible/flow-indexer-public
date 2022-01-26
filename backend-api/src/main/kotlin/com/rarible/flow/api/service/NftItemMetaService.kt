@@ -10,9 +10,7 @@ import com.rarible.flow.log.Log
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onErrorReturn
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.stereotype.Service
@@ -28,8 +26,10 @@ class NftItemMetaService(
     suspend fun getMetaByItemId(itemId: ItemId): ItemMeta {
         val exists = itemMetaRepository.coFindById(itemId)
         return if (exists == null) {
-            val meta = flow<ItemMeta> {
-                providers.first { it.isSupported(itemId) }.getMeta(itemId)
+            val meta = flow {
+                emit(
+                    providers.first { it.isSupported(itemId) }.getMeta(itemId)
+                )
             }
             .retry(retries = 3L) { failure ->
                 logger.warn("Retrying to get meta fot [{}] in 2s...", itemId, failure)
