@@ -4,6 +4,7 @@ import com.rarible.flow.api.service.EnglishAuctionApiService
 import com.rarible.flow.core.converter.AuctionToDtoConverter
 import com.rarible.flow.core.domain.AuctionActivityBidOpened
 import com.rarible.flow.core.repository.ActivityContinuation
+import com.rarible.flow.core.repository.filters.ScrollingSort.Companion.DEFAULT_LIMIT
 import com.rarible.protocol.dto.*
 import com.rarible.protocol.flow.nft.api.controller.FlowAuctionControllerApi
 import kotlinx.coroutines.flow.Flow
@@ -37,7 +38,7 @@ class AuctionApiController : FlowAuctionControllerApi {
             }
             val cont = when {
                 bids.isEmpty() -> null
-                bids.size <= (size ?: 50) -> null
+                bids.size < (size ?: DEFAULT_LIMIT) -> null
                 else -> "${
                     ActivityContinuation(
                         beforeDate = bidsHistory.last().date,
@@ -64,7 +65,7 @@ class AuctionApiController : FlowAuctionControllerApi {
     override suspend fun getAuctionsByCollection(
         contract: String,
         seller: String?,
-        status: FlowAuctionStatusDto?,
+        status: List<FlowAuctionStatusDto>?,
         continuation: String?,
         size: Int?,
     ): ResponseEntity<FlowAuctionsPaginationDto> {
@@ -94,7 +95,7 @@ class AuctionApiController : FlowAuctionControllerApi {
         tokenId: Long,
         seller: String?,
         sort: FlowAuctionSortDto?,
-        status: FlowAuctionStatusDto?,
+        status: List<FlowAuctionStatusDto>?,
         currencyId: String?,
         continuation: String?,
         size: Int?,
@@ -102,7 +103,7 @@ class AuctionApiController : FlowAuctionControllerApi {
         val auctions = auctionService.byItem(contract, tokenId, seller, sort, status, currencyId, continuation, size)
         val cont = when {
             auctions.isEmpty() -> null
-            auctions.size <= (size ?: 50) -> null
+            auctions.size < (size ?: DEFAULT_LIMIT) -> null
             sort == FlowAuctionSortDto.BUY_PRICE_ASC -> {
                 "${auctions.last().hammerPrice}_${auctions.last().id}"
             }
@@ -118,14 +119,15 @@ class AuctionApiController : FlowAuctionControllerApi {
 
     override suspend fun getAuctionsBySeller(
         seller: String,
+        status: List<FlowAuctionStatusDto>?,
         continuation: String?,
         size: Int?,
     ): ResponseEntity<FlowAuctionsPaginationDto> {
-        val auctions = auctionService.bySeller(seller, continuation, size)
+        val auctions = auctionService.bySeller(seller, status, continuation, size)
         val cont = when {
             auctions.isEmpty() -> null
-            auctions.size < (size ?: 50) -> null
-            else -> "${auctions.last().lastUpdatedAt}_${auctions.last().id}"
+            auctions.size < (size ?: DEFAULT_LIMIT) -> null
+            else -> "${auctions.last().lastUpdatedAt.toEpochMilli()}_${auctions.last().id}"
         }
         return ResponseEntity.ok(
             FlowAuctionsPaginationDto(

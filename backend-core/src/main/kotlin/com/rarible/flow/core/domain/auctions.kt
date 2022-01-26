@@ -69,5 +69,5 @@ enum class AuctionType {
 }
 
 enum class AuctionStatus {
-    ACTIVE, FINISHED, CANCELED, INACTIVE
+    ACTIVE, FINISHED, CANCELLED, INACTIVE
 }

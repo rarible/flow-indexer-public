@@ -9,7 +9,7 @@ object AuctionStatusToDtoConverter: Converter<AuctionStatus, FlowAuctionStatusDt
         return when(source) {
             AuctionStatus.INACTIVE -> FlowAuctionStatusDto.INACTIVE
             AuctionStatus.ACTIVE -> FlowAuctionStatusDto.ACTIVE
-            AuctionStatus.CANCELED -> FlowAuctionStatusDto.CANCELLED
+            AuctionStatus.CANCELLED -> FlowAuctionStatusDto.CANCELLED
             AuctionStatus.FINISHED -> FlowAuctionStatusDto.FINISHED
         }
     }
