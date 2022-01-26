@@ -54,7 +54,7 @@ class ItemIndexerEventProcessor(
             labels = listOf("itemId" to "${mintActivity.contract}:${mintActivity.tokenId}")
         ) {
             val owner = FlowAddress(mintActivity.owner)
-            val creator = FlowAddress(mintActivity.creator)
+            val creator = if (mintActivity.creator != null) FlowAddress(mintActivity.creator!!) else owner
             val forSave = if (event.item == null) {
                 Item(
                     contract = mintActivity.contract,

@@ -160,7 +160,7 @@ data class MintActivity(
     override val tokenId: TokenId,
     override val value: Long = 1L,
     override val timestamp: Instant,
-    val creator: String,
+    val creator: String?,
     val royalties: List<Part>,
     val metadata: Map<String, String>,
 ) : FlowNftActivity()
