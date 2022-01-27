@@ -1,11 +1,17 @@
 package com.rarible.flow.core.converter
 
 import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.log.Log
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
 import com.rarible.protocol.dto.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.awaitSingle
+import org.springframework.http.ResponseEntity
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.ZoneOffset
@@ -95,6 +101,17 @@ class OrderToDtoConverter(
             OrderStatus.HISTORICAL -> FlowOrderStatusDto.HISTORICAL
             OrderStatus.INACTIVE -> FlowOrderStatusDto.INACTIVE
             OrderStatus.CANCELLED -> FlowOrderStatusDto.CANCELLED
+        }
+    }
+
+    suspend fun page(orders: Flow<Order>, sort: OrderFilter.Sort, size: Int?): FlowOrdersPaginationDto {
+        return if(orders.count() == 0) {
+            FlowOrdersPaginationDto(emptyList())
+        } else {
+            FlowOrdersPaginationDto(
+                orders.map(this::convert).toList(),
+                sort.nextPage(orders, size)
+            )
         }
     }
 }
