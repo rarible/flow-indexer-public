@@ -8,6 +8,7 @@ spring:
 flow-indexer-api:
   flow-access-url:
   flow-access-port:
+  alchemy-api-key: ${alchemy.api.key}
 
 application:
   service-name: flow-nft-indexer-api

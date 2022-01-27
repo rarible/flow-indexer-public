@@ -44,6 +44,11 @@ class Config(
         return buildWebClient("PinataClient", "https://rarible.mypinata.cloud/ipfs")
     }
 
+    @Bean
+    fun alchemyClient(): WebClient {
+
+    }
+
     private fun buildWebClient(loggerName: String, baseUrl: String): WebClient {
         val httpClient = HttpClient
             .create()
