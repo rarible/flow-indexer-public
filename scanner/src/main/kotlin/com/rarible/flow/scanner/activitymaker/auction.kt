@@ -2,7 +2,10 @@ package com.rarible.flow.scanner.activitymaker
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowId
-import com.nftco.flow.sdk.cadence.*
+import com.nftco.flow.sdk.cadence.AddressField
+import com.nftco.flow.sdk.cadence.Field
+import com.nftco.flow.sdk.cadence.NumberField
+import com.nftco.flow.sdk.cadence.OptionalField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.events.EventId
@@ -59,8 +62,8 @@ class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
     }
 
     private fun changeEndTime(flowLogEvent: FlowLogEvent): BaseActivity {
-        val lotId: NumberField by flowLogEvent.event.fields
-        val finishAt: NumberField by flowLogEvent.event.fields
+        val lotId by flowLogEvent.event.fields
+        val finishAt by flowLogEvent.event.fields
         return AuctionActivityLotEndTimeChanged(
             lotId = cadenceParser.long(lotId),
             finishAt = resolveTimeAt(finishAt)!!,
@@ -69,9 +72,9 @@ class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
     }
 
     private fun closeBidActivity(event: FlowLogEvent): BaseActivity {
-        val lotId: NumberField by event.event.fields
-        val bidder: AddressField by event.event.fields
-        val isWinner: BooleanField by event.event.fields
+        val lotId by event.event.fields
+        val bidder by event.event.fields
+        val isWinner by event.event.fields
         return AuctionActivityBidClosed(
             lotId = cadenceParser.long(lotId),
             bidder = cadenceParser.address(bidder),
@@ -81,9 +84,9 @@ class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
     }
 
     private fun openBidActivity(event: FlowLogEvent): BaseActivity {
-        val lotId: NumberField by event.event.fields
-        val bidder: AddressField by event.event.fields
-        val amount: NumberField by event.event.fields
+        val lotId by event.event.fields
+        val bidder by event.event.fields
+        val amount by event.event.fields
         return AuctionActivityBidOpened(
             lotId = cadenceParser.long(lotId),
             bidder = cadenceParser.address(bidder),
@@ -93,7 +96,7 @@ class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
     }
 
     private fun lotFinalizedActivity(event: FlowLogEvent): BaseActivity {
-        val lotId: NumberField by event.event.fields
+        val lotId by event.event.fields
         return AuctionActivityLotCleaned(
             lotId = cadenceParser.long(lotId),
             timestamp = event.log.timestamp
