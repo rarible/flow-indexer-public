@@ -1,8 +1,8 @@
 package com.rarible.flow.api.metaprovider
 
-import com.nftco.flow.sdk.Flow
+import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
-import com.nftco.flow.sdk.cadence.ResourceField
+import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
@@ -14,33 +14,48 @@ import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
-import javax.annotation.PostConstruct
+import java.io.BufferedReader
 
 @Component
 class VersusArtMetaProvider(
+    private val itemRepository: ItemRepository,
     private val scriptExecutor: ScriptExecutor,
     @Value("classpath:script/versus-art-metadata.cdc")
-    private val scriptFile: Resource,
-    private val itemRepository: ItemRepository,
+    private val getMetadataScriptResource: Resource,
+    @Value("classpath:script/versus-art-content.cdc")
+    private val getContentScriptResource: Resource,
 ) : ItemMetaProvider {
 
     private val builder = JsonCadenceBuilder()
+    private val parser = JsonCadenceParser()
 
-    private lateinit var scriptText: String
+    private val getMetadataScript = getMetadataScriptResource.readText()
+    private val getContentScript = getContentScriptResource.readText()
 
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("VersusArt")
+    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("Art")
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
         val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
-        val result = scriptExecutor.execute(
-            code = scriptText,
-            args = mutableListOf(
-                builder.address(item.owner!!.formatted),
-                builder.ufix64(itemId.tokenId)
-            )
-        ).let { it.copy(bytes = it.bytes.changeCapabilityToAddress()) }
-        val value = result.jsonCadence.value as? ResourceField ?: return emptyMeta(itemId)
-        val nft = Flow.unmarshall(VersusArtItem::class, value)
+        val args: MutableList<Field<*>> = mutableListOf(
+            builder.address(item.owner!!.formatted),
+            builder.ufix64(itemId.tokenId)
+        )
+        val nft = scriptExecutor
+            .execute(code = getMetadataScript, args = args)
+            .let { it.copy(bytes = it.bytes.changeCapabilityToAddress()) }
+            .let { parser.optional<VersusArtItem>(it.jsonCadence, JsonCadenceParser::unmarshall) }
+            ?: return emptyMeta(itemId)
+
+        val content = scriptExecutor
+            .execute(code = getContentScript, args = args)
+            .let { parser.optional(it.jsonCadence, JsonCadenceParser::string) }
+
+        // valid types: ipfs/image, ipfs/video, png, image/dataurl
+        val contentUrl = when (nft.metadata.type) {
+            "ipfs/image", "ipfs/video" -> "https://rarible.mypinata.cloud/ipfs/$content"
+            else -> content
+        }
+
         val meta = listOf(
             ItemMetaAttribute("uuid", "${nft.uuid}"),
             ItemMetaAttribute("id", "${nft.id}"),
@@ -54,13 +69,11 @@ class VersusArtMetaProvider(
             ItemMetaAttribute("contentId", nft.contentId.toString()),
             ItemMetaAttribute("schema", nft.schema.toString()),
         )
-        val urls = listOfNotNull(nft.url)
+
+        val urls = listOfNotNull(contentUrl, nft.url)
 
         return ItemMeta(itemId, nft.name, nft.description, meta, urls)
     }
 
-    @PostConstruct
-    private fun readScript() {
-        scriptText = scriptFile.inputStream.bufferedReader().use { it.readText() }
-    }
+    private fun Resource.readText() = inputStream.bufferedReader().use(BufferedReader::readText)
 }
