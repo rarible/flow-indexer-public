@@ -152,7 +152,7 @@ class ItemIndexerEventProcessor(
                         contract = burn.contract,
                         tokenId = burn.tokenId,
                         royalties = listOf(),
-                        creator = EventId.of(burn.contract).contractAddress,
+                        creator = EventId.of("${burn.contract}.dummy").contractAddress,
                         owner = null,
                         mintedAt = Instant.now(),
                         collection = burn.contract,
