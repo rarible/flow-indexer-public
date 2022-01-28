@@ -394,6 +394,11 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
 
     override val contractName: String = "NFTStorefront"
 
+    private val raribleOrderAddress = mapOf(
+        FlowChainId.MAINNET to "01ab36aaf654a13e",
+        FlowChainId.TESTNET to "ebf4ae01d1284af8"
+    )
+
     override suspend fun activities(events: List<FlowLogEvent>): Map<FlowLog, BaseActivity> {
         val result: MutableMap<FlowLog, BaseActivity> = mutableMapOf()
         withSpan("generateOrderActivities", "event") {
@@ -412,7 +417,8 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
             }
 
             orderListed.forEach {
-                val price = cadenceParser.bigDecimal(it.event.fields["price"]!!)
+                val raribleEventPrice = checkRaribleEventPrice(it)
+                val price = raribleEventPrice ?: cadenceParser.bigDecimal(it.event.fields["price"]!!)
                 val orderId = cadenceParser.long(it.event.fields["listingResourceID"]!!)
                 val rate = usdRate(
                     EventId.of(cadenceParser.string(it.event.fields["ftVaultType"]!!)).collection(),
@@ -424,6 +430,7 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
                 } else BigDecimal.ZERO
                 val nftCollection = EventId.of(cadenceParser.string(it.event.fields["nftType"]!!)).collection()
                 val tokenId = cadenceParser.long(it.event.fields["nftID"]!!)
+
                 result[it.log] = FlowNftOrderActivityList(
                     price = price,
                     priceUsd = priceUsd,
@@ -444,7 +451,8 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
                 )
             }
             orderPurchased.forEach { event ->
-                val allTxEvents = readEvents(blockHeight = event.log.blockHeight, txId = FlowId(event.log.transactionHash))
+                val allTxEvents =
+                    readEvents(blockHeight = event.log.blockHeight, txId = FlowId(event.log.transactionHash))
                 val tokenEvents = allTxEvents.filter { it.eventId.toString() in nftCollectionEvents }
                 val currencyEvents = allTxEvents.filter { it.eventId.toString() in currenciesEvents }
 
@@ -505,6 +513,20 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
             }
         }
         return result.toMap()
+    }
+
+    private suspend fun checkRaribleEventPrice(event: FlowLogEvent): BigDecimal? {
+        val eventName = "A.${raribleOrderAddress[chainId]}.RaribleOrder.OrderAvailable"
+        return txManager.onTransaction(
+            blockHeight = event.log.blockHeight,
+            transactionId = FlowId(event.log.transactionHash)
+        ) { result ->
+            val e = result.events.find { it.type == eventName }
+            if (e != null) {
+                return@onTransaction cadenceParser.bigDecimal(e.event["price"]!!)
+            }
+            return@onTransaction null
+        }
     }
 }
 
@@ -666,7 +688,8 @@ class DisruptArtActivityMaker(
         address(it)
     } ?: super.creator(logEvent)
 
-    override fun royalties(logEvent: FlowLogEvent): List<Part> = listOf(Part(address = royaltyAddress[chainId]!!, fee = 0.15))
+    override fun royalties(logEvent: FlowLogEvent): List<Part> =
+        listOf(Part(address = royaltyAddress[chainId]!!, fee = 0.15))
 }
 
 data class PayInfo(
