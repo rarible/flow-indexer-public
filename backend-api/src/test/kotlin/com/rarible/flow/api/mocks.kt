@@ -37,14 +37,14 @@ object mocks {
         return scriptExecutor(mapOf(*results))
     }
 
-    fun resource(script: String, fileName: String? = null) = mockk<Resource>() {
+    fun resource(scriptExecutorKey: String, fileName: String? = null) = mockk<Resource>() {
         every {
             inputStream
-        } returns ByteArrayInputStream(script.toByteArray())
+        } returns ByteArrayInputStream(scriptExecutorKey.toByteArray())
 
         every {
             filename
-        } returns (fileName ?: script)
+        } returns (fileName ?: scriptExecutorKey)
     }
 
     fun webClient(expectedPath: String, response: String) = WebClient
