@@ -19,9 +19,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.mapping.div
 import org.springframework.data.mapping.toDotPath
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
-import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.*
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -35,14 +33,14 @@ class EnglishAuctionApiService(
     suspend fun existsById(id: Long): Boolean = repo.existsById(id).awaitSingle()
     suspend fun bidsByAuctionId(id: Long, continuation: String?, size: Int?): List<ItemHistory> {
         val cont = ActivityContinuation.of(continuation)
-        val criteria = Criteria.where("activity.type").isEqualTo(FlowActivityType.OPEN_BID)
+        val criteria = Criteria.where("activity.type").`in`(FlowActivityType.OPEN_BID, FlowActivityType.INCREASE_BID)
             .and("activity.lotId").isEqualTo(id)
         if (cont != null) {
             criteria.and("id").ne(cont.beforeId).and("date").lte(cont.beforeDate)
         }
         val query = Query().limit(size ?: DEFAULT_LIMIT)
             .with(Sort.by(Sort.Direction.DESC, "date", "log.transactionHash", "log.eventIndex"))
-        return mongo.find(query.addCriteria(criteria), ItemHistory::class.java).asFlow().toList()
+        return mongo.find(query, ItemHistory::class.java).asFlow().toList()
 
     }
 
@@ -53,7 +51,7 @@ class EnglishAuctionApiService(
     suspend fun byCollection(
         contract: String,
         seller: String?,
-        status: FlowAuctionStatusDto?,
+        status: List<FlowAuctionStatusDto>?,
         continuation: String?,
         size: Int?,
     ): List<EnglishAuctionLot> {
@@ -62,8 +60,8 @@ class EnglishAuctionApiService(
         if (seller != null) {
             criteria.and(EnglishAuctionLot::seller.name).isEqualTo(seller)
         }
-        if (status != null) {
-            criteria.and(EnglishAuctionLot::status.name).isEqualTo(status)
+        if (!status.isNullOrEmpty()) {
+            criteria.and(EnglishAuctionLot::status.name).`in`(status)
         }
 
         if (continuation != null) {
@@ -85,7 +83,7 @@ class EnglishAuctionApiService(
         tokenId: Long,
         seller: String?,
         sort: FlowAuctionSortDto? = FlowAuctionSortDto.BUY_PRICE_ASC,
-        status: FlowAuctionStatusDto?,
+        status: List<FlowAuctionStatusDto>?,
         currencyId: String?,
         continuation: String?,
         size: Int?,
@@ -95,7 +93,7 @@ class EnglishAuctionApiService(
 
         when {
             seller != null -> criteria.and("seller").isEqualTo(seller)
-            status != null -> criteria.and("status").isEqualTo(status)
+            !status.isNullOrEmpty() -> criteria.and("status").`in`(status)
             currencyId != null -> criteria.and("currency").isEqualTo(currencyId)
         }
 
@@ -129,8 +127,11 @@ class EnglishAuctionApiService(
         return mongo.find(query.addCriteria(criteria), EnglishAuctionLot::class.java).asFlow().toList()
     }
 
-    suspend fun bySeller(seller: String, continuation: String?, size: Int?): List<EnglishAuctionLot> {
-        val criteria = Criteria.where(EnglishAuctionLot::seller.name).isEqualTo(seller)
+    suspend fun bySeller(seller: String, status: List<FlowAuctionStatusDto>?, continuation: String?, size: Int?): List<EnglishAuctionLot> {
+        val criteria = where(EnglishAuctionLot::seller).isEqualTo(seller)
+        if (!status.isNullOrEmpty()) {
+            criteria.and(EnglishAuctionLot::status).`in`(status)
+        }
         if (continuation != null) {
             val (dateStr, idStr) = continuation.split("_")
             criteria.and(EnglishAuctionLot::lastUpdatedAt.name).lte(Instant.ofEpochMilli(dateStr.toLong()))

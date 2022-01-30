@@ -105,7 +105,7 @@ class EnglishAuctionService(
             ?: throw IllegalStateException("English auction lot ${activity.lotId} not founded!")
 
         return repo.coSave(
-            lot.copy(status = AuctionStatus.CANCELED, lastUpdatedAt = activity.timestamp)
+            lot.copy(status = AuctionStatus.CANCELLED, lastUpdatedAt = activity.timestamp)
         )
     }
 
