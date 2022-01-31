@@ -12,17 +12,16 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coFindById
-import com.rarible.flow.log.Log
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
 
 @Component
 class ChainmonstersMetaProvider(
-    val itemRepository: ItemRepository,
-    val scriptExecutor: ScriptExecutor,
+    private val itemRepository: ItemRepository,
+    private val scriptExecutor: ScriptExecutor,
     @Value("classpath:script/chainmonsters_meta.cdc")
-    val script: Resource
+    private val script: Resource
 ): ItemMetaProvider {
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("ChainmonstersRewards")
