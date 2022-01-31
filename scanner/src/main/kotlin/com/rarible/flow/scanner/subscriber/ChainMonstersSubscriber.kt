@@ -7,7 +7,7 @@ import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.events.EventId
 import org.springframework.stereotype.Component
 
-@Component
+//@Component
 class ChainMonstersSubscriber: BaseFlowLogEventSubscriber() {
 
     private val contractName = "ChainmonstersRewards"
