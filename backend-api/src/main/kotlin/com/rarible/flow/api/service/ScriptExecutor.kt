@@ -7,7 +7,6 @@ import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.log.Log
-import org.bouncycastle.crypto.Digest
 import com.rarible.flow.sdk.simpleScript
 import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.Resource
@@ -22,6 +21,7 @@ class ScriptExecutor(
 ) {
     private val parser = JsonCadenceParser()
 
+    @Deprecated("use executeFile")
     suspend fun execute(code: String, args: MutableList<Field<*>>): FlowScriptResponse {
         val response = api.simpleScript {
             script(code, appProperties.chainId)
@@ -34,6 +34,14 @@ class ScriptExecutor(
             response.stringValue
         )
         return response
+    }
+
+    suspend fun <T> executeFile(
+        resourcePath: String,
+        args: ScriptBuilder.() -> Unit,
+        parse: JsonCadenceParser.(Field<*>) -> T
+    ): T {
+        return executeFile(ClassPathResource(resourcePath), args, parse)
     }
 
     suspend fun <T> executeFile(
@@ -60,11 +68,6 @@ class ScriptExecutor(
             args(this)
         }
         return parse(parser, response.jsonCadence)
-    }
-
-    private fun scriptText(resourcePath: String): String {
-        val resource = ClassPathResource(resourcePath)
-        return scriptText(resource.inputStream)
     }
 
     private fun scriptText(inputStream: InputStream): String {

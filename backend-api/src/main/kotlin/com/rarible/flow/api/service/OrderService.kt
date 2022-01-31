@@ -130,7 +130,7 @@ class OrderService(
 
     fun getBidOrdersByItem(
         itemId: ItemId,
-        makerAddress: FlowAddress?,
+        makers: List<FlowAddress>,
         currency: String?,
         status: List<OrderStatus>,
         startDate: Instant?,
@@ -142,7 +142,7 @@ class OrderService(
         return orderRepository.search(
             bidOrders(
                 OrderFilter.ByItemId(itemId),
-                OrderFilter.ByMaker(makerAddress),
+                OrderFilter.ByMakers(makers),
                 OrderFilter.ByStatus(status),
                 OrderFilter.ByBiddingCurrency(currency),
                 OrderFilter.ByDateAfter(Order::createdAt, startDate),

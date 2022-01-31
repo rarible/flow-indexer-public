@@ -57,6 +57,16 @@ internal class OrderFilterTest : FunSpec({
                 )
     }
 
+    test("should make filter - by makers - null") {
+        shouldBeEmpty(OrderFilter.ByMakers(emptyList()))
+    }
+
+    test("should make filter - by makers") {
+        OrderFilter.ByMakers(listOf(FlowAddress("0x02"), FlowAddress("0x03"))) shouldMakeCriteria """
+            {"maker": {${'$'}in: ["0x0000000000000002", "0x0000000000000003"]}}
+        """.trimIndent()
+    }
+
     test("should make filter - by status - null") {
         shouldBeEmpty(OrderFilter.ByStatus(null))
     }
