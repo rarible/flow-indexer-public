@@ -7,12 +7,6 @@ app:
   kafka-replica-set: ${kafka.hosts}
   environment: test
 
-grpc:
-  client:
-    flow:
-      address: dns:///flow-testnet.g.alchemy.com:443
-      enable-keep-alive: true
-
 blockchain:
   scanner:
     flow:

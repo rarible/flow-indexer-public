@@ -24,6 +24,7 @@ import com.rarible.protocol.currency.dto.BlockchainDto
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -83,7 +84,8 @@ abstract class NFTActivityMaker : ActivityMaker {
                     tokenId = tokenId,
                     timestamp = it.log.timestamp,
                     metadata = meta(it),
-                    royalties = royalties(it)
+                    royalties = royalties(it),
+                    collection = itemCollection(it)
                 )
             }
 
@@ -146,6 +148,8 @@ abstract class NFTActivityMaker : ActivityMaker {
     protected open fun royalties(logEvent: FlowLogEvent): List<Part> = emptyList()
 
     protected open fun creator(logEvent: FlowLogEvent): String = logEvent.event.eventId.contractAddress.formatted
+
+    protected open suspend fun itemCollection(mintEvent: FlowLogEvent): String = mintEvent.event.eventId.collection()
 }
 
 @Component
@@ -690,6 +694,40 @@ class DisruptArtActivityMaker(
 
     override fun royalties(logEvent: FlowLogEvent): List<Part> =
         listOf(Part(address = royaltyAddress[chainId]!!, fee = 0.15))
+}
+
+@Component
+class RaribleV2ActivityMaker(
+    private val collectionRepository: ItemCollectionRepository
+): NFTActivityMaker() {
+
+    override val contractName: String = "RaribleNFTv2"
+
+    override fun tokenId(logEvent: FlowLogEvent): Long {
+        return cadenceParser.long(logEvent.event.fields["id"]!!)
+    }
+
+    override fun meta(logEvent: FlowLogEvent): Map<String, String> {
+        return cadenceParser.dictionaryMap(logEvent.event.fields["metadata"]!!) { key, value ->
+            string(key) to string(value)
+        } + mapOf("parentId" to "${cadenceParser.long(logEvent.event.fields["parentId"]!!)}")
+    }
+
+    override fun royalties(logEvent: FlowLogEvent): List<Part> {
+        return cadenceParser.arrayValues(logEvent.event.fields["royalties"]!!) {
+            it as StructField
+            Part(
+                address = FlowAddress(address(it.value!!.getRequiredField("address"))),
+                fee = double(it.value!!.getRequiredField("fee"))
+            )
+        }
+    }
+
+    override suspend fun itemCollection(mintEvent: FlowLogEvent): String {
+        val parentId = cadenceParser.long(mintEvent.event.fields["parentId"]!!)
+        val collection = collectionRepository.findByCollectionOnChainId(parentId).awaitSingleOrNull()
+        return collection?.id ?: super.itemCollection(mintEvent)
+    }
 }
 
 data class PayInfo(

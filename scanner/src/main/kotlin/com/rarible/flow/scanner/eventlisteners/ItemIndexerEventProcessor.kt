@@ -64,7 +64,7 @@ class ItemIndexerEventProcessor(
                     owner = owner,
                     mintedAt = mintActivity.timestamp,
                     meta = objectMapper.writeValueAsString(mintActivity.metadata),
-                    collection = mintActivity.contract,
+                    collection = mintActivity.collection ?: mintActivity.contract,
                     updatedAt = mintActivity.timestamp
                 )
             } else if (event.item.mintedAt != mintActivity.timestamp) {

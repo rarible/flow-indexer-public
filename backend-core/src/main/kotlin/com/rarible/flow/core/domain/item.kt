@@ -80,6 +80,11 @@ data class ItemCollection(
     val name: String,
     val symbol: String,
     val createdDate: Instant = Instant.now(),
-    val features: Set<String> = emptySet()
+    val features: Set<String> = emptySet(),
+    val isSoft: Boolean = false,
+    @Indexed
+    val collectionOnChainId: Long? = null,
+    val collectionOnChainParentId: Long? = null,
+    val royalties: List<Part>? = null
 )
 

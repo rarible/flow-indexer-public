@@ -46,7 +46,7 @@ abstract class BaseFlowLogEventSubscriber: FlowLogEventSubscriber {
     abstract val descriptors: Map<FlowChainId, FlowDescriptor>
 
     override fun getDescriptor(): FlowDescriptor = when(chainId) {
-        FlowChainId.EMULATOR -> FlowDescriptor("", emptySet(), "")
+        FlowChainId.EMULATOR -> descriptors[chainId] ?: FlowDescriptor("", emptySet(), "")
         else -> descriptors[chainId]!!
     }
 
