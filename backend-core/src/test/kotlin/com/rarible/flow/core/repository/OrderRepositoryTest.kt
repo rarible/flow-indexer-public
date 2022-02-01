@@ -99,7 +99,7 @@ internal class OrderRepositoryTest(
         updated.makeStock shouldBe 0.5.toBigDecimal()
 
         val skipped = orderRepository.search(OrderFilter.OnlySell, null, null).asFlow().first()
-        skipped.makeStock shouldBe BigDecimal.TEN
+        skipped.makeStock shouldBe BigDecimal.ONE
     }
 
 }
