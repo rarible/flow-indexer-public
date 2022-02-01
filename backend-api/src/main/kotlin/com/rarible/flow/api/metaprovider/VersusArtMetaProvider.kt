@@ -38,7 +38,7 @@ class VersusArtMetaProvider(
         val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
         val args: MutableList<Field<*>> = mutableListOf(
             builder.address(item.owner!!.formatted),
-            builder.ufix64(itemId.tokenId)
+            builder.uint64(itemId.tokenId)
         )
         val nft = scriptExecutor
             .execute(code = getMetadataScript, args = args)
