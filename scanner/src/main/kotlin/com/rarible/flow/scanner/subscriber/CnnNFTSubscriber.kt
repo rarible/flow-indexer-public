@@ -40,7 +40,7 @@ class CnnNFTSubscriber : BaseFlowLogEventSubscriber() {
     override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when(EventId.of(log.event.type).eventName) {
         "Withdraw" -> FlowLogType.WITHDRAW
         "Deposit" -> FlowLogType.DEPOSIT
-        "Mint" -> FlowLogType.MINT
+        "Minted" -> FlowLogType.MINT
         "NFTDestroyed" -> FlowLogType.BURN
         else ->  throw IllegalStateException("Unsupported event type: ${log.event.type}")
     }
