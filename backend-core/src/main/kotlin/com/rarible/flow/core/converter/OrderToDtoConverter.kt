@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.http.ResponseEntity
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -52,7 +53,7 @@ class OrderToDtoConverter(
                 data = convert(source.data ?: OrderData(emptyList(), emptyList())),
                 priceUsd = usdRate * source.take.value,
                 collection = source.collection,
-                makeStock = source.makeStock!!.movePointRight(multiplier).toBigInteger(),
+                makeStock = makeStock(source),
                 status = convert(source.status)
             )
         } catch (e: Exception) {
@@ -102,6 +103,14 @@ class OrderToDtoConverter(
             OrderStatus.INACTIVE -> FlowOrderStatusDto.INACTIVE
             OrderStatus.CANCELLED -> FlowOrderStatusDto.CANCELLED
         }
+    }
+
+    fun makeStock(order: Order): BigInteger {
+        return when(order.make) {
+            FlowAssetEmpty -> order.makeStock!!
+            is FlowAssetFungible -> order.makeStock!!.movePointRight(multiplier)
+            is FlowAssetNFT -> order.makeStock!!
+        }.toBigInteger()
     }
 
     suspend fun page(orders: Flow<Order>, sort: OrderFilter.Sort, size: Int?): FlowOrdersPaginationDto {
