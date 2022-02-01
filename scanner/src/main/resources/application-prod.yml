@@ -10,7 +10,9 @@ blockchain:
       job:
         reconciliation:
           batchSize: 250
-
+      retryPolycy:
+        scan:
+          maxProcessTime: 3m
 app:
   environment: prod
   kafka-replica-set: ${kafka.hosts}

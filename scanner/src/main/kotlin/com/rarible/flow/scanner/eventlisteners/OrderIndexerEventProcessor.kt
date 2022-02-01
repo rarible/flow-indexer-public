@@ -110,8 +110,10 @@ class OrderIndexerEventProcessor(
         event: IndexerEvent,
         o: Order
     ) {
-        if (event.source != Source.REINDEX) {
-            protocolEventPublisher.onOrderUpdate(o, orderConverter)
+        withSpan("sendOrderUpdate", "network") {
+            if (event.source != Source.REINDEX) {
+                protocolEventPublisher.onOrderUpdate(o, orderConverter)
+            }
         }
     }
 

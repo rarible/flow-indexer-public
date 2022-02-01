@@ -3,11 +3,13 @@ package com.rarible.flow.scanner.listener
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventListener
+import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.blockchain.scanner.subscriber.ProcessedBlockEvent
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.NFTActivity
+import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.log.Log
@@ -23,7 +25,8 @@ class ItemAndOrderEventsListener(
     private val itemHistoryRepository: ItemHistoryRepository,
     private val nftActivityMakers: List<ActivityMaker>,
     private val indexerEventService: IndexerEventService,
-    private val itemRepository: ItemRepository
+    private val itemRepository: ItemRepository,
+    private val protocolEventPublisher: ProtocolEventPublisher
 ) : FlowLogEventListener {
 
     private val logger by Log()
@@ -64,7 +67,9 @@ class ItemAndOrderEventsListener(
                                     items.find { it.contract == a.contract && it.tokenId == a.tokenId }
                                 } else null)
                         )
-
+                        if (blockEvent.event.eventSource != Source.REINDEX) {
+                            protocolEventPublisher.activity(h)
+                        }
                     }
                 }
             }
