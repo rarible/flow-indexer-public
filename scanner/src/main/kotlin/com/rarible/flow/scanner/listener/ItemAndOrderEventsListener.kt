@@ -5,6 +5,7 @@ import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventListener
 import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.blockchain.scanner.subscriber.ProcessedBlockEvent
+import com.rarible.core.apm.CaptureSpan
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
@@ -21,6 +22,7 @@ import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Component
 
 @Component
+@CaptureSpan(type = "indexer")
 class ItemAndOrderEventsListener(
     private val itemHistoryRepository: ItemHistoryRepository,
     private val nftActivityMakers: List<ActivityMaker>,
