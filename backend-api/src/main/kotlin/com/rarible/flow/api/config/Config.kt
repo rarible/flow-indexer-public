@@ -36,12 +36,17 @@ class Config(
 
     @Bean
     fun pinataClient(): WebClient {
-        return WebClient.create("https://rarible.mypinata.cloud/ipfs")
+        return WebClient.create("https://rarible.mypinata.cloud")
     }
 
     @Bean
     fun matrixWorldClient(): WebClient {
         return WebClient.create("https://api.matrixworld.org/land/api/v1/land/metadata/estate/flow/")
+    }
+
+    @Bean
+    fun mugenClient(): WebClient {
+        return WebClient.create("https://onchain.mugenart.io/flow/nft/0x2cd46d41da4ce262/metadata")
     }
 
     @EventListener(ApplicationReadyEvent::class)

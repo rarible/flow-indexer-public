@@ -1,79 +1,38 @@
 package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.FlowChainId
-import com.nftco.flow.sdk.FlowScript
-import com.nftco.flow.sdk.FlowScriptResponse
-import com.rarible.flow.api.service.ScriptExecutor
-import com.rarible.flow.core.config.AppProperties
+import com.rarible.flow.api.mocks.resource
+import com.rarible.flow.api.mocks.scriptExecutor
+import com.rarible.flow.api.mocks.webClient
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.ItemMeta
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
 import io.mockk.every
 import io.mockk.mockk
-import org.springframework.core.io.Resource
-import org.springframework.http.HttpStatus
-import org.springframework.web.reactive.function.client.ClientRequest
-import org.springframework.web.reactive.function.client.ClientResponse
-import org.springframework.web.reactive.function.client.WebClient
-import reactor.core.publisher.Mono
-import java.io.ByteArrayInputStream
-import java.util.concurrent.CompletableFuture
 
 
 internal class CnnNFTMetaProviderTest : FunSpec({
 
-    fun resource(script: String) = mockk<Resource>() {
-        every {
-            inputStream
-        } returns ByteArrayInputStream(script.toByteArray())
-    }
-
     test("shoud read metadata for existing item") {
         val itemId = ItemId("A.329feb3ab062d289.CNN_NFT", 2909)
+        val item = mockk<Item>("item") {
+            every { id } returns itemId
+            every { owner } returns FlowAddress("0xe969a6097b773709")
+            every { tokenId } returns 2909
+        }
         val metaProvider = CnnNFTMetaProvider(
-            mockk("itemRepository") {
-                every { findById(any<ItemId>()) } returns Mono.just(
-                    mockk("item") {
-                        every { id } returns itemId
-                        every { owner } returns FlowAddress("0xe969a6097b773709")
-                        every { tokenId } returns 2909
-                    }
-                )
-            },
-            ScriptExecutor(
-                mockk() {
-                    every {
-                        executeScriptAtLatestBlock(eq(FlowScript("cnnNft")), any())
-                    } returns CompletableFuture.completedFuture(
-                        FlowScriptResponse(CNN_NFT.toByteArray())
-                    )
-
-                    every {
-                        executeScriptAtLatestBlock(eq(FlowScript("ipfs")), any())
-                    } returns CompletableFuture.completedFuture(
-                        FlowScriptResponse(IPFS_HASH.toByteArray())
-                    )
-                },
-                AppProperties("test", "", FlowChainId.EMULATOR)
-            ),
-            WebClient.builder()
-                .exchangeFunction { clientRequest: ClientRequest? ->
-                    Mono.just(
-                        ClientResponse.create(HttpStatus.OK)
-                            .header("content-type", "application/json")
-                            .body(IPFS_META)
-                            .build()
-                    )
-                }.build(),
-
+            scriptExecutor("cnnNft" to CNN_NFT, "ipfs" to IPFS_HASH),
+            webClient("/ipfs/Qmb1QwvaUF5xiqp2bXiRo4jzwXZ4MLJuk5srt1FYvH3Zqc", IPFS_META),
             resource("cnnNft"),
             resource("ipfs")
         )
 
-        metaProvider.getMeta(itemId) should { meta ->
+        metaProvider.getMeta(item) should { meta ->
+            meta as ItemMeta
             meta.itemId shouldBe itemId
             meta.name shouldBe "2015: US Supreme Court Ruling Guarantees Right to Same-Sex Marriage"
             meta.description shouldStartWith "June 26, 2015"
@@ -89,10 +48,6 @@ internal class CnnNFTMetaProviderTest : FunSpec({
 
         val IPFS_HASH = """
             {"type":"Optional","value":{"type":"String","value":"Qmb1QwvaUF5xiqp2bXiRo4jzwXZ4MLJuk5srt1FYvH3Zqc"}}
-        """.trimIndent()
-
-        val NULL = """
-            {"type":"Optional","value":null}
         """.trimIndent()
 
         val IPFS_META = """

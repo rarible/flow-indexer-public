@@ -2,6 +2,7 @@ package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
@@ -11,51 +12,26 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
 
 @Component
-class MugenNFTMetaProvider : ItemMetaProvider {
+class MugenNFTMetaProvider(
+    private val mugenCient: WebClient
+) : ItemMetaProvider {
 
     private val logger by Log()
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("MugenNFT")
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        val url = "https://onchain.mugenart.io/flow/nft/0x2cd46d41da4ce262/metadata/${itemId.tokenId}"
-
-        val client = WebClient.create()
+    override suspend fun getMeta(item: Item): ItemMeta? {
         return try {
-            val data = client.get().uri(url)
-                .retrieve().awaitBodyOrNull<List<MugenNFTMetaBody>>()?.singleOrNull() ?: return emptyMeta(itemId)
-            ItemMeta(
-                itemId = itemId,
-                name = data.name,
-                description = data.description,
-                attributes = data.attributes.map {
-                    ItemMetaAttribute(
-                        key = it.traitType,
-                        value = it.value
-                    )
-                } + listOf(
-                    ItemMetaAttribute(
-                        key = "backgroundColor",
-                        value = data.backgroundColor,
-                    )
-                ),
-                contentUrls = listOfNotNull(
-                    data.imageBlocto,
-                    data.icon,
-                    data.image,
-                    data.imagePreview,
-                    data.imageHd,
-                    data.externalUrl,
-                    data.animationUrl,
-                    data.animationUrl2,
-                    data.youtubeUrl,
-                ),
-            ).apply {
-                raw = data.toString().toByteArray(charset = Charsets.UTF_8)
-            }
+            return mugenCient
+                .get()
+                .uri("/${item.tokenId}")
+                .retrieve()
+                .awaitBodyOrNull<List<MugenNFTMetaBody>>()
+                ?.firstOrNull()
+                ?.toItemMeta(item.id)
         } catch (e: Exception) {
             logger.warn("getMeta: ${e.message}", e)
-            return emptyMeta(itemId)
+            null
         }
     }
 }
@@ -88,7 +64,39 @@ data class MugenNFTMetaBody(
     val name: String,
     @get:JsonProperty("image_blocto")
     val imageBlocto: String?,
-)
+): MetaBody {
+    override fun toItemMeta(itemId: ItemId): ItemMeta {
+        return ItemMeta(
+            itemId = itemId,
+            name = name,
+            description = description,
+            attributes = attributes.map {
+                ItemMetaAttribute(
+                    key = it.traitType,
+                    value = it.value
+                )
+            } + listOf(
+                ItemMetaAttribute(
+                    key = "backgroundColor",
+                    value = backgroundColor,
+                )
+            ),
+            contentUrls = listOfNotNull(
+                imageBlocto,
+                icon,
+                image,
+                imagePreview,
+                imageHd,
+                externalUrl,
+                animationUrl,
+                animationUrl2,
+                youtubeUrl,
+            ),
+        ).apply {
+            raw = toString().toByteArray(charset = Charsets.UTF_8)
+        }
+    }
+}
 
 data class MugenNftAttr(
     @get:JsonProperty("trait_type")

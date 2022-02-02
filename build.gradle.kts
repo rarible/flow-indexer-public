@@ -5,7 +5,7 @@ plugins {
     kotlin("jvm") version "1.5.31"
     kotlin("plugin.spring") version "1.5.31"
     kotlin("plugin.serialization") version "1.5.31"
-    jacoco
+    id("org.jetbrains.kotlinx.kover") version "0.5.0-RC"
 }
 
 group = "com.rarible.flow"
@@ -127,6 +127,17 @@ subprojects {
                 project.buildDir.resolve("surefire-reports")
             )
         }
+
+        extensions.configure(kotlinx.kover.api.KoverTaskExtension::class) {
+            excludes = listOf(
+                "com.rarible.flow.core.config.*",
+                "com.rarible.flow.api.config.*",
+                "com.rarible.flow.scanner.config.*",
+                "com.rarible.flow.scanner.ScannerApplicationKt",
+                "com.rarible.flow.scanner.migrations.*"
+            )
+            includes = listOf("com.rarible.flow.*")
+        }
     }
 }
 
@@ -138,40 +149,35 @@ tasks.getByName<Jar>("jar") {
     enabled = true
 }
 
-task<JacocoMerge>("coverageMerge") {
-    dependsOn(subprojects.map { it.tasks.withType<Test>() })
-    dependsOn(subprojects.map { it.tasks.withType<JacocoReport>() })
+//tasks.koverCollectProjectsReports {
+//    outputDir.set(layout.buildDirectory.dir("all-projects-reports") )
+//}
 
-    executionData = (project.fileTree(".") {
-        include("**/build/jacoco/*.exec")
-    })
-}
-
-task<JacocoReport>("coverage") {
-    dependsOn("coverageMerge")
-    additionalSourceDirs.setFrom(subprojects.map { it.the<SourceSetContainer>()["main"].allSource.srcDirs })
-    sourceDirectories.setFrom(subprojects.map { it.the<SourceSetContainer>()["main"].allSource.srcDirs })
-    classDirectories.setFrom(subprojects.map { it.the<SourceSetContainer>()["main"].output })
-    executionData.setFrom(project.fileTree(".") {
-        include("**/build/jacoco/*.exec")
-        exclude("**/build/jacoco/coverageMerge.exec")
-        exclude("/target/jacoco-aggregate.exec")
-    })
-
-    reports {
-        xml.required.set(true)
-        xml.outputLocation.set(file("${buildDir}/reports/jacoco/coverage.xml"))
-        csv.required.set(true)
-        html.required.set(true)
-        html.outputLocation.set(file("${buildDir}/reports/jacoco/html"))
-    }
-
-    copy {
-        from("$buildDir/jacoco/coverageMerge.exec")
-        rename("coverageMerge.exec", "jacoco.exec")
-        into("target/reports/jacoco")
-    }
-}
+//task<JacocoReport>("coverage") {
+//    dependsOn("coverageMerge")
+//    additionalSourceDirs.setFrom(subprojects.map { it.the<SourceSetContainer>()["main"].allSource.srcDirs })
+//    sourceDirectories.setFrom(subprojects.map { it.the<SourceSetContainer>()["main"].allSource.srcDirs })
+//    classDirectories.setFrom(subprojects.map { it.the<SourceSetContainer>()["main"].output })
+//    executionData.setFrom(project.fileTree(".") {
+//        include("**/build/jacoco/*.exec")
+//        exclude("**/build/jacoco/coverageMerge.exec")
+//        exclude("/target/jacoco-aggregate.exec")
+//    })
+//
+//    reports {
+//        xml.required.set(true)
+//        xml.outputLocation.set(file("${buildDir}/reports/jacoco/coverage.xml"))
+//        csv.required.set(true)
+//        html.required.set(true)
+//        html.outputLocation.set(file("${buildDir}/reports/jacoco/html"))
+//    }
+//
+//    copy {
+//        from("$buildDir/jacoco/coverageMerge.exec")
+//        rename("coverageMerge.exec", "jacoco.exec")
+//        into("target/reports/jacoco")
+//    }
+//}
 
 
 
@@ -181,4 +187,9 @@ project("e2e") {
             project.hasProperty("runE2e")
         }
     }
+}
+
+kover {
+    this.coverageEngine.set(kotlinx.kover.api.CoverageEngine.JACOCO)
+    instrumentAndroidPackage = false
 }

@@ -2,12 +2,11 @@ package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.log.Log
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -15,55 +14,45 @@ import org.springframework.web.reactive.function.client.awaitBodyOrNull
 
 @Component
 class RaribleNFTMetaProvider(
-    private val itemRepository: ItemRepository,
-    //TODO private val pinataClient: WebClient
+    private val pinataClient: WebClient
 ) : ItemMetaProvider {
 
     private val logger by Log()
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("RaribleNFT")
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        val item = itemRepository.findById(itemId).awaitSingleOrNull()
-            ?: return emptyMeta(itemId)
-        var url = item.meta ?: return emptyMeta(itemId)
+    override suspend fun getMeta(item: Item): ItemMeta? {
+        val ipfs = readUrl(item) ?: return null
+
+        return try {
+            return pinataClient
+                .get()
+                .uri("/$ipfs")
+                .retrieve()
+                .awaitBodyOrNull<RaribleNFTMetaBody>()
+                ?.toItemMeta(item.id)
+        } catch (e: Exception) {
+            logger.warn("Failed RaribleNFTMetaProvider.getMeta({})", item, e)
+            null
+        }
+    }
+
+    fun readUrl(item: Item): String? {
+        var url = item.meta ?: return null
         if (url.startsWith("{")) {
             url = JacksonJsonParser().parseMap(url)["metaURI"] as String?
-                ?: return emptyMeta(itemId)
+                ?: return null
         }
-
 
         if (url.startsWith("ipfs://")) {
             url = url.substring("ipfs:/".length)
         }
 
         if (url.isEmpty()) {
-            return emptyMeta(itemId)
+            return null
         }
 
-        //TODO inject pinataClient
-        val client = WebClient.create("https://rarible.mypinata.cloud/")
-        return try {
-            val data = client.get().uri(url)
-                .retrieve().awaitBodyOrNull<RaribleNFTMetaBody>() ?: return emptyMeta(itemId)
-            ItemMeta(
-                itemId = itemId,
-                name = data.name,
-                description = data.description,
-                attributes = data.attributes.map {
-                    ItemMetaAttribute(
-                        key = it.key ?: it.traitType!!,
-                        value = it.value
-                    )
-                },
-                contentUrls = listOfNotNull(data.image, data.animationUrl),
-            ).apply {
-                raw = data.toString().toByteArray(charset = Charsets.UTF_8)
-            }
-        } catch (e: Exception) {
-            logger.warn(e.message, e)
-            return emptyMeta(itemId)
-        }
+        return url
     }
 }
 
@@ -75,7 +64,24 @@ data class RaribleNFTMetaBody(
     @get:JsonProperty("animation_url")
     val animationUrl: String? = null,
     val attributes: List<RaribleNftAttr>
-)
+): MetaBody {
+    override fun toItemMeta(itemId: ItemId): ItemMeta {
+        return ItemMeta(
+            itemId = itemId,
+            name = name,
+            description = description,
+            attributes = attributes.map {
+                ItemMetaAttribute(
+                    key = it.key ?: it.traitType!!,
+                    value = it.value
+                )
+            },
+            contentUrls = listOfNotNull(image, animationUrl),
+        ).apply {
+            raw = toString().toByteArray(charset = Charsets.UTF_8)
+        }
+    }
+}
 
 data class RaribleNftAttr(
     val key: String?,

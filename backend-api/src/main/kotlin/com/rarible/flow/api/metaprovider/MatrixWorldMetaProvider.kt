@@ -2,7 +2,7 @@ package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.rarible.flow.api.metaprovider.body.MetaBody
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
@@ -20,19 +20,20 @@ class MatrixWorldMetaProvider(
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("MatrixWorldVoucher")
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
+    override suspend fun getMeta(item: Item): ItemMeta? {
         return try {
             matrixWorldClient
                 .get()
-                .uri("/${itemId.tokenId}")
+                .uri("/${item.tokenId}")
                 .retrieve()
                 .awaitBodyOrNull<MatrixWorldMetaBody>()
-                ?.toItemMeta(itemId) ?: return emptyMeta(itemId)
+                ?.toItemMeta(item.id)
         } catch (e: Exception) {
-            logger.warn("getMeta: ${e.message}", e)
-            return emptyMeta(itemId)
+            logger.warn("MatrixWorldMetaProvider.getMeta: ${e.message}", e)
+            null
         }
     }
+
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
