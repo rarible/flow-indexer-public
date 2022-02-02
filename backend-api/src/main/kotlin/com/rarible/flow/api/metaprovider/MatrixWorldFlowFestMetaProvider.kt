@@ -1,33 +1,23 @@
 package com.rarible.flow.api.metaprovider
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.cadence.CadenceNamespace
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion
 import com.nftco.flow.sdk.cadence.JsonCadenceConverter
-import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.nftco.flow.sdk.cadence.OptionalField
-import com.nftco.flow.sdk.cadence.StringField
 import com.nftco.flow.sdk.cadence.StructField
+import com.rarible.flow.Contracts
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coFindById
-import com.rarible.flow.log.Log
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBodyOrNull
-import javax.annotation.PostConstruct
 
 @Component
 class MatrixWorldFlowFestMetaProvider(
@@ -43,7 +33,7 @@ class MatrixWorldFlowFestMetaProvider(
         scriptFile.inputStream.bufferedReader().use { it.readText() }
     }
 
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("Evolution")
+    override fun isSupported(itemId: ItemId): Boolean = Contracts.MATRIX_WORLD_FLOW_FEST.supports(itemId)
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
         val item = itemRepository.coFindById(itemId) ?: return emptyMeta(itemId)

@@ -5,6 +5,7 @@ import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
+import com.rarible.flow.Contracts
 import com.rarible.flow.api.metaprovider.CnnNFTConverter
 import com.rarible.flow.api.metaprovider.DisruptArtNFT
 import com.rarible.flow.api.metaprovider.RaribleNFT
@@ -242,14 +243,14 @@ class UserStorageService(
                 }
             }
 
-            "MatrixWorldVoucher" -> {
+            Contracts.MATRIX_WORLD_VOUCHER.contractName -> {
                 itemIds.forEach { tokenId ->
-                    val contract = contract("0xMATRIXWORLD", "MatrixWorldVoucher")
+                    val contract = contract(Contracts.MATRIX_WORLD_VOUCHER.import, Contracts.MATRIX_WORLD_VOUCHER.contractName)
                     val item = if (notExistsItem(contract, tokenId)) {
                         Item(
                             contract = contract,
                             tokenId = tokenId,
-                            creator = contractAddress("0xMATRIXWORLD"),
+                            creator = contractAddress(Contracts.MATRIX_WORLD_VOUCHER.import),
                             royalties = emptyList(),
                             owner = address,
                             mintedAt = Instant.now(),
@@ -270,14 +271,14 @@ class UserStorageService(
                 }
             }
 
-            "MatrixWorldFlowFestNFT" -> {
+            Contracts.MATRIX_WORLD_FLOW_FEST.contractName -> {
                 itemIds.forEach { tokenId ->
-                    val contract = contract("0xMATRIXWORLDFLOWFEST", "MatrixWorldFlowFestNFT")
+                    val contract = contract(Contracts.MATRIX_WORLD_FLOW_FEST.import, Contracts.MATRIX_WORLD_FLOW_FEST.contractName)
                     val item = if (notExistsItem(contract, tokenId)) {
                         Item(
                             contract = contract,
                             tokenId = tokenId,
-                            creator = contractAddress("0xMATRIXWORLDFLOWFEST"),
+                            creator = contractAddress(Contracts.MATRIX_WORLD_FLOW_FEST.import),
                             royalties = emptyList(),
                             owner = address,
                             mintedAt = Instant.now(),

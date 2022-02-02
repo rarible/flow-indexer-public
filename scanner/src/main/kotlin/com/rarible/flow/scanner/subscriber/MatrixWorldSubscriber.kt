@@ -3,6 +3,7 @@ package com.rarible.flow.scanner.subscriber
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
+import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.events.EventId
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,22 +17,22 @@ class MatrixWorldSubscriber : BaseFlowLogEventSubscriber() {
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
             FlowChainId.MAINNET to flowDescriptor(
-                contract = "MatrixWorldVoucher",
-                address = "0d77ec47bbad8ef6",
+                contract = Contracts.MATRIX_WORLD_VOUCHER.contractName,
+                address = Contracts.MATRIX_WORLD_VOUCHER.deployments[FlowChainId.MAINNET]!!.formatted,
                 events = events,
                 dbCollection = collection,
                 startFrom = 19040960L,
             ),
             FlowChainId.TESTNET to flowDescriptor(
-                contract = "MatrixWorldVoucher",
-                address = "ebf4ae01d1284af8",
+                contract = Contracts.MATRIX_WORLD_VOUCHER.contractName,
+                address = Contracts.MATRIX_WORLD_VOUCHER.deployments[FlowChainId.TESTNET]!!.formatted,
                 events = events,
                 dbCollection = collection,
                 startFrom = 53489946L
             ),
             FlowChainId.EMULATOR to flowDescriptor(
-                contract = "MatrixWorldVoucher",
-                address = "f8d6e0586b0a20c7",
+                contract = Contracts.MATRIX_WORLD_VOUCHER.contractName,
+                address = Contracts.MATRIX_WORLD_VOUCHER.deployments[FlowChainId.EMULATOR]!!.formatted,
                 events = events,
                 dbCollection = collection,
             ),

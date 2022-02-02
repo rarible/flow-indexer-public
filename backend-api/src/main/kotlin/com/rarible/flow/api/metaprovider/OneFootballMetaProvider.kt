@@ -2,6 +2,7 @@ package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.cadence.OptionalField
+import com.rarible.flow.Contracts
 import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.ItemId
@@ -24,7 +25,7 @@ class OneFootballMetaProvider(
 
     private val logger by Log()
 
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("OneFootballCollectible")
+    override fun isSupported(itemId: ItemId): Boolean = Contracts.ONE_FOOTBALL.supports(itemId)
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
         return itemRepository
