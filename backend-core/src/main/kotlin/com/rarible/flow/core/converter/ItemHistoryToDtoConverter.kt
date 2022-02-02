@@ -136,6 +136,7 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                     logIndex = source.log.eventIndex,
                 )
             }
+            else -> throw IllegalStateException("Unsupported activity type ${source.activity::class.simpleName}")
         }
 
     }

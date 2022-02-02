@@ -58,24 +58,56 @@ class SoftCollectionIndexingTest {
         private val logger by Log()
 
         @Container
+/*        private val flowEmulator: KGenericContainer = KGenericContainer(
+            ImageFromDockerfile().withDockerfileFromBuilder { builder ->
+                builder.from("ubuntu:latest")
+                    .run("RUN apt-get update -y && apt-get install -y curl")
+                    .run("sh -ci \"\$(curl -fsSL https://storage.googleapis.com/flow-cli/install.sh)\"")
+                    .env("PATH", "/root/.local/bin:\$PATH")
+                    .env("FLOW_BLOCKTIME", "1s")
+                    .env("FLOW_WITHCONTRACTS", "true")
+                    .env("FLOW_SERVICEPRIVATEKEY", EmulatorUser.Emulator.keyHex)
+                    .env("FLOW_SERVICEPUBLICKEY", EmulatorUser.Emulator.pubHex)
+                    .expose(3569, 8080, 8888, 8701)
+                    .workDir("/root")
+                    .cmd("flow emulator")
+                    .build()
+            }.dockerImageName
+        ).withCopyFileToContainer(
+            MountableFile.forClasspathResource("emulator/contracts"),
+            "/root/contracts"
+        )
+            .withCopyFileToContainer(
+                MountableFile.forClasspathResource("emulator/flow.json"),
+                "/root/flow.json"
+            )
+            .withLogConsumer {
+                logger.info("EMU: ${it.utf8String}")
+            }
+            .withExposedPorts(3569, 8080)
+            .withReuse(true)
+            .waitingFor(Wait.forHttp("/").forPort(8080).forStatusCode(500))*/
         val flowEmulator: KGenericContainer = KGenericContainer(
-            "zolt85/flow-cli-emulator:27"
-        ).withEnv("FLOW_BLOCKTIME", "300ms")/*.withEnv("FLOW_CONTRACTS", "true")
+            "zolt85/flow-cli-emulator:latest"
+//            "rari:latest"
+        )/*.withEnv("FLOW_BLOCKTIME", "1000ms").withEnv("FLOW_WITHCONTRACTS", "true")
             .withEnv("FLOW_SERVICEPRIVATEKEY", EmulatorUser.Emulator.keyHex)
-            .withEnv("FLOW_SERVICEPUBLICKEY", EmulatorUser.Emulator.pubHex)*/
+            .withEnv("FLOW_SERVICEPUBLICKEY", EmulatorUser.Emulator.pubHex)
+            .withEnv("FLOW_VERBOSE", "true")*/
             .withCopyFileToContainer(
                 MountableFile.forClasspathResource("emulator/contracts"),
-                "/home/flow/contracts"
+                "/root/contracts"
             )
             .withCopyFileToContainer(
                 MountableFile.forClasspathResource("emulator/flow.json"),
-                "/home/flow/flow.json"
+                "/root/flow.json"
             )
             .withExposedPorts(3569, 8080)
             .withLogConsumer {
                 logger.info("EMU: ${it.utf8String}")
             }
             .withReuse(true)
+            .withCommand("flow emulator --block-time=1s --contracts=true --service-priv-key=${EmulatorUser.Emulator.keyHex} --service-pub-key=${EmulatorUser.Emulator.pubHex} --verbose=true")
             .waitingFor(Wait.forHttp("/").forPort(8080).forStatusCode(500))
 
 

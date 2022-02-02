@@ -2,13 +2,12 @@ package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.cadence.OptionalField
-import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.api.service.ScriptExecutor
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.log.Log
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
@@ -26,15 +25,12 @@ class OneFootballMetaProvider(
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("OneFootballCollectible")
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        return itemRepository
-            .coFindById(itemId)
-            ?.let { item ->
-                scriptExecutor.executeFile(
+    override suspend fun getMeta(item: Item): ItemMeta? {
+        return scriptExecutor.executeFile(
                     script,
                     {
                         arg { address(item.owner!!.formatted) }
-                        arg { uint64(itemId.tokenId) }
+                        arg { uint64(item.tokenId) }
                     },
                     { response ->
                         response as OptionalField
@@ -43,7 +39,7 @@ class OneFootballMetaProvider(
                         }
                     }
                 )
-            }?.toItemMeta(itemId) ?: ItemMeta.empty(itemId)
+            ?.toItemMeta(item.id) ?: ItemMeta.empty(item.id)
     }
 }
 

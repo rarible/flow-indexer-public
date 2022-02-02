@@ -33,7 +33,7 @@ internal class RaribleNFTMetaProviderTest: FunSpec({
         provider.isSupported(ItemId("A.1234.MotoGP", 42)) shouldBe false
     }
 
-    test("should read RaribleNFT meta data") {
+    test("should read RaribleNFT meta data").config(enabled = false) {
         provider.getMeta(
             item
         ) should { meta ->
