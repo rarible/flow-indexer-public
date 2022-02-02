@@ -44,6 +44,11 @@ class Config(
         return buildWebClient("PinataClient", "https://rarible.mypinata.cloud/ipfs")
     }
 
+    @Bean
+    fun webClient(): WebClient {
+        return WebClient.create()
+    }
+
     private fun buildWebClient(loggerName: String, baseUrl: String): WebClient {
         val httpClient = HttpClient
             .create()
@@ -94,6 +99,7 @@ class Config(
             register("0xDISRUPTART", FlowAddress("0xcd946ef9b13804c6"), FlowChainId.MAINNET)
             register("0xDISRUPTARTROYALTY", FlowAddress("0x420f47f16a214100"), FlowChainId.MAINNET)
             register("0xONEFOOTBALL", FlowAddress("0x6831760534292098"), FlowChainId.MAINNET)
+            register("0xSTARLY", FlowAddress("0x5b82f21c0edf76e3"), FlowChainId.MAINNET)
             register("0xCHAINMONSTERS", FlowAddress("0x93615d25d14fa337"), FlowChainId.MAINNET)
         }
 
