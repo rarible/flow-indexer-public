@@ -88,7 +88,7 @@ class ProtocolEventPublisher(
             val a = history.activity as NFTActivity
             return send(
                 activities,
-                "${a.contract}:${a.tokenId}-${history.activity.timestamp}",
+                "${history.id}:${history.activity.type}-${history.activity.timestamp}",
                 ItemHistoryToDtoConverter.convert(history)
             )
 

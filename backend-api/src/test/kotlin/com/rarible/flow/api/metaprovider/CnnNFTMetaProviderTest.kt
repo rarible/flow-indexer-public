@@ -1,38 +1,38 @@
 package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.api.mocks
+import com.rarible.flow.api.mocks.resource
+import com.rarible.flow.api.mocks.scriptExecutor
+import com.rarible.flow.api.mocks.webClient
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.ItemMeta
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
 import io.mockk.every
 import io.mockk.mockk
-import reactor.core.publisher.Mono
 
 
 internal class CnnNFTMetaProviderTest : FunSpec({
 
     test("shoud read metadata for existing item") {
         val itemId = ItemId("A.329feb3ab062d289.CNN_NFT", 2909)
+        val item = mockk<Item>("item") {
+            every { id } returns itemId
+            every { owner } returns FlowAddress("0xe969a6097b773709")
+            every { tokenId } returns 2909
+        }
         val metaProvider = CnnNFTMetaProvider(
-            mockk("itemRepository") {
-                every { findById(any<ItemId>()) } returns Mono.just(
-                    mockk("item") {
-                        every { id } returns itemId
-                        every { owner } returns FlowAddress("0xe969a6097b773709")
-                        every { tokenId } returns 2909
-                    }
-                )
-            },
-            mocks.scriptExecutor("cnnNft" to CNN_NFT, "ipfs" to IPFS_HASH),
-            mocks.webClient("/Qmb1QwvaUF5xiqp2bXiRo4jzwXZ4MLJuk5srt1FYvH3Zqc", IPFS_META),
-            mocks.resource("cnnNft"),
-            mocks.resource("ipfs")
+            scriptExecutor("cnnNft" to CNN_NFT, "ipfs" to IPFS_HASH),
+            webClient("/ipfs/Qmb1QwvaUF5xiqp2bXiRo4jzwXZ4MLJuk5srt1FYvH3Zqc", IPFS_META),
+            resource("cnnNft"),
+            resource("ipfs")
         )
 
-        metaProvider.getMeta(itemId) should { meta ->
+        metaProvider.getMeta(item) should { meta ->
+            meta as ItemMeta
             meta.itemId shouldBe itemId
             meta.name shouldBe "2015: US Supreme Court Ruling Guarantees Right to Same-Sex Marriage"
             meta.description shouldStartWith "June 26, 2015"
@@ -48,10 +48,6 @@ internal class CnnNFTMetaProviderTest : FunSpec({
 
         val IPFS_HASH = """
             {"type":"Optional","value":{"type":"String","value":"Qmb1QwvaUF5xiqp2bXiRo4jzwXZ4MLJuk5srt1FYvH3Zqc"}}
-        """.trimIndent()
-
-        val NULL = """
-            {"type":"Optional","value":null}
         """.trimIndent()
 
         val IPFS_META = """

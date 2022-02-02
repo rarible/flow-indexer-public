@@ -3,8 +3,10 @@ package com.rarible.flow.api
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowScript
 import com.nftco.flow.sdk.FlowScriptResponse
+import com.rarible.flow.api.metaprovider.CnnNFTMetaProviderTest
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.config.AppProperties
+import com.rarible.flow.log.Log
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -17,10 +19,9 @@ import java.io.ByteArrayInputStream
 import java.util.concurrent.CompletableFuture
 
 object mocks {
-
     fun scriptExecutor(results: Map<String, String>): ScriptExecutor {
         return ScriptExecutor(
-            mockk("scriptExecutor") {
+            mockk() {
                 results.forEach { (script, response) ->
                     every {
                         executeScriptAtLatestBlock(eq(FlowScript(script)), any())
@@ -47,10 +48,9 @@ object mocks {
         } returns (fileName ?: script)
     }
 
-    fun webClient(expectedPath: String, response: String) = WebClient
-        .builder()
+    fun webClient(expectedPath: String, response: String) = WebClient.builder()
         .exchangeFunction { req ->
-            req.url().toString() shouldBe expectedPath
+            req.url().path shouldBe expectedPath
 
             Mono.just(
                 ClientResponse.create(HttpStatus.OK)

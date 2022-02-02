@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.eventlisteners
+package com.rarible.flow.scanner.eventprocessor
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nftco.flow.sdk.FlowAddress

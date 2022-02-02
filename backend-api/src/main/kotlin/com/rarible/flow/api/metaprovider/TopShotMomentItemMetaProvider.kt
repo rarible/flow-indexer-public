@@ -2,13 +2,11 @@ package com.rarible.flow.api.metaprovider
 
 import com.jayway.jsonpath.TypeRef
 import com.netflix.graphql.dgs.client.MonoGraphQLClient
-import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
-import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.api.service.ScriptExecutor
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.repository.ItemRepository
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -17,14 +15,12 @@ import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
-import javax.annotation.PostConstruct
 
 @Component
 class TopShotMomentItemMetaProvider(
     @Value("classpath:script/tshot_play_meta.cdc")
     private val scriptFile: Resource,
     private val scriptExecutor: ScriptExecutor,
-    private val itemRepository: ItemRepository,
 ) : ItemMetaProvider {
 
     private val nbaTopShotApiUrl = "https://public-api.nbatopshot.com/graphql"
@@ -48,35 +44,21 @@ class TopShotMomentItemMetaProvider(
         "Hero_375_375_Transparent.png"
     )
 
-    private lateinit var scriptText: String
-
-    @PostConstruct
-    private fun readScript() {
-        scriptText = scriptFile.inputStream.bufferedReader().use { it.readText() }
-    }
-
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("TopShot")
 
-
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
-        if (item.meta.isNullOrEmpty()) return emptyMeta(itemId)
+    override suspend fun getMeta(item: Item): ItemMeta? {
+        if (item.meta.isNullOrEmpty()) return null
         val metaMap = JacksonJsonParser().parseMap(item.meta)
         val playID = metaMap["playID"].toString()
         val setID = metaMap["setID"].toString()
-        val jsonCadenceBuilder = JsonCadenceBuilder()
-        val playData = scriptExecutor.execute(
-            code = scriptText,
-            args = mutableListOf(
-                jsonCadenceBuilder.uint32(playID),
-                jsonCadenceBuilder.uint32(setID),
-            )
-        )
-
-
-        val playMap = JsonCadenceParser().dictionaryMap(playData.jsonCadence) { k, v ->
-            string(k) to string(v)
-        }
+        val playMap = scriptExecutor.executeFile(scriptFile, {
+            arg { uint32(playID) }
+            arg { uint32(setID) }
+        }, { json ->
+            dictionaryMap(json) { k, v ->
+                string(k) to string(v)
+            }
+        })
 
         val attrs = playMap.filterKeys { it != "FullName" }.map { e ->
             ItemMetaAttribute(
@@ -91,9 +73,9 @@ class TopShotMomentItemMetaProvider(
             )
         }.toMutableList()
 
-        val graphQLData = doQuery(itemId.tokenId)
+        val graphQLData = doQuery(item.tokenId)
         return ItemMeta(
-            itemId = itemId,
+            itemId = item.id,
             name = playMap["FullName"]!!,
             description = graphQLData?.first.orEmpty(),
             contentUrls = graphQLData?.second ?: emptyList(),

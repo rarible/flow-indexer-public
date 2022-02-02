@@ -65,17 +65,5 @@ data class IndexerEvent(
     val item: Item? = null
 ) {
 
-    fun activityType(): FlowActivityType = history.activity.type/*
-        when(history.first().activity) {
-            is MintActivity -> FlowActivityType.MINT
-            is WithdrawnActivity -> when (history.last().activity) {
-                is DepositActivity -> FlowActivityType.TRANSFER
-                is BurnActivity -> FlowActivityType.BURN
-                else -> throw IllegalStateException("Unexpected activity after withdrawn [${history.last().activity.type}]")
-            }
-            is FlowNftOrderActivityList -> FlowActivityType.LIST
-            is FlowNftOrderActivitySell -> FlowActivityType.SELL
-            is FlowNftOrderActivityCancelList -> FlowActivityType.CANCEL_LIST
-            else -> throw IllegalStateException("Unexpected activity [${history.last().activity.type}]")
-        }*/
+    fun activityType(): FlowActivityType = history.activity.type
 }

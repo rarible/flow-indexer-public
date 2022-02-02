@@ -1,18 +1,15 @@
 package com.rarible.flow.api.service
 
 import com.nftco.flow.sdk.AsyncFlowAccessApi
-import com.nftco.flow.sdk.FlowScriptResponse
 import com.nftco.flow.sdk.ScriptBuilder
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.log.Log
-import org.bouncycastle.crypto.Digest
 import com.rarible.flow.sdk.simpleScript
 import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Service
-import org.springframework.util.DigestUtils
 import java.io.InputStream
 
 @Service
@@ -22,18 +19,30 @@ class ScriptExecutor(
 ) {
     private val parser = JsonCadenceParser()
 
-    suspend fun execute(code: String, args: MutableList<Field<*>>): FlowScriptResponse {
+    private suspend fun <T> executeText(
+        code: String,
+        args: ScriptBuilder.() -> Unit,
+        parse: JsonCadenceParser.(Field<*>) -> T
+    ): T {
         val response = api.simpleScript {
             script(code, appProperties.chainId)
-            arguments(args)
+            args(this)
         }
+        return parse(parser, response.jsonCadence)
+    }
+
+    suspend fun <T> executeFile(
+        path: String,
+        args: ScriptBuilder.() -> Unit,
+        parse: JsonCadenceParser.(Field<*>) -> T
+    ): T {
+        val result = executeText(scriptText(path), args, parse)
         logger.info(
-            "Running script {} with args: [{}]. Result: {}",
-            DigestUtils.md5Digest(code.toByteArray()).decodeToString(),
-            logArgs(args),
-            response.stringValue
+            "Running script {}. Result: {}",
+            path,
+            result
         )
-        return response
+        return result
     }
 
     suspend fun <T> executeFile(
@@ -50,17 +59,6 @@ class ScriptExecutor(
         return result
     }
 
-    private suspend fun <T> executeText(
-        code: String,
-        args: ScriptBuilder.() -> Unit,
-        parse: JsonCadenceParser.(Field<*>) -> T
-    ): T {
-        val response = api.simpleScript {
-            script(code, appProperties.chainId)
-            args(this)
-        }
-        return parse(parser, response.jsonCadence)
-    }
 
     private fun scriptText(resourcePath: String): String {
         val resource = ClassPathResource(resourcePath)
@@ -73,12 +71,6 @@ class ScriptExecutor(
 
     companion object {
         val logger by Log()
-
-        private fun logArgs(args: List<Field<*>>): String {
-            return args.foldRight("") { arg, res ->
-                res + arg.value.toString() + ", "
-            }
-        }
     }
 
 }

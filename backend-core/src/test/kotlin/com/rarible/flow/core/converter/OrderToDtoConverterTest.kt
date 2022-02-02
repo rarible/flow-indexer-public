@@ -1,19 +1,11 @@
 package com.rarible.flow.core.converter
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.core.domain.FlowAssetFungible
-import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.OrderData
-import com.rarible.flow.core.domain.OrderStatus
-import com.rarible.flow.core.domain.Payout
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.data
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.CurrencyRateDto
-import com.rarible.protocol.dto.FlowAssetFungibleDto
-import com.rarible.protocol.dto.FlowAssetNFTDto
-import com.rarible.protocol.dto.FlowOrderDataDto
-import com.rarible.protocol.dto.FlowOrderStatusDto
-import com.rarible.protocol.dto.PayInfoDto
+import com.rarible.protocol.dto.*
 import io.kotest.core.datatest.forAll
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
@@ -82,13 +74,13 @@ internal class OrderToDtoConverterTest: FunSpec({
     }
 
     test("should convert NFT asset") {
-        converter.convert(
+        FlowAssetConverter.convert(
             FlowAssetNFT("A.B.C", 1.toBigDecimal(), 1337L)
         ) shouldBe FlowAssetNFTDto("A.B.C", 1.toBigDecimal(), 1337L.toBigInteger())
     }
 
     test("should convert fungible asset") {
-        converter.convert(
+        FlowAssetConverter.convert(
             FlowAssetFungible("A.B.C", 10.25.toBigDecimal())
         ) shouldBe FlowAssetFungibleDto("A.B.C", 10.25.toBigDecimal())
     }

@@ -2,47 +2,40 @@ package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.log.Log
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
-import reactor.kotlin.extra.retry.retryExponentialBackoff
-import java.time.Duration
 
 @Component
 class RaribleNFTMetaProvider(
-    private val pinataClient: WebClient,
-    private val itemRepository: ItemRepository
+    private val pinataClient: WebClient
 ) : ItemMetaProvider {
 
     private val logger by Log()
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("RaribleNFT")
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
+    override suspend fun getMeta(item: Item): ItemMeta? {
+        val ipfs = readUrl(item) ?: return null
+
         return try {
-            itemRepository.coFindById(itemId)
-                ?.let { item -> readUrl(item) }
-                ?.let { ipfs ->
-                    pinataClient
-                        .get()
-                        .uri("$ipfs")
-                        .retrieve()
-                        .awaitBodyOrNull<RaribleNFTMetaBody>()
-                }
-                ?.toItemMeta(itemId)
+            return pinataClient
+                .get()
+                .uri("/$ipfs")
+                .retrieve()
+                .awaitBodyOrNull<RaribleNFTMetaBody>()
+                ?.toItemMeta(item.id)
         } catch (e: Exception) {
-            logger.warn("Failed RaribleNFTMetaProvider.getMeta({})", itemId, e)
+            logger.warn("Failed RaribleNFTMetaProvider.getMeta({})", item, e)
             null
-        } ?: ItemMeta.empty(itemId)
+        }
     }
 
     fun readUrl(item: Item): String? {
@@ -72,8 +65,8 @@ data class RaribleNFTMetaBody(
     @get:JsonProperty("animation_url")
     val animationUrl: String? = null,
     val attributes: List<RaribleNftAttr>
-) {
-    fun toItemMeta(itemId: ItemId): ItemMeta {
+): MetaBody {
+    override fun toItemMeta(itemId: ItemId): ItemMeta {
         return ItemMeta(
             itemId = itemId,
             name = name,

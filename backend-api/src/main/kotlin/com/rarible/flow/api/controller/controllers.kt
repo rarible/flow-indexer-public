@@ -43,4 +43,3 @@ fun String?.flowAddress(): FlowAddress? {
         throw IncorrectAddress("Could not convert $this to FlowAddress", ex)
     }
 }
-

@@ -14,10 +14,10 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             version("flow-sdk-ver", "0.5.0")
-            version("rarible-core", "2.2.2")
+            version("rarible-core", "2.0.2")
             version("rarible-currency", "1.18.2")
-            version("flow-protocol-version", "2.2.1")
-            version("blockchain-scanner", "1.1.0")
+            version("flow-protocol-version", "3.1.3")
+            version("blockchain-scanner", "1.0.11")
 
             alias("flow-sdk").to("com.nftco", "flow-jvm-sdk").versionRef("flow-sdk-ver")
             alias("rarible-core-apm-starter").to("com.rarible.core", "rarible-core-apm-starter").versionRef("rarible-core")
@@ -45,7 +45,7 @@ dependencyResolutionManagement {
         }
 
         create("testLibs") {
-            version("kotest", "4.6.4")
+            version("kotest", "4.6.2")
             version("rarible-core", "2.0.0")
 
             alias("kotest-runner").to("io.kotest", "kotest-runner-junit5").versionRef("kotest")

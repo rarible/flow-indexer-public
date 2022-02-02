@@ -4,32 +4,26 @@ import com.rarible.flow.api.mocks
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
-import com.rarible.flow.core.repository.coFindById
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import reactor.core.publisher.Mono
 
 internal class RaribleNFTMetaProviderTest: FunSpec({
-
-    val item = mockk<Item> {
-        every { id } returns ItemId("A.1234.RaribleNFT", 1337)
-        every { meta } returns """{"metaURI":"ipfs://ipfs/QmR9VnAcSKLxmr3zHYaFpHAQdz13G25pvz8eWoLGHs3oAi"}"""
-    }
 
     val provider = RaribleNFTMetaProvider(
         mocks.webClient(
             "/QmR9VnAcSKLxmr3zHYaFpHAQdz13G25pvz8eWoLGHs3oAi",
             """{"name":"flying toffee","description":"my puppy <3 ","image":"ipfs://ipfs/QmbV7WN7EmhP83nK4hH2K9oitxEvjBLYRpa2NuRb86ubZN/image.jpeg","attributes":[]}"""
-        ),
-        mockk() {
-            every { findById(any<ItemId>()) } returns Mono.just(item)
-        }
+        )
     )
+
+    val item = mockk<Item> {
+        every { id } returns ItemId("A.1234.RaribleNFT", 1337)
+        every { meta } returns """{"metaURI":"ipfs://ipfs/QmR9VnAcSKLxmr3zHYaFpHAQdz13G25pvz8eWoLGHs3oAi"}"""
+    }
 
     test("should support RaribleNFT") {
         provider.isSupported(item.id) shouldBe true
@@ -41,7 +35,7 @@ internal class RaribleNFTMetaProviderTest: FunSpec({
 
     test("should read RaribleNFT meta data") {
         provider.getMeta(
-            item.id
+            item
         ) should { meta ->
             meta as ItemMeta
             meta.name shouldBe "flying toffee"
