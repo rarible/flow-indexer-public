@@ -29,7 +29,7 @@ allprojects {
         plugin("java")
         plugin("org.jetbrains.kotlin.jvm")
         plugin("io.spring.dependency-management")
-        plugin("jacoco")
+//        plugin("jacoco")
     }
 
     repositories {
