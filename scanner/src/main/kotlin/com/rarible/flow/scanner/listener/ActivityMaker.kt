@@ -65,11 +65,13 @@ abstract class NFTActivityMaker : ActivityMaker {
             val withdrawEvents = filtered.filter { it.type == FlowLogType.WITHDRAW }
             val depositEvents = filtered.filter { it.type == FlowLogType.DEPOSIT }
             val burnEvents = filtered.filter { it.type == FlowLogType.BURN }
+            val usedDeposit = mutableSetOf<FlowLogEvent>()
 
             mintEvents.forEach {
                 val tokenId = tokenId(it)
                 val owner = depositEvents
                     .firstOrNull { d -> cadenceParser.long(d.event.fields["id"]!!) == tokenId }
+                    ?.also(usedDeposit::add)
                     ?.let { d ->
                         cadenceParser.optional(d.event.fields["to"]!!) { value ->
                             address(value)
@@ -93,7 +95,7 @@ abstract class NFTActivityMaker : ActivityMaker {
                 val depositActivity = depositEvents.find { d ->
                     val dTokenId = cadenceParser.long(d.event.fields["id"]!!)
                     dTokenId == tokenId && d.log.timestamp >= w.log.timestamp
-                }
+                }?.also(usedDeposit::add)
 
                 if (depositActivity != null) {
                     val to: OptionalField by depositActivity.event.fields
@@ -134,6 +136,17 @@ abstract class NFTActivityMaker : ActivityMaker {
                         )
                     }
                 }
+            }
+
+            (depositEvents - usedDeposit).forEach { d ->
+                val to: OptionalField by d.event.fields
+                result[d.log] = TransferActivity(
+                    contract = d.event.eventId.collection(),
+                    tokenId = tokenId(d),
+                    timestamp = d.log.timestamp,
+                    from = d.event.eventId.contractAddress.formatted,
+                    to = cadenceParser.optional(to) { address(it) }!!
+                )
             }
         }
         return result.toMap()
