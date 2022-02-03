@@ -21,7 +21,7 @@ class MatrixWorldSubscriber : BaseFlowLogEventSubscriber() {
                 address = Contracts.MATRIX_WORLD_VOUCHER.deployments[FlowChainId.MAINNET]!!.formatted,
                 events = events,
                 dbCollection = collection,
-                startFrom = 19040960L,
+                startFrom = 22925390L,
             ),
             FlowChainId.TESTNET to flowDescriptor(
                 contract = Contracts.MATRIX_WORLD_VOUCHER.contractName,
