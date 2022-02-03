@@ -70,7 +70,8 @@ class ItemAndOrderEventsListener(
                                 } else null)
                         )
                         if (blockEvent.event.eventSource != Source.REINDEX) {
-                            protocolEventPublisher.activity(h)
+                            logger.info("Send activity [${h.id}] to kafka!")
+                            protocolEventPublisher.activity(h).ensureSuccess()
                         }
                     }
                 }
