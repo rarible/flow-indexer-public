@@ -36,7 +36,10 @@ class NftItemMetaService(
                 delay(2000)
                 true
             }
-            .catch { emit(ItemMeta.empty(itemId)) }
+            .catch { err ->
+                logger.error("Failed to get meta data for item: {}", itemId, err)
+                emit(ItemMeta.empty(itemId))
+            }
             .first()
 
             return itemMetaRepository.coSave(meta)
