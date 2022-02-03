@@ -18,21 +18,21 @@ class MatrixWorldFlowFestSubscriber : BaseFlowLogEventSubscriber() {
         get() = mapOf(
             FlowChainId.MAINNET to flowDescriptor(
                 contract = Contracts.MATRIX_WORLD_FLOW_FEST.contractName,
-                address = Contracts.MATRIX_WORLD_FLOW_FEST.deployments[FlowChainId.MAINNET]!!.formatted,
+                address = Contracts.MATRIX_WORLD_FLOW_FEST.deployments[FlowChainId.MAINNET]!!.base16Value,
                 events = events,
                 dbCollection = collection,
                 startFrom = 19004982L,
             ),
             FlowChainId.TESTNET to flowDescriptor(
                 contract = Contracts.MATRIX_WORLD_FLOW_FEST.contractName,
-                address = Contracts.MATRIX_WORLD_FLOW_FEST.deployments[FlowChainId.TESTNET]!!.formatted,
+                address = Contracts.MATRIX_WORLD_FLOW_FEST.deployments[FlowChainId.TESTNET]!!.base16Value,
                 events = events,
                 dbCollection = collection,
                 startFrom = 46090845L
             ),
             FlowChainId.EMULATOR to flowDescriptor(
                 contract = Contracts.MATRIX_WORLD_FLOW_FEST.contractName,
-                address = Contracts.MATRIX_WORLD_FLOW_FEST.deployments[FlowChainId.EMULATOR]!!.formatted,
+                address = Contracts.MATRIX_WORLD_FLOW_FEST.deployments[FlowChainId.EMULATOR]!!.base16Value,
                 events = events,
                 dbCollection = collection,
             ),

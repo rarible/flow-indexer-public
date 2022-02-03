@@ -16,21 +16,21 @@ class OneFootballSubscriber : BaseFlowLogEventSubscriber() {
         get() = mapOf(
             FlowChainId.MAINNET to flowDescriptor(
                 contract = Contracts.ONE_FOOTBALL.contractName,
-                address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.MAINNET]!!.formatted,
+                address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.MAINNET]!!.base16Value,
                 events = events,
                 dbCollection = collection,
                 startFrom = 21831983L,
             ),
             FlowChainId.TESTNET to flowDescriptor(
                 contract = Contracts.ONE_FOOTBALL.contractName,
-                address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.TESTNET]!!.formatted,
+                address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.TESTNET]!!.base16Value,
                 events = events,
                 dbCollection = collection,
                 startFrom = 54832107L
             ),
             FlowChainId.EMULATOR to flowDescriptor(
                 contract = Contracts.ONE_FOOTBALL.contractName,
-                address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.EMULATOR]!!.formatted,
+                address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.EMULATOR]!!.base16Value,
                 events = events,
                 dbCollection = collection,
             ),

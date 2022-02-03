@@ -20,7 +20,7 @@ class StarlyCardSubscriber : BaseFlowLogEventSubscriber() {
         get() = mapOf(
             FlowChainId.MAINNET to flowDescriptor(
                 contract = Contracts.STARLY_CARD.contractName,
-                address = Contracts.STARLY_CARD.deployments[FlowChainId.MAINNET]!!.formatted,
+                address = Contracts.STARLY_CARD.deployments[FlowChainId.MAINNET]!!.base16Value,
                 events = events,
                 dbCollection = collection,
                 startFrom = 18133134L,
