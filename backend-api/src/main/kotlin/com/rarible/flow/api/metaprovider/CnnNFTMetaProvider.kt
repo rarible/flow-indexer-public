@@ -26,7 +26,6 @@ class CnnMetaScript(
     suspend fun call(setId: Int, edition: Int): CnnNFTMetaBody? {
         return scriptExecutor.executeFile(metaScript, {
             arg { uint32(setId) }
-            arg { uint32(edition) }
         }, { json ->
             optional(json) { meta ->
                 val map = dictionaryMap(meta) { k, v ->

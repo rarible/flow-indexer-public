@@ -20,7 +20,7 @@ object mocks {
 
     fun scriptExecutor(results: Map<String, String>): ScriptExecutor {
         return ScriptExecutor(
-            mockk("scriptExecutor") {
+            mockk("asyncFlowAccessApi") {
                 results.forEach { (script, response) ->
                     every {
                         executeScriptAtLatestBlock(eq(FlowScript(script)), any())

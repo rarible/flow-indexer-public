@@ -18,6 +18,15 @@ interface Contract {
             reg.register(this.import, addr, chain)
         }
     }
+
+    fun fqn(chain: FlowChainId): String {
+        val address = deployments[chain]
+        if(address == null) {
+            throw IllegalArgumentException("No deployment of contract $contractName exists on chainId $chain")
+        } else {
+            return "A.${address.base16Value}.$contractName"
+        }
+    }
 }
 
 enum class Contracts: Contract {

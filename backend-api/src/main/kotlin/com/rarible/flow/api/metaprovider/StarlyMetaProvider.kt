@@ -63,12 +63,14 @@ class StarlyMetaProvider(
 data class StarlyMeta(
     val title: String,
     val creator: StarlyCreator,
-    val collection: StarlyCreator,
+    val collection: StarlyCollection,
     val description: String,
     val rarity: String,
 
     @get:JsonProperty("media_sizes")
-    val mediaSizes: List<StarlyMedia>
+    val mediaSizes: List<StarlyMedia>,
+    val edition: String,
+    val editions: String,
 
 ): MetaBody {
     override fun toItemMeta(itemId: ItemId): ItemMeta {
@@ -76,10 +78,14 @@ data class StarlyMeta(
             itemId, title, description,
             listOf(
                 ItemMetaAttribute("creator", creator.name),
-                ItemMetaAttribute("collection", collection.name),
-                ItemMetaAttribute("rarity", rarity)
+                ItemMetaAttribute("collection", collection.title),
+                ItemMetaAttribute("rarity", rarity),
+                ItemMetaAttribute("edition", edition),
+                ItemMetaAttribute("editions", editions),
             ),
-            mediaSizes.sortedByDescending { it.width }.map { it.url }.sorted()
+            mediaSizes.sortedByDescending { it.width }.flatMap {
+                listOf(it.screenshot, it.url)
+            }
         )
     }
 }
@@ -89,8 +95,14 @@ data class StarlyCreator(
     val name: String
 )
 
+data class StarlyCollection(
+    val id: String,
+    val title: String
+)
+
 data class StarlyMedia(
     val width: Int,
     val height: Int,
-    val url: String
+    val url: String,
+    val screenshot: String
 )
