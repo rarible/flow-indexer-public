@@ -50,7 +50,7 @@ enum class Contracts: Contract {
         override val contractName: String
             get() = "MatrixWorldVoucher"
         override val import: String
-            get() = "0xMATRIXWORLD"
+            get() = "0xMATRIXWORLDVOUCHER"
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
                 FlowChainId.MAINNET to FlowAddress("0x0d77ec47bbad8ef6"),
