@@ -7,10 +7,12 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.events.EventId
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
 @ExperimentalCoroutinesApi
 @Component
+@ConditionalOnProperty(name = ["blockchain.scanner.flow.chainId"], havingValue = "MAINNET")
 class StarlyCardSubscriber : BaseFlowLogEventSubscriber() {
     val events = setOf("Minted", "Withdraw", "Deposit", "Burned")
 
