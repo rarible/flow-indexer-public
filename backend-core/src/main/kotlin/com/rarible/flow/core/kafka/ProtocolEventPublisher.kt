@@ -85,13 +85,12 @@ class ProtocolEventPublisher(
     }
 
     suspend fun activity(history: ItemHistory): KafkaSendResult {
-            val a = history.activity as NFTActivity
-            return send(
-                activities,
-                "${a.contract}:${a.tokenId}-${history.activity.timestamp}",
-                ItemHistoryToDtoConverter.convert(history)
-            )
-
+        val a = history.activity as NFTActivity
+        return send(
+            activities,
+            "${a.contract}:${a.tokenId}-${history.activity.timestamp}",
+            ItemHistoryToDtoConverter.convert(history)
+        )
     }
 
     private suspend fun <V> send(producer: RaribleKafkaProducer<V>, key: String, message: V): KafkaSendResult {

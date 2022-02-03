@@ -3,6 +3,7 @@ package com.rarible.flow.scanner.subscriber
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
+import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.events.EventId
 import org.springframework.stereotype.Component
@@ -14,22 +15,22 @@ class OneFootballSubscriber : BaseFlowLogEventSubscriber() {
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
             FlowChainId.MAINNET to flowDescriptor(
-                contract = "OneFootballCollectible",
-                address = "6831760534292098",
+                contract = Contracts.ONE_FOOTBALL.contractName,
+                address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.MAINNET]!!.formatted,
                 events = events,
                 dbCollection = collection,
-                startFrom = 21831957L,
+                startFrom = 21831983L,
             ),
             FlowChainId.TESTNET to flowDescriptor(
-                contract = "OneFootballCollectible",
-                address = "01984fb4ca279d9a",
+                contract = Contracts.ONE_FOOTBALL.contractName,
+                address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.TESTNET]!!.formatted,
                 events = events,
                 dbCollection = collection,
-                startFrom = 53489946L
+                startFrom = 54832107L
             ),
             FlowChainId.EMULATOR to flowDescriptor(
-                contract = "OneFootballCollectible",
-                address = "f8d6e0586b0a20c7",
+                contract = Contracts.ONE_FOOTBALL.contractName,
+                address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.EMULATOR]!!.formatted,
                 events = events,
                 dbCollection = collection,
             ),

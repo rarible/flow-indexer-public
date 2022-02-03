@@ -3,6 +3,7 @@ package com.rarible.flow.scanner.subscriber
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
+import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.events.EventId
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,11 +17,11 @@ class StarlyCardSubscriber : BaseFlowLogEventSubscriber() {
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
             FlowChainId.MAINNET to flowDescriptor(
-                contract = "StarlyCard",
-                address = "5b82f21c0edf76e3",
+                contract = Contracts.STARLY_CARD.contractName,
+                address = Contracts.STARLY_CARD.deployments[FlowChainId.MAINNET]!!.formatted,
                 events = events,
                 dbCollection = collection,
-                startFrom = 19040960L,
+                startFrom = 18133134L,
             )
         )
 
