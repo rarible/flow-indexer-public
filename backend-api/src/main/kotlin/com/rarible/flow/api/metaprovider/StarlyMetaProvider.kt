@@ -84,7 +84,7 @@ data class StarlyMeta(
                 ItemMetaAttribute("editions", editions),
             ),
             mediaSizes.sortedByDescending { it.width }.flatMap {
-                listOf(it.screenshot, it.url)
+                listOfNotNull(it.screenshot, it.url)
             }
         )
     }
@@ -104,5 +104,5 @@ data class StarlyMedia(
     val width: Int,
     val height: Int,
     val url: String,
-    val screenshot: String
+    val screenshot: String?
 )
