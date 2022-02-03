@@ -38,7 +38,7 @@ class BidSubscriber(
                 dbCollection = collection
             ),
             FlowChainId.MAINNET to flowDescriptor(
-                address = "ebf4ae01d1284af8", //todo fill mainnet address
+                address = "01ab36aaf654a13e",
                 contract = "RaribleOpenBid",
                 events = listOf("BidAvailable", "BidCompleted"),
                 dbCollection = collection
