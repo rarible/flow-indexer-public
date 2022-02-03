@@ -32,7 +32,7 @@ class VersusArtMetaProvider(
     private val getMetadataScript = getMetadataScriptResource.readText()
     private val getContentScript = getContentScriptResource.readText()
 
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("Art")
+    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.endsWith(".Art")
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
         val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
