@@ -1,11 +1,13 @@
 package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coFindById
+import com.rarible.flow.log.Log
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.http.MediaType
@@ -15,48 +17,63 @@ import org.springframework.web.reactive.function.client.awaitBodyOrNull
 
 @Component
 class DisruptArtMetaProvider(
-    private val itemRepository: ItemRepository
+    private val itemRepository: ItemRepository,
+    private val webClient: WebClient,
 ) : ItemMetaProvider {
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.endsWith("DisruptArt")
+
+    private val logger by Log()
+
+    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.endsWith(".DisruptArt")
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        val item = itemRepository.coFindById(itemId) ?: return emptyMeta(itemId)
-        if (item.meta.isNullOrBlank()) return emptyMeta(itemId)
-        val itemMeta = JacksonJsonParser().parseMap(item.meta!!)
-        val contentUrl = itemMeta["content"] as String? ?: return emptyMeta(itemId)
-        val client = WebClient.create(contentUrl)
-        val spec = client.get().retrieve().toBodilessEntity().awaitSingle()
-        if (spec.headers.contentType == MediaType.IMAGE_JPEG) {
-            return ItemMeta(
-                itemId = itemId,
-                name = itemMeta["name"] as String,
-                description = itemMeta["name"] as String,
-                attributes = emptyList(),
-                contentUrls = listOf(contentUrl)
-            ).apply {
-                raw = contentUrl.toByteArray()
+        return withSpan("DisruptArt::getMeta", "network") {
+            val item = itemRepository.coFindById(itemId) ?: return@withSpan emptyMeta(itemId).let {
+                logger.warn("DisruptArt::getMeta::Not found item with itemId [${itemId}]")
+                it
             }
-        } else {
-            val metaData = client.get().retrieve().awaitBodyOrNull<ObjectNode>() ?: return emptyMeta(itemId)
-            val contents = metaData.get("Media").findValue("uri").asText()
+            if (item.meta.isNullOrBlank()) return@withSpan emptyMeta(itemId).let {
+                logger.warn("DisruptArt::getMeta::Item[${itemId}] meta string is empty!")
+                it
+            }
+            val itemMeta = JacksonJsonParser().parseMap(item.meta!!)
+            val contentUrl = itemMeta["content"] as String? ?: return@withSpan emptyMeta(itemId).let {
+                logger.warn("DisruptArt::getMeta::Item[${itemId}] meta content url is empty!")
+                it
+            }
+            val spec = webClient.get().uri(contentUrl).retrieve().toBodilessEntity().awaitSingle()
+            if (spec.headers.contentType == MediaType.IMAGE_JPEG) {
+                logger.info("DisruptArt::getMeta::Meta is simple image!")
+                ItemMeta(
+                    itemId = itemId,
+                    name = itemMeta["name"] as String,
+                    description = itemMeta["name"] as String,
+                    attributes = emptyList(),
+                    contentUrls = listOf(contentUrl)
+                ).apply {
+                    raw = contentUrl.toByteArray()
+                }
+            } else {
+                val metaData = webClient.get().uri(contentUrl).retrieve().awaitBodyOrNull<ObjectNode>()
+                    ?: return@withSpan emptyMeta(itemId)
+                val contents = metaData.get("Media").findValue("uri").asText()
 
-            val attributes = mutableListOf<ItemMetaAttribute>()
-            metaData.fields().forEach {
-                if (it.key !in setOf("PlatformInfo", "Media", "MediaPreview", "tags")) {
-                    attributes.add(ItemMetaAttribute(key = it.key, value = it.value.asText()))
+                val attributes = mutableListOf<ItemMetaAttribute>()
+                metaData.fields().forEach {
+                    if (it.key !in setOf("PlatformInfo", "Media", "MediaPreview", "tags")) {
+                        attributes.add(ItemMetaAttribute(key = it.key, value = it.value.asText()))
+                    }
+                }
+                logger.info("DisruptArt::getMeta::Meta is JSON!")
+                ItemMeta(
+                    itemId = itemId,
+                    name = itemMeta["name"] as String,
+                    description = metaData.findValue("Description").textValue(),
+                    attributes = attributes.toList(),
+                    contentUrls = listOf(contents),
+                ).apply {
+                    raw = metaData.toPrettyString().toByteArray()
                 }
             }
-            return ItemMeta(
-                itemId = itemId,
-                name = itemMeta["name"] as String,
-                description = metaData.findValue("Description").textValue(),
-                attributes = attributes.toList(),
-                contentUrls = listOf(contents),
-            ).apply {
-                raw = metaData.toPrettyString().toByteArray()
-            }
-
         }
-
     }
 }
