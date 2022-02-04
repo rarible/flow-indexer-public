@@ -58,6 +58,10 @@ internal class MatrixWorldVoucherActivityTest: FunSpec({
         activityMaker.contractName shouldBe "MatrixWorldVoucher"
     }
 
+    test("isSupported") {
+        activityMaker.isSupportedCollection("A.0d77ec47bbad8ef6.MatrixWorldVoucher")
+    }
+
 }) {
     companion object {
         val MINT_LOG_EVENT = FlowLogEvent(
