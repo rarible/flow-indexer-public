@@ -1,26 +1,32 @@
 package com.rarible.flow.scanner.listener
 
+import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.*
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventListener
 import com.rarible.blockchain.scanner.subscriber.ProcessedBlockEvent
-import com.rarible.flow.core.domain.FlowLogEvent
-import com.rarible.flow.core.domain.FlowLogType
-import com.rarible.flow.core.domain.ItemCollection
-import com.rarible.flow.core.domain.Part
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.scanner.model.parse
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 @Component
 class SoftCollectionEventsListener(
-    private val itemCollectionRepository: ItemCollectionRepository
+    private val itemCollectionRepository: ItemCollectionRepository,
+    @Value("\${blockchain.scanner.flow.chainId}")
+    private val chainId: FlowChainId
 ) : FlowLogEventListener {
 
     private val parser = JsonCadenceParser()
+
+    private val softCollectionContractAddress by lazy {
+        "A.${Flow.DEFAULT_ADDRESS_REGISTRY.addressOf("0xSOFTCOLLECTION", chainId)!!.base16Value}.SoftCollection"
+    }
 
     override suspend fun onBlockLogsProcessed(blockEvent: ProcessedBlockEvent<FlowLog, FlowLogRecord<*>>) {
         blockEvent.records.filterIsInstance<FlowLogEvent>()
@@ -48,14 +54,15 @@ class SoftCollectionEventsListener(
 
         val creatorAddress = FlowAddress(parser.address(creator))
         val collectionMeta = meta.parse<CollectionMeta>()
+        val collectionChainId = parser.long(id)
         val itemCollection = ItemCollection(
-            id = "A.${creatorAddress.base16Value}.${collectionMeta.name.replace(" ", "_")}",
+            id = "${softCollectionContractAddress}:$collectionChainId",
             owner = creatorAddress,
             name = collectionMeta.name,
             symbol = collectionMeta.symbol,
             createdDate = event.log.timestamp,
             features = setOf("BURN", "SECONDARY_SALE_FEES"),
-            chainId = parser.long(id),
+            chainId = collectionChainId,
             chainParentId = parser.optional(parentId, JsonCadenceParser::long),
             royalties = parser.arrayValues(royalties) {
                 it as StructField
@@ -72,8 +79,20 @@ class SoftCollectionEventsListener(
         itemCollectionRepository.save(itemCollection).awaitSingleOrNull()
     }
 
-    private fun updateSoftCollection(event: FlowLogEvent) {
-        TODO("Not yet implemented")
+    private suspend fun updateSoftCollection(event: FlowLogEvent) {
+        val id by event.event.fields
+        val meta by event.event.fields
+
+        val collectionMeta = meta.parse<CollectionMeta>()
+        val collectionId = "${ItemId(softCollectionContractAddress, parser.long(id))}"
+        val entity = itemCollectionRepository.findById(collectionId).awaitSingleOrNull() ?: throw IllegalStateException("Collection with id [$collectionId] not found")
+        itemCollectionRepository.save(entity.copy(
+            name = collectionMeta.name,
+            symbol = collectionMeta.symbol,
+            icon = collectionMeta.icon,
+            description = collectionMeta.description,
+            url = collectionMeta.url
+        )).awaitSingleOrNull()
     }
 
     override suspend fun onPendingLogsDropped(logs: List<FlowLogRecord<*>>) {

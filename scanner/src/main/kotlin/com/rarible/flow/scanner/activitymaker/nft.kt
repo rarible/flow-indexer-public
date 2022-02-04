@@ -10,9 +10,7 @@ import com.nftco.flow.sdk.cadence.StructField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.*
-import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.events.VersusArtMetadata
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
@@ -250,8 +248,13 @@ class VersusArtActivityMaker : NFTActivityMaker() {
 
 @Component
 class RaribleV2ActivityMaker(
-    private val collectionRepository: ItemCollectionRepository
+    @Value("\${blockchain.scanner.flow.chainId}")
+    private val chainId: FlowChainId
 ): NFTActivityMaker() {
+
+    private val softCollection by lazy {
+        "A.${Flow.DEFAULT_ADDRESS_REGISTRY.addressOf("0xSOFTCOLLECTION", chainId = chainId)!!.base16Value}.SoftCollection"
+    }
 
     override val contractName: String = "RaribleNFTv2"
 
@@ -277,8 +280,7 @@ class RaribleV2ActivityMaker(
 
     override suspend fun itemCollection(mintEvent: FlowLogEvent): String {
         val parentId = cadenceParser.long(mintEvent.event.fields["parentId"]!!)
-        val collection = collectionRepository.findByChainId(parentId).awaitSingleOrNull()
-        return collection?.id ?: super.itemCollection(mintEvent)
+        return "${softCollection}:$parentId"
     }
 }
 
