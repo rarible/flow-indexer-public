@@ -36,7 +36,6 @@ class ChangeLot00015RemoveVersusData(
         Item::class.java to Criteria("contract").isEqualTo(collectionId),
         Ownership::class.java to Criteria("contract").isEqualTo(collectionId),
         ItemMeta::class.java to Criteria("_id").regex("$collectionId:.*"),
-        Order::class.java to Criteria("collection").isEqualTo(collectionId),
     ).forEach { (entityClass, criteria) ->
         mongo.remove(Query(criteria), entityClass).block()
     }
