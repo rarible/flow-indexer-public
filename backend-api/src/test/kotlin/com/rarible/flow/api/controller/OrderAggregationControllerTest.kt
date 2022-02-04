@@ -58,7 +58,7 @@ class OrderAggregationControllerTest(
             .expectStatus().isOk
 
         coVerify {
-            itemHistoryRepository.aggregatePurchaseByCollection(start, end, 10)
+            itemHistoryRepository.aggregatePurchaseByCollection(Instant.ofEpochMilli(start.toEpochMilli()), Instant.ofEpochMilli(end.toEpochMilli()), 10)
         }
     }
 
@@ -88,7 +88,7 @@ class OrderAggregationControllerTest(
             .expectStatus().isOk
 
         coVerify {
-            itemHistoryRepository.aggregatePurchaseByTaker(start, end, 10)
+            itemHistoryRepository.aggregatePurchaseByTaker(Instant.ofEpochMilli(start.toEpochMilli()), Instant.ofEpochMilli(end.toEpochMilli()), 10)
         }
     }
 
@@ -117,7 +117,7 @@ class OrderAggregationControllerTest(
             .expectStatus().isOk
 
         coVerify {
-            itemHistoryRepository.aggregateSellByMaker(start, end, 10)
+            itemHistoryRepository.aggregateSellByMaker(Instant.ofEpochMilli(start.toEpochMilli()), Instant.ofEpochMilli(end.toEpochMilli()), 10)
         }
     }
 
