@@ -1,5 +1,5 @@
-import NonFungibleToken from "0xNONFUNGIBLETOKEN"
-import SoftCollection from "0xSOFTCOLLECTION"
+import NonFungibleToken from 0xNONFUNGIBLETOKEN
+import SoftCollection from 0xSOFTCOLLECTION
 
 // Setup storage for SoftCollection on signer account
 //

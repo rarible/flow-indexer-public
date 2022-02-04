@@ -277,7 +277,7 @@ class RaribleV2ActivityMaker(
 
     override suspend fun itemCollection(mintEvent: FlowLogEvent): String {
         val parentId = cadenceParser.long(mintEvent.event.fields["parentId"]!!)
-        val collection = collectionRepository.findByCollectionOnChainId(parentId).awaitSingleOrNull()
+        val collection = collectionRepository.findByChainId(parentId).awaitSingleOrNull()
         return collection?.id ?: super.itemCollection(mintEvent)
     }
 }

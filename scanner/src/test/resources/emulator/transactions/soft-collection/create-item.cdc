@@ -1,6 +1,6 @@
-import NonFungibleToken from "0xNONFUNGIBLETOKEN"
-import SoftCollection from "0xSOFTCOLLECTION"
-import RaribleNFTv2 from "0xRARIBLENFT_V2"
+import NonFungibleToken from 0xNONFUNGIBLETOKEN
+import SoftCollection from 0xSOFTCOLLECTION
+import RaribleNFTv2 from 0xRARIBLENFT_V2
 
 transaction(minterId: UInt64, receiver: Address, meta: RaribleNFTv2.Meta, royalties: [RaribleNFTv2.Royalty]) {
     let minter: &SoftCollection.Collection

@@ -1,8 +1,7 @@
 package com.rarible.flow.scanner.listener
 
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.cadence.JsonCadenceParser
-import com.nftco.flow.sdk.cadence.StructField
+import com.nftco.flow.sdk.cadence.*
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventListener
@@ -12,6 +11,7 @@ import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.repository.ItemCollectionRepository
+import com.rarible.flow.scanner.model.parse
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Component
 
@@ -47,23 +47,27 @@ class SoftCollectionEventsListener(
         val royalties by event.event.fields
 
         val creatorAddress = FlowAddress(parser.address(creator))
-        val collectionName = parser.string((meta as StructField).value!!.getRequiredField("name"))
+        val collectionMeta = meta.parse<CollectionMeta>()
         val itemCollection = ItemCollection(
-            id = "A.${creatorAddress.base16Value}.${collectionName.replace(" ", "_")}",
+            id = "A.${creatorAddress.base16Value}.${collectionMeta.name.replace(" ", "_")}",
             owner = creatorAddress,
-            name = collectionName,
-            symbol = parser.string((meta as StructField).value!!.getRequiredField("symbol")),
+            name = collectionMeta.name,
+            symbol = collectionMeta.symbol,
             createdDate = event.log.timestamp,
             features = setOf("BURN", "SECONDARY_SALE_FEES"),
-            collectionOnChainId = parser.long(id),
-            collectionOnChainParentId = parser.optional(parentId, JsonCadenceParser::long),
+            chainId = parser.long(id),
+            chainParentId = parser.optional(parentId, JsonCadenceParser::long),
             royalties = parser.arrayValues(royalties) {
                 it as StructField
                 Part(
                     address = FlowAddress(address(it.value!!.getRequiredField("address"))),
                     fee = double(it.value!!.getRequiredField("fee"))
                 )
-            }
+            },
+            isSoft = true,
+            description = collectionMeta.description,
+            icon = collectionMeta.icon,
+            url = collectionMeta.url
         )
         itemCollectionRepository.save(itemCollection).awaitSingleOrNull()
     }
@@ -74,5 +78,26 @@ class SoftCollectionEventsListener(
 
     override suspend fun onPendingLogsDropped(logs: List<FlowLogRecord<*>>) {
         /** do nothing*/
+    }
+}
+
+@JsonCadenceConversion(CollectionMetaConversion::class)
+data class CollectionMeta(
+    val name: String,
+    val symbol: String,
+    val icon: String?,
+    val description: String?,
+    val url: String?
+)
+
+class CollectionMetaConversion: JsonCadenceConverter<CollectionMeta> {
+    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): CollectionMeta = unmarshall(value) {
+        CollectionMeta(
+            name = string("name"),
+            symbol = string("symbol"),
+            description = optional("description", JsonCadenceParser::string),
+            icon = optional("icon", JsonCadenceParser::string),
+            url = optional("url", JsonCadenceParser::string),
+        )
     }
 }

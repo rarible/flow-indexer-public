@@ -1,5 +1,5 @@
-import NonFungibleToken from "../../../../contracts/core/NonFungibleToken.cdc"
-import SoftCollection from "../../../../contracts/SoftCollection.cdc"
+import NonFungibleToken from 0xNONFUNGIBLETOKEN
+import SoftCollection from 0xSOFTCOLLECTION
 
 // check SoftCollection collection is available on given address
 //

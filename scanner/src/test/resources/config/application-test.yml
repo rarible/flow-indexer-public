@@ -1,6 +1,9 @@
 spring:
   application:
     name: flow-scanner
+  data:
+    mongodb:
+      database: test
 
 app:
   chain-id: TESTNET

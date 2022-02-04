@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono
 @Repository
 interface ItemCollectionRepository: ReactiveMongoRepository<ItemCollection, String>, ItemCollectionRepositoryCustom {
 
-    fun findByCollectionOnChainId(collectionOnChainId: Long): Mono<ItemCollection>
+    fun findByChainId(chainId: Long): Mono<ItemCollection>
 }
 
 interface ItemCollectionRepositoryCustom: ScrollingRepository<ItemCollection>

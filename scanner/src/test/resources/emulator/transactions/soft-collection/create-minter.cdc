@@ -1,5 +1,5 @@
-import NonFungibleToken from "0xNONFUNGIBLETOKEN"
-import SoftCollection from "0xSOFTCOLLECTION"
+import NonFungibleToken from 0xNONFUNGIBLETOKEN
+import SoftCollection from 0xSOFTCOLLECTION
 
 transaction (address: Address, parentId: UInt64?, name: String, symbol: String, icon: String?, description: String?, url: String?, supply: UInt64?, royalties: [SoftCollection.Royalty]) {
     let minter: &SoftCollection.Minter
