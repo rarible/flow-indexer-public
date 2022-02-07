@@ -3,6 +3,8 @@ package com.rarible.flow.scanner
 import com.nftco.flow.sdk.*
 import com.nftco.flow.sdk.AddressRegistry.Companion.NON_FUNGIBLE_TOKEN
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
+import com.nftco.flow.sdk.cadence.JsonCadenceParser
+import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.nftco.flow.sdk.crypto.Crypto
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.service.SporkService
@@ -10,10 +12,15 @@ import com.rarible.core.test.containers.KGenericContainer
 import com.rarible.core.test.ext.MongoCleanup
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemCollection
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.events.EventId
 import com.rarible.flow.log.Log
 import com.rarible.flow.scanner.emulator.EmulatorUser
+import com.rarible.flow.scanner.subscriber.RaribleNFTv2Meta
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
@@ -55,6 +62,18 @@ class SoftCollectionIndexingTest {
 
     @Value("classpath:emulator/transactions/soft-collection/update-minter.cdc")
     private lateinit var collectionUpdateTx: Resource
+
+    @Value("classpath:emulator/transactions/soft-collection/create-item.cdc")
+    private lateinit var createItemTx: Resource
+
+    @Value("classpath:emulator/transactions/soft-collection/setup_item_account.cdc")
+    private lateinit var setupItemAccTx: Resource
+
+    @Value("classpath:emulator/transactions/soft-collection/transfer-item.cdc")
+    private lateinit var transferItemTx: Resource
+
+    @Value("classpath:emulator/transactions/soft-collection/burn-item.cdc")
+    private lateinit var burnItemTx: Resource
 
     @Autowired
     private lateinit var mongo: ReactiveMongoTemplate
@@ -134,6 +153,7 @@ class SoftCollectionIndexingTest {
         accessApi = Flow.newAccessApi(host = flowEmulator.host, port = flowEmulator.getMappedPort(3569))
     }
 
+    private val cb = JsonCadenceBuilder()
     @Test
     internal fun mintAndUpdateCollectionIndexingTest() = runBlocking {
         // todo change to not Emulator account after minter changes
@@ -142,7 +162,7 @@ class SoftCollectionIndexingTest {
             privateKey = Crypto.decodePrivateKey(EmulatorUser.Emulator.keyHex),
             hashAlgo = payerKey.hashAlgo
         )
-        val cb = JsonCadenceBuilder()
+
 
         val setup = accessApi.simpleFlowTransaction(address = EmulatorUser.Emulator.address, signer = signer) {
             script(setupAccountTx.inputStream.bufferedReader().use { it.readText() }, FlowChainId.EMULATOR)
@@ -222,6 +242,74 @@ class SoftCollectionIndexingTest {
         Assertions.assertEquals(updated.description, c.description, "Updated collection description is wrong")
         Assertions.assertEquals(updated.url, c.url, "Updated collection url is wrong")
         Assertions.assertEquals(updated.icon, c.icon, "Updated collection icon is wrong")
+        val mintTx = accessApi.simpleFlowTransaction(EmulatorUser.Emulator.address, signer) {
+            script(createItemTx.inputStream.bufferedReader().use { it.readText() }, FlowChainId.EMULATOR)
+            argument { cb.uint64(updated.chainId!!) }
+            argument { cb.marshall(RaribleNFTv2Meta(
+                name = "First Awesome Item",
+                description = "Item description",
+                cid = "QmNe7Hd9xiqm1MXPtQQjVtksvWX6ieq9Wr6kgtqFo9D4CU",
+                attributes = emptyMap(),
+                contentUrls = emptyList()
+            ), RaribleNFTv2Meta::class, EmulatorUser.Emulator.address) }
+            argument { cb.array { emptyList() } }
+        }.sendAndGetResult()
+        Assertions.assertNotNull(mintTx.first)
+        Assertions.assertTrue(mintTx.second.errorMessage.isEmpty(), "Mint item failed ${mintTx.second.errorMessage}")
+        withTimeout(30_000L){ awaitLogEventByTxId(mintTx.first) }
+
+        val itemId = ItemId(
+            contract = EventId.of(mintTx.second.events.first().id).collection(),
+            tokenId = JsonCadenceParser().long(mintTx.second.events.first().getField<UInt64NumberField>("id")!!)
+        )
+        var item = mongo.find(Query.query(
+            where(Item::id).isEqualTo(itemId)
+        ), Item::class.java).awaitSingle()
+        Assertions.assertNotNull(item)
+        Assertions.assertEquals(EmulatorUser.Emulator.address, item.creator, "Item creator wrong!")
+        Assertions.assertEquals(EmulatorUser.Emulator.address, item.owner, "Item owner wrong!")
+
+        val patricKey = accessApi.getAccountAtLatestBlock(EmulatorUser.Patrick.address)!!.keys[0]
+        val patricSigner = Crypto.getSigner(
+            privateKey = Crypto.decodePrivateKey(EmulatorUser.Patrick.keyHex),
+            hashAlgo = patricKey.hashAlgo
+        )
+        accessApi.simpleFlowTransaction(EmulatorUser.Patrick.address, patricSigner) {
+            script(setupItemAccTx.inputStream.bufferedReader().use { it.readText() }, FlowChainId.EMULATOR)
+        }.sendAndWaitForSeal()
+
+        val transferTx = accessApi.simpleFlowTransaction(EmulatorUser.Emulator.address, signer) {
+            script(transferItemTx.inputStream.bufferedReader().use { it.readText() }, FlowChainId.EMULATOR)
+            argument { cb.uint64(itemId.tokenId) }
+            argument { cb.address(EmulatorUser.Patrick.address) }
+        }.sendAndGetResult()
+
+        Assertions.assertTrue(transferTx.second.errorMessage.isEmpty(), "Transfer failed! ${transferTx.second.errorMessage}")
+        withTimeout(30_000L){ awaitLogEventByTxId(transferTx.first) }
+
+        item = mongo.find(Query.query(
+            where(Item::id).isEqualTo(itemId)
+        ), Item::class.java).awaitSingle()
+
+        Assertions.assertNotNull(item)
+        Assertions.assertEquals(EmulatorUser.Emulator.address, item.creator, "Item creator wrong!")
+        Assertions.assertEquals(EmulatorUser.Patrick.address, item.owner, "Item owner wrong!")
+
+        val burnTx = accessApi.simpleFlowTransaction(EmulatorUser.Patrick.address, patricSigner) {
+            script(burnItemTx.inputStream.bufferedReader().use { it.readText() }, FlowChainId.EMULATOR)
+            argument { cb.uint64(itemId.tokenId) }
+        }.sendAndGetResult()
+
+        Assertions.assertTrue(burnTx.second.errorMessage.isEmpty(), "Burn failed! ${transferTx.second.errorMessage}")
+        withTimeout(30_000L){ awaitLogEventByTxId(burnTx.first) }
+
+        item = mongo.find(Query.query(
+            where(Item::id).isEqualTo(itemId)
+        ), Item::class.java).awaitSingle()
+
+        Assertions.assertNotNull(item)
+        Assertions.assertEquals(EmulatorUser.Emulator.address, item.creator, "Item creator wrong!")
+        Assertions.assertNull(item.owner, "Owner must be null after BURN! [${item.owner}]")
     }
 
     private suspend fun waitFromDb(id: String): ItemCollection {
@@ -233,5 +321,18 @@ class SoftCollectionIndexingTest {
             }
         }
         return c
+    }
+
+    private suspend fun awaitLogEventByTxId(txId: FlowId) {
+        var founded = false
+        while (!founded) {
+            val query = Query.query(
+                where(FlowLogEvent::log / FlowLog::transactionHash).isEqualTo(txId.base16Value)
+            )
+            founded = mongo.exists(query, FlowLogEvent::class.java).awaitSingle()
+            withContext(Dispatchers.IO) {
+                sleep(1000L)
+            }
+        }
     }
 }

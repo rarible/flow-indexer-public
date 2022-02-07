@@ -85,7 +85,6 @@ class ProtocolEventPublisher(
     }
 
     suspend fun activity(history: ItemHistory): KafkaSendResult {
-            val a = history.activity as NFTActivity
             return send(
                 activities,
                 "${history.id}:${history.activity.type}-${history.activity.timestamp}",

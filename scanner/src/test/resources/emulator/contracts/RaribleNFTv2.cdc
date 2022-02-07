@@ -12,7 +12,7 @@ pub contract RaribleNFTv2 : NonFungibleToken, LicensedNFT {
     pub event ContractInitialized()
     pub event Withdraw(id: UInt64, from: Address?)
     pub event Deposit(id: UInt64, to: Address?)
-    pub event Minted(id: UInt64, meta: Meta, creator: Address, royalties: [LicensedNFT.Royalty])
+    pub event Minted(id: UInt64, parentId: UInt64, meta: Meta, creator: Address, royalties: [LicensedNFT.Royalty])
     pub event Burned(id: UInt64)
 
     pub struct Royalty {
@@ -56,6 +56,7 @@ pub contract RaribleNFTv2 : NonFungibleToken, LicensedNFT {
             self.royalties = royalties
             emit Minted(
                 id: id,
+                parentId: parentId,
                 meta: meta,
                 creator: creator,
                 royalties: royalties,

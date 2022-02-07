@@ -1,13 +1,10 @@
 import NonFungibleToken from 0xNONFUNGIBLETOKEN
-import SoftCollection from 0xSOFTCOLLECTION
 import RaribleNFTv2 from 0xRARIBLENFT_V2
 
-transaction(minterId: UInt64, meta: RaribleNFTv2.Meta, royalties: [RaribleNFTv2.Royalty]) {
-    let minter: &SoftCollection.Collection
-    let receiver: Capability<&{NonFungibleToken.CollectionPublic}>
-
-    prepare (account: AuthAccount) {
-        self.minter = account.borrow<&SoftCollection.Collection>(from: SoftCollection.CollectionStoragePath)!
+// Setup storage for RaribleNFTv2 on signer account
+//
+transaction {
+    prepare(account: AuthAccount) {
         if !account.getCapability<&{NonFungibleToken.CollectionPublic,NonFungibleToken.Receiver}>(RaribleNFTv2.CollectionPublicPath).check() {
             if account.borrow<&AnyResource>(from: RaribleNFTv2.CollectionStoragePath) != nil {
                 account.unlink(RaribleNFTv2.CollectionPublicPath)
@@ -18,15 +15,5 @@ transaction(minterId: UInt64, meta: RaribleNFTv2.Meta, royalties: [RaribleNFTv2.
                 account.link<&{NonFungibleToken.CollectionPublic,NonFungibleToken.Receiver}>(RaribleNFTv2.CollectionPublicPath, target: RaribleNFTv2.CollectionStoragePath)
             }
         }
-        self.receiver = account.getCapability<&{NonFungibleToken.CollectionPublic}>(RaribleNFTv2.CollectionPublicPath)
-    }
-
-    execute {
-        self.minter.mint(
-            softId: minterId,
-            receiver: self.receiver,
-            meta: meta,
-            royalties: royalties,
-        )
     }
 }

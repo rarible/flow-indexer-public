@@ -3,14 +3,12 @@ package com.rarible.flow.scanner.activitymaker
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
-import com.nftco.flow.sdk.cadence.JsonCadenceParser
-import com.nftco.flow.sdk.cadence.NumberField
-import com.nftco.flow.sdk.cadence.OptionalField
-import com.nftco.flow.sdk.cadence.StructField
+import com.nftco.flow.sdk.cadence.*
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.events.VersusArtMetadata
+import com.rarible.flow.scanner.subscriber.RaribleNFTv2Meta
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
@@ -253,7 +251,7 @@ class RaribleV2ActivityMaker(
 ): NFTActivityMaker() {
 
     private val softCollection by lazy {
-        "A.${Flow.DEFAULT_ADDRESS_REGISTRY.addressOf("0xSOFTCOLLECTION", chainId = chainId)!!.base16Value}.SoftCollection"
+        CadenceNamespace.ns(Flow.DEFAULT_ADDRESS_REGISTRY.addressOf("0xSOFTCOLLECTION", chainId = chainId)!!, "SoftCollection").value
     }
 
     override val contractName: String = "RaribleNFTv2"
@@ -263,9 +261,9 @@ class RaribleV2ActivityMaker(
     }
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> {
-        return cadenceParser.dictionaryMap(logEvent.event.fields["metadata"]!!) { key, value ->
-            string(key) to string(value)
-        } + mapOf("parentId" to "${cadenceParser.long(logEvent.event.fields["parentId"]!!)}")
+        val meta by logEvent.event.fields
+        val rariMeta = cadenceParser.unmarshall<RaribleNFTv2Meta>(meta)
+        return rariMeta.toMap()
     }
 
     override fun royalties(logEvent: FlowLogEvent): List<Part> {
