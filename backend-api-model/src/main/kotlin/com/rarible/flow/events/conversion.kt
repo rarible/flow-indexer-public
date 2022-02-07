@@ -1,13 +1,8 @@
 package com.rarible.flow.events
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.Flow
-import com.nftco.flow.sdk.cadence.CadenceNamespace
-import com.nftco.flow.sdk.cadence.Field
-import com.nftco.flow.sdk.cadence.JsonCadenceConversion
-import com.nftco.flow.sdk.cadence.JsonCadenceConverter
-import com.nftco.flow.sdk.cadence.JsonCadenceParser
-import com.nftco.flow.sdk.cadence.StructField
-import com.nftco.flow.sdk.cadence.unmarshall
+import com.nftco.flow.sdk.cadence.*
 import java.math.BigDecimal
 
 private val reg = Regex(""""type":"Capability".*?"address":"([^"]+)","borrowType":"[^"]+"}""")
@@ -83,4 +78,97 @@ class VersusArtRoyaltyConverter : JsonCadenceConverter<VersusArtRoyalty> {
             bigDecimal("cut"),
         )
     }
+}
+
+@JsonCadenceConversion(RaribleNFTv2TokenConverter::class)
+data class RaribleNFTv2Token(
+    val id: Long,
+    val parentId: Long,
+    val creator: String,
+    val meta: RaribleNFTv2Meta,
+    val royalties: List<RaribleNFTv2Royalty>,
+)
+
+@JsonCadenceConversion(RaribleNFTv2MetaConverter::class)
+data class RaribleNFTv2Meta(
+    val name: String,
+    val description: String?,
+    val cid: String,
+    val attributes: Map<String, String>,
+    val contentUrls: List<String>,
+) {
+    fun toMap(): Map<String, String> = mapOf(
+        "name" to name,
+        "description" to description.orEmpty(),
+        "cid" to cid,
+        "attributes" to jacksonObjectMapper().writeValueAsString(attributes),
+        "contentUrls" to jacksonObjectMapper().writeValueAsString(contentUrls)
+    )
+}
+
+@JsonCadenceConversion(RaribleNFTv2RoyaltyConverter::class)
+data class RaribleNFTv2Royalty(
+    val address: String,
+    val fee: BigDecimal,
+)
+
+class RaribleNFTv2RoyaltyConverter : JsonCadenceConverter<RaribleNFTv2Royalty> {
+    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): RaribleNFTv2Royalty = unmarshall(value) {
+        RaribleNFTv2Royalty(address("address"), bigDecimal("fee"))
+    }
+
+    override fun marshall(value: RaribleNFTv2Royalty, namespace: CadenceNamespace): Field<*> =
+        com.nftco.flow.sdk.cadence.marshall {
+            struct {
+                compositeOfPairs(namespace.withNamespace("RaribleNFTv2.Royalty")) {
+                    listOf(
+                        "address" to address(value.address),
+                        "fee" to ufix64(value.fee),
+                    )
+                }
+            }
+        }
+}
+
+class RaribleNFTv2TokenConverter : JsonCadenceConverter<RaribleNFTv2Token> {
+    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): RaribleNFTv2Token = unmarshall(value) {
+        RaribleNFTv2Token(
+            id = long("id"),
+            parentId = long("parentId"),
+            meta = unmarshall("meta"),
+            creator = address("creator"),
+            royalties = arrayValues("royalties", JsonCadenceParser::unmarshall),
+        )
+    }
+}
+
+class RaribleNFTv2MetaConverter : JsonCadenceConverter<RaribleNFTv2Meta> {
+    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): RaribleNFTv2Meta = unmarshall(value) {
+        RaribleNFTv2Meta(
+            name = string("name"),
+            description = optional("description", JsonCadenceParser::string),
+            cid = string("cid"),
+            attributes = dictionaryMap("attributes") { key, value -> string(key) to string(value) },
+            contentUrls = arrayValues("contentUrls", JsonCadenceParser::unmarshall),
+        )
+    }
+
+    override fun marshall(value: RaribleNFTv2Meta, namespace: CadenceNamespace): Field<*> =
+        com.nftco.flow.sdk.cadence.marshall {
+            struct {
+                compositeOfPairs(namespace.withNamespace("RaribleNFTv2.Meta")) {
+                    listOf(
+                        "name" to string(value.name),
+                        "description" to optional(value.description?.let(::string)),
+                        "cid" to string(value.cid),
+                        "attributes" to dictionaryOfMap {
+                            value.attributes.map { (key, value) ->
+                                string(key) to string(value)
+                            }.toMap()
+                        },
+                        "contentUrls" to array { value.contentUrls.map(::string) }
+                    )
+                }
+            }
+        }
 }

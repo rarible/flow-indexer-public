@@ -19,7 +19,7 @@ class RaribleNFTMetaProvider(
 
     private val logger by Log()
 
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("RaribleNFT")
+    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.endsWith(".RaribleNFT")
 
     override suspend fun getMeta(item: Item): ItemMeta? {
         val ipfs = readUrl(item) ?: return null

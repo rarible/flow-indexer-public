@@ -7,8 +7,8 @@ import com.nftco.flow.sdk.cadence.*
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.*
+import com.rarible.flow.events.RaribleNFTv2Meta
 import com.rarible.flow.events.VersusArtMetadata
-import com.rarible.flow.scanner.subscriber.RaribleNFTv2Meta
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 

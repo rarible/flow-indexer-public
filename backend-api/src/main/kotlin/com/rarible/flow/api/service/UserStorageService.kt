@@ -1,6 +1,7 @@
 package com.rarible.flow.api.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.OptionalField
@@ -16,6 +17,7 @@ import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
+import com.rarible.flow.events.RaribleNFTv2Token
 import com.rarible.flow.pflatMap
 import com.rarible.flow.pmap
 import kotlinx.coroutines.flow.toList
@@ -24,9 +26,6 @@ import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.io.Resource
-import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -48,7 +47,7 @@ class UserStorageService(
         log.info("Scan user NFT's for address ${address.formatted}")
         val data: Map<String, List<Long>> = scanUserNftScript.call(address)
 
-        val objectMapper = ObjectMapper()
+        val objectMapper = jacksonObjectMapper()
 
         data.pflatMap { (collection, itemIds) ->
             try {
@@ -352,6 +351,31 @@ class UserStorageService(
                     }
                 }
             }
+            "RaribleNFTv2" -> {
+                scriptExecutor.executeFile(
+                    "/script/get_rari_v2_items.cdc",
+                    {
+                        arg { address(address.bytes) }
+                    },
+                    { tokens ->
+                        arrayValues(tokens) {
+                            unmarshall(it, RaribleNFTv2Token::class)
+                        }.map { token ->
+                            Item(
+                                contract = contract("0xRARIBLENFT_V2", "RaribleNFTv2"),
+                                tokenId = token.id,
+                                creator = FlowAddress(token.creator),
+                                owner = address,
+                                mintedAt = Instant.now(),
+                                royalties = token.royalties.map { Part(address = FlowAddress(it.address), fee = it.fee.toDouble()) },
+                                updatedAt = Instant.now(),
+                                collection = "${contract("0xSOFTCOLLECTION", "SoftCollection")}:${token.parentId}",
+                                meta = objectMapper.writeValueAsString(token.meta.toMap())
+                            )
+                        }
+                    }
+                )
+            }
             else -> emptyList()
         }
     }
@@ -385,3 +409,4 @@ class UserStorageService(
         protocolEventPublisher.onUpdate(ownershipRepository.save(o).awaitSingle())
     }
 }
+

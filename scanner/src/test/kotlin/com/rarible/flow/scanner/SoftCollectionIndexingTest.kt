@@ -16,9 +16,9 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.events.EventId
+import com.rarible.flow.events.RaribleNFTv2Meta
 import com.rarible.flow.log.Log
 import com.rarible.flow.scanner.emulator.EmulatorUser
-import com.rarible.flow.scanner.subscriber.RaribleNFTv2Meta
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingle

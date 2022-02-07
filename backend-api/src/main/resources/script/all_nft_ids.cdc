@@ -9,6 +9,7 @@ import MatrixWorldVoucher from 0xMATRIXWORLD
 import MatrixWorldFlowFestNFT from 0xMATRIXWORLDFLOWFEST
 import Art from 0xVERSUSART
 import DisruptArt from 0xDISRUPTART
+import RaribleNFTv2 from 0xRARIBLENFT_V2
 
 pub fun idsRaribleNFT(_ account: PublicAccount): [UInt64] {
     return account.getCapability(RaribleNFT.collectionPublicPath)
@@ -71,6 +72,12 @@ pub fun idsDisruptArt(_ account: PublicAccount): [UInt64] {
         ?.getIDs() ?? []
 }
 
+pub fun idsRaribleNFTv2(_ account: PublicAccount): [UInt64] {
+    return account.getCapability(RaribleNFTv2.CollectionPublicPath)
+        .borrow<&{NonFungibleToken.CollectionPublic}>()
+        ?.getIDs() ?? []
+}
+
 pub fun main(address: Address): {String: [UInt64]} {
     let account = getAccount(address)
     let results : {String: [UInt64]} = {}
@@ -85,6 +92,7 @@ pub fun main(address: Address): {String: [UInt64]} {
     results["MatrixWorldFlowFestNFT"] = idsMatrixWorldFlowFest(account)
     results["VersusArt"] = idsVersusArt(account)
     results["DisruptArt"] = idsDisrupArt(account)
+    results["RaribleNFTv2"] = idsRaribleNFTv2(account)
 
     return results
 }

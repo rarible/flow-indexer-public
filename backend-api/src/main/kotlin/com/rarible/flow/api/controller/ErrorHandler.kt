@@ -1,6 +1,6 @@
 package com.rarible.flow.api.controller
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rarible.flow.log.Log
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler
 import org.springframework.context.annotation.Configuration
@@ -20,7 +20,7 @@ class ErrorHandler: ErrorWebExceptionHandler {
 
     private val log by Log()
 
-    private val objectMapper = ObjectMapper()
+    private val objectMapper = jacksonObjectMapper()
 
     override fun handle(exchange: ServerWebExchange, ex: Throwable): Mono<Void> {
         log.error(ex.message, ex)
