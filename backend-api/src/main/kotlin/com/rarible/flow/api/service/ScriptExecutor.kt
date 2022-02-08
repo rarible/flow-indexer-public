@@ -3,6 +3,7 @@ package com.rarible.flow.api.service
 import com.nftco.flow.sdk.AsyncFlowAccessApi
 import com.nftco.flow.sdk.FlowScriptResponse
 import com.nftco.flow.sdk.ScriptBuilder
+import com.nftco.flow.sdk.bytesToHex
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.core.config.AppProperties
@@ -29,7 +30,7 @@ class ScriptExecutor(
         }
         logger.info(
             "Running script {} with args: [{}]. Result: {}",
-            DigestUtils.md5Digest(code.toByteArray()).decodeToString(),
+            DigestUtils.md5Digest(code.toByteArray()).bytesToHex(),
             logArgs(args),
             response.stringValue
         )
