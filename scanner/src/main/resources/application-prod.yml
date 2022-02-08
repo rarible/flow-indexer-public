@@ -12,7 +12,7 @@ blockchain:
           batchSize: 250
       retryPolycy:
         scan:
-          maxProcessTime: 3m
+          maxProcessTime: 10m
 app:
   environment: prod
   kafka-replica-set: ${kafka.hosts}
