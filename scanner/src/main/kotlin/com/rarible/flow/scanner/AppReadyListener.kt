@@ -108,7 +108,7 @@ class AppReadyListener(
 
                 if (scannerProperties.chainId == FlowChainId.TESTNET) {
                     sporkService.allSporks.replace(FlowChainId.TESTNET, listOf(
-                        SporkService.Spork(from = 53376277L, nodeUrl = "access.devnet.nodes.onflow.org"),
+                        SporkService.Spork(from = 59558934L, nodeUrl = "access.devnet.nodes.onflow.org"),
                     ))
                 }
 
