@@ -74,10 +74,6 @@ class ProtocolEventPublisher(
         return send(orders, key, message)
     }
 
-    suspend fun onOrderUpdate(orders: List<Order>, converter: OrderToDtoConverter): List<KafkaSendResult> {
-        return orders.map { this.onOrderUpdate(it, converter) }
-    }
-
     suspend fun onItemDelete(itemId: ItemId): KafkaSendResult {
         val key = itemId.toString()
         val message = FlowNftItemDeleteEventDto(

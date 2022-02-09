@@ -3,6 +3,7 @@ package com.rarible.flow.scanner.eventprocessor
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.framework.data.Source
+import com.rarible.core.apm.CaptureSpan
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
@@ -23,6 +24,7 @@ import reactor.kotlin.extra.math.max
 import java.time.Instant
 
 @Component
+@CaptureSpan(type = "indexer")
 class ItemIndexerEventProcessor(
     private val itemRepository: ItemRepository,
     private val itemMetaRepository: ItemMetaRepository,
@@ -54,7 +56,7 @@ class ItemIndexerEventProcessor(
             labels = listOf("itemId" to "${mintActivity.contract}:${mintActivity.tokenId}")
         ) {
             val owner = FlowAddress(mintActivity.owner)
-            val creator = FlowAddress(mintActivity.creator)
+            val creator = if (mintActivity.creator != null) FlowAddress(mintActivity.creator!!) else owner
             val forSave = if (event.item == null) {
                 Item(
                     contract = mintActivity.contract,
@@ -152,7 +154,7 @@ class ItemIndexerEventProcessor(
                         contract = burn.contract,
                         tokenId = burn.tokenId,
                         royalties = listOf(),
-                        creator = EventId.of(burn.contract).contractAddress,
+                        creator = EventId.of("${burn.contract}.dummy").contractAddress,
                         owner = null,
                         mintedAt = Instant.now(),
                         collection = burn.contract,

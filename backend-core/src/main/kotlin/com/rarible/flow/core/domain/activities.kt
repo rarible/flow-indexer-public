@@ -59,8 +59,8 @@ sealed class FlowNftOrderActivity : NFTActivity() {
  */
 data class FlowNftOrderActivitySell(
     override val type: FlowActivityType = FlowActivityType.SELL,
+    @Field(targetType = FieldType.DECIMAL128)
     override val price: BigDecimal,
-
     @Field(targetType = FieldType.DECIMAL128)
     override val priceUsd: BigDecimal,
     override val tokenId: TokenId,
@@ -69,7 +69,7 @@ data class FlowNftOrderActivitySell(
     val hash: String,
     val left: OrderActivityMatchSide,
     val right: OrderActivityMatchSide,
-    val payments: List<FlowNftOrderPayment>,
+    val payments: List<FlowNftOrderPayment> = emptyList(),
 ) : FlowNftOrderActivity()
 
 /**
@@ -80,7 +80,9 @@ data class FlowNftOrderActivitySell(
  */
 data class FlowNftOrderActivityList(
     override val type: FlowActivityType = FlowActivityType.LIST,
+    @Field(targetType = FieldType.DECIMAL128)
     override val price: BigDecimal,
+    @Field(targetType = FieldType.DECIMAL128)
     override val priceUsd: BigDecimal,
     override val tokenId: TokenId,
     override val contract: String,
@@ -95,7 +97,9 @@ data class FlowNftOrderActivityCancelList(
     override val type: FlowActivityType = FlowActivityType.CANCEL_LIST,
     override val timestamp: Instant,
     val hash: String,
+    @Field(targetType = FieldType.DECIMAL128)
     val price: BigDecimal? = null,
+    @Field(targetType = FieldType.DECIMAL128)
     val priceUsd: BigDecimal? = null,
     val tokenId: TokenId? = null,
     val contract: String? = null,
@@ -107,6 +111,7 @@ data class FlowNftOrderActivityCancelList(
 data class FlowNftOrderActivityBid(
     override val type: FlowActivityType = FlowActivityType.BID,
     override val price: BigDecimal,
+    @Field(targetType = FieldType.DECIMAL128)
     override val priceUsd: BigDecimal,
     override val tokenId: TokenId,
     override val contract: String,
@@ -156,7 +161,7 @@ data class MintActivity(
     override val tokenId: TokenId,
     override val value: Long = 1L,
     override val timestamp: Instant,
-    val creator: String,
+    val creator: String?,
     val royalties: List<Part>,
     val metadata: Map<String, String>,
 ) : FlowNftActivity()

@@ -4,7 +4,7 @@ flow-indexer-backend-api:
   environments:
     APPLICATION_ENVIRONMENT: '{{ include "service.appEnv" $ }}'
     CONSUL_ROOT_PATH: '{{ include "service.appEnv" $ }}/flow-indexer'
-    SPRING_PROFILES_ACTIVE: '{{ include "service.appEnv" $ }},consul'
+    SPRING_PROFILES_ACTIVE: 'consul,{{ include "service.appEnv" $ }}'
   resources:
     jvm:
       xmx_megabytes: 512
@@ -23,7 +23,7 @@ flow-indexer-scanner:
   environments:
     APPLICATION_ENVIRONMENT: '{{ include "service.appEnv" $ }}'
     CONSUL_ROOT_PATH: '{{ include "service.appEnv" $ }}/flow-indexer'
-    SPRING_PROFILES_ACTIVE: '{{ include "service.appEnv" $ }},consul'
+    SPRING_PROFILES_ACTIVE: 'consul,{{ include "service.appEnv" $ }}'
   endpointMode: dnsrr
   resources:
     jvm:

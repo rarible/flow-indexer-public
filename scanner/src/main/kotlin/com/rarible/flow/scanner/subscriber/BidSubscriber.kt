@@ -32,13 +32,13 @@ class BidSubscriber(
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
             FlowChainId.TESTNET to flowDescriptor(
-                address = "ebf4ae01d1284af8",
+                address = "1d56d7ba49283a88",
                 contract = "RaribleOpenBid",
                 events = listOf("BidAvailable", "BidCompleted"),
                 dbCollection = collection
             ),
             FlowChainId.MAINNET to flowDescriptor(
-                address = "ebf4ae01d1284af8", //todo fill mainnet address
+                address = "01ab36aaf654a13e",
                 contract = "RaribleOpenBid",
                 events = listOf("BidAvailable", "BidCompleted"),
                 dbCollection = collection

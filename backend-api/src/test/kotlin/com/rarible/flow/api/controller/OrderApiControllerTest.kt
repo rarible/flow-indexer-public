@@ -2,20 +2,26 @@ package com.rarible.flow.api.controller
 
 import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.api.TestPropertiesConfiguration
+import com.rarible.flow.api.http.shouldGetBadRequest
+import com.rarible.flow.api.http.shouldGetPaginatedResult
 import com.rarible.flow.api.service.OrderService
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderData
+import com.rarible.flow.core.domain.OrderType
+import com.rarible.flow.core.domain.Payout
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.randomFlowAddress
 import com.rarible.flow.randomLong
 import com.rarible.protocol.dto.FlowOrderDto
 import com.rarible.protocol.dto.FlowOrderIdsDto
 import com.rarible.protocol.dto.FlowOrdersPaginationDto
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
@@ -110,7 +116,7 @@ class OrderApiControllerTest {
             orderService.findAllSell(any(), any(), OrderFilter.Sort.LATEST_FIRST)
         } returns (1L..10L).map { createOrder(it) }.asFlow()
 
-        shouldGetPaginatedResult("/v0.1/orders/sell")
+        client.shouldGetPaginatedResult<FlowOrdersPaginationDto>("/v0.1/orders/sell")
     }
 
     @Test
@@ -123,18 +129,20 @@ class OrderApiControllerTest {
             orderService.getSellOrdersByCollection(neq("ABC"), any(), any(), OrderFilter.Sort.LATEST_FIRST)
         } returns emptyFlow()
 
-        shouldGetPaginatedResult("/v0.1/orders/sell/byCollection?collection={collection}",
+        client.shouldGetPaginatedResult<FlowOrdersPaginationDto>(
+            "/v0.1/orders/sell/byCollection?collection={collection}",
             "collection" to "ABC"
         )
 
-        shouldGetPaginatedResult("/v0.1/orders/sell/byCollection?collection={collection}",
+        client.shouldGetPaginatedResult<FlowOrdersPaginationDto>(
+            "/v0.1/orders/sell/byCollection?collection={collection}",
             "collection" to "DEF"
         )
     }
 
     @Test
     fun `should find orders by collection - no collection`() {
-        shouldGetBadRequest("/v0.1/orders/sell/byCollection")
+        client.shouldGetBadRequest("/v0.1/orders/sell/byCollection")
     }
 
     @Test
@@ -151,38 +159,53 @@ class OrderApiControllerTest {
             )
         } returns (1L..10L).map { createOrder(it) }.asFlow()
 
-        shouldGetPaginatedResult(
+        client.shouldGetPaginatedResult<FlowOrdersPaginationDto>(
             "/v0.1/orders/sell/byItemAndByStatus?contract={contract}&tokenId={tokenId}",
-            "contract" to "ABC",
-            "tokenId" to 123L
+            mapOf<String, Any>(
+                "contract" to "ABC",
+                "tokenId" to 123L
+            )
         )
     }
 
     @Test
     fun `should respond BAD_REQUEST by item and status - bad item id`() {
-        shouldGetBadRequest("/v0.1/orders/sell/byItemAndByStatus?contract={contract}&tokenId={tokenId}",
-            "contract" to "ABC",
-            "tokenId" to "BAD"
+        client.shouldGetBadRequest(
+            "/v0.1/orders/sell/byItemAndByStatus?contract={contract}&tokenId={tokenId}",
+            mapOf(
+                *kotlin.arrayOf<kotlin.Pair<kotlin.String, kotlin.Any>>(
+                    "contract" to "ABC",
+                    "tokenId" to "BAD"
+                )
+            )
         )
     }
 
     @Test
     fun `should respond BAD_REQUEST by item and status - bad maker`() {
-        shouldGetBadRequest(
+        client.shouldGetBadRequest(
             "/v0.1/orders/sell/byItemAndByStatus?contract={contract}&tokenId={tokenId}&maker={maker}",
-            "contract" to "ABC",
-            "tokenId" to "BAD",
-            "maker" to "NOT_FLOW_ADDRESS"
+            mapOf(
+                *kotlin.arrayOf<kotlin.Pair<kotlin.String, kotlin.Any>>(
+                    "contract" to "ABC",
+                    "tokenId" to "BAD",
+                    "maker" to "NOT_FLOW_ADDRESS"
+                )
+            )
         )
     }
 
     @Test
     fun `should respond BAD_REQUEST by item and status - bad currency`() {
-        shouldGetBadRequest(
+        client.shouldGetBadRequest(
             "/v0.1/orders/sell/byItemAndByStatus?contract={contract}&tokenId={tokenId}&currency={currency}",
-            "contract" to "ABC",
-            "tokenId" to "BAD",
-            "currency" to "NOT_FLOW_ADDRESS"
+            mapOf(
+                *kotlin.arrayOf<kotlin.Pair<kotlin.String, kotlin.Any>>(
+                    "contract" to "ABC",
+                    "tokenId" to "BAD",
+                    "currency" to "NOT_FLOW_ADDRESS"
+                )
+            )
         )
     }
 
@@ -192,76 +215,28 @@ class OrderApiControllerTest {
             orderService.getSellOrdersByMaker(any(), any(), any(), any(), OrderFilter.Sort.LATEST_FIRST)
         } returns (1L..10L).map { createOrder(it) }.asFlow()
 
-        shouldGetPaginatedResult(
+        client.shouldGetPaginatedResult<FlowOrdersPaginationDto>(
             "/v0.1/orders/sell/byMaker?maker={maker}",
-            "maker" to "0x1337"
+            mapOf<String, Any>(
+                "maker" to "0x1337"
+            )
         )
     }
 
     @Test
     fun `should respond BAD_REQUEST by maker - bad maker`() {
-        shouldGetBadRequest(
+        client.shouldGetBadRequest(
             "/v0.1/orders/sell/byMaker?maker={maker}",
-            "maker" to "0xq337"
+            mapOf(
+                *kotlin.arrayOf<kotlin.Pair<kotlin.String, kotlin.Any>>(
+                    "maker" to "0xq337"
+                )
+            )
         )
 
-        shouldGetBadRequest(
+        client.shouldGetBadRequest(
             "/v0.1/orders/sell/byMaker"
         )
-    }
-
-    @Test
-    fun `should find bids by item - success`() {
-        coEvery {
-            orderService.getBidOrdersByItem(any(), any(), any(), any(), any(), any(), any(), any(), OrderFilter.Sort.TAKE_PRICE_DESC)
-        } returns (1L..10L).map { createBidOrder(it) }.asFlow()
-
-        val page = shouldGetPaginatedResult(
-            "/v0.1/bids/byItem?contract={contract}&tokenId={tokenId}&status=",
-            "contract" to "ABC",
-            "tokenId" to 1337L
-        )
-
-        page.items shouldHaveSize 10
-    }
-
-    @Test
-    fun `should find bid currencies`() {
-        coEvery {
-            orderService.bidCurrenciesByItemId(any())
-        } returns flowOf(FlowAssetFungible("FLOW", BigDecimal.ZERO))
-
-        client.get()
-            .uri("/v0.1/bids/currencies/A.0b2a3299cc857e29.TopShot:1000")
-            .exchange()
-            .expectStatus().isOk
-
-        shouldGetBadRequest("/v0.1/bids/currencies/A.0b2a3299cc857e29.TopShot+1000")
-        shouldGetBadRequest("/v0.1/bids/currencies/A.0b2a3299cc857e29.TopShot:10T0")
-    }
-
-    private fun shouldGetPaginatedResult(url: String, params: Map<String, Any> = emptyMap()): FlowOrdersPaginationDto {
-        return client.get()
-            .uri(url, params)
-            .exchange()
-            .expectStatus().isOk
-            .expectBody(FlowOrdersPaginationDto::class.java)
-            .returnResult().responseBody!!
-    }
-
-    private fun shouldGetPaginatedResult(url: String, vararg params: Pair<String, Any>): FlowOrdersPaginationDto {
-        return shouldGetPaginatedResult(url, mapOf(*params))
-    }
-
-    private fun shouldGetBadRequest(url: String, params: Map<String, Any> = emptyMap()) {
-        client.get()
-            .uri(url, params)
-            .exchange()
-            .expectStatus().isBadRequest
-    }
-
-    private fun shouldGetBadRequest(url: String, vararg params: Pair<String, Any>) {
-        shouldGetBadRequest(url, mapOf(*params))
     }
 
     private fun createOrder(tokenId: Long = randomLong()): Order {
@@ -276,7 +251,6 @@ class OrderApiControllerTest {
                 tokenId = itemId.tokenId
             ),
             amount = BigDecimal.valueOf(100L),
-//            amountUsd = BigDecimal.valueOf(100L),
             data = OrderData(
                 payouts = listOf(Payout(randomFlowAddress(), BigDecimal.valueOf(1L))),
                 originalFees = listOf(Payout(randomFlowAddress(), BigDecimal.valueOf(1L)))
@@ -291,36 +265,6 @@ class OrderApiControllerTest {
             createdAt = LocalDateTime.now(ZoneOffset.UTC),
             type = OrderType.LIST
         )
-        return order
-    }
-
-    private fun createBidOrder(tokenId: Long = randomLong()): Order {
-        val itemId = ItemId("0x1a2b3c4d", tokenId)
-        val order = Order(
-            id = randomLong(),
-            itemId = itemId,
-            maker = randomFlowAddress(),
-            make = FlowAssetFungible(
-                "FLOW",
-                BigDecimal.TEN
-            ),
-            amount = BigDecimal.valueOf(100L),
-//            amountUsd = BigDecimal.valueOf(100L),
-            data = OrderData(
-                payouts = listOf(Payout(randomFlowAddress(), BigDecimal.valueOf(1L))),
-                originalFees = listOf(Payout(randomFlowAddress(), BigDecimal.valueOf(1L)))
-            ),
-            collection = "collection",
-            take = FlowAssetNFT(
-                contract = itemId.contract,
-                value = BigDecimal.valueOf(100L),
-                tokenId = itemId.tokenId
-            ),
-            makeStock = BigDecimal.TEN,
-            lastUpdatedAt = LocalDateTime.now(ZoneOffset.UTC),
-            createdAt = LocalDateTime.now(ZoneOffset.UTC),
-            type = OrderType.LIST
-            )
         return order
     }
 }

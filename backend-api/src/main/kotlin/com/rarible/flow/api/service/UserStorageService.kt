@@ -3,16 +3,16 @@ package com.rarible.flow.api.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.cadence.OptionalField
+import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
+import com.nftco.flow.sdk.cadence.JsonCadenceParser
+import com.rarible.flow.Contracts
 import com.rarible.flow.api.metaprovider.CnnNFTConverter
+import com.rarible.flow.api.metaprovider.DisruptArtNFT
 import com.rarible.flow.api.metaprovider.RaribleNFT
 import com.rarible.flow.api.service.flowrpc.ScanUserNftScript
 import com.rarible.flow.api.service.flowrpc.TopShotMomentScript
 import com.rarible.flow.core.config.AppProperties
-import com.rarible.flow.core.domain.Item
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Ownership
-import com.rarible.flow.core.domain.Part
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
@@ -250,8 +250,8 @@ class UserStorageService(
                 }
             }
 
-            "MatrixWorldVoucher" -> {
-                val contract = contract("0xMATRIXWORLD", "MatrixWorldVoucher")
+            Contracts.MATRIX_WORLD_VOUCHER.contractName -> {
+                val contract = contract(Contracts.MATRIX_WORLD_VOUCHER.import, Contracts.MATRIX_WORLD_VOUCHER.contractName)
                 val items = itemRepository.findAllByIdIn(
                     itemIds.map { ItemId(contract, it) }.toSet()
                 ).toIterable().associateBy { it.tokenId }
@@ -261,7 +261,7 @@ class UserStorageService(
                         Item(
                             contract = contract,
                             tokenId = tokenId,
-                            creator = contractAddress("0xMATRIXWORLD"),
+                            creator = contractAddress(Contracts.MATRIX_WORLD_VOUCHER.import),
                             royalties = emptyList(),
                             owner = address,
                             mintedAt = Instant.now(),
@@ -280,18 +280,14 @@ class UserStorageService(
                 }
             }
 
-            "MatrixWorldFlowFestNFT" -> {
-                val contract = contract("0xMATRIXWORLD", "MatrixWorldVoucher")
-                val items = itemRepository.findAllByIdIn(
-                    itemIds.map { ItemId(contract, it) }.toSet()
-                ).toIterable().associateBy { it.tokenId }
-                itemIds.pmap { tokenId ->
-                    val item = items[tokenId]
-                    if (item == null) {
+            Contracts.MATRIX_WORLD_FLOW_FEST.contractName -> {
+                itemIds.forEach { tokenId ->
+                    val contract = contract(Contracts.MATRIX_WORLD_FLOW_FEST.import, Contracts.MATRIX_WORLD_FLOW_FEST.contractName)
+                    val item = if (notExistsItem(contract, tokenId)) {
                         Item(
                             contract = contract,
                             tokenId = tokenId,
-                            creator = contractAddress("0xMATRIXWORLDFLOWFEST"),
+                            creator = contractAddress(Contracts.MATRIX_WORLD_FLOW_FEST.import),
                             royalties = emptyList(),
                             owner = address,
                             mintedAt = Instant.now(),
@@ -339,6 +335,77 @@ class UserStorageService(
                             owner = address,
                             mintedAt = Instant.now(),
                             meta = objectMapper.writeValueAsString(tokenData),
+                            collection = contract,
+                            updatedAt = Instant.now()
+                        )
+                    } else {
+                        val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
+                        } else {
+                            checkOwnership(i, address)
+                            null
+                        }
+                    }
+                    saveItem(item)
+                }
+            }
+            "DisruptArt" -> {
+                itemIds.forEach { tokenId ->
+                    val contract = contract("0xDISRUPTART", "DisruptArt")
+                    val item = if (notExistsItem(contract, tokenId)) {
+                        val tokenData = Flow.unmarshall(
+                            DisruptArtNFT::class,
+                            scriptExecutor.execute(
+                                code = scriptText("/script/disrupt_art_nft.cdc"),
+                                args = mutableListOf(
+                                    builder.address(address.bytes),
+                                    builder.uint64(tokenId)
+                                )
+                            ).jsonCadence
+                        )
+
+                        Item(
+                            contract = contract,
+                            tokenId = tokenId,
+                            creator = FlowAddress(tokenData.creator),
+                            royalties = listOf(
+                                Part(
+                                    address = contractAddress("0xDISRUPTARTROYALTY"),
+                                    fee = 0.15
+                                )
+                            ),
+                            collection = contract,
+                            mintedAt = Instant.now(),
+                            updatedAt = Instant.now(),
+                            owner = address,
+                            meta = objectMapper.writeValueAsString(tokenData.metaData)
+                        )
+                    } else {
+                        val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
+                        } else {
+                            checkOwnership(i, address)
+                            null
+                        }
+                    }
+                    saveItem(item)
+                }
+            }
+
+            "ChainmonstersRewards" -> {
+                itemIds.forEach { tokenId ->
+                    val contract = contract("0xCHAINMONSTERS", "ChainmonstersRewards")
+                    val item = if (notExistsItem(contract, tokenId)) {
+                        Item(
+                            contract = contract,
+                            tokenId = tokenId,
+                            creator = contractAddress("0xCHAINMONSTERS"),
+                            royalties = emptyList(),
+                            owner = address,
+                            mintedAt = Instant.now(),
+                            meta = "{}",
                             collection = contract,
                             updatedAt = Instant.now()
                         )

@@ -14,6 +14,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import reactor.core.publisher.Mono
+import java.math.BigInteger
 import java.time.Instant
 
 internal class OrderToDtoConverterTest: FunSpec({
@@ -93,16 +94,18 @@ internal class OrderToDtoConverterTest: FunSpec({
             o.itemId shouldBe "0x0000000000000001:1"
             o.taker shouldBe null
             o.fill shouldBe 13.37.toBigDecimal()
+            o.makeStock shouldBe BigInteger.ONE
         }
     }
 
+    //TODO we should not put taker to our orders
     test("should convert order with taker") {
         val order = data.createOrder().copy(taker = FlowAddress("0x1337"))
 
         converter.convert(order) should { o ->
             o.id shouldBe order.id
             o.itemId shouldBe "0x0000000000000001:1"
-            o.taker shouldBe "0x0000000000001337"
+            o.taker shouldBe null
             o.fill shouldBe 13.37.toBigDecimal()
             o.priceUsd shouldBe 100.toBigDecimal()
         }

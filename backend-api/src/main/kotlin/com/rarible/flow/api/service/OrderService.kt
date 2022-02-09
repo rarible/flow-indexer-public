@@ -1,11 +1,16 @@
 package com.rarible.flow.api.service
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coFindById
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -63,7 +68,7 @@ class OrderService(
         sort: OrderFilter.Sort
     ): Flow<Order> {
         return orderRepository.search(
-            OrderFilter.ByStatus(status), cont, size, sort
+            sellOrders(OrderFilter.ByStatus(status)), cont, size, sort
         ).asFlow()
     }
 
@@ -125,7 +130,7 @@ class OrderService(
 
     fun getBidOrdersByItem(
         itemId: ItemId,
-        makerAddress: FlowAddress?,
+        makers: List<FlowAddress>,
         currency: String?,
         status: List<OrderStatus>,
         startDate: Instant?,
@@ -137,7 +142,7 @@ class OrderService(
         return orderRepository.search(
             bidOrders(
                 OrderFilter.ByItemId(itemId),
-                OrderFilter.ByMaker(makerAddress),
+                OrderFilter.ByMakers(makers),
                 OrderFilter.ByStatus(status),
                 OrderFilter.ByBiddingCurrency(currency),
                 OrderFilter.ByDateAfter(Order::createdAt, startDate),

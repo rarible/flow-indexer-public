@@ -7,110 +7,27 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.enum.safeOf
-import com.rarible.protocol.dto.FlowAssetDto
-import com.rarible.protocol.dto.FlowAssetFungibleDto
-import com.rarible.protocol.dto.FlowOrderDto
-import com.rarible.protocol.dto.FlowOrderIdsDto
-import com.rarible.protocol.dto.FlowOrderStatusDto
-import com.rarible.protocol.dto.FlowOrdersPaginationDto
+import com.rarible.protocol.dto.*
 import com.rarible.protocol.flow.nft.api.controller.FlowOrderControllerApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController
-import java.time.Instant
 
 @RestController
 @CrossOrigin
 class OrderApiController(
     private val service: OrderService,
     private val converter: OrderToDtoConverter
-): FlowOrderControllerApi {
-
-    override fun getBidCurrencies(itemId: String): ResponseEntity<Flow<FlowAssetDto>> {
-        return service.bidCurrenciesByItemId(itemId.itemId()).map {
-            FlowAssetFungibleDto(it.contract, it.value)
-        }.okOr404IfNull()
-    }
-
-    override suspend fun getBidsByItem(
-        contract: String,
-        tokenId: String,
-        status: List<FlowOrderStatusDto>,
-        maker: String?,
-        origin: String?,
-        startDate: Instant?,
-        endDate: Instant?,
-        currencyAddress: String?,
-        continuation: String?,
-        size: Int?
-    ): ResponseEntity<FlowOrdersPaginationDto> {
-        val makerAddress = maker.flowAddress()
-        val itemId = ItemId(contract, tokenId.tokenId())
-        val sort = OrderFilter.Sort.TAKE_PRICE_DESC
-        val orderStatuses = OderStatusDtoConverter.convert(status)
-        return result(
-            service.getBidOrdersByItem(
-                itemId,
-                makerAddress,
-                currencyAddress,
-                orderStatuses,
-                startDate,
-                endDate,
-                continuation,
-                size,
-                sort
-            ),
-            sort, size
-        )
-    }
-
-
-    //TODO deprecated!
-    override suspend fun getOrderBidsByItem(
-        contract: String,
-        tokenId: String,
-        maker: String?,
-        origin: String?,
-        currencyAddress: String?,
-        continuation: String?,
-        size: Int?
-    ): ResponseEntity<FlowOrdersPaginationDto> {
-        return ResponseEntity.badRequest().build()
-    }
-
-    override suspend fun getOrderBidsByMaker(
-        maker: String,
-        status: List<FlowOrderStatusDto>,
-        origin: String?,
-        startDate: Instant?,
-        endDate: Instant?,
-        continuation: String?,
-        size: Int?
-    ): ResponseEntity<FlowOrdersPaginationDto> {
-        val makerAddress = maker.flowAddress()
-        val sort = OrderFilter.Sort.TAKE_PRICE_DESC
-        val orderStatuses = OderStatusDtoConverter.convert(status)
-        return result(
-            service.getBidOrdersByMaker(
-                makerAddress,
-                orderStatuses,
-                origin,
-                startDate,
-                endDate,
-                continuation,
-                size,
-                sort
-            ),
-            sort, size
-        )
-    }
+) : FlowOrderControllerApi {
 
     override suspend fun getOrderByOrderId(orderId: String): ResponseEntity<FlowOrderDto> =
-        result(service.orderById(orderId.toLong()))
+        service.orderById(
+            orderId.toLong()
+        )?.let {
+            converter.convert(it)
+        }.okOr404IfNull()
 
     override suspend fun getOrdersAll(
         origin: String?,
@@ -119,7 +36,7 @@ class OrderApiController(
     ): ResponseEntity<FlowOrdersPaginationDto> {
         val sort = OrderFilter.Sort.LATEST_FIRST
         return result(
-            service.findAll(continuation, size, sort),
+            service.findAllSell(continuation, size, sort),
             sort, size
         )
     }
@@ -233,22 +150,11 @@ class OrderApiController(
         )
     }
 
-    private suspend fun result(order: Order?): ResponseEntity<FlowOrderDto> {
-        return order?.let {
-            converter.convert(it)
-        }.okOr404IfNull()
-    }
-
-    private suspend fun result(orders: Flow<Order>, sort: OrderFilter.Sort, size: Int?): ResponseEntity<FlowOrdersPaginationDto> {
-        return if(orders.count() == 0) {
-            FlowOrdersPaginationDto(emptyList())
-        } else {
-            FlowOrdersPaginationDto(
-                orders.map {
-                    converter.convert(it)
-                }.toList(),
-                sort.nextPage(orders, size)
-            )
-        }.okOr404IfNull()
+    private suspend fun result(
+        orders: Flow<Order>,
+        sort: OrderFilter.Sort,
+        size: Int?
+    ): ResponseEntity<FlowOrdersPaginationDto> {
+        return converter.page(orders, sort, size).okOr404IfNull()
     }
 }

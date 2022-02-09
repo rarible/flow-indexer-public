@@ -17,9 +17,9 @@ import kotlin.math.max
 
 @Component
 class ScannerMonitoring(
-    val meterRegistry: MeterRegistry,
+    meter: MeterRegistry,
     val blockRepository: ExtendedFlowBlockRepository
-): SequentialDaemonWorker(meterRegistry, DaemonWorkerProperties(), "flow-scanner-monitor") {
+): SequentialDaemonWorker(meter, DaemonWorkerProperties(), "flow-scanner-monitor") {
 
     @Volatile private var lastSeenBlockHead: FlowBlock? = null
     @Volatile private var firstSeenBlockHead: FlowBlock? = null

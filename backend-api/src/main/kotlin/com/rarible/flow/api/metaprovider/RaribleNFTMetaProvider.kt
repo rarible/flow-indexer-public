@@ -11,6 +11,8 @@ import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
+import reactor.kotlin.extra.retry.retryExponentialBackoff
+import java.time.Duration
 
 @Component
 class RaribleNFTMetaProvider(
@@ -45,7 +47,7 @@ class RaribleNFTMetaProvider(
         }
 
         if (url.startsWith("ipfs://")) {
-            url = url.substring("ipfs:/".length)
+            url = url.substring("ipfs://ipfs".length)
         }
 
         if (url.isEmpty()) {

@@ -3,14 +3,17 @@ package com.rarible.flow.api.controller
 import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.protocol.dto.FlowAggregationDataDto
+import io.mockk.coVerify
 import io.mockk.every
 import kotlinx.coroutines.flow.asFlow
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.math.BigDecimal
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 @WebFluxTest(
     controllers = [OrderAggregationController::class],
@@ -22,6 +25,7 @@ import java.time.Instant
         "logging.logstash.tcp-socket.enabled = false",
     ]
 )
+@ActiveProfiles("test")
 class OrderAggregationControllerTest(
     @Autowired val client: WebTestClient
 ) {
@@ -39,17 +43,23 @@ class OrderAggregationControllerTest(
             FlowAggregationDataDto("0x01", BigDecimal.TEN, 12)
         ).asFlow()
 
+        val start = Instant.now().minus(1, ChronoUnit.DAYS)
+        val end = Instant.now()
         client
             .get()
             .uri(
                 "/v0.1/aggregations/nftPurchaseByCollection?startDate={startDate}&endDate={endDate}&size=10",
                 mapOf(
-                    "startDate" to Instant.now().toEpochMilli(),
-                    "endDate" to Instant.now().toEpochMilli()
+                    "startDate" to start.toEpochMilli(),
+                    "endDate" to end.toEpochMilli()
                 )
             )
             .exchange()
             .expectStatus().isOk
+
+        coVerify {
+            itemHistoryRepository.aggregatePurchaseByCollection(Instant.ofEpochMilli(start.toEpochMilli()), Instant.ofEpochMilli(end.toEpochMilli()), 10)
+        }
     }
 
     @Test
@@ -62,17 +72,24 @@ class OrderAggregationControllerTest(
             FlowAggregationDataDto("0x01", BigDecimal.TEN, 12)
         ).asFlow()
 
+        val start = Instant.now().minus(1, ChronoUnit.DAYS)
+        val end = Instant.now()
+
         client
             .get()
             .uri(
                 "/v0.1/aggregations/nftPurchaseByTaker?startDate={startDate}&endDate={endDate}&size=10",
                 mapOf(
-                    "startDate" to Instant.now().toEpochMilli(),
-                    "endDate" to Instant.now().toEpochMilli()
+                    "startDate" to start.toEpochMilli(),
+                    "endDate" to end.toEpochMilli()
                 )
             )
             .exchange()
             .expectStatus().isOk
+
+        coVerify {
+            itemHistoryRepository.aggregatePurchaseByTaker(Instant.ofEpochMilli(start.toEpochMilli()), Instant.ofEpochMilli(end.toEpochMilli()), 10)
+        }
     }
 
     @Test
@@ -85,17 +102,23 @@ class OrderAggregationControllerTest(
             FlowAggregationDataDto("0x01", BigDecimal.TEN, 12)
         ).asFlow()
 
+        val start = Instant.now().minus(1, ChronoUnit.DAYS)
+        val end = Instant.now()
         client
             .get()
             .uri(
                 "/v0.1/aggregations/nftSellByMaker?startDate={startDate}&endDate={endDate}&size=10",
                 mapOf(
-                    "startDate" to Instant.now().toEpochMilli(),
-                    "endDate" to Instant.now().toEpochMilli()
+                    "startDate" to start.toEpochMilli(),
+                    "endDate" to end.toEpochMilli()
                 )
             )
             .exchange()
             .expectStatus().isOk
+
+        coVerify {
+            itemHistoryRepository.aggregateSellByMaker(Instant.ofEpochMilli(start.toEpochMilli()), Instant.ofEpochMilli(end.toEpochMilli()), 10)
+        }
     }
 
 }

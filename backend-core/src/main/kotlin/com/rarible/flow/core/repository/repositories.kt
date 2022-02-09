@@ -1,6 +1,10 @@
 package com.rarible.flow.core.repository
 
+import com.rarible.flow.core.repository.filters.DbFilter
+import com.rarible.flow.core.repository.filters.ScrollingSort
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.flow.reduce
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -26,5 +30,24 @@ suspend fun <T : Any> ReactiveMongoRepository<T, *>.coSaveAll(vararg entities: T
 suspend fun <T : Any, ID : Any, R> ReactiveMongoRepository<T, ID>.withEntity(id: ID, fn: suspend (T) -> R): R? {
     return this.coFindById(id)?.let {
         fn(it)
+    }
+}
+
+suspend fun <T: Any> ScrollingRepository<T>.forEach(
+    filter: DbFilter<T>,
+    continuation: String?,
+    size: Int?,
+    sort: ScrollingSort<T> = this.defaultSort(),
+    fn: suspend (T) -> Unit
+) {
+    val page = this.search(filter, continuation, size, sort).asFlow()
+    val (pageSize, last) = page.fold(0 to (null as T?)) { (count, _), value ->
+        fn(value)
+        (count + 1) to value
+    }
+    if(pageSize < ScrollingSort.pageSize(size) || last == null) {
+        return
+    } else {
+        return this.forEach(filter, sort.nextPage(last), size, sort, fn)
     }
 }

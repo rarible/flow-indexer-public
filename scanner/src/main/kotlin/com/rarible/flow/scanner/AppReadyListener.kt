@@ -4,6 +4,7 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.configuration.FlowBlockchainScannerProperties
 import com.rarible.blockchain.scanner.flow.service.SporkService
+import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -27,16 +28,70 @@ class AppReadyListener(
             ItemCollection(id = "A.01658d9b94068f3c.MotoGPCard", name = "MotoGP™ Ignition", owner = FlowAddress("0x01658d9b94068f3c"), symbol = "MotoGP™", features = setOf("BURN")),
             ItemCollection(id = "A.01658d9b94068f3c.TopShot", name = "NBA Top Shot", owner = FlowAddress("0x01658d9b94068f3c"), symbol = "NBA TS", features = setOf("BURN")),
             ItemCollection(id = "A.01658d9b94068f3c.Evolution", name = "Evolution", owner = FlowAddress("0x01658d9b94068f3c"), symbol = "EVOLUTION", features = setOf("BURN")),
-            ItemCollection(id = "A.ebf4ae01d1284af8.MugenNFT", name = "Mugen", owner = FlowAddress("0xebf4ae01d1284af8"), symbol = "MUGEN", features = setOf()),
+            ItemCollection(id = "A.ebf4ae01d1284af8.MugenNFT", name = "Mugen", owner = FlowAddress("0xebf4ae01d1284af8"), symbol = "MUGEN", features = emptySet()),
             ItemCollection(id = "A.ebf4ae01d1284af8.CNN_NFT", name = "CNN", owner = FlowAddress("0xebf4ae01d1284af8"), symbol = "CNN", features = setOf("BURN")),
+            ItemCollection(id = "A.ebf4ae01d1284af8.Art", name = "VersusArt", owner = FlowAddress("0xebf4ae01d1284af8"), symbol = "VERSUS", features = setOf()),
+            ItemCollection(id = "A.439c2b49c0b2f62b.DisruptArt", name = "DisruptArt", owner = FlowAddress("0x439c2b49c0b2f62b"), symbol = "DA", features = emptySet()),
+            ItemCollection(
+                id = Contracts.ONE_FOOTBALL.fqn(FlowChainId.TESTNET),
+                name = "OneFootball",
+                owner = Contracts.ONE_FOOTBALL.deployments[FlowChainId.TESTNET]!!,
+                symbol = "ONEFOOTBALL",
+                features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.MATRIX_WORLD_VOUCHER.fqn(FlowChainId.TESTNET),
+                name = "Matrix World Voucher",
+                owner = Contracts.MATRIX_WORLD_VOUCHER.deployments[FlowChainId.TESTNET]!!,
+                symbol = "MXWRLDV",
+                features = emptySet()
+            ),
+            ItemCollection(
+                id = Contracts.MATRIX_WORLD_FLOW_FEST.fqn(FlowChainId.TESTNET),
+                name = "Matrix World Flow Fest",
+                owner = Contracts.MATRIX_WORLD_FLOW_FEST.deployments[FlowChainId.TESTNET]!!,
+                symbol = "MXWRLDFFEST",
+                features = emptySet()
+            ),
+
         ),
         FlowChainId.MAINNET to listOf(
             ItemCollection(id = "A.01ab36aaf654a13e.RaribleNFT", name = "Rarible", owner = FlowAddress("0x01ab36aaf654a13e"), symbol = "RARIBLE", features = setOf("SECONDARY_SALE_FEES", "BURN")),
             ItemCollection(id = "A.a49cc0ee46c54bfb.MotoGPCard", name = "MotoGP™ Ignition", owner = FlowAddress("0xa49cc0ee46c54bfb"), symbol = "MotoGP™", features = setOf("BURN")),
             ItemCollection(id = "A.0b2a3299cc857e29.TopShot", name = "NBA Top Shot", owner = FlowAddress("0x0b2a3299cc857e29"), symbol = "NBA TS", features = setOf("BURN")),
             ItemCollection(id = "A.f4264ac8f3256818.Evolution", name = "Evolution", owner = FlowAddress("0xf4264ac8f3256818"), symbol = "EVOLUTION", features = setOf("BURN")),
-            ItemCollection(id = "A.2cd46d41da4ce262.MugenNFT", name = "Mugen", owner = FlowAddress("0x2cd46d41da4ce262"), symbol = "MUGEN", features = setOf()),
+            ItemCollection(id = "A.2cd46d41da4ce262.MugenNFT", name = "Mugen", owner = FlowAddress("0x2cd46d41da4ce262"), symbol = "MUGEN", features = emptySet()),
             ItemCollection(id = "A.329feb3ab062d289.CNN_NFT", name = "CNN", owner = FlowAddress("0x329feb3ab062d289"), symbol = "CNN", features = setOf("BURN")),
+            ItemCollection(id = "A.d796ff17107bbff6.Art", name = "VersusArt", owner = FlowAddress("0xd796ff17107bbff6"), symbol = "VERSUS", features = setOf()),
+            ItemCollection(id = "A.cd946ef9b13804c6.DisruptArt", name = "DisruptArt", owner = FlowAddress("0xcd946ef9b13804c6"), symbol = "DISRUPT ART", features = emptySet()),
+            ItemCollection(
+                id = Contracts.ONE_FOOTBALL.fqn(FlowChainId.MAINNET),
+                name = "OneFootball",
+                owner = Contracts.ONE_FOOTBALL.deployments[FlowChainId.MAINNET]!!,
+                symbol = "ONEFOOTBALL",
+                features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.MATRIX_WORLD_VOUCHER.fqn(FlowChainId.MAINNET),
+                name = "Matrix World Voucher",
+                owner = Contracts.MATRIX_WORLD_VOUCHER.deployments[FlowChainId.MAINNET]!!,
+                symbol = "MXWRLDV",
+                features = emptySet()
+            ),
+            ItemCollection(
+                id = Contracts.MATRIX_WORLD_FLOW_FEST.fqn(FlowChainId.MAINNET),
+                name = "Matrix World Flow Fest",
+                owner = Contracts.MATRIX_WORLD_FLOW_FEST.deployments[FlowChainId.MAINNET]!!,
+                symbol = "MXWRLDFFEST",
+                features = emptySet()
+            ),
+            ItemCollection(
+                id = Contracts.STARLY_CARD.fqn(FlowChainId.MAINNET),
+                name = "Starly",
+                owner = Contracts.STARLY_CARD.deployments[FlowChainId.MAINNET]!!,
+                symbol = "STARLY",
+                features = setOf("BURN")
+            ),
         )
     )
 
