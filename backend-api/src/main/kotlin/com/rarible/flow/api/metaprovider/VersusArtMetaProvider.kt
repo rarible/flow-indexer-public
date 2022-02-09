@@ -11,6 +11,8 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.events.VersusArtItem
 import com.rarible.flow.events.changeCapabilityToAddress
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -25,6 +27,8 @@ class VersusArtMetaProvider(
     @Value("classpath:script/versus-art-content.cdc")
     private val getContentScriptResource: Resource,
 ) : ItemMetaProvider {
+
+    private val logger: Logger = LoggerFactory.getLogger(VersusArtMetaProvider::class.java)
 
     private val builder = JsonCadenceBuilder()
     private val parser = JsonCadenceParser()
@@ -46,14 +50,20 @@ class VersusArtMetaProvider(
             .let { parser.optional<VersusArtItem>(it.jsonCadence, JsonCadenceParser::unmarshall) }
             ?: return emptyMeta(itemId)
 
-        val content = scriptExecutor
-            .execute(code = getContentScript, args = args)
-            .let { parser.optional(it.jsonCadence, JsonCadenceParser::string) }
+        val content = kotlin.runCatching {
+            scriptExecutor
+                .execute(code = getContentScript, args = args)
+                .let { parser.optional(it.jsonCadence, JsonCadenceParser::string) }!!
+        }.onFailure {
+            logger.error("Can't get content for $itemId", it)
+        }
 
         // valid types: ipfs/image, ipfs/video, png, image/dataurl
-        val contentUrl = when (nft.metadata.type) {
-            "ipfs/image", "ipfs/video" -> "https://rarible.mypinata.cloud/ipfs/$content"
-            else -> content
+        val contentUrl = content.getOrNull()?.let {
+            when (nft.metadata.type) {
+                "ipfs/image", "ipfs/video" -> "https://rarible.mypinata.cloud/ipfs/$it"
+                else -> it
+            }
         }
 
         val meta = listOf(
