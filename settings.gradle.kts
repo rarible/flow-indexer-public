@@ -13,7 +13,7 @@ include(
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            version("flow-sdk-ver", "0.5.0")
+            version("flow-sdk-ver", "0.6.0")
             version("rarible-core", "2.2.4")
             version("rarible-currency", "1.18.2")
             version("flow-protocol-version", "2.3.0")

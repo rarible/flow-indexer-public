@@ -2,6 +2,7 @@ package com.rarible.flow.scanner.listener.activity
 
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.domain.Part
 import com.rarible.flow.scanner.listener.NFTActivityMaker
 import org.springframework.stereotype.Component
 
@@ -13,4 +14,13 @@ class OneFootballActivity : NFTActivityMaker() {
     override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> = emptyMap()
+
+    override fun royalties(logEvent: FlowLogEvent): List<Part> {
+        return listOf(
+            Part(
+                logEvent.event.eventId.contractAddress,
+                0.005
+            )
+        )
+    }
 }
