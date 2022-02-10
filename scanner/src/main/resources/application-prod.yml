@@ -17,6 +17,7 @@ app:
   environment: prod
   kafka-replica-set: ${kafka.hosts}
   chain-id: MAINNET
+  web-api-url: ${web-api-url}
 
 spring:
   data:

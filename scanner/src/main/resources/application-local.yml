@@ -29,6 +29,7 @@ app:
   environment: dev
   chain-id: MAINNET
   kafka-replica-set: http://localhost:9092
+  web-api-url: http://localhost:8080
 
 flow-api:
   flow-access-url: "access.mainnet.nodes.onflow.org"
