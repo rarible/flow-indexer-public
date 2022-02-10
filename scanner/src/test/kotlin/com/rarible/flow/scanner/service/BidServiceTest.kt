@@ -12,10 +12,12 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
+@ExperimentalCoroutinesApi
 internal class BidServiceTest: FunSpec({
     val order1 = Data.createOrder()
     val order2 = Data.createOrder()

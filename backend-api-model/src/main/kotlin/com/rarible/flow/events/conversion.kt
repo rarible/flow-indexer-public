@@ -5,6 +5,7 @@ import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.cadence.*
 import java.math.BigDecimal
 
+// todo after update to flow-jvm-sdk:0.7 remove regexp conversions
 private val reg = Regex(""""type":"Capability".*?"address":"([^"]+)","borrowType":"[^"]+"}""")
 fun ByteArray.changeCapabilityToAddress() =
     reg.replace(String(this), """"type":"Address","value":"$1"""").toByteArray()
@@ -31,6 +32,8 @@ class VersusArtItemConverter : JsonCadenceConverter<VersusArtItem> {
             string("name"),
             string("description"),
             optional("schema", JsonCadenceParser::string),
+            // todo after update to flow-jvm-sdk:0.7
+            // optional("contentCapability", JsonCadenceParser::capabilityAddress),
             optional("contentCapability", JsonCadenceParser::address),
             optional("contentId", JsonCadenceParser::long),
             optional("url", JsonCadenceParser::string),
@@ -74,6 +77,8 @@ data class VersusArtRoyalty(
 class VersusArtRoyaltyConverter : JsonCadenceConverter<VersusArtRoyalty> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace) = unmarshall(value) {
         VersusArtRoyalty(
+            // todo after update to flow-jvm-sdk:0.7
+            // capabilityAddress("wallet"),
             address("wallet"),
             bigDecimal("cut"),
         )

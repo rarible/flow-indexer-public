@@ -7,12 +7,14 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.log.Log
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
 
 @Component
 class MugenNFTMetaProvider(
+    @Qualifier("mugenClient")
     private val mugenCient: WebClient
 ) : ItemMetaProvider {
 

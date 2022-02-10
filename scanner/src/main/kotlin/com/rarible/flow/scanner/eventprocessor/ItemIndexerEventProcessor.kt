@@ -3,6 +3,7 @@ package com.rarible.flow.scanner.eventprocessor
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.framework.data.Source
+import com.rarible.core.apm.CaptureSpan
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
@@ -23,6 +24,7 @@ import reactor.kotlin.extra.math.max
 import java.time.Instant
 
 @Component
+@CaptureSpan(type = "indexer")
 class ItemIndexerEventProcessor(
     private val itemRepository: ItemRepository,
     private val itemMetaRepository: ItemMetaRepository,

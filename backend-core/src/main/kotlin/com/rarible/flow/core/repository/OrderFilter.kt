@@ -142,6 +142,16 @@ sealed class OrderFilter : DbFilter<Order>, CriteriaProduct<OrderFilter> {
         }
     }
 
+    class ByMakers(val makers: List<FlowAddress>) : OrderFilter() {
+        override fun criteria(): Criteria {
+            return if(makers.isEmpty()) {
+                Criteria()
+            } else {
+                Order::maker inValues makers.map { it.formatted }
+            }
+        }
+    }
+
     class BySellingCurrency(val currency: String?): OrderFilter() {
         override fun criteria(): Criteria {
             return if(currency == null) {

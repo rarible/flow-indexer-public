@@ -2,6 +2,7 @@ package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
@@ -18,7 +19,7 @@ class MatrixWorldMetaProvider(
 
     private val logger by Log()
 
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("MatrixWorldVoucher")
+    override fun isSupported(itemId: ItemId): Boolean = Contracts.MATRIX_WORLD_VOUCHER.supports(itemId)
 
     override suspend fun getMeta(item: Item): ItemMeta? {
         return try {

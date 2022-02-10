@@ -12,9 +12,11 @@ import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.log.Log
 import com.rarible.flow.scanner.service.BidService
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Component
 
+@ExperimentalCoroutinesApi
 @Component
 class FungibleLogListener(
     private val balanceRepository: BalanceRepository,

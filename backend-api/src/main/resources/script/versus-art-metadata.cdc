@@ -1,4 +1,3 @@
-import NonFungibleToken from 0xNONFUNGIBLETOKEN
 import Art from 0xVERSUSART
 
 // Take Art token props by account address and tokenId

@@ -9,7 +9,6 @@ import io.mockk.mockk
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
-import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import java.time.Instant
 
@@ -33,8 +32,4 @@ class TestPropertiesConfiguration {
     fun testOrderConverter(currencyApi: CurrencyControllerApi): OrderToDtoConverter {
         return OrderToDtoConverter(currencyApi)
     }
-
-    @Bean
-    @Primary
-    fun webClient(): WebClient = WebClient.create()
 }

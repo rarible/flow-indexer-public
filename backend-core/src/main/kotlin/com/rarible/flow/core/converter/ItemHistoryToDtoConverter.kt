@@ -113,8 +113,8 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 date = source.date,
                 hash = source.activity.hash,
                 maker = source.activity.maker.orEmpty(),
-                make = source.activity.make!!.let(::convertAsset),
-                take = source.activity.take!!.let(::convertAsset),
+                make = source.activity.make?.let(::convertAsset) ?: FlowAssetNFTDto("", BigDecimal.ZERO, BigInteger.ZERO),
+                take = source.activity.take?.let(::convertAsset) ?: FlowAssetFungibleDto("", BigDecimal.ZERO),
                 price = source.activity.price ?: BigDecimal.ZERO,
                 transactionHash = source.log.transactionHash,
                 blockHash = source.log.blockHash,
@@ -127,8 +127,8 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                     date = source.date,
                     hash = source.activity.hash,
                     maker = source.activity.maker.orEmpty(),
-                    make = source.activity.make!!.let(::convertAsset),
-                    take = source.activity.take!!.let(::convertAsset),
+                    make = source.activity.make?.let(::convertAsset) ?: FlowAssetFungibleDto("", BigDecimal.ZERO),
+                    take = source.activity.take?.let(::convertAsset) ?: FlowAssetNFTDto("", BigDecimal.ZERO, BigInteger.ZERO),
                     price = source.activity.price ?: BigDecimal.ZERO,
                     transactionHash = source.log.transactionHash,
                     blockHash = source.log.blockHash,
@@ -136,7 +136,14 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                     logIndex = source.log.eventIndex,
                 )
             }
-            else -> throw IllegalStateException("Unsupported activity type ${source.activity::class.simpleName}")
+            is AuctionActivityBidClosed -> TODO()
+            is AuctionActivityBidIncreased -> TODO()
+            is AuctionActivityBidOpened -> TODO()
+            is AuctionActivityLotCanceled -> TODO()
+            is AuctionActivityLotCleaned -> TODO()
+            is AuctionActivityLotEndTimeChanged -> TODO()
+            is AuctionActivityLot -> TODO()
+            is AuctionActivityLotHammered -> TODO()
         }
 
     }

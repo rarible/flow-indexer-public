@@ -2,17 +2,10 @@ package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.cadence.CadenceNamespace
-import com.nftco.flow.sdk.cadence.Field
-import com.nftco.flow.sdk.cadence.JsonCadenceConversion
-import com.nftco.flow.sdk.cadence.JsonCadenceConverter
-import com.nftco.flow.sdk.cadence.StructField
+import com.nftco.flow.sdk.cadence.*
+import com.rarible.flow.Contracts
 import com.rarible.flow.api.service.ScriptExecutor
-import com.rarible.flow.core.domain.Item
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.ItemMeta
-import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.domain.TokenId
+import com.rarible.flow.core.domain.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -43,13 +36,13 @@ class MatrixWorldFlowFestMetaProvider(
     private val matrixWorldFlowFestMetaScript: MatrixWorldFlowFestMetaScript,
 ): ItemMetaProvider {
 
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("MatrixWorldFlowFestNFT")
-
     override suspend fun getMeta(item: Item): ItemMeta? {
         return matrixWorldFlowFestMetaScript
             .call(item.owner!!, item.tokenId)
             ?.toItemMeta(item.id)
     }
+
+    override fun isSupported(itemId: ItemId): Boolean = Contracts.MATRIX_WORLD_FLOW_FEST.supports(itemId)
 
 }
 
@@ -60,6 +53,7 @@ data class MatrixWorldFlowFestNftMeta(
     val animationUrl: String,
     val type: String
 ): MetaBody {
+
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         return ItemMeta(
             itemId = itemId,
@@ -79,7 +73,7 @@ data class MatrixWorldFlowFestNftMeta(
 
 class MatrixWorldFlowFestNftMetaConverter: JsonCadenceConverter<MatrixWorldFlowFestNftMeta> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): MatrixWorldFlowFestNftMeta {
-        return com.nftco.flow.sdk.cadence.unmarshall(value) {
+        return unmarshall(value) {
             MatrixWorldFlowFestNftMeta(
                 name = string(compositeValue.getRequiredField("name")),
                 description = string(compositeValue.getRequiredField("description")),

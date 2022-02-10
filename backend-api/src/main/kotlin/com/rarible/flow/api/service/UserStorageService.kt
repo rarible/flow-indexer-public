@@ -4,21 +4,19 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
+import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.nftco.flow.sdk.cadence.OptionalField
+import com.rarible.flow.Contracts
 import com.rarible.flow.api.metaprovider.CnnNFTConverter
 import com.rarible.flow.api.metaprovider.RaribleNFT
 import com.rarible.flow.api.service.flowrpc.ScanUserNftScript
 import com.rarible.flow.api.service.flowrpc.TopShotMomentScript
 import com.rarible.flow.core.config.AppProperties
-import com.rarible.flow.core.domain.Item
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Ownership
-import com.rarible.flow.core.domain.Part
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
-import com.rarible.flow.events.RaribleNFTv2Token
-import com.rarible.flow.pflatMap
 import com.rarible.flow.pmap
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -26,6 +24,7 @@ import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -45,44 +44,39 @@ class UserStorageService(
 
     suspend fun scanNFT(address: FlowAddress) {
         log.info("Scan user NFT's for address ${address.formatted}")
-        val data: Map<String, List<Long>> = scanUserNftScript.call(address)
-
         val objectMapper = jacksonObjectMapper()
-
-        data.pflatMap { (collection, itemIds) ->
+        val parser = JsonCadenceParser()
+        val builder = JsonCadenceBuilder()
+        scanUserNftScript.call(address).forEach { (collection, itemIds) ->
             try {
-                processItems(collection, itemIds, objectMapper, address)
+                processItem(collection, itemIds, objectMapper,builder, parser, address)
             } catch (e: Exception) {
                 log.error("Failed to save [{}] ids: {}", collection, itemIds, e)
                 emptyList<Item>()
             }
-        }.forEach { item ->
-            saveItem(item)
         }
         log.info("Scan NFT's for address [${address.formatted}] complete!")
     }
 
 
-    private suspend fun processItems(
+    private suspend fun processItem(
         collection: String,
         itemIds: List<Long>,
         objectMapper: ObjectMapper,
+        builder: JsonCadenceBuilder,
+        parser: JsonCadenceParser,
         address: FlowAddress
-    ): List<Item?> {
-        return when (collection) {
+    ) {
+        when (collection) {
             "TopShot" -> {
-                val contract = contract("0xTOPSHOTTOKEN", "TopShot")
-                val items = itemRepository.findAllByIdIn(
-                    itemIds.map { ItemId(contract, it) }.toSet()
-                ).toIterable().associateBy { it.tokenId }
-                itemIds.pmap { tokenId ->
-                    val item = items[tokenId]
+                itemIds.forEach {
+                    val contract = contract("0xTOPSHOTTOKEN", "TopShot")
                     val topShotContractAddress = contractAddress("0xTOPSHOTTOKEN")
-                    if (item == null) {
-                        val momentData: Map<String, Long> = topShotMomentScript.call(address, tokenId)
-                        Item(
+                    if (notExistsItem(contract, it)) {
+                        val momentData = topShotMomentScript.call(address, it)
+                        val item = Item(
                             contract = contract,
-                            tokenId = tokenId,
+                            tokenId = it,
                             creator = topShotContractAddress,
                             royalties = listOf(
                                 Part(
@@ -96,16 +90,21 @@ class UserStorageService(
                             collection = contract,
                             updatedAt = Instant.now()
                         )
+                        saveItem(item)
                     } else {
-                        item.copy(
-                            owner = address,
-                            royalties = listOf(
-                                Part(
-                                    address = topShotContractAddress,
-                                    fee = 0.05
-                                )
-                            ),
-                            updatedAt = Instant.now()
+                        val item =
+                            itemRepository.findById(ItemId(contract, it)).awaitSingle()
+                        saveItem(
+                            item.copy(
+                                owner = address,
+                                royalties = listOf(
+                                    Part(
+                                        address = topShotContractAddress,
+                                        fee = 0.05
+                                    )
+                                ),
+                                updatedAt = Instant.now()
+                            )
                         )
                     }
                 }
@@ -249,8 +248,8 @@ class UserStorageService(
                 }
             }
 
-            "MatrixWorldVoucher" -> {
-                val contract = contract("0xMATRIXWORLD", "MatrixWorldVoucher")
+            Contracts.MATRIX_WORLD_VOUCHER.contractName -> {
+                val contract = contract(Contracts.MATRIX_WORLD_VOUCHER.import, Contracts.MATRIX_WORLD_VOUCHER.contractName)
                 val items = itemRepository.findAllByIdIn(
                     itemIds.map { ItemId(contract, it) }.toSet()
                 ).toIterable().associateBy { it.tokenId }
@@ -260,7 +259,7 @@ class UserStorageService(
                         Item(
                             contract = contract,
                             tokenId = tokenId,
-                            creator = contractAddress("0xMATRIXWORLD"),
+                            creator = contractAddress(Contracts.MATRIX_WORLD_VOUCHER.import),
                             royalties = emptyList(),
                             owner = address,
                             mintedAt = Instant.now(),
@@ -279,18 +278,14 @@ class UserStorageService(
                 }
             }
 
-            "MatrixWorldFlowFestNFT" -> {
-                val contract = contract("0xMATRIXWORLD", "MatrixWorldVoucher")
-                val items = itemRepository.findAllByIdIn(
-                    itemIds.map { ItemId(contract, it) }.toSet()
-                ).toIterable().associateBy { it.tokenId }
-                itemIds.pmap { tokenId ->
-                    val item = items[tokenId]
-                    if (item == null) {
+            Contracts.MATRIX_WORLD_FLOW_FEST.contractName -> {
+                itemIds.forEach { tokenId ->
+                    val contract = contract(Contracts.MATRIX_WORLD_FLOW_FEST.import, Contracts.MATRIX_WORLD_FLOW_FEST.contractName)
+                    val item = if (notExistsItem(contract, tokenId)) {
                         Item(
                             contract = contract,
                             tokenId = tokenId,
-                            creator = contractAddress("0xMATRIXWORLDFLOWFEST"),
+                            creator = contractAddress(Contracts.MATRIX_WORLD_FLOW_FEST.import),
                             royalties = emptyList(),
                             owner = address,
                             mintedAt = Instant.now(),
@@ -307,6 +302,7 @@ class UserStorageService(
                             null
                         }
                     }
+                    saveItem(item)
                 }
             }
 
@@ -342,15 +338,55 @@ class UserStorageService(
                             updatedAt = Instant.now()
                         )
                     } else {
-                        if (item.owner != address) {
-                            item.copy(owner = address, updatedAt = Instant.now())
+                        val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(item, address)
+                            checkOwnership(i, address)
                             null
                         }
                     }
+                    saveItem(item)
                 }
             }
+            "DisruptArt" -> {
+                itemIds.forEach { tokenId ->
+                    val contract = contract("0xDISRUPTART", "DisruptArt")
+                    val item = if (notExistsItem(contract, tokenId)) {
+                        val tokenData = Flow.unmarshall(
+                            DisruptArtNFT::class,
+                            scriptExecutor.execute(
+                                code = scriptText("/script/disrupt_art_nft.cdc"),
+                                args = mutableListOf(
+                                    builder.address(address.bytes),
+                                    builder.uint64(tokenId)
+                                )
+                            ).jsonCadence
+                        )
+
+                        Item(
+                            contract = contract,
+                            tokenId = tokenId,
+                            creator = FlowAddress(tokenData.creator),
+                            royalties = listOf(
+                                Part(
+                                    address = contractAddress("0xDISRUPTARTROYALTY"),
+                                    fee = 0.15
+                                )
+                            ),
+                            collection = contract,
+                            mintedAt = Instant.now(),
+                            updatedAt = Instant.now(),
+                            owner = address,
+                            meta = objectMapper.writeValueAsString(tokenData.metaData)
+                        )
+                    } else {
+                        val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
+                        } else {
+                            checkOwnership(i, address)
+                            null
             "RaribleNFTv2" -> {
                 scriptExecutor.executeFile(
                     "/script/get_rari_v2_items.cdc",
@@ -376,7 +412,34 @@ class UserStorageService(
                     }
                 )
             }
-            else -> emptyList()
+
+            "ChainmonstersRewards" -> {
+                itemIds.forEach { tokenId ->
+                    val contract = contract("0xCHAINMONSTERS", "ChainmonstersRewards")
+                    val item = if (notExistsItem(contract, tokenId)) {
+                        Item(
+                            contract = contract,
+                            tokenId = tokenId,
+                            creator = contractAddress("0xCHAINMONSTERS"),
+                            royalties = emptyList(),
+                            owner = address,
+                            mintedAt = Instant.now(),
+                            meta = "{}",
+                            collection = contract,
+                            updatedAt = Instant.now()
+                        )
+                    } else {
+                        val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
+                        } else {
+                            checkOwnership(i, address)
+                            null
+                        }
+                    }
+                    saveItem(item)
+                }
+            }
         }
     }
 
@@ -407,6 +470,20 @@ class UserStorageService(
         val o = ownershipRepository.findById(item.ownershipId(to)).awaitSingleOrNull()
             ?: Ownership(item.ownershipId(to), item.creator)
         protocolEventPublisher.onUpdate(ownershipRepository.save(o).awaitSingle())
+    }
+
+    private suspend fun notExistsItem(contract: String, tokenId: TokenId): Boolean {
+        return !itemRepository.existsById(
+            ItemId(
+                contract = contract,
+                tokenId = tokenId
+            )
+        ).awaitSingle()
+    }
+
+    private fun scriptText(resourcePath: String): String {
+        val resource = ClassPathResource(resourcePath)
+        return resource.inputStream.bufferedReader().use { it.readText() }
     }
 }
 

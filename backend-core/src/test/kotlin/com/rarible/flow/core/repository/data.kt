@@ -29,7 +29,7 @@ object data {
         fill = 13.37.toBigDecimal(),
         lastUpdatedAt = LocalDateTime.now(),
         createdAt = LocalDateTime.now(),
-        makeStock = BigDecimal.TEN
+        makeStock = BigDecimal.ONE
     )
 
     fun createSellActivity() = FlowNftOrderActivitySell(

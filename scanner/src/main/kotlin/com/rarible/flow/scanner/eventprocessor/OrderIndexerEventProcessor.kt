@@ -1,6 +1,7 @@
 package com.rarible.flow.scanner.eventprocessor
 
 import com.rarible.blockchain.scanner.framework.data.Source
+import com.rarible.core.apm.CaptureSpan
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.*
@@ -10,6 +11,7 @@ import com.rarible.flow.scanner.service.OrderService
 import org.springframework.stereotype.Component
 
 @Component
+@CaptureSpan(type = "indexer")
 class OrderIndexerEventProcessor(
     private val orderService: OrderService,
     private val protocolEventPublisher: ProtocolEventPublisher,
@@ -110,8 +112,10 @@ class OrderIndexerEventProcessor(
         event: IndexerEvent,
         o: Order
     ) {
-        if (event.source != Source.REINDEX) {
-            protocolEventPublisher.onOrderUpdate(o, orderConverter)
+        withSpan("sendOrderUpdate", "network") {
+            if (event.source != Source.REINDEX) {
+                protocolEventPublisher.onOrderUpdate(o, orderConverter)
+            }
         }
     }
 

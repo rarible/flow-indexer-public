@@ -1,8 +1,8 @@
 package com.rarible.flow.api.metaprovider
 
-import com.nftco.flow.sdk.Flow
+import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
-import com.nftco.flow.sdk.cadence.ResourceField
+import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
@@ -10,39 +10,59 @@ import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.events.VersusArtItem
 import com.rarible.flow.events.changeCapabilityToAddress
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
-import javax.annotation.PostConstruct
+import java.io.BufferedReader
 
 @Component
 class VersusArtMetaProvider(
     private val scriptExecutor: ScriptExecutor,
     @Value("classpath:script/versus-art-metadata.cdc")
-    private val scriptFile: Resource,
+    private val getMetadataScriptResource: Resource,
+    @Value("classpath:script/versus-art-content.cdc")
+    private val getContentScriptResource: Resource,
 ) : ItemMetaProvider {
 
+    private val logger: Logger = LoggerFactory.getLogger(VersusArtMetaProvider::class.java)
+
     private val builder = JsonCadenceBuilder()
+    private val parser = JsonCadenceParser()
 
-    private lateinit var scriptText: String
+    private val getMetadataScript = getMetadataScriptResource.readText()
+    private val getContentScript = getContentScriptResource.readText()
 
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("VersusArt")
+    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.endsWith(".Art")
 
     override suspend fun getMeta(item: Item): ItemMeta? {
-        val itemId = item.id
-        val nft = scriptExecutor.executeFile(
-            scriptFile,
-            {
-                arg { address(item.owner!!.formatted) }
-                arg { ufix64(itemId.tokenId) }
-            },
-            {
-                (it.value as ResourceField?)?.let { it1 -> Flow.unmarshall(VersusArtItem::class, it1) }
-            },
-            {
-                this.copy(bytes = this.bytes.changeCapabilityToAddress())
+        val args: MutableList<Field<*>> = mutableListOf(
+            builder.address(item.owner!!.formatted),
+            builder.uint64(item.tokenId)
+        )
+        val nft = scriptExecutor
+            .execute(code = getMetadataScript, args = args)
+            .let { it.copy(bytes = it.bytes.changeCapabilityToAddress()) }
+            .let { parser.optional<VersusArtItem>(it.jsonCadence, JsonCadenceParser::unmarshall) }
+            ?: return null
+
+        val content = kotlin.runCatching {
+            scriptExecutor
+                .execute(code = getContentScript, args = args)
+                .let { parser.optional(it.jsonCadence, JsonCadenceParser::string) }!!
+        }.onFailure {
+            logger.error("Can't get content for $${item.id}", it)
+        }
+
+        // valid types: ipfs/image, ipfs/video, png, image/dataurl
+        val contentUrl = content.getOrNull()?.let {
+            when (nft.metadata.type) {
+                "ipfs/image", "ipfs/video" -> "https://rarible.mypinata.cloud/ipfs/$it"
+                else -> it
             }
-        ) ?: return null
+        }
+
         val meta = listOf(
             ItemMetaAttribute("uuid", "${nft.uuid}"),
             ItemMetaAttribute("id", "${nft.id}"),
@@ -56,13 +76,11 @@ class VersusArtMetaProvider(
             ItemMetaAttribute("contentId", nft.contentId.toString()),
             ItemMetaAttribute("schema", nft.schema.toString()),
         )
-        val urls = listOfNotNull(nft.url)
 
-        return ItemMeta(itemId, nft.name, nft.description, meta, urls)
+        val urls = listOfNotNull(contentUrl, nft.url)
+
+        return ItemMeta(item.id, nft.name, nft.description, meta, urls)
     }
 
-    @PostConstruct
-    private fun readScript() {
-        scriptText = scriptFile.inputStream.bufferedReader().use { it.readText() }
-    }
+    private fun Resource.readText() = inputStream.bufferedReader().use(BufferedReader::readText)
 }

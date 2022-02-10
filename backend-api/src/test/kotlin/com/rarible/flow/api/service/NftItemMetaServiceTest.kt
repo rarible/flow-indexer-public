@@ -1,13 +1,13 @@
 package com.rarible.flow.api.service
 
 import com.rarible.flow.api.metaprovider.ItemMetaProvider
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.repository.ItemMetaRepository
 import io.kotest.core.spec.style.FunSpec
-import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.mockk
+import io.kotest.matchers.shouldBe
+import io.mockk.*
 import reactor.core.publisher.Mono
 
 internal class NftItemMetaServiceTest: FunSpec({
@@ -22,32 +22,41 @@ internal class NftItemMetaServiceTest: FunSpec({
                 getMeta(any())
             } throws Exception("Retry")
         }
+        val itemId = ItemId("ABC", 123)
+        val item = mockk<Item>() {
+            every { id } returns itemId
+        }
         val repository = mockk<ItemMetaRepository> {
             every { findById(any<ItemId>()) } returns Mono.empty()
             every { save(any()) } answers { Mono.just(arg(0)) }
         }
-//        val service = NftItemMetaService(
-//            listOf(metaProvider),
-//            repository,
-//            mockk()
-//        )
-//
-//        val itemId = ItemId("ABC", 123)
-//        service.getMetaByItemId(itemId)
-//
-//        verify {
-//            repository.findById(itemId)
-//        }
 
-//        coVerify(exactly = 4) {
-//            metaProvider.isSupported(itemId)
-//            metaProvider.getMeta(itemId)
-//        }
+        val service = NftItemMetaService(
+            listOf(metaProvider),
+            repository,
+            mockk {
+                every { findById(any<ItemId>()) } returns Mono.just(item)
+            }
+        )
+
+
+        service.getMetaByItemId(itemId)
+
+        verify {
+            repository.findById(itemId)
+        }
+
+        coVerify(exactly = 4) {
+            metaProvider.isSupported(itemId)
+            metaProvider.getMeta(item)
+        }
     }
 
     test("should save meta") {
         val itemId = ItemId("ABC", 123)
-
+        val item = mockk<Item> {
+            every { id } returns itemId
+        }
         val metaProvider = mockk<ItemMetaProvider> {
             every {
                 isSupported(any())
@@ -64,21 +73,15 @@ internal class NftItemMetaServiceTest: FunSpec({
             every { findById(any<ItemId>()) } returns Mono.empty()
             every { save(any()) } answers { Mono.just(arg(0)) }
         }
-//        val service = NftItemMetaService(
-//            listOf(metaProvider),
-//            repository
-//        )
-//
-//        service.getMetaByItemId(itemId)
-//
-//        coVerifySequence {
-//            repository.findById(itemId)
-//            metaProvider.isSupported(itemId)
-//            metaProvider.getMeta(itemId)
-//            repository.save(withArg { meta ->
-//                meta.itemId shouldBe itemId
-//            })
-//        }
+
+        coVerifySequence {
+            repository.findById(itemId)
+            metaProvider.isSupported(itemId)
+            metaProvider.getMeta(itemId)
+            repository.save(withArg { meta ->
+                meta.itemId shouldBe itemId
+            })
+        }
     }
 
     test("should return existing meta") {
@@ -101,16 +104,19 @@ internal class NftItemMetaServiceTest: FunSpec({
             every { findById(any<ItemId>()) } returns Mono.just(itemMeta)
             every { save(any()) } answers { Mono.just(arg(0)) }
         }
-//        val service = NftItemMetaService(
-//            listOf(metaProvider),
-//            repository
-//        )
-//
-//        service.getMetaByItemId(itemId)
-//
-//        coVerifySequence {
-//            repository.findById(itemId)
-//        }
+        val service = NftItemMetaService(
+            listOf(metaProvider),
+            repository,
+            mockk {
+                every { findById(any<ItemId>()) } returns Mono.just(mockk())
+            }
+        )
+
+        service.getMetaByItemId(itemId)
+
+        coVerifySequence {
+            repository.findById(itemId)
+        }
     }
 
 })

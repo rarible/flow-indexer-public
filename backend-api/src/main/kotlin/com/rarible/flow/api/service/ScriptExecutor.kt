@@ -20,31 +20,34 @@ class ScriptExecutor(
 ) {
     private val parser = JsonCadenceParser()
 
-    private val logger by Log()
+    @Deprecated("use executeFile")
+    suspend fun execute(code: String, args: MutableList<Field<*>>): FlowScriptResponse {
+        val response = api.simpleScript {
+            script(code, appProperties.chainId)
+            arguments(args)
+        }
+        return response
+    }
 
+    private fun scriptText(inputStream: InputStream): String {
+        return inputStream.bufferedReader().use { it.readText() }
+    }
 
     suspend fun <T> executeFile(
-        path: String,
+        resourcePath: String,
         args: ScriptBuilder.() -> Unit,
         parse: JsonCadenceParser.(Field<*>) -> T,
         processResponse: FlowScriptResponse.() -> FlowScriptResponse = {this}
     ): T {
-        val result = executeText(scriptText(path), args, parse, processResponse)
-        logger.info(
-            "Running script {}. Result: {}",
-            path,
-            result
-        )
-        return result
+        return executeFile(ClassPathResource(resourcePath), args, parse)
     }
 
     suspend fun <T> executeFile(
         resource: Resource,
         args: ScriptBuilder.() -> Unit,
-        parse: JsonCadenceParser.(Field<*>) -> T,
-        processResponse: FlowScriptResponse.() -> FlowScriptResponse = {this}
+        parse: JsonCadenceParser.(Field<*>) -> T
     ): T {
-        val result = executeText(scriptText(resource.inputStream), args, parse, processResponse)
+        val result = executeText(scriptText(resource.inputStream), args, parse)
         logger.info(
             "Running script {}. Result: {}",
             resource.filename,
@@ -67,12 +70,8 @@ class ScriptExecutor(
         return parse(parser, processResponse(response).jsonCadence)
     }
 
-    private fun scriptText(resourcePath: String): String {
-        val resource = ClassPathResource(resourcePath)
-        return scriptText(resource.inputStream)
+    companion object {
+        val logger by Log()
     }
 
-    private fun scriptText(inputStream: InputStream): String {
-        return inputStream.bufferedReader().use { it.readText() }
-    }
 }
