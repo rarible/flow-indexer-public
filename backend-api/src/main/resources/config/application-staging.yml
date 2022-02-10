@@ -25,6 +25,7 @@ app:
   environment: staging
   chain-id: TESTNET
   kafka-replica-set: ${kafka.hosts}
+  web-api-url: ${web-api-url}
 
 application:
   environment: staging

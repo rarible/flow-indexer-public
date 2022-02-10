@@ -8,19 +8,13 @@ import com.rarible.flow.api.service.withItemsByCollection
 import com.rarible.flow.core.converter.ItemMetaToDtoConverter
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.log.Log
-import com.rarible.protocol.dto.FlowNftItemDto
-import com.rarible.protocol.dto.FlowNftItemRoyaltyDto
-import com.rarible.protocol.dto.FlowNftItemsDto
-import com.rarible.protocol.dto.MetaDto
-import com.rarible.protocol.dto.PayInfoDto
+import com.rarible.protocol.dto.*
 import com.rarible.protocol.flow.nft.api.controller.FlowNftItemControllerApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.time.Instant
 
 @CrossOrigin
@@ -122,4 +116,11 @@ class NftApiController(
             ?.let(::FlowNftItemRoyaltyDto)
             .okOr404IfNull()
 
+    @GetMapping("/v0.1/items/{itemId}/image")
+    suspend fun getItemImage(@PathVariable itemId: String): ResponseEntity<ByteArray> {
+        return nftItemMetaService.imageFromMeta(ItemId.parse(itemId))?.let {
+            ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "${it.first}")
+                .body(it.second)
+        } ?: ResponseEntity.noContent().build()
+    }
 }

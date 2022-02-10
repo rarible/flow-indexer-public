@@ -11,5 +11,6 @@ import org.springframework.context.annotation.Profile
 data class AppProperties(
     val environment: String,
     val kafkaReplicaSet: String,
-    val chainId: FlowChainId
+    val chainId: FlowChainId,
+    val webApiUrl: String
 )

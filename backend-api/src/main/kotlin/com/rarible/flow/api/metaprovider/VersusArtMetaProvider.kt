@@ -26,6 +26,8 @@ class VersusArtMetaProvider(
     private val getMetadataScriptResource: Resource,
     @Value("classpath:script/versus-art-content.cdc")
     private val getContentScriptResource: Resource,
+    @Value("\${app.web-api-url}")
+    private val webApiUrl: String
 ) : ItemMetaProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(VersusArtMetaProvider::class.java)
@@ -58,13 +60,7 @@ class VersusArtMetaProvider(
             logger.error("Can't get content for $itemId", it)
         }
 
-        // valid types: ipfs/image, ipfs/video, png, image/dataurl
-        val contentUrl = content.getOrNull()?.let {
-            when (nft.metadata.type) {
-                "ipfs/image", "ipfs/video" -> "https://rarible.mypinata.cloud/ipfs/$it"
-                else -> it
-            }
-        }
+
 
         val meta = listOf(
             ItemMetaAttribute("uuid", "${nft.uuid}"),
@@ -80,9 +76,23 @@ class VersusArtMetaProvider(
             ItemMetaAttribute("schema", nft.schema.toString()),
         )
 
+        var base64: String? = null
+        // valid types: ipfs/image, ipfs/video, png, image/dataurl
+        val contentUrl = content.getOrNull()?.let {
+            when (nft.metadata.type) {
+                "ipfs/image", "ipfs/video" -> "https://rarible.mypinata.cloud/ipfs/$it"
+                else -> {
+                    base64 = it
+                    "${webApiUrl}/v0.1/items/${itemId}/image"
+                }
+            }
+        }
+
         val urls = listOfNotNull(contentUrl, nft.url)
 
-        return ItemMeta(itemId, nft.name, nft.description, meta, urls)
+        return ItemMeta(itemId, nft.name, nft.description, meta, urls).apply {
+            this.base64 = base64
+        }
     }
 
     private fun Resource.readText() = inputStream.bufferedReader().use(BufferedReader::readText)

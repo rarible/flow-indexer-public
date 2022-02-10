@@ -4,13 +4,16 @@ import com.nftco.flow.sdk.AsyncFlowAccessApi
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
+import com.nftco.flow.sdk.impl.AsyncFlowAccessApiImpl
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.service.FlowSignatureService
 import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.protocol.currency.api.client.CurrencyApiClientFactory
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
+import io.grpc.ManagedChannelBuilder
 import io.netty.handler.logging.LogLevel
+import org.onflow.protobuf.access.AccessAPIGrpc
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -29,6 +32,9 @@ class Config(
     val apiProperties: ApiProperties
 ) {
 
+    @Suppress("PrivatePropertyName")
+    private val DEFAULT_MESSAGE_SIZE: Int = 33554432 //32 Mb in bites
+
     @Bean
     fun signatureService(api: AsyncFlowAccessApi): FlowSignatureService {
         return FlowSignatureService(
@@ -38,7 +44,14 @@ class Config(
     }
 
     @Bean
-    fun api(): AsyncFlowAccessApi = Flow.newAsyncAccessApi(apiProperties.flowAccessUrl, apiProperties.flowAccessPort)
+    fun api(): AsyncFlowAccessApi {
+        val channel = ManagedChannelBuilder.forAddress(apiProperties.flowAccessUrl, apiProperties.flowAccessPort)
+            .maxInboundMessageSize(DEFAULT_MESSAGE_SIZE)
+            .usePlaintext()
+            .userAgent(Flow.DEFAULT_USER_AGENT)
+            .build()
+        return AsyncFlowAccessApiImpl(AccessAPIGrpc.newFutureStub(channel))
+    }
 
     @Bean
     fun pinataClient(): WebClient {

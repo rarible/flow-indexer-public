@@ -26,6 +26,9 @@ data class ItemMeta(
     @Field(targetType = FieldType.BINARY)
     var raw: ByteArray? = null
 
+    @Field(targetType = FieldType.STRING)
+    var base64: String? = null
+
     companion object {
         fun empty(itemId: ItemId): ItemMeta = ItemMeta(
             itemId = itemId,
