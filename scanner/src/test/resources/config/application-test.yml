@@ -6,6 +6,7 @@ app:
   chain-id: TESTNET
   kafka-replica-set: ${kafka.hosts}
   environment: test
+  web-api-url: http://localhost:8080
 
 grpc:
   client:

@@ -30,3 +30,4 @@ app:
   environment: dev
   chain-id: TESTNET
   kafka-replica-set: ${kafka.hosts}
+  web-api-url: ${web-api-url}
