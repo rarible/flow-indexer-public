@@ -6,6 +6,7 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.Contracts
+import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.metaprovider.CnnNFTConverter
 import com.rarible.flow.api.metaprovider.DisruptArtNFT
 import com.rarible.flow.api.metaprovider.RaribleNFT
@@ -30,7 +31,7 @@ class UserStorageService(
     private val itemRepository: ItemRepository,
     private val appProperties: AppProperties,
     private val protocolEventPublisher: ProtocolEventPublisher,
-    private val ownershipRepository: OwnershipRepository,
+    private val ownershipRepository: OwnershipRepository
 ) {
 
     private val log: Logger = LoggerFactory.getLogger(UserStorageService::class.java)
@@ -143,9 +144,9 @@ class UserStorageService(
                     saveItem(item)
                 }
             }
-            "Evolution" -> {
+            Contracts.EVOLUTION.contractName -> {
                 itemIds.forEach {
-                    val contract = contract("0xEVOLUTIONTOKEN", "Evolution")
+                    val contract = contract(Contracts.EVOLUTION.import, Contracts.EVOLUTION.contractName)
                     val item = if (notExistsItem(contract, it)) {
                         val res = scriptExecutor.execute(
                             scriptText("/script/get_evolution_nft.cdc"),
@@ -157,9 +158,9 @@ class UserStorageService(
                         Item(
                             contract = contract,
                             tokenId = it,
-                            creator = contractAddress("0xEVOLUTIONTOKEN"),
+                            creator = contractAddress(Contracts.EVOLUTION.import),
                             owner = address,
-                            royalties = emptyList(),
+                            royalties = Contracts.EVOLUTION.staticRoyalties(appProperties.chainId),
                             mintedAt = Instant.now(),
                             meta = objectMapper.writeValueAsString(initialMeta),
                             collection = contract,
@@ -251,7 +252,7 @@ class UserStorageService(
                             contract = contract,
                             tokenId = tokenId,
                             creator = contractAddress(Contracts.MATRIX_WORLD_VOUCHER.import),
-                            royalties = emptyList(),
+                            royalties = Contracts.MATRIX_WORLD_VOUCHER.staticRoyalties(appProperties.chainId),
                             owner = address,
                             mintedAt = Instant.now(),
                             meta = "{}",
@@ -279,7 +280,7 @@ class UserStorageService(
                             contract = contract,
                             tokenId = tokenId,
                             creator = contractAddress(Contracts.MATRIX_WORLD_FLOW_FEST.import),
-                            royalties = emptyList(),
+                            royalties = Contracts.MATRIX_WORLD_FLOW_FEST.staticRoyalties(appProperties.chainId),
                             owner = address,
                             mintedAt = Instant.now(),
                             meta = "{}",
@@ -316,7 +317,7 @@ class UserStorageService(
                             contract = contract,
                             tokenId = tokenId,
                             creator = contractAddress(Contracts.CNN.import),
-                            royalties = emptyList(),
+                            royalties = Contracts.CNN.staticRoyalties(appProperties.chainId),
                             owner = address,
                             mintedAt = Instant.now(),
                             meta = objectMapper.writeValueAsString(tokenData),

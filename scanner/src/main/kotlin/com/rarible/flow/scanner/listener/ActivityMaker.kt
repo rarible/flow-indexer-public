@@ -206,20 +206,6 @@ class MotoGPActivityMaker : NFTActivityMaker() {
 }
 
 @Component
-class EvolutionActivityMaker : NFTActivityMaker() {
-    override val contractName: String = "Evolution"
-
-    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
-
-    override fun meta(logEvent: FlowLogEvent): Map<String, String> = mapOf(
-        "itemId" to "${cadenceParser.int(logEvent.event.fields["itemId"]!!)}",
-        "setId" to "${cadenceParser.int(logEvent.event.fields["setId"]!!)}",
-        "serialNumber" to "${cadenceParser.int(logEvent.event.fields["serialNumber"]!!)}"
-    )
-
-}
-
-@Component
 class RaribleNFTActivityMaker : NFTActivityMaker() {
     override val contractName: String = "RaribleNFT"
 
