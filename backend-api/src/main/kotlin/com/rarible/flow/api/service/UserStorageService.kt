@@ -299,9 +299,9 @@ class UserStorageService(
                 }
             }
 
-            "CNN_NFT" -> {
+            Contracts.CNN.contractName -> {
                 itemIds.forEach { tokenId ->
-                    val contract = contract("0xCNNNFT", "CNN_NFT")
+                    val contract = contract(Contracts.CNN.import, Contracts.CNN.contractName)
                     val item = if (notExistsItem(contract, tokenId)) {
                         val tokenData = CnnNFTConverter.convert(
                             scriptExecutor.execute(
@@ -315,7 +315,7 @@ class UserStorageService(
                         Item(
                             contract = contract,
                             tokenId = tokenId,
-                            creator = contractAddress("0xCNNNFT"),
+                            creator = contractAddress(Contracts.CNN.import),
                             royalties = emptyList(),
                             owner = address,
                             mintedAt = Instant.now(),
