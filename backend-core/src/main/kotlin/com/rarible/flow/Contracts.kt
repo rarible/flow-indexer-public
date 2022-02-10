@@ -56,6 +56,12 @@ enum class Contracts: Contract {
                 FlowChainId.MAINNET to FlowAddress("0x5b82f21c0edf76e3"),
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7")
             )
+
+        override fun staticRoyalties(chain: FlowChainId): List<Part> {
+            return if(chain == FlowChainId.MAINNET) {
+                listOf(Part(FlowAddress("0x12c122ca9266c278"), 0.1))
+            } else super.staticRoyalties(chain)
+        }
     },
 
     MATRIX_WORLD_VOUCHER  {
