@@ -29,10 +29,10 @@ internal class CnnActivityTest : FunSpec({
                 MINT_LOG_EVENT
             )
         ) shouldContainValue MintActivity(
-            owner = "0x0d77ec47bbad8ef6",
+            owner = "0x329feb3ab062d289",
             contract = "A.329feb3ab062d289.CNN_NFT",
             tokenId = 11,
-            creator = "0x0d77ec47bbad8ef6",
+            creator = "0x329feb3ab062d289",
             metadata = emptyMap(),
             royalties = listOf(
                 Part(FlowAddress("0x55c8be371f74168f"), 0.1)
