@@ -22,7 +22,7 @@ interface Contract {
 
     fun fqn(chain: FlowChainId): String {
         val address = deployments[chain]
-        if(address == null) {
+        if (address == null) {
             throw IllegalArgumentException("No deployment of contract $contractName exists on chainId $chain")
         } else {
             return "A.${address.base16Value}.$contractName"
@@ -32,7 +32,7 @@ interface Contract {
     fun staticRoyalties(chain: FlowChainId): List<Part> = emptyList()
 }
 
-enum class Contracts: Contract {
+enum class Contracts : Contract {
     ONE_FOOTBALL {
         override val import: String
             get() = "0xONEFOOTBALL"
@@ -58,13 +58,13 @@ enum class Contracts: Contract {
             )
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
-            return if(chain == FlowChainId.MAINNET) {
+            return if (chain == FlowChainId.MAINNET) {
                 listOf(Part(FlowAddress("0x12c122ca9266c278"), 0.1))
             } else super.staticRoyalties(chain)
         }
     },
 
-    MATRIX_WORLD_VOUCHER  {
+    MATRIX_WORLD_VOUCHER {
         override val contractName: String
             get() = "MatrixWorldVoucher"
         override val import: String
@@ -77,7 +77,7 @@ enum class Contracts: Contract {
             )
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
-            return if(chain == FlowChainId.MAINNET) listOf(
+            return if (chain == FlowChainId.MAINNET) listOf(
                 Part(FlowAddress("0x46f1e88b54fcb73c"), 0.05) // 5%
             ) else super.staticRoyalties(chain)
         }
@@ -96,7 +96,7 @@ enum class Contracts: Contract {
             get() = "0xMATRIXWORLDFLOWFEST"
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
-            return if(chain == FlowChainId.MAINNET) listOf(
+            return if (chain == FlowChainId.MAINNET) listOf(
                 Part(FlowAddress("0x46f1e88b54fcb73c"), 0.05) // 5%
             ) else super.staticRoyalties(chain)
         }
@@ -115,7 +115,7 @@ enum class Contracts: Contract {
             get() = "0xCNNNFT"
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
-            return if(chain == FlowChainId.MAINNET) listOf(
+            return if (chain == FlowChainId.MAINNET) listOf(
                 Part(FlowAddress("0x55c8be371f74168f"), 0.1) // 10%
             ) else super.staticRoyalties(chain)
         }
@@ -132,5 +132,24 @@ enum class Contracts: Contract {
             )
         override val import: String
             get() = "0xVERSUSART"
+    },
+
+    EVOLUTION {
+        override val contractName: String
+            get() = "Evolution"
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                FlowChainId.MAINNET to FlowAddress("0xf4264ac8f3256818"),
+                FlowChainId.TESTNET to FlowAddress("0x01658d9b94068f3c"),
+                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7")
+            )
+        override val import: String
+            get() = "0xEVOLUTIONTOKEN"
+
+        override fun staticRoyalties(chain: FlowChainId): List<Part> {
+            return if (chain == FlowChainId.MAINNET) listOf(
+                Part(FlowAddress("0x77b78d7d3f0d1787"), 0.1) // 10%
+            ) else super.staticRoyalties(chain)
+        }
     }
 }
