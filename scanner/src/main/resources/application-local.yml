@@ -3,12 +3,52 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017
       database: flow-${spring.profiles.active}
+  cloud:
+    bootstrap:
+      enabled: false
 
-scanner:
-  kafka-replica-set: PLAINTEXT://localhost:29092
+    loadbalancer:
+      cache:
+        enabled: false
+
 logging:
-  level:
-    com.rarible.blockchain.scanner.flow.FlowNetNewBlockPoller: debug
   logstash:
     tcp-socket:
       enabled: false
+
+rarible:
+  core:
+    apm:
+      annotation:
+        enabled: false
+
+application:
+  environment: dev
+
+app:
+  environment: dev
+  chain-id: MAINNET
+  kafka-replica-set: http://localhost:9092
+
+flow-api:
+  flow-access-url: "access.mainnet.nodes.onflow.org"
+  flow-access-port: 9000
+  chain-id: MAINNET
+
+management:
+  endpoint:
+    metrics:
+      enabled: false
+
+blockchain:
+  scanner:
+    flow:
+      chainId: MAINNET
+      poller:
+        delay: 100
+      job:
+        reconciliation:
+          batchSize: 250
+      retryPolycy:
+        scan:
+          maxProcessTime: 3m

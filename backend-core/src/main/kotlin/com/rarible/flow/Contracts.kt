@@ -4,6 +4,7 @@ import com.nftco.flow.sdk.AddressRegistry
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Part
 
 interface Contract {
     val contractName: String
@@ -27,6 +28,8 @@ interface Contract {
             return "A.${address.base16Value}.$contractName"
         }
     }
+
+    fun staticRoyalties(chain: FlowChainId): List<Part> = emptyList()
 }
 
 enum class Contracts: Contract {
@@ -66,6 +69,12 @@ enum class Contracts: Contract {
                 FlowChainId.TESTNET to FlowAddress("0xebf4ae01d1284af8"),
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7")
             )
+
+        override fun staticRoyalties(chain: FlowChainId): List<Part> {
+            return if(chain == FlowChainId.MAINNET) listOf(
+                Part(FlowAddress("0x46f1e88b54fcb73c"), 0.05) // 5%
+            ) else super.staticRoyalties(chain)
+        }
     },
 
     MATRIX_WORLD_FLOW_FEST {
@@ -79,6 +88,31 @@ enum class Contracts: Contract {
             )
         override val import: String
             get() = "0xMATRIXWORLDFLOWFEST"
+
+        override fun staticRoyalties(chain: FlowChainId): List<Part> {
+            return if(chain == FlowChainId.MAINNET) listOf(
+                Part(FlowAddress("0x46f1e88b54fcb73c"), 0.05) // 5%
+            ) else super.staticRoyalties(chain)
+        }
+    },
+
+    CNN {
+        override val contractName: String
+            get() = "CNN_NFT"
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                FlowChainId.MAINNET to FlowAddress("0x329feb3ab062d289"),
+                FlowChainId.TESTNET to FlowAddress("0xebf4ae01d1284af8"),
+                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7")
+            )
+        override val import: String
+            get() = "0xCNNNFT"
+
+        override fun staticRoyalties(chain: FlowChainId): List<Part> {
+            return if(chain == FlowChainId.MAINNET) listOf(
+                Part(FlowAddress("0x55c8be371f74168f"), 0.1) // 10%
+            ) else super.staticRoyalties(chain)
+        }
     },
 
     VERSUS_ART {

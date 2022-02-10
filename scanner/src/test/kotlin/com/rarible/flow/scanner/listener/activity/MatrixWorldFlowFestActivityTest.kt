@@ -1,5 +1,7 @@
 package com.rarible.flow.scanner.listener.activity
 
+import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.StringField
 import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
@@ -7,16 +9,21 @@ import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.MintActivity
+import com.rarible.flow.core.domain.Part
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainValue
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import java.time.Instant
 
 internal class MatrixWorldFlowFestActivityTest: FunSpec({
 
-    val activityMaker = MatrixWorldFlowFestNFTActivity()
+    val activityMaker = MatrixWorldFlowFestNFTActivity(mockk {
+        every { chainId } returns FlowChainId.MAINNET
+    })
 
     test("should mint item") {
         activityMaker.activities(
@@ -35,7 +42,9 @@ internal class MatrixWorldFlowFestActivityTest: FunSpec({
                 "hash" to "03e358fecd20e49d6f6ab8537614c2ac5de5ff5489c10e88786697aa4bc95db4",
                 "type" to "Voucher"
             ),
-            royalties = emptyList(),
+            royalties = listOf(
+                Part(FlowAddress("0x46f1e88b54fcb73c"), 0.05)
+            ),
             timestamp = Instant.parse("2021-10-26T14:28:35.621Z")
         )
     }

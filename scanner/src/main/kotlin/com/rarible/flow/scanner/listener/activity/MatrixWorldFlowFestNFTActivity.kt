@@ -3,11 +3,15 @@ package com.rarible.flow.scanner.listener.activity
 import com.nftco.flow.sdk.cadence.StringField
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.domain.Part
+import com.rarible.flow.scanner.config.FlowApiProperties
 import com.rarible.flow.scanner.listener.NFTActivityMaker
 import org.springframework.stereotype.Component
 
 @Component
-class MatrixWorldFlowFestNFTActivity: NFTActivityMaker() {
+class MatrixWorldFlowFestNFTActivity(
+    private val config: FlowApiProperties
+): NFTActivityMaker() {
 
     override val contractName: String = Contracts.MATRIX_WORLD_FLOW_FEST.contractName
 
@@ -27,5 +31,9 @@ class MatrixWorldFlowFestNFTActivity: NFTActivityMaker() {
             "hash" to hash.value!!,
             "type" to type.value!!
         )
+    }
+
+    override fun royalties(logEvent: FlowLogEvent): List<Part> {
+        return Contracts.MATRIX_WORLD_FLOW_FEST.staticRoyalties(config.chainId)
     }
 }
