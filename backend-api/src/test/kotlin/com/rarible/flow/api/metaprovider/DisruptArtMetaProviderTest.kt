@@ -1,5 +1,6 @@
 package com.rarible.flow.api.metaprovider
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.FlowAddress
 import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.core.config.CoreConfig
@@ -7,6 +8,7 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.repository.ItemRepository
 import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Disabled
@@ -72,7 +74,7 @@ class DisruptArtMetaProviderTest {
                 updatedAt = Instant.now(),
                 owner = FlowAddress("0xcd946ef9b13804c6")
             ).toMono()
-            return DisruptArtMetaProvider(itemRepository, webClient)
+            return DisruptArtMetaProvider(webClient)
         }
 
     }
@@ -82,9 +84,14 @@ class DisruptArtMetaProviderTest {
 
     @Test
     internal fun jsonMetaTest() = runBlocking {
-        val itemId = ItemId(contract = "A.cd946ef9b13804c6.DisruptArt", tokenId = 1337L)
-        val meta = metaProvider.getMeta(itemId)
+        val item = mockk<Item> {
+            every { contract } returns "A.cd946ef9b13804c6.DisruptArt"
+            every { tokenId } returns 1337L
+            every { meta } returns jacksonObjectMapper().writeValueAsString(mapOf("content" to "https://ipfs.perma.store/content/bafybeiao36osolp7ef6e4ieymfbzlywhnaygxw3r7uf4wbijsmlteka3pi"))
+        }
+        val meta = metaProvider.getMeta(item)
         Assertions.assertNotNull(meta)
+        meta!!
         Assertions.assertNotEquals("Untitled", meta.name)
         Assertions.assertFalse(meta.description.isEmpty())
         Assertions.assertFalse(meta.contentUrls.isEmpty())
@@ -96,8 +103,11 @@ class DisruptArtMetaProviderTest {
     @Test
     internal fun pictureMetaTest() = runBlocking {
         val itemId = ItemId(contract = "A.cd946ef9b13804c6.DisruptArt", tokenId = 1L)
-        val meta = metaProvider.getMeta(itemId)
+        val item = mockk<Item> {
+            every { meta } returns "{\"content\":\"https://ipfs.infura.io/ipfs/QmZakpqL6yYdQL5gb2ESrWao9s7Vt6XqYCqLPB7vUbU5cW\",\"name\":\"Sample art test\",\"tokenGroupId\":\"1\"}"
+        }
+        val meta = metaProvider.getMeta(item)
         Assertions.assertNotNull(meta)
-        Assertions.assertNotEquals("Untitled", meta.name)
+        Assertions.assertNotEquals("Untitled", meta!!.name)
     }
 }

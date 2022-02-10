@@ -68,7 +68,7 @@ class Config(
         return WebClient.create("https://api.matrixworld.org/land/api/v1/land/metadata/estate/flow/")
     }
 
-    @Bean
+    @Bean(name = ["mugenClient"])
     fun mugenClient(): WebClient {
         return WebClient.create("https://onchain.mugenart.io/flow/nft/0x2cd46d41da4ce262/metadata")
     }

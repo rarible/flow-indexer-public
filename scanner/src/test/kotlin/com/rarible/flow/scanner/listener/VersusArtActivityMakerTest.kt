@@ -10,6 +10,7 @@ import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.TransferActivity
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
+import com.rarible.flow.scanner.activitymaker.VersusArtActivityMaker
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe

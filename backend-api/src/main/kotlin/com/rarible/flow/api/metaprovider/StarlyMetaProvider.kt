@@ -3,14 +3,8 @@ package com.rarible.flow.api.metaprovider
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.StringField
-import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.api.service.ScriptExecutor
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.ItemMeta
-import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.domain.TokenId
-import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.withEntity
+import com.rarible.flow.core.domain.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -41,22 +35,19 @@ class StarlyMetaScript(
 
 @Component
 class StarlyMetaProvider(
-    private val itemRepository: ItemRepository,
     private val webClient: WebClient,
     private val script: StarlyMetaScript
 ): ItemMetaProvider {
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("StarlyCard")
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        return itemRepository.withEntity(itemId) { item ->
-            script.call(item.owner!!, item.tokenId)
-        }?.let { starlyId ->
+    override suspend fun getMeta(item: Item): ItemMeta? {
+        return script.call(item.owner!!, item.tokenId)?.let { starlyId ->
             webClient
                 .get()
                 .uri("https://starly.io/c/$starlyId.json")
                 .retrieve()
                 .awaitBodyOrNull<StarlyMeta>()
-        }?.toItemMeta(itemId) ?: ItemMeta.empty(itemId)
+        }?.toItemMeta(item.id)
     }
 }
 

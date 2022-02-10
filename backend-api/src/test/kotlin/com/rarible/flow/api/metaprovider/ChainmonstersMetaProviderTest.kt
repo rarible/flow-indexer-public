@@ -5,7 +5,6 @@ import com.rarible.flow.api.data
 import com.rarible.flow.api.mocks
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.repository.ItemRepository
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -19,6 +18,7 @@ internal class ChainmonstersMetaProviderTest: FunSpec({
     val item = mockk<Item> {
         every { id } returns ItemId("A.1234.ChainmonstersRewards", 1337)
         every { owner } returns FlowAddress("0x01")
+        every { tokenId } returns 1337
     }
 
     val scriptExecutor = mocks.scriptExecutor(
@@ -31,7 +31,6 @@ internal class ChainmonstersMetaProviderTest: FunSpec({
     }
 
     val provider = ChainmonstersMetaProvider(
-        itemRepository,
         scriptExecutor,
         mocks.resource("has_meta")
     )
@@ -46,13 +45,12 @@ internal class ChainmonstersMetaProviderTest: FunSpec({
 
     test("should read ChainmonstersReward meta data") {
         ChainmonstersMetaProvider(
-            itemRepository,
             scriptExecutor,
             mocks.resource("has_meta")
         ).getMeta(
-            item.id
+            item
         ) should { meta ->
-            meta.name shouldBe "Adventure Bundle"
+            meta!!.name shouldBe "Adventure Bundle"
             meta.description shouldBe ""
             meta.contentUrls shouldContainExactly listOf(
                 "https://chainmonsters.com/images/rewards/flowfest2021/41.png"
@@ -62,12 +60,11 @@ internal class ChainmonstersMetaProviderTest: FunSpec({
 
     test("should return empty meta") {
         ChainmonstersMetaProvider(
-            itemRepository,
             scriptExecutor,
             mocks.resource("no_meta")
         ).getMeta(
-            item.id
-        ) shouldBe ItemMeta.empty(item.id)
+            item
+        ) shouldBe null
     }
 }) {
     companion object {

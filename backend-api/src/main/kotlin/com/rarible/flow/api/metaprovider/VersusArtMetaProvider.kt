@@ -4,13 +4,12 @@ import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.api.service.ScriptExecutor
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.events.VersusArtItem
 import com.rarible.flow.events.changeCapabilityToAddress
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -20,7 +19,6 @@ import java.io.BufferedReader
 
 @Component
 class VersusArtMetaProvider(
-    private val itemRepository: ItemRepository,
     private val scriptExecutor: ScriptExecutor,
     @Value("classpath:script/versus-art-metadata.cdc")
     private val getMetadataScriptResource: Resource,
@@ -38,24 +36,23 @@ class VersusArtMetaProvider(
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.endsWith(".Art")
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
+    override suspend fun getMeta(item: Item): ItemMeta? {
         val args: MutableList<Field<*>> = mutableListOf(
             builder.address(item.owner!!.formatted),
-            builder.uint64(itemId.tokenId)
+            builder.uint64(item.tokenId)
         )
         val nft = scriptExecutor
             .execute(code = getMetadataScript, args = args)
             .let { it.copy(bytes = it.bytes.changeCapabilityToAddress()) }
             .let { parser.optional<VersusArtItem>(it.jsonCadence, JsonCadenceParser::unmarshall) }
-            ?: return emptyMeta(itemId)
+            ?: return null
 
         val content = kotlin.runCatching {
             scriptExecutor
                 .execute(code = getContentScript, args = args)
                 .let { parser.optional(it.jsonCadence, JsonCadenceParser::string) }!!
         }.onFailure {
-            logger.error("Can't get content for $itemId", it)
+            logger.error("Can't get content for $${item.id}", it)
         }
 
         // valid types: ipfs/image, ipfs/video, png, image/dataurl
@@ -82,7 +79,7 @@ class VersusArtMetaProvider(
 
         val urls = listOfNotNull(contentUrl, nft.url)
 
-        return ItemMeta(itemId, nft.name, nft.description, meta, urls)
+        return ItemMeta(item.id, nft.name, nft.description, meta, urls)
     }
 
     private fun Resource.readText() = inputStream.bufferedReader().use(BufferedReader::readText)

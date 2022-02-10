@@ -25,14 +25,16 @@ class NftItemMetaService(
 ) {
     private val logger by Log()
 
-    private val logger by Log()
-
     suspend fun getMetaByItemId(itemId: ItemId): ItemMeta {
+        val item = itemRepository.coFindById(itemId) ?: return ItemMeta.empty(itemId).let {
+            logger.warn("Unable to fetch meta for ItemId[$itemId]! Item not found!")
+            it
+        }
         val exists = itemMetaRepository.coFindById(itemId)
         return if (exists == null) {
             val meta = flow {
                 emit(
-                    providers.first { it.isSupported(itemId) }.getMeta(itemId)
+                    providers.first { it.isSupported(itemId) }.getMeta(item)
                 )
             }
             .retry(retries = 3L) { failure ->
@@ -46,7 +48,12 @@ class NftItemMetaService(
             }
             .first()
 
-            return itemMetaRepository.coSave(meta)
+            return if (meta == null) {
+                logger.warn("No meta or meta provider is found for item [{}]", itemId)
+                ItemMeta.empty(itemId)
+            } else {
+                itemMetaRepository.coSave(meta)
+            }
         } else {
             exists
         }

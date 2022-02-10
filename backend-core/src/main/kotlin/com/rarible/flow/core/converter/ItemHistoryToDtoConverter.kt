@@ -136,6 +136,14 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                     logIndex = source.log.eventIndex,
                 )
             }
+            is AuctionActivityBidClosed -> TODO()
+            is AuctionActivityBidIncreased -> TODO()
+            is AuctionActivityBidOpened -> TODO()
+            is AuctionActivityLotCanceled -> TODO()
+            is AuctionActivityLotCleaned -> TODO()
+            is AuctionActivityLotEndTimeChanged -> TODO()
+            is AuctionActivityLot -> TODO()
+            is AuctionActivityLotHammered -> TODO()
         }
 
     }

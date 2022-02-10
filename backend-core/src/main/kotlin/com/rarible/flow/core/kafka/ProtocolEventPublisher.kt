@@ -17,8 +17,10 @@ class ProtocolEventPublisher(
     private val items: RaribleKafkaProducer<FlowNftItemEventDto>,
     private val ownerships: RaribleKafkaProducer<FlowOwnershipEventDto>,
     private val orders: RaribleKafkaProducer<FlowOrderEventDto>,
-    private val activities: RaribleKafkaProducer<FlowActivityDto>
+    private val activities: RaribleKafkaProducer<FlowActivityDto>,
 ) {
+
+    private val logger by Log()
 
     suspend fun onItemUpdate(item: Item): KafkaSendResult {
         val key = item.id.toString()
@@ -85,17 +87,12 @@ class ProtocolEventPublisher(
     }
 
     suspend fun activity(history: ItemHistory): KafkaSendResult? {
-        return ItemHistoryToDtoConverter.convert(
-            history
-        )?.let { dto ->
-            return send(
-                activities,
-                "${history.id}:${history.activity.type}-${history.activity.timestamp}",
-                dto
-            )
-        }
+        return send(
+            activities,
+            "${history.id}:${history.activity.type}-${history.activity.timestamp}",
+            ItemHistoryToDtoConverter.convert(history)
+        )
     }
-
     private suspend fun <V> send(producer: RaribleKafkaProducer<V>, key: String, message: V): KafkaSendResult {
         logger.info("Sending to kafka: {} [hashCode={}]...", message, message.hashCode())
         val sendResult = producer.send(
@@ -108,7 +105,4 @@ class ProtocolEventPublisher(
         return sendResult
     }
 
-    companion object {
-        val logger by Log()
-    }
 }

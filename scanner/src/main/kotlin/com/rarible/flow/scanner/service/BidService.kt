@@ -8,15 +8,11 @@ import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Component
 
+@ExperimentalCoroutinesApi
 @Component
 class BidService(
     private val orderRepository: OrderRepository
@@ -45,7 +41,6 @@ class BidService(
         return updateByFilter(filter, null, emptyFlow(), search, fn)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun updateByFilter(
         filter: OrderFilter,
         cursor: String?,

@@ -36,7 +36,7 @@ internal class StarlyMetaProviderTest : FunSpec({
         every { tokenId } returns 1338
     }
 
-    val itemRepository = mockk<ItemRepository>() {
+    mockk<ItemRepository> {
         every { findById(eq(videoItemId)) } returns Mono.just(videoItem)
         every { findById(eq(imageItemId)) } returns Mono.just(imageItem)
     }
@@ -53,11 +53,10 @@ internal class StarlyMetaProviderTest : FunSpec({
 
     test("should get video meta") {
         StarlyMetaProvider(
-            itemRepository,
             mocks.webClient("https://starly.io/c/JxznUdOwMHiO1vZ1B4hX/2/111.json", META),
             script
-        ).getMeta(videoItem.id) should { meta ->
-            meta.name shouldBe "Boxer"
+        ).getMeta(videoItem) should { meta ->
+            meta!!.name shouldBe "Boxer"
             meta.contentUrls shouldContainExactly listOf(
                 "https://storage.googleapis.com/starly-prod.appspot.com/users/LIFBFA0ZEzLhL8zcsw7Ppg1kC5l1/collections/JxznUdOwMHiO1vZ1B4hX/cards/2/screenshot_cover_1200x1600.jpg",
                 "https://storage.googleapis.com/starly-prod.appspot.com/users/LIFBFA0ZEzLhL8zcsw7Ppg1kC5l1/collections/JxznUdOwMHiO1vZ1B4hX/cards/2/converted_cover_1200x1600.mp4",
@@ -75,10 +74,9 @@ internal class StarlyMetaProviderTest : FunSpec({
 
     test("should get image meta") {
         StarlyMetaProvider(
-            itemRepository,
             mocks.webClient("https://starly.io/c/iD5LK1QPWjQP1lorykFj/11/523.json", META_IMAGE),
             script
-        ).getMeta(imageItemId) shouldNotBe ItemMeta.empty(imageItemId)
+        ).getMeta(imageItem) shouldNotBe ItemMeta.empty(imageItemId)
     }
 
 }) {

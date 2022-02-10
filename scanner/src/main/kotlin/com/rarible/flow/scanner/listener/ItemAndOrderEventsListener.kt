@@ -19,7 +19,6 @@ import com.rarible.flow.log.Log
 import com.rarible.flow.scanner.activitymaker.ActivityMaker
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.IndexerEventService
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Component
@@ -77,7 +76,7 @@ class ItemAndOrderEventsListener(
                         )
                         if (blockEvent.event.eventSource != Source.REINDEX) {
                             logger.info("Send activity [${h.id}] to kafka!")
-                            protocolEventPublisher.activity(h).ensureSuccess()
+                            protocolEventPublisher.activity(h)?.ensureSuccess()
                         }
                     }
                 }

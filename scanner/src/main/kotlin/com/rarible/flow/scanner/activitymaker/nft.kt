@@ -1,5 +1,6 @@
 package com.rarible.flow.scanner.activitymaker
 
+import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
@@ -9,10 +10,11 @@ import com.nftco.flow.sdk.cadence.StructField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.*
+import com.rarible.flow.events.VersusArtMetadata
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
-sealed class NFTActivityMaker : ActivityMaker {
+abstract class NFTActivityMaker : ActivityMaker {
 
     abstract val contractName: String
 
@@ -40,18 +42,25 @@ sealed class NFTActivityMaker : ActivityMaker {
             val withdrawEvents = filtered.filter { it.type == FlowLogType.WITHDRAW }
             val depositEvents = filtered.filter { it.type == FlowLogType.DEPOSIT }
             val burnEvents = filtered.filter { it.type == FlowLogType.BURN }
+            val usedDeposit = mutableSetOf<FlowLogEvent>()
 
             mintEvents.forEach {
                 val tokenId = tokenId(it)
-                val deposit = depositEvents.first { d -> cadenceParser.long(d.event.fields["id"]!!) == tokenId }
-                result[deposit.log] = MintActivity(
+                val owner = depositEvents
+                    .firstOrNull { d -> cadenceParser.long(d.event.fields["id"]!!) == tokenId }
+                    ?.also(usedDeposit::add)
+                    ?.let { d ->
+                        cadenceParser.optional(d.event.fields["to"]!!) { value ->
+                            address(value)
+                        }
+                    }
+                    ?: it.event.eventId.contractAddress.formatted
+                result[it.log] = MintActivity(
                     creator = creator(it),
-                    owner = cadenceParser.optional(deposit.event.fields["to"]!!) { value ->
-                        address(value)
-                    }!!,
+                    owner = owner,
                     contract = it.event.eventId.collection(),
                     tokenId = tokenId,
-                    timestamp = deposit.log.timestamp,
+                    timestamp = it.log.timestamp,
                     metadata = meta(it),
                     royalties = royalties(it)
                 )
@@ -63,7 +72,7 @@ sealed class NFTActivityMaker : ActivityMaker {
                 val depositActivity = depositEvents.find { d ->
                     val dTokenId = cadenceParser.long(d.event.fields["id"]!!)
                     dTokenId == tokenId && d.log.timestamp >= w.log.timestamp
-                }
+                }?.also(usedDeposit::add)
 
                 if (depositActivity != null) {
                     val to: OptionalField by depositActivity.event.fields
@@ -92,8 +101,29 @@ sealed class NFTActivityMaker : ActivityMaker {
                             },
                             timestamp = burnActivity.log.timestamp
                         )
+                    } else {
+                        result[w.log] = TransferActivity(
+                            contract = w.event.eventId.collection(),
+                            tokenId = tokenId,
+                            timestamp = w.log.timestamp,
+                            from = cadenceParser.optional(from) {
+                                address(it)
+                            }!!,
+                            to = w.event.eventId.contractAddress.formatted
+                        )
                     }
                 }
+            }
+
+            (depositEvents - usedDeposit).forEach { d ->
+                val to: OptionalField by d.event.fields
+                result[d.log] = TransferActivity(
+                    contract = d.event.eventId.collection(),
+                    tokenId = tokenId(d),
+                    timestamp = d.log.timestamp,
+                    from = d.event.eventId.contractAddress.formatted,
+                    to = cadenceParser.optional(to) { address(it) }!!
+                )
             }
         }
         return result.toMap()
@@ -194,5 +224,34 @@ class RaribleNFTActivityMaker : NFTActivityMaker() {
 
     override fun creator(logEvent: FlowLogEvent): String {
         return cadenceParser.address(logEvent.event.fields["creator"]!!)
+    }
+}
+
+@Component
+class VersusArtActivityMaker : NFTActivityMaker() {
+
+    override val contractName = "Art"
+
+    override fun tokenId(logEvent: FlowLogEvent) = cadenceParser.long(logEvent.event.fields["id"]!!)
+
+    override fun meta(logEvent: FlowLogEvent) = try {
+        val meta = Flow.unmarshall(VersusArtMetadata::class, logEvent.event.fields["metadata"]!!)
+        mapOf(
+            "name" to meta.name,
+            "artist" to meta.artist,
+            "artistAddress" to meta.artistAddress,
+            "description" to meta.description,
+            "type" to meta.type,
+            "edition" to meta.edition.toString(),
+            "maxEdition" to meta.maxEdition.toString(),
+        )
+    } catch (_: Exception) {
+        mapOf("metaURI" to cadenceParser.string(logEvent.event.fields["metadata"]!!))
+    }
+
+    override fun creator(logEvent: FlowLogEvent) = try {
+        Flow.unmarshall(VersusArtMetadata::class, logEvent.event.fields["metadata"]!!).artistAddress
+    } catch (_: Exception) {
+        logEvent.event.eventId.contractAddress.formatted
     }
 }

@@ -7,36 +7,38 @@ import com.nftco.flow.sdk.FlowScriptResponse
 import com.rarible.flow.api.mocks
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.config.AppProperties
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.repository.ItemRepository
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import reactor.core.publisher.Mono
 import java.util.concurrent.CompletableFuture
 
 class VersusArtMetaProviderTest : FunSpec({
 
     test("should read ipfs metadata") {
         val itemId = ItemId("A.d796ff17107bbff6.Art", 42)
+        val item = mockk<Item>("item") {
+            every { id } returns itemId
+            every { owner } returns FlowAddress("0xd796ff17107bbff6")
+            every { tokenId } returns 740
+        }
+        mockk<ItemRepository>("itemRepository") {
+            every { findById(any<ItemId>()) } returns reactor.core.publisher.Mono.just(
+                item
+            )
+        }
         val provider = VersusArtMetaProvider(
-            mockk("itemRepository") {
-                every { findById(any<ItemId>()) } returns Mono.just(
-                    mockk("item") {
-                        every { id } returns itemId
-                        every { owner } returns FlowAddress("0xd796ff17107bbff6")
-                        every { tokenId } returns 740
-                    }
-                )
-            },
             mocks.scriptExecutor("getMetadataScript" to META1, "getContentScript" to CONTENT1),
             mocks.resource("getMetadataScript"),
             mocks.resource("getContentScript")
         )
 
-        provider.getMeta(itemId) should { meta ->
-            meta.itemId shouldBe itemId
+        provider.getMeta(item) should { meta ->
+            meta!!.itemId shouldBe itemId
             meta.name shouldBe "The Illuminator"
             meta.contentUrls.first() shouldBe "https://rarible.mypinata.cloud/ipfs/QmVWf7e3bkEvmy5jGHLCgeZmwPyqm5hKeQ72NAdDwyJm2Q"
         }
@@ -44,23 +46,24 @@ class VersusArtMetaProviderTest : FunSpec({
 
     test("should read dataurl metadata") {
         val itemId = ItemId("A.d796ff17107bbff6.Art", 821)
+        val item = mockk<Item>("item") {
+            every { id } returns itemId
+            every { owner } returns FlowAddress("0x65f12353ccc255ee")
+            every { tokenId } returns 821
+        }
+        mockk<ItemRepository>("itemRepository") {
+            every { findById(any<ItemId>()) } returns reactor.core.publisher.Mono.just(
+                item
+            )
+        }
         val provider = VersusArtMetaProvider(
-            mockk("itemRepository") {
-                every { findById(any<ItemId>()) } returns Mono.just(
-                    mockk("item") {
-                        every { id } returns itemId
-                        every { owner } returns FlowAddress("0x65f12353ccc255ee")
-                        every { tokenId } returns 821
-                    }
-                )
-            },
             mocks.scriptExecutor("getMetadataScript" to META2, "getContentScript" to CONTENT2),
             mocks.resource("getMetadataScript"),
             mocks.resource("getContentScript")
         )
 
-        provider.getMeta(itemId) should { meta ->
-            meta.itemId shouldBe itemId
+        provider.getMeta(item) should { meta ->
+            meta!!.itemId shouldBe itemId
             meta.name shouldBe "JOYWORLD Portal, Sandstone Headland"
             meta.contentUrls.first() shouldBe "data:image/jpeg;base64, /9j/4QGWRXhpZ...y/rsc8vedj//2Q=="
         }
@@ -68,16 +71,17 @@ class VersusArtMetaProviderTest : FunSpec({
 
     test("should read dataurl metadata with content error") {
         val itemId = ItemId("A.d796ff17107bbff6.Art", 821)
+        val item = mockk<Item>("item") {
+            every { id } returns itemId
+            every { owner } returns FlowAddress("0x65f12353ccc255ee")
+            every { tokenId } returns 821
+        }
+        mockk<ItemRepository>("itemRepository") {
+            every { findById(any<ItemId>()) } returns reactor.core.publisher.Mono.just(
+                item
+            )
+        }
         val provider = VersusArtMetaProvider(
-            mockk("itemRepository") {
-                every { findById(any<ItemId>()) } returns Mono.just(
-                    mockk("item") {
-                        every { id } returns itemId
-                        every { owner } returns FlowAddress("0x65f12353ccc255ee")
-                        every { tokenId } returns 821
-                    }
-                )
-            },
             ScriptExecutor(
                 mockk("asyncFlowAccessApi") {
                     every {
@@ -93,8 +97,8 @@ class VersusArtMetaProviderTest : FunSpec({
             mocks.resource("getContentScript")
         )
 
-        provider.getMeta(itemId) should { meta ->
-            meta.itemId shouldBe itemId
+        provider.getMeta(item) should { meta ->
+            meta!!.itemId shouldBe itemId
             meta.name shouldBe "Transcendence"
             meta.contentUrls shouldBe emptyList()
         }
