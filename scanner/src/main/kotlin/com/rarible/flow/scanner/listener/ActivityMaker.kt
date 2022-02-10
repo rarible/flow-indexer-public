@@ -196,16 +196,6 @@ class TopShotActivityMaker(
 }
 
 @Component
-class MotoGPActivityMaker : NFTActivityMaker() {
-
-    override val contractName: String = "MotoGPCard"
-
-    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
-
-    override fun meta(logEvent: FlowLogEvent): Map<String, String> = emptyMap()
-}
-
-@Component
 class RaribleNFTActivityMaker : NFTActivityMaker() {
     override val contractName: String = "RaribleNFT"
 

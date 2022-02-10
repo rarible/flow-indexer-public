@@ -117,16 +117,16 @@ class UserStorageService(
                     }
                 }
             }
-            "MotoGPCard" -> {
+            Contracts.MOTOGP.contractName -> {
                 itemIds.forEach {
-                    val contract = contract("0xMOTOGPTOKEN", "MotoGPCard")
+                    val contract = Contracts.MOTOGP.fqn(appProperties.chainId)
                     val item = if (notExistsItem(contract, it)) {
                         Item(
                             contract = contract,
                             tokenId = it,
-                            creator = contractAddress("0xMOTOGPTOKEN"),
+                            creator = Contracts.MOTOGP.deployments[appProperties.chainId]!!,
                             owner = address,
-                            royalties = emptyList(),
+                            royalties = Contracts.MOTOGP.staticRoyalties(appProperties.chainId),
                             mintedAt = Instant.now(),
                             meta = "{}",
                             collection = contract,
