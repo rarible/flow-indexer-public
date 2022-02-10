@@ -94,5 +94,24 @@ enum class Contracts: Contract {
                 Part(FlowAddress("0x46f1e88b54fcb73c"), 0.05) // 5%
             ) else super.staticRoyalties(chain)
         }
+    },
+
+    CNN {
+        override val contractName: String
+            get() = "CNN_NFT"
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                FlowChainId.MAINNET to FlowAddress("0x329feb3ab062d289"),
+                FlowChainId.TESTNET to FlowAddress("0xebf4ae01d1284af8"),
+                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7")
+            )
+        override val import: String
+            get() = "0xCNNNFT"
+
+        override fun staticRoyalties(chain: FlowChainId): List<Part> {
+            return if(chain == FlowChainId.MAINNET) listOf(
+                Part(FlowAddress("0x55c8be371f74168f"), 0.1) // 10%
+            ) else super.staticRoyalties(chain)
+        }
     }
 }

@@ -19,7 +19,7 @@ class ScannerContextLoadTest: BaseIntegrationTest() {
     @Test
     fun `should load all activity makers`() {
         logger.info("Activity Makers: {}", activityMakers.map { it.javaClass.simpleName }.sorted() )
-        activityMakers.size shouldBe 12
+        activityMakers.size shouldBe 13
     }
 
     companion object {
