@@ -151,5 +151,24 @@ enum class Contracts : Contract {
                 Part(FlowAddress("0x77b78d7d3f0d1787"), 0.1) // 10%
             ) else super.staticRoyalties(chain)
         }
-    }
+    },
+
+    MOTOGP {
+        override val contractName: String
+            get() = "MotoGPCard"
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                FlowChainId.MAINNET to FlowAddress("0xa49cc0ee46c54bfb"),
+                FlowChainId.TESTNET to FlowAddress("0x01658d9b94068f3c"),
+                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7")
+            )
+        override val import: String
+            get() = "0xMOTOGPTOKEN"
+
+        override fun staticRoyalties(chain: FlowChainId): List<Part> {
+            return if (chain == FlowChainId.MAINNET) listOf(
+                Part(FlowAddress("0x1b0d0e046c306e2f"), 0.075) // 7.5%
+            ) else super.staticRoyalties(chain)
+        }
+    },
 }
