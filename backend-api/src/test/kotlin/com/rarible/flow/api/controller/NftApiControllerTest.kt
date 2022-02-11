@@ -146,7 +146,7 @@ internal class NftApiControllerTest {
     }
 
     @Test
-    fun `should return 404 for royalties by id`() {
+    fun `should return empty royalties by id`() {
         coEvery {
             nftItemService.getItemById(any())
         } returns null
@@ -159,7 +159,9 @@ internal class NftApiControllerTest {
             .get()
             .uri("/v0.1/items/{itemId}/royalty", mapOf("itemId" to "0x01:43"))
             .exchange()
-            .expectStatus().isNotFound
+            .expectStatus().isOk
+            .expectBody<FlowNftItemRoyaltyDto>()
+            .returnResult().responseBody!!.royalty shouldHaveSize 0
     }
 
     @Test
