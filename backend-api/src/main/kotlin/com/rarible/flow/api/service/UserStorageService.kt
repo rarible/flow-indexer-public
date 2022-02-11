@@ -435,6 +435,34 @@ class UserStorageService(
                     saveItem(item)
                 }
             }
+
+            Contracts.JAMBB_MOMENTS.contractName -> {
+                itemIds.forEach { tokenId ->
+                    val contract = Contracts.JAMBB_MOMENTS.fqn(appProperties.chainId)
+                    val item = if (notExistsItem(contract, tokenId)) {
+                        Item(
+                            contract = contract,
+                            tokenId = tokenId,
+                            creator = Contracts.JAMBB_MOMENTS.deployments[appProperties.chainId]!!,
+                            royalties = Contracts.JAMBB_MOMENTS.staticRoyalties(appProperties.chainId),
+                            owner = address,
+                            mintedAt = Instant.now(),
+                            meta = "{}",
+                            collection = contract,
+                            updatedAt = Instant.now()
+                        )
+                    } else {
+                        val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
+                        } else {
+                            checkOwnership(i, address)
+                            null
+                        }
+                    }
+                    saveItem(item)
+                }
+            }
         }
     }
 

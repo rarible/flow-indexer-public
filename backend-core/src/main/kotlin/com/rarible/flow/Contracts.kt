@@ -3,6 +3,7 @@ package com.rarible.flow
 import com.nftco.flow.sdk.AddressRegistry
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
+import com.rarible.flow.RoyaltySize.percent
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Part
 
@@ -59,7 +60,7 @@ enum class Contracts : Contract {
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
             return if (chain == FlowChainId.MAINNET) {
-                listOf(Part(FlowAddress("0x12c122ca9266c278"), 0.1))
+                listOf(Part(FlowAddress("0x12c122ca9266c278"), RoyaltySize.TEN_PERCENT))
             } else super.staticRoyalties(chain)
         }
     },
@@ -78,7 +79,7 @@ enum class Contracts : Contract {
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
             return if (chain == FlowChainId.MAINNET) listOf(
-                Part(FlowAddress("0x46f1e88b54fcb73c"), 0.05) // 5%
+                Part(FlowAddress("0x46f1e88b54fcb73c"), RoyaltySize.FIVE_PERCENT) // 5%
             ) else super.staticRoyalties(chain)
         }
     },
@@ -96,8 +97,27 @@ enum class Contracts : Contract {
             get() = "0xMATRIXWORLDFLOWFEST"
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
+            return if(chain == FlowChainId.MAINNET) listOf(
+                Part(FlowAddress("0x46f1e88b54fcb73c"), RoyaltySize.FIVE_PERCENT) // 5%
+            ) else super.staticRoyalties(chain)
+        }
+    },
+
+    JAMBB_MOMENTS {
+        override val contractName: String
+            get() = "Moments"
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                FlowChainId.MAINNET to FlowAddress("0xd4ad4740ee426334"),
+                FlowChainId.TESTNET to FlowAddress("0xe94a6e229293f196"),
+                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7")
+            )
+        override val import: String
+            get() = "0xJAMBBMOMENTS"
+
+        override fun staticRoyalties(chain: FlowChainId): List<Part> {
             return if (chain == FlowChainId.MAINNET) listOf(
-                Part(FlowAddress("0x46f1e88b54fcb73c"), 0.05) // 5%
+                Part(FlowAddress("0x609a2ea0548b4b51"), RoyaltySize.FIVE_PERCENT) // 5%
             ) else super.staticRoyalties(chain)
         }
     },
@@ -116,7 +136,7 @@ enum class Contracts : Contract {
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
             return if (chain == FlowChainId.MAINNET) listOf(
-                Part(FlowAddress("0x55c8be371f74168f"), 0.1) // 10%
+                Part(FlowAddress("0x55c8be371f74168f"), RoyaltySize.TEN_PERCENT) // 10%
             ) else super.staticRoyalties(chain)
         }
     },
@@ -148,7 +168,7 @@ enum class Contracts : Contract {
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
             return if (chain == FlowChainId.MAINNET) listOf(
-                Part(FlowAddress("0x77b78d7d3f0d1787"), 0.1) // 10%
+                Part(FlowAddress("0x77b78d7d3f0d1787"), RoyaltySize.TEN_PERCENT) // 10%
             ) else super.staticRoyalties(chain)
         }
     },
@@ -167,8 +187,15 @@ enum class Contracts : Contract {
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
             return if (chain == FlowChainId.MAINNET) listOf(
-                Part(FlowAddress("0x1b0d0e046c306e2f"), 0.075) // 7.5%
+                Part(FlowAddress("0x1b0d0e046c306e2f"), 7.5.percent()) // 7.5%
             ) else super.staticRoyalties(chain)
         }
     },
+}
+
+object RoyaltySize {
+    const val TEN_PERCENT = 0.1
+    const val FIVE_PERCENT = 0.05
+
+    fun Double.percent() = this.div(100)
 }
