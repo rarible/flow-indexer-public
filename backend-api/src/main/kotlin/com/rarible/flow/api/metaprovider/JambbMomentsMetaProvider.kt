@@ -7,6 +7,8 @@ import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion
 import com.nftco.flow.sdk.cadence.JsonCadenceConverter
 import com.nftco.flow.sdk.cadence.OptionalField
+import com.rarible.flow.Contracts
+import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.ItemId
@@ -44,9 +46,11 @@ class JambbMomentsMetaScript(
 @Component
 class JambbMomentsMetaProvider(
     private val itemRepository: ItemRepository,
-    private val script: JambbMomentsMetaScript
+    private val script: JambbMomentsMetaScript,
+    private val apiProperties: ApiProperties
 ): ItemMetaProvider {
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("StarlyCard")
+    override fun isSupported(itemId: ItemId): Boolean =
+        itemId.contract == Contracts.JAMBB_MOMENTS.fqn(apiProperties.chainId)
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
         return itemRepository.withEntity(itemId) { item ->
