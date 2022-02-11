@@ -109,12 +109,12 @@ class NftApiController(
         return ResponseEntity.ok(nftItemService.byCreator(address, continuation, size))
     }
 
-    override suspend fun getNftItemRoyaltyById(itemId: String): ResponseEntity<FlowNftItemRoyaltyDto> =
-        itemRoyaltyService
+    override suspend fun getNftItemRoyaltyById(itemId: String): ResponseEntity<FlowNftItemRoyaltyDto> {
+        val royalty = itemRoyaltyService
             .getRoyaltiesByItemId(itemId.itemId())
-            ?.map { PayInfoDto(it.address, it.fee) }
-            ?.let(::FlowNftItemRoyaltyDto)
-            .okOr404IfNull()
+            ?.map { PayInfoDto(it.address, it.fee) } ?: emptyList()
+        return FlowNftItemRoyaltyDto(royalty).okOr404IfNull()
+    }
 
     @GetMapping("/v0.1/items/{itemId}/image")
     suspend fun getItemImage(@PathVariable itemId: String): ResponseEntity<ByteArray> {
