@@ -1,6 +1,8 @@
 package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowChainId
+import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.repository.ItemRepository
@@ -38,8 +40,14 @@ internal class JambbMomentsMetaProviderTest: FunSpec({
         } returns null
     }
 
+    val properties = mockk<ApiProperties> {
+        every { chainId } returns FlowChainId.MAINNET
+    }
+
     test("should return empty meta for non-existing item") {
-        JambbMomentsMetaProvider(itemRepository, metaScript).getMeta(notExisting) shouldBe ItemMeta.empty(notExisting)
+        JambbMomentsMetaProvider(
+            itemRepository, metaScript, properties
+        ).getMeta(notExisting) shouldBe ItemMeta.empty(notExisting)
     }
 
     test("should return empty meta if script returned null") {
@@ -47,14 +55,29 @@ internal class JambbMomentsMetaProviderTest: FunSpec({
             itemRepository,
             mockk {
                 coEvery { call(any()) } returns null
-            }
+            },
+            properties
         ).getMeta(existing) shouldBe ItemMeta.empty(existing)
     }
 
     test("should return filled meta") {
         JambbMomentsMetaProvider(
-            itemRepository, metaScript
+            itemRepository,
+            metaScript,
+            properties
         ).getMeta(existing) shouldBe JambbMomentsMetaConverterTest.META.toItemMeta(existing)
+    }
+
+    test("isSupported is true") {
+        JambbMomentsMetaProvider(
+            itemRepository, metaScript, properties
+        ).isSupported(existing) shouldBe true
+    }
+
+    test("isSupported is false") {
+        JambbMomentsMetaProvider(
+            itemRepository, metaScript, properties
+        ).isSupported(ItemId("A.1234.MotoGP", 1000)) shouldBe false
     }
 
 })
