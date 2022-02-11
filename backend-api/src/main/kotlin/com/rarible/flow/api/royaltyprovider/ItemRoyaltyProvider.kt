@@ -9,5 +9,5 @@ data class Royalty(val address: String, val fee: BigDecimal)
 
 interface ItemRoyaltyProvider {
     fun isSupported(itemId: ItemId): Boolean
-    suspend fun getRoyalty(item: Item): List<Royalty>
+    suspend fun getRoyalties(item: Item): List<Royalty>
 }

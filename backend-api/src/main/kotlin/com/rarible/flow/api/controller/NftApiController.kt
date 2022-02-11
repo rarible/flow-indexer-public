@@ -111,7 +111,7 @@ class NftApiController(
 
     override suspend fun getNftItemRoyaltyById(itemId: String): ResponseEntity<FlowNftItemRoyaltyDto> =
         itemRoyaltyService
-            .getRoyaltyByItemId(itemId.itemId())
+            .getRoyaltiesByItemId(itemId.itemId())
             ?.map { PayInfoDto(it.address, it.fee) }
             ?.let(::FlowNftItemRoyaltyDto)
             .okOr404IfNull()

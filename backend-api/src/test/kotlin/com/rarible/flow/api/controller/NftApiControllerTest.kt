@@ -134,7 +134,7 @@ internal class NftApiControllerTest {
         } returns ItemToDtoConverter.convert(createItem())
 
         coEvery {
-            itemRoyaltyService.getRoyaltyByItemId(any())
+            itemRoyaltyService.getRoyaltiesByItemId(any())
         } returns listOf(Royalty(FlowAddress("0x01").formatted, BigDecimal("0.5")))
 
         client
@@ -152,7 +152,7 @@ internal class NftApiControllerTest {
         } returns null
 
         coEvery {
-            itemRoyaltyService.getRoyaltyByItemId(any())
+            itemRoyaltyService.getRoyaltiesByItemId(any())
         } returns null
 
         client
