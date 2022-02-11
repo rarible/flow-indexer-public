@@ -54,7 +54,7 @@ internal class JambbMomentsMetaProviderTest: FunSpec({
     test("should return filled meta") {
         JambbMomentsMetaProvider(
             itemRepository, metaScript
-        ).getMeta(existing) shouldBe OneFootballMetaConverterTest.META.toItemMeta(existing)
+        ).getMeta(existing) shouldBe JambbMomentsMetaConverterTest.META.toItemMeta(existing)
     }
 
 })
