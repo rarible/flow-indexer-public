@@ -53,6 +53,13 @@ class AppReadyListener(
                 symbol = "MXWRLDFFEST",
                 features = emptySet()
             ),
+            ItemCollection(
+                id = Contracts.JAMBB_MOMENTS.fqn(FlowChainId.TESTNET),
+                name = "Jambb",
+                owner = Contracts.JAMBB_MOMENTS.deployments[FlowChainId.TESTNET]!!,
+                symbol = "JAMBB",
+                features = setOf("BURN")
+            ),
 
         ),
         FlowChainId.MAINNET to listOf(
@@ -90,6 +97,13 @@ class AppReadyListener(
                 name = "Starly",
                 owner = Contracts.STARLY_CARD.deployments[FlowChainId.MAINNET]!!,
                 symbol = "STARLY",
+                features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.JAMBB_MOMENTS.fqn(FlowChainId.MAINNET),
+                name = "Jambb",
+                owner = Contracts.JAMBB_MOMENTS.deployments[FlowChainId.MAINNET]!!,
+                symbol = "JAMBB",
                 features = setOf("BURN")
             ),
         )
