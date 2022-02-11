@@ -10,7 +10,7 @@ internal class JambbMomentsMetaScriptTest: FunSpec({
 
     val scriptExecutor = mocks.scriptExecutor(
         "null" to data.CADENCE_NULL,
-        "result" to JambbMomentsMetaConverterTest.JSON
+        "result" to "{\"type\":\"Optional\",\"value\":${JambbMomentsMetaConverterTest.JSON}}"
     )
 
     test("should hande null") {
