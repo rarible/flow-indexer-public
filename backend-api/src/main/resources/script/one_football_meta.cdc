@@ -1,5 +1,3 @@
-import OneFootballCollectible from 0x6831760534292098
-import NonFungibleToken from 0x1d7e57aa55817448
 import OneFootballCollectible from 0xONEFOOTBALL
 import NonFungibleToken from 0xNONFUNGIBLETOKEN
 
