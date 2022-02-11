@@ -74,10 +74,21 @@ internal class NftItemMetaServiceTest: FunSpec({
             every { save(any()) } answers { Mono.just(arg(0)) }
         }
 
+        val service = NftItemMetaService(
+            listOf(metaProvider),
+            repository,
+            mockk {
+                every { findById(any<ItemId>()) } returns Mono.just(item)
+            }
+        )
+
+        service.getMetaByItemId(itemId)
+
+
         coVerifySequence {
             repository.findById(itemId)
             metaProvider.isSupported(itemId)
-            metaProvider.getMeta(itemId)
+            metaProvider.getMeta(item)
             repository.save(withArg { meta ->
                 meta.itemId shouldBe itemId
             })

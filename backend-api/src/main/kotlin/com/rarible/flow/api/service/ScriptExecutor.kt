@@ -60,7 +60,7 @@ class ScriptExecutor(
         code: String,
         args: ScriptBuilder.() -> Unit,
         parse: JsonCadenceParser.(Field<*>) -> T,
-        processResponse: FlowScriptResponse.() -> FlowScriptResponse
+        processResponse: FlowScriptResponse.() -> FlowScriptResponse = {this}
     ): T {
         val response = api.simpleScript {
             script(code, appProperties.chainId)

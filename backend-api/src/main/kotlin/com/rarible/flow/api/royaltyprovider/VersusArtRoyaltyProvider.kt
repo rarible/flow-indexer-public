@@ -28,19 +28,15 @@ class VersusArtRoyaltyProvider(
         itemId.contract.contains("VersusArt")
 
     override suspend fun getRoyalty(item: Item): List<Royalty> {
-        val nft = scriptExecutor.executeFile(
-            scriptFile,
-            {
-                arg { address(item.owner!!.formatted) }
-                arg { ufix64(item.tokenId) }
-            },
-            {
-                (it.value as ResourceField?)?.let { it1 -> Flow.unmarshall(VersusArtItem::class, it1) }
-            },
-            {
-                this.copy(bytes = this.bytes.changeCapabilityToAddress())
-            }
-        ) ?: return emptyList()
+        val result = scriptExecutor.execute(
+            scriptText,
+            mutableListOf(
+                builder.address(item.owner!!.formatted),
+                builder.ufix64(item.tokenId)
+            ),
+        ).let { it.copy(bytes = it.bytes.changeCapabilityToAddress()) }
+        val value = result.jsonCadence.value as ResourceField
+        val nft = Flow.unmarshall(VersusArtItem::class, value)
         return nft.royalty.map { Royalty(it.value.wallet, it.value.cut) }
     }
 

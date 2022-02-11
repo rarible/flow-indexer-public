@@ -14,7 +14,7 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             version("flow-sdk-ver", "0.6.0")
-            version("rarible-core", "2.0.4")
+            version("rarible-core", "2.2.4")
             version("rarible-currency", "1.18.2")
             version("flow-protocol-version", "3.1.4")
             version("blockchain-scanner", "1.1.0")
