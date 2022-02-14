@@ -2,9 +2,8 @@ package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.metaprovider.body.MetaBody
@@ -25,7 +24,7 @@ class FanfareMetaProvider(
     private val apiProperties: ApiProperties
 ): ItemMetaProvider {
     val parser = JacksonJsonParser()
-    val objectMapper = ObjectMapper().registerKotlinModule()
+    val objectMapper = jacksonObjectMapper()
 
     override fun isSupported(itemId: ItemId): Boolean =
         itemId.contract == Contracts.FANFARE.fqn(apiProperties.chainId)

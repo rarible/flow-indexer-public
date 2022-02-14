@@ -1,20 +1,21 @@
 package com.rarible.flow.api.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
-import com.nftco.flow.sdk.cadence.OptionalField
-import com.nftco.flow.sdk.cadence.StringField
 import com.rarible.flow.Contracts
-import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.metaprovider.CnnNFTConverter
 import com.rarible.flow.api.metaprovider.DisruptArtNFT
 import com.rarible.flow.api.metaprovider.RaribleNFT
 import com.rarible.flow.core.config.AppProperties
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.Part
+import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
@@ -53,7 +54,7 @@ class UserStorageService(
             }
         }
         log.info("$data")
-        val objectMapper = ObjectMapper().registerKotlinModule()
+        val objectMapper = jacksonObjectMapper()
 
         data.forEach { (collection, itemIds) ->
             try {
