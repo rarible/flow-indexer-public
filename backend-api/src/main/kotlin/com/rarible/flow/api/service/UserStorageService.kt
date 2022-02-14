@@ -1,10 +1,13 @@
 package com.rarible.flow.api.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
+import com.nftco.flow.sdk.cadence.OptionalField
+import com.nftco.flow.sdk.cadence.StringField
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.metaprovider.CnnNFTConverter
@@ -50,7 +53,7 @@ class UserStorageService(
             }
         }
         log.info("$data")
-        val objectMapper = ObjectMapper()
+        val objectMapper = ObjectMapper().registerKotlinModule()
 
         data.forEach { (collection, itemIds) ->
             try {
@@ -448,6 +451,45 @@ class UserStorageService(
                             owner = address,
                             mintedAt = Instant.now(),
                             meta = "{}",
+                            collection = contract,
+                            updatedAt = Instant.now()
+                        )
+                    } else {
+                        val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
+                        } else {
+                            checkOwnership(i, address)
+                            null
+                        }
+                    }
+                    saveItem(item)
+                }
+            }
+
+            Contracts.FANFARE.contractName -> {
+                itemIds.forEach { tokenId ->
+                    val contract = Contracts.FANFARE.fqn(appProperties.chainId)
+                    val item = if (notExistsItem(contract, tokenId)) {
+                        val meta: String? = scriptExecutor.executeFile(
+                            "/script/item/item_fanfare.cdc",
+                            {
+                                arg { address(address.formatted) }
+                                arg { uint64(tokenId) }
+                            }, { json ->
+                                json.value as String?
+                            }
+                        )
+                        Item(
+                            contract = contract,
+                            tokenId = tokenId,
+                            creator = Contracts.FANFARE.deployments[appProperties.chainId]!!,
+                            royalties = Contracts.FANFARE.staticRoyalties(appProperties.chainId),
+                            owner = address,
+                            mintedAt = Instant.now(),
+                            meta = objectMapper.writeValueAsString(mapOf(
+                                "metadata" to meta
+                            )),
                             collection = contract,
                             updatedAt = Instant.now()
                         )
