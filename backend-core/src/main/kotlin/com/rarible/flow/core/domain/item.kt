@@ -76,10 +76,23 @@ data class Item (
 data class ItemCollection(
     @MongoId
     val id: String,
+    @Indexed
     val owner: FlowAddress,
+    @Indexed
     val name: String,
+    @Indexed
     val symbol: String,
+    @Indexed
     val createdDate: Instant = Instant.now(),
-    val features: Set<String> = emptySet()
+    val features: Set<String> = emptySet(),
+    val isSoft: Boolean = false,
+    @Indexed
+    val chainId: Long? = null,
+    val chainParentId: Long? = null,
+    val royalties: List<Part>? = null,
+    val description: String? = null,
+    val burned: Boolean = false,
+    val icon: String? = null,
+    val url: String? = null
 )
 

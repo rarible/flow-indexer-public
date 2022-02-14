@@ -32,7 +32,8 @@ internal class StarlyActivityTest: FunSpec({
                 "starlyId" to "pSYegq3aubUCodcy1t4u/15/542"
             ),
             royalties = emptyList(),
-            timestamp = Instant.parse("2021-10-26T14:28:35.621Z")
+            timestamp = Instant.parse("2021-10-26T14:28:35.621Z"),
+            collection = "A.5b82f21c0edf76e3.StarlyCard"
         )
     }
 

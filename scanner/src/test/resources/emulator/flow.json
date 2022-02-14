@@ -1,0 +1,47 @@
+{
+	"emulators": {
+		"default": {
+			"port": 3569,
+			"serviceAccount": "emulator-account"
+		}
+	},
+	"contracts": {
+		"LicensedNFT": "./contracts/LicensedNFT.cdc",
+		"MetadataViews": "./contracts/flow/MetadataViews.cdc",
+		"RaribleNFTv2": "./contracts/RaribleNFTv2.cdc",
+		"SoftCollection": "./contracts/SoftCollection.cdc"
+	},
+	"networks": {
+		"emulator": "127.0.0.1:3569",
+		"mainnet": "access.mainnet.nodes.onflow.org:9000",
+		"testnet": "access.devnet.nodes.onflow.org:9000"
+	},
+	"accounts": {
+		"emulator-account": {
+			"address": "f8d6e0586b0a20c7",
+			"key": "8ea7b6cb8da7a09c19e2401eafcfd3863136decb5a495779a22f917c376da8b4"
+		},
+		"gary": {
+			"address": "f3fcd2c1a78f5eee",
+			"key": "6fcee83ae408d909aaf73a88c8a99ace0af5a77aa2cd3990b7ead55fc097e52c"
+		},
+		"patrick": {
+			"address": "01cf0e2f2f715450",
+			"key": "71f64f0287a49382b1476323f363563bc32d8cdd8d81ba335e0b76f14555e5d2"
+		},
+		"squidward": {
+			"address": "179b6b1cb6755e31",
+			"key": "5bd89c2dbacd509e79065e65be99655946cdb339e912efc1e55e02254939e704"
+		}
+	},
+	"deployments": {
+		"emulator": {
+			"emulator-account": [
+				"MetadataViews",
+				"LicensedNFT",
+				"RaribleNFTv2",
+				"SoftCollection"
+			]
+		}
+	}
+}

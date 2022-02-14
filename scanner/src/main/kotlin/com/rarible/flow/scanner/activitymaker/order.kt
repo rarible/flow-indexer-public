@@ -227,10 +227,11 @@ class RaribleOpenBidActivityMaker(
                     val payInfo = payInfos(currencyEvents, sellerAddress)
 
                     val price = payInfo.filterNot {
-                        it.type in arrayOf(PaymentType.SELLER_FEE, PaymentType.OTHER)
+                        it.type == PaymentType.BUYER_FEE
                     }.sumOf { it.amount }
                     val usdRate =
-                        usdRate(payInfo.first().currencyContract, flowLogEvent.log.timestamp.toEpochMilli()) ?: BigDecimal.ZERO
+                        usdRate(payInfo.first().currencyContract, flowLogEvent.log.timestamp.toEpochMilli())
+                            ?: BigDecimal.ZERO
 
                     val priceUsd = if (usdRate > BigDecimal.ZERO) {
                         price * usdRate
@@ -243,7 +244,7 @@ class RaribleOpenBidActivityMaker(
                         tokenId = tokenId,
                         contract = withdrawnEvent.eventId.collection(),
                         hash = hash,
-                        left = OrderActivityMatchSide(
+                        right = OrderActivityMatchSide(
                             maker = sellerAddress,
                             asset = FlowAssetNFT(
                                 contract = withdrawnEvent.eventId.collection(),
@@ -251,7 +252,7 @@ class RaribleOpenBidActivityMaker(
                                 value = BigDecimal.ONE
                             )
                         ),
-                        right = OrderActivityMatchSide(
+                        left = OrderActivityMatchSide(
                             maker = buyerAddress,
                             asset = FlowAssetFungible(
                                 contract = payInfo.first().currencyContract,

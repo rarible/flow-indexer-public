@@ -164,6 +164,7 @@ data class MintActivity(
     val creator: String?,
     val royalties: List<Part>,
     val metadata: Map<String, String>,
+    val collection: String? = null
 ) : FlowNftActivity()
 
 /**

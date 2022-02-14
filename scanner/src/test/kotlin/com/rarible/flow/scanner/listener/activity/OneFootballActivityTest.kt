@@ -29,7 +29,8 @@ internal class OneFootballActivityTest: FunSpec({
             creator = "0x6831760534292098",
             metadata = emptyMap(),
             royalties = emptyList(),
-            timestamp = Instant.parse("2021-10-26T14:28:35.621Z")
+            timestamp = Instant.parse("2021-10-26T14:28:35.621Z"),
+            collection = "A.6831760534292098.OneFootballCollectible"
         )
     }
 

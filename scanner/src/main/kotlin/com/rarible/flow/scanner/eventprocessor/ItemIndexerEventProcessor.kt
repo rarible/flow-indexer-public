@@ -1,6 +1,6 @@
 package com.rarible.flow.scanner.eventprocessor
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.core.apm.CaptureSpan
@@ -33,7 +33,7 @@ class ItemIndexerEventProcessor(
     private val orderService: OrderService,
 ) : IndexerEventsProcessor {
 
-    private val objectMapper = ObjectMapper()
+    private val objectMapper = jacksonObjectMapper()
 
     private val supportedTypes = arrayOf(FlowActivityType.MINT, FlowActivityType.TRANSFER, FlowActivityType.BURN)
 
@@ -66,7 +66,7 @@ class ItemIndexerEventProcessor(
                     owner = owner,
                     mintedAt = mintActivity.timestamp,
                     meta = objectMapper.writeValueAsString(mintActivity.metadata),
-                    collection = mintActivity.contract,
+                    collection = mintActivity.collection ?: mintActivity.contract,
                     updatedAt = mintActivity.timestamp
                 )
             } else if (event.item.mintedAt != mintActivity.timestamp) {

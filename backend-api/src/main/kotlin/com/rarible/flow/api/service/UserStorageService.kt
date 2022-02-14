@@ -1,6 +1,7 @@
 package com.rarible.flow.api.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
@@ -17,6 +18,7 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
+import com.rarible.flow.events.RaribleNFTv2Token
 import com.rarible.flow.pmap
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -44,7 +46,7 @@ class UserStorageService(
 
     suspend fun scanNFT(address: FlowAddress) {
         log.info("Scan user NFT's for address ${address.formatted}")
-        val objectMapper = ObjectMapper()
+        val objectMapper = jacksonObjectMapper()
         val parser = JsonCadenceParser()
         val builder = JsonCadenceBuilder()
         scanUserNftScript.call(address).forEach { (collection, itemIds) ->
@@ -308,12 +310,8 @@ class UserStorageService(
 
             "CNN_NFT" -> {
                 val contract = contract("0xCNNNFT", "CNN_NFT")
-                val items = itemRepository.findAllByIdIn(
-                    itemIds.map { ItemId(contract, it) }.toSet()
-                ).toIterable().associateBy { it.tokenId }
                 itemIds.pmap { tokenId ->
-                    val item = items[tokenId]
-                    if (item == null) {
+                    val item = if (notExistsItem(contract, tokenId)) {
                         val tokenData =
                             scriptExecutor.executeFile(
                                 "/script/get_cnn_nft.cdc",
@@ -392,6 +390,31 @@ class UserStorageService(
                     saveItem(item)
                 }
             }
+            "RaribleNFTv2" -> {
+                scriptExecutor.executeFile(
+                    "/script/get_rari_v2_items.cdc",
+                    {
+                        arg { address(address.bytes) }
+                    },
+                    { tokens ->
+                        arrayValues(tokens) {
+                            unmarshall(it, RaribleNFTv2Token::class)
+                        }.map { token ->
+                            Item(
+                                contract = contract("0xRARIBLENFT_V2", "RaribleNFTv2"),
+                                tokenId = token.id,
+                                creator = FlowAddress(token.creator),
+                                owner = address,
+                                mintedAt = Instant.now(),
+                                royalties = token.royalties.map { Part(address = FlowAddress(it.address), fee = it.fee.toDouble()) },
+                                updatedAt = Instant.now(),
+                                collection = "${contract("0xSOFTCOLLECTION", "SoftCollection")}:${token.parentId}",
+                                meta = objectMapper.writeValueAsString(token.meta.toMap())
+                            )
+                        }
+                    }
+                )
+            }
 
             "ChainmonstersRewards" -> {
                 itemIds.forEach { tokenId ->
@@ -435,6 +458,15 @@ class UserStorageService(
         return "A.${address.base16Value}.$contractName"
     }
 
+    private suspend fun notExistsItem(contract: String, tokenId: TokenId): Boolean {
+        return !itemRepository.existsById(
+            ItemId(
+                contract = contract,
+                tokenId = tokenId
+            )
+        ).awaitSingle()
+    }
+
     private suspend fun saveItem(item: Item?) {
         log.debug("saveItem: $item")
         if (item != null) {
@@ -452,17 +484,11 @@ class UserStorageService(
         protocolEventPublisher.onUpdate(ownershipRepository.save(o).awaitSingle())
     }
 
-    private suspend fun notExistsItem(contract: String, tokenId: TokenId): Boolean {
-        return !itemRepository.existsById(
-            ItemId(
-                contract = contract,
-                tokenId = tokenId
-            )
-        ).awaitSingle()
-    }
-
     private fun scriptText(resourcePath: String): String {
         val resource = ClassPathResource(resourcePath)
         return resource.inputStream.bufferedReader().use { it.readText() }
     }
+
 }
+
+

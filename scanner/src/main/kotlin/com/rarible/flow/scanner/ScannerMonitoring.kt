@@ -17,8 +17,8 @@ import kotlin.math.max
 
 @Component
 class ScannerMonitoring(
-    meter: MeterRegistry,
-    val blockRepository: ExtendedFlowBlockRepository
+    private val meter: MeterRegistry,
+    private val blockRepository: ExtendedFlowBlockRepository
 ): SequentialDaemonWorker(meter, DaemonWorkerProperties(), "flow-scanner-monitor") {
 
     @Volatile private var lastSeenBlockHead: FlowBlock? = null
@@ -46,19 +46,19 @@ class ScannerMonitoring(
         
         Gauge.builder("flow.listener.block.delay", this::getBlockDelay)
             .tag("blockchain", blockchain)
-            .register(meterRegistry)
+            .register(meter)
 
         Gauge.builder("flow.listener.block.error") { this.errorBlocksCount.toDouble() }
             .tag("blockchain", blockchain)
-            .register(meterRegistry)
+            .register(meter)
 
         Gauge.builder("flow.listener.block.pending") { pendingBlocksCount.toDouble() }
             .tag("blockchain", blockchain)
-            .register(meterRegistry)
+            .register(meter)
 
         Gauge.builder("flow.listener.block.missing", this::getMissingBlockCount)
             .tag("blockchain", blockchain)
-            .register(meterRegistry)
+            .register(meter)
     }
 
     private fun getMissingBlockCount(): Double {

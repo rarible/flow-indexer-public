@@ -36,7 +36,8 @@ internal class MatrixWorldVoucherActivityTest: FunSpec({
                 "type" to "Voucher"
             ),
             royalties = emptyList(),
-            timestamp = Instant.parse("2021-10-26T14:28:35.621Z")
+            timestamp = Instant.parse("2021-10-26T14:28:35.621Z"),
+            collection = "A.0d77ec47bbad8ef6.MatrixWorldVoucher"
         )
     }
 

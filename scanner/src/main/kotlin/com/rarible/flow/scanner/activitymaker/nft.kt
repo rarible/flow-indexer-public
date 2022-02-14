@@ -3,13 +3,11 @@ package com.rarible.flow.scanner.activitymaker
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
-import com.nftco.flow.sdk.cadence.JsonCadenceParser
-import com.nftco.flow.sdk.cadence.NumberField
-import com.nftco.flow.sdk.cadence.OptionalField
-import com.nftco.flow.sdk.cadence.StructField
+import com.nftco.flow.sdk.cadence.*
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.*
+import com.rarible.flow.events.RaribleNFTv2Meta
 import com.rarible.flow.events.VersusArtMetadata
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -62,7 +60,8 @@ abstract class NFTActivityMaker : ActivityMaker {
                     tokenId = tokenId,
                     timestamp = it.log.timestamp,
                     metadata = meta(it),
-                    royalties = royalties(it)
+                    royalties = royalties(it),
+                    collection = itemCollection(it)
                 )
             }
 
@@ -136,12 +135,14 @@ abstract class NFTActivityMaker : ActivityMaker {
     protected open fun royalties(logEvent: FlowLogEvent): List<Part> = emptyList()
 
     protected open fun creator(logEvent: FlowLogEvent): String = logEvent.event.eventId.contractAddress.formatted
+
+    protected open suspend fun itemCollection(mintEvent: FlowLogEvent): String = mintEvent.event.eventId.collection()
 }
 
 @Component
 class TopShotActivityMaker(
     @Value("\${blockchain.scanner.flow.chainId}")
-    private val chainId: FlowChainId
+    private val chainId: FlowChainId,
 ) : NFTActivityMaker() {
     override val contractName: String = "TopShot"
 
@@ -254,4 +255,77 @@ class VersusArtActivityMaker : NFTActivityMaker() {
     } catch (_: Exception) {
         logEvent.event.eventId.contractAddress.formatted
     }
+}
+
+@Component
+class RaribleV2ActivityMaker(
+    @Value("\${blockchain.scanner.flow.chainId}")
+    private val chainId: FlowChainId
+): NFTActivityMaker() {
+
+    private val softCollection by lazy {
+        CadenceNamespace.ns(Flow.DEFAULT_ADDRESS_REGISTRY.addressOf("0xSOFTCOLLECTION", chainId = chainId)!!, "SoftCollection").value
+    }
+
+    override val contractName: String = "RaribleNFTv2"
+
+    override fun tokenId(logEvent: FlowLogEvent): Long {
+        return cadenceParser.long(logEvent.event.fields["id"]!!)
+    }
+
+    override fun meta(logEvent: FlowLogEvent): Map<String, String> {
+        val meta by logEvent.event.fields
+        val rariMeta = cadenceParser.unmarshall<RaribleNFTv2Meta>(meta)
+        return rariMeta.toMap()
+    }
+
+    override fun royalties(logEvent: FlowLogEvent): List<Part> {
+        return cadenceParser.arrayValues(logEvent.event.fields["royalties"]!!) {
+            it as StructField
+            Part(
+                address = FlowAddress(address(it.value!!.getRequiredField("address"))),
+                fee = double(it.value!!.getRequiredField("fee"))
+            )
+        }
+    }
+
+    override suspend fun itemCollection(mintEvent: FlowLogEvent): String {
+        val parentId = cadenceParser.long(mintEvent.event.fields["parentId"]!!)
+        return "${softCollection}:$parentId"
+    }
+}
+
+@Component
+class DisruptArtActivityMaker(
+    @Value("\${blockchain.scanner.flow.chainId}")
+    private val chainId: FlowChainId,
+) : NFTActivityMaker() {
+    override val contractName: String = "DisruptArt"
+
+    private val royaltyAddress = mapOf(
+        FlowChainId.MAINNET to FlowAddress("0x420f47f16a214100"),
+        FlowChainId.TESTNET to FlowAddress("0x439c2b49c0b2f62b"),
+    )
+
+
+    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
+
+    override fun meta(logEvent: FlowLogEvent): Map<String, String> {
+        val res = mutableMapOf(
+            "content" to cadenceParser.string(logEvent.event.fields["content"]!!),
+            "name" to cadenceParser.string(logEvent.event.fields["name"]!!)
+        )
+
+        if (logEvent.event.eventId.eventName == "GroupMint") {
+            res["tokenGroupId"] = "${cadenceParser.long(logEvent.event.fields["tokenGroupId"]!!)}"
+        }
+        return res.toMap()
+    }
+
+    override fun creator(logEvent: FlowLogEvent): String = cadenceParser.optional(logEvent.event.fields["owner"]!!) {
+        address(it)
+    } ?: super.creator(logEvent)
+
+    override fun royalties(logEvent: FlowLogEvent): List<Part> =
+        listOf(Part(address = royaltyAddress[chainId]!!, fee = 0.15))
 }
