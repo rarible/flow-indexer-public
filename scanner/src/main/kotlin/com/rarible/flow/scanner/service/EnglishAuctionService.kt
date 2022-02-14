@@ -166,11 +166,13 @@ class EnglishAuctionService(
                     it.copy(ongoing = true)
                 }.toList()
                 logger.info("Found: ${started.size} not started auctions ...")
-                repo.saveAll(started).asFlow().collect {
-                    publisher.auction(it).ensureSuccess()
+                if (started.isNotEmpty()) {
+                    repo.saveAll(started).asFlow().collect {
+                        publisher.auction(it).ensureSuccess()
+                    }
                 }
             } catch (e: Throwable) {
-                logger
+                logger.error("Unable to process started auctions: ${e.message}", e)
             }
         }
     }

@@ -34,31 +34,26 @@ internal class FlowSignatureServiceTest: FunSpec({
         )
     )
 
-    test("should verify signature").config(enabledIf = { !SystemUtils.IS_OS_WINDOWS }) {
+    test("should verify signature").config(enabledIf = { !SystemUtils.IS_OS_WINDOWS && apiAvailable(api) }) {
         data.forEach { (pk, sign, message) ->
             service.verify(pk, sign, message) shouldBe true
         }
     }
 
-    test("should verify signature - flow type").config(enabledIf = { !SystemUtils.IS_OS_WINDOWS }) {
+    test("should verify signature - flow type").config(enabledIf = { !SystemUtils.IS_OS_WINDOWS && apiAvailable(api) }) {
         data.forEach { (pk, sign, message) ->
             service.verify(FlowPublicKey(pk), FlowSignature(sign), message) shouldBe true
         }
     }
 
-    test("should fail").config(enabledIf = { !SystemUtils.IS_OS_WINDOWS }) {
+    test("should fail").config(enabledIf = { !SystemUtils.IS_OS_WINDOWS && apiAvailable(api) }) {
         data.forEach { (pk, sign, _) ->
             service.verify(pk, sign, "fail") shouldBe false
         }
     }
 
     test("should check account").config(enabledIf = {
-        try {
-            api.ping().get()
-            true
-        } catch (e: Exception) {
-            false
-        }
+        apiAvailable(api)
     }) {
         service.checkPublicKey(
             FlowAddress("0xeeec6511cadbc0e2"),
@@ -67,12 +62,7 @@ internal class FlowSignatureServiceTest: FunSpec({
     }
 
     test("should check account - false").config(enabledIf = {
-        try {
-            api.ping().get()
-            true
-        } catch (e: Exception) {
-            false
-        }
+        apiAvailable(api)
     }) {
         service.checkPublicKey(
             FlowAddress("0xeeec6511cadbc0e2"),
@@ -82,4 +72,13 @@ internal class FlowSignatureServiceTest: FunSpec({
         ) shouldBe false
     }
 
+
+
 })
+
+fun apiAvailable(api: AsyncFlowAccessApi) = try {
+    api.ping().get()
+    true
+} catch (e: Exception) {
+    false
+}
