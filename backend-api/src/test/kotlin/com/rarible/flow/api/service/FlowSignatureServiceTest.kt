@@ -1,19 +1,17 @@
 package com.rarible.flow.api.service
 
-import com.nftco.flow.sdk.Flow
-import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.FlowChainId
-import com.nftco.flow.sdk.FlowPublicKey
-import com.nftco.flow.sdk.FlowSignature
+import com.nftco.flow.sdk.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.apache.commons.lang3.SystemUtils
 
 internal class FlowSignatureServiceTest: FunSpec({
 
+    val api = Flow.newAsyncAccessApi("access.devnet.nodes.onflow.org", 9000)
+
     val service = FlowSignatureService(
         FlowChainId.TESTNET,
-        Flow.newAsyncAccessApi("access.devnet.nodes.onflow.org", 9000)
+        api
     )
 
     val data = listOf(
@@ -54,14 +52,28 @@ internal class FlowSignatureServiceTest: FunSpec({
         }
     }
 
-    test("should check account") {
+    test("should check account").config(enabledIf = {
+        try {
+            api.ping().get()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }) {
         service.checkPublicKey(
             FlowAddress("0xeeec6511cadbc0e2"),
             FlowPublicKey("66b3acb064f9cc990b93796e8d09d4a8820b3dde809f9be69f631d0582d314e4e0a5f881f5e2bcdb8153d78de63d98712b899d4f5dec947822a3ada60230376d")
         ) shouldBe true
     }
 
-    test("should check account - false") {
+    test("should check account - false").config(enabledIf = {
+        try {
+            api.ping().get()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }) {
         service.checkPublicKey(
             FlowAddress("0xeeec6511cadbc0e2"),
             FlowPublicKey(

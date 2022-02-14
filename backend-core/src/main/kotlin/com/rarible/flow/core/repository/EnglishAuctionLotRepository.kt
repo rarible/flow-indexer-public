@@ -9,4 +9,6 @@ import java.time.Instant
 interface EnglishAuctionLotRepository: ReactiveMongoRepository<EnglishAuctionLot, Long> {
 
     fun findAllByStatusAndFinishAtLessThanEqualAndLastBidIsNotNull(status: AuctionStatus, finishAt: Instant): Flux<EnglishAuctionLot>
+
+    fun findAllByStartAtAfterAndOngoingAndStatus(startAt: Instant, ongoing: Boolean = false, status: AuctionStatus = AuctionStatus.ACTIVE): Flux<EnglishAuctionLot>
 }
