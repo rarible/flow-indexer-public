@@ -79,5 +79,19 @@ enum class Contracts: Contract {
             )
         override val import: String
             get() = "0xMATRIXWORLDFLOWFEST"
+    },
+
+    ENGLISH_AUCTION {
+        override val contractName: String
+            get() = "EnglishAuction"
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                FlowChainId.MAINNET to FlowAddress("0x01"), //todo fill after deploy to mainnet
+                FlowChainId.TESTNET to FlowAddress("0xebf4ae01d1284af8"),
+                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
+            )
+        override val import: String
+            get() = "0xENGLISH_AUCTION"
+
     }
 }

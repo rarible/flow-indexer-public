@@ -3,10 +3,7 @@ package com.rarible.flow.core.kafka
 import com.rarible.core.kafka.KafkaMessage
 import com.rarible.core.kafka.KafkaSendResult
 import com.rarible.core.kafka.RaribleKafkaProducer
-import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
-import com.rarible.flow.core.converter.ItemToDtoConverter
-import com.rarible.flow.core.converter.OrderToDtoConverter
-import com.rarible.flow.core.converter.OwnershipToDtoConverter
+import com.rarible.flow.core.converter.*
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.*
@@ -18,6 +15,7 @@ class ProtocolEventPublisher(
     private val ownerships: RaribleKafkaProducer<FlowOwnershipEventDto>,
     private val orders: RaribleKafkaProducer<FlowOrderEventDto>,
     private val activities: RaribleKafkaProducer<FlowActivityDto>,
+    private val auctions: RaribleKafkaProducer<FlowAuctionDto>
 ) {
 
     private val logger by Log()
@@ -86,13 +84,23 @@ class ProtocolEventPublisher(
         return send(items, key, message)
     }
 
-    suspend fun activity(history: ItemHistory): KafkaSendResult? {
+    suspend fun activity(history: ItemHistory): KafkaSendResult {
         return send(
             activities,
             "${history.id}:${history.activity.type}-${history.activity.timestamp}",
             ItemHistoryToDtoConverter.convert(history)
         )
     }
+
+    suspend fun auction(auction: EnglishAuctionLot): KafkaSendResult {
+        return send(
+            auctions,
+            "${auction.id}.${UUID.randomUUID()}",
+            AuctionToDtoConverter.convert(auction)
+        )
+    }
+
+
     private suspend fun <V> send(producer: RaribleKafkaProducer<V>, key: String, message: V): KafkaSendResult {
         logger.info("Sending to kafka: {} [hashCode={}]...", message, message.hashCode())
         val sendResult = producer.send(

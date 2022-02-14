@@ -1,18 +1,43 @@
 package com.rarible.flow.scanner.service
 
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowChainId
+import com.nftco.flow.sdk.cadence.CadenceNamespace
+import com.rarible.core.apm.SpanType
+import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.EnglishAuctionLotRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
+import com.rarible.flow.log.Log
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.runBlocking
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.Instant
 
 @Service
 class EnglishAuctionService(
-    private val repo: EnglishAuctionLotRepository
+    private val repo: EnglishAuctionLotRepository,
+    @Value("\${blockchain.scanner.flow.chainId}")
+    private val chainId: FlowChainId,
+    private val publisher: ProtocolEventPublisher
 ) {
+
+    private val logger by Log()
+
+    private val engAucNs: CadenceNamespace by lazy {
+        CadenceNamespace.ns(
+            address = Contracts.ENGLISH_AUCTION.deployments[chainId]!!,
+            values = arrayOf(Contracts.ENGLISH_AUCTION.contractName)
+        )
+    }
 
     suspend fun openLot(activityLot: AuctionActivityLot): EnglishAuctionLot {
         val status = when {
@@ -37,7 +62,9 @@ class EnglishAuctionService(
             startPrice = activityLot.startPrice,
             buyoutPrice = activityLot.buyoutPrice,
             minStep = activityLot.minStep,
-            duration = activityLot.duration
+            duration = activityLot.duration,
+            contract = engAucNs.value,
+            ongoing = activityLot.startAt >= Instant.now()
         )
 
         return repo.coSave(lot)
@@ -127,5 +154,26 @@ class EnglishAuctionService(
                 lastUpdatedAt = activity.timestamp
             )
         )
+    }
+
+    @Scheduled(initialDelay = 30L, fixedDelay = 30L)
+    @com.rarible.core.apm.CaptureSpan(type = SpanType.KAFKA)
+    fun processOngoing() {
+        logger.info("Processes ongoing auctions ...")
+        runBlocking {
+            try {
+                val started = repo.findAllByStartAtAfterAndOngoingAndStatus(Instant.now()).asFlow().map {
+                    it.copy(ongoing = true)
+                }.toList()
+                logger.info("Found: ${started.size} not started auctions ...")
+                if (started.isNotEmpty()) {
+                    repo.saveAll(started).asFlow().collect {
+                        publisher.auction(it).ensureSuccess()
+                    }
+                }
+            } catch (e: Throwable) {
+                logger.error("Unable to process started auctions: ${e.message}", e)
+            }
+        }
     }
 }

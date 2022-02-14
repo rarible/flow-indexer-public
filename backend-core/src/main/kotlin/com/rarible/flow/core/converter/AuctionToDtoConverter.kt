@@ -44,7 +44,9 @@ object AuctionToDtoConverter : Converter<AuctionLot, FlowAuctionDto> {
                             value = it.value
                         )
                     },
-                    duration = source.duration
+                    duration = source.duration,
+                    contract = source.contract,
+                    ongoing = source.ongoing
                 )
             }
         }

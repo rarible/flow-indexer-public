@@ -44,7 +44,8 @@ class CoreConfig(
         GatewayEventsProducers.itemsUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
         GatewayEventsProducers.ownershipsUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
         GatewayEventsProducers.ordersUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
-        GatewayEventsProducers.activitiesUpdates(appProperties.environment, appProperties.kafkaReplicaSet)
+        GatewayEventsProducers.activitiesUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
+        GatewayEventsProducers.auctionsUpdates(appProperties.environment, appProperties.kafkaReplicaSet)
     )
 
 }

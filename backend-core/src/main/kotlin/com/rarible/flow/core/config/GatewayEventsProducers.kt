@@ -42,4 +42,13 @@ object GatewayEventsProducers {
             bootstrapServers = kafkaBootstrapServer
         )
     }
+
+    fun auctionsUpdates(environment: String, kafkaBootstrapServer: String): RaribleKafkaProducer<FlowAuctionDto> {
+        return RaribleKafkaProducer(
+            clientId = "$environment.flow.auction-events-importer",
+            valueSerializerClass = JsonSerializer::class.java,
+            defaultTopic = FlowActivityEventTopicProvider.getTopic(environment),
+            bootstrapServers = kafkaBootstrapServer
+        )
+    }
 }

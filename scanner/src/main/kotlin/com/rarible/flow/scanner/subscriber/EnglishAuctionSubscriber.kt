@@ -3,6 +3,7 @@ package com.rarible.flow.scanner.subscriber
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
+import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.events.EventId
 import org.springframework.stereotype.Component
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component
 @Component
 class EnglishAuctionSubscriber: BaseFlowLogEventSubscriber() {
 
-    private val contractName = "EnglishAuction"
+    private val contractName = Contracts.ENGLISH_AUCTION.contractName
 
     private val events = setOf("LotAvailable", "LotCompleted", "LotEndTimeChanged", "LotCleaned", "OpenBid", "CloseBid", "IncreaseBid")
 

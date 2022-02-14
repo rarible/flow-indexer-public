@@ -54,7 +54,9 @@ data class EnglishAuctionLot(
     val duration: Long? = null,
     val cleaned: Boolean = false,
     @Field(targetType = FieldType.DECIMAL128)
-    val hammerPriceUsd: BigDecimal? = null
+    val hammerPriceUsd: BigDecimal? = null,
+    val ongoing: Boolean = false,
+    val contract: String? = null
 ): AuctionLot
 
 data class Bid(

@@ -1,19 +1,17 @@
 package com.rarible.flow.api.service
 
-import com.nftco.flow.sdk.Flow
-import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.FlowChainId
-import com.nftco.flow.sdk.FlowPublicKey
-import com.nftco.flow.sdk.FlowSignature
+import com.nftco.flow.sdk.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.apache.commons.lang3.SystemUtils
 
 internal class FlowSignatureServiceTest: FunSpec({
 
+    val api = Flow.newAsyncAccessApi("access.devnet.nodes.onflow.org", 9000)
+
     val service = FlowSignatureService(
         FlowChainId.TESTNET,
-        Flow.newAsyncAccessApi("access.devnet.nodes.onflow.org", 9000)
+        api
     )
 
     val data = listOf(
@@ -36,32 +34,36 @@ internal class FlowSignatureServiceTest: FunSpec({
         )
     )
 
-    test("should verify signature").config(enabledIf = { !SystemUtils.IS_OS_WINDOWS }) {
+    test("should verify signature").config(enabledIf = { !SystemUtils.IS_OS_WINDOWS && apiAvailable(api) }) {
         data.forEach { (pk, sign, message) ->
             service.verify(pk, sign, message) shouldBe true
         }
     }
 
-    test("should verify signature - flow type").config(enabledIf = { !SystemUtils.IS_OS_WINDOWS }) {
+    test("should verify signature - flow type").config(enabledIf = { !SystemUtils.IS_OS_WINDOWS && apiAvailable(api) }) {
         data.forEach { (pk, sign, message) ->
             service.verify(FlowPublicKey(pk), FlowSignature(sign), message) shouldBe true
         }
     }
 
-    test("should fail").config(enabledIf = { !SystemUtils.IS_OS_WINDOWS }) {
+    test("should fail").config(enabledIf = { !SystemUtils.IS_OS_WINDOWS && apiAvailable(api) }) {
         data.forEach { (pk, sign, _) ->
             service.verify(pk, sign, "fail") shouldBe false
         }
     }
 
-    test("should check account") {
+    test("should check account").config(enabledIf = {
+        apiAvailable(api)
+    }) {
         service.checkPublicKey(
             FlowAddress("0xeeec6511cadbc0e2"),
             FlowPublicKey("66b3acb064f9cc990b93796e8d09d4a8820b3dde809f9be69f631d0582d314e4e0a5f881f5e2bcdb8153d78de63d98712b899d4f5dec947822a3ada60230376d")
         ) shouldBe true
     }
 
-    test("should check account - false") {
+    test("should check account - false").config(enabledIf = {
+        apiAvailable(api)
+    }) {
         service.checkPublicKey(
             FlowAddress("0xeeec6511cadbc0e2"),
             FlowPublicKey(
@@ -70,4 +72,13 @@ internal class FlowSignatureServiceTest: FunSpec({
         ) shouldBe false
     }
 
+
+
 })
+
+fun apiAvailable(api: AsyncFlowAccessApi) = try {
+    api.ping().get()
+    true
+} catch (e: Exception) {
+    false
+}
