@@ -1,5 +1,6 @@
 package com.rarible.flow.scanner.migrations
 
+import com.nftco.flow.sdk.FlowChainId
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.scanner.config.FlowApiProperties
@@ -24,12 +25,14 @@ class ChangeLog00022StarlyRoyalties(
 
     @Execution
     fun changeSet() {
-        mongo.updateMulti<Item>(
-            Query(
-                Item::contract isEqualTo Contracts.STARLY_CARD.fqn(config.chainId)
-            ),
-            Update.update(Item::royalties.name, Contracts.STARLY_CARD.staticRoyalties(config.chainId))
-        )
+        if (config.chainId == FlowChainId.MAINNET) {
+            mongo.updateMulti<Item>(
+                Query(
+                    Item::contract isEqualTo Contracts.STARLY_CARD.fqn(config.chainId)
+                ),
+                Update.update(Item::royalties.name, Contracts.STARLY_CARD.staticRoyalties(config.chainId))
+            )
+        }
     }
 
     @RollbackExecution
