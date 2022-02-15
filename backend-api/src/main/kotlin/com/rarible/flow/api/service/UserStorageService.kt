@@ -1,17 +1,21 @@
 package com.rarible.flow.api.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.Contracts
-import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.metaprovider.CnnNFTConverter
 import com.rarible.flow.api.metaprovider.DisruptArtNFT
 import com.rarible.flow.api.metaprovider.RaribleNFT
 import com.rarible.flow.core.config.AppProperties
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.Part
+import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
@@ -50,7 +54,7 @@ class UserStorageService(
             }
         }
         log.info("$data")
-        val objectMapper = ObjectMapper()
+        val objectMapper = jacksonObjectMapper()
 
         data.forEach { (collection, itemIds) ->
             try {
@@ -448,6 +452,45 @@ class UserStorageService(
                             owner = address,
                             mintedAt = Instant.now(),
                             meta = "{}",
+                            collection = contract,
+                            updatedAt = Instant.now()
+                        )
+                    } else {
+                        val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
+                        } else {
+                            checkOwnership(i, address)
+                            null
+                        }
+                    }
+                    saveItem(item)
+                }
+            }
+
+            Contracts.FANFARE.contractName -> {
+                itemIds.forEach { tokenId ->
+                    val contract = Contracts.FANFARE.fqn(appProperties.chainId)
+                    val item = if (notExistsItem(contract, tokenId)) {
+                        val meta: String? = scriptExecutor.executeFile(
+                            "/script/item/item_fanfare.cdc",
+                            {
+                                arg { address(address.formatted) }
+                                arg { uint64(tokenId) }
+                            }, { json ->
+                                json.value as String?
+                            }
+                        )
+                        Item(
+                            contract = contract,
+                            tokenId = tokenId,
+                            creator = Contracts.FANFARE.deployments[appProperties.chainId]!!,
+                            royalties = Contracts.FANFARE.staticRoyalties(appProperties.chainId),
+                            owner = address,
+                            mintedAt = Instant.now(),
+                            meta = objectMapper.writeValueAsString(mapOf(
+                                "metadata" to meta
+                            )),
                             collection = contract,
                             updatedAt = Instant.now()
                         )

@@ -60,6 +60,13 @@ class AppReadyListener(
                 symbol = "JAMBB",
                 features = setOf("BURN")
             ),
+            ItemCollection(
+                id = Contracts.FANFARE.fqn(FlowChainId.TESTNET),
+                name = "Fanfare",
+                owner = Contracts.FANFARE.deployments[FlowChainId.TESTNET]!!,
+                symbol = "FANFARE",
+                features = emptySet()
+            ),
 
         ),
         FlowChainId.MAINNET to listOf(
@@ -105,6 +112,13 @@ class AppReadyListener(
                 owner = Contracts.JAMBB_MOMENTS.deployments[FlowChainId.MAINNET]!!,
                 symbol = "JAMBB",
                 features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.FANFARE.fqn(FlowChainId.MAINNET),
+                name = "Fanfare",
+                owner = Contracts.FANFARE.deployments[FlowChainId.MAINNET]!!,
+                symbol = "FANFARE",
+                features = emptySet()
             ),
         )
     )

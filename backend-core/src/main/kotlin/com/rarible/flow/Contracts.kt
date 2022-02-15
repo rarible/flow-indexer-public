@@ -191,6 +191,25 @@ enum class Contracts : Contract {
             ) else super.staticRoyalties(chain)
         }
     },
+
+    FANFARE {
+        override val contractName: String
+            get() = "FanfareNFTContract"
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                FlowChainId.MAINNET to FlowAddress("0x4c44f3b1e4e70b20"),
+                FlowChainId.TESTNET to FlowAddress("0xd7a4dcfb23d327da"),
+                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7")
+            )
+        override val import: String
+            get() = "0xFANFARE"
+
+        override fun staticRoyalties(chain: FlowChainId): List<Part> {
+            return if (chain == FlowChainId.MAINNET) {
+                listOf(Part(FlowAddress("0xa161c109f0902908"), 15.0.percent()))
+            } else super.staticRoyalties(chain)
+        }
+    }
 }
 
 object RoyaltySize {
