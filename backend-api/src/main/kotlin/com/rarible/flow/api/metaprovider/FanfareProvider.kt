@@ -22,7 +22,7 @@ class FanfareMetaProvider(
     private val apiProperties: ApiProperties
 ): ItemMetaProvider {
 
-    val logger by Log()
+    private val logger by Log()
 
     override fun isSupported(itemId: ItemId): Boolean =
         itemId.contract == Contracts.FANFARE.fqn(apiProperties.chainId)
