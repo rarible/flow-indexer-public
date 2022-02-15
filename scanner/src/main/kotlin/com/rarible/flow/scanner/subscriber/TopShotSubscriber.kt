@@ -7,7 +7,8 @@ import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.events.EventId
 import org.springframework.stereotype.Component
 
-@Component
+// TODO uncomment when legal is ready
+//@Component
 class TopShotSubscriber : BaseFlowLogEventSubscriber() {
 
     private val events = "Withdraw,Deposit,MomentMinted,MomentDestroyed".split(",")
