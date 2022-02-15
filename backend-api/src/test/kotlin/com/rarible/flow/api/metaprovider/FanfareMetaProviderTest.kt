@@ -1,7 +1,8 @@
 package com.rarible.flow.api.metaprovider
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.nftco.flow.sdk.FlowChainId
+import com.rarible.flow.api.config.ApiProperties
+import com.rarible.flow.api.mocks
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
@@ -9,38 +10,36 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import reactor.core.publisher.Mono
+import org.springframework.http.HttpStatus
 
 internal class FanfareMetaProviderTest: FunSpec({
 
     val nonExisting = ItemId("A.4c44f3b1e4e70b20.FanfareNFTContract", 3333)
     val existing = ItemId("A.4c44f3b1e4e70b20.FanfareNFTContract", 1337)
 
-    val provider = FanfareMetaProvider(
-        mockk {
-            every {
-                findById(nonExisting)
-            } returns Mono.empty()
-
-            every {
-                findById(existing)
-            } returns Mono.just(mockk {
-                every { meta } returns ObjectMapper().writeValueAsString(mapOf(
-                    "metadata" to META
-                ))
-            })
-        },
-        mockk {
-            every { chainId } returns FlowChainId.MAINNET
-        }
-    )
+    val apiProperties = mockk<ApiProperties> {
+        every { chainId } returns FlowChainId.MAINNET
+    }
 
     test("should return empty meta for non existing item") {
-        provider.getMeta(nonExisting) shouldBe ItemMeta.empty(nonExisting)
+        FanfareMetaProvider(
+            mocks.webClient(
+                "https://www.fanfare.fm/api/nft-meta/3333",
+                "{}",
+                HttpStatus.resolve(500)!!
+            ),
+            apiProperties
+        ).getMeta(nonExisting) shouldBe ItemMeta.empty(nonExisting)
     }
 
     test("should return proper meta") {
-        provider.getMeta(existing) shouldBe ItemMeta(
+        FanfareMetaProvider(
+            mocks.webClient(
+                "https://www.fanfare.fm/api/nft-meta/1337",
+                META
+            ),
+            apiProperties
+        ).getMeta(existing) shouldBe ItemMeta(
             existing,
             "Sea of Tranquility (WSOGMM version)",
             "Sea of Tranquility is an unreleased",

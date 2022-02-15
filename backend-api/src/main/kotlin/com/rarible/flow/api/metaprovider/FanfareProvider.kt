@@ -2,41 +2,44 @@ package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.coFindById
-import org.springframework.boot.json.JacksonJsonParser
+import com.rarible.flow.log.Log
 import org.springframework.stereotype.Component
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBodyOrNull
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 @Component
 class FanfareMetaProvider(
-    private val itemRepository: ItemRepository,
+    private val webClient: WebClient,
     private val apiProperties: ApiProperties
 ): ItemMetaProvider {
-    val parser = JacksonJsonParser()
-    val objectMapper = jacksonObjectMapper()
+
+    private val logger by Log()
 
     override fun isSupported(itemId: ItemId): Boolean =
         itemId.contract == Contracts.FANFARE.fqn(apiProperties.chainId)
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        return itemRepository
-            .coFindById(itemId)
-            ?.meta
-            ?.let { parser.parseMap(it) }
-            ?.let { map -> map["metadata"] as String }
-            ?.let { meta -> objectMapper.readValue<FanfareMeta>(meta)}
-            ?.toItemMeta(itemId) ?: ItemMeta.empty(itemId)
+        val tokenId = itemId.tokenId
+
+        return try {
+            webClient
+                .get()
+                .uri("https://www.fanfare.fm/api/nft-meta/{id}", mapOf("id" to tokenId))
+                .retrieve()
+                .awaitBodyOrNull<FanfareMeta>()
+        } catch (e: Throwable) {
+            logger.warn("Failed to fetch meta of {}", itemId, e)
+            null
+        }?.toItemMeta(itemId) ?: ItemMeta.empty(itemId)
     }
 }
 
