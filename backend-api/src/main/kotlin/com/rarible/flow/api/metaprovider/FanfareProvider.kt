@@ -37,6 +37,7 @@ class FanfareMetaProvider(
                 .retrieve()
                 .awaitBodyOrNull<FanfareMeta>()
         } catch (e: Throwable) {
+            logger.warn("Failed to fetch meta of {}", itemId, e)
             null
         }?.toItemMeta(itemId) ?: ItemMeta.empty(itemId)
     }
