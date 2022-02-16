@@ -21,6 +21,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.Instant
+import java.util.concurrent.TimeUnit
 
 @Service
 class EnglishAuctionService(
@@ -156,7 +157,7 @@ class EnglishAuctionService(
         )
     }
 
-    @Scheduled(initialDelay = 30L, fixedDelay = 30L)
+    @Scheduled(initialDelay = 30L, fixedDelay = 30L, timeUnit = TimeUnit.SECONDS)
     @com.rarible.core.apm.CaptureSpan(type = SpanType.KAFKA)
     fun processOngoing() {
         logger.info("Processes ongoing auctions ...")
