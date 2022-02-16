@@ -57,7 +57,7 @@ class Config(
 
     @Bean
     fun pinataClient(): WebClient {
-        return buildWebClient("PinataClient", "https://rarible.mypinata.cloud/ipfs")
+        return buildWebClient("pinataClient", "https://rarible.mypinata.cloud/ipfs")
     }
 
     @Bean
@@ -68,7 +68,7 @@ class Config(
     private fun buildWebClient(loggerName: String, baseUrl: String): WebClient {
         val httpClient = HttpClient
             .create()
-            .wiretap(loggerName, LogLevel.WARN, AdvancedByteBufFormat.SIMPLE)
+            .wiretap(loggerName, LogLevel.DEBUG, AdvancedByteBufFormat.TEXTUAL)
 
         return WebClient
             .builder()
@@ -80,15 +80,16 @@ class Config(
     @Bean
     fun chainMonstersGraphQl(): WebClientGraphQLClient {
         return MonoGraphQLClient.createWithWebClient(
-            buildWebClient("Chainmonsters", "https://europe-west3-chainmonstersmmo.cloudfunctions.net/graphql")
+            buildWebClient("chainMonstersGraphQl", "https://europe-west3-chainmonstersmmo.cloudfunctions.net/graphql")
         )
     }
 
-
-
     @Bean
     fun matrixWorldClient(): WebClient {
-        return WebClient.create("https://api.matrixworld.org/land/api/v1/land/metadata/estate/flow/")
+        return buildWebClient(
+            "matrixWorldClient",
+            "https://api.matrixworld.org/land/api/v1/land/metadata/estate/flow/"
+        )
     }
 
     @EventListener(ApplicationReadyEvent::class)
