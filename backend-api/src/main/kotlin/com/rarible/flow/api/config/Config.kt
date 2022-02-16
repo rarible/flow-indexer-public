@@ -1,5 +1,7 @@
 package com.rarible.flow.api.config
 
+import com.netflix.graphql.dgs.client.MonoGraphQLClient
+import com.netflix.graphql.dgs.client.WebClientGraphQLClient
 import com.nftco.flow.sdk.AsyncFlowAccessApi
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
@@ -55,7 +57,7 @@ class Config(
 
     @Bean
     fun pinataClient(): WebClient {
-        return buildWebClient("PinataClient", "https://rarible.mypinata.cloud/ipfs")
+        return buildWebClient("pinataClient", "https://rarible.mypinata.cloud/ipfs")
     }
 
     @Bean
@@ -66,7 +68,7 @@ class Config(
     private fun buildWebClient(loggerName: String, baseUrl: String): WebClient {
         val httpClient = HttpClient
             .create()
-            .wiretap(loggerName, LogLevel.WARN, AdvancedByteBufFormat.SIMPLE)
+            .wiretap(loggerName, LogLevel.DEBUG, AdvancedByteBufFormat.TEXTUAL)
 
         return WebClient
             .builder()
@@ -75,10 +77,19 @@ class Config(
             .build()
     }
 
+    @Bean
+    fun chainMonstersGraphQl(): WebClientGraphQLClient {
+        return MonoGraphQLClient.createWithWebClient(
+            buildWebClient("chainMonstersGraphQl", "https://europe-west3-chainmonstersmmo.cloudfunctions.net/graphql")
+        )
+    }
 
     @Bean
     fun matrixWorldClient(): WebClient {
-        return WebClient.create("https://api.matrixworld.org/land/api/v1/land/metadata/estate/flow/")
+        return buildWebClient(
+            "matrixWorldClient",
+            "https://api.matrixworld.org/land/api/v1/land/metadata/estate/flow/"
+        )
     }
 
     @EventListener(ApplicationReadyEvent::class)
@@ -94,7 +105,6 @@ class Config(
             register("0xVERSUSART", FlowAddress("0x99ca04281098b33d"), FlowChainId.TESTNET)
             register("0xDISRUPTART", FlowAddress("0x439c2b49c0b2f62b"), FlowChainId.TESTNET)
             register("0xDISRUPTARTROYALTY", FlowAddress("0x439c2b49c0b2f62b"), FlowChainId.TESTNET)
-            register("0xCHAINMONSTERS", FlowAddress("0x75783e3c937304a8"), FlowChainId.TESTNET)
 
 
             register("0xTOPSHOTTOKEN", FlowAddress("0x0b2a3299cc857e29"), FlowChainId.MAINNET)
@@ -104,7 +114,6 @@ class Config(
             register("0xVERSUSART", FlowAddress("0xd796ff17107bbff6"), FlowChainId.MAINNET)
             register("0xDISRUPTART", FlowAddress("0xcd946ef9b13804c6"), FlowChainId.MAINNET)
             register("0xDISRUPTARTROYALTY", FlowAddress("0x420f47f16a214100"), FlowChainId.MAINNET)
-            register("0xCHAINMONSTERS", FlowAddress("0x93615d25d14fa337"), FlowChainId.MAINNET)
         }
 
         Flow.configureDefaults(chainId = appProperties.chainId)

@@ -1,80 +1,96 @@
 package com.rarible.flow.api.metaprovider
 
-import com.nftco.flow.sdk.Flow
-import com.nftco.flow.sdk.cadence.CadenceNamespace
-import com.nftco.flow.sdk.cadence.Field
-import com.nftco.flow.sdk.cadence.JsonCadenceConversion
-import com.nftco.flow.sdk.cadence.JsonCadenceConverter
-import com.nftco.flow.sdk.cadence.OptionalField
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.netflix.graphql.dgs.client.WebClientGraphQLClient
+import com.rarible.flow.Contracts
+import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.metaprovider.body.MetaBody
-import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
+import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coFindById
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.io.Resource
+import com.rarible.flow.log.Log
+import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.stereotype.Component
 
 @Component
 class ChainmonstersMetaProvider(
     private val itemRepository: ItemRepository,
-    private val scriptExecutor: ScriptExecutor,
-    @Value("classpath:script/chainmonsters_meta.cdc")
-    private val script: Resource
-): ItemMetaProvider {
+    private val chainMonstersGraphQl: WebClientGraphQLClient,
+    private val apiProperties: ApiProperties
+) : ItemMetaProvider {
 
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("ChainmonstersRewards")
+    private val objectMapper = jacksonObjectMapper()
+
+    override fun isSupported(itemId: ItemId): Boolean =
+        itemId.contract == Contracts.CHAINMONSTERS.fqn(apiProperties.chainId)
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
         return itemRepository
-            .coFindById(itemId)
-            ?.let { item ->
-                scriptExecutor.executeFile(
-                    script,
-                    {
-                        arg { address(item.owner!!.formatted) }
-                        arg { uint64(itemId.tokenId) }
-                    },
-                    { response ->
-                        response as OptionalField
-                        response.value?.let {
-                            Flow.unmarshall(ChainmonstersMeta::class, it)
+            .coFindById(itemId)?.meta
+            ?.let { preMeta ->
+                JacksonJsonParser().parseMap(preMeta)["rewardId"] as String?
+            }?.let { rewardId ->
+                chainMonstersGraphQl.reactiveExecuteQuery(getReward(rewardId)).awaitSingleOrNull()
+            }?.let { response ->
+                if (response.hasErrors()) {
+                    logger.warn(
+                        "Failed to fetch metadata for {}: {}", itemId, response.errors.joinToString(";") {
+                            it.message
                         }
-                    }
-                )
+                    )
+                    null
+                } else {
+                    objectMapper
+                        .readValue<ChainmonstersData>(response.json)
+                        .data
+                        .reward
+                }
             }?.toItemMeta(itemId) ?: ItemMeta.empty(itemId)
+    }
+
+    companion object {
+        fun getReward(rewardId: String): String = """
+            query {
+              reward(id: $rewardId) {
+                id
+                name
+                desc
+                img
+                season
+              }
+            }
+        """.trimIndent()
+
+        val logger by Log()
     }
 }
 
-@JsonCadenceConversion(ChainmonstersMetaConversion::class)
+data class ChainmonstersData(
+    val data: ChainmonstersResponse
+)
+
+data class ChainmonstersResponse(
+    val reward: ChainmonstersMeta
+)
+
 data class ChainmonstersMeta(
-    val rewardId: Int,
-    val title: String?,
-): MetaBody {
+    val id: Long,
+    val name: String,
+    val desc: String,
+    val img: String,
+    val season: String
+) : MetaBody {
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         return ItemMeta(
             itemId,
-            title ?: "",
-            "",
-            emptyList(),
-            listOf(
-                "https://chainmonsters.com/images/rewards/flowfest2021/${rewardId}.png"
-            )
+            name,
+            desc,
+            listOf(ItemMetaAttribute("season", season)),
+            listOf(img)
         )
-    }
-}
-
-class ChainmonstersMetaConversion: JsonCadenceConverter<ChainmonstersMeta> {
-
-    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): ChainmonstersMeta {
-        return com.nftco.flow.sdk.cadence.unmarshall(value) {
-            ChainmonstersMeta(
-                rewardId = int(compositeValue.getRequiredField("rewardId")),
-                title = optional(compositeValue.getRequiredField("title")) {
-                    string(it)
-                }
-            )
-        }
     }
 }
