@@ -26,7 +26,6 @@ class OneFootballSubscriber : BaseFlowLogEventSubscriber() {
                 address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.TESTNET]!!.base16Value,
                 events = events,
                 dbCollection = collection,
-                startFrom = 54832107L
             ),
             FlowChainId.EMULATOR to flowDescriptor(
                 contract = Contracts.ONE_FOOTBALL.contractName,

@@ -3,6 +3,9 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017
       database: flow-${spring.profiles.active}
+  cloud:
+    bootstrap:
+      enabled: false
 
 scanner:
   kafka-replica-set: PLAINTEXT://localhost:29092
@@ -12,6 +15,21 @@ logging:
   logstash:
     tcp-socket:
       enabled: false
+
+rarible:
+  core:
+    apm:
+      annotation:
+        enabled: false
+
+application:
+  environment: dev
+
+app:
+  environment: dev
+  chain-id: MAINNET
+  kafka-replica-set: http://localhost:29092
+  web-api-url: http://localhost:8080
 
 flow-api:
   service-account:

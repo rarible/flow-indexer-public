@@ -21,7 +21,6 @@ class EnglishAuctionSubscriber: BaseFlowLogEventSubscriber() {
                 address = "ebf4ae01d1284af8",
                 contract = contractName,
                 events = events,
-                startFrom = 55102390L,
                 dbCollection = collection
             ),
         )

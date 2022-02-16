@@ -37,7 +37,7 @@ class RaribleNFTMetaProvider(
         }
     }
 
-    fun readUrl(item: Item): String? {
+    private fun readUrl(item: Item): String? {
         var url = item.meta ?: return null
         if (url.startsWith("{")) {
             url = JacksonJsonParser().parseMap(url)["metaURI"] as String?
@@ -45,7 +45,7 @@ class RaribleNFTMetaProvider(
         }
 
         if (url.startsWith("ipfs://")) {
-            url = url.substring("ipfs://ipfs/".length)
+            url = url.substring("ipfs://".length)
         }
 
         if (url.isEmpty()) {
