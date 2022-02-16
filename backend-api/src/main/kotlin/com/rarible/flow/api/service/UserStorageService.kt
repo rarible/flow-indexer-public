@@ -6,6 +6,9 @@ import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
+import com.nftco.flow.sdk.cadence.NumberField
+import com.nftco.flow.sdk.cadence.OptionalField
+import com.nftco.flow.sdk.cadence.UInt32NumberField
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.metaprovider.CnnNFTConverter
 import com.rarible.flow.api.metaprovider.DisruptArtNFT
@@ -306,7 +309,7 @@ class UserStorageService(
 
             Contracts.CNN.contractName -> {
                 itemIds.forEach { tokenId ->
-                    val contract = contract(Contracts.CNN.import, Contracts.CNN.contractName)
+                    val contract = Contracts.CNN.fqn(appProperties.chainId)
                     val item = if (notExistsItem(contract, tokenId)) {
                         val tokenData = CnnNFTConverter.convert(
                             scriptExecutor.execute(
@@ -384,18 +387,32 @@ class UserStorageService(
                 }
             }
 
-            "ChainmonstersRewards" -> {
+            Contracts.CHAINMONSTERS.contractName -> {
                 itemIds.forEach { tokenId ->
-                    val contract = contract("0xCHAINMONSTERS", "ChainmonstersRewards")
+                    val contract = Contracts.CHAINMONSTERS.fqn(appProperties.chainId)
                     val item = if (notExistsItem(contract, tokenId)) {
+                        val rewardId: Int? = scriptExecutor.executeFile(
+                            "/script/item/chainmonsters.cdc",
+                            {
+                                arg { address(address) }
+                                arg { uint64(tokenId) }
+                            },
+                            { json ->
+                                json.value?.let { v ->
+                                    v as UInt32NumberField
+                                    v.toInt()
+                                }
+                            }
+                        )
+
                         Item(
                             contract = contract,
                             tokenId = tokenId,
-                            creator = contractAddress("0xCHAINMONSTERS"),
-                            royalties = emptyList(),
+                            creator = Contracts.CHAINMONSTERS.deployments[appProperties.chainId]!!,
+                            royalties = Contracts.CHAINMONSTERS.staticRoyalties(appProperties.chainId),
                             owner = address,
                             mintedAt = Instant.now(),
-                            meta = "{}",
+                            meta = "{\"rewardId\": \"$rewardId\"}",
                             collection = contract,
                             updatedAt = Instant.now()
                         )
