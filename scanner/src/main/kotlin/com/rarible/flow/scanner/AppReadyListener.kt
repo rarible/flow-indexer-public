@@ -106,9 +106,9 @@ class AppReadyListener(
                     .awaitFirstOrNull()
 
                 if (scannerProperties.chainId == FlowChainId.TESTNET) {
-                    sporkService.allSporks.replace(FlowChainId.TESTNET, listOf(
+                    sporkService.allSporks[FlowChainId.TESTNET] = listOf(
                         SporkService.Spork(from = 59558934L, nodeUrl = "access.devnet.nodes.onflow.org"),
-                    ))
+                    )
                 }
 
                 if (scannerProperties.chainId == FlowChainId.MAINNET) {
