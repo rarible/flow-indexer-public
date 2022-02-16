@@ -24,9 +24,10 @@ blockchain:
     flow:
       chainId: TESTNET
       poller:
-        delay: 100
+        delay: 300
       job:
         reconciliation:
+          enabled: false
           batchSize: 25
       retryPolycy:
         scan:
