@@ -1,5 +1,6 @@
 package com.rarible.flow.scanner.activitymaker
 
+import com.nftco.flow.sdk.AddressRegistry.Companion.FLOW_FEES
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowId
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import java.math.BigDecimal
@@ -58,7 +60,7 @@ abstract class WithPaymentsActivityMaker : ActivityMaker {
     )
 
     override fun isSupportedCollection(collection: String): Boolean =
-        collection.lowercase().endsWith(contractName.lowercase())
+        collection.substringAfterLast(".").lowercase() == contractName.lowercase()
 
     protected suspend fun readEvents(blockHeight: Long, txId: FlowId): List<EventMessage> {
         return withSpan("readEventsFromOrderTx", "network") {
@@ -73,7 +75,9 @@ abstract class WithPaymentsActivityMaker : ActivityMaker {
 
     protected suspend fun usdRate(contract: String, timestamp: Long): BigDecimal? = withSpan("usdRate", "network") {
         try {
-            currencyApi.getCurrencyRate(BlockchainDto.FLOW, contract, timestamp).awaitSingle().rate
+            withTimeout(10_000L) {
+                currencyApi.getCurrencyRate(BlockchainDto.FLOW, contract, timestamp).awaitSingle().rate
+            }
         } catch (e: Exception) {
             logger.warn("Unable to fetch USD price rate from currency api: ${e.message}", e)
             null
@@ -91,9 +95,10 @@ abstract class WithPaymentsActivityMaker : ActivityMaker {
         try {
             val payments = currencyEvents.filter { it.eventId.eventName == "TokensDeposited" }
                 .filter { msg ->
-                    cadenceParser.optional(msg.fields["to"]!!) {
+                    val address = cadenceParser.optional(msg.fields["to"]!!) {
                         address(it)
-                    } != null
+                    }
+                    address != null && address != Flow.DEFAULT_ADDRESS_REGISTRY.addressOf(FLOW_FEES, chainId)!!.formatted
                 }
 
 
