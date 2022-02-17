@@ -13,11 +13,13 @@ app:
   environment: dev
   chain-id: TESTNET
   kafka-replica-set: ${kafka.hosts}
+  web-api-url: ${web-api-url}
 
 flow-api:
   flow-access-url: "access.devnet.nodes.onflow.org"
   flow-access-port: 9000
   chain-id: TESTNET
+  web-api-url: ${web-api-url}
 
 blockchain:
   scanner:

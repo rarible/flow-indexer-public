@@ -25,14 +25,14 @@ class VersusArtRoyaltyProvider(
         scriptFile.inputStream.bufferedReader().use { it.readText() }
 
     override fun isSupported(itemId: ItemId): Boolean =
-        itemId.contract.contains("VersusArt")
+        itemId.contract.substringAfterLast(".") == "Art"
 
-    override suspend fun getRoyalty(item: Item): List<Royalty> {
+    override suspend fun getRoyalties(item: Item): List<Royalty> {
         val result = scriptExecutor.execute(
             scriptText,
             mutableListOf(
                 builder.address(item.owner!!.formatted),
-                builder.ufix64(item.tokenId)
+                builder.uint64(item.tokenId)
             ),
         ).let { it.copy(bytes = it.bytes.changeCapabilityToAddress()) }
         val value = result.jsonCadence.value as ResourceField

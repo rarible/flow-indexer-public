@@ -71,17 +71,15 @@ class NFTStorefrontSubscriber(
             }
             "ListingCompleted" -> {
                 val e = event.event.parse<ListingCompleted>()
-                return@withSpan if (e.purchased) {
-                    txManager.onTransaction(
-                        blockHeight = block.number,
-                        transactionId = event.transactionId
-                    ) {
-                        it.events.map { EventId.of(it.type) }.any {
-                            nftEvents.contains(it.toString())
-                        }
+                val orderExists = orderRepository.existsById(e.listingResourceID).awaitSingle()
+                return@withSpan orderExists || (e.purchased && txManager.onTransaction(
+                    blockHeight = block.number,
+                    transactionId = event.transactionId
+                ) { result ->
+                    result.events.map { EventId.of(it.type) }.any {
+                        nftEvents.contains(it.toString())
                     }
-                } else orderRepository.existsById(e.listingResourceID).awaitSingle()
-
+                })
             }
             else -> false
         } }

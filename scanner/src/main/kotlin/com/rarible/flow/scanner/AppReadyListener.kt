@@ -53,6 +53,20 @@ class AppReadyListener(
                 symbol = "MXWRLDFFEST",
                 features = emptySet()
             ),
+            ItemCollection(
+                id = Contracts.JAMBB_MOMENTS.fqn(FlowChainId.TESTNET),
+                name = "Jambb",
+                owner = Contracts.JAMBB_MOMENTS.deployments[FlowChainId.TESTNET]!!,
+                symbol = "JAMBB",
+                features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.FANFARE.fqn(FlowChainId.TESTNET),
+                name = "Fanfare",
+                owner = Contracts.FANFARE.deployments[FlowChainId.TESTNET]!!,
+                symbol = "FANFARE",
+                features = emptySet()
+            ),
 
         ),
         FlowChainId.MAINNET to listOf(
@@ -92,6 +106,20 @@ class AppReadyListener(
                 symbol = "STARLY",
                 features = setOf("BURN")
             ),
+            ItemCollection(
+                id = Contracts.JAMBB_MOMENTS.fqn(FlowChainId.MAINNET),
+                name = "Jambb",
+                owner = Contracts.JAMBB_MOMENTS.deployments[FlowChainId.MAINNET]!!,
+                symbol = "JAMBB",
+                features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.FANFARE.fqn(FlowChainId.MAINNET),
+                name = "Fanfare",
+                owner = Contracts.FANFARE.deployments[FlowChainId.MAINNET]!!,
+                symbol = "FANFARE",
+                features = emptySet()
+            ),
         )
     )
 
@@ -114,8 +142,13 @@ class AppReadyListener(
                 if (scannerProperties.chainId == FlowChainId.MAINNET) {
                     val head = listOf(
                         SporkService.Spork(
-                            from = 21291692L,
+                            from = 23830813L,
                             nodeUrl = "access.mainnet.nodes.onflow.org"
+                        ),
+                        SporkService.Spork(
+                            from = 21291692L,
+                            to = 23830812L,
+                            nodeUrl = "access-001.mainnet15.nodes.onflow.org"
                         ),
                         SporkService.Spork(
                             from = 19050753L,

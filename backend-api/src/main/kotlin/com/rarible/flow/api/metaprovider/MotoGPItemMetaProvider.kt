@@ -1,6 +1,9 @@
 package com.rarible.flow.api.metaprovider
 
-import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.Flow
+import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
+import com.nftco.flow.sdk.cadence.JsonCadenceParser
+import com.rarible.flow.Contracts
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
@@ -27,27 +30,35 @@ class MotoGPItemMetaProvider(
 class MotoGpCardScript(
     private val scriptExecutor: ScriptExecutor,
     @Value("classpath:script/motogp-card-metadata.cdc")
-    private val scriptFile: Resource
-) {
-    suspend operator fun invoke(owner: FlowAddress, tokenId: TokenId): MotoGpMetaBody {
-        return scriptExecutor.executeFile(scriptFile, {
-            arg { address(owner.formatted) }
-            arg { uint64(tokenId) }
-        }, { json ->
-            array(json) { arr ->
-                val value = arr.value!!
-                MotoGpMetaBody(
-                    optional(value.first()) { nft ->
-                        unmarshall(nft)
-                    }!!,
-                    optional(value.last()) { meta ->
-                        unmarshall(meta)
-                    }!!
-                )
-            }
-        })
-    }
-}
+    private val scriptFile: Resource,
+    private val itemRepository: ItemRepository
+) : ItemMetaProvider {
+
+    private val builder = JsonCadenceBuilder()
+
+    private lateinit var scriptText: String
+
+    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains(Contracts.MOTOGP.contractName, true)
+
+    override suspend fun getMeta(itemId: ItemId): ItemMeta {
+        val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
+        val resp = scriptExecutor.execute(
+            code = scriptText,
+            args = mutableListOf(
+                builder.address(item.owner!!.formatted),
+                builder.uint64(itemId.tokenId)
+            )
+        )
+
+        val (nft, meta) = JsonCadenceParser().array(resp.jsonCadence) {
+            Pair(optional(it.value!!.first()) {
+                unmarshall<MotoGPNFT>(it)
+            }!!,
+                optional(it.value!!.last()) {
+                    unmarshall<MotoGPMeta>(it)
+                }!!
+            )
+        }
 
 data class MotoGpMetaBody(
     val nft: MotoGPNFT,

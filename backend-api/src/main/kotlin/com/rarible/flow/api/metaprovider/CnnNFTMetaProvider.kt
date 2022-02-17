@@ -2,6 +2,8 @@ package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.OptionalField
+import com.rarible.flow.Contracts
+import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.*
 import org.springframework.beans.factory.annotation.Value
@@ -63,7 +65,7 @@ class CnnNFTMetaProvider(
     private val metaScript: CnnMetaScript,
 ) : ItemMetaProvider {
 
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("CNN_NFT")
+    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains(Contracts.CNN.contractName)
 
     override suspend fun getMeta(item: Item): ItemMeta? {
         return getMeta(

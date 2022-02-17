@@ -1,5 +1,7 @@
 package com.rarible.flow.scanner.listener.activity
 
+import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.StringField
 import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
@@ -7,16 +9,21 @@ import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.MintActivity
+import com.rarible.flow.core.domain.Part
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainValue
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import java.time.Instant
 
 internal class StarlyActivityTest: FunSpec({
 
-    val activityMaker = StarlyActivity()
+    val activityMaker = StarlyActivity(mockk {
+        every { chainId } returns FlowChainId.MAINNET
+    })
 
     test("should mint item") {
         activityMaker.activities(
@@ -31,7 +38,9 @@ internal class StarlyActivityTest: FunSpec({
             metadata = mapOf(
                 "starlyId" to "pSYegq3aubUCodcy1t4u/15/542"
             ),
-            royalties = emptyList(),
+            royalties = listOf(
+                Part(FlowAddress("0x12c122ca9266c278"), 0.1)
+            ),
             timestamp = Instant.parse("2021-10-26T14:28:35.621Z"),
             collection = "A.5b82f21c0edf76e3.StarlyCard"
         )

@@ -1,11 +1,13 @@
 package com.rarible.flow.scanner.listener.activity
 
+import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.MintActivity
+import com.rarible.flow.core.domain.Part
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import io.kotest.core.spec.style.FunSpec
@@ -28,7 +30,9 @@ internal class OneFootballActivityTest: FunSpec({
             tokenId = 1,
             creator = "0x6831760534292098",
             metadata = emptyMap(),
-            royalties = emptyList(),
+            royalties = listOf(
+                Part(FlowAddress("0x6831760534292098"), 0.005)
+            ),
             timestamp = Instant.parse("2021-10-26T14:28:35.621Z"),
             collection = "A.6831760534292098.OneFootballCollectible"
         )
@@ -44,6 +48,10 @@ internal class OneFootballActivityTest: FunSpec({
 
     test("contractName") {
         activityMaker.contractName shouldBe "OneFootballCollectible"
+    }
+
+    test("isSupportedCollection") {
+        activityMaker.isSupportedCollection("A.6831760534292098.OneFootballCollectible")
     }
 
 }) {

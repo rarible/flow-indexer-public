@@ -34,7 +34,8 @@ class VersusArtMetaProviderTest : FunSpec({
         val provider = VersusArtMetaProvider(
             mocks.scriptExecutor("getMetadataScript" to META1, "getContentScript" to CONTENT1),
             mocks.resource("getMetadataScript"),
-            mocks.resource("getContentScript")
+            mocks.resource("getContentScript"),
+            "http://localhost:8080"
         )
 
         provider.getMeta(item) should { meta ->
@@ -59,13 +60,14 @@ class VersusArtMetaProviderTest : FunSpec({
         val provider = VersusArtMetaProvider(
             mocks.scriptExecutor("getMetadataScript" to META2, "getContentScript" to CONTENT2),
             mocks.resource("getMetadataScript"),
-            mocks.resource("getContentScript")
+            mocks.resource("getContentScript"),
+            "http://localhost:8080"
         )
 
         provider.getMeta(item) should { meta ->
             meta!!.itemId shouldBe itemId
             meta.name shouldBe "JOYWORLD Portal, Sandstone Headland"
-            meta.contentUrls.first() shouldBe "data:image/jpeg;base64, /9j/4QGWRXhpZ...y/rsc8vedj//2Q=="
+            meta.contentUrls.first() shouldBe "http://localhost:8080/v0.1/items/${itemId}/image"
         }
     }
 
@@ -91,10 +93,11 @@ class VersusArtMetaProviderTest : FunSpec({
                         executeScriptAtLatestBlock(eq(FlowScript("getContentScript")), any())
                     } throws IllegalStateException()
                 },
-                AppProperties("test", "", FlowChainId.EMULATOR)
+                AppProperties("test", "", FlowChainId.EMULATOR, "http://localhost:8080"),
             ),
             mocks.resource("getMetadataScript"),
-            mocks.resource("getContentScript")
+            mocks.resource("getContentScript"),
+            "http://localhost:8080"
         )
 
         provider.getMeta(item) should { meta ->

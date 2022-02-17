@@ -29,7 +29,7 @@ object mocks {
                     )
                 }
             },
-            AppProperties("test", "", FlowChainId.EMULATOR)
+            AppProperties("test", "", FlowChainId.EMULATOR, "http://localhost:8080")
         )
     }
 
@@ -47,13 +47,13 @@ object mocks {
         } returns (fileName ?: scriptExecutorKey)
     }
 
-    fun webClient(expectedPath: String, response: String) = WebClient
+    fun webClient(expectedPath: String, response: String, status: HttpStatus = HttpStatus.OK) = WebClient
         .builder()
         .exchangeFunction { req ->
             req.url().toString() shouldBe expectedPath
 
             Mono.just(
-                ClientResponse.create(HttpStatus.OK)
+                ClientResponse.create(status)
                     .header("content-type", "application/json")
                     .body(response)
                     .build()

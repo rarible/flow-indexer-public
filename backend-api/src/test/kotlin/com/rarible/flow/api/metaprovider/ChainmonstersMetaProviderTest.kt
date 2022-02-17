@@ -1,10 +1,14 @@
 package com.rarible.flow.api.metaprovider
 
+import com.netflix.graphql.dgs.client.GraphQLResponse
+import com.netflix.graphql.dgs.client.WebClientGraphQLClient
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.api.data
-import com.rarible.flow.api.mocks
+import com.nftco.flow.sdk.FlowChainId
+import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.ItemMeta
+import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.repository.ItemRepository
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -16,23 +20,35 @@ import reactor.core.publisher.Mono
 
 internal class ChainmonstersMetaProviderTest: FunSpec({
     val item = mockk<Item> {
-        every { id } returns ItemId("A.1234.ChainmonstersRewards", 1337)
+        every { id } returns ItemId("A.93615d25d14fa337.ChainmonstersRewards", 1337)
         every { owner } returns FlowAddress("0x01")
+        every { meta } returns "{\"rewardId\": \"10\"}"
         every { tokenId } returns 1337
     }
-
-    val scriptExecutor = mocks.scriptExecutor(
-        "has_meta" to META,
-        "no_meta" to data.CADENCE_NULL
-    )
 
     val itemRepository = mockk<ItemRepository>() {
         every { findById(any<ItemId>()) } returns Mono.just(item)
     }
 
+    val apiProperties = mockk<ApiProperties> {
+        every { chainId } returns FlowChainId.MAINNET
+    }
+
+    val graphQl = mockk<WebClientGraphQLClient> {
+        every {
+            reactiveExecuteQuery(eq(ChainmonstersMetaProvider.getReward("10")))
+        } returns Mono.just(GraphQLResponse(OK))
+    }
+
+    val graphQlErr = mockk<WebClientGraphQLClient> {
+        every {
+            reactiveExecuteQuery(eq(ChainmonstersMetaProvider.getReward("10")))
+        } returns Mono.just(GraphQLResponse(ERROR))
+    }
     val provider = ChainmonstersMetaProvider(
-        scriptExecutor,
-        mocks.resource("has_meta")
+        itemRepository,
+        graphQl,
+        apiProperties
     )
 
     test("should support ChainmonstersRewards") {
@@ -45,31 +61,40 @@ internal class ChainmonstersMetaProviderTest: FunSpec({
 
     test("should read ChainmonstersReward meta data") {
         ChainmonstersMetaProvider(
-            scriptExecutor,
-            mocks.resource("has_meta")
+            itemRepository,
+            graphQl,
+            apiProperties
         ).getMeta(
             item
         ) should { meta ->
-            meta!!.name shouldBe "Adventure Bundle"
-            meta.description shouldBe ""
+            meta!!.name shouldBe "Chainmon Designer"
+            meta.description shouldBe "Help us design a Chainmon..."
             meta.contentUrls shouldContainExactly listOf(
-                "https://chainmonsters.com/images/rewards/flowfest2021/41.png"
+                "https://chainmonsters.com/images/rewards/kickstarter/1.png"
+            )
+            meta.attributes shouldContainExactly listOf(
+                ItemMetaAttribute("season", "Kickstarter")
             )
         }
     }
 
-    test("should return empty meta") {
+    test("should return empty meta on GraphQL error") {
         ChainmonstersMetaProvider(
-            scriptExecutor,
-            mocks.resource("no_meta")
+            itemRepository,
+            graphQlErr,
+            apiProperties
         ).getMeta(
             item
         ) shouldBe null
     }
 }) {
     companion object {
-        const val META = """
-            {"type":"Optional","value":{"type":"Struct","value":{"id":"s.e120a54c3a7f51dba36161d5ea837ace3fe07fdb01ab48783f420a521bc96b21.Meta","fields":[{"name":"rewardId","value":{"type":"UInt32","value":"41"}},{"name":"title","value":{"type":"Optional","value":{"type":"String","value":"Adventure Bundle"}}}]}}}
+        const val OK = """
+            {"data":{"reward":{"id":"1","name":"Chainmon Designer","desc":"Help us design a Chainmon...","img":"https://chainmonsters.com/images/rewards/kickstarter/1.png","season":"Kickstarter"}}}
+        """
+
+        const val ERROR = """
+            {"errors":[{"message":"ERROR"}]}
         """
     }
 }

@@ -13,6 +13,7 @@ app:
   environment: e2e
   chain-id: TESTNET
   kafka-replica-set: ${kafka.hosts}
+  web-api-url: ${web-api-url}
 
 flow-api:
   flow-access-url: "access.devnet.nodes.onflow.org"

@@ -10,7 +10,6 @@ pub struct NFTData {
     pub let preview: String
     pub let media: String
     pub let data: {String: String}
-    pub let url: String
 
     init(nft: &OneFootballCollectible.NFT) {
         let metadata = nft.getTemplate()!
@@ -23,7 +22,6 @@ pub struct NFTData {
         self.preview = "https://".concat(metadata.preview).concat(".ipfs.dweb.link/")
         self.media = "https://".concat(metadata.media).concat(".ipfs.dweb.link/")
         self.data = metadata.data
-        self.url = "https://xmas.onefootball.com"
     }
 }
 

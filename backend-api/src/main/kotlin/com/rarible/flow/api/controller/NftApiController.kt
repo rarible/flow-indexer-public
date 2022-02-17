@@ -13,11 +13,9 @@ import com.rarible.protocol.flow.nft.api.controller.FlowNftItemControllerApi
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.time.Instant
 
 @DelicateCoroutinesApi
@@ -113,11 +111,18 @@ class NftApiController(
         return ResponseEntity.ok(nftItemService.byCreator(address, continuation, size))
     }
 
-    override suspend fun getNftItemRoyaltyById(itemId: String): ResponseEntity<FlowNftItemRoyaltyDto> =
-        itemRoyaltyService
-            .getRoyaltyByItemId(itemId.itemId())
-            ?.map { PayInfoDto(it.address, it.fee) }
-            ?.let(::FlowNftItemRoyaltyDto)
-            .okOr404IfNull()
+    override suspend fun getNftItemRoyaltyById(itemId: String): ResponseEntity<FlowNftItemRoyaltyDto> {
+        val royalty = itemRoyaltyService
+            .getRoyaltiesByItemId(itemId.itemId())
+            ?.map { PayInfoDto(it.address, it.fee) } ?: emptyList()
+        return FlowNftItemRoyaltyDto(royalty).okOr404IfNull()
+    }
 
+    @GetMapping("/v0.1/items/{itemId}/image")
+    suspend fun getItemImage(@PathVariable itemId: String): ResponseEntity<ByteArray> {
+        return nftItemMetaService.imageFromMeta(ItemId.parse(itemId))?.let {
+            ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "${it.first}")
+                .body(it.second)
+        } ?: ResponseEntity.noContent().build()
+    }
 }

@@ -3,6 +3,7 @@ package com.rarible.flow.scanner.subscriber
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
+import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.events.EventId
 import org.springframework.stereotype.Component
@@ -13,20 +14,18 @@ class MotoGPSubscriber : BaseFlowLogEventSubscriber() {
 
     private val events = setOf("Mint", "Withdraw", "Deposit", "Burn")
 
-    private val contractName = "MotoGPCard"
-
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
             FlowChainId.MAINNET to flowDescriptor(
-                address = "a49cc0ee46c54bfb",
-                contract = contractName,
+                contract = Contracts.MOTOGP,
+                chainId = FlowChainId.MAINNET,
                 events = events,
                 startFrom = 16246182L,
                 dbCollection = collection
             ),
             FlowChainId.TESTNET to flowDescriptor(
-                address = "01658d9b94068f3c",
-                contract = contractName,
+                contract = Contracts.MOTOGP,
+                chainId = FlowChainId.TESTNET,
                 events = events,
                 dbCollection = collection
             ),

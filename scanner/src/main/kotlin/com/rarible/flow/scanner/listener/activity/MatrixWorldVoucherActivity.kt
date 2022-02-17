@@ -3,11 +3,15 @@ package com.rarible.flow.scanner.listener.activity
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.domain.Part
+import com.rarible.flow.scanner.config.FlowApiProperties
 import com.rarible.flow.scanner.activitymaker.NFTActivityMaker
 import org.springframework.stereotype.Component
 
 @Component
-class MatrixWorldVoucherActivity: NFTActivityMaker() {
+class MatrixWorldVoucherActivity(
+    private val config: FlowApiProperties
+): NFTActivityMaker() {
 
     override val contractName: String = Contracts.MATRIX_WORLD_VOUCHER.contractName
 
@@ -27,5 +31,9 @@ class MatrixWorldVoucherActivity: NFTActivityMaker() {
             "hash" to cp.string(hash),
             "type" to cp.string(type)
         )
+    }
+
+    override fun royalties(logEvent: FlowLogEvent): List<Part> {
+        return Contracts.MATRIX_WORLD_VOUCHER.staticRoyalties(config.chainId)
     }
 }

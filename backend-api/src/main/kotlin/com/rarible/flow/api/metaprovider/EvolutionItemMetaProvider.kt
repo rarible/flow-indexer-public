@@ -2,6 +2,7 @@ package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
+import com.rarible.flow.Contracts
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
@@ -19,7 +20,7 @@ class EvolutionItemMetaProvider(
     private val scriptExecutor: ScriptExecutor
 ): ItemMetaProvider {
 
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("Evolution")
+    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains(Contracts.EVOLUTION.contractName)
 
     override suspend fun getMeta(item: Item): ItemMeta? {
         if (item.meta.isNullOrEmpty()) return null

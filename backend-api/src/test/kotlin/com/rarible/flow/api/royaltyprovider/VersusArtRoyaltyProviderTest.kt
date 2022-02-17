@@ -26,7 +26,7 @@ class VersusArtRoyaltyProviderTest : FunSpec({
             "A.d796ff17107bbff6.Art",
             ZonedDateTime.parse("2021-11-06T20:27:33.283Z").toInstant(),
         )
-        provider.getRoyalty(item) should { royalties ->
+        provider.getRoyalties(item) should { royalties ->
             royalties shouldBe listOf(
                 Royalty(address = "0xd796ff17107bbff6", fee = BigDecimal("0.02500000")),
                 Royalty(address = "0xbb74ee6b54a3db08", fee = BigDecimal("0.05000000")),

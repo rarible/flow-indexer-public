@@ -1,5 +1,6 @@
 package com.rarible.flow.api.service
 
+import com.rarible.flow.api.imageprovider.ItemImageProvider
 import com.rarible.flow.api.metaprovider.ItemMetaProvider
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
@@ -16,11 +17,13 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.stereotype.Service
+import org.springframework.util.MimeType
 
 @Service
 class NftItemMetaService(
     private val providers: List<ItemMetaProvider>,
     private val itemMetaRepository: ItemMetaRepository,
+    private val imageProviders: List<ItemImageProvider>
     private val itemRepository: ItemRepository
 ) {
     private val logger by Log()
@@ -66,5 +69,10 @@ class NftItemMetaService(
 
     suspend fun resetMeta(itemId: ItemId) {
         itemMetaRepository.deleteById(itemId).awaitFirstOrNull()
+    }
+
+    suspend fun imageFromMeta(itemId: ItemId): Pair<MimeType, ByteArray>? {
+        val meta = itemMetaRepository.coFindById(itemId) ?: return null
+        return imageProviders.firstOrNull { it.isSupported(itemId) }?.getImage(meta)
     }
 }
