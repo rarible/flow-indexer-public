@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 class ChainmonstersActivity(
     private val config: FlowApiProperties
 ): NFTActivityMaker() {
-    override val contractName: String = Contracts.JAMBB_MOMENTS.contractName
+    override val contractName: String = Contracts.CHAINMONSTERS.contractName
 
     override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["NFTID"]!!)
 
@@ -26,6 +26,6 @@ class ChainmonstersActivity(
     }
 
     override fun royalties(logEvent: FlowLogEvent): List<Part> {
-        return Contracts.JAMBB_MOMENTS.staticRoyalties(config.chainId)
+        return Contracts.CHAINMONSTERS.staticRoyalties(config.chainId)
     }
 }
