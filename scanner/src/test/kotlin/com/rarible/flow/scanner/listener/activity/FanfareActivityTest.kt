@@ -41,7 +41,8 @@ internal class FanfareActivityTest: FunSpec({
             royalties = listOf(
                 Part(FlowAddress("0xa161c109f0902908"), 0.15)
             ),
-            timestamp = Instant.parse("2021-10-26T14:28:35.621Z")
+            timestamp = Instant.parse("2021-10-26T14:28:35.621Z"),
+            collection = "A.4c44f3b1e4e70b20.FanfareNFTContract"
         )
     }
 

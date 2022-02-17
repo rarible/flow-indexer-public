@@ -3,6 +3,7 @@ package com.rarible.flow.api.metaprovider
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.mocks
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
@@ -14,8 +15,12 @@ import org.springframework.http.HttpStatus
 
 internal class FanfareMetaProviderTest: FunSpec({
 
-    val nonExisting = ItemId("A.4c44f3b1e4e70b20.FanfareNFTContract", 3333)
-    val existing = ItemId("A.4c44f3b1e4e70b20.FanfareNFTContract", 1337)
+    val nonExisting = mockk<Item> {
+        every { id } returns ItemId("A.4c44f3b1e4e70b20.FanfareNFTContract", 3333)
+    }
+    val existing = mockk<Item> {
+        every { id } returns ItemId("A.4c44f3b1e4e70b20.FanfareNFTContract", 1337)
+    }
 
     val apiProperties = mockk<ApiProperties> {
         every { chainId } returns FlowChainId.MAINNET
@@ -29,7 +34,7 @@ internal class FanfareMetaProviderTest: FunSpec({
                 HttpStatus.resolve(500)!!
             ),
             apiProperties
-        ).getMeta(nonExisting) shouldBe ItemMeta.empty(nonExisting)
+        ).getMeta(nonExisting) shouldBe null
     }
 
     test("should return proper meta") {
@@ -40,7 +45,7 @@ internal class FanfareMetaProviderTest: FunSpec({
             ),
             apiProperties
         ).getMeta(existing) shouldBe ItemMeta(
-            existing,
+            existing.id,
             "Sea of Tranquility (WSOGMM version)",
             "Sea of Tranquility is an unreleased",
             listOf(

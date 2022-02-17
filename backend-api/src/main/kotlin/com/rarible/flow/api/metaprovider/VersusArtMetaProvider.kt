@@ -80,7 +80,7 @@ class VersusArtMetaProvider(
                 "ipfs/image", "ipfs/video" -> "https://rarible.mypinata.cloud/ipfs/$it"
                 else -> {
                     base64 = it
-                    "${webApiUrl}/v0.1/items/${itemId}/image"
+                    "${webApiUrl}/v0.1/items/${item.id}/image"
                 }
             }
         }

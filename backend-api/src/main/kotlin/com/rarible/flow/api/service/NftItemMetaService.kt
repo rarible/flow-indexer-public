@@ -23,7 +23,7 @@ import org.springframework.util.MimeType
 class NftItemMetaService(
     private val providers: List<ItemMetaProvider>,
     private val itemMetaRepository: ItemMetaRepository,
-    private val imageProviders: List<ItemImageProvider>
+    private val imageProviders: List<ItemImageProvider>,
     private val itemRepository: ItemRepository
 ) {
     private val logger by Log()

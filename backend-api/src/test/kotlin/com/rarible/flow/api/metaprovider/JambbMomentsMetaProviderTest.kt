@@ -3,31 +3,24 @@ package com.rarible.flow.api.metaprovider
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.flow.api.config.ApiProperties
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.ItemMeta
-import com.rarible.flow.core.repository.ItemRepository
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import reactor.core.publisher.Mono
 
 internal class JambbMomentsMetaProviderTest: FunSpec({
-    val notExisting = ItemId("A.d4ad4740ee426334.Moments", 2)
-    val existing = ItemId("A.d4ad4740ee426334.Moments", 1)
+    val notExisting = mockk<Item> {
+        every { id } returns ItemId("A.d4ad4740ee426334.Moments", 2)
+        every { tokenId } returns 2
 
-    val itemRepository = mockk<ItemRepository> {
-        every {
-            findById(eq(existing))
-        } returns Mono.just(mockk {
-            every { tokenId } returns 1
-            every { owner } returns FlowAddress("0x01")
-        })
-
-        every {
-            findById(eq(notExisting))
-        } returns Mono.empty()
+    }
+    val existing = mockk<Item> {
+        every { id } returns ItemId("A.d4ad4740ee426334.Moments", 1)
+        every { tokenId } returns 1
+        every { owner } returns FlowAddress("0x01")
     }
 
     val metaScript = mockk<JambbMomentsMetaScript> {
@@ -36,7 +29,7 @@ internal class JambbMomentsMetaProviderTest: FunSpec({
         } returns JambbMomentsMetaConverterTest.META
 
         coEvery {
-            call(3)
+            call(2)
         } returns null
     }
 
@@ -44,39 +37,29 @@ internal class JambbMomentsMetaProviderTest: FunSpec({
         every { chainId } returns FlowChainId.MAINNET
     }
 
-    test("should return empty meta for non-existing item") {
-        JambbMomentsMetaProvider(
-            itemRepository, metaScript, properties
-        ).getMeta(notExisting) shouldBe ItemMeta.empty(notExisting)
-    }
-
     test("should return empty meta if script returned null") {
         JambbMomentsMetaProvider(
-            itemRepository,
-            mockk {
-                coEvery { call(any()) } returns null
-            },
+            metaScript,
             properties
-        ).getMeta(existing) shouldBe ItemMeta.empty(existing)
+        ).getMeta(notExisting) shouldBe null
     }
 
     test("should return filled meta") {
         JambbMomentsMetaProvider(
-            itemRepository,
             metaScript,
             properties
-        ).getMeta(existing) shouldBe JambbMomentsMetaConverterTest.META.toItemMeta(existing)
+        ).getMeta(existing) shouldBe JambbMomentsMetaConverterTest.META.toItemMeta(existing.id)
     }
 
     test("isSupported is true") {
         JambbMomentsMetaProvider(
-            itemRepository, metaScript, properties
-        ).isSupported(existing) shouldBe true
+            metaScript, properties
+        ).isSupported(existing.id) shouldBe true
     }
 
     test("isSupported is false") {
         JambbMomentsMetaProvider(
-            itemRepository, metaScript, properties
+            metaScript, properties
         ).isSupported(ItemId("A.1234.MotoGP", 1000)) shouldBe false
     }
 

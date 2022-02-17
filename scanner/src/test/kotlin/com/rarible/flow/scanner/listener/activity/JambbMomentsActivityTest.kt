@@ -44,7 +44,8 @@ internal class JambbMomentsActivityTest : FunSpec({
             royalties = listOf(
                 Part(FlowAddress("0x609a2ea0548b4b51"), 0.05)
             ),
-            timestamp = Instant.parse("2021-10-26T14:28:35.621Z")
+            timestamp = Instant.parse("2021-10-26T14:28:35.621Z"),
+            collection = "A.d4ad4740ee426334.Moments"
         )
     }
 

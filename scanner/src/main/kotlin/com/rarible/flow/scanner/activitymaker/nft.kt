@@ -6,6 +6,7 @@ import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.*
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.apm.withSpan
+import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.events.RaribleNFTv2Meta
 import com.rarible.flow.events.VersusArtMetadata
@@ -17,6 +18,9 @@ abstract class NFTActivityMaker : ActivityMaker {
     abstract val contractName: String
 
     protected val cadenceParser: JsonCadenceParser = JsonCadenceParser()
+
+    @Value("\${blockchain.scanner.flow.chainId}")
+    lateinit var chainId: FlowChainId
 
     override fun isSupportedCollection(collection: String): Boolean =
         collection.split(".").last().lowercase() == contractName.lowercase()
@@ -140,10 +144,7 @@ abstract class NFTActivityMaker : ActivityMaker {
 }
 
 @Component
-class TopShotActivityMaker(
-    @Value("\${blockchain.scanner.flow.chainId}")
-    private val chainId: FlowChainId,
-) : NFTActivityMaker() {
+class TopShotActivityMaker : NFTActivityMaker() {
     override val contractName: String = "TopShot"
 
     private val royaltyAddress = mapOf(
@@ -181,6 +182,10 @@ class MotoGPActivityMaker : NFTActivityMaker() {
     override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> = emptyMap()
+
+    override fun royalties(logEvent: FlowLogEvent): List<Part> {
+        return Contracts.MOTOGP.staticRoyalties(chainId)
+    }
 }
 
 @Component
@@ -195,6 +200,9 @@ class EvolutionActivityMaker : NFTActivityMaker() {
         "serialNumber" to "${cadenceParser.int(logEvent.event.fields["serialNumber"]!!)}"
     )
 
+    override fun royalties(logEvent: FlowLogEvent): List<Part> {
+        return Contracts.EVOLUTION.staticRoyalties(chainId)
+    }
 }
 
 @Component
@@ -258,10 +266,7 @@ class VersusArtActivityMaker : NFTActivityMaker() {
 }
 
 @Component
-class RaribleV2ActivityMaker(
-    @Value("\${blockchain.scanner.flow.chainId}")
-    private val chainId: FlowChainId
-): NFTActivityMaker() {
+class RaribleV2ActivityMaker: NFTActivityMaker() {
 
     private val softCollection by lazy {
         CadenceNamespace.ns(Flow.DEFAULT_ADDRESS_REGISTRY.addressOf("0xSOFTCOLLECTION", chainId = chainId)!!, "SoftCollection").value
@@ -296,10 +301,7 @@ class RaribleV2ActivityMaker(
 }
 
 @Component
-class DisruptArtActivityMaker(
-    @Value("\${blockchain.scanner.flow.chainId}")
-    private val chainId: FlowChainId,
-) : NFTActivityMaker() {
+class DisruptArtActivityMaker : NFTActivityMaker() {
     override val contractName: String = "DisruptArt"
 
     private val royaltyAddress = mapOf(

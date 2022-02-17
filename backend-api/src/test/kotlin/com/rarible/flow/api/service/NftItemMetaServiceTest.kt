@@ -40,9 +40,11 @@ internal class NftItemMetaServiceTest: FunSpec({
         val service = NftItemMetaService(
             listOf(metaProvider),
             repository,
+            emptyList(),
             mockk {
                 every { findById(any<ItemId>()) } returns Mono.just(item)
-            }
+            },
+
         )
 
 
@@ -83,6 +85,7 @@ internal class NftItemMetaServiceTest: FunSpec({
         val service = NftItemMetaService(
             listOf(metaProvider),
             repository,
+            emptyList(),
             mockk {
                 every { findById(any<ItemId>()) } returns Mono.just(item)
             }
@@ -124,6 +127,7 @@ internal class NftItemMetaServiceTest: FunSpec({
         val service = NftItemMetaService(
             listOf(metaProvider),
             repository,
+            emptyList(),
             mockk {
                 every { findById(any<ItemId>()) } returns Mono.just(mockk())
             }
@@ -147,7 +151,10 @@ internal class NftItemMetaServiceTest: FunSpec({
             mockk {
                 every { findById(itemId) } returns itemMeta.toMono()
             },
-            listOf(VersusArtItemImageProvider())
+            listOf(VersusArtItemImageProvider()),
+            mockk {
+                every { findById(any<ItemId>()) } returns Mono.just(mockk())
+            }
         )
 
         val image = service.imageFromMeta(itemId)

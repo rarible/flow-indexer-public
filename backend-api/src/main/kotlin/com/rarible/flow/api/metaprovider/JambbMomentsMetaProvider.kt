@@ -1,22 +1,11 @@
 package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.Flow
-import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.cadence.CadenceNamespace
-import com.nftco.flow.sdk.cadence.Field
-import com.nftco.flow.sdk.cadence.JsonCadenceConversion
-import com.nftco.flow.sdk.cadence.JsonCadenceConverter
-import com.nftco.flow.sdk.cadence.OptionalField
+import com.nftco.flow.sdk.cadence.*
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.config.ApiProperties
-import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.api.service.ScriptExecutor
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.ItemMeta
-import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.domain.TokenId
-import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.withEntity
+import com.rarible.flow.core.domain.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -27,7 +16,7 @@ class JambbMomentsMetaScript(
     @Value("classpath:script/meta_jambb_moment.cdc")
     private val script: Resource
 ) {
-    suspend fun call(tokenId: TokenId): MetaBody? {
+    suspend fun call(tokenId: TokenId): JambbMomentsMeta? {
         return scriptExecutor.executeFile(
             script,
             {
@@ -45,17 +34,14 @@ class JambbMomentsMetaScript(
 
 @Component
 class JambbMomentsMetaProvider(
-    private val itemRepository: ItemRepository,
     private val script: JambbMomentsMetaScript,
     private val apiProperties: ApiProperties
 ): ItemMetaProvider {
     override fun isSupported(itemId: ItemId): Boolean =
         itemId.contract == Contracts.JAMBB_MOMENTS.fqn(apiProperties.chainId)
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        return itemRepository.withEntity(itemId) { item ->
-            script.call(item.tokenId)
-        }?.toItemMeta(itemId) ?: ItemMeta.empty(itemId)
+    override suspend fun getMeta(item: Item): ItemMeta? {
+        return script.call(item.tokenId)?.toItemMeta(item.id)
     }
 }
 

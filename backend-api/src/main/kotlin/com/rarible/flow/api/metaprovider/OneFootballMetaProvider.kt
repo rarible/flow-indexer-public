@@ -2,20 +2,11 @@ package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.cadence.CadenceNamespace
-import com.nftco.flow.sdk.cadence.Field
-import com.nftco.flow.sdk.cadence.JsonCadenceConversion
-import com.nftco.flow.sdk.cadence.JsonCadenceConverter
-import com.nftco.flow.sdk.cadence.OptionalField
+import com.nftco.flow.sdk.cadence.*
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.service.ScriptExecutor
-import com.rarible.flow.core.domain.Item
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.ItemMeta
-import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.domain.TokenId
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.coFindById
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -53,7 +44,7 @@ class OneFootballMetaProvider(
 
     override suspend fun getMeta(item: Item): ItemMeta? {
         return metaScript.call(item.owner ?: item.creator, item.tokenId)
-            ?.toItemMeta(itemId)
+            ?.toItemMeta(item.id)
 
     }
 }

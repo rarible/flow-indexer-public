@@ -1,8 +1,8 @@
 package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.FlowAddress
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.repository.ItemRepository
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -13,19 +13,24 @@ import reactor.core.publisher.Mono
 
 internal class OneFootballMetaProviderTest: FunSpec({
 
-    val notExisting = ItemId("A.6831760534292098.OneFootballCollectible", 2)
-    val existing = ItemId("A.6831760534292098.OneFootballCollectible", 1)
+    val notExisting = mockk<Item> {
+        every { id } returns ItemId("A.6831760534292098.OneFootballCollectible", 3)
+        every { tokenId } returns 3
+        every { owner } returns FlowAddress("0x03")
+    }
+    val existing = mockk<Item> {
+        every { id } returns ItemId("A.6831760534292098.OneFootballCollectible", 1)
+        every { tokenId } returns 1
+        every { owner } returns FlowAddress("0x01")
+    }
 
     val itemRepository = mockk<ItemRepository> {
         every {
-            findById(eq(existing))
-        } returns Mono.just(mockk {
-            every { tokenId } returns 1
-            every { owner } returns FlowAddress("0x01")
-        })
+            findById(eq(existing.id))
+        } returns Mono.just(existing)
 
         every {
-            findById(eq(notExisting))
+            findById(eq(notExisting.id))
         } returns Mono.empty()
     }
 
@@ -41,23 +46,12 @@ internal class OneFootballMetaProviderTest: FunSpec({
 
     val provider = OneFootballMetaProvider(itemRepository, metaScript)
 
-    test("should return empty meta for non-existing item") {
-        OneFootballMetaProvider(itemRepository, metaScript).getMeta(notExisting) shouldBe ItemMeta.empty(notExisting)
-    }
-
     test("should return empty meta if script returned null") {
-        OneFootballMetaProvider(
-            itemRepository,
-            mockk {
-                coEvery { call(any(), any()) } returns null
-            }
-        ).getMeta(existing) shouldBe ItemMeta.empty(existing)
+        provider.getMeta(notExisting) shouldBe null
     }
 
     test("should return filled meta") {
-        OneFootballMetaProvider(
-            itemRepository, metaScript
-        ).getMeta(existing) shouldBe OneFootballMetaConverterTest.META.toItemMeta(existing)
+        provider.getMeta(existing) shouldBe OneFootballMetaConverterTest.META.toItemMeta(existing.id)
     }
 
 })

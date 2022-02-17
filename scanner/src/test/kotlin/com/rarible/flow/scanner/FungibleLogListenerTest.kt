@@ -3,19 +3,13 @@ package com.rarible.flow.scanner
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.framework.model.Log
-import com.rarible.flow.core.domain.Balance
-import com.rarible.flow.core.domain.BalanceHistory
-import com.rarible.flow.core.domain.FlowAssetFungible
-import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Order
-import com.rarible.flow.core.domain.OrderStatus
-import com.rarible.flow.core.domain.OrderType
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,6 +18,7 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDateTime
 
+@ExperimentalCoroutinesApi
 @IntegrationTest
 internal class FungibleLogListenerTest: BaseIntegrationTest() {
 

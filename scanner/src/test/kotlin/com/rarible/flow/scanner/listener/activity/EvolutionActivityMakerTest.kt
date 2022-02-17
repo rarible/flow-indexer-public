@@ -12,18 +12,17 @@ import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
+import com.rarible.flow.scanner.activitymaker.EvolutionActivityMaker
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainValue
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
 import java.time.Instant
 
 internal class EvolutionActivityMakerTest: FunSpec({
 
-    val activityMaker = EvolutionActivityMaker(mockk {
-        every { chainId } returns FlowChainId.MAINNET
-    })
+    val activityMaker = EvolutionActivityMaker().apply {
+        chainId = FlowChainId.MAINNET
+    }
 
     test("should mint item") {
         activityMaker.activities(
@@ -43,7 +42,8 @@ internal class EvolutionActivityMakerTest: FunSpec({
             royalties = listOf(
                 Part(FlowAddress("0x77b78d7d3f0d1787"), 0.1)
             ),
-            timestamp = Instant.parse("2021-10-26T14:28:35.621Z")
+            timestamp = Instant.parse("2021-10-26T14:28:35.621Z"),
+            collection = "A.f4264ac8f3256818.Evolution"
         )
     }
 

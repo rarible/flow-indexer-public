@@ -3,7 +3,6 @@ package com.rarible.flow.api.metaprovider
 import com.rarible.flow.api.mocks
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.ItemMeta
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.should
@@ -37,7 +36,7 @@ internal class RaribleNFTMetaProviderTest: FunSpec({
         provider.getMeta(
             item
         ) should { meta ->
-            meta
+            meta!!
             meta.name shouldBe "flying toffee"
             meta.description shouldBe "my puppy <3 "
             meta.contentUrls shouldContain "ipfs://ipfs/QmbV7WN7EmhP83nK4hH2K9oitxEvjBLYRpa2NuRb86ubZN/image.jpeg"

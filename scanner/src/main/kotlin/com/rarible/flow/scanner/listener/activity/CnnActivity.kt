@@ -3,8 +3,8 @@ package com.rarible.flow.scanner.listener.activity
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Part
+import com.rarible.flow.scanner.activitymaker.NFTActivityMaker
 import com.rarible.flow.scanner.config.FlowApiProperties
-import com.rarible.flow.scanner.listener.NFTActivityMaker
 import org.springframework.stereotype.Component
 
 @Component

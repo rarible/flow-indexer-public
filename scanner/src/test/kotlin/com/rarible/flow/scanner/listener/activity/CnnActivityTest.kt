@@ -37,7 +37,8 @@ internal class CnnActivityTest : FunSpec({
             royalties = listOf(
                 Part(FlowAddress("0x55c8be371f74168f"), 0.1)
             ),
-            timestamp = Instant.parse("2021-10-26T14:28:35.621Z")
+            timestamp = Instant.parse("2021-10-26T14:28:35.621Z"),
+            collection = "A.329feb3ab062d289.CNN_NFT"
         )
     }
 

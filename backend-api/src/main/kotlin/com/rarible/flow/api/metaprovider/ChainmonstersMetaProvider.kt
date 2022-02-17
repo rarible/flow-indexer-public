@@ -5,12 +5,11 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.netflix.graphql.dgs.client.WebClientGraphQLClient
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.config.ApiProperties
-import com.rarible.flow.api.metaprovider.body.MetaBody
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.boot.json.JacksonJsonParser
@@ -37,7 +36,7 @@ class ChainmonstersMetaProvider(
             }?.let { response ->
                 if (response.hasErrors()) {
                     logger.warn(
-                        "Failed to fetch metadata for {}: {}", itemId, response.errors.joinToString(";") {
+                        "Failed to fetch metadata for {}: {}", item.id, response.errors.joinToString(";") {
                             it.message
                         }
                     )
@@ -48,7 +47,7 @@ class ChainmonstersMetaProvider(
                         .data
                         .reward
                 }
-            }?.toItemMeta(itemId)
+            }?.toItemMeta(item.id)
 
     }
 

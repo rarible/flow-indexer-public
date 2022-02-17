@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.config.ApiProperties
-import com.rarible.flow.api.metaprovider.body.MetaBody
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
@@ -27,19 +27,19 @@ class FanfareMetaProvider(
     override fun isSupported(itemId: ItemId): Boolean =
         itemId.contract == Contracts.FANFARE.fqn(apiProperties.chainId)
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        val tokenId = itemId.tokenId
+    override suspend fun getMeta(item: Item): ItemMeta? {
+        val itemId = item.id
 
         return try {
             webClient
                 .get()
-                .uri("https://www.fanfare.fm/api/nft-meta/{id}", mapOf("id" to tokenId))
+                .uri("https://www.fanfare.fm/api/nft-meta/{id}", mapOf("id" to itemId.tokenId))
                 .retrieve()
                 .awaitBodyOrNull<FanfareMeta>()
         } catch (e: Throwable) {
             logger.warn("Failed to fetch meta of {}", itemId, e)
             null
-        }?.toItemMeta(itemId) ?: ItemMeta.empty(itemId)
+        }?.toItemMeta(itemId)
     }
 }
 
