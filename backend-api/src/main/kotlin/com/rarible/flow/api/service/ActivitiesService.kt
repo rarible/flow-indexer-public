@@ -53,7 +53,7 @@ class ActivitiesService(
                     .and("activity.maker").`in`(u)
             },
             FlowActivityType.CANCEL_BID to { u: List<String> ->
-                Criteria.where("activity.type").isEqualTo(FlowActivityType.CANCEL_LIST.name)
+                Criteria.where("activity.type").isEqualTo(FlowActivityType.CANCEL_BID.name)
                     .and("activity.maker").`in`(u)
             },
             FlowActivityType.MAKE_BID to { u: List<String> ->
