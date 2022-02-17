@@ -67,8 +67,15 @@ class AppReadyListener(
                 symbol = "FANFARE",
                 features = emptySet()
             ),
-
+            ItemCollection(
+                id = Contracts.CHAINMONSTERS.fqn(FlowChainId.TESTNET),
+                name = "Chainmonsters",
+                owner = Contracts.CHAINMONSTERS.deployments[FlowChainId.TESTNET]!!,
+                symbol = "CHAINMONSTERS",
+                features = emptySet()
+            )
         ),
+
         FlowChainId.MAINNET to listOf(
             ItemCollection(id = "A.01ab36aaf654a13e.RaribleNFT", name = "Rarible", owner = FlowAddress("0x01ab36aaf654a13e"), symbol = "RARIBLE", features = setOf("SECONDARY_SALE_FEES", "BURN")),
             ItemCollection(id = "A.a49cc0ee46c54bfb.MotoGPCard", name = "MotoGP™ Ignition", owner = FlowAddress("0xa49cc0ee46c54bfb"), symbol = "MotoGP™", features = setOf("BURN")),
@@ -120,6 +127,13 @@ class AppReadyListener(
                 symbol = "FANFARE",
                 features = emptySet()
             ),
+            ItemCollection(
+                id = Contracts.CHAINMONSTERS.fqn(FlowChainId.MAINNET),
+                name = "Chainmonsters",
+                owner = Contracts.CHAINMONSTERS.deployments[FlowChainId.MAINNET]!!,
+                symbol = "CHAINMONSTERS",
+                features = emptySet()
+            )
         )
     )
 
