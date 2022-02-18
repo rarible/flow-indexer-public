@@ -1,0 +1,102 @@
+package com.rarible.flow.api.metaprovider
+
+import com.nftco.flow.sdk.Flow
+import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowChainId
+import com.nftco.flow.sdk.cadence.*
+import com.rarible.flow.Contracts
+import com.rarible.flow.api.metaprovider.body.MetaBody
+import com.rarible.flow.api.service.ScriptExecutor
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.ItemMeta
+import com.rarible.flow.core.domain.ItemMetaAttribute
+import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.coFindById
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.Resource
+import org.springframework.stereotype.Component
+
+@Component
+class BarterYardPackMetaProvider(
+    @Value("\${app.chain-id}")
+    private val chainId: FlowChainId,
+    private val itemRepository: ItemRepository,
+    private val script: BarterYardScript
+): ItemMetaProvider {
+    override fun isSupported(itemId: ItemId): Boolean = itemId.contract == Contracts.BARTER_YARD_PACK.fqn(chainId)
+
+    override suspend fun getMeta(itemId: ItemId): ItemMeta {
+        return itemRepository.coFindById(itemId)?.let {
+            getMeta(it)
+        } ?: ItemMeta.empty(itemId)
+    }
+
+    suspend fun getMeta(item: Item): ItemMeta? {
+        return script.call(item.tokenId, item.owner!!)?.toItemMeta(item.id)
+    }
+}
+
+
+@Component
+class BarterYardScript(
+    private val scriptExecutor: ScriptExecutor,
+    @Value("classpath:script/byp_meta.cdc")
+    private val script: Resource
+) {
+
+    suspend fun call(tokenId: Long, owner: FlowAddress): Pass? {
+        return scriptExecutor.executeFile(
+            script,
+            {
+                arg { address(owner.formatted) }
+                arg { uint64(tokenId) }
+            },
+            { optionalResult ->
+                optional(optionalResult) {
+                    Flow.unmarshall(Pass::class, it)
+                }
+            }
+        )
+    }
+}
+
+@JsonCadenceConversion(PassConverter::class)
+data class Pass(
+    val id: Long,
+    val name: String,
+    val description: String,
+    val edition: Int,
+    val ipfsCID: String,
+    val ipfsURI: String,
+    val owner: String
+): MetaBody {
+    override fun toItemMeta(itemId: ItemId): ItemMeta = ItemMeta(
+        itemId = itemId,
+        name = name,
+        description = description,
+        attributes = listOf(
+            ItemMetaAttribute(
+                key = "edition",
+                value = "$edition"
+            )
+        ),
+        contentUrls = listOf(
+            "https://rarible.mypinata.cloud/ipfs/$ipfsCID"
+        )
+    )
+}
+
+class PassConverter: JsonCadenceConverter<Pass> {
+    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): Pass = unmarshall(value) {
+        Pass(
+            id = long("id"),
+            name = string("name"),
+            description = string("description"),
+            edition = int("edition"),
+            ipfsCID = string("ipfsCID"),
+            ipfsURI = string("ipfsURI"),
+            owner = address("owner")
+        )
+    }
+}

@@ -3,6 +3,7 @@ package com.rarible.flow
 import com.nftco.flow.sdk.AddressRegistry
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
+import com.rarible.flow.RoyaltySize.FIVE_PERCENT
 import com.rarible.flow.RoyaltySize.percent
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Part
@@ -79,7 +80,7 @@ enum class Contracts : Contract {
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
             return if (chain == FlowChainId.MAINNET) listOf(
-                Part(FlowAddress("0x46f1e88b54fcb73c"), RoyaltySize.FIVE_PERCENT) // 5%
+                Part(FlowAddress("0x46f1e88b54fcb73c"), FIVE_PERCENT) // 5%
             ) else super.staticRoyalties(chain)
         }
     },
@@ -98,7 +99,7 @@ enum class Contracts : Contract {
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
             return if(chain == FlowChainId.MAINNET) listOf(
-                Part(FlowAddress("0x46f1e88b54fcb73c"), RoyaltySize.FIVE_PERCENT) // 5%
+                Part(FlowAddress("0x46f1e88b54fcb73c"), FIVE_PERCENT) // 5%
             ) else super.staticRoyalties(chain)
         }
     },
@@ -117,7 +118,7 @@ enum class Contracts : Contract {
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
             return if (chain == FlowChainId.MAINNET) listOf(
-                Part(FlowAddress("0x609a2ea0548b4b51"), RoyaltySize.FIVE_PERCENT) // 5%
+                Part(FlowAddress("0x609a2ea0548b4b51"), FIVE_PERCENT) // 5%
             ) else super.staticRoyalties(chain)
         }
     },
@@ -227,8 +228,25 @@ enum class Contracts : Contract {
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
             return if (chain == FlowChainId.MAINNET) {
-                listOf(Part(FlowAddress("0x64f83c60989ce555"), RoyaltySize.FIVE_PERCENT))
+                listOf(Part(FlowAddress("0x64f83c60989ce555"), FIVE_PERCENT))
             } else super.staticRoyalties(chain)
+        }
+    },
+
+    BARTER_YARD_PACK {
+        override val contractName: String = "BarterYardPackNFT"
+
+        override val deployments: Map<FlowChainId, FlowAddress> = mapOf(
+            FlowChainId.MAINNET to FlowAddress("0xa95b021cf8a30d80"),
+            FlowChainId.TESTNET to FlowAddress("0x4300fc3a11778a9a"),
+        )
+
+        override val import: String = "0xBARTER_YARD_PACK"
+
+        override fun staticRoyalties(chain: FlowChainId): List<Part> = when(chain) {
+            FlowChainId.MAINNET -> listOf(Part(FlowAddress("0xb07b788eb60b6528"), FIVE_PERCENT))
+            FlowChainId.TESTNET -> listOf(Part(FlowAddress("0x4300fc3a11778a9a"), FIVE_PERCENT))
+            else -> super.staticRoyalties(chain)
         }
     }
 }

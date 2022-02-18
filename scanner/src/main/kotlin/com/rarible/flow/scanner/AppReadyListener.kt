@@ -73,6 +73,13 @@ class AppReadyListener(
                 owner = Contracts.CHAINMONSTERS.deployments[FlowChainId.TESTNET]!!,
                 symbol = "CHAINMONSTERS",
                 features = emptySet()
+            ),
+            ItemCollection(
+                id = Contracts.BARTER_YARD_PACK.fqn(FlowChainId.TESTNET),
+                name = "Barter Yard Club - Mint Pass",
+                owner = Contracts.BARTER_YARD_PACK.deployments[FlowChainId.TESTNET]!!,
+                symbol = "BYC-MP",
+                features = setOf("BURN")
             )
         ),
 
@@ -133,6 +140,13 @@ class AppReadyListener(
                 owner = Contracts.CHAINMONSTERS.deployments[FlowChainId.MAINNET]!!,
                 symbol = "CHAINMONSTERS",
                 features = emptySet()
+            ),
+            ItemCollection(
+                id = Contracts.BARTER_YARD_PACK.fqn(FlowChainId.MAINNET),
+                name = "Barter Yard Club - Mint Pass",
+                owner = Contracts.BARTER_YARD_PACK.deployments[FlowChainId.MAINNET]!!,
+                symbol = "BYC-MP",
+                features = setOf("BURN")
             )
         )
     )
