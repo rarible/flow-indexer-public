@@ -523,6 +523,35 @@ class UserStorageService(
                     saveItem(item)
                 }
             }
+
+            Contracts.KICKS.contractName -> {
+                itemIds.forEach { tokenId ->
+                    val contract = Contracts.KICKS.fqn(appProperties.chainId)
+                    val item = if (notExistsItem(contract, tokenId)) {
+
+                        Item(
+                            contract = contract,
+                            tokenId = tokenId,
+                            creator = Contracts.KICKS.deployments[appProperties.chainId]!!,
+                            royalties = Contracts.KICKS.staticRoyalties(appProperties.chainId),
+                            owner = address,
+                            mintedAt = Instant.now(),
+                            meta = "{}",
+                            collection = contract,
+                            updatedAt = Instant.now()
+                        )
+                    } else {
+                        val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
+                        } else {
+                            checkOwnership(i, address)
+                            null
+                        }
+                    }
+                    saveItem(item)
+                }
+            }
         }
     }
 
