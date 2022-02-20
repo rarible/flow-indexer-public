@@ -46,6 +46,17 @@ enum class Contracts : Contract {
                 FlowChainId.TESTNET to FlowAddress("0x01984fb4ca279d9a"),
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7")
             )
+
+        override fun staticRoyalties(chain: FlowChainId): List<Part> {
+            return if(chain == FlowChainId.MAINNET) {
+                listOf(
+                    Part(
+                        FlowAddress("0x6831760534292098"),
+                        0.5.percent() // 0.5 %
+                    )
+                )
+            } else super.staticRoyalties(chain)
+        }
     },
 
     STARLY_CARD {
