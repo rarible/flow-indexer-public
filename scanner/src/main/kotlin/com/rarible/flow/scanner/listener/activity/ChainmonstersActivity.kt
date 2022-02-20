@@ -15,7 +15,9 @@ class ChainmonstersActivity(
 ): NFTActivityMaker() {
     override val contractName: String = Contracts.CHAINMONSTERS.contractName
 
-    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["NFTID"]!!)
+    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(
+        logEvent.event.fields["NFTID"] ?: logEvent.event.fields["id"]!!
+    )
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> {
         val rewardID: UInt32NumberField by logEvent.event.fields
