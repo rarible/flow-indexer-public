@@ -46,6 +46,7 @@ class VersusArtSubscriber : BaseFlowLogEventSubscriber() {
         "Created" -> FlowLogType.MINT
         "Withdraw" -> FlowLogType.WITHDRAW
         "Deposit" -> FlowLogType.DEPOSIT
-        else -> FlowLogType.CUSTOM
+        "Settle", "DropDestroyed" -> FlowLogType.CUSTOM
+        else -> throw IllegalStateException("Unsupported event type: ${log.event.id}")
     }
 }

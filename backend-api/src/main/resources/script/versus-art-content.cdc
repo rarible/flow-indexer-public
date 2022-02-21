@@ -1,5 +1,5 @@
 //import Art from 0xd796ff17107bbff6
-import Art from 0xVERSUSART
+import Art from 0xART
 
 // Take Art token content by account address and tokenId
 //

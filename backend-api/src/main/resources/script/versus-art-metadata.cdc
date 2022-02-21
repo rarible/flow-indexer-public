@@ -1,4 +1,4 @@
-import Art from 0xVERSUSART
+import Art from 0xART
 
 // Take Art token props by account address and tokenId
 //
