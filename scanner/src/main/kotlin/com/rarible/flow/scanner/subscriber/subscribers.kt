@@ -35,10 +35,14 @@ internal fun flowDescriptor(
     events: Iterable<String>,
     startFrom: Long? = null,
     dbCollection: String,
+    additionalEvents: Iterable<String> = emptyList(),
 ): FlowDescriptor {
+    val address = contract.deployments[chainId]?.base16Value
+    val eventsSet = events.map { "${contract.fqn(chainId)}.$it" }.toSet()
+    val additionalSet = additionalEvents.map { "A.${address}.$it" }
     return FlowDescriptor(
         id = contract.flowDescriptorName(),
-        events = events.map { "${contract.fqn(chainId)}.$it" }.toSet(),
+        events = eventsSet + additionalSet,
         collection = dbCollection,
         startFrom = startFrom
     )
