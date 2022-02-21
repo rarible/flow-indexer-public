@@ -1,6 +1,7 @@
 package com.rarible.flow.scanner.activitymaker
 
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowId
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.apm.withSpan
@@ -15,6 +16,11 @@ import java.math.BigDecimal
 class NFTStorefrontActivityMaker : WithPaymentsActivityMaker() {
 
     override val contractName: String = "NFTStorefront"
+
+    private val raribleOrderAddress = mapOf(
+        FlowChainId.MAINNET to "01ab36aaf654a13e",
+        FlowChainId.TESTNET to "ebf4ae01d1284af8"
+    )
 
     override suspend fun activities(events: List<FlowLogEvent>): Map<FlowLog, BaseActivity> {
         val result: MutableMap<FlowLog, BaseActivity> = mutableMapOf()
@@ -34,7 +40,8 @@ class NFTStorefrontActivityMaker : WithPaymentsActivityMaker() {
             }
 
             orderListed.forEach {
-                val price = cadenceParser.bigDecimal(it.event.fields["price"]!!)
+                val raribleEventPrice = checkRaribleEventPrice(it)
+                val price = raribleEventPrice ?: cadenceParser.bigDecimal(it.event.fields["price"]!!)
                 val orderId = cadenceParser.long(it.event.fields["listingResourceID"]!!)
                 val rate = usdRate(
                     EventId.of(cadenceParser.string(it.event.fields["ftVaultType"]!!)).collection(),
@@ -81,29 +88,9 @@ class NFTStorefrontActivityMaker : WithPaymentsActivityMaker() {
                         address(it)
                     }!!
 
-                    val payInfo = currencyEvents.filter { it.eventId.eventName == "TokensDeposited" }
-                        .filter { cadenceParser.optional(it.fields["to"]!!) { address(it) } != null }
-                        .map {
-                            val to = cadenceParser.optional(it.fields["to"]!!) {
-                                address(it)
-                            }!!
-
-                            val amount = cadenceParser.bigDecimal(it.fields["amount"]!!)
-
-                            var type = paymentType(to)
-                            if (type == PaymentType.OTHER && to == sellerAddress) {
-                                type = PaymentType.REWARD
-                            }
-                            PayInfo(
-                                address = to,
-                                amount = amount,
-                                currencyContract = it.eventId.collection(),
-                                type = type
-                            )
-                        }
-
+                    val payInfo = payInfos(currencyEvents, sellerAddress)
                     val price = payInfo.filterNot {
-                        it.type == PaymentType.OTHER
+                        it.type == PaymentType.BUYER_FEE
                     }.sumOf { it.amount }
                     val usdRate =
                         usdRate(payInfo.first().currencyContract, logEvent.log.timestamp.toEpochMilli()) ?: BigDecimal.ZERO
@@ -147,6 +134,20 @@ class NFTStorefrontActivityMaker : WithPaymentsActivityMaker() {
             }
         }
         return result.toMap()
+    }
+
+    private suspend fun checkRaribleEventPrice(event: FlowLogEvent): BigDecimal? {
+        val eventName = "A.${raribleOrderAddress[chainId]}.RaribleOrder.OrderAvailable"
+        return txManager.onTransaction(
+            blockHeight = event.log.blockHeight,
+            transactionId = FlowId(event.log.transactionHash)
+        ) { result ->
+            val e = result.events.find { it.type == eventName }
+            if (e != null) {
+                return@onTransaction cadenceParser.bigDecimal(e.event["price"]!!)
+            }
+            return@onTransaction null
+        }
     }
 }
 
@@ -209,7 +210,8 @@ class RaribleOpenBidActivityMaker(
             }
 
             acceptedBids.forEach { flowLogEvent ->
-                val allTxEvents = readEvents(blockHeight = flowLogEvent.log.blockHeight, txId = FlowId(flowLogEvent.log.transactionHash))
+                val allTxEvents = readEvents(blockHeight = flowLogEvent.log.blockHeight,
+                    txId = FlowId(flowLogEvent.log.transactionHash))
                 val tokenEvents = allTxEvents.filter { it.eventId.toString() in nftCollectionEvents }
                 val currencyEvents = allTxEvents.filter { it.eventId.toString() in currenciesEvents }
 

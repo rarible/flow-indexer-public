@@ -57,17 +57,19 @@ class HammerLotOnFinishTimeJob(
         Flow.DEFAULT_ADDRESS_REGISTRY.register("0xENGLISH_AUCTION", pAddress, FlowChainId.TESTNET) //todo config mainnet
     }
 
-    @Scheduled(fixedDelay = 60L, timeUnit = TimeUnit.SECONDS)
-    fun hammerLots() = runBlocking {
-        logger.info("Try to hammer finished lots ...")
-        repo.findAllByStatusAndFinishAtLessThanEqualAndLastBidIsNotNull(
-            status = AuctionStatus.ACTIVE,
-            finishAt = Instant.now()
-        ).collect {
-            val txId = executeTx(it)
-            logger.info("Lot [${it.id}] completed at tx: $txId")
+    @Scheduled(initialDelay = 120L, fixedDelay = 60L, timeUnit = TimeUnit.SECONDS)
+    fun hammerLots() {
+        runBlocking {
+            logger.info("Try to hammer finished lots ...")
+            repo.findAllByStatusAndFinishAtLessThanEqualAndLastBidIsNotNull(
+                status = AuctionStatus.ACTIVE,
+                finishAt = Instant.now()
+            ).collect {
+                val txId = executeTx(it)
+                logger.info("Lot [${it.id}] completed at tx: $txId")
+            }
+            logger.info("All finished lot's are hammered ...")
         }
-        logger.info("All finished lot's are hammered ...")
     }
 
     private suspend fun executeTx(lot: EnglishAuctionLot): FlowId {

@@ -32,22 +32,27 @@ app:
   web-api-url: http://localhost:8080
 
 flow-api:
-  flow-access-url: "access.testnet.nodes.onflow.org"
+  flow-access-url: "access.devnet.nodes.onflow.org"
   flow-access-port: 9000
   chain-id: TESTNET
   service-account:
     address: "0xebf4ae01d1284af8"
     private-key: "c9c26ffea639ac653130127a6fdba7448d7752aadb26c9027accd504b2b7bcd3"
 
+management:
+  endpoint:
+    metrics:
+      enabled: false
+
 blockchain:
   scanner:
     flow:
       chainId: TESTNET
       poller:
-        delay: 100
+        delay: 300
       job:
         reconciliation:
-          batchSize: 250
+          batchSize: 25
       retryPolycy:
         scan:
           maxProcessTime: 3m
