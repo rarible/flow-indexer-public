@@ -37,12 +37,14 @@ internal fun flowDescriptor(
     dbCollection: String,
 ): FlowDescriptor {
     return FlowDescriptor(
-        id = "${contract.contractName}Descriptor",
+        id = contract.flowDescriptorName(),
         events = events.map { "${contract.fqn(chainId)}.$it" }.toSet(),
         collection = dbCollection,
         startFrom = startFrom
     )
 }
+
+fun Contracts.flowDescriptorName() = "${this.contractName}Descriptor"
 
 internal fun balanceHistory(
     balanceId: BalanceId,
