@@ -156,15 +156,14 @@ class SoftCollectionIndexingTest {
     private val cb = JsonCadenceBuilder()
     @Test
     internal fun mintAndUpdateCollectionIndexingTest() = runBlocking {
-        // todo change to not Emulator account after minter changes
-        val payerKey = accessApi.getAccountAtLatestBlock(EmulatorUser.Emulator.address)!!.keys[0]
+        val payerKey = accessApi.getAccountAtLatestBlock(EmulatorUser.Patrick.address)!!.keys[0]
         val signer = Crypto.getSigner(
-            privateKey = Crypto.decodePrivateKey(EmulatorUser.Emulator.keyHex),
+            privateKey = Crypto.decodePrivateKey(EmulatorUser.Patrick.keyHex),
             hashAlgo = payerKey.hashAlgo
         )
 
 
-        val setup = accessApi.simpleFlowTransaction(address = EmulatorUser.Emulator.address, signer = signer) {
+        val setup = accessApi.simpleFlowTransaction(address = EmulatorUser.Patrick.address, signer = signer) {
             script(setupAccountTx.inputStream.bufferedReader().use { it.readText() }, FlowChainId.EMULATOR)
         }.sendAndWaitForSeal()
         Assertions.assertTrue(setup.errorMessage.isEmpty(), "Setup account failed: ${setup.errorMessage}")
@@ -173,7 +172,7 @@ class SoftCollectionIndexingTest {
             name = "Awesome Collection",
             symbol = "AC",
             isSoft = true,
-            owner = EmulatorUser.Emulator.address,
+            owner = EmulatorUser.Patrick.address,
             features = setOf("BURN", "SECONDARY_SALE_FEES"),
             chainId = 0L,
             description = "Description",
@@ -181,9 +180,9 @@ class SoftCollectionIndexingTest {
             url = "https://google.com/"
         )
 
-        val tx = accessApi.simpleFlowTransaction(address = EmulatorUser.Emulator.address, signer = signer) {
+        val tx = accessApi.simpleFlowTransaction(address = EmulatorUser.Patrick.address, signer = signer) {
             script(collectionMintTx.inputStream.bufferedReader().use { it.readText() }, FlowChainId.EMULATOR)
-            argument(cb.address(EmulatorUser.Emulator.address.formatted))
+            argument(cb.address(EmulatorUser.Patrick.address.formatted))
             argument(cb.optional(null))
             argument(cb.string("Awesome Collection"))
             argument(cb.string("AC"))
@@ -191,7 +190,7 @@ class SoftCollectionIndexingTest {
             argument(cb.optional(cb.string("Description")))
             argument(cb.optional(cb.string("https://google.com/")))
             argument(cb.optional(null))
-            argument(cb.array { emptyList() })
+            argument(cb.dictionary { emptyArray() })
         }.sendAndWaitForSeal()
         logger.info("tx result: $tx")
         Assertions.assertNotNull(tx, "Tx result is null!")
@@ -215,7 +214,7 @@ class SoftCollectionIndexingTest {
             icon = "New Icon",
         )
 
-        val updateTx = accessApi.simpleFlowTransaction(address = EmulatorUser.Emulator.address, signer = signer) {
+        val updateTx = accessApi.simpleFlowTransaction(address = EmulatorUser.Patrick.address, signer = signer) {
             script(collectionUpdateTx.inputStream.bufferedReader().use { it.readText() }, FlowChainId.EMULATOR)
             argument { cb.uint64(updated.chainId!!) }
             argument { cb.optional(cb.string(updated.url!!)) }
@@ -242,7 +241,7 @@ class SoftCollectionIndexingTest {
         Assertions.assertEquals(updated.description, c.description, "Updated collection description is wrong")
         Assertions.assertEquals(updated.url, c.url, "Updated collection url is wrong")
         Assertions.assertEquals(updated.icon, c.icon, "Updated collection icon is wrong")
-        val mintTx = accessApi.simpleFlowTransaction(EmulatorUser.Emulator.address, signer) {
+        val mintTx = accessApi.simpleFlowTransaction(EmulatorUser.Patrick.address, signer) {
             script(createItemTx.inputStream.bufferedReader().use { it.readText() }, FlowChainId.EMULATOR)
             argument { cb.uint64(updated.chainId!!) }
             argument { cb.marshall(RaribleNFTv2Meta(
@@ -267,21 +266,21 @@ class SoftCollectionIndexingTest {
         ), Item::class.java).awaitSingle()
         Assertions.assertNotNull(item)
         Assertions.assertEquals(EmulatorUser.Emulator.address, item.creator, "Item creator wrong!")
-        Assertions.assertEquals(EmulatorUser.Emulator.address, item.owner, "Item owner wrong!")
+        Assertions.assertEquals(EmulatorUser.Patrick.address, item.owner, "Item owner wrong!")
 
-        val patricKey = accessApi.getAccountAtLatestBlock(EmulatorUser.Patrick.address)!!.keys[0]
-        val patricSigner = Crypto.getSigner(
-            privateKey = Crypto.decodePrivateKey(EmulatorUser.Patrick.keyHex),
-            hashAlgo = patricKey.hashAlgo
+        val sqKey = accessApi.getAccountAtLatestBlock(EmulatorUser.Squidward.address)!!.keys[0]
+        val sqSigner = Crypto.getSigner(
+            privateKey = Crypto.decodePrivateKey(EmulatorUser.Squidward.keyHex),
+            hashAlgo = sqKey.hashAlgo
         )
-        accessApi.simpleFlowTransaction(EmulatorUser.Patrick.address, patricSigner) {
+        accessApi.simpleFlowTransaction(EmulatorUser.Squidward.address, sqSigner) {
             script(setupItemAccTx.inputStream.bufferedReader().use { it.readText() }, FlowChainId.EMULATOR)
         }.sendAndWaitForSeal()
 
-        val transferTx = accessApi.simpleFlowTransaction(EmulatorUser.Emulator.address, signer) {
+        val transferTx = accessApi.simpleFlowTransaction(EmulatorUser.Patrick.address, signer) {
             script(transferItemTx.inputStream.bufferedReader().use { it.readText() }, FlowChainId.EMULATOR)
             argument { cb.uint64(itemId.tokenId) }
-            argument { cb.address(EmulatorUser.Patrick.address) }
+            argument { cb.address(EmulatorUser.Squidward.address) }
         }.sendAndGetResult()
 
         Assertions.assertTrue(transferTx.second.errorMessage.isEmpty(), "Transfer failed! ${transferTx.second.errorMessage}")
@@ -293,9 +292,10 @@ class SoftCollectionIndexingTest {
 
         Assertions.assertNotNull(item)
         Assertions.assertEquals(EmulatorUser.Emulator.address, item.creator, "Item creator wrong!")
-        Assertions.assertEquals(EmulatorUser.Patrick.address, item.owner, "Item owner wrong!")
+        Assertions.assertEquals(EmulatorUser.Squidward.address, item.owner, "Item owner wrong!")
 
-        val burnTx = accessApi.simpleFlowTransaction(EmulatorUser.Patrick.address, patricSigner) {
+
+        val burnTx = accessApi.simpleFlowTransaction(EmulatorUser.Squidward.address, sqSigner) {
             script(burnItemTx.inputStream.bufferedReader().use { it.readText() }, FlowChainId.EMULATOR)
             argument { cb.uint64(itemId.tokenId) }
         }.sendAndGetResult()
