@@ -1,6 +1,7 @@
 package com.rarible.flow.scanner.listener.activity
 
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.framework.model.Log
@@ -13,11 +14,15 @@ import com.rarible.flow.events.EventMessage
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainValue
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import java.time.Instant
 
 internal class OneFootballActivityTest: FunSpec({
 
-    val activityMaker = OneFootballActivity()
+    val activityMaker = OneFootballActivity(mockk {
+        every { chainId } returns FlowChainId.MAINNET
+    })
 
     test("should mint item") {
         activityMaker.activities(
