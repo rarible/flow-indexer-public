@@ -154,6 +154,7 @@ class SoftCollectionIndexingTest {
     }
 
     private val cb = JsonCadenceBuilder()
+
     @Test
     internal fun mintAndUpdateCollectionIndexingTest() = runBlocking {
         val payerKey = accessApi.getAccountAtLatestBlock(EmulatorUser.Patrick.address)!!.keys[0]
@@ -203,7 +204,9 @@ class SoftCollectionIndexingTest {
         Assertions.assertEquals(expectedCollection.id, collection.id, "Collection id is incorrect")
         Assertions.assertEquals(expectedCollection.name, collection.name, "Collection name is incorrect")
         Assertions.assertTrue(collection.isSoft, "Collection is not marked as Soft")
-        Assertions.assertEquals(expectedCollection.description, collection.description, "Collection description is incorrect")
+        Assertions.assertEquals(expectedCollection.description,
+            collection.description,
+            "Collection description is incorrect")
         Assertions.assertEquals(expectedCollection.symbol, collection.symbol, "Collection symbol is incorrect")
         Assertions.assertEquals(expectedCollection.chainId, collection.chainId, "Collection chainId is incorrect ")
         Assertions.assertEquals(expectedCollection.icon, collection.icon, "Collection icon is incorrect ")
@@ -244,18 +247,20 @@ class SoftCollectionIndexingTest {
         val mintTx = accessApi.simpleFlowTransaction(EmulatorUser.Patrick.address, signer) {
             script(createItemTx.inputStream.bufferedReader().use { it.readText() }, FlowChainId.EMULATOR)
             argument { cb.uint64(updated.chainId!!) }
-            argument { cb.marshall(RaribleNFTv2Meta(
-                name = "First Awesome Item",
-                description = "Item description",
-                cid = "QmNe7Hd9xiqm1MXPtQQjVtksvWX6ieq9Wr6kgtqFo9D4CU",
-                attributes = emptyMap(),
-                contentUrls = emptyList()
-            ), RaribleNFTv2Meta::class, EmulatorUser.Emulator.address) }
+            argument {
+                cb.marshall(RaribleNFTv2Meta(
+                    name = "First Awesome Item",
+                    description = "Item description",
+                    cid = "QmNe7Hd9xiqm1MXPtQQjVtksvWX6ieq9Wr6kgtqFo9D4CU",
+                    attributes = emptyMap(),
+                    contentUrls = emptyList()
+                ), RaribleNFTv2Meta::class, EmulatorUser.Emulator.address)
+            }
             argument { cb.array { emptyList() } }
         }.sendAndGetResult()
         Assertions.assertNotNull(mintTx.first)
         Assertions.assertTrue(mintTx.second.errorMessage.isEmpty(), "Mint item failed ${mintTx.second.errorMessage}")
-        withTimeout(30_000L){ awaitLogEventByTxId(mintTx.first) }
+        withTimeout(30_000L) { awaitLogEventByTxId(mintTx.first) }
 
         val itemId = ItemId(
             contract = EventId.of(mintTx.second.events.first().id).collection(),
@@ -283,8 +288,9 @@ class SoftCollectionIndexingTest {
             argument { cb.address(EmulatorUser.Squidward.address) }
         }.sendAndGetResult()
 
-        Assertions.assertTrue(transferTx.second.errorMessage.isEmpty(), "Transfer failed! ${transferTx.second.errorMessage}")
-        withTimeout(30_000L){ awaitLogEventByTxId(transferTx.first) }
+        Assertions.assertTrue(transferTx.second.errorMessage.isEmpty(),
+            "Transfer failed! ${transferTx.second.errorMessage}")
+        withTimeout(30_000L) { awaitLogEventByTxId(transferTx.first) }
 
         item = mongo.find(Query.query(
             where(Item::id).isEqualTo(itemId)
@@ -301,7 +307,7 @@ class SoftCollectionIndexingTest {
         }.sendAndGetResult()
 
         Assertions.assertTrue(burnTx.second.errorMessage.isEmpty(), "Burn failed! ${transferTx.second.errorMessage}")
-        withTimeout(30_000L){ awaitLogEventByTxId(burnTx.first) }
+        withTimeout(30_000L) { awaitLogEventByTxId(burnTx.first) }
 
         item = mongo.find(Query.query(
             where(Item::id).isEqualTo(itemId)
