@@ -1,7 +1,9 @@
 package com.rarible.flow.scanner.eventprocessor
 
+import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.EnglishAuctionService
 import org.springframework.stereotype.Component
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Component
 @Component
 class EnglishAuctionIndexerEventProcessor(
     private val englishAuctionService: EnglishAuctionService,
+    private val protocolEventPublisher: ProtocolEventPublisher
 ) : IndexerEventsProcessor {
 
     private val supportedTypes = setOf(
@@ -41,49 +44,56 @@ class EnglishAuctionIndexerEventProcessor(
     private suspend fun increaseBid(event: IndexerEvent) {
         val activity = event.history.activity as AuctionActivityBidIncreased
         withSpan("increaseBid") {
-            englishAuctionService.increaseBid(activity)
+            sendKafka(event, englishAuctionService.increaseBid(activity))
+
         }
     }
 
     private suspend fun cancelLot(event: IndexerEvent) {
         val activity = event.history.activity as AuctionActivityLotCanceled
         withSpan("cancelLot") {
-            englishAuctionService.cancelLot(activity)
+            sendKafka(event, englishAuctionService.cancelLot(activity))
         }
     }
 
     private suspend fun openBid(event: IndexerEvent) {
         val activity = event.history.activity as AuctionActivityBidOpened
         withSpan("openBid") {
-            englishAuctionService.openBid(activity)
+            sendKafka(event, englishAuctionService.openBid(activity))
         }
     }
 
     private suspend fun cleanLot(event: IndexerEvent) {
         val activity = event.history.activity as AuctionActivityLotCleaned
         withSpan("cleanLot") {
-            englishAuctionService.finalizeLot(activity)
+            sendKafka(event, englishAuctionService.finalizeLot(activity))
         }
     }
 
     private suspend fun changeLotEndTime(event: IndexerEvent) {
         val activity = event.history.activity as AuctionActivityLotEndTimeChanged
         withSpan("changeLotEndTime") {
-            englishAuctionService.changeLotEndTime(activity)
+            sendKafka(event,englishAuctionService.changeLotEndTime(activity))
         }
     }
 
     private suspend fun completeLot(event: IndexerEvent) {
         val activity = event.history.activity as AuctionActivityLotHammered
         withSpan("completeLot") {
-            englishAuctionService.hammerLot(activity)
+            sendKafka(event, englishAuctionService.hammerLot(activity))
         }
     }
 
     private suspend fun openLot(event: IndexerEvent) {
         val activity = event.history.activity as AuctionActivityLot
         withSpan("openLot", type = "event") {
-            englishAuctionService.openLot(activity)
+            sendKafka(event, englishAuctionService.openLot(activity))
+        }
+    }
+
+    private suspend fun sendKafka(event: IndexerEvent, lot: EnglishAuctionLot) {
+        if (event.source != Source.REINDEX) {
+            protocolEventPublisher.auction(lot).ensureSuccess()
         }
     }
 }
