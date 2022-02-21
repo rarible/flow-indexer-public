@@ -117,7 +117,7 @@ class ItemIndexerEventProcessor(
                                         orderService.deactivateOrdersByOwnership(
                                             it,
                                             mintActivity.timestamp,
-                                            needSendToKafka
+                                            true
                                         )
                                     }
                                 }
