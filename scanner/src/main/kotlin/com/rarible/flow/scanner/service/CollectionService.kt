@@ -3,11 +3,11 @@ package com.rarible.flow.scanner.service
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.core.task.Task
 import com.rarible.flow.Contracts
+import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.domain.FlowLogEvent
-import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemMeta
-import com.rarible.flow.core.repository.ItemCollectionRepository
+import com.rarible.flow.core.domain.NFTActivity
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.log.Log
@@ -29,35 +29,37 @@ class CollectionService(
 ) {
 
     suspend fun purgeCollectionHistory(contract: Contracts, chainId: FlowChainId) {
-        purgeCollectionEventLogs(contract)
         purgeItemHistory(contract, chainId)
+        purgeLogEvents(contract, chainId)
         purgeDescriptor(contract)
     }
 
-    suspend fun purgeCollectionEventLogs(contract: Contracts) {
+    suspend fun purgeItemHistory(contract: Contracts, chainId: FlowChainId) {
         val query = Query(
-            (FlowLogEvent::event / EventMessage::eventId / EventId::contractName).isEqualTo(contract.contractName)
+            Criteria(
+                "${ItemHistory::activity.name}.${NFTActivity::contract.name}"
+            ).isEqualTo(contract.fqn(chainId))
         )
         val removed = mongo.remove<ItemHistory>(query).awaitFirstOrNull()
         if (removed == null || !removed.wasAcknowledged()) {
-            logger.warn("Failed to delete flow_log_events for contract {}", contract)
+            logger.warn("Failed to delete item_history for contract {}", contract)
         } else {
-            logger.info("Deleted flow_log_events: {}", removed.deletedCount)
+            logger.info("Deleted item_history: {}", removed.deletedCount)
         }
     }
 
-    suspend fun purgeItemHistory(contracts: Contracts, chainId: FlowChainId) {
+    suspend fun purgeLogEvents(contracts: Contracts, chainId: FlowChainId) {
         try {
-            val items = mongo.findAllAndRemove<Item>(
-                Query(Item::contract isEqualTo contracts.fqn(chainId))
-            ).toIterable()
-            mongo.remove<ItemMeta>(
+            mongo.remove<FlowLogEvent>(
                 Query(
-                    Criteria("_id").inValues(items.map { it.id }.toString())
+                    Criteria().andOperator(
+                        FlowLogEvent::event / EventMessage::eventId / EventId::contractAddress isEqualTo contracts.deployments[chainId],
+                        FlowLogEvent::event / EventMessage::eventId / EventId::contractName isEqualTo contracts.contractName
+                    )
                 )
             ).awaitFirstOrNull()
         } catch (e: Throwable) {
-            logger.warn("Skipping purgeItemHistory for {} at {}", contracts, chainId)
+            logger.warn("Skipping purgeLogEvents for {} at {}", contracts, chainId, e)
         }
     }
 
