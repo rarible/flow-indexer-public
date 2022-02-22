@@ -9,11 +9,11 @@ import io.mongock.api.annotations.RollbackExecution
 import kotlinx.coroutines.runBlocking
 
 @ChangeUnit(
-    id = "ChangeLog00026RestartJambb",
-    order = "00026",
+    id = "ChangeLog00028RestartJambb2",
+    order = "00028",
     author = "flow"
 )
-class ChangeLog00026RestartJambb(
+class ChangeLog00028RestartJambb2(
     private val collectionService: CollectionService,
     private val appProperties: AppProperties
 ) {
