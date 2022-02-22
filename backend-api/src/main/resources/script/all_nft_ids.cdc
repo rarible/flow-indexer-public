@@ -7,7 +7,7 @@ import MugenNFT from 0xMUGENNFT
 import CNN_NFT from 0xCNNNFT
 import MatrixWorldVoucher from 0xMATRIXWORLDVOUCHER
 import MatrixWorldFlowFestNFT from 0xMATRIXWORLDFLOWFEST
-import Art from 0xVERSUSART
+import Art from 0xART
 import DisruptArt from 0xDISRUPTART
 
 pub fun idsRaribleNFT(_ account: PublicAccount): [UInt64] {

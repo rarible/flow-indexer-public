@@ -154,16 +154,13 @@ enum class Contracts : Contract {
     },
 
     VERSUS_ART {
-        override val contractName: String
-            get() = "Art"
-        override val deployments: Map<FlowChainId, FlowAddress>
-            get() = mapOf(
-                FlowChainId.MAINNET to FlowAddress("0xd796ff17107bbff6"),
-                FlowChainId.TESTNET to FlowAddress("0x99ca04281098b33d"),
-                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7")
-            )
-        override val import: String
-            get() = "0xVERSUSART"
+        override val contractName = "Art"
+        override val deployments = mapOf(
+            FlowChainId.MAINNET to FlowAddress("0xd796ff17107bbff6"),
+            FlowChainId.TESTNET to FlowAddress("0x99ca04281098b33d"),
+            FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7")
+        )
+        override val import = "0xART"
     },
 
     EVOLUTION {
