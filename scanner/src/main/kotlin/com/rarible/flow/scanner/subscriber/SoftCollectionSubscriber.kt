@@ -3,6 +3,7 @@ package com.rarible.flow.scanner.subscriber
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
+import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.events.EventId
 import org.springframework.stereotype.Component
@@ -10,29 +11,27 @@ import org.springframework.stereotype.Component
 @Component
 class SoftCollectionSubscriber: BaseFlowLogEventSubscriber() {
 
-    private val contractName = "SoftCollection"
-
     private val events = setOf("Withdraw", "Deposit", "Minted", "Burned", "Changed")
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
             FlowChainId.MAINNET to flowDescriptor(
-                address = "01ab36aaf654a13e",
-                contract = contractName,
+                contract = Contracts.SOFT_COLLECTION,
+                chainId = FlowChainId.MAINNET,
                 events = events,
                 startFrom = 19799019L,
                 dbCollection = collection
             ),
             FlowChainId.TESTNET to flowDescriptor(
-                address = "ebf4ae01d1284af8",
+                contract = Contracts.SOFT_COLLECTION,
+                chainId = FlowChainId.TESTNET,
                 events = events,
-                contract = contractName,
                 dbCollection = collection
             ),
             FlowChainId.EMULATOR to flowDescriptor(
-                address = "f8d6e0586b0a20c7",
+                contract = Contracts.SOFT_COLLECTION,
+                chainId = FlowChainId.EMULATOR,
                 events = events,
-                contract = contractName,
                 dbCollection = collection
             )
         )

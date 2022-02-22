@@ -9,6 +9,7 @@ pub contract SoftCollection : NonFungibleToken, LicensedNFT {
 
     pub let CollectionPublicPath: PublicPath
     pub let CollectionStoragePath: StoragePath
+    pub let MinterPublicPath: PublicPath
     pub let MinterStoragePath: StoragePath
 
     pub event ContractInitialized()
@@ -180,7 +181,21 @@ pub contract SoftCollection : NonFungibleToken, LicensedNFT {
         }
     }
 
-    pub resource Minter {
+    pub resource interface Minter {
+        pub fun mint(
+            receiver: Capability<&{NonFungibleToken.CollectionPublic}>,
+            parentId: UInt64?,
+            name: String,
+            symbol: String,
+            icon: String?,
+            description: String?,
+            url: String?,
+            supply: UInt64?,
+            royalties: [LicensedNFT.Royalty],
+        )
+    }
+
+    pub resource SoftCollectionMinter : Minter {
         pub fun mint(
             receiver: Capability<&{NonFungibleToken.CollectionPublic}>,
             parentId: UInt64?,
@@ -220,9 +235,11 @@ pub contract SoftCollection : NonFungibleToken, LicensedNFT {
 
         self.CollectionPublicPath = /public/SoftCollection
         self.CollectionStoragePath = /storage/SoftCollection
+        self.MinterPublicPath = /public/SoftCollectionMinter
         self.MinterStoragePath = /storage/SoftCollectionMinter
 
-        self.account.save(<- create Minter(), to: self.MinterStoragePath)
+        self.account.save(<- create SoftCollectionMinter(), to: self.MinterStoragePath)
+        self.account.link<&{Minter}>(self.MinterPublicPath, target: self.MinterStoragePath)
 
         emit ContractInitialized()
     }
