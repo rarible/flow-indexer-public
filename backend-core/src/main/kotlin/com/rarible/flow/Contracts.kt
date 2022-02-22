@@ -249,7 +249,7 @@ enum class Contracts : Contract {
             FlowChainId.TESTNET to FlowAddress("0x4300fc3a11778a9a"),
         )
 
-        override val import: String = "0xBARTER_YARD_PACK"
+        override val import: String = "0xBARTERYARDPACKNFT"
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> = when(chain) {
             FlowChainId.MAINNET -> listOf(Part(FlowAddress("0xb07b788eb60b6528"), FIVE_PERCENT))
@@ -274,7 +274,7 @@ enum class Contracts : Contract {
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
             return if (chain == FlowChainId.MAINNET) {
-                listOf(Part(FlowAddress("0xf3cc54f4d91c2f6c"), RoyaltySize.FIVE_PERCENT))
+                listOf(Part(FlowAddress("0xf3cc54f4d91c2f6c"), FIVE_PERCENT))
             } else super.staticRoyalties(chain)
         }
     }

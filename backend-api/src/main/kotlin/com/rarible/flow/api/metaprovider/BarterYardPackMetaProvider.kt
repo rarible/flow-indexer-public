@@ -1,5 +1,6 @@
 package com.rarible.flow.api.metaprovider
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
@@ -66,25 +67,28 @@ data class Pass(
     val id: Long,
     val name: String,
     val description: String,
-    val edition: Int,
+    val pack: String,
     val ipfsCID: String,
     val ipfsURI: String,
     val owner: String
 ): MetaBody {
-    override fun toItemMeta(itemId: ItemId): ItemMeta = ItemMeta(
-        itemId = itemId,
-        name = name,
-        description = description,
-        attributes = listOf(
-            ItemMetaAttribute(
-                key = "edition",
-                value = "$edition"
-            )
-        ),
-        contentUrls = listOf(
-            "https://rarible.mypinata.cloud/ipfs/$ipfsCID"
-        )
-    )
+    override fun toItemMeta(itemId: ItemId): ItemMeta {
+        val raw = jacksonObjectMapper().writeValueAsBytes(this)
+        return ItemMeta(
+            itemId = itemId,
+            name = name,
+            description = description,
+            attributes = listOf(
+                ItemMetaAttribute(
+                    key = "pack",
+                    value = pack
+                )
+            ),
+            contentUrls = listOf(
+                "https://rarible.mypinata.cloud/ipfs/$ipfsCID"
+            ),
+        ).apply { this.raw = raw }
+    }
 }
 
 class PassConverter: JsonCadenceConverter<Pass> {
@@ -93,7 +97,7 @@ class PassConverter: JsonCadenceConverter<Pass> {
             id = long("id"),
             name = string("name"),
             description = string("description"),
-            edition = int("edition"),
+            pack = string("pack"),
             ipfsCID = string("ipfsCID"),
             ipfsURI = string("ipfsURI"),
             owner = address("owner")
