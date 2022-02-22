@@ -23,9 +23,9 @@ import org.springframework.stereotype.Component
 
 @Component
 class KicksMetaScript(
-    val scriptExecutor: ScriptExecutor,
+    private val scriptExecutor: ScriptExecutor,
     @Value("classpath:script/meta/kicks.cdc")
-    val script: Resource
+    private val script: Resource
 ) {
     suspend fun call(owner: FlowAddress, tokenId: TokenId): MetaBody? {
         return scriptExecutor.executeFile(
@@ -46,8 +46,8 @@ class KicksMetaScript(
 
 @Component
 class KicksMetaProvider(
-    val itemRepository: ItemRepository,
-    val metaScript: KicksMetaScript
+    private val itemRepository: ItemRepository,
+    private val metaScript: KicksMetaScript
 ): ItemMetaProvider {
 
     override fun isSupported(itemId: ItemId): Boolean = Contracts.KICKS.supports(itemId)
