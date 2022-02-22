@@ -80,6 +80,13 @@ class AppReadyListener(
                 owner = Contracts.BARTER_YARD_PACK.deployments[FlowChainId.TESTNET]!!,
                 symbol = "BYC-MP",
                 features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.KICKS.fqn(FlowChainId.TESTNET),
+                name = "Kicks",
+                owner = Contracts.KICKS.deployments[FlowChainId.TESTNET]!!,
+                symbol = "KICKS",
+                features = setOf("BURN")
             )
         ),
 
@@ -146,6 +153,13 @@ class AppReadyListener(
                 name = "Barter Yard Club - Mint Pass",
                 owner = Contracts.BARTER_YARD_PACK.deployments[FlowChainId.MAINNET]!!,
                 symbol = "BYC-MP",
+                features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.KICKS.fqn(FlowChainId.MAINNET),
+                name = "Kicks",
+                owner = Contracts.KICKS.deployments[FlowChainId.MAINNET]!!,
+                symbol = "KICKS",
                 features = setOf("BURN")
             )
         )
