@@ -10,6 +10,7 @@ import com.nftco.flow.sdk.cadence.OptionalField
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.api.service.ScriptExecutor
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
@@ -54,9 +55,14 @@ class KicksMetaProvider(
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
         return itemRepository
             .coFindById(itemId)
-            ?.let { item -> metaScript.call(item.owner ?: item.creator, item.tokenId) }
-            ?.toItemMeta(itemId)
+            ?.let { item -> getMeta(item)}
             ?: ItemMeta.empty(itemId)
+    }
+
+    suspend fun getMeta(item: Item): ItemMeta? {
+        return metaScript
+            .call(item.owner ?: item.creator, item.tokenId)
+            ?.toItemMeta(item.id)
     }
 }
 
