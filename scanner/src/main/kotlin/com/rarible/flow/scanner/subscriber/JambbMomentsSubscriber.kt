@@ -30,7 +30,6 @@ class JambbMomentsSubscriber : BaseFlowLogEventSubscriber() {
                 chainId = FlowChainId.TESTNET,
                 events = events,
                 dbCollection = collection,
-                startFrom = 50638796,
             )
         )
 
