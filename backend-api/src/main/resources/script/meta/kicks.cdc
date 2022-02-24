@@ -1,5 +1,5 @@
-//import Kicks from 0xf3cc54f4d91c2f6c
-import Kicks from 0xKICKS
+import Kicks from 0xf3cc54f4d91c2f6c
+//import Kicks from 0xKICKS
 
 pub struct Meta {
     pub let title: String
