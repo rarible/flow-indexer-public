@@ -23,25 +23,21 @@ class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
 
     override suspend fun activities(events: List<FlowLogEvent>): Map<FlowLog, BaseActivity> {
         try {
-            val lotOpened =
-                events.filter { it.type == FlowLogType.LOT_AVAILABLE }.associate { it.log to lotAvailableActivity(it) }
-            val bidOpened =
-                events.filter { it.type == FlowLogType.OPEN_BID }.associate { it.log to openBidActivity(it) }
-            val changeTime =
-                events.filter { it.type == FlowLogType.LOT_END_TIME_CHANGED }.associate { it.log to changeEndTime(it) }
-            val bidClosed =
-                events.filter { it.type == FlowLogType.CLOSE_BID }.associate { it.log to closeBidActivity(it) }
-            val lotCanceled =
-                events.filter { it.type == FlowLogType.LOT_COMPLETED && cadenceParser.boolean(it.event.fields["isCancelled"]!!) }
-                    .associate { it.log to lotCanceledActivity(it) }
-            val lotHammered =
-                events.filter { it.type == FlowLogType.LOT_COMPLETED && !cadenceParser.boolean(it.event.fields["isCancelled"]!!) }
-                    .associate { it.log to lotHammeredActivity(it) }
-            val lotCleaned =
-                events.filter { it.type == FlowLogType.LOT_CLEANED }.associate { it.log to lotFinalizedActivity(it) }
-            val bidIncreased = events.filter { it.type == FlowLogType.INCREASE_BID }.associate { it.log to bidIncreased(it) }
-            return (lotOpened + bidOpened + changeTime + bidClosed + lotCanceled + lotHammered + lotCleaned + bidIncreased)
-                .toSortedMap(compareBy { it.eventIndex })
+            return events.map {
+                val activity = when(it.type) {
+                    FlowLogType.LOT_AVAILABLE -> lotAvailableActivity(it)
+                    FlowLogType.OPEN_BID -> openBidActivity(it)
+                    FlowLogType.LOT_END_TIME_CHANGED -> changeEndTime(it)
+                    FlowLogType.CLOSE_BID -> closeBidActivity(it)
+                    FlowLogType.LOT_COMPLETED -> if (cadenceParser.boolean(it.event.fields["isCancelled"]!!)) {
+                        lotCanceledActivity(it)
+                    } else lotHammeredActivity(it)
+                    FlowLogType.INCREASE_BID -> bidIncreased(it)
+                    FlowLogType.LOT_CLEANED -> lotFinalizedActivity(it)
+                    else -> throw IllegalStateException("Unsupported event type: ${it.type}")
+                }
+                it.log to activity
+            }.associate { it.first to it.second }
         } catch (e: Exception) {
             logger.error("EnglishAuctionActivityMaker::activities failed! ${e.message}", e)
             throw Throwable(e)

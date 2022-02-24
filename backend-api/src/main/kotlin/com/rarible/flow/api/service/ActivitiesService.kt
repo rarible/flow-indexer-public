@@ -24,6 +24,7 @@ import java.time.Instant
 @Service
 class ActivitiesService(
     private val mongoTemplate: ReactiveMongoTemplate,
+    private val historyToDtoConverter: ItemHistoryToDtoConverter
 ) {
 
     companion object {
@@ -164,7 +165,7 @@ class ActivitiesService(
             .with(defaultSort(sort))
         val items = mongoTemplate
             .find(query, ItemHistory::class.java).asFlow()
-            .map { ItemHistoryToDtoConverter.convert(it) }
+            .map { historyToDtoConverter.convert(it) }
             .toList()
         val outCont = answerContinuation(items, limit)
 
