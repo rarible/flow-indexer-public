@@ -18,6 +18,7 @@ import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.scanner.BaseIntegrationTest
 import com.rarible.flow.scanner.IntegrationTest
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingle
@@ -48,7 +49,7 @@ internal class CollectionServiceIntegrationTest: BaseIntegrationTest() {
     )
 
     @Test
-    fun `should purge descriptor`(): Unit = runBlocking {
+    fun `should restart descriptor`(): Unit = runBlocking {
         taskRepository.save(Task(
             type = "RECONCILIATION",
             param = "StarlyCardDescriptor",
@@ -60,9 +61,13 @@ internal class CollectionServiceIntegrationTest: BaseIntegrationTest() {
             sample = 5000
         )).awaitSingle()
 
-        collectionService.purgeDescriptor(Contracts.STARLY_CARD)
+        collectionService.restartDescriptor(Contracts.STARLY_CARD, 18133134L)
 
-        taskRepository.findAll().awaitFirstOrNull() shouldBe null
+        taskRepository.findAll().awaitFirstOrNull() should {
+            it as Task
+            it.state shouldBe 18133134L
+            it.lastStatus shouldBe TaskStatus.NONE
+        }
     }
 
     @Test

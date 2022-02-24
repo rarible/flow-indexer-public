@@ -28,7 +28,6 @@ class MatrixWorldFlowFestSubscriber : BaseFlowLogEventSubscriber() {
                 address = Contracts.MATRIX_WORLD_FLOW_FEST.deployments[FlowChainId.TESTNET]!!.base16Value,
                 events = events,
                 dbCollection = collection,
-                startFrom = 46090845L
             ),
             FlowChainId.EMULATOR to flowDescriptor(
                 contract = Contracts.MATRIX_WORLD_FLOW_FEST.contractName,

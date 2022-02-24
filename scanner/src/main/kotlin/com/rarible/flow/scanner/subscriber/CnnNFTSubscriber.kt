@@ -28,7 +28,6 @@ class CnnNFTSubscriber : BaseFlowLogEventSubscriber() {
                 chainId = FlowChainId.TESTNET,
                 events = events,
                 dbCollection = collection,
-                startFrom = 53489946L
             ),
             FlowChainId.EMULATOR to flowDescriptor(
                 contract = Contracts.CNN,

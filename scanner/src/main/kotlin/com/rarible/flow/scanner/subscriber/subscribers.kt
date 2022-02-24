@@ -15,7 +15,10 @@ import com.rarible.flow.core.domain.BalanceId
 import java.math.BigDecimal
 import java.time.Instant
 
-
+@Deprecated(message = "Use the signature with Contracts type", replaceWith = ReplaceWith(
+    "com.rarible.flow.scanner.subscriber.SubscribersKt.flowDescriptor(com.rarible.flow.Contracts, com.nftco.flow.sdk.FlowChainId, java.lang.Iterable<java.lang.String>, java.lang.Long, java.lang.String, java.lang.Iterable<java.lang.String>)"
+)
+)
 internal fun flowDescriptor(
     address: String,
     contract: String,
