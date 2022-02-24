@@ -8,16 +8,17 @@ import com.rarible.protocol.dto.FlowBurnDto
 import com.rarible.protocol.dto.FlowMintDto
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import java.math.BigInteger
 import java.time.Instant
 
 internal class ItemHistoryToDtoConverterTest: FunSpec({
+    val converter = ItemHistoryToDtoConverter(mockk())
 
-    val convert = ItemHistoryToDtoConverter::convert
     val date = Instant.now()
 
     test("should convert Mint activity") {
-        convert(
+        converter.convert(
             createItemHistory(date, mintActivity(date))
         ) shouldBe FlowMintDto(
             owner = FlowAddress("0x01").formatted,
@@ -34,7 +35,7 @@ internal class ItemHistoryToDtoConverterTest: FunSpec({
     }
 
     test("should convert Burn activity") {
-        convert(
+        converter.convert(
             createItemHistory(date, burnActivity(date))
         ) shouldBe FlowBurnDto(
             owner = FlowAddress("0x01").formatted,

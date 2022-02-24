@@ -15,7 +15,8 @@ class ProtocolEventPublisher(
     private val ownerships: RaribleKafkaProducer<FlowOwnershipEventDto>,
     private val orders: RaribleKafkaProducer<FlowOrderEventDto>,
     private val activities: RaribleKafkaProducer<FlowActivityDto>,
-    private val auctions: RaribleKafkaProducer<FlowAuctionDto>
+    private val auctions: RaribleKafkaProducer<FlowAuctionDto>,
+    private val itemHistoryToDtoConverter: ItemHistoryToDtoConverter
 ) {
 
     private val logger by Log()
@@ -88,7 +89,7 @@ class ProtocolEventPublisher(
         return send(
             activities,
             "${history.id}:${history.activity.type}-${history.activity.timestamp}",
-            ItemHistoryToDtoConverter.convert(history)
+            itemHistoryToDtoConverter.convert(history)
         )
     }
 

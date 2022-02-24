@@ -3,11 +3,19 @@ package com.rarible.flow.core.converter
 import com.rarible.flow.core.domain.*
 import com.rarible.protocol.dto.*
 import org.springframework.core.convert.converter.Converter
+import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.where
+import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.math.BigInteger
 
 
-object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
+@Component
+class ItemHistoryToDtoConverter(
+    private val mongo: MongoTemplate
+): Converter<ItemHistory, FlowActivityDto?> {
 
     private fun convertAsset(asset: FlowAsset) = when (asset) {
         is FlowAssetNFT -> FlowAssetNFTDto(
@@ -136,14 +144,86 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                     logIndex = source.log.eventIndex,
                 )
             }
-            is AuctionActivityBidClosed -> TODO()
-            is AuctionActivityBidIncreased -> TODO()
-            is AuctionActivityBidOpened -> TODO()
-            is AuctionActivityLotCanceled -> TODO()
-            is AuctionActivityLotCleaned -> TODO()
-            is AuctionActivityLotEndTimeChanged -> TODO()
-            is AuctionActivityLot -> TODO()
-            is AuctionActivityLotHammered -> TODO()
+            is AuctionActivityBidClosed -> DummyActivityDto(
+                id = source.id,
+                date = source.date
+            )
+            is AuctionActivityBidIncreased -> DummyActivityDto(
+                id = source.id,
+                date = source.date
+            )
+            is AuctionActivityBidOpened -> {
+                val lot = mongo.findOne(Query.query(
+                    where(EnglishAuctionLot::id).isEqualTo(source.activity.lotId)
+                ), EnglishAuctionLot::class.java) ?: throw IllegalStateException()
+                FlowAuctionActivityBidDto(
+                    id = source.id,
+                    date = source.date,
+                    source = FlowAuctionActivityDto.Source.RARIBLE,
+                    auction = AuctionToDtoConverter.convert(lot),
+                    bid = FlowAuctionBidDto(
+                        address = lot.lastBid?.address?.formatted,
+                        amount = lot.lastBid?.amount
+                    ),
+                    transactionHash = source.log.transactionHash,
+                    blockHash = source.log.blockHash,
+                    blockNumber = source.log.blockHeight,
+                    logIndex = source.log.eventIndex
+                )
+            }
+            is AuctionActivityLotCanceled -> {
+                val lot = mongo.findOne(Query.query(
+                    where(EnglishAuctionLot::id).isEqualTo(source.activity.lotId)
+                ), EnglishAuctionLot::class.java) ?: throw IllegalStateException()
+                FlowAuctionActivityCancelDto(
+                    id = source.id,
+                    date = source.date,
+                    source = FlowAuctionActivityDto.Source.RARIBLE,
+                    auction = AuctionToDtoConverter.convert(lot),
+                    transactionHash = source.log.transactionHash,
+                    blockHash = source.log.blockHash,
+                    blockNumber = source.log.blockHeight,
+                    logIndex = source.log.eventIndex
+                )
+            }
+            is AuctionActivityLotCleaned -> DummyActivityDto(
+                id = source.id,
+                date = source.date
+            )
+            is AuctionActivityLotEndTimeChanged -> DummyActivityDto(
+                id = source.id,
+                date = source.date
+            )
+            is AuctionActivityLot -> {
+                val lot = mongo.findOne(Query.query(
+                    where(EnglishAuctionLot::id).isEqualTo(source.activity.lotId)
+                ), EnglishAuctionLot::class.java) ?: throw IllegalStateException()
+                FlowAuctionActivityOpenDto(
+                    id = source.id,
+                    date = source.date,
+                    source = FlowAuctionActivityDto.Source.RARIBLE,
+                    auction = AuctionToDtoConverter.convert(lot),
+                    transactionHash = source.log.transactionHash,
+                    blockHash = source.log.blockHash,
+                    blockNumber = source.log.blockHeight,
+                    logIndex = source.log.eventIndex
+                )
+            }
+            is AuctionActivityLotHammered -> {
+                val lot = mongo.findOne(Query.query(
+                    where(EnglishAuctionLot::id).isEqualTo(source.activity.lotId)
+                ), EnglishAuctionLot::class.java) ?: throw IllegalStateException()
+                FlowAuctionActivityFinishDto(
+                    id = source.id,
+                    date = source.date,
+                    source = FlowAuctionActivityDto.Source.RARIBLE,
+                    auction = AuctionToDtoConverter.convert(lot),
+                    transactionHash = source.log.transactionHash,
+                    blockHash = source.log.blockHash,
+                    blockNumber = source.log.blockHeight,
+                    logIndex = source.log.eventIndex
+                )
+            }
         }
 
     }
