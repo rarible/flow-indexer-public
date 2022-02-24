@@ -256,6 +256,19 @@ enum class Contracts : Contract {
             )
 
         override val import: String = "0xSOFTCOLLECTION"
+    },
+
+    RARIBLE_NFTV2 {
+        override val contractName: String = "RaribleNFTv2"
+
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                FlowChainId.MAINNET to FlowAddress("0x01ab36aaf654a13e"),
+                FlowChainId.TESTNET to FlowAddress("0xebf4ae01d1284af8"),
+                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
+            )
+        override val import: String
+            get() = "0xRARIBLENFTV2"
     }
 }
 
