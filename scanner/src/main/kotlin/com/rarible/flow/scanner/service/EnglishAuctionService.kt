@@ -2,7 +2,6 @@ package com.rarible.flow.scanner.service
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
-import com.nftco.flow.sdk.cadence.CadenceNamespace
 import com.rarible.core.apm.SpanType
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.*
@@ -12,11 +11,15 @@ import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.and
+import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.where
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -28,17 +31,11 @@ class EnglishAuctionService(
     private val repo: EnglishAuctionLotRepository,
     @Value("\${blockchain.scanner.flow.chainId}")
     private val chainId: FlowChainId,
-    private val publisher: ProtocolEventPublisher
+    private val publisher: ProtocolEventPublisher,
+    private val mongo: ReactiveMongoTemplate
 ) {
 
     private val logger by Log()
-
-    private val engAucNs: CadenceNamespace by lazy {
-        CadenceNamespace.ns(
-            address = Contracts.ENGLISH_AUCTION.deployments[chainId]!!,
-            values = arrayOf(Contracts.ENGLISH_AUCTION.contractName)
-        )
-    }
 
     suspend fun openLot(activityLot: AuctionActivityLot): EnglishAuctionLot {
         val status = when {
@@ -64,8 +61,7 @@ class EnglishAuctionService(
             buyoutPrice = activityLot.buyoutPrice,
             minStep = activityLot.minStep,
             duration = activityLot.duration,
-            contract = engAucNs.value,
-            ongoing = activityLot.startAt >= Instant.now()
+            contract = Contracts.ENGLISH_AUCTION.fqn(chainId),
         )
 
         return repo.coSave(lot)
@@ -99,7 +95,8 @@ class EnglishAuctionService(
                 hammerPriceUsd = activity.hammerPriceUsd,
                 payments = activity.payments,
                 originFees = activity.originFees,
-                lastUpdatedAt = activity.timestamp
+                lastUpdatedAt = activity.timestamp,
+                ongoing = false
             )
         )
     }
@@ -133,7 +130,7 @@ class EnglishAuctionService(
             ?: throw IllegalStateException("English auction lot ${activity.lotId} not founded!")
 
         return repo.coSave(
-            lot.copy(status = AuctionStatus.CANCELLED, lastUpdatedAt = activity.timestamp)
+            lot.copy(status = AuctionStatus.CANCELLED, lastUpdatedAt = activity.timestamp, ongoing = false)
         )
     }
 
@@ -163,17 +160,38 @@ class EnglishAuctionService(
         logger.info("Processes ongoing auctions ...")
         runBlocking {
             try {
-                val started = repo.findAllByStartAtAfterAndOngoingAndStatus(Instant.now()).asFlow().map {
-                    it.copy(ongoing = true)
-                }.toList()
+                val now = Instant.now()
+                val started = mongo.find(
+                    Query.query(
+                        where(EnglishAuctionLot::startAt).lte(now)
+                            .and(EnglishAuctionLot::finishAt).exists(true).gte(now)
+                            .and(EnglishAuctionLot::status).isEqualTo(AuctionStatus.ACTIVE)
+                            .and(EnglishAuctionLot::ongoing).isEqualTo(false)
+                    ),
+                    EnglishAuctionLot::class.java
+                ).asFlow().toList()
+                val finished = mongo.find(
+                    Query.query(
+                        where(EnglishAuctionLot::status).isEqualTo(AuctionStatus.ACTIVE)
+                            .and(EnglishAuctionLot::finishAt).exists(true).lte(Instant.now())
+                            .and(EnglishAuctionLot::ongoing).isEqualTo(true)
+                    ),
+                    EnglishAuctionLot::class.java
+                ).asFlow().toList()
                 logger.info("Found: ${started.size} not started auctions ...")
+                logger.info("Found: ${finished.size} finished auctions ...")
                 if (started.isNotEmpty()) {
-                    repo.saveAll(started).asFlow().collect {
+                    repo.saveAll(started.map { it.copy(ongoing = true, lastUpdatedAt = Instant.now()) }).asFlow().collect {
+                        publisher.auction(it).ensureSuccess()
+                    }
+                }
+                if (finished.isNotEmpty()) {
+                    repo.saveAll(finished.map { it.copy(ongoing = false, lastUpdatedAt = Instant.now()) }).asFlow().collect {
                         publisher.auction(it).ensureSuccess()
                     }
                 }
             } catch (e: Throwable) {
-                logger.error("Unable to process started auctions: ${e.message}", e)
+                logger.error("Unable to process started/finished auctions: ${e.message}", e)
             }
         }
     }
