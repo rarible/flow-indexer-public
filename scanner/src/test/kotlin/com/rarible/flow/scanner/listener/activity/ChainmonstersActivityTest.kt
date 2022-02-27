@@ -34,7 +34,10 @@ internal class ChainmonstersActivityTest: FunSpec({
             contract = "A.93615d25d14fa337.ChainmonstersRewards",
             tokenId = 11,
             creator = "0x93615d25d14fa337",
-            metadata = mapOf("rewardId" to "1000"),
+            metadata = mapOf(
+                "rewardId" to "1000",
+                "serialNumber" to "33"
+            ),
             royalties = listOf(
                 Part(FlowAddress("0x64f83c60989ce555"), 0.05)
             ),
@@ -47,7 +50,10 @@ internal class ChainmonstersActivityTest: FunSpec({
     }
 
     test("meta") {
-        activityMaker.meta(MINT_LOG_EVENT) shouldBe mapOf("rewardId" to "1000")
+        activityMaker.meta(MINT_LOG_EVENT) shouldBe mapOf(
+            "rewardId" to "1000",
+            "serialNumber" to "33"
+        )
     }
 
     test("contractName") {
@@ -70,7 +76,8 @@ internal class ChainmonstersActivityTest: FunSpec({
                 EventId.of("A.93615d25d14fa337.ChainmonstersRewards.NFTMinted"),
                 mapOf(
                     "NFTID" to UInt64NumberField("11"),
-                    "rewardID" to UInt32NumberField("1000")
+                    "rewardID" to UInt32NumberField("1000"),
+                    "serialNumber" to UInt32NumberField("33")
                 )
             ),
             type = FlowLogType.MINT
