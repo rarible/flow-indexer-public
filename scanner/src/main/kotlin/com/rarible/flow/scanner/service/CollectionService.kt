@@ -47,20 +47,16 @@ class CollectionService(
     }
 
     suspend fun purgeLogEvents(contract: Contracts, chainId: FlowChainId) {
-        try {
-            val removed = mongo.remove<FlowLogEvent>(
-                Query(
-                    FlowLogEvent::event / EventMessage::eventId / EventId::contractName isEqualTo contract.contractName
-                )
-            ).awaitFirstOrNull()
+        val removed = mongo.remove<FlowLogEvent>(
+            Query(
+                Criteria("event.eventId.contractName").isEqualTo(contract.contractName)
+            )
+        ).awaitFirstOrNull()
 
-            if (removed == null || !removed.wasAcknowledged()) {
-                logger.warn("Failed to delete flow_log_event for contract {}", contract)
-            } else {
-                logger.info("Deleted flow_log_event: {}", removed.deletedCount)
-            }
-        } catch (e: Throwable) {
-            logger.warn("Skipping purgeLogEvents for {} at {}", contract, chainId, e)
+        if (removed == null || !removed.wasAcknowledged()) {
+            logger.warn("Failed to delete flow_log_event for contract {}", contract)
+        } else {
+            logger.info("Deleted flow_log_event: {}", removed.deletedCount)
         }
     }
 

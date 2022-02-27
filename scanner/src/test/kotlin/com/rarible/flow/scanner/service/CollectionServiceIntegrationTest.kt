@@ -21,6 +21,7 @@ import com.rarible.flow.scanner.IntegrationTest
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactive.awaitLast
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
@@ -72,22 +73,33 @@ internal class CollectionServiceIntegrationTest: BaseIntegrationTest() {
 
     @Test
     fun `should purge flow_log_event`(): Unit = runBlocking {
-        flowLogEventRepository.save(
-            FlowLogEvent(
-                log = flowLog,
-                "id01",
-                EventMessage(
-                    EventId.of(eventType), mapOf(
-                        "id" to UInt64NumberField("42")
-                    )
+        flowLogEventRepository.saveAll( listOf(
+                FlowLogEvent(
+                    log = flowLog,
+                    "id01",
+                    EventMessage(
+                        EventId.of(eventType), mapOf(
+                            "id" to UInt64NumberField("42")
+                        )
+                    ),
+                    FlowLogType.MINT
                 ),
-                FlowLogType.MINT
+                FlowLogEvent(
+                    log = flowLog.copy(eventIndex = 1),
+                    "id02",
+                    EventMessage(
+                        EventId.of("A.1234.MotoGP.Deposit"), mapOf(
+                            "id" to UInt64NumberField("42")
+                        )
+                    ),
+                    FlowLogType.DEPOSIT
+                )
             )
-        ).awaitSingle()
+        ).awaitLast()
 
         collectionService.purgeLogEvents(Contracts.KICKS, FlowChainId.MAINNET)
 
-        flowLogEventRepository.count().awaitSingle() shouldBe 0
+        flowLogEventRepository.count().awaitSingle() shouldBe 1
     }
 
     @Test
