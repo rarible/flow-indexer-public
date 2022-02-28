@@ -7,7 +7,7 @@ spring:
     consul:
       discovery:
         tags:
-          - web-api:flow-api.rarible.com
+          - web-api:flow-api.rarible.org
 
 management:
   endpoint:

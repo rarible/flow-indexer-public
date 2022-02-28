@@ -8,7 +8,7 @@ spring:
     consul:
       discovery:
         tags:
-          - web-api:flow-api-staging.rarible.com
+          - web-api:flow-api-staging.rarible.org
 
 rarible:
   core:
