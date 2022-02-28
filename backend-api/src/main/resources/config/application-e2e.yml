@@ -10,7 +10,7 @@ spring:
     consul:
       discovery:
         tags:
-          - web-api:flow-api-dev.rarible.com
+          - web-api:flow-api-e2e.rarible.org
 
 rarible:
   core:
