@@ -5,8 +5,10 @@ import com.rarible.core.task.Task
 import com.rarible.core.task.TaskStatus
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.NFTActivity
+import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.log.Log
@@ -30,6 +32,36 @@ class CollectionService(
         purgeItemHistory(contract, chainId)
         purgeLogEvents(contract, chainId)
         restartDescriptor(contract, startBlock)
+        purgeItems(contract, chainId)
+        purgeOwnerships(contract, chainId)
+    }
+
+    suspend fun purgeOwnerships(contract: Contracts, chainId: FlowChainId) {
+        val removed = mongo.remove<Ownership>(
+            Query(
+                Ownership::contract isEqualTo contract.fqn(chainId)
+            )
+        ).awaitFirstOrNull()
+
+        if (removed == null || !removed.wasAcknowledged()) {
+            logger.warn("Failed to delete ownerships for contract {}", contract)
+        } else {
+            logger.info("Deleted ownerships: {}", removed.deletedCount)
+        }
+    }
+
+    suspend fun purgeItems(contract: Contracts, chainId: FlowChainId) {
+        val removed = mongo.remove<Item>(
+            Query(
+                Item::contract isEqualTo contract.fqn(chainId)
+            )
+        ).awaitFirstOrNull()
+
+        if (removed == null || !removed.wasAcknowledged()) {
+            logger.warn("Failed to delete items for contract {}", contract)
+        } else {
+            logger.info("Deleted items: {}", removed.deletedCount)
+        }
     }
 
     suspend fun purgeItemHistory(contract: Contracts, chainId: FlowChainId) {
