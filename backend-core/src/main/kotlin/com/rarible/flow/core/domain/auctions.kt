@@ -1,6 +1,7 @@
 package com.rarible.flow.core.domain
 
 import com.nftco.flow.sdk.FlowAddress
+import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.mapping.FieldType
@@ -30,15 +31,24 @@ data class EnglishAuctionLot(
     @MongoId(targetType = FieldType.INT64)
     val id: Long,
     override val type: AuctionType = AuctionType.ENGLISH,
+    @Indexed
     override val status: AuctionStatus,
+    @Indexed
     override val seller: FlowAddress,
+    @Indexed
     override val buyer: FlowAddress? = null,
+    @Indexed
     override val sell: FlowAsset,
+    @Indexed
     override val currency: String,
+    @Indexed
     override val lastBid: Bid? = null,
     override val createdAt: Instant,
+    @Indexed
     override val lastUpdatedAt: Instant,
+    @Indexed
     override val startAt: Instant,
+    @Indexed
     override val finishAt: Instant? = null,
     @Field(targetType = FieldType.DECIMAL128)
     override val startPrice: BigDecimal,
@@ -56,6 +66,7 @@ data class EnglishAuctionLot(
     @Field(targetType = FieldType.DECIMAL128)
     val hammerPriceUsd: BigDecimal? = null,
     val ongoing: Boolean = false,
+    @Indexed
     val contract: String? = null
 ): AuctionLot
 
