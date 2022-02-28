@@ -9,20 +9,24 @@ import io.mongock.api.annotations.RollbackExecution
 import kotlinx.coroutines.runBlocking
 
 @ChangeUnit(
-    id = "ChangeLog00039RestartChainmonsters5",
-    order = "00039",
+    id = "ChangeLog00042RestartJambb",
+    order = "00042",
     author = "flow"
 )
-class ChangeLog00039RestartChainmonsters5(
+class ChangeLog00042RestartJambb(
     private val collectionService: CollectionService,
     private val appProperties: AppProperties
 ) {
 
     @Execution
     fun changeSet() {
-        runBlocking {
-            collectionService.purgeCollectionHistory(Contracts.CHAINMONSTERS, appProperties.chainId, 11283560L)
-        }
+        collectionService
+            .purgeCollectionAsync(Contracts.JAMBB_MOMENTS, appProperties.chainId)
+            .blockLast()
+
+        collectionService
+            .restartDescriptorAsync(Contracts.JAMBB_MOMENTS, 20445936L)
+            .block()
     }
 
     @RollbackExecution

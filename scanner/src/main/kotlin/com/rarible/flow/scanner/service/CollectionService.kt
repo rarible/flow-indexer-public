@@ -1,5 +1,6 @@
 package com.rarible.flow.scanner.service
 
+import com.mongodb.client.result.DeleteResult
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.core.task.Task
 import com.rarible.core.task.TaskStatus
@@ -22,6 +23,8 @@ import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.mongodb.core.remove
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
 @Service
 class CollectionService(
@@ -31,9 +34,29 @@ class CollectionService(
     suspend fun purgeCollectionHistory(contract: Contracts, chainId: FlowChainId, startBlock: Long) {
         purgeItemHistory(contract, chainId)
         purgeLogEvents(contract, chainId)
-        restartDescriptor(contract, startBlock)
         purgeItems(contract, chainId)
         purgeOwnerships(contract, chainId)
+        restartDescriptor(contract, startBlock)
+    }
+
+    fun purgeCollectionAsync(contract: Contracts, chainId: FlowChainId): Flux<DeleteResult> {
+        val contractFqn = contract.fqn(chainId)
+        val ownerships = Ownership::class to Query(Ownership::contract isEqualTo contractFqn)
+        val items = Item::class to Query(Item::contract isEqualTo contractFqn)
+        val itemsHistory = ItemHistory::class to Query(
+            Criteria(
+                "${ItemHistory::activity.name}.${NFTActivity::contract.name}"
+            ).isEqualTo(contractFqn)
+        )
+        val logEvents = FlowLogEvent::class to Query(
+            Criteria("event.eventId.contractName").isEqualTo(contract.contractName)
+        )
+
+        return Flux.fromIterable(
+            listOf(ownerships, items, itemsHistory, logEvents)
+        ).flatMap { (clazz, query) ->
+            mongo.remove(query, clazz)
+        }
     }
 
     suspend fun purgeOwnerships(contract: Contracts, chainId: FlowChainId) {
@@ -93,25 +116,29 @@ class CollectionService(
     }
 
     suspend fun restartDescriptor(contract: Contracts, startBlock: Long) {
-        mongo.updateFirst(
-            Query(
-                Task::param isEqualTo contract.flowDescriptorName()
-            ),
-            Update.update(
-                Task::state.name, startBlock
-            ).set(
-                Task::lastStatus.name, TaskStatus.NONE
-            ).set(
-                Task::running.name, false
-            ).set(
-                Task::version.name, 0
-            ).set(
-                Task::lastError.name, null
-            )
-            ,
-            Task::class.java
-        ).awaitFirstOrNull()
+        restartDescriptorAsync(contract, startBlock).awaitFirstOrNull()
     }
+
+    fun restartDescriptorAsync(
+        contract: Contracts,
+        startBlock: Long
+    ) = mongo.updateFirst(
+        Query(
+            Task::param isEqualTo contract.flowDescriptorName()
+        ),
+        Update.update(
+            Task::state.name, startBlock
+        ).set(
+            Task::lastStatus.name, TaskStatus.NONE
+        ).set(
+            Task::running.name, false
+        ).set(
+            Task::version.name, 0
+        ).set(
+            Task::lastError.name, null
+        ),
+        Task::class.java
+    )
 
     companion object {
         val logger by Log()
