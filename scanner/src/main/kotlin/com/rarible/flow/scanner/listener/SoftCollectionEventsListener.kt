@@ -10,6 +10,8 @@ import com.rarible.blockchain.scanner.subscriber.ProcessedBlockEvent
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemCollectionRepository
+import com.rarible.flow.core.repository.coFindById
+import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.log.Log
 import com.rarible.flow.scanner.model.parse
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -78,7 +80,7 @@ class SoftCollectionEventsListener(
         }
     }
 
-    private fun parseRoyalties(royalties: Field<*>): List<Part> {
+    fun parseRoyalties(royalties: Field<*>): List<Part> {
         return parser.arrayValues(royalties) {
             val r = this.unmarshall(it, SoftCollectionRoyalty::class, Contracts.SOFT_COLLECTION.deployments[chainId]!!)
             Part(
@@ -88,20 +90,22 @@ class SoftCollectionEventsListener(
         }
     }
 
-    private suspend fun updateSoftCollection(event: FlowLogEvent) {
+    suspend fun updateSoftCollection(event: FlowLogEvent) {
         val id by event.event.fields
         val meta by event.event.fields
+        val royalties by event.event.fields
 
         val collectionMeta = meta.parse<CollectionMeta>()
         val collectionId = "${ItemId(Contracts.SOFT_COLLECTION.fqn(chainId), parser.long(id))}"
-        val entity = itemCollectionRepository.findById(collectionId).awaitSingleOrNull() ?: throw IllegalStateException("Collection with id [$collectionId] not found")
-        itemCollectionRepository.save(entity.copy(
+        val entity = itemCollectionRepository.coFindById(collectionId) ?: throw IllegalStateException("Collection with id [$collectionId] not found")
+        itemCollectionRepository.coSave(entity.copy(
             name = collectionMeta.name,
             symbol = collectionMeta.symbol,
             icon = collectionMeta.icon,
             description = collectionMeta.description,
-            url = collectionMeta.url
-        )).awaitSingleOrNull()
+            url = collectionMeta.url,
+            royalties = parseRoyalties(royalties),
+        ))
     }
 
     override suspend fun onPendingLogsDropped(logs: List<FlowLogRecord<*>>) {
