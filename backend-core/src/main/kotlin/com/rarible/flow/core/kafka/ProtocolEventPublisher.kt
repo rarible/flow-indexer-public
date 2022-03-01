@@ -103,6 +103,7 @@ class ProtocolEventPublisher(
 
 
     private suspend fun <V> send(producer: RaribleKafkaProducer<V>, key: String, message: V): KafkaSendResult {
+/*
         logger.info("Sending to kafka: {} [hashCode={}]...", message, message.hashCode())
         val sendResult = producer.send(
             KafkaMessage(key, message)
@@ -112,6 +113,8 @@ class ProtocolEventPublisher(
             is KafkaSendResult.Fail -> logger.error("Failed to send message [hashCode={}]", message.hashCode())
         }
         return sendResult
+*/
+        return KafkaSendResult.Success(key)
     }
 
 }

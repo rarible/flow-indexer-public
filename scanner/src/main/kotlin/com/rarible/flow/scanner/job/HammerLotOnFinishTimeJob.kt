@@ -17,11 +17,13 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.and
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.mongodb.core.query.where
+import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Component
 import java.time.Instant
+import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
-//we have to sign tx by seller, but we have not seller private key
-//@Component
+@Component
 class HammerLotOnFinishTimeJob(
     private val mongo: ReactiveMongoTemplate,
     private val api: AsyncFlowAccessApi,
@@ -35,17 +37,12 @@ class HammerLotOnFinishTimeJob(
         FlowScript(
             Flow.DEFAULT_ADDRESS_REGISTRY.processScript(
         """
-            import EnglishAuction from 0xENGLISH_AUCTION
-            
+            import EnglishAuction from 0xENGLISHAUCTION
+
             transaction(auctionId: UInt64) {
-                let manager: &EnglishAuction.AuctionManager
-            
-                prepare(account: AuthAccount) {
-                    self.manager = account.borrow<&EnglishAuction.AuctionManager>(from: EnglishAuction.ManagerStoragePath)!
-                }
-            
+                prepare(account: AuthAccount) {}
                 execute {
-                    self.manager.completeLot(auctionId: auctionId)
+                    EnglishAuction.completeLot(auctionId: auctionId)
                 }
             }
         """.trimIndent(), chainId = flowApiProperties.chainId
@@ -66,7 +63,7 @@ class HammerLotOnFinishTimeJob(
     }
 
 
-//    @Scheduled(initialDelay = 40L, fixedDelay = 30L, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(initialDelay = 40L, fixedDelay = 30L, timeUnit = TimeUnit.SECONDS)
     fun hammerLots() {
         runBlocking {
             try {
@@ -107,7 +104,7 @@ class HammerLotOnFinishTimeJob(
                 sequenceNumber = acc.keys[0].sequenceNumber.toLong()
             ),
             payerAddress = pAddress,
-            authorizers = listOf(lot.seller)
+            authorizers = listOf(pAddress)
         )
 
         val signer = Crypto.getSigner(privateKey = pKey, acc.keys[0].hashAlgo)
