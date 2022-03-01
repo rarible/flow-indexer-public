@@ -2,13 +2,23 @@ package com.rarible.flow.scanner.listener
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
-import com.nftco.flow.sdk.cadence.*
+import com.nftco.flow.sdk.cadence.CadenceNamespace
+import com.nftco.flow.sdk.cadence.Field
+import com.nftco.flow.sdk.cadence.JsonCadenceConversion
+import com.nftco.flow.sdk.cadence.JsonCadenceConverter
+import com.nftco.flow.sdk.cadence.JsonCadenceParser
+import com.nftco.flow.sdk.cadence.marshall
+import com.nftco.flow.sdk.cadence.unmarshall
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventListener
 import com.rarible.blockchain.scanner.subscriber.ProcessedBlockEvent
 import com.rarible.flow.Contracts
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.domain.FlowLogType
+import com.rarible.flow.core.domain.ItemCollection
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
@@ -93,18 +103,19 @@ class SoftCollectionEventsListener(
     suspend fun updateSoftCollection(event: FlowLogEvent) {
         val id by event.event.fields
         val meta by event.event.fields
-        val royalties by event.event.fields
+        val royalties = event.event.fields["royalties"]?.let(::parseRoyalties)
 
         val collectionMeta = meta.parse<CollectionMeta>()
         val collectionId = "${ItemId(Contracts.SOFT_COLLECTION.fqn(chainId), parser.long(id))}"
         val entity = itemCollectionRepository.coFindById(collectionId) ?: throw IllegalStateException("Collection with id [$collectionId] not found")
+
         itemCollectionRepository.coSave(entity.copy(
             name = collectionMeta.name,
             symbol = collectionMeta.symbol,
             icon = collectionMeta.icon,
             description = collectionMeta.description,
             url = collectionMeta.url,
-            royalties = parseRoyalties(royalties),
+            royalties = royalties ?: entity.royalties,
         ))
     }
 
