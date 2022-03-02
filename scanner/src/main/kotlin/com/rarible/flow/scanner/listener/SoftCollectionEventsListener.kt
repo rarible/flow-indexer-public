@@ -2,11 +2,13 @@ package com.rarible.flow.scanner.listener
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
+import com.nftco.flow.sdk.cadence.ArrayField
 import com.nftco.flow.sdk.cadence.CadenceNamespace
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion
 import com.nftco.flow.sdk.cadence.JsonCadenceConverter
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
+import com.nftco.flow.sdk.cadence.OptionalField
 import com.nftco.flow.sdk.cadence.marshall
 import com.nftco.flow.sdk.cadence.unmarshall
 import com.rarible.blockchain.scanner.flow.model.FlowLog
@@ -91,12 +93,24 @@ class SoftCollectionEventsListener(
     }
 
     fun parseRoyalties(royalties: Field<*>): List<Part> {
-        return parser.arrayValues(royalties) {
-            val r = this.unmarshall(it, SoftCollectionRoyalty::class, Contracts.SOFT_COLLECTION.deployments[chainId]!!)
-            Part(
-                address = FlowAddress(r.address),
-                fee = r.fee.toDouble()
-            )
+        return when (royalties) {
+            is ArrayField ->
+                parser.arrayValues(royalties) { arrValue ->
+                    val r = this.unmarshall(
+                        arrValue,
+                        SoftCollectionRoyalty::class,
+                        Contracts.SOFT_COLLECTION.deployments[chainId]!!
+                    )
+                    Part(
+                        address = FlowAddress(r.address),
+                        fee = r.fee.toDouble()
+                    )
+                }
+            is OptionalField -> royalties.value?.let(::parseRoyalties) ?: emptyList()
+            else -> {
+                logger.error("Trying to parseRoyalties from unknown field type {} ({})", royalties.type, royalties.value)
+                emptyList()
+            }
         }
     }
 

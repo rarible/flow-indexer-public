@@ -29,6 +29,12 @@ internal class SoftCollectionEventsListenerTest : FunSpec({
         ) shouldContainExactly listOf(Part(FlowAddress("0x4895ce5fb8a40f47"), 0.55))
     }
 
+    test("should parse optional royalties") {
+        SoftCollectionEventsListener(mockk(), FlowChainId.TESTNET).parseRoyalties(
+            Flow.decodeJsonCadence("""{"type": "Optional", "value": $CHANGED_ROYALTIES}""")
+        ) shouldContainExactly listOf(Part(FlowAddress("0x4895ce5fb8a40f47"), 0.55))
+    }
+
     test("should update collection") {
         val collectionId = ItemId(Contracts.SOFT_COLLECTION.fqn(FlowChainId.TESTNET), 15)
         val repo = mockk<ItemCollectionRepository>() {
