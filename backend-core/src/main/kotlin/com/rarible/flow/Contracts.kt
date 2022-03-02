@@ -242,7 +242,7 @@ enum class Contracts : Contract {
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
             )
         override val import: String
-            get() = "0xENGLISH_AUCTION"
+            get() = "0xENGLISHAUCTION"
     },
 
     SOFT_COLLECTION {
