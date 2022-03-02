@@ -23,7 +23,7 @@ object ItemToDtoConverter : Converter<Item, FlowNftItemDto> {
             lastUpdatedAt = item.updatedAt,
             royalties = convert(item.royalties),
             metaUrl = item.meta,
-            supply = BigInteger.ONE,
+            supply = if (item.owner == null) BigInteger.ZERO else BigInteger.ONE,
             deleted = item.owner == null,
 
         )
