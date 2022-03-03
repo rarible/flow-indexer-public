@@ -67,7 +67,13 @@ class AppReadyListener(
                 symbol = "FANFARE",
                 features = emptySet()
             ),
-
+            ItemCollection(
+                id = Contracts.RARIBLE_NFTV2.fqn(FlowChainId.TESTNET),
+                name = "RaribleV2",
+                owner = Contracts.RARIBLE_NFTV2.deployments[FlowChainId.TESTNET]!!,
+                symbol = "RARIBLE_V2",
+                features = setOf("SECONDARY_SALE_FEES", "BURN")
+            ),
         ),
         FlowChainId.MAINNET to listOf(
             ItemCollection(id = "A.01ab36aaf654a13e.RaribleNFT", name = "Rarible", owner = FlowAddress("0x01ab36aaf654a13e"), symbol = "RARIBLE", features = setOf("SECONDARY_SALE_FEES", "BURN")),
@@ -119,6 +125,13 @@ class AppReadyListener(
                 owner = Contracts.FANFARE.deployments[FlowChainId.MAINNET]!!,
                 symbol = "FANFARE",
                 features = emptySet()
+            ),
+            ItemCollection(
+                id = Contracts.RARIBLE_NFTV2.fqn(FlowChainId.MAINNET),
+                name = "RaribleV2",
+                owner = Contracts.RARIBLE_NFTV2.deployments[FlowChainId.MAINNET]!!,
+                symbol = "RARIBLE_V2",
+                features = setOf("SECONDARY_SALE_FEES", "BURN")
             ),
         )
     )
