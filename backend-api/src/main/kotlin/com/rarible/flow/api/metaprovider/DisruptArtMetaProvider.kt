@@ -1,12 +1,18 @@
 package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.apm.withSpan
+import com.rarible.flow.Contracts
+import com.rarible.flow.core.config.AppProperties
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
+import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coFindById
+import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.log.Log
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.boot.json.JacksonJsonParser
@@ -14,11 +20,13 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
+import kotlin.math.log
 
 @Component
 class DisruptArtMetaProvider(
     private val itemRepository: ItemRepository,
     private val webClient: WebClient,
+    private val appProperties: AppProperties
 ) : ItemMetaProvider {
 
     private val logger by Log()
@@ -64,6 +72,7 @@ class DisruptArtMetaProvider(
                     }
                 }
                 logger.info("DisruptArt::getMeta::Meta is JSON!")
+                updateRoyalties(item, metaData)
                 ItemMeta(
                     itemId = itemId,
                     name = itemMeta["name"] as String,
@@ -75,5 +84,23 @@ class DisruptArtMetaProvider(
                 }
             }
         }
+    }
+
+    suspend fun updateRoyalties(item: Item, metaData: ObjectNode) {
+        val royalties = mutableListOf<Part>()
+        val royaltiesJson = metaData.get("royalties")
+        royaltiesJson?.iterator()?.forEachRemaining {
+            royalties.add(
+                Part(
+                    FlowAddress(it["address"].asText()),
+                    it["fee"].asDouble()
+                )
+            )
+        }
+        logger.info("Saving royalties for item {}: {}", item.id, royalties)
+
+        itemRepository.coSave(
+            item.copy(royalties = Contracts.DISRUPT_ART.staticRoyalties(appProperties.chainId) + royalties)
+        )
     }
 }

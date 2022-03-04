@@ -277,6 +277,27 @@ enum class Contracts : Contract {
                 listOf(Part(FlowAddress("0xf3cc54f4d91c2f6c"), FIVE_PERCENT))
             } else super.staticRoyalties(chain)
         }
+    },
+
+    DISRUPT_ART {
+        override val contractName: String
+            get() = "DisruptArt"
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                FlowChainId.MAINNET to FlowAddress("0xcd946ef9b13804c6"),
+                FlowChainId.TESTNET to FlowAddress("0x439c2b49c0b2f62b"),
+                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
+            )
+        override val import: String
+            get() = "0xDISRUPTART"
+
+        override fun staticRoyalties(chain: FlowChainId): List<Part> {
+            return listOfNotNull(when (chain) {
+                FlowChainId.MAINNET -> Part(FlowAddress("0x420f47f16a214100"), 15.0.percent())
+                FlowChainId.TESTNET -> Part(FlowAddress("0x439c2b49c0b2f62b"), 15.0.percent())
+                else -> null
+            })
+        }
     }
 }
 

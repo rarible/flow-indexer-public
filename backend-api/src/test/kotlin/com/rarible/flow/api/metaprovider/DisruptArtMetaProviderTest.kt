@@ -1,12 +1,17 @@
 package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowChainId
 import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.repository.ItemRepository
+import io.kotest.matchers.collections.shouldContainExactly
 import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Disabled
@@ -19,6 +24,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import java.time.Instant
 
@@ -72,13 +78,23 @@ class DisruptArtMetaProviderTest {
                 updatedAt = Instant.now(),
                 owner = FlowAddress("0xcd946ef9b13804c6")
             ).toMono()
-            return DisruptArtMetaProvider(itemRepository, webClient)
+
+            every {
+                itemRepository.save(any())
+            } answers { Mono.just(arg(0)) }
+
+            return DisruptArtMetaProvider(itemRepository, webClient, mockk {
+                every { chainId } returns FlowChainId.MAINNET
+            })
         }
 
     }
 
     @Autowired
     private lateinit var metaProvider: DisruptArtMetaProvider
+
+    @Autowired
+    private lateinit var itemRepository: ItemRepository
 
     @Test
     internal fun jsonMetaTest() = runBlocking {
@@ -91,6 +107,16 @@ class DisruptArtMetaProviderTest {
         Assertions.assertFalse(meta.attributes.isEmpty())
         Assertions.assertEquals("https://ipfs.perma.store/content/bafybeiao36osolp7ef6e4ieymfbzlywhnaygxw3r7uf4wbijsmlteka3pi",
             meta.contentUrls[0])
+
+        verify {
+            itemRepository.save( withArg {
+                it.royalties shouldContainExactly listOf(
+                    Part(FlowAddress("0x420f47f16a214100"), 0.05),
+                    Part(FlowAddress("0x420f47f16a214100"), 0.15),
+                    Part(FlowAddress("0x4e96267cf76199ef"), 0.1),
+                )
+            })
+        }
     }
 
     @Test
