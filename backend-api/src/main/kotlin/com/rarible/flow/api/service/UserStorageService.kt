@@ -337,9 +337,9 @@ class UserStorageService(
                     saveItem(item)
                 }
             }
-            "DisruptArt" -> {
+            Contracts.DISRUPT_ART.contractName -> {
                 itemIds.forEach { tokenId ->
-                    val contract = contract("0xDISRUPTART", "DisruptArt")
+                    val contract = Contracts.DISRUPT_ART.fqn(appProperties.chainId)
                     val item = if (notExistsItem(contract, tokenId)) {
                         val tokenData = Flow.unmarshall(
                             DisruptArtNFT::class,
@@ -356,12 +356,7 @@ class UserStorageService(
                             contract = contract,
                             tokenId = tokenId,
                             creator = FlowAddress(tokenData.creator),
-                            royalties = listOf(
-                                Part(
-                                    address = contractAddress("0xDISRUPTARTROYALTY"),
-                                    fee = 0.15
-                                )
-                            ),
+                            royalties = Contracts.DISRUPT_ART.staticRoyalties(appProperties.chainId),
                             collection = contract,
                             mintedAt = Instant.now(),
                             updatedAt = Instant.now(),

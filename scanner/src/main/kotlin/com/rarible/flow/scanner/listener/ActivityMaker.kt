@@ -43,6 +43,10 @@ abstract class NFTActivityMaker : ActivityMaker {
 
     protected val cadenceParser: JsonCadenceParser = JsonCadenceParser()
 
+    fun <T> parse(fn: JsonCadenceParser.() -> T): T {
+        return fn(cadenceParser)
+    }
+
     override fun isSupportedCollection(collection: String): Boolean =
         collection.split(".").last().lowercase() == contractName.lowercase()
 
@@ -644,41 +648,6 @@ class RaribleOpenBidActivityMaker(
         }
         return result.toMap()
     }
-}
-
-@Component
-class DisruptArtActivityMaker(
-    @Value("\${blockchain.scanner.flow.chainId}")
-    private val chainId: FlowChainId,
-) : NFTActivityMaker() {
-    override val contractName: String = "DisruptArt"
-
-    private val royaltyAddress = mapOf(
-        FlowChainId.MAINNET to FlowAddress("0x420f47f16a214100"),
-        FlowChainId.TESTNET to FlowAddress("0x439c2b49c0b2f62b"),
-    )
-
-
-    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
-
-    override fun meta(logEvent: FlowLogEvent): Map<String, String> {
-        val res = mutableMapOf(
-            "content" to cadenceParser.string(logEvent.event.fields["content"]!!),
-            "name" to cadenceParser.string(logEvent.event.fields["name"]!!)
-        )
-
-        if (logEvent.event.eventId.eventName == "GroupMint") {
-            res["tokenGroupId"] = "${cadenceParser.long(logEvent.event.fields["tokenGroupId"]!!)}"
-        }
-        return res.toMap()
-    }
-
-    override fun creator(logEvent: FlowLogEvent): String = cadenceParser.optional(logEvent.event.fields["owner"]!!) {
-        address(it)
-    } ?: super.creator(logEvent)
-
-    override fun royalties(logEvent: FlowLogEvent): List<Part> =
-        listOf(Part(address = royaltyAddress[chainId]!!, fee = 0.15))
 }
 
 data class PayInfo(
