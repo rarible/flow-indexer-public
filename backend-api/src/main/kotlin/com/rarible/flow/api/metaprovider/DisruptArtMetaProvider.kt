@@ -67,7 +67,10 @@ class DisruptArtMetaProvider(
 
                 val attributes = mutableListOf<ItemMetaAttribute>()
                 metaData.fields().forEach {
-                    if (it.key !in setOf("PlatformInfo", "Media", "MediaPreview", "tags")) {
+                    if (it.key !in setOf(
+                            "PlatformInfo", "Media", "MediaPreview", "tags", "Description", "royalties", "MintedDate"
+                        )
+                    ) {
                         attributes.add(ItemMetaAttribute(key = it.key, value = it.value.asText()))
                     }
                 }
@@ -97,10 +100,12 @@ class DisruptArtMetaProvider(
                 )
             )
         }
+        
+        if(royalties.isEmpty()) royalties.addAll(Contracts.DISRUPT_ART.staticRoyalties(appProperties.chainId))
         logger.info("Saving royalties for item {}: {}", item.id, royalties)
 
         itemRepository.coSave(
-            item.copy(royalties = Contracts.DISRUPT_ART.staticRoyalties(appProperties.chainId) + royalties)
+            item.copy(royalties = royalties)
         )
     }
 }
