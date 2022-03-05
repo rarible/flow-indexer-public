@@ -123,7 +123,7 @@ class RaribleNFTv2RoyaltyConverter : JsonCadenceConverter<RaribleNFTv2Royalty> {
     }
 
     override fun marshall(value: RaribleNFTv2Royalty, namespace: CadenceNamespace): Field<*> =
-        com.nftco.flow.sdk.cadence.marshall {
+        marshall {
             struct {
                 compositeOfPairs(namespace.withNamespace("RaribleNFTv2.Royalty")) {
                     listOf(
@@ -154,12 +154,12 @@ class RaribleNFTv2MetaConverter : JsonCadenceConverter<RaribleNFTv2Meta> {
             description = optional("description", JsonCadenceParser::string),
             cid = string("cid"),
             attributes = dictionaryMap("attributes") { key, value -> string(key) to string(value) },
-            contentUrls = arrayValues("contentUrls", JsonCadenceParser::unmarshall),
+            contentUrls = arrayValues("contentUrls", JsonCadenceParser::string),
         )
     }
 
     override fun marshall(value: RaribleNFTv2Meta, namespace: CadenceNamespace): Field<*> =
-        com.nftco.flow.sdk.cadence.marshall {
+        marshall {
             struct {
                 compositeOfPairs(namespace.withNamespace("RaribleNFTv2.Meta")) {
                     listOf(
