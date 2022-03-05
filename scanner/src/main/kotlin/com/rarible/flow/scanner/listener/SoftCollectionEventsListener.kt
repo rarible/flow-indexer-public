@@ -2,25 +2,13 @@ package com.rarible.flow.scanner.listener
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
-import com.nftco.flow.sdk.cadence.ArrayField
-import com.nftco.flow.sdk.cadence.CadenceNamespace
-import com.nftco.flow.sdk.cadence.Field
-import com.nftco.flow.sdk.cadence.JsonCadenceConversion
-import com.nftco.flow.sdk.cadence.JsonCadenceConverter
-import com.nftco.flow.sdk.cadence.JsonCadenceParser
-import com.nftco.flow.sdk.cadence.OptionalField
-import com.nftco.flow.sdk.cadence.marshall
-import com.nftco.flow.sdk.cadence.unmarshall
+import com.nftco.flow.sdk.cadence.*
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventListener
 import com.rarible.blockchain.scanner.subscriber.ProcessedBlockEvent
 import com.rarible.flow.Contracts
-import com.rarible.flow.core.domain.FlowLogEvent
-import com.rarible.flow.core.domain.FlowLogType
-import com.rarible.flow.core.domain.ItemCollection
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Part
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
@@ -54,9 +42,31 @@ class SoftCollectionEventsListener(
                 when (event.type) {
                     FlowLogType.COLLECTION_MINT -> createSoftCollection(event)
                     FlowLogType.COLLECTION_CHANGE -> updateSoftCollection(event)
+                    FlowLogType.COLLECTION_DEPOSIT -> depositSoftCollection(event)
+                    FlowLogType.COLLECTION_BURN -> burnSoftCollection(event)
                     else -> {}
                 }
             }
+    }
+
+    private fun FlowLogEvent.collectionId() =
+        "${ItemId(Contracts.SOFT_COLLECTION.fqn(chainId), parser.long(event.fields["id"]!!))}"
+
+    private suspend fun FlowLogEvent.getCollection() =
+        itemCollectionRepository.coFindById(collectionId())
+            ?: throw IllegalStateException("Collection with id [${collectionId()}] not found")
+
+    private suspend fun burnSoftCollection(event: FlowLogEvent) {
+        val entity = event.getCollection()
+        itemCollectionRepository.coSave(entity.copy(burned = true))
+    }
+
+    private suspend fun depositSoftCollection(event: FlowLogEvent) {
+        val to = event.event.fields["to"]?.let { parser.optional(it, JsonCadenceParser::address) }
+        if (to != null) {
+            val entity = event.getCollection()
+            itemCollectionRepository.coSave(entity.copy(owner = FlowAddress(to)))
+        }
     }
 
     private suspend fun createSoftCollection(event: FlowLogEvent) {
