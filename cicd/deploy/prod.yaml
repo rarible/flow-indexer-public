@@ -1,5 +1,5 @@
 flow-indexer-backend-api:
-  replicas: 2
+  replicas: 3
   service:
     enabled: true
     nodePort: 30113
