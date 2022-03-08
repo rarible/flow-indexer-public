@@ -7,11 +7,7 @@ import com.rarible.flow.core.repository.filters.CriteriaProduct
 import com.rarible.flow.core.repository.filters.DbFilter
 import com.rarible.flow.core.repository.filters.ScrollingSort
 import org.springframework.data.mapping.div
-import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.data.mongodb.core.query.gte
-import org.springframework.data.mongodb.core.query.inValues
-import org.springframework.data.mongodb.core.query.isEqualTo
-import org.springframework.data.mongodb.core.query.lt
+import org.springframework.data.mongodb.core.query.*
 import java.time.Instant
 
 
@@ -83,7 +79,7 @@ sealed class ItemHistoryFilter : DbFilter<ItemHistory>, CriteriaProduct<ItemHist
     data class ByUsers(val types: Collection<FlowActivityType>, val users: List<String>) : ItemHistoryFilter() {
         override fun criteria(): Criteria {
             val criterion = types.map { t ->
-                userCriteria[t]?.let { it(users) } ?: (ItemHistory::activity / BaseActivity::type isEqualTo t)
+                userCriteria[t]?.let { it(users) } ?: (ItemHistory::activity / BaseActivity::type isEqualTo t).and("activity.owner").`in`(users)
             }
 
             return if(criterion.isEmpty()) {
@@ -104,11 +100,15 @@ sealed class ItemHistoryFilter : DbFilter<ItemHistory>, CriteriaProduct<ItemHist
                         .and("activity.to").`in`(u)
                 },
                 FlowActivityType.LIST to { u: List<String> ->
-                    Criteria.where("activity.type").isEqualTo(FlowActivityType.LIST.name)
+                    Criteria.where("activity.type").`in`(FlowActivityType.LIST, FlowActivityType.CANCEL_LIST)
+                        .and("activity.maker").`in`(u)
+                },
+                FlowActivityType.CANCEL_LIST to { u: List<String> ->
+                    Criteria.where("activity.type").isEqualTo(FlowActivityType.CANCEL_LIST)
                         .and("activity.maker").`in`(u)
                 },
                 FlowActivityType.CANCEL_BID to { u: List<String> ->
-                    Criteria.where("activity.type").isEqualTo(FlowActivityType.CANCEL_LIST.name)
+                    Criteria.where("activity.type").isEqualTo(FlowActivityType.CANCEL_BID.name)
                         .and("activity.maker").`in`(u)
                 },
                 FlowActivityType.MAKE_BID to { u: List<String> ->
