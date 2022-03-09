@@ -27,7 +27,11 @@ class TaskController(
         @RequestParam state: Long,
     ): ResponseEntity<String> {
         val result = mongoTemplate.updateFirst(
-            Query(Criteria("_id").isEqualTo(ObjectId(taskId))),
+            Query(
+                Criteria("_id")
+                    .isEqualTo(ObjectId(taskId))
+                    .and("running").isEqualTo(false)
+            ),
             Update()
                 .set("state", state)
                 .set("version", 0L)
@@ -38,15 +42,19 @@ class TaskController(
         ).awaitFirstOrNull()
 
         return if (result == null || !result.wasAcknowledged()) {
-            logger.error("Task {} was not updated", taskId)
+            logger.error("Task {} was not updated due to error", taskId)
             ResponseEntity.notFound().build()
         } else {
-            logger.info("Task {} was updated", taskId)
+            if (result.modifiedCount == 0L) {
+               logger.warn("Task {} was not updated. Probably it is still running.", taskId)
+            } else {
+                logger.info("Task {} was updated", taskId)
+            }
             ResponseEntity.ok().body("ok")
         }
     }
 
     companion object {
-        val logger by Log()
+        private val logger by Log()
     }
 }
