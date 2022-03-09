@@ -168,14 +168,14 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
     }
 
     suspend fun page(activities: Flow<ItemHistory>, sort: ItemHistoryFilter.Sort, size: Int?): FlowActivitiesDto {
-        val count = activities.count()
-        return if(count == 0) {
+        val materialized = activities.toList()
+        return if(materialized.isEmpty()) {
             FlowActivitiesDto(0, null, emptyList())
         } else {
             FlowActivitiesDto(
-                count,
-                sort.nextPage(activities, size),
-                activities.map(this::convert).toList()
+                materialized.size,
+                sort.nextPage(materialized, size),
+                materialized.map(this::convert)
             )
         }
     }
