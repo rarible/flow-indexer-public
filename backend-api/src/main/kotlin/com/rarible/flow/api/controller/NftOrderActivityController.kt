@@ -7,6 +7,7 @@ import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.repository.ItemHistoryFilter
 import com.rarible.flow.core.repository.filters.ScrollingSort
 import com.rarible.flow.enum.safeOf
+import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftOrderActivityControllerApi
 import kotlinx.coroutines.FlowPreview
@@ -72,8 +73,11 @@ class NftOrderActivityController(
         size: Int?,
         sort: String?,
     ): ResponseEntity<FlowActivitiesDto> {
+        logger.info("Getting all activities for types {}; cursor {}, size {}, sort {}", type, continuation, size, sort)
         return result(type, sort, size) { types, srt ->
-            service.getAll(types, continuation, size, srt)
+            val activities = service.getAll(types, continuation, size, srt)
+            logger.info("Converting activities result...")
+            activities
         }
     }
 
@@ -91,5 +95,9 @@ class NftOrderActivityController(
         }
 
         return ItemHistoryToDtoConverter.page(itemHistoryFlow, sort, size).okOr404IfNull()
+    }
+
+    companion object {
+        private val logger by Log()
     }
 }
