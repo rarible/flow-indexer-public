@@ -3,7 +3,7 @@ spring:
     name: flow-nft-indexer-api
   data:
     mongodb:
-      auto-index-creation: true
+      auto-index-creation: false
 
 flow-indexer-api:
   flow-access-url:
@@ -20,3 +20,8 @@ rarible:
         enabled: true
         server: http://elk_apm-server:8200
         packages: org.rarible.flow.api
+      web:
+        filter:
+          enabled: true
+      annotation:
+        enabled: true
