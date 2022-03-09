@@ -269,7 +269,7 @@ class VersusArtActivityMaker : NFTActivityMaker() {
 }
 
 @Component
-class RaribleV2ActivityMaker: NFTActivityMaker() {
+class RaribleNFTV2ActivityMaker: NFTActivityMaker() {
 
     override val contractName: String = Contracts.RARIBLE_NFTV2.contractName
 

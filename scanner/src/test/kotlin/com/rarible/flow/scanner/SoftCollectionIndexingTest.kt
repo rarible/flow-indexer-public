@@ -141,7 +141,7 @@ class SoftCollectionIndexingTest {
                 EmulatorUser.Gary.pubHex).stdout)
             with(Flow.DEFAULT_ADDRESS_REGISTRY) {
                 register(NON_FUNGIBLE_TOKEN, EmulatorUser.Emulator.address, FlowChainId.EMULATOR)
-                register("0xRARIBLENFT_V2", EmulatorUser.Emulator.address, FlowChainId.EMULATOR)
+                register("0xRARIBLENFTV2", EmulatorUser.Emulator.address, FlowChainId.EMULATOR)
                 register("0xSOFTCOLLECTION", EmulatorUser.Emulator.address, FlowChainId.EMULATOR)
             }
 

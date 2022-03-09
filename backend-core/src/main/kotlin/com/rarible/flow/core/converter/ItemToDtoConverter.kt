@@ -15,7 +15,7 @@ object ItemToDtoConverter : Converter<Item, FlowNftItemDto> {
     override fun convert(item: Item): FlowNftItemDto {
         return FlowNftItemDto(
             id = item.id.toString(),
-            collection = item.contract,
+            collection = item.collection,
             tokenId = item.tokenId.toBigInteger(),
             creators = convert(item.creator),
             owner = item.owner?.formatted,

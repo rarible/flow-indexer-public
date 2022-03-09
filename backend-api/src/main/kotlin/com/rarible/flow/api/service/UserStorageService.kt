@@ -407,7 +407,7 @@ class UserStorageService(
                             unmarshall(it, RaribleNFTv2Token::class)
                         }.map { token ->
                             Item(
-                                contract = contract("0xRARIBLENFT_V2", "RaribleNFTv2"),
+                                contract = contract("0xRARIBLENFTV2", "RaribleNFTv2"),
                                 tokenId = token.id,
                                 creator = FlowAddress(token.creator),
                                 owner = address,
