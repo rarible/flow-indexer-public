@@ -94,7 +94,9 @@ class NftOrderActivityController(
             fn(safeOf(strTypes), sort)
         }
 
-        return ItemHistoryToDtoConverter.page(itemHistoryFlow, sort, size).okOr404IfNull()
+        val page = ItemHistoryToDtoConverter.page(itemHistoryFlow, sort, size)
+        logger.info("Activities page is ready with {} elements", page.total)
+        return page.okOr404IfNull()
     }
 
     companion object {
