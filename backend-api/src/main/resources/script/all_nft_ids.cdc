@@ -9,7 +9,7 @@ import MatrixWorldVoucher from 0xMATRIXWORLDVOUCHER
 import MatrixWorldFlowFestNFT from 0xMATRIXWORLDFLOWFEST
 import Art from 0xVERSUSART
 import DisruptArt from 0xDISRUPTART
-import RaribleNFTv2 from 0xRARIBLENFT_V2
+import RaribleNFTv2 from 0xRARIBLENFTV2
 
 pub fun idsRaribleNFT(_ account: PublicAccount): [UInt64] {
     return account.getCapability(RaribleNFT.collectionPublicPath)

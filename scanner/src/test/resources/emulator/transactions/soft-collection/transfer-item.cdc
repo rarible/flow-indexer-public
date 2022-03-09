@@ -1,5 +1,5 @@
 import NonFungibleToken from 0xNONFUNGIBLETOKEN
-import RaribleNFTv2 from 0xRARIBLENFT_V2
+import RaribleNFTv2 from 0xRARIBLENFTV2
 
 // transfer RaribleNFTv2 token with tokenId to given address
 //

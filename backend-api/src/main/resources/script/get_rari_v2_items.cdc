@@ -1,4 +1,4 @@
-import RaribleNFTv2 from 0xRARIBLENFT_V2
+import RaribleNFTv2 from 0xRARIBLENFTV2
 
 pub fun main(address: Address, ids: [UInt64]): [RaribleNFTv2.NFT] {
     let collection = getAccount(address)
