@@ -72,10 +72,9 @@ class NftOrderActivityController(
         size: Int?,
         sort: String?,
     ): ResponseEntity<FlowActivitiesDto> {
-//        return result(type, sort, size) { types, srt ->
-//            service.getAll(types, continuation, size, srt)
-//        }
-        return ResponseEntity.ok(FlowActivitiesDto(0, null, emptyList()))
+        return result(type, sort, size) { types, srt ->
+            service.getAll(types, continuation, size, srt)
+        }
     }
 
     private suspend fun result(
