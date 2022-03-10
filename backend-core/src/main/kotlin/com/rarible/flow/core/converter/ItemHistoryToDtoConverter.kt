@@ -1,38 +1,11 @@
 package com.rarible.flow.core.converter
 
-import com.rarible.flow.core.domain.BurnActivity
-import com.rarible.flow.core.domain.FlowAsset
-import com.rarible.flow.core.domain.FlowAssetFungible
-import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.FlowNftOrderActivityBid
-import com.rarible.flow.core.domain.FlowNftOrderActivityCancelBid
-import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
-import com.rarible.flow.core.domain.FlowNftOrderActivityList
-import com.rarible.flow.core.domain.FlowNftOrderActivitySell
-import com.rarible.flow.core.domain.ItemHistory
-import com.rarible.flow.core.domain.MintActivity
-import com.rarible.flow.core.domain.TransferActivity
-import com.rarible.flow.core.repository.ItemHistoryFilter
-import com.rarible.protocol.dto.FlowActivitiesDto
-import com.rarible.protocol.dto.FlowActivityDto
-import com.rarible.protocol.dto.FlowAssetFungibleDto
-import com.rarible.protocol.dto.FlowAssetNFTDto
-import com.rarible.protocol.dto.FlowBurnDto
-import com.rarible.protocol.dto.FlowMintDto
-import com.rarible.protocol.dto.FlowNftOrderActivityBidDto
-import com.rarible.protocol.dto.FlowNftOrderActivityCancelBidDto
-import com.rarible.protocol.dto.FlowNftOrderActivityCancelListDto
-import com.rarible.protocol.dto.FlowNftOrderActivityListDto
-import com.rarible.protocol.dto.FlowNftOrderActivitySellDto
-import com.rarible.protocol.dto.FlowOrderActivityMatchSideDto
-import com.rarible.protocol.dto.FlowTransferDto
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
+import com.rarible.flow.core.domain.*
+import com.rarible.protocol.dto.*
 import org.springframework.core.convert.converter.Converter
 import java.math.BigDecimal
 import java.math.BigInteger
+
 
 object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
 
@@ -165,18 +138,5 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
             }
         }
 
-    }
-
-    suspend fun page(activities: Flow<ItemHistory>, sort: ItemHistoryFilter.Sort, size: Int?): FlowActivitiesDto {
-        val materialized = activities.toList()
-        return if(materialized.isEmpty()) {
-            FlowActivitiesDto(0, null, emptyList())
-        } else {
-            FlowActivitiesDto(
-                materialized.size,
-                sort.nextPage(materialized, size),
-                materialized.map(this::convert)
-            )
-        }
     }
 }
