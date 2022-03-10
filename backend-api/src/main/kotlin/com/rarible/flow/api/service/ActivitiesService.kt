@@ -53,7 +53,7 @@ class ActivitiesService(
                     .and("activity.maker").`in`(u)
             },
             FlowActivityType.CANCEL_BID to { u: List<String> ->
-                Criteria.where("activity.type").isEqualTo(FlowActivityType.CANCEL_LIST.name)
+                Criteria.where("activity.type").isEqualTo(FlowActivityType.CANCEL_BID.name)
                     .and("activity.maker").`in`(u)
             },
             FlowActivityType.MAKE_BID to { u: List<String> ->
@@ -110,7 +110,7 @@ class ActivitiesService(
         if (types.isEmpty()) return emptyActivities
 
         val arrayOfCriteria = types.map { t ->
-            userCriteria[t]?.let { it(user) } ?: Criteria.where("activity.type").isEqualTo(t.name)
+            userCriteria[t]?.let { it(user) } ?: Criteria.where("activity.type").isEqualTo(t.name).and("activity.owner").`in`(user)
         }.toTypedArray()
 
         val criteria = Criteria()
