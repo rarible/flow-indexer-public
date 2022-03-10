@@ -186,10 +186,10 @@ class ActivitiesService(
     private fun addContinuation(cont: ActivityContinuation?, criteria: Criteria, sort: String) {
         if (cont != null) {
             when (sort) {
-                "EARLIEST_FIRST" -> criteria.and("date").gte(cont.beforeDate)
-                else -> criteria.and("date").lte(cont.beforeDate)
+                "EARLIEST_FIRST" -> criteria.and("date").gte(cont.beforeDate).and("id").gt(cont.beforeId)
+                else -> criteria.and("date").lte(cont.beforeDate).and("id").lt(cont.beforeId)
             }
-            criteria.and("id").ne(cont.beforeId)
+//            criteria.and("id").ne(cont.beforeId)
         }
     }
 
