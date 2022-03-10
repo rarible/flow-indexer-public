@@ -73,12 +73,13 @@ class NftOrderActivityController(
         size: Int?,
         sort: String?,
     ): ResponseEntity<FlowActivitiesDto> {
-        logger.info("Getting all activities for types {}; cursor {}, size {}, sort {}", type, continuation, size, sort)
+/*        logger.info("Getting all activities for types {}; cursor {}, size {}, sort {}", type, continuation, size, sort)
         return result(type, sort, size) { types, srt ->
             val activities = service.getAll(types, continuation, size, srt)
             logger.info("Converting activities result...")
             activities
-        }
+        }*/
+        return ResponseEntity.ok(FlowActivitiesDto(0, null, emptyList()))
     }
 
     private suspend fun result(
