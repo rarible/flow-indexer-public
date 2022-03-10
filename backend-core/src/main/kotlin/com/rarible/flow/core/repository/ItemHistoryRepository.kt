@@ -1,11 +1,6 @@
 package com.rarible.flow.core.repository
 
-import com.rarible.flow.core.domain.BaseActivity
-import com.rarible.flow.core.domain.FlowActivityType
-import com.rarible.flow.core.domain.FlowNftOrderActivitySell
-import com.rarible.flow.core.domain.ItemHistory
-import com.rarible.flow.core.domain.OrderActivityMatchSide
-import com.rarible.flow.core.repository.filters.ScrollingSort
+import com.rarible.flow.core.domain.*
 import com.rarible.protocol.dto.FlowAggregationDataDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -13,12 +8,11 @@ import kotlinx.coroutines.reactive.asFlow
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.aggregation.Aggregation
-import org.springframework.data.mongodb.core.find
 import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.gte
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.mongodb.core.query.lte
+import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Flux
@@ -37,13 +31,13 @@ interface ItemHistoryRepository:
         @Suppress("FunctionName")
         fun existsByLog_TransactionHashAndLog_EventIndex(txHash: String, eventIndex: Int): Mono<Boolean>
 
-        @org.springframework.data.mongodb.repository.Query("""
+        @Query("""
             {"activity.type": ?0, "activity.hash": ?1}
         """)
         fun findOrderActivity(type: String, hash: String): Flux<ItemHistory>
     }
 
-interface ItemHistoryRepositoryCustom: ScrollingRepository<ItemHistory> {
+interface ItemHistoryRepositoryCustom {
     fun aggregatePurchaseByCollection(
         start: Instant, end: Instant, size: Long?
     ): Flow<FlowAggregationDataDto>
@@ -61,14 +55,6 @@ interface ItemHistoryRepositoryCustom: ScrollingRepository<ItemHistory> {
 class ItemHistoryRepositoryCustomImpl(
     private val mongo: ReactiveMongoTemplate
 ) : ItemHistoryRepositoryCustom {
-    override fun findByQuery(query: Query): Flux<ItemHistory> {
-        return mongo.find(query)
-    }
-
-    override fun defaultSort(): ScrollingSort<ItemHistory> {
-        return ItemHistoryFilter.Sort.EARLIEST_FIRST
-    }
-
     override fun aggregatePurchaseByCollection(
         start: Instant,
         end: Instant,
