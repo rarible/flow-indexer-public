@@ -6,19 +6,7 @@ import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.api.config.Config
 import com.rarible.flow.core.config.CoreConfig
-import com.rarible.flow.core.domain.BaseActivity
-import com.rarible.flow.core.domain.BurnActivity
-import com.rarible.flow.core.domain.FlowActivityType
-import com.rarible.flow.core.domain.FlowAssetFungible
-import com.rarible.flow.core.domain.FlowAssetNFT
-import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
-import com.rarible.flow.core.domain.FlowNftOrderActivityList
-import com.rarible.flow.core.domain.FlowNftOrderActivitySell
-import com.rarible.flow.core.domain.ItemHistory
-import com.rarible.flow.core.domain.MintActivity
-import com.rarible.flow.core.domain.OrderActivityMatchSide
-import com.rarible.flow.core.domain.Part
-import com.rarible.flow.core.domain.TransferActivity
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.randomAddress
 import com.rarible.flow.randomFlowAddress
@@ -147,22 +135,22 @@ class NftOrderActivityControllerTest {
         )
 
         val flowLog1 = FlowLog(
-            "32b8e20c643740a6e96b48af96f015655801864d3dbed3f22611ee94af421f86",
-            Log.Status.CONFIRMED,
-            0,
-            "",
-            date1,
-            50564298L,
-            "12f9dc7ed8fc0b9043802719f13e4cd20fed6780d2d8d621284b08dc6485ba5e"
+            transactionHash = "32b8e20c643740a6e96b48af96f015655801864d3dbed3f22611ee94af421f86",
+            status = Log.Status.CONFIRMED,
+            eventIndex = 0,
+            eventType = "",
+            timestamp = date1,
+            blockHeight = 50564298L,
+            blockHash = "12f9dc7ed8fc0b9043802719f13e4cd20fed6780d2d8d621284b08dc6485ba5e"
         )
         val flowLog2 = FlowLog(
-            "e2b72842eb40183ce2a956d9103b29c1ce2efe013bccfdd12730c3148e550a10",
-            Log.Status.CONFIRMED,
-            0,
-            "",
-            date2,
-            50564339L,
-            "c452cb8a5a009447fbd7632f1e7f5af4698ba276e1cb77097b017e08874f2477"
+            transactionHash = "e2b72842eb40183ce2a956d9103b29c1ce2efe013bccfdd12730c3148e550a10",
+            status = Log.Status.CONFIRMED,
+            eventIndex = 0,
+            eventType = "",
+            timestamp = date2,
+            blockHeight = 50564339L,
+            blockHash = "c452cb8a5a009447fbd7632f1e7f5af4698ba276e1cb77097b017e08874f2477"
         )
         val history = listOf(
             ItemHistory(
@@ -737,11 +725,12 @@ class NftOrderActivityControllerTest {
     ) = ItemHistory(date = date, activity = activity, log = log)
 
     private fun randomLog() =
-        FlowLog(UUID.randomUUID().toString(),
-            Log.Status.CONFIRMED,
-            1,
-            "",
-            Instant.now(Clock.systemUTC()),
-            randomLong(),
-            "")
+        FlowLog(
+            transactionHash = UUID.randomUUID().toString(),
+            status = Log.Status.CONFIRMED,
+            eventIndex = 1,
+            eventType = "",
+            timestamp = Instant.now(Clock.systemUTC()),
+            blockHeight = randomLong(),
+            blockHash = "")
 }

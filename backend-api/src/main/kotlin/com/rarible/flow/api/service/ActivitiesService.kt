@@ -14,9 +14,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
-import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.*
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -110,7 +108,8 @@ class ActivitiesService(
         if (types.isEmpty()) return emptyActivities
 
         val arrayOfCriteria = types.map { t ->
-            userCriteria[t]?.let { it(user) } ?: Criteria.where("activity.type").isEqualTo(t.name).and("activity.owner").`in`(user)
+            userCriteria[t]?.let { it(user) } ?: Criteria.where("activity.type").isEqualTo(t.name).and("activity.owner")
+                .`in`(user)
         }.toTypedArray()
 
         val criteria = Criteria()
@@ -186,10 +185,18 @@ class ActivitiesService(
     private fun addContinuation(cont: ActivityContinuation?, criteria: Criteria, sort: String) {
         if (cont != null) {
             when (sort) {
-                "EARLIEST_FIRST" -> criteria.and("date").gte(cont.beforeDate).and("id").gt(cont.beforeId)
-                else -> criteria.and("date").lte(cont.beforeDate).and("id").lt(cont.beforeId)
+                "EARLIEST_FIRST" ->
+                    criteria.orOperator(
+                        where(ItemHistory::date).gt(cont.beforeDate),
+                        where(ItemHistory::date).isEqualTo(cont.beforeDate).and(ItemHistory::id).gt(cont.beforeId)
+                    )
+
+                else ->
+                    criteria.orOperator(
+                        where(ItemHistory::date).lt(cont.beforeDate),
+                        where(ItemHistory::date).isEqualTo(cont.beforeDate).and(ItemHistory::id).lt(cont.beforeId)
+                    )
             }
-//            criteria.and("id").ne(cont.beforeId)
         }
     }
 
@@ -197,8 +204,8 @@ class ActivitiesService(
         Criteria.where("activity.type").`in`(types.map(FlowActivityType::name))
 
     private fun defaultSort(sort: String): Sort = when (sort) {
-        "EARLIEST_FIRST" -> Sort.by(Sort.Direction.ASC, "date", "log.transactionHash", "log.eventIndex")
-        else -> Sort.by(Sort.Direction.DESC, "date", "log.transactionHash", "log.eventIndex")
+        "EARLIEST_FIRST" -> Sort.by(Sort.Direction.ASC, "date", "_id")
+        else -> Sort.by(Sort.Direction.DESC, "date", "_id")
     }
 
     private fun answerContinuation(items: List<FlowActivityDto>, limit: Int): ActivityContinuation? =
