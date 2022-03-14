@@ -6,14 +6,13 @@ import com.rarible.flow.scanner.service.CollectionService
 import io.mongock.api.annotations.ChangeUnit
 import io.mongock.api.annotations.Execution
 import io.mongock.api.annotations.RollbackExecution
-import kotlinx.coroutines.runBlocking
 
 @ChangeUnit(
-    id = "ChangeLog00042RestartJambb",
-    order = "00042",
+    id = "ChangeLog00045RestartJambb",
+    order = "00045",
     author = "flow"
 )
-class ChangeLog00042RestartJambb(
+class ChangeLog00045RestartJambb(
     private val collectionService: CollectionService,
     private val appProperties: AppProperties
 ) {

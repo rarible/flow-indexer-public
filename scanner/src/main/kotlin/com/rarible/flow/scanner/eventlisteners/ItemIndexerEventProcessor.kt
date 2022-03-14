@@ -81,7 +81,7 @@ class ItemIndexerEventProcessor(
             if (forSave != event.item) {
                 itemMetaRepository.deleteById(forSave.id).awaitFirstOrNull()
                 val saved = itemRepository.save(forSave).awaitSingle()
-                val needSendToKafka = event.source != Source.REINDEX
+                val needSendToKafka = willSendToKafka(event)
                 if (needSendToKafka) {
                     protocolEventPublisher.onItemUpdate(saved)
                 }
@@ -138,7 +138,7 @@ class ItemIndexerEventProcessor(
         val burn = event.history.activity as BurnActivity
         val item = event.item
         withSpan("burnItemEvent", type = "event", labels = listOf("itemId" to "${burn.contract}:${burn.tokenId}")) {
-            val needSendToKafka = event.source != Source.REINDEX
+            val needSendToKafka = willSendToKafka(event)
             if (item != null && item.updatedAt <= burn.timestamp) {
                 itemRepository.save(item.copy(owner = null, updatedAt = burn.timestamp)).awaitFirstOrNull()
                 val ownerships =
@@ -172,7 +172,7 @@ class ItemIndexerEventProcessor(
         val transferActivity = event.history.activity as TransferActivity
 
         val item = event.item
-        val needSendToKafka = event.source != Source.REINDEX
+        val needSendToKafka = willSendToKafka(event)
         val prevOwner = FlowAddress(transferActivity.from)
         val newOwner = FlowAddress(transferActivity.to)
 
@@ -243,5 +243,9 @@ class ItemIndexerEventProcessor(
             newOwnership?.let { protocolEventPublisher.onUpdate(it) }
         }
 
+    }
+
+    private fun willSendToKafka(event: IndexerEvent): Boolean {
+        return true // event.source != Source.REINDEX - TODO
     }
 }
