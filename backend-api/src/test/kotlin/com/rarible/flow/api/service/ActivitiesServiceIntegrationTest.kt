@@ -41,13 +41,13 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
                 metadata = emptyMap()
             ),
             FlowLog(
-                "1903e78154fb70a7fd410e980fa6aaa07199226c5855e743d73b85cd19dcfd62",
-                Log.Status.CONFIRMED,
-                0,
-                "A.0b2a3299cc857e29.TopShot.MomentMinted",
-                Instant.ofEpochMilli(1614231562934000),
-                12236741,
-                "0954c38a1189717a26fe16afce2f06c257dee03e2224496be5aa01b59545c7d0"
+                transactionHash = "1903e78154fb70a7fd410e980fa6aaa07199226c5855e743d73b85cd19dcfd62",
+                status = Log.Status.CONFIRMED,
+                eventIndex = 0,
+                eventType = "A.0b2a3299cc857e29.TopShot.MomentMinted",
+                timestamp = Instant.ofEpochMilli(1614231562934000),
+                blockHeight = 12236741,
+                blockHash = "0954c38a1189717a26fe16afce2f06c257dee03e2224496be5aa01b59545c7d0",
             )
         )
 
@@ -64,28 +64,38 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
                 metadata = emptyMap()
             ),
             FlowLog(
-                "1903e78154fb70a7fd410e980fa6aaa07199226c5855e743d73b85cd19dcfd62",
-                Log.Status.CONFIRMED,
-                1,
-                "A.0b2a3299cc857e29.TopShot.MomentMinted",
-                Instant.ofEpochMilli(1614231562934000),
-                12236741,
-                "0954c38a1189717a26fe16afce2f06c257dee03e2224496be5aa01b59545c7d0"
+                transactionHash = "1903e78154fb70a7fd410e980fa6aaa07199226c5855e743d73b85cd19dcfd62",
+                status = Log.Status.CONFIRMED,
+                eventIndex = 1,
+                eventType = "A.0b2a3299cc857e29.TopShot.MomentMinted",
+                timestamp = Instant.ofEpochMilli(1614231562934000),
+                blockHeight = 12236741,
+                blockHash = "0954c38a1189717a26fe16afce2f06c257dee03e2224496be5aa01b59545c7d0",
             )
         )
 
-        itemHistoryRepository.coSaveAll(activity1, activity2)
 
+        itemHistoryRepository.coSaveAll(activity1, activity2)
         val sort = "EARLIEST_FIRST"
         val cursor1 = "1614231562000_1903e78154fb70a7fd410e980fa6aaa07199226c5855e743d73b85cd19dcfd62.0"
+        val cursor2 = "1614231562000_1903e78154fb70a7fd410e980fa6aaa07199226c5855e743d73b85cd19dcfd62.1"
         val types = listOf(
             "MINT", "BURN", "TRANSFER"
         )
-        val res1 = activitiesService.getNftOrderAllActivities(types, cursor1, 1, sort)
+        val res1 = activitiesService.getNftOrderAllActivities(types, null, 1, sort)
+        res1.continuation shouldBe cursor1
+        res1.items.count() shouldBe 1
 
         val res2 = activitiesService.getNftOrderAllActivities(types, res1.continuation, 1, sort)
 
-        res2.continuation shouldBe "null"
-        res2.items.count() shouldBe 0
+
+        res2.continuation shouldBe cursor2
+        res2.items.count() shouldBe 1
+
+        val res3 = activitiesService.getNftOrderAllActivities(types, res2.continuation, 1, sort)
+
+        res3.continuation shouldBe "null"
+        res3.items.isEmpty() shouldBe true
+
     }
 }
