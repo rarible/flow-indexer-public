@@ -3,9 +3,9 @@ package com.rarible.flow.scanner.subscriber
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
+import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.events.EventId
-import org.springframework.stereotype.Component
 
 // TODO uncomment when legal is ready
 //@Component
@@ -16,28 +16,28 @@ class TopShotSubscriber : BaseFlowLogEventSubscriber() {
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
             FlowChainId.MAINNET to flowDescriptor(
-                address = "0b2a3299cc857e29",
-                contract = "TopShot",
+                contract = Contracts.TOPSHOT,
+                chainId = FlowChainId.MAINNET,
                 events = events,
                 startFrom = 7641063L,
                 dbCollection = collection
             ),
             FlowChainId.TESTNET to flowDescriptor(
-                address = "01658d9b94068f3c",
-                contract = "TopShot",
+                contract = Contracts.TOPSHOT,
+                chainId = FlowChainId.TESTNET,
                 events = events,
                 dbCollection = collection
             ),
             FlowChainId.EMULATOR to flowDescriptor(
-                address = "f8d6e0586b0a20c7",
-                contract = "TopShot",
+                contract = Contracts.TOPSHOT,
+                chainId = FlowChainId.EMULATOR,
                 events = events,
                 startFrom = 1L,
                 dbCollection = collection
             ),
         )
 
-    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when(EventId.of(log.event.id).eventName) {
+    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when (EventId.of(log.event.id).eventName) {
         "Withdraw" -> FlowLogType.WITHDRAW
         "Deposit" -> FlowLogType.DEPOSIT
         "MomentMinted" -> FlowLogType.MINT
