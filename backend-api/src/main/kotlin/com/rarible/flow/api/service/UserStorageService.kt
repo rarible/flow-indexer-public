@@ -72,10 +72,10 @@ class UserStorageService(
         address: FlowAddress
     ) {
         when (collection) {
-            "TopShot" -> {
+            Contracts.TOPSHOT.contractName -> {
                 itemIds.forEach {
-                    val contract = contract("0xTOPSHOTTOKEN", "TopShot")
-                    if (notExistsItem(contract, it)) {
+                    val contract = Contracts.TOPSHOT.fqn(appProperties.chainId)
+                    val item = if (notExistsItem(contract, it)) {
                         val res = scriptExecutor.execute(
                             scriptText("/script/get_topshot_moment.cdc"),
                             mutableListOf(builder.address(address.bytes), builder.uint64(it))
@@ -83,39 +83,27 @@ class UserStorageService(
                         val momentData = parser.dictionaryMap(res.jsonCadence) { k, v ->
                             string(k) to long(v)
                         }
-                        val item = Item(
+                        Item(
                             contract = contract,
                             tokenId = it,
-                            creator = contractAddress("0xTOPSHOTTOKEN"),
-                            royalties = listOf(
-                                Part(
-                                    address = contractAddress("0xTOPSHOTTOKEN"),
-                                    fee = 0.05
-                                )
-                            ),
+                            creator = Contracts.TOPSHOT.deployments[appProperties.chainId]!!,
+                            royalties = Contracts.TOPSHOT.staticRoyalties(appProperties.chainId),
                             owner = address,
                             mintedAt = Instant.now(),
                             meta = objectMapper.writeValueAsString(momentData),
                             collection = contract,
                             updatedAt = Instant.now()
                         )
-                        saveItem(item)
                     } else {
-                        val item =
-                            itemRepository.findById(ItemId(contract, it)).awaitSingle()
-                        saveItem(
-                            item.copy(
-                                owner = address,
-                                royalties = listOf(
-                                    Part(
-                                        address = contractAddress("0xTOPSHOTTOKEN"),
-                                        fee = 0.05
-                                    )
-                                ),
-                                updatedAt = Instant.now()
-                            )
-                        )
+                        val i = itemRepository.findById(ItemId(contract, it)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
+                        } else {
+                            checkOwnership(i, address)
+                            null
+                        }
                     }
+                    saveItem(item)
                 }
             }
             Contracts.MOTOGP.contractName -> {

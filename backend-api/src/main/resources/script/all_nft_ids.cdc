@@ -2,7 +2,7 @@ import NonFungibleToken from 0xNONFUNGIBLETOKEN
 import RaribleNFT from 0xRARIBLETOKEN
 import Evolution from 0xEVOLUTIONTOKEN
 import MotoGPCard from 0xMOTOGPTOKEN
-import TopShot from 0xTOPSHOTTOKEN
+import TopShot from 0xTOPSHOT
 import MugenNFT from 0xMUGENNFT
 import CNN_NFT from 0xCNNNFT
 import MatrixWorldVoucher from 0xMATRIXWORLDVOUCHER
