@@ -11,6 +11,7 @@ import com.nftco.flow.sdk.cadence.OptionalField
 import com.nftco.flow.sdk.cadence.StructField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.apm.withSpan
+import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.events.EventId
@@ -170,12 +171,11 @@ class TopShotActivityMaker(
     @Value("\${blockchain.scanner.flow.chainId}")
     private val chainId: FlowChainId,
 ) : NFTActivityMaker() {
-    override val contractName: String = "TopShot"
+    override val contractName: String = Contracts.TOPSHOT.contractName
 
-    private val royaltyAddress = mapOf(
-        FlowChainId.MAINNET to FlowAddress("0xbd69b6abdfcf4539"),
-        FlowChainId.TESTNET to FlowAddress("0x01658d9b94068f3c"),
-    )
+    override fun isSupportedCollection(collection: String): Boolean {
+        return collection == Contracts.TOPSHOT.fqn(chainId)
+    }
 
     override fun tokenId(logEvent: FlowLogEvent): Long = when (logEvent.type) {
         FlowLogType.MINT -> cadenceParser.long(logEvent.event.fields["momentID"]!!)
@@ -195,7 +195,7 @@ class TopShotActivityMaker(
     }
 
     override fun royalties(logEvent: FlowLogEvent): List<Part> {
-        return listOf(Part(address = royaltyAddress[chainId]!!, fee = 0.05))
+        return Contracts.TOPSHOT.staticRoyalties(chainId)
     }
 }
 

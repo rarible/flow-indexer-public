@@ -310,7 +310,18 @@ enum class Contracts : Contract {
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
             )
         override val import: String
-            get() = "0xTOPSHOTTOKEN"
+            get() = "0xTOPSHOT"
+
+        override fun staticRoyalties(chain: FlowChainId): List<Part> {
+            return if(chain == FlowChainId.MAINNET) {
+                listOf(
+                    Part(
+                        address = FlowAddress("0x0b2a3299cc857e29"),
+                        fee = 0.05
+                    )
+                )
+            } else super.staticRoyalties(chain)
+        }
     }
 }
 
