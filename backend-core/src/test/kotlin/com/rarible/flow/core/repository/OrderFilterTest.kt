@@ -106,14 +106,14 @@ internal class OrderFilterTest : FunSpec({
             Headers2("OrderFilter.Sort", "Spring sort"),
             row(
                 OrderFilter.Sort.LATEST_FIRST, Sort.by(
-                    Sort.Order.desc(Order::createdAt.name),
+                    Sort.Order.desc(Order::lastUpdatedAt.name),
                     Sort.Order.desc(Order::id.name)
                 )
             ),
 
             row(
                 OrderFilter.Sort.EARLIEST_FIRST, Sort.by(
-                    Sort.Order.asc(Order::createdAt.name),
+                    Sort.Order.asc(Order::lastUpdatedAt.name),
                     Sort.Order.asc(Order::id.name)
                 )
             )
@@ -123,7 +123,7 @@ internal class OrderFilterTest : FunSpec({
             val dateTime = LocalDateTime.parse("2021-11-09T10:00:00")
             val entities = flowOf<Order>(
                 mockk(), mockk() {
-                    every { createdAt } returns dateTime
+                    every { lastUpdatedAt } returns dateTime
                     every { id } returns 1000
                 }
             )

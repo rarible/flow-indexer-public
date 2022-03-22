@@ -23,28 +23,28 @@ sealed class OrderFilter : DbFilter<Order>, CriteriaProduct<OrderFilter> {
     enum class Sort: ScrollingSort<Order> {
         LATEST_FIRST {
             override fun springSort(): SpringSort = SpringSort.by(
-                    SpringSort.Order.desc(Order::createdAt.name),
+                    SpringSort.Order.desc(Order::lastUpdatedAt.name),
                     SpringSort.Order.desc(Order::id.name)
                 )
 
             override fun scroll(criteria: Criteria, continuation: String?): Criteria =
-                Cont.scrollDesc(criteria, continuation, Order::createdAt, Order::id)
+                Cont.scrollDesc(criteria, continuation, Order::lastUpdatedAt, Order::id)
 
             override fun nextPage(entity: Order): String {
-                return Cont.toString(entity.createdAt, entity.id)
+                return Cont.toString(entity.lastUpdatedAt, entity.id)
             }
         },
         EARLIEST_FIRST {
             override fun springSort(): SpringSort = SpringSort.by(
-                SpringSort.Order.asc(Order::createdAt.name),
+                SpringSort.Order.asc(Order::lastUpdatedAt.name),
                 SpringSort.Order.asc(Order::id.name)
             )
 
             override fun scroll(criteria: Criteria, continuation: String?): Criteria =
-                Cont.scrollAsc(criteria, continuation, Order::createdAt, Order::id)
+                Cont.scrollAsc(criteria, continuation, Order::lastUpdatedAt, Order::id)
 
             override fun nextPage(entity: Order): String {
-                return Cont.toString(entity.createdAt, entity.id)
+                return Cont.toString(entity.lastUpdatedAt, entity.id)
             }
         },
         MAKE_PRICE_ASC {
