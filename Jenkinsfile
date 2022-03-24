@@ -1,4 +1,4 @@
-@Library('shared-library@experiment/gradle-improvements') _
+@Library('shared-library@stable') _
 
 def pipelineConfig = [
     "stackName": "protocol-flow",
