@@ -169,7 +169,7 @@ class SoftCollectionIndexingTest {
         }.sendAndWaitForSeal()
         Assertions.assertTrue(setup.errorMessage.isEmpty(), "Setup account failed: ${setup.errorMessage}")
         val expectedCollection = ItemCollection(
-            id = "A.${EmulatorUser.Emulator.address.base16Value}.SoftCollection:0",
+            id = "A.${EmulatorUser.Emulator.address.base16Value}.SoftCollection.0",
             name = "Awesome Collection",
             symbol = "AC",
             isSoft = true,

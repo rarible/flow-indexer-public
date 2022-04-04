@@ -5,11 +5,7 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.rarible.flow.Contracts
-import com.rarible.flow.core.domain.FlowLogEvent
-import com.rarible.flow.core.domain.FlowLogType
-import com.rarible.flow.core.domain.ItemCollection
-import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.Part
+import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
@@ -36,7 +32,7 @@ internal class SoftCollectionEventsListenerTest : FunSpec({
     }
 
     test("should update collection") {
-        val collectionId = ItemId(Contracts.SOFT_COLLECTION.fqn(FlowChainId.TESTNET), 15)
+        val collectionId = ItemId(Contracts.SOFT_COLLECTION.fqn(FlowChainId.TESTNET), 15, '.')
         val repo = mockk<ItemCollectionRepository>() {
             every {
                 findById("$collectionId")
