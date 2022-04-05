@@ -30,6 +30,8 @@ class SoftCollectionEventsListener(
 
     private val logger by Log()
 
+    private val idDelimiter = '.'
+
     override suspend fun onBlockLogsProcessed(blockEvent: ProcessedBlockEvent<FlowLog, FlowLogRecord<*>>) {
         blockEvent.records.filterIsInstance<FlowLogEvent>()
             .filter {
@@ -50,7 +52,7 @@ class SoftCollectionEventsListener(
     }
 
     private fun FlowLogEvent.collectionId() =
-        "${ItemId(Contracts.SOFT_COLLECTION.fqn(chainId), parser.long(event.fields["id"]!!))}"
+        "${ItemId(Contracts.SOFT_COLLECTION.fqn(chainId), parser.long(event.fields["id"]!!), idDelimiter)}"
 
     private suspend fun FlowLogEvent.getCollection() =
         itemCollectionRepository.coFindById(collectionId())
@@ -81,7 +83,7 @@ class SoftCollectionEventsListener(
             val collectionMeta = meta.parse<CollectionMeta>()
             val collectionChainId = parser.long(id)
             val itemCollection = ItemCollection(
-                id = "${ItemId(Contracts.SOFT_COLLECTION.fqn(chainId), collectionChainId)}",
+                id = "${ItemId(Contracts.SOFT_COLLECTION.fqn(chainId), collectionChainId, idDelimiter)}",
                 owner = creatorAddress,
                 name = collectionMeta.name,
                 symbol = collectionMeta.symbol,
@@ -130,7 +132,7 @@ class SoftCollectionEventsListener(
         val royalties = event.event.fields["royalties"]?.let(::parseRoyalties)
 
         val collectionMeta = meta.parse<CollectionMeta>()
-        val collectionId = "${ItemId(Contracts.SOFT_COLLECTION.fqn(chainId), parser.long(id))}"
+        val collectionId = "${ItemId(Contracts.SOFT_COLLECTION.fqn(chainId), parser.long(id), idDelimiter)}"
         val entity = itemCollectionRepository.coFindById(collectionId) ?: throw IllegalStateException("Collection with id [$collectionId] not found")
 
         itemCollectionRepository.coSave(entity.copy(
