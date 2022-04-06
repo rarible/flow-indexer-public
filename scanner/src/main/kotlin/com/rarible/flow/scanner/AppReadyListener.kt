@@ -87,6 +87,13 @@ class AppReadyListener(
                 owner = Contracts.KICKS.deployments[FlowChainId.TESTNET]!!,
                 symbol = "KICKS",
                 features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.SOME_PLACE_COLLECTIBLE.fqn(FlowChainId.TESTNET),
+                name = "The Poison",
+                owner = Contracts.SOME_PLACE_COLLECTIBLE.deployments[FlowChainId.TESTNET]!!,
+                symbol = "POISON",
+                features = setOf("BURN")
             )
         ),
 
@@ -161,6 +168,13 @@ class AppReadyListener(
                 owner = Contracts.KICKS.deployments[FlowChainId.MAINNET]!!,
                 symbol = "KICKS",
                 features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.SOME_PLACE_COLLECTIBLE.fqn(FlowChainId.MAINNET),
+                name = "The Poison",
+                owner = Contracts.SOME_PLACE_COLLECTIBLE.deployments[FlowChainId.MAINNET]!!,
+                symbol = "POISON",
+                features = setOf("BURN")
             )
         )
     )
@@ -178,7 +192,7 @@ class AppReadyListener(
 
                 if (scannerProperties.chainId == FlowChainId.TESTNET) {
                     sporkService.allSporks.replace(FlowChainId.TESTNET, listOf(
-                        SporkService.Spork(from = 59558934L, nodeUrl = "access.devnet.nodes.onflow.org"),
+                        SporkService.Spork(from = 64904846L, nodeUrl = "access.devnet.nodes.onflow.org"),
                     ))
                 }
 

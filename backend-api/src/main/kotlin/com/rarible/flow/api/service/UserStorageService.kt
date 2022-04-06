@@ -12,7 +12,10 @@ import com.rarible.flow.api.metaprovider.CnnNFTConverter
 import com.rarible.flow.api.metaprovider.DisruptArtNFT
 import com.rarible.flow.api.metaprovider.RaribleNFT
 import com.rarible.flow.core.config.AppProperties
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
@@ -540,6 +543,35 @@ class UserStorageService(
                             tokenId = tokenId,
                             creator = Contracts.BARTER_YARD_PACK.deployments[appProperties.chainId]!!,
                             royalties = Contracts.BARTER_YARD_PACK.staticRoyalties(appProperties.chainId),
+                            owner = address,
+                            mintedAt = Instant.now(),
+                            meta = "{}",
+                            collection = contract,
+                            updatedAt = Instant.now()
+                        )
+                    } else {
+                        val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
+                        } else {
+                            checkOwnership(i, address)
+                            null
+                        }
+                    }
+                    saveItem(item)
+                }
+            }
+
+            Contracts.SOME_PLACE_COLLECTIBLE.contractName -> {
+                itemIds.forEach { tokenId ->
+                    val contract = Contracts.SOME_PLACE_COLLECTIBLE.fqn(appProperties.chainId)
+                    val item = if (notExistsItem(contract, tokenId)) {
+
+                        Item(
+                            contract = contract,
+                            tokenId = tokenId,
+                            creator = Contracts.SOME_PLACE_COLLECTIBLE.deployments[appProperties.chainId]!!,
+                            royalties = Contracts.SOME_PLACE_COLLECTIBLE.staticRoyalties(appProperties.chainId),
                             owner = address,
                             mintedAt = Instant.now(),
                             meta = "{}",
