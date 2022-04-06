@@ -10,6 +10,7 @@ import MatrixWorldFlowFestNFT from 0xMATRIXWORLDFLOWFEST
 import Art from 0xART
 import DisruptArt from 0xDISRUPTART
 import BarterYardPackNFT from 0xBARTERYARDPACKNFT
+import SomePlaceCollectible from 0xSOMEPLACECOLLECTIBLE
 
 pub fun idsRaribleNFT(_ account: PublicAccount): [UInt64] {
     return account.getCapability(RaribleNFT.collectionPublicPath)
@@ -78,6 +79,13 @@ pub fun idsBarterYardPack(_ account: PublicAccount): [UInt64] {
         ?.getIDs() ?? []
 }
 
+pub fun idsSomePlaceCollectible(_ account: PublicAccount): [UInt64] {
+    return account.getCapability(SomePlaceCollectible.CollectionPublicPath)
+        .borrow<&{SomePlaceCollectible.CollectibleCollectionPublic}>()
+        ?.getIDs() ?? []
+
+}
+
 pub fun main(address: Address): {String: [UInt64]} {
     let account = getAccount(address)
     let results : {String: [UInt64]} = {}
@@ -93,6 +101,7 @@ pub fun main(address: Address): {String: [UInt64]} {
     results["VersusArt"] = idsVersusArt(account)
     results["DisruptArt"] = idsDisruptArt(account)
     results["BarterYardPackNFT"] = idsBarterYardPack(account)
+    results["SomePlaceCollectible"] = idsSomePlaceCollectible(account)
 
     return results
 }

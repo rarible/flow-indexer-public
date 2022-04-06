@@ -4,6 +4,7 @@ import com.nftco.flow.sdk.AddressRegistry
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.flow.RoyaltySize.FIVE_PERCENT
+import com.rarible.flow.RoyaltySize.TEN_PERCENT
 import com.rarible.flow.RoyaltySize.percent
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Part
@@ -14,7 +15,7 @@ interface Contract {
     val import: String
 
     fun supports(itemId: ItemId): Boolean =
-        itemId.contract.contains(this.contractName)
+        itemId.contract.endsWith(this.contractName)
 
     fun register(registry: AddressRegistry): AddressRegistry {
         return deployments.entries.fold(registry) { reg, (chain, addr) ->
@@ -72,7 +73,7 @@ enum class Contracts : Contract {
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
             return if (chain == FlowChainId.MAINNET) {
-                listOf(Part(FlowAddress("0x12c122ca9266c278"), RoyaltySize.TEN_PERCENT))
+                listOf(Part(FlowAddress("0x12c122ca9266c278"), TEN_PERCENT))
             } else super.staticRoyalties(chain)
         }
     },
@@ -148,7 +149,7 @@ enum class Contracts : Contract {
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
             return if (chain == FlowChainId.MAINNET) listOf(
-                Part(FlowAddress("0x55c8be371f74168f"), RoyaltySize.TEN_PERCENT) // 10%
+                Part(FlowAddress("0x55c8be371f74168f"), TEN_PERCENT) // 10%
             ) else super.staticRoyalties(chain)
         }
     },
@@ -177,7 +178,7 @@ enum class Contracts : Contract {
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
             return if (chain == FlowChainId.MAINNET) listOf(
-                Part(FlowAddress("0x77b78d7d3f0d1787"), RoyaltySize.TEN_PERCENT) // 10%
+                Part(FlowAddress("0x77b78d7d3f0d1787"), TEN_PERCENT) // 10%
             ) else super.staticRoyalties(chain)
         }
     },
@@ -322,7 +323,25 @@ enum class Contracts : Contract {
                 )
             } else super.staticRoyalties(chain)
         }
-    }
+    },
+
+    SOME_PLACE_COLLECTIBLE {
+        override val contractName: String
+            get() = "SomePlaceCollectible"
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                FlowChainId.MAINNET to FlowAddress("0x667a16294a089ef8"),
+                FlowChainId.TESTNET to FlowAddress("0x0c153e28da9f988a"),
+                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
+            )
+        override val import: String
+            get() = "0x${contractName.uppercase()}"
+
+        override fun staticRoyalties(chain: FlowChainId): List<Part> = when(chain) {
+            FlowChainId.MAINNET -> listOf(Part(FlowAddress("0x8e2e0ebf3c03aa88"), TEN_PERCENT))
+            else -> super.staticRoyalties(chain)
+        }
+    },
 }
 
 object RoyaltySize {
