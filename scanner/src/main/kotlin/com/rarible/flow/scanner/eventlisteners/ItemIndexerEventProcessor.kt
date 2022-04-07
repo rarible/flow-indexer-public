@@ -2,7 +2,6 @@ package com.rarible.flow.scanner.eventlisteners
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.core.apm.CaptureSpan
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.BurnActivity
@@ -260,7 +259,7 @@ class ItemIndexerEventProcessor(
         itemHistory: ItemHistory,
     ) {
         withSpan("sendOrderUpdate", "network") {
-            if (event.source != Source.REINDEX) {
+            if (willSendToKafka(event)) {
                 protocolEventPublisher.activity(itemHistory)
             }
         }
