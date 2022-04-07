@@ -58,6 +58,7 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 from = source.activity.from,
                 owner = source.activity.to,
                 value = BigInteger.ONE,
+                purchased = source.activity.purchased,
                 transactionHash = source.log.transactionHash,
                 blockHash = source.log.blockHash,
                 blockNumber = source.log.blockHeight,
