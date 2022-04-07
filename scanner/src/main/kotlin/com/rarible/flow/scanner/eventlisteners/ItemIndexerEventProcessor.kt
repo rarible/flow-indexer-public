@@ -5,7 +5,14 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.core.apm.CaptureSpan
 import com.rarible.core.apm.withSpan
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.BurnActivity
+import com.rarible.flow.core.domain.FlowActivityType
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.core.domain.MintActivity
+import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.OwnershipId
+import com.rarible.flow.core.domain.TransferActivity
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
@@ -238,11 +245,25 @@ class ItemIndexerEventProcessor(
             }
         }
 
+        orderService.checkAndEnrichTransfer(event.history.log.transactionHash, prevOwner.formatted, newOwner.formatted)
+            ?.also { sendHistoryUpdate(event, it) }
+
         if (needSendToKafka) {
             protocolEventPublisher.onItemUpdate(saved)
             newOwnership?.let { protocolEventPublisher.onUpdate(it) }
         }
 
+    }
+
+    private suspend fun sendHistoryUpdate(
+        event: IndexerEvent,
+        itemHistory: ItemHistory,
+    ) {
+        withSpan("sendOrderUpdate", "network") {
+            if (event.source != Source.REINDEX) {
+                protocolEventPublisher.activity(itemHistory)
+            }
+        }
     }
 
     private fun willSendToKafka(event: IndexerEvent): Boolean {

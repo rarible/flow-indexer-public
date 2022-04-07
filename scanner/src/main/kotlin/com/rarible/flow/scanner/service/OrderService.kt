@@ -3,7 +3,26 @@ package com.rarible.flow.scanner.service
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.converter.OrderToDtoConverter
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.FlowAsset
+import com.rarible.flow.core.domain.FlowAssetEmpty
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.FlowNftOrderActivityBid
+import com.rarible.flow.core.domain.FlowNftOrderActivityCancelBid
+import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
+import com.rarible.flow.core.domain.FlowNftOrderActivityList
+import com.rarible.flow.core.domain.FlowNftOrderActivitySell
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderData
+import com.rarible.flow.core.domain.OrderStatus
+import com.rarible.flow.core.domain.OrderType
+import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.PaymentType
+import com.rarible.flow.core.domain.Payout
+import com.rarible.flow.core.domain.TransferActivity
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.OrderRepository
@@ -27,6 +46,7 @@ import java.time.ZoneOffset
 @Service
 class OrderService(
     private val orderRepository: OrderRepository,
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
     private val orderConverter: OrderToDtoConverter,
@@ -241,6 +261,29 @@ class OrderService(
             orderRepository.coSave(order)
         }
     }
+
+    suspend fun enrichTransfer(txHash: String, from: String, to: String): ItemHistory? {
+        return withSpan("enrichTransfer", "db") {
+            itemHistoryRepository.findTransferInTx(txHash, from, to).awaitSingle()
+                ?.let { transfer ->
+                    (transfer.activity as? TransferActivity)?.let { transferActivity ->
+                        itemHistoryRepository.save(transfer.copy(activity = transferActivity.copy(purchased = true)))
+                            .awaitSingle()
+                    }
+                }
+        }
+    }
+
+    suspend fun checkAndEnrichTransfer(txHash: String, from: String, to: String) =
+        itemHistoryRepository.findOrderInTx(txHash, from, to).awaitFirstOrNull()?.let { sell ->
+            (sell.activity as? FlowNftOrderActivitySell)?.let { activity ->
+                if (
+                    activity.left.maker == from && activity.right.maker == to ||
+                    activity.right.maker == from && activity.left.maker == to
+                ) enrichTransfer(txHash, from, to)
+                else null
+            }
+        }
 
     suspend fun enrichCancelList(orderId: String) {
         withSpan("enrichCancelList", "db") {
