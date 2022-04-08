@@ -253,21 +253,12 @@ data class OrderActivityMatchSide(
     val asset: FlowAsset,
 )
 
-data class FlowTokenWithdrawnActivity(
-    val from: String?,
-    val amount: BigDecimal,
-) : FlowActivity
-
-data class FlowTokenDepositedActivity(
-    val to: String?,
-    val amount: BigDecimal,
-) : FlowActivity
-
 data class TransferActivity(
     override val type: FlowActivityType = FlowActivityType.TRANSFER,
     override val contract: String,
     override val tokenId: TokenId, /* = kotlin.Long */
     override val timestamp: Instant,
     val from: String,
-    val to: String
+    val to: String,
+    val purchased: Boolean,
 ) : NFTActivity()

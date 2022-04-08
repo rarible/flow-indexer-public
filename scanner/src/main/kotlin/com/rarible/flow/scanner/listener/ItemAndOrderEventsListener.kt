@@ -18,7 +18,6 @@ import com.rarible.flow.core.repository.coSaveAll
 import com.rarible.flow.log.Log
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.IndexerEventService
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Component
@@ -26,11 +25,12 @@ import org.springframework.stereotype.Component
 @Component
 @CaptureSpan(type = SpanType.APP)
 class ItemAndOrderEventsListener(
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository,
     private val nftActivityMakers: List<ActivityMaker>,
     private val indexerEventService: IndexerEventService,
     private val itemRepository: ItemRepository,
-    private val protocolEventPublisher: ProtocolEventPublisher
+    private val protocolEventPublisher: ProtocolEventPublisher,
 ) : FlowLogEventListener {
 
     private val logger by Log()
