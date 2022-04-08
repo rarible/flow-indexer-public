@@ -39,8 +39,7 @@ pub fun main(owner: Address, id: UInt64): NFTData? {
         mediaUrl: editionMetadata.getMetadata()["mediaURL"] ?? setMetadata.getMetadata()["mediaURL"] ?? "",
         attributes: {
             "editionNumber": nft.editionNumber.toString(),
-            "editionCount": setMetadata.getMaxNumberOfEditions().toString(),
+            "editionCount": setMetadata.getMaxNumberOfEditions().toString()
         }
     )
-
 }
