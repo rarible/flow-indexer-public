@@ -173,7 +173,7 @@ class AppReadyListener(
                 id = Contracts.SOME_PLACE_COLLECTIBLE.fqn(FlowChainId.MAINNET),
                 name = "The Potion",
                 owner = Contracts.SOME_PLACE_COLLECTIBLE.deployments[FlowChainId.MAINNET]!!,
-                symbol = "POISON",
+                symbol = "POTION",
                 features = setOf("BURN")
             )
         )
