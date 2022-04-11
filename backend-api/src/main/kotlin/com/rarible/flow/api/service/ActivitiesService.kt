@@ -8,15 +8,19 @@ import com.rarible.flow.core.repository.filters.ScrollingSort
 import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
+import java.time.Instant
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
-import org.springframework.data.mongodb.core.query.*
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.and
+import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.where
 import org.springframework.stereotype.Service
-import java.time.Instant
 
 @FlowPreview
 @Service
@@ -186,15 +190,18 @@ class ActivitiesService(
         if (cont != null) {
             when (sort) {
                 "EARLIEST_FIRST" ->
-                    criteria.orOperator(
-                        where(ItemHistory::date).gt(cont.beforeDate),
-                        where(ItemHistory::date).isEqualTo(cont.beforeDate).and(ItemHistory::id).gt(cont.beforeId)
+                    criteria.andOperator(
+                        Criteria().orOperator(
+                            where(ItemHistory::date).gt(cont.beforeDate),
+                            where(ItemHistory::date).isEqualTo(cont.beforeDate).and(ItemHistory::id).gt(cont.beforeId)
+                        )
                     )
-
                 else ->
-                    criteria.orOperator(
-                        where(ItemHistory::date).lt(cont.beforeDate),
-                        where(ItemHistory::date).isEqualTo(cont.beforeDate).and(ItemHistory::id).lt(cont.beforeId)
+                    criteria.andOperator(
+                       Criteria().orOperator(
+                           where(ItemHistory::date).lt(cont.beforeDate),
+                           where(ItemHistory::date).isEqualTo(cont.beforeDate).and(ItemHistory::id).lt(cont.beforeId)
+                       )
                     )
             }
         }
