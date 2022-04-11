@@ -342,6 +342,19 @@ enum class Contracts : Contract {
             else -> super.staticRoyalties(chain)
         }
     },
+
+    NFTSTROEFRONT {
+        override val contractName: String
+            get() = "NFTStorefront"
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                FlowChainId.MAINNET to FlowAddress("0x4eb8a10cb9f87357"),
+                FlowChainId.TESTNET to FlowAddress("0x94b06cfca1d8a476"),
+                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
+            )
+        override val import: String
+            get() = "0x${contractName.uppercase()}"
+    },
 }
 
 object RoyaltySize {

@@ -6,6 +6,7 @@ import com.rarible.blockchain.scanner.flow.client.FlowBlockchainBlock
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.core.apm.withSpan
+import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.OrderRepository
@@ -14,12 +15,12 @@ import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.cadence.ListingAvailable
 import com.rarible.flow.scanner.cadence.ListingCompleted
 import com.rarible.flow.scanner.model.parse
+import javax.annotation.PostConstruct
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
-import javax.annotation.PostConstruct
 
 @Component
 class NFTStorefrontSubscriber(
@@ -30,22 +31,20 @@ class NFTStorefrontSubscriber(
 
     private val events = setOf("ListingAvailable", "ListingCompleted")
 
-    private val contractName = "NFTStorefront"
-
     private lateinit var nftEvents: Set<String>
 
     override val descriptors: Map<FlowChainId, FlowDescriptor> = mapOf(
         FlowChainId.MAINNET to flowDescriptor(
-            address = "4eb8a10cb9f87357",
+            contract = Contracts.NFTSTROEFRONT,
             events = events,
-            contract = contractName,
+            chainId = FlowChainId.MAINNET,
             startFrom = 19799019L,
             dbCollection = collection
         ),
         FlowChainId.TESTNET to flowDescriptor(
-            address = "94b06cfca1d8a476",
+            contract = Contracts.NFTSTROEFRONT,
             events = events,
-            contract = contractName,
+            chainId = FlowChainId.TESTNET,
             dbCollection = collection
         )
 

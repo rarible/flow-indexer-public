@@ -34,6 +34,8 @@ import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.service.balance.FlowBalanceService
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
+import com.rarible.protocol.dto.FlowOrderPlatformDto
+import java.math.BigDecimal
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
@@ -41,7 +43,6 @@ import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import java.math.BigDecimal
 
 interface ActivityMaker {
 
@@ -423,7 +424,10 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
                                 amount = it.amount,
                                 rate = BigDecimal.valueOf((it.amount.toDouble() / price.toDouble()) * 100.0)
                             )
-                        }
+                        },
+                        platform = if (payInfo.any { it.type == PaymentType.SELLER_FEE }) {
+                            FlowOrderPlatformDto.RARIBLE
+                        } else FlowOrderPlatformDto.OTHER
                     )
                 }
             }
