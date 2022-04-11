@@ -19,7 +19,7 @@ class ItemCollectionRepositoryCustomImpl(
     private val mongo: ReactiveMongoTemplate
 ): ItemCollectionRepositoryCustom {
     override fun defaultSort(): ScrollingSort<ItemCollection> {
-        return CollectionFilter.Sort.LATEST_UPDATE
+        return CollectionFilter.Sort.BY_ID
     }
 
 

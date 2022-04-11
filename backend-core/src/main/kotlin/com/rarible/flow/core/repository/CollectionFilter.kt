@@ -5,6 +5,7 @@ import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.repository.filters.DbFilter
 import com.rarible.flow.core.repository.filters.ScrollingSort
 import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.and
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.domain.Sort as SpringSort
 
@@ -12,20 +13,30 @@ import org.springframework.data.domain.Sort as SpringSort
 sealed class CollectionFilter: DbFilter<ItemCollection> {
 
     enum class Sort: ScrollingSort<ItemCollection> {
-        LATEST_UPDATE {
+        BY_ID {
             override fun springSort(): org.springframework.data.domain.Sort {
                 return SpringSort.by(
-                    SpringSort.Order.desc(ItemCollection::createdDate.name),
+                    SpringSort.Order.desc(ItemCollection::chainId.name),
                     SpringSort.Order.desc(ItemCollection::id.name),
                 )
             }
 
             override fun scroll(criteria: Criteria, continuation: String?): Criteria {
-                return Cont.scrollDesc(criteria, continuation, ItemCollection::createdDate, ItemCollection::id)
+                return if (continuation == null) {
+                    criteria
+                } else {
+                    val parts = continuation.split('.')
+                    if (parts.size == 4 && parts.last().toLong() > 0) {
+                        criteria.and(ItemCollection::chainId).lt(parts.last().toLong())
+                    } else {
+                        criteria.and(ItemCollection::id).lt(continuation).and(ItemCollection::chainId).exists(false)
+                    }
+
+                }
             }
 
             override fun nextPage(entity: ItemCollection): String {
-                return Cont.toString(entity.createdDate, entity.id)
+                return entity.id
             }
         }
     }
