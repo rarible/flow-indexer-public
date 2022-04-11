@@ -7,7 +7,6 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.events.EventId
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
 @ExperimentalCoroutinesApi
@@ -30,7 +29,6 @@ class JambbMomentsSubscriber : BaseFlowLogEventSubscriber() {
                 chainId = FlowChainId.TESTNET,
                 events = events,
                 dbCollection = collection,
-                startFrom = 50638796,
             )
         )
 
