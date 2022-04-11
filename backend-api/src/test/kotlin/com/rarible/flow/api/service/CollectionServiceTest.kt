@@ -4,19 +4,15 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.api.BaseIntegrationTest
 import com.rarible.flow.api.IntegrationTest
 import com.rarible.flow.core.domain.ItemCollection
-import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.repository.CollectionFilter
 import com.rarible.flow.core.repository.ItemCollectionRepository
-import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.repository.filters.ScrollingSort
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeSortedWith
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
@@ -47,7 +43,7 @@ internal class CollectionServiceTest : BaseIntegrationTest() {
             collectionService.searchAll(cont, 1).toList()
         },
             9, 0, cmp = Comparator.comparing(ItemCollection::createdDate).reversed(),
-            sort = { CollectionFilter.Sort.LATEST_UPDATE }
+            sort = { CollectionFilter.Sort.BY_ID }
         )
     }
 

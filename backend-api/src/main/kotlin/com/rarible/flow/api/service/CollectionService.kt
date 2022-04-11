@@ -19,13 +19,13 @@ class CollectionService(
 
     fun searchAll(continuation: String?, size: Int?): Flow<ItemCollection> {
         return repo.search(
-            CollectionFilter.All, continuation, size, CollectionFilter.Sort.LATEST_UPDATE
+            CollectionFilter.All, continuation, size, CollectionFilter.Sort.BY_ID
         ).asFlow()
     }
 
     fun searchByOwner(owner: FlowAddress, continuation: String?, size: Int?): Flow<ItemCollection> {
         return repo.search(
-            CollectionFilter.ByOwner(owner), continuation, size, CollectionFilter.Sort.LATEST_UPDATE
+            CollectionFilter.ByOwner(owner), continuation, size, CollectionFilter.Sort.BY_ID
         ).asFlow()
     }
 

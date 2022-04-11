@@ -59,7 +59,7 @@ class NftCollectionApiController(
         } else {
             FlowNftCollectionsDto(
                 data.size.toLong(),
-                CollectionFilter.Sort.LATEST_UPDATE.nextPage(collections, size),
+                CollectionFilter.Sort.BY_ID.nextPage(collections, size),
                 data.map { convert(it)!! }
             )
         }
