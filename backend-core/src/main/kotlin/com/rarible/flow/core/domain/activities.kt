@@ -1,9 +1,9 @@
 package com.rarible.flow.core.domain
 
-import org.springframework.data.mongodb.core.mapping.Field
-import org.springframework.data.mongodb.core.mapping.FieldType
 import java.math.BigDecimal
 import java.time.Instant
+import org.springframework.data.mongodb.core.mapping.Field
+import org.springframework.data.mongodb.core.mapping.FieldType
 
 sealed interface FlowActivity
 
@@ -15,13 +15,18 @@ sealed class TypedFlowActivity : FlowActivity {
  * Common activity
  *
  * @property type               activity type
- * @property contract           NFT item contract ("collection")
- * @property tokenId            NFT token ID
  */
 sealed class BaseActivity : TypedFlowActivity() {
     abstract val timestamp: Instant
 }
 
+/**
+ * Base NFT Activity
+ *
+ * @property contract           NFT item contract
+ * @property tokenId            NFT token ID
+
+ */
 sealed class NFTActivity: BaseActivity() {
     abstract val contract: String
     abstract val tokenId: TokenId /* = kotlin.Long */
@@ -260,5 +265,5 @@ data class TransferActivity(
     override val timestamp: Instant,
     val from: String,
     val to: String,
-    val purchased: Boolean,
+    val purchased: Boolean? = false,
 ) : NFTActivity()
