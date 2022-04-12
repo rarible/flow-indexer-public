@@ -171,9 +171,9 @@ class AppReadyListener(
             ),
             ItemCollection(
                 id = Contracts.SOME_PLACE_COLLECTIBLE.fqn(FlowChainId.MAINNET),
-                name = "The Poison",
+                name = "The Potion",
                 owner = Contracts.SOME_PLACE_COLLECTIBLE.deployments[FlowChainId.MAINNET]!!,
-                symbol = "POISON",
+                symbol = "POTION",
                 features = setOf("BURN")
             )
         )

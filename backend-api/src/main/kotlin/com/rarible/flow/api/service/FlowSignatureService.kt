@@ -65,8 +65,9 @@ class FlowSignatureService(
      * Returns true if account has the public key
      */
     suspend fun checkPublicKey(account: FlowAddress, publicKey: FlowPublicKey): Boolean {
+        val lb = flowAccessApi.getLatestBlock(sealed = true).await()
         return flowAccessApi
-            .getAccountAtLatestBlock(account)
+            .getAccountByBlockHeight(account, height = lb.height)
             .await()
             ?.let { acc ->
                 acc.keys.any { key ->
@@ -75,5 +76,5 @@ class FlowSignatureService(
             } ?: false
     }
 
-    private val scriptCode = this.javaClass.getResource("/script/sig_verify.cdc").readText()
+    private val scriptCode = this.javaClass.getResource("/script/sig_verify.cdc")!!.readText()
 }

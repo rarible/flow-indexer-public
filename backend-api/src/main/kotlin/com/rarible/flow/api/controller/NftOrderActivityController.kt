@@ -31,7 +31,9 @@ class NftOrderActivityController(private val service: ActivitiesService) : FlowN
         )
 
     override suspend fun getNftOrderActivitiesById(nftActivitiesByIdRequestDto: NftActivitiesByIdRequestDto): ResponseEntity<FlowActivitiesDto> {
-        TODO("Not yet implemented")
+        return ResponseEntity.ok(
+            service.getActivitiesByIds(nftActivitiesByIdRequestDto.ids)
+        )
     }
 
     override suspend fun getNftOrderActivitiesByItem(
