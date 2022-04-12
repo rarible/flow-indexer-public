@@ -16,7 +16,7 @@ dependencyResolutionManagement {
             version("flow-sdk-ver", "0.6.0")
             version("rarible-core", "2.2.4")
             version("rarible-currency", "1.18.2")
-            version("flow-protocol-version", "2.3.3")
+            version("flow-protocol-version", "2.3.4")
             version("blockchain-scanner", "1.1.1")
 
             alias("flow-sdk").to("com.nftco", "flow-jvm-sdk").versionRef("flow-sdk-ver")
