@@ -343,7 +343,7 @@ enum class Contracts : Contract {
         }
     },
 
-    NFTSTROEFRONT {
+    NFTSTOREFRONT {
         override val contractName: String
             get() = "NFTStorefront"
         override val deployments: Map<FlowChainId, FlowAddress>
