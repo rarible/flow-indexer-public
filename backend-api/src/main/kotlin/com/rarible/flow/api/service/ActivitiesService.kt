@@ -149,6 +149,15 @@ class ActivitiesService(
         return getActivities(criteria, continuation, size, sort)
     }
 
+    suspend fun getActivitiesByIds(ids: List<String>): FlowActivitiesDto {
+        return getActivities(
+            ItemHistory::id inValues ids,
+            null,
+            null,
+            "EARLIEST_FIRST"
+        )
+    }
+
     private suspend fun getActivities(
         criteria: Criteria,
         inCont: String?,
