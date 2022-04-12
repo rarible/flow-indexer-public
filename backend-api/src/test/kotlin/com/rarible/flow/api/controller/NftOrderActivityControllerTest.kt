@@ -28,6 +28,13 @@ import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowBurnDto
 import com.rarible.protocol.dto.FlowNftOrderActivityCancelListDto
 import com.rarible.protocol.dto.FlowNftOrderActivityListDto
+import java.math.BigDecimal
+import java.time.Clock
+import java.time.Duration
+import java.time.Instant
+import java.time.ZonedDateTime
+import java.util.UUID
+import kotlin.random.Random
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
@@ -39,13 +46,6 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
-import java.math.BigDecimal
-import java.time.Clock
-import java.time.Duration
-import java.time.Instant
-import java.time.ZonedDateTime
-import java.util.*
-import kotlin.random.Random
 
 @SpringBootTest(
     properties = [
