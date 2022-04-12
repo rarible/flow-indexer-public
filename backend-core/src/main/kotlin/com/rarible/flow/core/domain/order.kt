@@ -63,7 +63,7 @@ data class Order(
     @Field(targetType = FieldType.DECIMAL128)
     val takePriceUsd: BigDecimal? = BigDecimal.ZERO,
     @Indexed
-    val platform: FlowOrderPlatformDto?
+    val platform: FlowOrderPlatformDto? = null
 ) {
 
     fun deactivateBid(makeStock: BigDecimal): Order {

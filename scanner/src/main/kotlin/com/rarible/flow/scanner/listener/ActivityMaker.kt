@@ -568,7 +568,10 @@ class RaribleOpenBidActivityMaker(
                                 amount = it.amount,
                                 rate = BigDecimal.ZERO
                             )
-                        }
+                        },
+                        platform = if (payInfo.any { it.type == PaymentType.BUYER_FEE }) {
+                            FlowOrderPlatformDto.RARIBLE
+                        } else FlowOrderPlatformDto.OTHER
                     )
                 }
             }
