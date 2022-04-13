@@ -20,7 +20,6 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
-import kotlin.math.log
 
 @Component
 class DisruptArtMetaProvider(
@@ -63,7 +62,8 @@ class DisruptArtMetaProvider(
             } else {
                 val metaData = webClient.get().uri(contentUrl).retrieve().awaitBodyOrNull<ObjectNode>()
                     ?: return@withSpan emptyMeta(itemId)
-                val contents = metaData.get("Media").findValue("uri").asText()
+                val media = metaData.get("Media").findValue("uri").asText()
+                val mediaPreview = metaData.get("MediaPreview").findValue("uri").asText()
 
                 val attributes = mutableListOf<ItemMetaAttribute>()
                 metaData.fields().forEach {
@@ -81,7 +81,7 @@ class DisruptArtMetaProvider(
                     name = itemMeta["name"] as String,
                     description = metaData.findValue("Description").textValue(),
                     attributes = attributes.toList(),
-                    contentUrls = listOf(contents),
+                    contentUrls = listOf(media, mediaPreview),
                 ).apply {
                     raw = metaData.toPrettyString().toByteArray()
                 }
