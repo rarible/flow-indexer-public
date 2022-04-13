@@ -4,11 +4,11 @@ import com.rarible.flow.api.service.ActivitiesService
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.NftActivitiesByIdRequestDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftOrderActivityControllerApi
+import java.time.Instant
 import kotlinx.coroutines.FlowPreview
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController
-import java.time.Instant
 
 @FlowPreview
 @RestController
