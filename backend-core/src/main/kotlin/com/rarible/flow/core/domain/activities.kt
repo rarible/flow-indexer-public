@@ -1,5 +1,6 @@
 package com.rarible.flow.core.domain
 
+
 import com.rarible.protocol.dto.FlowOrderPlatformDto
 import java.math.BigDecimal
 import java.time.Instant
@@ -16,13 +17,18 @@ sealed class TypedFlowActivity : FlowActivity {
  * Common activity
  *
  * @property type               activity type
- * @property contract           NFT item contract ("collection")
- * @property tokenId            NFT token ID
  */
 sealed class BaseActivity : TypedFlowActivity() {
     abstract val timestamp: Instant
 }
 
+/**
+ * Base NFT Activity
+ *
+ * @property contract           NFT item contract
+ * @property tokenId            NFT token ID
+
+ */
 sealed class NFTActivity: BaseActivity() {
     abstract val contract: String
     abstract val tokenId: TokenId /* = kotlin.Long */
@@ -262,5 +268,5 @@ data class TransferActivity(
     override val timestamp: Instant,
     val from: String,
     val to: String,
-    val purchased: Boolean,
+    val purchased: Boolean? = false,
 ) : NFTActivity()
