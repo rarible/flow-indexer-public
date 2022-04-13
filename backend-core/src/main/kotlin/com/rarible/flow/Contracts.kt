@@ -355,6 +355,26 @@ enum class Contracts : Contract {
         override val import: String
             get() = "0x${contractName.uppercase()}"
     },
+
+    IR_NFT {
+        override val contractName = "IrNFT"
+        override val deployments = mapOf(
+            FlowChainId.MAINNET to FlowAddress("0x276a7cc9316712af"),
+            FlowChainId.TESTNET to FlowAddress("0x0131dc3d737d7735"),
+            FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
+        )
+        override val import = "0x${contractName.uppercase()}"
+    },
+
+    IR_VOUCHER {
+        override val contractName = "IrVoucher"
+        override val deployments = mapOf(
+            FlowChainId.MAINNET to FlowAddress("0x276a7cc9316712af"),
+            FlowChainId.TESTNET to FlowAddress("0x0131dc3d737d7735"),
+            FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
+        )
+        override val import = "0x${contractName.uppercase()}"
+    },
 }
 
 object RoyaltySize {
