@@ -20,6 +20,9 @@ import com.rarible.protocol.dto.FlowOrderIdsDto
 import com.rarible.protocol.dto.FlowOrdersPaginationDto
 import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
+import java.math.BigDecimal
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.jupiter.api.Test
@@ -29,9 +32,6 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
-import java.math.BigDecimal
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 @WebFluxTest(
     controllers = [OrderApiController::class],
@@ -173,10 +173,7 @@ class OrderApiControllerTest {
         client.shouldGetBadRequest(
             "/v0.1/orders/sell/byItemAndByStatus?contract={contract}&tokenId={tokenId}",
             mapOf(
-                *kotlin.arrayOf<kotlin.Pair<kotlin.String, kotlin.Any>>(
-                    "contract" to "ABC",
-                    "tokenId" to "BAD"
-                )
+                "contract" to "ABC", "tokenId" to "BAD"
             )
         )
     }
@@ -186,11 +183,7 @@ class OrderApiControllerTest {
         client.shouldGetBadRequest(
             "/v0.1/orders/sell/byItemAndByStatus?contract={contract}&tokenId={tokenId}&maker={maker}",
             mapOf(
-                *kotlin.arrayOf<kotlin.Pair<kotlin.String, kotlin.Any>>(
-                    "contract" to "ABC",
-                    "tokenId" to "BAD",
-                    "maker" to "NOT_FLOW_ADDRESS"
-                )
+                "contract" to "ABC", "tokenId" to "BAD", "maker" to "NOT_FLOW_ADDRESS"
             )
         )
     }
@@ -200,11 +193,7 @@ class OrderApiControllerTest {
         client.shouldGetBadRequest(
             "/v0.1/orders/sell/byItemAndByStatus?contract={contract}&tokenId={tokenId}&currency={currency}",
             mapOf(
-                *kotlin.arrayOf<kotlin.Pair<kotlin.String, kotlin.Any>>(
-                    "contract" to "ABC",
-                    "tokenId" to "BAD",
-                    "currency" to "NOT_FLOW_ADDRESS"
-                )
+                "contract" to "ABC", "tokenId" to "BAD", "currency" to "NOT_FLOW_ADDRESS"
             )
         )
     }
@@ -228,9 +217,7 @@ class OrderApiControllerTest {
         client.shouldGetBadRequest(
             "/v0.1/orders/sell/byMaker?maker={maker}",
             mapOf(
-                *kotlin.arrayOf<kotlin.Pair<kotlin.String, kotlin.Any>>(
-                    "maker" to "0xq337"
-                )
+                "maker" to "0xq337"
             )
         )
 
@@ -241,7 +228,7 @@ class OrderApiControllerTest {
 
     private fun createOrder(tokenId: Long = randomLong()): Order {
         val itemId = ItemId("0x1a2b3c4d", tokenId)
-        val order = Order(
+        return Order(
             id = randomLong(),
             itemId = itemId,
             maker = randomFlowAddress(),
@@ -265,6 +252,5 @@ class OrderApiControllerTest {
             createdAt = LocalDateTime.now(ZoneOffset.UTC),
             type = OrderType.LIST
         )
-        return order
     }
 }

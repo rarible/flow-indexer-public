@@ -16,10 +16,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import java.time.Instant
 import org.springframework.http.MediaType
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
-import java.time.Instant
 
 
 class DisruptArtMetaProviderTest : FunSpec({
@@ -83,7 +83,8 @@ class DisruptArtMetaProviderTest : FunSpec({
                 ItemMetaAttribute("TotalEditions", "4"),
             ),
             listOf(
-                "https://ipfs.perma.store/content/bafkreidwr2pytghedsm5gsssuayay2zyc3hzdh5vwb2sye7ein2ca3li3u"
+                "https://ipfs.perma.store/content/bafkreidwr2pytghedsm5gsssuayay2zyc3hzdh5vwb2sye7ein2ca3li3u",
+                "https://ipfs.perma.store/content/bafkreidwr2pytghedsm5gsssuayay2zyc3hzdh5vwb2sye7ein2ca3li3u",
             )
         )
 
