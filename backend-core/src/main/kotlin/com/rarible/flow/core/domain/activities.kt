@@ -1,5 +1,7 @@
 package com.rarible.flow.core.domain
 
+
+import com.rarible.protocol.dto.FlowOrderPlatformDto
 import java.math.BigDecimal
 import java.time.Instant
 import org.springframework.data.mongodb.core.mapping.Field
@@ -74,6 +76,7 @@ data class FlowNftOrderActivitySell(
     val left: OrderActivityMatchSide,
     val right: OrderActivityMatchSide,
     val payments: List<FlowNftOrderPayment> = emptyList(),
+    val platform: FlowOrderPlatformDto? = FlowOrderPlatformDto.RARIBLE
 ) : FlowNftOrderActivity()
 
 /**
