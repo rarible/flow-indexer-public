@@ -425,9 +425,7 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
                                 rate = BigDecimal.valueOf((it.amount.toDouble() / price.toDouble()) * 100.0)
                             )
                         },
-                        platform = if (payInfo.any { it.type == PaymentType.SELLER_FEE }) {
-                            FlowOrderPlatformDto.RARIBLE
-                        } else FlowOrderPlatformDto.OTHER
+                        platform = FlowOrderPlatformDto.RARIBLE
                     )
                 }
             }
@@ -569,9 +567,7 @@ class RaribleOpenBidActivityMaker(
                                 rate = BigDecimal.ZERO
                             )
                         },
-                        platform = if (payInfo.any { it.type == PaymentType.BUYER_FEE }) {
-                            FlowOrderPlatformDto.RARIBLE
-                        } else FlowOrderPlatformDto.OTHER
+                        platform = FlowOrderPlatformDto.RARIBLE
                     )
                 }
             }

@@ -104,6 +104,7 @@ object ItemHistoryToDtoConverter: Converter<ItemHistory, FlowActivityDto?> {
                 blockHash = source.log.blockHash,
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
+                platform = source.activity.platform
             )
             is FlowNftOrderActivityList -> FlowNftOrderActivityListDto(
                 id = source.id,
