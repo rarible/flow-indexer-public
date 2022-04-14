@@ -11,6 +11,7 @@ import Art from 0xART
 import DisruptArt from 0xDISRUPTART
 import BarterYardPackNFT from 0xBARTERYARDPACKNFT
 import SomePlaceCollectible from 0xSOMEPLACECOLLECTIBLE
+import GeniaceNFT from 0xGENIACENFT
 
 pub fun idsRaribleNFT(_ account: PublicAccount): [UInt64] {
     return account.getCapability(RaribleNFT.collectionPublicPath)
@@ -86,6 +87,12 @@ pub fun idsSomePlaceCollectible(_ account: PublicAccount): [UInt64] {
 
 }
 
+pub fun idsGeniaceNFT(_ account: PublicAccount): [UInt64] {
+    return account.getCapability(GeniaceNFT.CollectionPublicPath)
+        .borrow<&{GeniaceNFT.GeniaceNFTCollectionPublic}>()
+        ?.getIDs() ?? []
+}
+
 pub fun main(address: Address): {String: [UInt64]} {
     let account = getAccount(address)
     let results : {String: [UInt64]} = {}
@@ -102,6 +109,7 @@ pub fun main(address: Address): {String: [UInt64]} {
     results["DisruptArt"] = idsDisruptArt(account)
     results["BarterYardPackNFT"] = idsBarterYardPack(account)
     results["SomePlaceCollectible"] = idsSomePlaceCollectible(account)
+    results["GeniaceNFT"] = idsGeniaceNFT(account)
 
     return results
 }

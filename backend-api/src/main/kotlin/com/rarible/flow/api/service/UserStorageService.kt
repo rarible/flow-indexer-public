@@ -590,7 +590,37 @@ class UserStorageService(
                     saveItem(item)
                 }
             }
+
+            Contracts.GENIACE.contractName -> {
+                itemIds.forEach { simpleCheckItem(Contracts.GENIACE, address, it) }
+            }
         }
+    }
+
+    private suspend fun simpleCheckItem(c: Contracts, owner: FlowAddress, tokenId: TokenId) {
+        val contract = c.fqn(appProperties.chainId)
+        val item = if (notExistsItem(contract, tokenId)) {
+            Item(
+                contract = contract,
+                tokenId = tokenId,
+                creator = c.deployments[appProperties.chainId]!!,
+                royalties = c.staticRoyalties(appProperties.chainId),
+                owner = owner,
+                mintedAt = Instant.now(),
+                meta = "{}",
+                collection = contract,
+                updatedAt = Instant.now()
+            )
+        } else {
+            val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+            if (i.owner != owner) {
+                i.copy(owner = owner, updatedAt = Instant.now())
+            } else {
+                checkOwnership(i, owner)
+                null
+            }
+        }
+        saveItem(item)
     }
 
     private fun contractAddress(alias: String): FlowAddress {
