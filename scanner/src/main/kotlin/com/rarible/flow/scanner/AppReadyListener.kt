@@ -94,7 +94,21 @@ class AppReadyListener(
                 owner = Contracts.SOME_PLACE_COLLECTIBLE.deployments[FlowChainId.TESTNET]!!,
                 symbol = "POISON",
                 features = setOf("BURN")
-            )
+            ),
+            ItemCollection(
+                id = Contracts.IR_NFT.fqn(FlowChainId.TESTNET),
+                name = "IN|RIFT",
+                owner = Contracts.IR_NFT.deployments[FlowChainId.TESTNET]!!,
+                symbol = "IR",
+                features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.IR_VOUCHER.fqn(FlowChainId.TESTNET),
+                name = "IN|RIFT Voucher",
+                owner = Contracts.IR_VOUCHER.deployments[FlowChainId.TESTNET]!!,
+                symbol = "IRV",
+                features = setOf("BURN")
+            ),
         ),
 
         FlowChainId.MAINNET to listOf(
@@ -175,7 +189,21 @@ class AppReadyListener(
                 owner = Contracts.SOME_PLACE_COLLECTIBLE.deployments[FlowChainId.MAINNET]!!,
                 symbol = "POTION",
                 features = setOf("BURN")
-            )
+            ),
+            ItemCollection(
+                id = Contracts.IR_NFT.fqn(FlowChainId.MAINNET),
+                name = "IN|RIFT",
+                owner = Contracts.IR_NFT.deployments[FlowChainId.MAINNET]!!,
+                symbol = "IR",
+                features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.IR_VOUCHER.fqn(FlowChainId.MAINNET),
+                name = "IN|RIFT",
+                owner = Contracts.IR_VOUCHER.deployments[FlowChainId.MAINNET]!!,
+                symbol = "IR",
+                features = setOf("BURN")
+            ),
         )
     )
 
