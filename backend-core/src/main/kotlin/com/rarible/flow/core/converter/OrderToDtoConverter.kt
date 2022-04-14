@@ -1,21 +1,32 @@
 package com.rarible.flow.core.converter
 
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.FlowAsset
+import com.rarible.flow.core.domain.FlowAssetEmpty
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderData
+import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.log.Log
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
-import com.rarible.protocol.dto.*
+import com.rarible.protocol.dto.FlowAssetFungibleDto
+import com.rarible.protocol.dto.FlowAssetNFTDto
+import com.rarible.protocol.dto.FlowOrderDataDto
+import com.rarible.protocol.dto.FlowOrderDto
+import com.rarible.protocol.dto.FlowOrderStatusDto
+import com.rarible.protocol.dto.FlowOrdersPaginationDto
+import com.rarible.protocol.dto.PayInfoDto
+import java.math.BigDecimal
+import java.math.BigInteger
+import java.time.Instant
+import java.time.ZoneOffset
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.awaitSingle
-import org.springframework.http.ResponseEntity
-import java.math.BigDecimal
-import java.math.BigInteger
-import java.time.Instant
-import java.time.ZoneOffset
 
 
 class OrderToDtoConverter(
@@ -54,7 +65,8 @@ class OrderToDtoConverter(
                 priceUsd = usdRate * source.take.value,
                 collection = source.collection,
                 makeStock = makeStock(source),
-                status = convert(source.status)
+                status = convert(source.status),
+                platform = source.platform
             )
         } catch (e: Exception) {
             logger.error(e.message, e)
