@@ -19,6 +19,7 @@ import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
+import java.time.Instant
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
@@ -27,7 +28,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
-import java.time.Instant
 
 @Service
 class UserStorageService(
@@ -593,6 +593,10 @@ class UserStorageService(
 
             Contracts.GENIACE.contractName -> {
                 itemIds.forEach { simpleCheckItem(Contracts.GENIACE, address, it) }
+            }
+
+            Contracts.CRYPTOPIGGO.contractName -> {
+                itemIds.forEach { simpleCheckItem(Contracts.CRYPTOPIGGO, address, it) }
             }
         }
     }

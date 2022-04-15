@@ -12,6 +12,7 @@ import DisruptArt from 0xDISRUPTART
 import BarterYardPackNFT from 0xBARTERYARDPACKNFT
 import SomePlaceCollectible from 0xSOMEPLACECOLLECTIBLE
 import GeniaceNFT from 0xGENIACENFT
+import CryptoPiggo from 0xCRYPTOPIGGO
 
 pub fun idsRaribleNFT(_ account: PublicAccount): [UInt64] {
     return account.getCapability(RaribleNFT.collectionPublicPath)
@@ -93,6 +94,12 @@ pub fun idsGeniaceNFT(_ account: PublicAccount): [UInt64] {
         ?.getIDs() ?? []
 }
 
+pub fun idsCryptoPiggo(_ account: PublicAccount): [UInt64] {
+    return account.getCapability(CryptoPiggo.CollectionPublicPath)
+        .borrow<&{CryptoPiggo.CryptoPiggoCollectionPublic}>()
+        ?.getIDs() ?? []
+}
+
 pub fun main(address: Address): {String: [UInt64]} {
     let account = getAccount(address)
     let results : {String: [UInt64]} = {}
@@ -110,6 +117,7 @@ pub fun main(address: Address): {String: [UInt64]} {
     results["BarterYardPackNFT"] = idsBarterYardPack(account)
     results["SomePlaceCollectible"] = idsSomePlaceCollectible(account)
     results["GeniaceNFT"] = idsGeniaceNFT(account)
+    results["CryptoPiggo"] = idsCryptoPiggo(account)
 
     return results
 }

@@ -365,6 +365,26 @@ enum class Contracts : Contract {
         )
         override val import = "0x${contractName.uppercase()}"
     },
+
+    CRYPTOPIGGO {
+        override val contractName: String
+            get() = "CryptoPiggo"
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                FlowChainId.MAINNET to FlowAddress("0xd3df824bf81910a4"),
+                FlowChainId.TESTNET to FlowAddress("0x57e1b27618c5bb69"),
+                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
+            )
+        override val import: String
+            get() = "0x${contractName.uppercase()}"
+
+        override fun staticRoyalties(chain: FlowChainId): List<Part> {
+            return when(chain) {
+                FlowChainId.MAINNET -> listOf(Part(FlowAddress("0x4bf7023c25942322"), 3.5.percent()))
+                else -> super.staticRoyalties(chain)
+            }
+        }
+    }
 }
 
 object RoyaltySize {
