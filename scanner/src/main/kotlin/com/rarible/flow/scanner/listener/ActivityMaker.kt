@@ -186,11 +186,14 @@ abstract class NFTActivityMaker : ActivityMaker {
 
     private val purchasingEvents = setOf("ListingCompleted", "BidCompleted")
 
+    private suspend fun isPurchased(log: FlowLog): Boolean = false
+/* TODO handle it
     private suspend fun isPurchased(log: FlowLog): Boolean = withSpan("isPurchased", "network") {
         txManager.onTransaction(log.blockHeight, FlowId(log.transactionHash)) { txResult ->
             txResult.events.any { it.type.substringAfterLast(".") in purchasingEvents }
         }
     }
+*/
 }
 
 abstract class OrderActivityMaker : ActivityMaker {
