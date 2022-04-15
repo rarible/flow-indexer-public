@@ -30,16 +30,22 @@ pub fun main(owner: Address, id: UInt64): NFTData? {
 
     let setID = nft.setID
     let setMetadata = SomePlaceCollectible.getMetadataForSetID(setID: setID)!
-    let editionMetadata = SomePlaceCollectible.getMetadataForNFTByUUID(uuid: nft.id)!
+    let editionData = SomePlaceCollectible.getCollectibleDataForNftByUUID(uuid: nft.id)!
+    let editionMetaData = SomePlaceCollectible.getMetadataByEditionID(setID: setMetadata.getSetID(), editionNumber: editionData.getEditionNumber())!
+    let attributes = {
+         "editionNumber": nft.editionNumber.toString(),
+         "editionCount": setMetadata.getMaxNumberOfEditions().toString()
+    }
+
+    for key in editionMetaData.getTraits().keys {
+        attributes.insert(key: key, editionMetaData.getTraits()[key] ?? "")
+    }
 
     return NFTData(
         id: id,
-        title: editionMetadata.getMetadata()["title"] ?? setMetadata.getMetadata()["title"] ?? "",
-        description: editionMetadata.getMetadata()["description"] ?? setMetadata.getMetadata()["description"] ?? "",
-        mediaUrl: editionMetadata.getMetadata()["mediaURL"] ?? setMetadata.getMetadata()["mediaURL"] ?? "",
-        attributes: {
-            "editionNumber": nft.editionNumber.toString(),
-            "editionCount": setMetadata.getMaxNumberOfEditions().toString()
-        }
+        title: editionMetaData.getMetadata()["name"] ?? editionMetaData.getMetadata()["NFTName"] ?? "",
+        description: setMetadata.getMetadata()["description"] ?? "",
+        mediaUrl: editionMetaData.getMetadata()["mediaURL"] ?? setMetadata.getMetadata()["mediaURL"] ?? "",
+        attributes: attributes
     )
 }
