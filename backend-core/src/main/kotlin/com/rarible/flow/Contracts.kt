@@ -364,6 +364,13 @@ enum class Contracts : Contract {
             FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
         )
         override val import = "0x${contractName.uppercase()}"
+
+        override fun staticRoyalties(chain: FlowChainId): List<Part> {
+            return when (chain) {
+                FlowChainId.MAINNET -> listOf(Part(FlowAddress("0x0bfbaa1760ead010"), TEN_PERCENT))
+                else -> super.staticRoyalties(chain)
+            }
+        }
     },
 
     CRYPTOPIGGO {
