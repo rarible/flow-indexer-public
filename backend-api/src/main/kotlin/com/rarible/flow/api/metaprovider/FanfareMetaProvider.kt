@@ -29,14 +29,15 @@ class FanfareMetaProvider(
     private val logger by Log()
     private val objectMapper = jacksonObjectMapper()
 
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract == Contracts.FANFARE.fqn(apiProperties.chainId)
+    override fun isSupported(itemId: ItemId): Boolean = Contracts.FANFARE.supports(itemId)
 
     override suspend fun getMeta(itemId: ItemId): ItemMeta {
         val item = itemRepository.findById(itemId).awaitSingleOrNull() ?: return emptyMeta(itemId)
         if (item.owner == null) return emptyMeta(itemId)
         val metaString = (if (item.meta.isNullOrBlank()) getFlowMeta(item.owner!!, item.tokenId) else item.meta)
             ?: return emptyMeta(itemId)
-        val meta = objectMapper.readValue<FanfareMeta>(metaString)
+        val metaWrap = objectMapper.readValue<FanfareMetaWrap>(metaString).metadata
+        val meta = objectMapper.readValue<FanfareMeta>(metaWrap)
         return meta.toItemMeta(itemId)
     }
 
@@ -48,6 +49,8 @@ class FanfareMetaProvider(
             json.value?.let { (it as StringField).value }
         })
 }
+
+data class FanfareMetaWrap(val metadata: String)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class FanfareMeta(

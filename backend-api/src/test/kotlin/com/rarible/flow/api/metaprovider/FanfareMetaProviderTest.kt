@@ -39,7 +39,7 @@ internal class FanfareMetaProviderTest : FunSpec({
     )
 
     val metaString =
-        """{"artist_name":"Fanfare","title":"ETH Denver 2022","description":"An NFT commemorating ETH Denver 2022! Music generated from the Fanfare wallet address.","genre":"","external_url":"https://www.fanfare.fm","image_url":"https://nftfm-videos.s3.us-west-1.amazonaws.com/Comp_1.mp4","audio_url":"https://fanfare-songs.s3.us-west-1.amazonaws.com/6f5fff865d4a4ce1dea4f149b3b0837e.wav","is_music_video":false,"total_copies":1,"edition":1}"""
+        """{"metadata":"{\"artist_name\":\"Fanfare\",\"title\":\"ETH Denver 2022\",\"description\":\"An NFT commemorating ETH Denver 2022! Music generated from the Fanfare wallet address.\",\"genre\":\"\",\"external_url\":\"https://www.fanfare.fm\",\"image_url\":\"https://nftfm-videos.s3.us-west-1.amazonaws.com/Comp_1.mp4\",\"audio_url\":\"https://fanfare-songs.s3.us-west-1.amazonaws.com/6f5fff865d4a4ce1dea4f149b3b0837e.wav\",\"is_music_video\":false,\"total_copies\":1,\"edition\":1}"}"""
 
     val apiProperties = mockk<ApiProperties> {
         every { chainId } returns FlowChainId.MAINNET

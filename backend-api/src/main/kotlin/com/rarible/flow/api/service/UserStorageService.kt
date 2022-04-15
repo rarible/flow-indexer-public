@@ -475,7 +475,7 @@ class UserStorageService(
                                 arg { address(address.formatted) }
                                 arg { uint64(tokenId) }
                             }, { json ->
-                                json.value as String?
+                                optional(json) { string(it) }
                             }
                         )
                         Item(
