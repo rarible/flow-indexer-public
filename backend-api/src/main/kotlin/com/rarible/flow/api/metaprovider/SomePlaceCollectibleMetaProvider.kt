@@ -1,5 +1,6 @@
 package com.rarible.flow.api.metaprovider
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.CadenceNamespace
@@ -72,7 +73,9 @@ class SomePlaceCollectibleMetaProvider(
                     ItemMetaAttribute(it.key, it.value)
                 },
                 contentUrls = listOf(mediaUrl)
-            )
+            ).apply {
+                raw = jacksonObjectMapper().writeValueAsBytes(this)
+            }
         }
     }
 
