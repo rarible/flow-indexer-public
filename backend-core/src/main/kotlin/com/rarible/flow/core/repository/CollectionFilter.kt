@@ -7,6 +7,7 @@ import com.rarible.flow.core.repository.filters.ScrollingSort
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.and
 import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.where
 import org.springframework.data.domain.Sort as SpringSort
 
 
@@ -27,9 +28,12 @@ sealed class CollectionFilter: DbFilter<ItemCollection> {
                 } else {
                     val parts = continuation.split('.')
                     if (parts.size == 4 && parts.last().toLong() > 0) {
-                        criteria.and(ItemCollection::chainId).lt(parts.last().toLong())
+                        criteria.orOperator(
+                            where(ItemCollection::chainId).lt(parts.last().toLong()),
+                            where(ItemCollection::isSoft).isEqualTo(false)
+                        )
                     } else {
-                        criteria.and(ItemCollection::id).lt(continuation).and(ItemCollection::chainId).exists(false)
+                        criteria.and(ItemCollection::id).lt(continuation).and(ItemCollection::isSoft).isEqualTo(false)
                     }
 
                 }
