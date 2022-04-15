@@ -109,6 +109,12 @@ class AppReadyListener(
                 symbol = "IRV",
                 features = setOf("BURN")
             ),
+            ItemCollection(
+                id = Contracts.GENIACE.fqn(FlowChainId.TESTNET),
+                name = "GENIACE",
+                owner = Contracts.GENIACE.deployments[FlowChainId.TESTNET]!!,
+                symbol = "GEN",
+            ),
         ),
 
         FlowChainId.MAINNET to listOf(
@@ -203,6 +209,12 @@ class AppReadyListener(
                 owner = Contracts.IR_VOUCHER.deployments[FlowChainId.MAINNET]!!,
                 symbol = "IR",
                 features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.GENIACE.fqn(FlowChainId.MAINNET),
+                name = "Geniace",
+                owner = Contracts.GENIACE.deployments[FlowChainId.MAINNET]!!,
+                symbol = "GEN",
             ),
         )
     )

@@ -375,6 +375,16 @@ enum class Contracts : Contract {
         )
         override val import = "0x${contractName.uppercase()}"
     },
+
+    GENIACE {
+        override val contractName = "GeniaceNFT"
+        override val deployments = mapOf(
+            FlowChainId.MAINNET to FlowAddress("0xabda6627c70c7f52"),
+            FlowChainId.TESTNET to FlowAddress("0x99eb28310626e56a"),
+            FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
+        )
+        override val import = "0x${contractName.uppercase()}"
+    },
 }
 
 object RoyaltySize {
