@@ -115,6 +115,13 @@ class AppReadyListener(
                 owner = Contracts.GENIACE.deployments[FlowChainId.TESTNET]!!,
                 symbol = "GEN",
             ),
+            ItemCollection(
+                id = Contracts.CRYPTOPIGGO.fqn(FlowChainId.TESTNET),
+                name = "CryptoPiggos",
+                owner = Contracts.CRYPTOPIGGO.deployments[FlowChainId.TESTNET]!!,
+                symbol = "CPIG",
+                features = emptySet()
+            ),
         ),
 
         FlowChainId.MAINNET to listOf(
@@ -216,7 +223,14 @@ class AppReadyListener(
                 owner = Contracts.GENIACE.deployments[FlowChainId.MAINNET]!!,
                 symbol = "GEN",
             ),
-        )
+            ItemCollection(
+                id = Contracts.CRYPTOPIGGO.fqn(FlowChainId.MAINNET),
+                name = "CryptoPiggos",
+                owner = Contracts.CRYPTOPIGGO.deployments[FlowChainId.MAINNET]!!,
+                symbol = "CPIG",
+                features = emptySet()
+            ),
+        ),
     )
 
     /**
