@@ -244,9 +244,6 @@ class ItemIndexerEventProcessor(
             }
         }
 
-        orderService.checkAndEnrichTransfer(event.history.log.transactionHash, prevOwner.formatted, newOwner.formatted)
-            ?.also { sendHistoryUpdate(event, it) }
-
         if (needSendToKafka) {
             protocolEventPublisher.onItemUpdate(saved)
             newOwnership?.let { protocolEventPublisher.onUpdate(it) }
