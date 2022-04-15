@@ -1,7 +1,13 @@
 package com.rarible.flow.scanner.listener
 
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.cadence.*
+import com.nftco.flow.sdk.cadence.AddressField
+import com.nftco.flow.sdk.cadence.CompositeAttribute
+import com.nftco.flow.sdk.cadence.CompositeValue
+import com.nftco.flow.sdk.cadence.OptionalField
+import com.nftco.flow.sdk.cadence.StringField
+import com.nftco.flow.sdk.cadence.StructField
+import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.flow.core.domain.FlowLogEvent
@@ -15,6 +21,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldNotBeInstanceOf
+import io.mockk.coEvery
+import io.mockk.mockk
 import java.time.ZonedDateTime
 
 class VersusArtActivityMakerTest : FunSpec({
@@ -84,16 +92,27 @@ class VersusArtActivityMakerTest : FunSpec({
     )
 
     test("mint w/o deposit") {
-        VersusArtActivityMaker().activities(listOf(minted)) should { log ->
+        TestVersusArt().activities(listOf(minted)) should { log ->
             log.size shouldBe 1
             log.entries.first().shouldNotBeInstanceOf<MintActivity>()
         }
     }
 
     test("deposit w/o withdraw as transfer") {
-        VersusArtActivityMaker().activities(listOf(deposit)) should { log ->
+        TestVersusArt().activities(listOf(deposit)) should { log ->
             log.size shouldBe 1
             log.entries.first().shouldNotBeInstanceOf<TransferActivity>()
         }
     }
 })
+
+class TestVersusArt: VersusArtActivityMaker() {
+
+    init {
+        txManager = mockk {
+            coEvery { onTransaction<Boolean>(any(), any(), any()) } returns false
+        }
+    }
+
+
+}
