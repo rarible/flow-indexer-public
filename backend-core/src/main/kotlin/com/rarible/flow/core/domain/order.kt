@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.mapping.FieldType
 import org.springframework.data.mongodb.core.mapping.MongoId
 import java.math.BigDecimal
+import java.time.Instant
 import java.time.LocalDateTime
 
 const val ORDER_COLLECTION = "order"
@@ -67,7 +68,7 @@ data class Order(
 ) {
 
     @Indexed
-    val dbUpdatedAt: LocalDateTime = LocalDateTime.now()
+    val dbUpdatedAt: Instant = Instant.now()
 
     fun deactivateBid(makeStock: BigDecimal): Order {
         return this.copy(status = OrderStatus.INACTIVE, makeStock = makeStock)

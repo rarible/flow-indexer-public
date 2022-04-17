@@ -9,7 +9,6 @@ import com.rarible.flow.core.repository.filters.ScrollingSort
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
-import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.query.UpdateDefinition
 import org.springframework.data.mongodb.core.update
 import org.springframework.data.mongodb.repository.Query
@@ -43,7 +42,7 @@ interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepository
 
 interface OrderRepositoryCustom: ScrollingRepository<Order> {
 
-    suspend fun update(filter: OrderFilter, update: Update): UpdateResult
+    suspend fun update(filter: OrderFilter, updateDefinition: UpdateDefinition): UpdateResult
 }
 
 @Suppress("unused")
@@ -56,11 +55,11 @@ class OrderRepositoryCustomImpl(val mongo: ReactiveMongoTemplate): OrderReposito
         return mongo.find(query)
     }
 
-    override suspend fun update(filter: OrderFilter, update: Update): UpdateResult {
+    override suspend fun update(filter: OrderFilter, updateDefinition: UpdateDefinition): UpdateResult {
         return mongo
             .update<Order>()
             .matching(filter.criteria())
-            .apply(update.set(Order::dbUpdatedAt.name, LocalDateTime.now()))
+            .apply(updateDefinition)
             .all()
             .awaitSingle()
     }
