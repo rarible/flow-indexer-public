@@ -9,13 +9,10 @@ import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.log.Log
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
-import reactor.kotlin.extra.retry.retryExponentialBackoff
-import java.time.Duration
 
 @Component
 class RaribleNFTMetaProvider(
@@ -34,7 +31,7 @@ class RaribleNFTMetaProvider(
                 ?.let { ipfs ->
                     pinataClient
                         .get()
-                        .uri("$ipfs")
+                        .uri(ipfs)
                         .retrieve()
                         .awaitBodyOrNull<RaribleNFTMetaBody>()
                 }
