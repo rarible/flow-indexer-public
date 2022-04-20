@@ -4,7 +4,11 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
-import com.nftco.flow.sdk.cadence.*
+import com.nftco.flow.sdk.cadence.CadenceNamespace
+import com.nftco.flow.sdk.cadence.Field
+import com.nftco.flow.sdk.cadence.JsonCadenceConversion
+import com.nftco.flow.sdk.cadence.JsonCadenceConverter
+import com.nftco.flow.sdk.cadence.unmarshall
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.api.service.ScriptExecutor
@@ -85,7 +89,7 @@ data class Pass(
                 )
             ),
             contentUrls = listOf(
-                "https://rarible.mypinata.cloud/ipfs/$ipfsCID"
+                "ipfs://ipfs/$ipfsCID"
             ),
         ).apply { this.raw = raw }
     }
