@@ -6,8 +6,6 @@ import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
-import com.nftco.flow.sdk.cadence.NumberField
-import com.nftco.flow.sdk.cadence.OptionalField
 import com.nftco.flow.sdk.cadence.UInt32NumberField
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.metaprovider.CnnNFTConverter
@@ -19,13 +17,13 @@ import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Ownership
-import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.events.RaribleNFTv2Token
 import com.rarible.flow.pmap
+import java.time.Instant
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
@@ -34,7 +32,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
-import java.time.Instant
 
 
 @Service
@@ -76,45 +73,38 @@ class UserStorageService(
         address: FlowAddress
     ) {
         when (collection) {
-            "TopShot" -> {
+            Contracts.TOPSHOT.contractName -> {
                 itemIds.forEach {
-                    val contract = contract("0xTOPSHOTTOKEN", "TopShot")
-                    val topShotContractAddress = contractAddress("0xTOPSHOTTOKEN")
-                    if (notExistsItem(contract, it)) {
-                        val momentData = topShotMomentScript.call(address, it)
-                        val item = Item(
+                    val contract = Contracts.TOPSHOT.fqn(appProperties.chainId)
+                    val item = if (notExistsItem(contract, it)) {
+                        val res = scriptExecutor.execute(
+                            scriptText("/script/get_topshot_moment.cdc"),
+                            mutableListOf(builder.address(address.bytes), builder.uint64(it))
+                        )
+                        val momentData = parser.dictionaryMap(res.jsonCadence) { k, v ->
+                            string(k) to long(v)
+                        }
+                        Item(
                             contract = contract,
                             tokenId = it,
-                            creator = topShotContractAddress,
-                            royalties = listOf(
-                                Part(
-                                    address = topShotContractAddress,
-                                    fee = 0.05
-                                )
-                            ),
+                            creator = Contracts.TOPSHOT.deployments[appProperties.chainId]!!,
+                            royalties = Contracts.TOPSHOT.staticRoyalties(appProperties.chainId),
                             owner = address,
                             mintedAt = Instant.now(),
                             meta = objectMapper.writeValueAsString(momentData),
                             collection = contract,
                             updatedAt = Instant.now()
                         )
-                        saveItem(item)
                     } else {
-                        val item =
-                            itemRepository.findById(ItemId(contract, it)).awaitSingle()
-                        saveItem(
-                            item.copy(
-                                owner = address,
-                                royalties = listOf(
-                                    Part(
-                                        address = topShotContractAddress,
-                                        fee = 0.05
-                                    )
-                                ),
-                                updatedAt = Instant.now()
-                            )
-                        )
+                        val i = itemRepository.findById(ItemId(contract, it)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
+                        } else {
+                            checkOwnership(i, address)
+                            null
+                        }
                     }
+                    saveItem(item)
                 }
             }
             Contracts.MOTOGP.contractName -> {
@@ -353,9 +343,9 @@ class UserStorageService(
                     saveItem(item)
                 }
             }
-            "DisruptArt" -> {
+            Contracts.DISRUPT_ART.contractName -> {
                 itemIds.forEach { tokenId ->
-                    val contract = contract("0xDISRUPTART", "DisruptArt")
+                    val contract = Contracts.DISRUPT_ART.fqn(appProperties.chainId)
                     val item = if (notExistsItem(contract, tokenId)) {
                         val tokenData = Flow.unmarshall(
                             DisruptArtNFT::class,
@@ -372,12 +362,7 @@ class UserStorageService(
                             contract = contract,
                             tokenId = tokenId,
                             creator = FlowAddress(tokenData.creator),
-                            royalties = listOf(
-                                Part(
-                                    address = contractAddress("0xDISRUPTARTROYALTY"),
-                                    fee = 0.15
-                                )
-                            ),
+                            royalties = Contracts.DISRUPT_ART.staticRoyalties(appProperties.chainId),
                             collection = contract,
                             mintedAt = Instant.now(),
                             updatedAt = Instant.now(),
@@ -558,7 +543,128 @@ class UserStorageService(
                     saveItem(item)
                 }
             }
+
+            Contracts.KICKS.contractName -> {
+                itemIds.forEach { tokenId ->
+                    val contract = Contracts.KICKS.fqn(appProperties.chainId)
+                    val item = if (notExistsItem(contract, tokenId)) {
+
+                        Item(
+                            contract = contract,
+                            tokenId = tokenId,
+                            creator = Contracts.KICKS.deployments[appProperties.chainId]!!,
+                            royalties = Contracts.KICKS.staticRoyalties(appProperties.chainId),
+                            owner = address,
+                            mintedAt = Instant.now(),
+                            meta = "{}",
+                            collection = contract,
+                            updatedAt = Instant.now()
+                        )
+                    } else {
+                        val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
+                        } else {
+                            checkOwnership(i, address)
+                            null
+                        }
+                    }
+                    saveItem(item)
+                }
+            }
+
+            Contracts.BARTER_YARD_PACK.contractName -> {
+                itemIds.forEach { tokenId ->
+                    val contract = Contracts.BARTER_YARD_PACK.fqn(appProperties.chainId)
+                    val item = if (notExistsItem(contract, tokenId)) {
+
+                        Item(
+                            contract = contract,
+                            tokenId = tokenId,
+                            creator = Contracts.BARTER_YARD_PACK.deployments[appProperties.chainId]!!,
+                            royalties = Contracts.BARTER_YARD_PACK.staticRoyalties(appProperties.chainId),
+                            owner = address,
+                            mintedAt = Instant.now(),
+                            meta = "{}",
+                            collection = contract,
+                            updatedAt = Instant.now()
+                        )
+                    } else {
+                        val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
+                        } else {
+                            checkOwnership(i, address)
+                            null
+                        }
+                    }
+                    saveItem(item)
+                }
+            }
+
+            Contracts.SOME_PLACE_COLLECTIBLE.contractName -> {
+                itemIds.forEach { tokenId ->
+                    val contract = Contracts.SOME_PLACE_COLLECTIBLE.fqn(appProperties.chainId)
+                    val item = if (notExistsItem(contract, tokenId)) {
+
+                        Item(
+                            contract = contract,
+                            tokenId = tokenId,
+                            creator = Contracts.SOME_PLACE_COLLECTIBLE.deployments[appProperties.chainId]!!,
+                            royalties = Contracts.SOME_PLACE_COLLECTIBLE.staticRoyalties(appProperties.chainId),
+                            owner = address,
+                            mintedAt = Instant.now(),
+                            meta = "{}",
+                            collection = contract,
+                            updatedAt = Instant.now()
+                        )
+                    } else {
+                        val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+                        if (i.owner != address) {
+                            i.copy(owner = address, updatedAt = Instant.now())
+                        } else {
+                            checkOwnership(i, address)
+                            null
+                        }
+                    }
+                    saveItem(item)
+                }
+            }
+
+            Contracts.GENIACE.contractName -> {
+                itemIds.forEach { simpleCheckItem(Contracts.GENIACE, address, it) }
+            }
+
+            Contracts.CRYPTOPIGGO.contractName -> {
+                itemIds.forEach { simpleCheckItem(Contracts.CRYPTOPIGGO, address, it) }
+            }
         }
+    }
+
+    private suspend fun simpleCheckItem(c: Contracts, owner: FlowAddress, tokenId: TokenId) {
+        val contract = c.fqn(appProperties.chainId)
+        val item = if (notExistsItem(contract, tokenId)) {
+            Item(
+                contract = contract,
+                tokenId = tokenId,
+                creator = c.deployments[appProperties.chainId]!!,
+                royalties = c.staticRoyalties(appProperties.chainId),
+                owner = owner,
+                mintedAt = Instant.now(),
+                meta = "{}",
+                collection = contract,
+                updatedAt = Instant.now()
+            )
+        } else {
+            val i = itemRepository.findById(ItemId(contract, tokenId)).awaitSingle()
+            if (i.owner != owner) {
+                i.copy(owner = owner, updatedAt = Instant.now())
+            } else {
+                checkOwnership(i, owner)
+                null
+            }
+        }
+        saveItem(item)
     }
 
     private fun contractAddress(alias: String): FlowAddress {

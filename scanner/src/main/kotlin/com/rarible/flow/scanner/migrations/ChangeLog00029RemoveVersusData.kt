@@ -11,11 +11,11 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.isEqualTo
 
 @ChangeUnit(
-    id = "ChangeLot00015RemoveVersusData",
-    order = "00015",
+    id = "ChangeLog00029RemoveVersusData",
+    order = "00029",
     author = "flow",
 )
-class ChangeLot00015RemoveVersusData(
+class ChangeLog00029RemoveVersusData(
     private val mongo: ReactiveMongoOperations,
 ) {
 

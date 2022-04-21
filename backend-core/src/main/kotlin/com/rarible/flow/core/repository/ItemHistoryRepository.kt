@@ -1,12 +1,15 @@
 package com.rarible.flow.core.repository
 
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.BaseActivity
+import com.rarible.flow.core.domain.FlowActivityType
+import com.rarible.flow.core.domain.FlowNftOrderActivitySell
+import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.core.domain.OrderActivityMatchSide
 import com.rarible.protocol.dto.FlowAggregationDataDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.data.domain.Sort
-import org.springframework.data.mapping.div
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.Criteria
@@ -29,14 +32,27 @@ interface ItemHistoryRepository:
     ReactiveMongoRepository<ItemHistory, String>,
     ItemHistoryRepositoryCustom {
 
-        @Suppress("FunctionName")
-        fun existsByLog_TransactionHashAndLog_EventIndex(txHash: String, eventIndex: Int): Mono<Boolean>
+    @Suppress("FunctionName")
+    fun existsByLog_TransactionHashAndLog_EventIndex(txHash: String, eventIndex: Int): Mono<Boolean>
 
-        @Query("""
+    @Query("""
             {"activity.type": ?0, "activity.hash": ?1}
         """)
-        fun findOrderActivity(type: String, hash: String): Flux<ItemHistory>
-    }
+    fun findOrderActivity(type: String, hash: String): Flux<ItemHistory>
+
+    @Query("""
+            {"log.transactionHash": ?0, "activity.type": "SELL"}, ${"$"}or: [
+                { "activity.left.maker": ?1, "activity.right.maker": ?2 },
+                { "activity.left.maker": ?2, "activity.right.maker": ?1 }
+            ] }
+        """)
+    fun findOrderInTx(txHash: String, from: String, to: String): Flux<ItemHistory>
+
+    @Query("""
+            {"log.transactionHash": ?0, "activity.type": "TRANSFER", "activity.from": ?1, "activity.to": ?2}
+        """)
+    fun findTransferInTx(txHash: String, from: String, to: String): Flux<ItemHistory>
+}
 
 interface ItemHistoryRepositoryCustom {
     fun aggregatePurchaseByCollection(

@@ -4,7 +4,16 @@ import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.core.apm.CaptureSpan
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.converter.OrderToDtoConverter
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.FlowActivityType
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.FlowNftOrderActivityBid
+import com.rarible.flow.core.domain.FlowNftOrderActivityCancelBid
+import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
+import com.rarible.flow.core.domain.FlowNftOrderActivityList
+import com.rarible.flow.core.domain.FlowNftOrderActivitySell
+import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.OrderService
@@ -105,6 +114,17 @@ class OrderIndexerEventProcessor(
             orderService.enrichCancelBid(activity.hash)
             val o = orderService.cancelBid(activity, event.item)
             sendUpdate(event, o)
+        }
+    }
+
+    private suspend fun sendHistoryUpdate(
+        event: IndexerEvent,
+        itemHistory: ItemHistory,
+    ) {
+        withSpan("sendOrderUpdate", "network") {
+            if (event.source != Source.REINDEX) {
+                protocolEventPublisher.activity(itemHistory)
+            }
         }
     }
 

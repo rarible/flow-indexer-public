@@ -28,6 +28,13 @@ import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowBurnDto
 import com.rarible.protocol.dto.FlowNftOrderActivityCancelListDto
 import com.rarible.protocol.dto.FlowNftOrderActivityListDto
+import java.math.BigDecimal
+import java.time.Clock
+import java.time.Duration
+import java.time.Instant
+import java.time.ZonedDateTime
+import java.util.UUID
+import kotlin.random.Random
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
@@ -39,13 +46,6 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
-import java.math.BigDecimal
-import java.time.Clock
-import java.time.Duration
-import java.time.Instant
-import java.time.ZonedDateTime
-import java.util.*
-import kotlin.random.Random
 
 @SpringBootTest(
     properties = [
@@ -147,22 +147,22 @@ class NftOrderActivityControllerTest {
         )
 
         val flowLog1 = FlowLog(
-            "32b8e20c643740a6e96b48af96f015655801864d3dbed3f22611ee94af421f86",
-            Log.Status.CONFIRMED,
-            0,
-            "",
-            date1,
-            50564298L,
-            "12f9dc7ed8fc0b9043802719f13e4cd20fed6780d2d8d621284b08dc6485ba5e"
+            transactionHash = "32b8e20c643740a6e96b48af96f015655801864d3dbed3f22611ee94af421f86",
+            status = Log.Status.CONFIRMED,
+            eventIndex = 0,
+            eventType = "",
+            timestamp = date1,
+            blockHeight = 50564298L,
+            blockHash = "12f9dc7ed8fc0b9043802719f13e4cd20fed6780d2d8d621284b08dc6485ba5e"
         )
         val flowLog2 = FlowLog(
-            "e2b72842eb40183ce2a956d9103b29c1ce2efe013bccfdd12730c3148e550a10",
-            Log.Status.CONFIRMED,
-            0,
-            "",
-            date2,
-            50564339L,
-            "c452cb8a5a009447fbd7632f1e7f5af4698ba276e1cb77097b017e08874f2477"
+            transactionHash = "e2b72842eb40183ce2a956d9103b29c1ce2efe013bccfdd12730c3148e550a10",
+            status = Log.Status.CONFIRMED,
+            eventIndex = 0,
+            eventType = "",
+            timestamp = date2,
+            blockHeight = 50564339L,
+            blockHash = "c452cb8a5a009447fbd7632f1e7f5af4698ba276e1cb77097b017e08874f2477"
         )
         val history = listOf(
             ItemHistory(
@@ -224,6 +224,7 @@ class NftOrderActivityControllerTest {
                     tokenId = tokenId,
                     from = account1,
                     to = account2,
+                    purchased = false
                 ),
                 log = randomLog().copy(eventIndex = 1, transactionHash = "2")
             ),
@@ -534,6 +535,7 @@ class NftOrderActivityControllerTest {
                     timestamp = ZonedDateTime.parse("2021-11-10T11:13:29.236Z").toInstant(),
                     from = acc1,
                     to = acc1,
+                    purchased = false
                 ),
                 FlowLog(
                     transactionHash = "792410fde65b1b9b49d0b723fe6798ae2ab056535a1060f8a0e220e2acbd1e60",
@@ -737,11 +739,12 @@ class NftOrderActivityControllerTest {
     ) = ItemHistory(date = date, activity = activity, log = log)
 
     private fun randomLog() =
-        FlowLog(UUID.randomUUID().toString(),
-            Log.Status.CONFIRMED,
-            1,
-            "",
-            Instant.now(Clock.systemUTC()),
-            randomLong(),
-            "")
+        FlowLog(
+            transactionHash = UUID.randomUUID().toString(),
+            status = Log.Status.CONFIRMED,
+            eventIndex = 1,
+            eventType = "",
+            timestamp = Instant.now(Clock.systemUTC()),
+            blockHeight = randomLong(),
+            blockHash = "")
 }

@@ -95,6 +95,8 @@ data/
 **/target/**
 .run/
 /surefire-reports/
+*~
+
 
 *~
 

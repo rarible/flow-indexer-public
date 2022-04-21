@@ -32,6 +32,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.time.Clock
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -112,6 +113,7 @@ internal class NftApiControllerTest {
         item.id shouldBe "A.1234.RaribleNFT:42"
         item.creators shouldBe listOf(FlowCreatorDto(FlowAddress("0x01").formatted, BigDecimal.ONE))
         item.owner shouldBe FlowAddress("0x02").formatted
+        item.supply shouldBe BigInteger.ONE
     }
 
     @Test
@@ -189,6 +191,7 @@ internal class NftApiControllerTest {
             .returnResult().responseBody!!
         response.items shouldHaveSize 1
         response.items[0].owner shouldBe items[0].owner!!.formatted
+        response.items[0].supply shouldBe BigInteger.ONE
 
         response = client
             .get()
@@ -199,6 +202,7 @@ internal class NftApiControllerTest {
             .returnResult().responseBody!!
         response.items shouldHaveSize 1
         response.items[0].owner shouldBe items[1].owner!!.formatted
+        response.items[0].supply shouldBe BigInteger.ONE
 
         response = client
             .get()

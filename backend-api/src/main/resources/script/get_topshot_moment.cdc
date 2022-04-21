@@ -1,4 +1,4 @@
-import TopShot from 0xTOPSHOTTOKEN
+import TopShot from 0xTOPSHOT
 
 pub fun main(account: Address, id: UInt64): {String: UInt32} {
     // get the public capability for the owner's moment collection

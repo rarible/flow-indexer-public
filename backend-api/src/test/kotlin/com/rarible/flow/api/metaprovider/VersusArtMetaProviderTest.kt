@@ -16,6 +16,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import java.util.concurrent.CompletableFuture
+import reactor.core.publisher.Mono
 
 class VersusArtMetaProviderTest : FunSpec({
 
@@ -41,7 +42,7 @@ class VersusArtMetaProviderTest : FunSpec({
         provider.getMeta(item) should { meta ->
             meta!!.itemId shouldBe itemId
             meta.name shouldBe "The Illuminator"
-            meta.contentUrls.first() shouldBe "https://rarible.mypinata.cloud/ipfs/QmVWf7e3bkEvmy5jGHLCgeZmwPyqm5hKeQ72NAdDwyJm2Q"
+            meta.contentUrls.first() shouldBe "ipfs://ipfs/QmVWf7e3bkEvmy5jGHLCgeZmwPyqm5hKeQ72NAdDwyJm2Q"
         }
     }
 

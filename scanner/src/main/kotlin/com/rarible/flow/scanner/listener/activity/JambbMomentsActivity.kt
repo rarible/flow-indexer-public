@@ -14,7 +14,9 @@ class JambbMomentsActivity(
 ): NFTActivityMaker() {
     override val contractName: String = Contracts.JAMBB_MOMENTS.contractName
 
-    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["momentID"]!!)
+    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(
+        logEvent.event.fields["momentID"] ?: logEvent.event.fields["id"]!!
+    )
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> {
         val momentID: UInt64NumberField by logEvent.event.fields

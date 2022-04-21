@@ -1,0 +1,40 @@
+{
+  "id": 17,
+  "createdAt": "2021-12-08T07:33:42.600Z",
+  "hash": "5ec84f534edf41d3402dbbd32052ca6d4221a2f2",
+  "tag": "",
+  "background": "Bittersweet",
+  "type": "Green",
+  "clothingBottoms": "Bottomless",
+  "clothingTops": "Seance Crew T Shirt",
+  "expression": "Jaded",
+  "beard": "Yellow Handlebar",
+  "head": "Bald",
+  "accessories": "Trotters",
+  "rarity": 9,
+  "fileId": "b50459fe-1166-4b9f-9ca7-9712200c73e7",
+  "file": {
+    "id": "b50459fe-1166-4b9f-9ca7-9712200c73e7",
+    "createdAt": "2021-12-08T07:33:42.600Z",
+    "key": "piggo-17.png",
+    "url": "https://s3.us-west-2.amazonaws.com/crypto-piggo.nft/piggo-17.png"
+  },
+  "piggoStatus": {
+    "id": 17,
+    "createdAt": "2022-02-17T00:45:52.723Z",
+    "updatedAt": "2022-03-21T00:08:00.457Z",
+    "status": "claimed"
+  },
+  "stats": {
+    "tag": 0,
+    "background": 973,
+    "type": 3048,
+    "clothingBottoms": 3413,
+    "clothingTops": 288,
+    "expression": 107,
+    "beard": 327,
+    "head": 5199,
+    "accessories": 5255,
+    "rarity": 3294
+  }
+}

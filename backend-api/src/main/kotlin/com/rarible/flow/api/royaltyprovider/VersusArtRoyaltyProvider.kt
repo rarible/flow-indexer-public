@@ -9,10 +9,12 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.events.VersusArtItem
 import com.rarible.flow.events.changeCapabilityToAddress
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.annotation.Order
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
 
 @Component
+@Order(1)
 class VersusArtRoyaltyProvider(
     private val scriptExecutor: ScriptExecutor,
     @Value("classpath:script/versus-art-metadata.cdc")

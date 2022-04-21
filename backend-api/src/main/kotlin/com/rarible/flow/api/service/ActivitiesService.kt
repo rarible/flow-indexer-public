@@ -8,6 +8,7 @@ import com.rarible.flow.core.repository.filters.ScrollingSort
 import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
+import java.time.Instant
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -16,9 +17,11 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.and
+import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.where
 import org.springframework.stereotype.Service
-import java.time.Instant
 
 @FlowPreview
 @Service
@@ -111,7 +114,8 @@ class ActivitiesService(
         if (types.isEmpty()) return emptyActivities
 
         val arrayOfCriteria = types.map { t ->
-            userCriteria[t]?.let { it(user) } ?: Criteria.where("activity.type").isEqualTo(t.name)
+            userCriteria[t]?.let { it(user) } ?: Criteria.where("activity.type").isEqualTo(t.name).and("activity.owner")
+                .`in`(user)
         }.toTypedArray()
 
         val criteria = Criteria()
@@ -151,6 +155,15 @@ class ActivitiesService(
         return getActivities(criteria, continuation, size, sort)
     }
 
+    suspend fun getActivitiesByIds(ids: List<String>): FlowActivitiesDto {
+        return getActivities(
+            ItemHistory::id inValues ids,
+            null,
+            null,
+            "EARLIEST_FIRST"
+        )
+    }
+
     private suspend fun getActivities(
         criteria: Criteria,
         inCont: String?,
@@ -187,10 +200,21 @@ class ActivitiesService(
     private fun addContinuation(cont: ActivityContinuation?, criteria: Criteria, sort: String) {
         if (cont != null) {
             when (sort) {
-                "EARLIEST_FIRST" -> criteria.and("date").gte(cont.beforeDate)
-                else -> criteria.and("date").lte(cont.beforeDate)
+                "EARLIEST_FIRST" ->
+                    criteria.andOperator(
+                        Criteria().orOperator(
+                            where(ItemHistory::date).gt(cont.beforeDate),
+                            where(ItemHistory::date).isEqualTo(cont.beforeDate).and(ItemHistory::id).gt(cont.beforeId)
+                        )
+                    )
+                else ->
+                    criteria.andOperator(
+                       Criteria().orOperator(
+                           where(ItemHistory::date).lt(cont.beforeDate),
+                           where(ItemHistory::date).isEqualTo(cont.beforeDate).and(ItemHistory::id).lt(cont.beforeId)
+                       )
+                    )
             }
-            criteria.and("id").ne(cont.beforeId)
         }
     }
 
@@ -198,8 +222,8 @@ class ActivitiesService(
         Criteria.where("activity.type").`in`(types.map(FlowActivityType::name))
 
     private fun defaultSort(sort: String): Sort = when (sort) {
-        "EARLIEST_FIRST" -> Sort.by(Sort.Direction.ASC, "date", "log.transactionHash", "log.eventIndex")
-        else -> Sort.by(Sort.Direction.DESC, "date", "log.transactionHash", "log.eventIndex")
+        "EARLIEST_FIRST" -> Sort.by(Sort.Direction.ASC, "date", "_id")
+        else -> Sort.by(Sort.Direction.DESC, "date", "_id")
     }
 
     private fun answerContinuation(items: List<FlowActivityDto>, limit: Int): ActivityContinuation? =

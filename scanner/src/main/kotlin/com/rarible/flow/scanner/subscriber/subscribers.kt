@@ -15,7 +15,10 @@ import com.rarible.flow.core.domain.BalanceId
 import java.math.BigDecimal
 import java.time.Instant
 
-
+@Deprecated(message = "Use the signature with Contracts type", replaceWith = ReplaceWith(
+    "com.rarible.flow.scanner.subscriber.SubscribersKt.flowDescriptor(com.rarible.flow.Contracts, com.nftco.flow.sdk.FlowChainId, java.lang.Iterable<java.lang.String>, java.lang.Long, java.lang.String, java.lang.Iterable<java.lang.String>)"
+)
+)
 internal fun flowDescriptor(
     address: String,
     contract: String,
@@ -35,14 +38,20 @@ internal fun flowDescriptor(
     events: Iterable<String>,
     startFrom: Long? = null,
     dbCollection: String,
+    additionalEvents: Iterable<String> = emptyList(),
 ): FlowDescriptor {
+    val address = contract.deployments[chainId]?.base16Value
+    val eventsSet = events.map { "${contract.fqn(chainId)}.$it" }.toSet()
+    val additionalSet = additionalEvents.map { "A.${address}.$it" }
     return FlowDescriptor(
-        id = "${contract.contractName}Descriptor",
-        events = events.map { "${contract.fqn(chainId)}.$it" }.toSet(),
+        id = contract.flowDescriptorName(),
+        events = eventsSet + additionalSet,
         collection = dbCollection,
         startFrom = startFrom
     )
 }
+
+fun Contracts.flowDescriptorName() = "${this.contractName}Descriptor"
 
 internal fun balanceHistory(
     balanceId: BalanceId,

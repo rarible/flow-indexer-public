@@ -74,7 +74,49 @@ class AppReadyListener(
                 symbol = "RARIBLE_V2",
                 features = setOf("SECONDARY_SALE_FEES", "BURN")
             ),
+            ItemCollection(
+                id = Contracts.CHAINMONSTERS.fqn(FlowChainId.TESTNET),
+                name = "Chainmonsters",
+                owner = Contracts.CHAINMONSTERS.deployments[FlowChainId.TESTNET]!!,
+                symbol = "CHAINMONSTERS",
+                features = emptySet()
+            ),
+            ItemCollection(
+                id = Contracts.BARTER_YARD_PACK.fqn(FlowChainId.TESTNET),
+                name = "Barter Yard Club - Mint Pass",
+                owner = Contracts.BARTER_YARD_PACK.deployments[FlowChainId.TESTNET]!!,
+                symbol = "BYC-MP",
+                features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.KICKS.fqn(FlowChainId.TESTNET),
+                name = "Kicks",
+                owner = Contracts.KICKS.deployments[FlowChainId.TESTNET]!!,
+                symbol = "KICKS",
+                features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.SOME_PLACE_COLLECTIBLE.fqn(FlowChainId.TESTNET),
+                name = "The Poison",
+                owner = Contracts.SOME_PLACE_COLLECTIBLE.deployments[FlowChainId.TESTNET]!!,
+                symbol = "POISON",
+                features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.GENIACE.fqn(FlowChainId.TESTNET),
+                name = "GENIACE",
+                owner = Contracts.GENIACE.deployments[FlowChainId.TESTNET]!!,
+                symbol = "GEN",
+            ),
+            ItemCollection(
+                id = Contracts.CRYPTOPIGGO.fqn(FlowChainId.TESTNET),
+                name = "CryptoPiggos",
+                owner = Contracts.CRYPTOPIGGO.deployments[FlowChainId.TESTNET]!!,
+                symbol = "CPIG",
+                features = emptySet()
+            ),
         ),
+
         FlowChainId.MAINNET to listOf(
             ItemCollection(id = "A.01ab36aaf654a13e.RaribleNFT", name = "Rarible", owner = FlowAddress("0x01ab36aaf654a13e"), symbol = "RARIBLE", features = setOf("SECONDARY_SALE_FEES", "BURN")),
             ItemCollection(id = "A.a49cc0ee46c54bfb.MotoGPCard", name = "MotoGP™ Ignition", owner = FlowAddress("0xa49cc0ee46c54bfb"), symbol = "MotoGP™", features = setOf("BURN")),
@@ -134,6 +176,48 @@ class AppReadyListener(
                 features = setOf("SECONDARY_SALE_FEES", "BURN")
             ),
         )
+            ItemCollection(
+                id = Contracts.CHAINMONSTERS.fqn(FlowChainId.MAINNET),
+                name = "Chainmonsters",
+                owner = Contracts.CHAINMONSTERS.deployments[FlowChainId.MAINNET]!!,
+                symbol = "CHAINMONSTERS",
+                features = emptySet()
+            ),
+            ItemCollection(
+                id = Contracts.BARTER_YARD_PACK.fqn(FlowChainId.MAINNET),
+                name = "Barter Yard Club - Mint Pass",
+                owner = Contracts.BARTER_YARD_PACK.deployments[FlowChainId.MAINNET]!!,
+                symbol = "BYC-MP",
+                features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.KICKS.fqn(FlowChainId.MAINNET),
+                name = "Kicks",
+                owner = Contracts.KICKS.deployments[FlowChainId.MAINNET]!!,
+                symbol = "KICKS",
+                features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.SOME_PLACE_COLLECTIBLE.fqn(FlowChainId.MAINNET),
+                name = "The Potion",
+                owner = Contracts.SOME_PLACE_COLLECTIBLE.deployments[FlowChainId.MAINNET]!!,
+                symbol = "POTION",
+                features = setOf("BURN")
+            ),
+            ItemCollection(
+                id = Contracts.GENIACE.fqn(FlowChainId.MAINNET),
+                name = "Geniace",
+                owner = Contracts.GENIACE.deployments[FlowChainId.MAINNET]!!,
+                symbol = "GEN",
+            ),
+            ItemCollection(
+                id = Contracts.CRYPTOPIGGO.fqn(FlowChainId.MAINNET),
+                name = "CryptoPiggos",
+                owner = Contracts.CRYPTOPIGGO.deployments[FlowChainId.MAINNET]!!,
+                symbol = "CPIG",
+                features = emptySet()
+            ),
+        ),
     )
 
     /**

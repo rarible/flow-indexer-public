@@ -1,4 +1,4 @@
-import TopShot from 0xTOPSHOTTOKEN
+import TopShot from 0xTOPSHOT
 
 pub fun main(playID: UInt32, setID: UInt32): {String: String} {
     let res: {String: String} = TopShot.getPlayMetaData(playID: playID)!

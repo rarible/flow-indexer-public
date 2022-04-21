@@ -1,5 +1,29 @@
 package com.rarible.flow.core.converter
 
+import com.rarible.flow.core.domain.BurnActivity
+import com.rarible.flow.core.domain.FlowAsset
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.FlowNftOrderActivityBid
+import com.rarible.flow.core.domain.FlowNftOrderActivityCancelBid
+import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
+import com.rarible.flow.core.domain.FlowNftOrderActivityList
+import com.rarible.flow.core.domain.FlowNftOrderActivitySell
+import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.core.domain.MintActivity
+import com.rarible.flow.core.domain.TransferActivity
+import com.rarible.protocol.dto.FlowActivityDto
+import com.rarible.protocol.dto.FlowAssetFungibleDto
+import com.rarible.protocol.dto.FlowAssetNFTDto
+import com.rarible.protocol.dto.FlowBurnDto
+import com.rarible.protocol.dto.FlowMintDto
+import com.rarible.protocol.dto.FlowNftOrderActivityBidDto
+import com.rarible.protocol.dto.FlowNftOrderActivityCancelBidDto
+import com.rarible.protocol.dto.FlowNftOrderActivityCancelListDto
+import com.rarible.protocol.dto.FlowNftOrderActivityListDto
+import com.rarible.protocol.dto.FlowNftOrderActivitySellDto
+import com.rarible.protocol.dto.FlowOrderActivityMatchSideDto
+import com.rarible.protocol.dto.FlowTransferDto
 import com.rarible.flow.core.domain.*
 import com.rarible.protocol.dto.*
 import org.springframework.core.convert.converter.Converter
@@ -10,6 +34,7 @@ import org.springframework.data.mongodb.core.query.where
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.math.BigInteger
+import org.springframework.core.convert.converter.Converter
 
 
 @Component
@@ -66,6 +91,7 @@ class ItemHistoryToDtoConverter(
                 from = source.activity.from,
                 owner = source.activity.to,
                 value = BigInteger.ONE,
+                purchased = source.activity.purchased ?: false,
                 transactionHash = source.log.transactionHash,
                 blockHash = source.log.blockHash,
                 blockNumber = source.log.blockHeight,
@@ -89,6 +115,7 @@ class ItemHistoryToDtoConverter(
                 blockHash = source.log.blockHash,
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
+                platform = source.activity.platform
             )
             is FlowNftOrderActivityList -> FlowNftOrderActivityListDto(
                 id = source.id,

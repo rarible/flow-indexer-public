@@ -10,12 +10,13 @@ import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.events.VersusArtItem
 import com.rarible.flow.events.changeCapabilityToAddress
+import java.io.BufferedReader
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
-import java.io.BufferedReader
 
 @Component
 class VersusArtMetaProvider(
@@ -77,7 +78,7 @@ class VersusArtMetaProvider(
         // valid types: ipfs/image, ipfs/video, png, image/dataurl
         val contentUrl = content.getOrNull()?.let {
             when (nft.metadata.type) {
-                "ipfs/image", "ipfs/video" -> "https://rarible.mypinata.cloud/ipfs/$it"
+                "ipfs/image", "ipfs/video" -> "ipfs://ipfs/$it"
                 else -> {
                     base64 = it
                     "${webApiUrl}/v0.1/items/${item.id}/image"

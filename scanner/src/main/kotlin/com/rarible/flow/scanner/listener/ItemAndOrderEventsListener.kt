@@ -26,11 +26,12 @@ import org.springframework.stereotype.Component
 @Component
 @CaptureSpan(type = SpanType.APP)
 class ItemAndOrderEventsListener(
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository,
     private val nftActivityMakers: List<ActivityMaker>,
     private val indexerEventService: IndexerEventService,
     private val itemRepository: ItemRepository,
-    private val protocolEventPublisher: ProtocolEventPublisher
+    private val protocolEventPublisher: ProtocolEventPublisher,
 ) : FlowLogEventListener {
 
     private val logger by Log()

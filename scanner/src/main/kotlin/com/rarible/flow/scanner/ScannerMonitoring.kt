@@ -72,7 +72,7 @@ class ScannerMonitoring(
     private fun getBlockDelay(): Double? {
         val lastSeenBlockTimestamp = lastSeenBlockHead?.timestamp ?: return null
         val currentTimestamp = Instant.now().toEpochMilli()
-        return max(currentTimestamp - lastSeenBlockTimestamp, 0).toDouble()
+        return max(currentTimestamp - lastSeenBlockTimestamp, 0).toDouble().div(1000)
     }
 
 }

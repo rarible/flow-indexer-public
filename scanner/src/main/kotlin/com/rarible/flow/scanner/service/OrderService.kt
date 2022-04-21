@@ -3,7 +3,26 @@ package com.rarible.flow.scanner.service
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.converter.OrderToDtoConverter
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.FlowAsset
+import com.rarible.flow.core.domain.FlowAssetEmpty
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.FlowNftOrderActivityBid
+import com.rarible.flow.core.domain.FlowNftOrderActivityCancelBid
+import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
+import com.rarible.flow.core.domain.FlowNftOrderActivityList
+import com.rarible.flow.core.domain.FlowNftOrderActivitySell
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderData
+import com.rarible.flow.core.domain.OrderStatus
+import com.rarible.flow.core.domain.OrderType
+import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.PaymentType
+import com.rarible.flow.core.domain.Payout
+import com.rarible.flow.core.domain.TransferActivity
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.OrderRepository
@@ -12,6 +31,11 @@ import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.log.Log
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
+import com.rarible.protocol.dto.FlowOrderPlatformDto
+import java.math.BigDecimal
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -19,14 +43,11 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import java.math.BigDecimal
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 @Service
 class OrderService(
     private val orderRepository: OrderRepository,
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
     private val orderConverter: OrderToDtoConverter,
@@ -126,6 +147,9 @@ class OrderService(
                     activity.payments.filter { it.type in arrayOf(PaymentType.SELLER_FEE, PaymentType.BUYER_FEE) }
                         .map { Payout(account = FlowAddress(it.address), value = it.amount) }),
                 lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+                platform = if (activity.payments.any { it.type == PaymentType.SELLER_FEE }) {
+                    FlowOrderPlatformDto.RARIBLE
+                } else FlowOrderPlatformDto.OTHER
             ) ?: Order(
                 id = activity.hash.toLong(),
                 fill = BigDecimal.ONE,
@@ -153,7 +177,10 @@ class OrderService(
                         .map { Payout(account = FlowAddress(it.address), value = it.amount) }),
                 lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
                 type = OrderType.LIST,
-                takePriceUsd = activity.priceUsd
+                takePriceUsd = activity.priceUsd,
+                platform = if (activity.payments.any { it.type == PaymentType.SELLER_FEE }) {
+                    FlowOrderPlatformDto.RARIBLE
+                } else FlowOrderPlatformDto.OTHER
             )
 
             orderRepository.coSave(order)
@@ -175,6 +202,9 @@ class OrderService(
                         activity.payments.filter { it.type in arrayOf(PaymentType.SELLER_FEE, PaymentType.BUYER_FEE) }
                             .map { Payout(account = FlowAddress(it.address), value = it.amount) }),
                     lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+                    platform = if (activity.payments.any { it.type == PaymentType.BUYER_FEE }) {
+                        FlowOrderPlatformDto.RARIBLE
+                    } else FlowOrderPlatformDto.OTHER
                 )
             } ?: Order(
                 id = activity.hash.toLong(),
@@ -201,7 +231,10 @@ class OrderService(
                     }.map { Payout(account = FlowAddress(it.address), value = it.amount) }),
                 lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
                 type = OrderType.BID,
-                takePriceUsd = activity.priceUsd
+                takePriceUsd = activity.priceUsd,
+                platform = if (activity.payments.any { it.type == PaymentType.BUYER_FEE }) {
+                    FlowOrderPlatformDto.RARIBLE
+                } else FlowOrderPlatformDto.OTHER
             )
 
             orderRepository.coSave(order)
@@ -241,7 +274,6 @@ class OrderService(
             orderRepository.coSave(order)
         }
     }
-
     suspend fun enrichCancelList(orderId: String) {
         withSpan("enrichCancelList", "db") {
             val h = itemHistoryRepository

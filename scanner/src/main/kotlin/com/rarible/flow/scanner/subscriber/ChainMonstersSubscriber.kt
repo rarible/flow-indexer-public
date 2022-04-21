@@ -21,7 +21,7 @@ class ChainMonstersSubscriber: BaseFlowLogEventSubscriber() {
                 chainId = FlowChainId.MAINNET,
                 events = events,
                 dbCollection = collection,
-                startFrom = 19100120L
+                startFrom = 11283560L
             ),
             FlowChainId.TESTNET to flowDescriptor(
                 contract = Contracts.CHAINMONSTERS,

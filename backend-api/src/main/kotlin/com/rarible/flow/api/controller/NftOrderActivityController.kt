@@ -2,12 +2,13 @@ package com.rarible.flow.api.controller
 
 import com.rarible.flow.api.service.ActivitiesService
 import com.rarible.protocol.dto.FlowActivitiesDto
+import com.rarible.protocol.dto.NftActivitiesByIdRequestDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftOrderActivityControllerApi
+import java.time.Instant
 import kotlinx.coroutines.FlowPreview
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController
-import java.time.Instant
 
 @FlowPreview
 @RestController
@@ -28,6 +29,12 @@ class NftOrderActivityController(private val service: ActivitiesService) : FlowN
         ResponseEntity.ok(
             service.getNftOrderActivitiesByCollection(type, collection, continuation, size, sort ?: defaultSort)
         )
+
+    override suspend fun getNftOrderActivitiesById(nftActivitiesByIdRequestDto: NftActivitiesByIdRequestDto): ResponseEntity<FlowActivitiesDto> {
+        return ResponseEntity.ok(
+            service.getActivitiesByIds(nftActivitiesByIdRequestDto.ids)
+        )
+    }
 
     override suspend fun getNftOrderActivitiesByItem(
         type: List<String>,

@@ -10,5 +10,6 @@ data class ApiProperties(
     val flowAccessUrl: String,
     val flowAccessPort: Int,
     val chainId: FlowChainId,
-    val alchemyApiKey: String
+    val alchemyApiKey: String,
+    val ipfsInnerUrl: String,
 )

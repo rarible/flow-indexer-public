@@ -1,10 +1,12 @@
 package com.rarible.flow.core.domain
 
+
+import com.rarible.protocol.dto.FlowOrderPlatformDto
+import java.math.BigDecimal
+import java.time.Instant
 import com.nftco.flow.sdk.FlowAddress
 import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.mapping.FieldType
-import java.math.BigDecimal
-import java.time.Instant
 
 sealed interface FlowActivity
 
@@ -16,13 +18,18 @@ sealed class TypedFlowActivity : FlowActivity {
  * Common activity
  *
  * @property type               activity type
- * @property contract           NFT item contract ("collection")
- * @property tokenId            NFT token ID
  */
 sealed class BaseActivity : TypedFlowActivity() {
     abstract val timestamp: Instant
 }
 
+/**
+ * Base NFT Activity
+ *
+ * @property contract           NFT item contract
+ * @property tokenId            NFT token ID
+
+ */
 sealed class NFTActivity : BaseActivity() {
     abstract val contract: String
     abstract val tokenId: TokenId /* = kotlin.Long */
@@ -70,6 +77,7 @@ data class FlowNftOrderActivitySell(
     val left: OrderActivityMatchSide,
     val right: OrderActivityMatchSide,
     val payments: List<FlowNftOrderPayment> = emptyList(),
+    val platform: FlowOrderPlatformDto? = FlowOrderPlatformDto.RARIBLE
 ) : FlowNftOrderActivity()
 
 /**
@@ -265,23 +273,14 @@ data class OrderActivityMatchSide(
     val asset: FlowAsset,
 )
 
-data class FlowTokenWithdrawnActivity(
-    val from: String?,
-    val amount: BigDecimal,
-) : FlowActivity
-
-data class FlowTokenDepositedActivity(
-    val to: String?,
-    val amount: BigDecimal,
-) : FlowActivity
-
 data class TransferActivity(
     override val type: FlowActivityType = FlowActivityType.TRANSFER,
     override val contract: String,
     override val tokenId: TokenId, /* = kotlin.Long */
     override val timestamp: Instant,
     val from: String,
-    val to: String
+    val to: String,
+    val purchased: Boolean? = false,
 ) : NFTActivity()
 
 data class AuctionActivityLot(

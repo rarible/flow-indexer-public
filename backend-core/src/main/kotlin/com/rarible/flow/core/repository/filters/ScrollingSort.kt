@@ -32,9 +32,16 @@ interface ScrollingSort<T> {
         } else nextPageSafe(entities.lastOrNull())
     }
 
+    fun nextPage(entities: Collection<T>, limit: Int?): String? {
+        val expectedCount = pageSize(limit)
+        return if(entities.count() < expectedCount) {
+            null
+        } else nextPageSafe(entities.lastOrNull())
+    }
+
     companion object {
-        const val DEFAULT_LIMIT = 50
-        const val MAX_LIMIT = 1000
+        private const val DEFAULT_LIMIT = 50
+        private const val MAX_LIMIT = 1000
 
         fun pageSize(incomingSize: Int?): Int =
             minOf(incomingSize?.takeIf { it > 0 } ?: DEFAULT_LIMIT, MAX_LIMIT)

@@ -2,83 +2,79 @@ package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.cadence.StringField
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.core.domain.Item
+import com.rarible.flow.api.metaprovider.body.MetaBody
+import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
+import com.rarible.flow.core.domain.TokenId
+import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.log.Log
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBodyOrNull
-import java.time.Instant
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 
 @Component
 class FanfareMetaProvider(
-    private val webClient: WebClient,
-    private val apiProperties: ApiProperties
-): ItemMetaProvider {
+    private val itemRepository: ItemRepository,
+    private val apiProperties: ApiProperties,
+    private val scriptExecutor: ScriptExecutor,
+) : ItemMetaProvider {
 
     private val logger by Log()
+    private val objectMapper = jacksonObjectMapper()
 
-    override fun isSupported(itemId: ItemId): Boolean =
-        itemId.contract == Contracts.FANFARE.fqn(apiProperties.chainId)
+    override fun isSupported(itemId: ItemId): Boolean = itemId.contract == Contracts.FANFARE.fqn(apiProperties.chainId)
 
     override suspend fun getMeta(item: Item): ItemMeta? {
         val itemId = item.id
 
-        return try {
-            webClient
-                .get()
-                .uri("https://www.fanfare.fm/api/nft-meta/{id}", mapOf("id" to itemId.tokenId))
-                .retrieve()
-                .awaitBodyOrNull<FanfareMeta>()
-        } catch (e: Throwable) {
-            logger.warn("Failed to fetch meta of {}", itemId, e)
-            null
-        }?.toItemMeta(itemId)
+        if (item.owner == null) return emptyMeta(itemId)
+        val metaString = (if (item.meta.isNullOrBlank()) getFlowMeta(item.owner!!, item.tokenId) else item.meta)
+            ?: return emptyMeta(itemId)
+        val meta = objectMapper.readValue<FanfareMeta>(metaString)
+        return meta.toItemMeta(itemId)
     }
+
+    private suspend fun getFlowMeta(owner: FlowAddress, tokenId: TokenId) =
+        scriptExecutor.executeFile("classpath:script/item/item_fanfare.cdc", {
+            arg { address(owner) }
+            arg { uint64(tokenId) }
+        }, { json ->
+            json.value?.let { (it as StringField).value }
+        })
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class FanfareMeta(
-    val name: String,
+    @get:JsonProperty("artist_name") val artistName: String,
+    val title: String,
     val description: String,
-    val attributes: List<FanfareAttribute>,
-    @get:JsonProperty("audio_url")
-    val audioUrl: String,
-    val image: String,
+    val genre: String,
+    @get:JsonProperty("external_url") val externalUrl: String,
+    @get:JsonProperty("image_url") val imageUrl: String,
+    @get:JsonProperty("audio_url") val audioUrl: String,
+    @get:JsonProperty("is_music_video") val isMusicVideo: Boolean,
+    @get:JsonProperty("total_copies") val totalCopies: Int,
+    val edition: Int,
 
-): MetaBody {
+    ) : MetaBody {
     override fun toItemMeta(itemId: ItemId): ItemMeta {
-        return ItemMeta(
-            itemId, name, description,
-            attributes.map(FanfareAttribute::toItemAttribute),
+        return ItemMeta(itemId,
+            "$title //$artistName",
+            description,
             listOf(
-                image, audioUrl
-            )
-        )
-    }
-}
-
-data class FanfareAttribute(
-    @get:JsonProperty("display_type")
-    val displayType: String?,
-    @get:JsonProperty("trait_type")
-    val traitType: String?,
-    val value: String?
-) {
-    fun toItemAttribute(): ItemMetaAttribute {
-        return if(displayType == "date") {
-            ItemMetaAttribute(
-                traitType!!,
-                DateTimeFormatter.ISO_LOCAL_DATE.format(
-                    Instant.ofEpochSecond(value!!.toLong()).atOffset(ZoneOffset.UTC)
-                )
-            )
-        } else ItemMetaAttribute(traitType!!, value!!)
+                ItemMetaAttribute(key = "genre", value = genre),
+                ItemMetaAttribute(key = "is_music_video", value = isMusicVideo.toString()),
+                ItemMetaAttribute(key = "total_copies", value = totalCopies.toString()),
+                ItemMetaAttribute(key = "edition", value = edition.toString()),
+            ),
+            listOf(imageUrl, audioUrl, externalUrl))
     }
 }
