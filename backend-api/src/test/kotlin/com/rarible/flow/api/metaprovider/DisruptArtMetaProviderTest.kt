@@ -1,6 +1,5 @@
 package com.rarible.flow.api.metaprovider
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.flow.api.mocks
@@ -16,7 +15,6 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockk
 import io.mockk.verify
 import java.time.Instant
 import org.springframework.http.MediaType
@@ -29,36 +27,43 @@ class DisruptArtMetaProviderTest : FunSpec({
     val itemId1 = ItemId(contract = "A.cd946ef9b13804c6.DisruptArt", tokenId = 1337L)
     val itemId2 = ItemId(contract = "A.cd946ef9b13804c6.DisruptArt", tokenId = 1L)
 
+    val item1 = Item(
+        contract = "A.cd946ef9b13804c6.DisruptArt",
+        tokenId = 1337L,
+        creator = FlowAddress("0x376af0a85d1f6f57"),
+        royalties = emptyList(),
+        meta = "{\"content\":\"https://ipfs.perma.store/content/bafkreicv2agl472w5vsxbfea4a7w3r5bvzb3jrrkgqjcrk674e6l6hncde\",\"name\":\"Colonialism: A Play in 60 Acts\"}",
+        collection = "A.cd946ef9b13804c6.DisruptArt",
+        mintedAt = Instant.now(),
+        updatedAt = Instant.now(),
+        owner = FlowAddress("0xcd946ef9b13804c6")
+    )
+
+
+    val item2 = Item(
+        contract = "A.cd946ef9b13804c6.DisruptArt",
+        tokenId = 1L,
+        creator = FlowAddress("0x4e96267cf76199ef"),
+        royalties = emptyList(),
+        meta = "{\"content\":\"https://ipfs.infura.io/ipfs/QmZakpqL6yYdQL5gb2ESrWao9s7Vt6XqYCqLPB7vUbU5cW\",\"name\":\"Sample art test\",\"tokenGroupId\":\"1\"}",
+        collection = "A.cd946ef9b13804c6.DisruptArt",
+        mintedAt = Instant.now(),
+        updatedAt = Instant.now(),
+        owner = FlowAddress("0xcd946ef9b13804c6")
+    )
     val itemRepository = mockk<ItemRepository> {
         every {
             findById(itemId1)
-        } returns Item(
-            contract = "A.cd946ef9b13804c6.DisruptArt",
-            tokenId = 1337L,
-            creator = FlowAddress("0x376af0a85d1f6f57"),
-            royalties = emptyList(),
-            meta = "{\"content\":\"https://ipfs.perma.store/content/bafkreicv2agl472w5vsxbfea4a7w3r5bvzb3jrrkgqjcrk674e6l6hncde\",\"name\":\"Colonialism: A Play in 60 Acts\"}",
-            collection = "A.cd946ef9b13804c6.DisruptArt",
-            mintedAt = Instant.now(),
-            updatedAt = Instant.now(),
-            owner = FlowAddress("0xcd946ef9b13804c6")
-        ).toMono()
+        } returns item1.toMono()
 
-            every {
-                itemRepository.findById(ItemId(contract = "A.cd946ef9b13804c6.DisruptArt", tokenId = 1L))
-            } returns Item(
-                contract = "A.cd946ef9b13804c6.DisruptArt",
-                tokenId = 1L,
-                creator = FlowAddress("0x4e96267cf76199ef"),
-                royalties = emptyList(),
-                meta = "{\"content\":\"https://ipfs.infura.io/ipfs/QmZakpqL6yYdQL5gb2ESrWao9s7Vt6XqYCqLPB7vUbU5cW\",\"name\":\"Sample art test\",\"tokenGroupId\":\"1\"}",
-                collection = "A.cd946ef9b13804c6.DisruptArt",
-                mintedAt = Instant.now(),
-                updatedAt = Instant.now(),
-                owner = FlowAddress("0xcd946ef9b13804c6")
-            ).toMono()
-            return DisruptArtMetaProvider(webClient)
-        }
+        every {
+            findById(itemId2)
+        } returns item2.toMono()
+
+        every {
+            save(any())
+        } answers { Mono.just(arg(0)) }
+    }
 
     val appProps = mockk<AppProperties> {
         every { chainId } returns FlowChainId.MAINNET
@@ -72,7 +77,7 @@ class DisruptArtMetaProviderTest : FunSpec({
                 META_JSON_ROYALTIES
             ),
             appProps
-        ).getMeta(itemId1) shouldBe ItemMeta(
+        ).getMeta(item1) shouldBe ItemMeta(
             itemId1,
             "Colonialism: A Play in 60 Acts",
             "Test GrpE for Meta Data Check",
@@ -87,32 +92,39 @@ class DisruptArtMetaProviderTest : FunSpec({
             )
         )
 
-    @Test
-    internal fun jsonMetaTest() = runBlocking {
-        val item = mockk<Item> {
-            every { contract } returns "A.cd946ef9b13804c6.DisruptArt"
-            every { tokenId } returns 1337L
-            every { meta } returns jacksonObjectMapper().writeValueAsString(mapOf("content" to "https://ipfs.perma.store/content/bafybeiao36osolp7ef6e4ieymfbzlywhnaygxw3r7uf4wbijsmlteka3pi"))
+        verify {
+            itemRepository.save(withArg {
+                it.royalties shouldContainExactly listOf(
+                    Part(FlowAddress("0x4e96267cf76199ef"), 0.1),
+                    Part(FlowAddress("0x420f47f16a214100"), 0.05)
+                )
+            })
         }
-        val meta = metaProvider.getMeta(item)
-        Assertions.assertNotNull(meta)
-        meta!!
-        Assertions.assertNotEquals("Untitled", meta.name)
-        Assertions.assertFalse(meta.description.isEmpty())
-        Assertions.assertFalse(meta.contentUrls.isEmpty())
-        Assertions.assertFalse(meta.attributes.isEmpty())
-        Assertions.assertEquals("https://ipfs.perma.store/content/bafybeiao36osolp7ef6e4ieymfbzlywhnaygxw3r7uf4wbijsmlteka3pi",
-            meta.contentUrls[0])
     }
 
-    @Test
-    internal fun pictureMetaTest() = runBlocking {
-        val itemId = ItemId(contract = "A.cd946ef9b13804c6.DisruptArt", tokenId = 1L)
-        val item = mockk<Item> {
-            every { meta } returns "{\"content\":\"https://ipfs.infura.io/ipfs/QmZakpqL6yYdQL5gb2ESrWao9s7Vt6XqYCqLPB7vUbU5cW\",\"name\":\"Sample art test\",\"tokenGroupId\":\"1\"}"
-        }
-        val meta = metaProvider.getMeta(item)
-        Assertions.assertNotNull(meta)
-        Assertions.assertNotEquals("Untitled", meta!!.name)
+    test("should read image metadata for existing item") {
+        DisruptArtMetaProvider(
+            itemRepository,
+            mocks.webClient(
+                "https://ipfs.infura.io/ipfs/QmZakpqL6yYdQL5gb2ESrWao9s7Vt6XqYCqLPB7vUbU5cW",
+                "dummy",
+                contentType = MediaType.IMAGE_JPEG
+            ),
+            appProps
+        ).getMeta(item2) shouldBe ItemMeta(
+            itemId2,
+            "Sample art test",
+            "Sample art test",
+            emptyList(),
+            listOf(
+                "https://ipfs.infura.io/ipfs/QmZakpqL6yYdQL5gb2ESrWao9s7Vt6XqYCqLPB7vUbU5cW"
+            )
+        )
+    }
+}) {
+    companion object {
+        const val META_JSON_ROYALTIES = """
+            {"Title":"Test GrpE for Meta Data Check","Creator":"dhilip test blz","TotalEditions":4,"Description":"Test GrpE for Meta Data Check","MintedDate":"23-February-2022","Media":{"uri":"https://ipfs.perma.store/content/bafkreidwr2pytghedsm5gsssuayay2zyc3hzdh5vwb2sye7ein2ca3li3u","size":230311,"mimeType":"image/jpeg","dimensions":"950x635"},"MediaPreview":{"uri":"https://ipfs.perma.store/content/bafkreidwr2pytghedsm5gsssuayay2zyc3hzdh5vwb2sye7ein2ca3li3u","size":230311,"mimeType":"image/jpeg","dimensions":"950x635"},"PlatformInfo":{"Platform":"DisruptArt","MintedAt":"www.disrupt.art","UserID":"d.testblz123"},"tags":[],"royalties":[{"address":"0x4e96267cf76199ef","fee":0.1},{"address":"0x420f47f16a214100","fee":0.05}]}
+        """
     }
 }

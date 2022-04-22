@@ -175,7 +175,6 @@ class AppReadyListener(
                 symbol = "RARIBLE_V2",
                 features = setOf("SECONDARY_SALE_FEES", "BURN")
             ),
-        )
             ItemCollection(
                 id = Contracts.CHAINMONSTERS.fqn(FlowChainId.MAINNET),
                 name = "Chainmonsters",

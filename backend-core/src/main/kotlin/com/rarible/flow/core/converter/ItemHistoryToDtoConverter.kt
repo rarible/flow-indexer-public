@@ -1,6 +1,15 @@
 package com.rarible.flow.core.converter
 
+import com.rarible.flow.core.domain.AuctionActivityBidClosed
+import com.rarible.flow.core.domain.AuctionActivityBidIncreased
+import com.rarible.flow.core.domain.AuctionActivityBidOpened
+import com.rarible.flow.core.domain.AuctionActivityLot
+import com.rarible.flow.core.domain.AuctionActivityLotCanceled
+import com.rarible.flow.core.domain.AuctionActivityLotCleaned
+import com.rarible.flow.core.domain.AuctionActivityLotEndTimeChanged
+import com.rarible.flow.core.domain.AuctionActivityLotHammered
 import com.rarible.flow.core.domain.BurnActivity
+import com.rarible.flow.core.domain.EnglishAuctionLot
 import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
@@ -12,9 +21,16 @@ import com.rarible.flow.core.domain.FlowNftOrderActivitySell
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.TransferActivity
+import com.rarible.protocol.dto.DummyActivityDto
 import com.rarible.protocol.dto.FlowActivityDto
 import com.rarible.protocol.dto.FlowAssetFungibleDto
 import com.rarible.protocol.dto.FlowAssetNFTDto
+import com.rarible.protocol.dto.FlowAuctionActivityBidDto
+import com.rarible.protocol.dto.FlowAuctionActivityCancelDto
+import com.rarible.protocol.dto.FlowAuctionActivityDto
+import com.rarible.protocol.dto.FlowAuctionActivityFinishDto
+import com.rarible.protocol.dto.FlowAuctionActivityOpenDto
+import com.rarible.protocol.dto.FlowAuctionBidDto
 import com.rarible.protocol.dto.FlowBurnDto
 import com.rarible.protocol.dto.FlowMintDto
 import com.rarible.protocol.dto.FlowNftOrderActivityBidDto
@@ -24,17 +40,14 @@ import com.rarible.protocol.dto.FlowNftOrderActivityListDto
 import com.rarible.protocol.dto.FlowNftOrderActivitySellDto
 import com.rarible.protocol.dto.FlowOrderActivityMatchSideDto
 import com.rarible.protocol.dto.FlowTransferDto
-import com.rarible.flow.core.domain.*
-import com.rarible.protocol.dto.*
+import java.math.BigDecimal
+import java.math.BigInteger
 import org.springframework.core.convert.converter.Converter
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.mongodb.core.query.where
 import org.springframework.stereotype.Component
-import java.math.BigDecimal
-import java.math.BigInteger
-import org.springframework.core.convert.converter.Converter
 
 
 @Component

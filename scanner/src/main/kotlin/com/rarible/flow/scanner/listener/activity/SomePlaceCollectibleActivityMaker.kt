@@ -1,18 +1,13 @@
 package com.rarible.flow.scanner.listener.activity
 
-import com.nftco.flow.sdk.FlowChainId
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Part
-import com.rarible.flow.scanner.listener.NFTActivityMaker
-import org.springframework.beans.factory.annotation.Value
+import com.rarible.flow.scanner.activitymaker.NFTActivityMaker
 import org.springframework.stereotype.Component
 
 @Component
-class SomePlaceCollectibleActivityMaker(
-    @Value("\${blockchain.scanner.flow.chainId}")
-    private val chainId: FlowChainId
-) : NFTActivityMaker() {
+class SomePlaceCollectibleActivityMaker: NFTActivityMaker() {
     override val contractName: String
         get() = Contracts.SOME_PLACE_COLLECTIBLE.contractName
 

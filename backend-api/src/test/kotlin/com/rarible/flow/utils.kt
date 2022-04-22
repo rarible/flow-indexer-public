@@ -1,9 +1,9 @@
 package com.rarible.flow
 
 import com.nftco.flow.sdk.FlowAddress
-import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils
-import java.util.*
+import java.util.Locale
 import kotlin.random.Random
+import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils
 
 fun randomAddress() = "0x${RandomStringUtils.random(16, "0123456789ABCDEF")}".lowercase(Locale.ENGLISH)
 

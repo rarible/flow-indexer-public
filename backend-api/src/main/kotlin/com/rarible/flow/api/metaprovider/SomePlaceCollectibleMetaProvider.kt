@@ -8,14 +8,11 @@ import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion
 import com.nftco.flow.sdk.cadence.JsonCadenceConverter
 import com.rarible.flow.Contracts
-import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.coFindById
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -24,7 +21,6 @@ import org.springframework.stereotype.Component
 class SomePlaceCollectibleMetaProvider(
     @Value("\${app.chain-id}")
     private val chainId: FlowChainId,
-    private val itemRepository: ItemRepository,
     @Value("classpath:script/spc_meta.cdc")
     private val script: Resource,
     private val scriptExecutor: ScriptExecutor
@@ -32,14 +28,7 @@ class SomePlaceCollectibleMetaProvider(
     override fun isSupported(itemId: ItemId): Boolean =
         itemId.contract == Contracts.SOME_PLACE_COLLECTIBLE.fqn(chainId)
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        return itemRepository.coFindById(itemId).let {
-            if (it == null) emptyMeta(itemId)
-            getMeta(it!!)
-        }
-    }
-
-    suspend fun getMeta(item: Item): ItemMeta {
+    override suspend fun getMeta(item: Item): ItemMeta {
         if (item.owner == null) return emptyMeta(item.id)
 
         return scriptExecutor.executeFile(

@@ -5,13 +5,10 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.scanner.activitymaker.NFTActivityMaker
-import com.rarible.flow.scanner.config.FlowApiProperties
 import org.springframework.stereotype.Component
 
 @Component
-class ChainmonstersActivity(
-    private val config: FlowApiProperties
-): NFTActivityMaker() {
+class ChainmonstersActivity: NFTActivityMaker() {
     override val contractName: String = Contracts.CHAINMONSTERS.contractName
 
     override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(
@@ -29,6 +26,6 @@ class ChainmonstersActivity(
     }
 
     override fun royalties(logEvent: FlowLogEvent): List<Part> {
-        return Contracts.CHAINMONSTERS.staticRoyalties(config.chainId)
+        return Contracts.CHAINMONSTERS.staticRoyalties(chainId)
     }
 }

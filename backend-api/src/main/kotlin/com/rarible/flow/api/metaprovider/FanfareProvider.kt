@@ -8,26 +8,20 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.StringField
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.config.ApiProperties
-import com.rarible.flow.core.domain.Item
-import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.api.service.ScriptExecutor
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.domain.TokenId
-import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.log.Log
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Component
 
 @Component
 class FanfareMetaProvider(
-    private val itemRepository: ItemRepository,
     private val apiProperties: ApiProperties,
     private val scriptExecutor: ScriptExecutor,
 ) : ItemMetaProvider {
 
-    private val logger by Log()
     private val objectMapper = jacksonObjectMapper()
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract == Contracts.FANFARE.fqn(apiProperties.chainId)

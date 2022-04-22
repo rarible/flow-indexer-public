@@ -1,11 +1,16 @@
 package com.rarible.flow.scanner
 
-import com.nftco.flow.sdk.*
 import com.nftco.flow.sdk.AddressRegistry.Companion.NON_FUNGIBLE_TOKEN
+import com.nftco.flow.sdk.Flow
+import com.nftco.flow.sdk.FlowAccessApi
+import com.nftco.flow.sdk.FlowChainId
+import com.nftco.flow.sdk.FlowId
+import com.nftco.flow.sdk.FlowTransactionStatus
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.nftco.flow.sdk.crypto.Crypto
+import com.nftco.flow.sdk.simpleFlowTransaction
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.service.SporkService
 import com.rarible.core.test.containers.KGenericContainer
@@ -19,6 +24,7 @@ import com.rarible.flow.events.EventId
 import com.rarible.flow.events.RaribleNFTv2Meta
 import com.rarible.flow.log.Log
 import com.rarible.flow.scanner.emulator.EmulatorUser
+import java.lang.Thread.sleep
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingle
@@ -29,6 +35,7 @@ import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -45,11 +52,11 @@ import org.springframework.data.mongodb.core.query.where
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.utility.MountableFile
-import java.lang.Thread.sleep
 
 @IntegrationTest
 @MongoTest
 @MongoCleanup
+@Disabled("Enable after Q2 2022")
 class SoftCollectionIndexingTest {
 
     private lateinit var accessApi: FlowAccessApi

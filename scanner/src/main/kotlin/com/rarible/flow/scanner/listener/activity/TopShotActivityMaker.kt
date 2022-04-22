@@ -1,20 +1,15 @@
 package com.rarible.flow.scanner.listener.activity
 
-import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.NumberField
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.Part
-import com.rarible.flow.scanner.listener.NFTActivityMaker
-import org.springframework.beans.factory.annotation.Value
+import com.rarible.flow.scanner.activitymaker.NFTActivityMaker
 import org.springframework.stereotype.Component
 
 @Component
-class TopShotActivityMaker(
-    @Value("\${blockchain.scanner.flow.chainId}")
-    private val chainId: FlowChainId,
-) : NFTActivityMaker() {
+class TopShotActivityMaker : NFTActivityMaker() {
     override val contractName: String = Contracts.TOPSHOT.contractName
 
     override fun isSupportedCollection(collection: String): Boolean {

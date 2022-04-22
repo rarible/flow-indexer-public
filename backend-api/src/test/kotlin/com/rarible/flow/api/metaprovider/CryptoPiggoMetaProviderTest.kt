@@ -5,11 +5,14 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.mocks
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
+import com.rarible.flow.randomFlowAddress
 import io.mockk.every
 import io.mockk.mockk
+import java.time.Instant
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -50,7 +53,18 @@ class CryptoPiggoMetaProviderTest {
                 }
             )
 
-            val meta = provider.getMeta(ItemId(Contracts.CRYPTOPIGGO.fqn(FlowChainId.MAINNET), 17L))
+            val meta = provider.getMeta(
+                Item(
+                    contract = Contracts.CRYPTOPIGGO.fqn(FlowChainId.MAINNET),
+                    tokenId = 17L,
+                    creator = randomFlowAddress(),
+                    owner = randomFlowAddress(),
+                    royalties = emptyList(),
+                    mintedAt = Instant.now(),
+                    updatedAt = Instant.now(),
+                    collection = Contracts.CRYPTOPIGGO.fqn(FlowChainId.MAINNET)
+                )
+            )
             assertThat(meta.itemId.contract).isEqualTo(expectedMeta.itemId.contract)
             assertThat(meta.itemId.tokenId).isEqualTo(expectedMeta.itemId.tokenId)
             assertThat(meta.name).isEqualTo(expectedMeta.name)

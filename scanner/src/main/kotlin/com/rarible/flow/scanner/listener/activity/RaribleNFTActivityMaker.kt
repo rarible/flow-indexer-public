@@ -4,7 +4,7 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.StructField
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Part
-import com.rarible.flow.scanner.listener.NFTActivityMaker
+import com.rarible.flow.scanner.activitymaker.NFTActivityMaker
 import org.springframework.stereotype.Component
 
 @Component

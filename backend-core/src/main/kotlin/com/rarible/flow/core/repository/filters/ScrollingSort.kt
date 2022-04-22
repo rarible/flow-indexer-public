@@ -40,7 +40,7 @@ interface ScrollingSort<T> {
     }
 
     companion object {
-        private const val DEFAULT_LIMIT = 50
+        const val DEFAULT_LIMIT = 50
         private const val MAX_LIMIT = 1000
 
         fun pageSize(incomingSize: Int?): Int =

@@ -15,14 +15,12 @@ import com.rarible.flow.events.EventMessage
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainValue
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
 import java.time.Instant
 
 internal class ChainmonstersActivityTest: FunSpec({
-    val activityMaker = ChainmonstersActivity(mockk {
-        every { chainId } returns FlowChainId.MAINNET
-    })
+    val activityMaker = ChainmonstersActivity().apply {
+        chainId = FlowChainId.MAINNET
+    }
 
     test("should mint item") {
         activityMaker.activities(
@@ -41,7 +39,8 @@ internal class ChainmonstersActivityTest: FunSpec({
             royalties = listOf(
                 Part(FlowAddress("0x64f83c60989ce555"), 0.05)
             ),
-            timestamp = Instant.parse("2021-10-26T14:28:35.621Z")
+            timestamp = Instant.parse("2021-10-26T14:28:35.621Z"),
+            collection = "A.93615d25d14fa337.ChainmonstersRewards"
         )
     }
 

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.config.AppProperties
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
@@ -28,14 +29,14 @@ class CryptoPiggoMetaProvider(
     override fun isSupported(itemId: ItemId): Boolean =
         itemId.contract == Contracts.CRYPTOPIGGO.fqn(appProperties.chainId)
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
+    override suspend fun getMeta(item: Item): ItemMeta {
         return withSpan("CryptoPiggoMetaProvider::getMeta", "network") {
-            val piggoMeta = webClient.get().uri(metaUrl, itemId.tokenId)
-                .retrieve().awaitBodyOrNull<PiggoItem>() ?: return@withSpan emptyMeta(itemId)
+            val piggoMeta = webClient.get().uri(metaUrl, item.tokenId)
+                .retrieve().awaitBodyOrNull<PiggoItem>() ?: return@withSpan emptyMeta(item.id)
 
             return@withSpan ItemMeta(
-                itemId = itemId,
-                name = "Cryptopiggo #${itemId.tokenId}",
+                itemId = item.id,
+                name = "Cryptopiggo #${item.tokenId}",
                 description = "",
                 attributes = extractAttributes(piggoMeta),
                 contentUrls = listOf(piggoMeta.file.url),

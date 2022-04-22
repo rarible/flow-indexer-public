@@ -13,17 +13,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import org.springframework.core.io.Resource
-import reactor.core.publisher.Mono
 
 internal class FanfareMetaProviderTest : FunSpec({
 
-    val nonExisting = mockk<Item> {
-        every { id } returns ItemId("A.4c44f3b1e4e70b20.FanfareNFTContract", 3333)
-    }
-    val existing = mockk<Item> {
-        every { id } returns ItemId("A.4c44f3b1e4e70b20.FanfareNFTContract", 1337)
-    }
+    val existing = ItemId("A.4c44f3b1e4e70b20.FanfareNFTContract", 1337)
 
     val properMeta = ItemMeta(
         itemId = existing,
@@ -64,49 +57,27 @@ internal class FanfareMetaProviderTest : FunSpec({
 
     test("should return empty meta for non existing item") {
         FanfareMetaProvider(
-            mockk {
-                @Suppress("ReactiveStreamsUnusedPublisher")
-                every<Mono<Item>> { findById(any<ItemId>()) } returns Mono.empty()
-            },
             apiProperties,
-            mocks.scriptExecutor(),
-        ).getMeta(nonExisting) shouldBe null
+            mockk {
+                coEvery<String?> { executeFile(any<String>(), any(), any()) } returns null
+            },
+        ).getMeta(itemWithoutMeta) shouldBe ItemMeta.empty(existing)
     }
 
     test("should return proper meta from item") {
         FanfareMetaProvider(
-            mocks.webClient(
-                "https://www.fanfare.fm/api/nft-meta/1337",
-                META
-            ),
-            apiProperties
-        ).getMeta(existing) shouldBe ItemMeta(
-            existing.id,
-            "Sea of Tranquility (WSOGMM version)",
-            "Sea of Tranquility is an unreleased",
-            listOf(
-                ItemMetaAttribute("release date", "2022-01-26"),
-                ItemMetaAttribute("artist", "population-of-mars"),
-                ItemMetaAttribute("quantity", "42")
-            ),
-            listOf(
-                "https://fanfare-nft-images.s3.us-west-1.amazonaws.com/0x190d7b3f05cbf6d8/watertest02.mp4",
-                "https://fanfare-nft-audio.s3.us-west-1.amazonaws.com/0x190d7b3f05cbf6d8/Sea+of+Tranquility+-+PopOfMars.wav"
-            )
-        ).getMeta(existing) shouldBe properMeta
+            apiProperties,
+            mocks.scriptExecutor(),
+        ).getMeta(itemWithMeta) shouldBe properMeta
     }
 
     test("should return proper meta from flow") {
         FanfareMetaProvider(
-            mockk {
-                @Suppress("ReactiveStreamsUnusedPublisher")
-                every<Mono<Item>> { findById(any<ItemId>()) } returns Mono.just(itemWithoutMeta)
-            },
             apiProperties,
             mockk {
                 coEvery<String> { executeFile(any<String>(), any(), any()) } returns metaString
             }
-        ).getMeta(existing) shouldBe properMeta
+        ).getMeta(itemWithMeta) shouldBe properMeta
     }
 }
 )

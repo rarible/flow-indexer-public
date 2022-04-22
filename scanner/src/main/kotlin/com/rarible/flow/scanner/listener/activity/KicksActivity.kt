@@ -1,22 +1,18 @@
 package com.rarible.flow.scanner.listener.activity
 
 import com.nftco.flow.sdk.cadence.UInt32NumberField
-import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Part
-import com.rarible.flow.scanner.config.FlowApiProperties
-import com.rarible.flow.scanner.listener.NFTActivityMaker
+import com.rarible.flow.scanner.activitymaker.NFTActivityMaker
 import org.springframework.stereotype.Component
 
 @Component
-class KicksActivity(
-    private val config: FlowApiProperties
-): NFTActivityMaker() {
+class KicksActivity: NFTActivityMaker() {
     override val contractName: String = Contracts.KICKS.contractName
 
     override fun isSupportedCollection(collection: String): Boolean {
-        return collection == Contracts.KICKS.fqn(config.chainId)
+        return collection == Contracts.KICKS.fqn(chainId)
     }
 
     override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
@@ -34,6 +30,6 @@ class KicksActivity(
     }
 
     override fun royalties(logEvent: FlowLogEvent): List<Part> {
-        return Contracts.KICKS.staticRoyalties(config.chainId)
+        return Contracts.KICKS.staticRoyalties(chainId)
     }
 }

@@ -6,9 +6,11 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.events.EventId
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.stereotype.Component
 
 @Component
+@ConditionalOnExpression("false")
 class RaribleNFTv2Subscriber: BaseFlowLogEventSubscriber() {
 
     private val events = setOf("Minted", "Withdraw", "Deposit", "Burned")

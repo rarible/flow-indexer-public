@@ -7,7 +7,6 @@ import com.nftco.flow.sdk.cadence.JsonCadenceConversion
 import com.nftco.flow.sdk.cadence.JsonCadenceConverter
 import com.nftco.flow.sdk.cadence.unmarshall
 import com.rarible.flow.Contracts
-import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
@@ -15,7 +14,6 @@ import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.coFindById
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -27,12 +25,7 @@ class GeniaceMetaProvider(
 ) : ItemMetaProvider {
     override fun isSupported(itemId: ItemId): Boolean = Contracts.GENIACE.supports(itemId)
 
-    override suspend fun getMeta(itemId: ItemId) = itemRepository
-        .coFindById(itemId)
-        ?.let { getMeta(it) }
-        ?: ItemMeta.empty(itemId)
-
-    private suspend fun getMeta(item: Item): ItemMeta? {
+    override suspend fun getMeta(item: Item): ItemMeta? {
         return getMetaScript(item.owner ?: item.creator, item.tokenId)
             ?.toItemMeta(item.id)
     }

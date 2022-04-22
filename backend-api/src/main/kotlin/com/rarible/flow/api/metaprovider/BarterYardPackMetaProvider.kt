@@ -10,14 +10,11 @@ import com.nftco.flow.sdk.cadence.JsonCadenceConversion
 import com.nftco.flow.sdk.cadence.JsonCadenceConverter
 import com.nftco.flow.sdk.cadence.unmarshall
 import com.rarible.flow.Contracts
-import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.coFindById
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -26,18 +23,11 @@ import org.springframework.stereotype.Component
 class BarterYardPackMetaProvider(
     @Value("\${app.chain-id}")
     private val chainId: FlowChainId,
-    private val itemRepository: ItemRepository,
     private val script: BarterYardScript
 ): ItemMetaProvider {
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract == Contracts.BARTER_YARD_PACK.fqn(chainId)
 
-    override suspend fun getMeta(itemId: ItemId): ItemMeta {
-        return itemRepository.coFindById(itemId)?.let {
-            getMeta(it)
-        } ?: ItemMeta.empty(itemId)
-    }
-
-    suspend fun getMeta(item: Item): ItemMeta? {
+    override suspend fun getMeta(item: Item): ItemMeta? {
         return script.call(item.tokenId, item.owner!!)?.toItemMeta(item.id)
     }
 }

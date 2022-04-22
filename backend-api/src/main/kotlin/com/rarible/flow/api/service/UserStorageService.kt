@@ -6,6 +6,7 @@ import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
+import com.nftco.flow.sdk.cadence.OptionalField
 import com.nftco.flow.sdk.cadence.UInt32NumberField
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.metaprovider.CnnNFTConverter
@@ -17,6 +18,7 @@ import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
