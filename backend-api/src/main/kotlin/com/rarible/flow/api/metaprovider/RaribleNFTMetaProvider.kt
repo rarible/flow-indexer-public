@@ -44,8 +44,8 @@ class RaribleNFTMetaProvider(
                 ?: return null
         }
 
-        if (url.startsWith("ipfs://")) {
-            url = url.substring("ipfs://".length)
+        if (url.startsWith("ipfs://ipfs/")) {
+            url = url.substring("ipfs://ipfs/".length)
         }
 
         if (url.isEmpty()) {

@@ -15,6 +15,7 @@ logging:
   logstash:
     tcp-socket:
       enabled: false
+      destinations: []
 
 rarible:
   core:
