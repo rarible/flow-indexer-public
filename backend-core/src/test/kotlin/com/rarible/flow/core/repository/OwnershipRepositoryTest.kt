@@ -5,13 +5,17 @@ import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Ownership
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.runBlocking
+import org.apache.commons.lang3.RandomStringUtils
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
-import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils
 import java.time.Clock
 import java.time.Instant
 import java.util.*
@@ -60,14 +64,38 @@ internal class OwnershipRepositoryTest(
 
     }
 
+    @Test
+    fun `should find by ids`() = runBlocking<Unit> {
+        val contract = randomAddress()
+        val owner = randomAddress()
 
-    private fun createOwnership(contract: FlowAddress = randomAddress(), owner: FlowAddress = randomAddress()) = Ownership(
-        contract.formatted,
-        Random.nextLong(),
-        owner,
-        owner,
-        Instant.now(Clock.systemUTC()),
-    )
+        val all = listOf(
+            createOwnership(contract, owner),
+            createOwnership(contract, owner),
+            createOwnership(contract, owner)
+        )
+            .sortedBy { it.id.toString() }
+        ownershipRepository.saveAll(all).subscribe()
 
-    private fun randomAddress() = FlowAddress("0x${RandomStringUtils.random(16, "0123456789ABCDEF")}".lowercase(Locale.ENGLISH))
+        val result = ownershipRepository.findByIdIn(all.map { it.id.toString() }).asFlow().toList()
+            .sortedBy { it.id.toString() }
+
+        assertThat(result).hasSize(3)
+        println(result.zip(all))
+        result.zip(all).forEach { (actual, expected) ->
+            assertThat(actual).isEqualTo(expected)
+        }
+    }
+
+    private fun createOwnership(contract: FlowAddress = randomAddress(), owner: FlowAddress = randomAddress()) =
+        Ownership(
+            contract.formatted,
+            Random.nextLong(),
+            owner,
+            owner,
+            Instant.now(Clock.systemUTC()),
+        )
+
+    private fun randomAddress() =
+        FlowAddress("0x${RandomStringUtils.random(16, "0123456789ABCDEF")}".lowercase(Locale.ENGLISH))
 }
