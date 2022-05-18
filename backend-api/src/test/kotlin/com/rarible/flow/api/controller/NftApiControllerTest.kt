@@ -14,14 +14,22 @@ import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.protocol.dto.FlowCreatorDto
+import com.rarible.protocol.dto.FlowItemIdsDto
 import com.rarible.protocol.dto.FlowItemMetaDto
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemRoyaltyDto
 import com.rarible.protocol.dto.FlowNftItemsDto
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import io.mockk.coVerifyOrder
+import java.math.BigDecimal
+import java.math.BigInteger
+import java.time.Clock
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import kotlin.random.Random
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
@@ -31,11 +39,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
-import java.math.BigDecimal
-import java.math.BigInteger
-import java.time.Clock
-import java.time.Instant
-import java.time.temporal.ChronoUnit
+import org.springframework.web.reactive.function.BodyInserters
 
 @WebFluxTest(
     controllers = [NftApiController::class],
@@ -445,6 +449,49 @@ internal class NftApiControllerTest {
                 nftItemMetaService.getMetaByItemId(ItemId("A.1234.RaribleNFT", tokenId))
             }
         }
+    }
+
+    @Test
+    internal fun `should return items by ids`() {
+        val items = listOf(
+            createItem(tokenId = Random.nextLong(1L, 1000L)),
+            createItem(tokenId = Random.nextLong(2L, 1000L)),
+            createItem(tokenId = Random.nextLong(3L, 1000L)),
+            createItem(tokenId = Random.nextLong(4L, 1000L)),
+            createItem(tokenId = Random.nextLong(5L, 1000L)),
+            createItem(tokenId = Random.nextLong(6L, 1000L)),
+            createItem(tokenId = Random.nextLong(7L, 1000L)),
+            createItem(tokenId = Random.nextLong(8L, 1000L)),
+            createItem(tokenId = Random.nextLong(9L, 1000L)),
+            createItem(tokenId = Random.nextLong(10L, 1000L)),
+        )
+
+        val ids = items.map { it.id }
+
+        coEvery {
+            nftItemService.getItemsByIds(any())
+        } answers {
+            val answerIds = arg<List<ItemId>>(0)
+            val answerItems = items.filter { it.id in answerIds }
+            FlowNftItemsDto(
+                total = answerItems.size.toLong(),
+                continuation = null,
+                items = answerItems.map { ItemToDtoConverter.convert(it) }
+            )
+        }
+
+        val testIds = ids.shuffled().take(Random.nextInt(3, 10))
+        client.post().uri("/v0.1/items/byIds").body(BodyInserters.fromValue(FlowItemIdsDto(
+            ids = testIds.map { "$it" }
+        ))).exchange().expectStatus().isOk
+            .expectBody<FlowNftItemsDto>().consumeWith { res ->
+                res.responseBody shouldNotBe null
+                res.responseBody?.let { body ->
+                    body.total shouldBe testIds.size.toLong()
+                    body.continuation shouldBe null
+                    body.items.all { itemDto -> itemDto.id in testIds.map { "$it" } } shouldBe true
+                }
+            }
     }
 
     private fun createItem(collection: String = "A.1234.RaribleNFT", tokenId: TokenId = 42) = Item(

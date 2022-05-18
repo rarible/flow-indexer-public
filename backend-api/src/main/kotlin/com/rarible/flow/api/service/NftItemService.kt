@@ -12,6 +12,7 @@ import com.rarible.flow.core.repository.coFindById
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemsDto
 import com.rarible.protocol.dto.MetaDto
+import java.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.fold
@@ -20,7 +21,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
-import java.time.Instant
 
 @Service
 class NftItemService(
@@ -103,6 +103,22 @@ class NftItemService(
         ).asFlow()
 
         return convert(items, sort, size)
+    }
+
+    suspend fun getItemsByIds(ids: List<ItemId>): FlowNftItemsDto {
+        val items = itemRepository.findAllByIdIn(ids.toSet()).asFlow().toList()
+        return if (items.isEmpty()) {
+            FlowNftItemsDto(0L, null, emptyList())
+        } else {
+            val meta = itemMetaRepository.findAllByItemIdIn(items.map { it.id }).asFlow().toList()
+                .associateBy { it.itemId }
+                .mapValues { ItemMetaToDtoConverter.convert(it.value) }
+            return FlowNftItemsDto(
+                total = items.size.toLong(),
+                continuation = null,
+                items = items.map { convertItem(it, meta[it.id]) }.toList()
+            )
+        }
     }
 
 }
