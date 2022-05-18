@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class NFTStorefrontSubscriber(
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val collectionRepository: ItemCollectionRepository,
     private val txManager: TxManager,
     private val orderRepository: OrderRepository

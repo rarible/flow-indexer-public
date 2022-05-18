@@ -11,7 +11,11 @@ import com.rarible.flow.core.repository.filters.ScrollingSort
 import org.bson.types.Decimal128
 import org.springframework.data.mapping.div
 import org.springframework.data.mapping.toDotPath
-import org.springframework.data.mongodb.core.query.*
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.gte
+import org.springframework.data.mongodb.core.query.inValues
+import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.lt
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDateTime
@@ -99,8 +103,33 @@ sealed class OrderFilter : DbFilter<Order>, CriteriaProduct<OrderFilter> {
             override fun nextPage(entity: Order): String {
                 return Cont.toString(entity.amount, entity.id)
             }
-        }
-        ;
+        },
+
+        UPDATED_AT_ASC {
+            override fun springSort() = SpringSort.by(
+                SpringSort.Order.asc(Order::dbUpdatedAt.name),
+                SpringSort.Order.asc(Order::id.name)
+            )
+
+            override fun scroll(criteria: Criteria, continuation: String?) =
+                Cont.scrollAsc(criteria, continuation, Order::dbUpdatedAt, Order::id)
+
+            override fun nextPage(entity: Order) =
+                Cont.toString(entity.dbUpdatedAt, entity.id)
+        },
+
+        UPDATED_AT_DESC {
+            override fun springSort() = SpringSort.by(
+                SpringSort.Order.desc(Order::dbUpdatedAt.name),
+                SpringSort.Order.desc(Order::id.name)
+            )
+
+            override fun scroll(criteria: Criteria, continuation: String?) =
+                Cont.scrollDesc(criteria, continuation, Order::dbUpdatedAt, Order::id)
+
+            override fun nextPage(entity: Order) =
+                Cont.toString(entity.dbUpdatedAt, entity.id)
+        },
 
     }
 
