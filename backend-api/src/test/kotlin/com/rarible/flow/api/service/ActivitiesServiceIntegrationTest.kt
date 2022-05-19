@@ -9,6 +9,7 @@ import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.coSaveAll
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.runBlocking
@@ -130,7 +131,7 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
             MintActivity(
                 owner = "0x0b2a3299cc857e29",
                 creator = "0x0b2a3299cc857e29",
-                contract = "A.0b2a3299cc857e29.TopShot",
+                contract = "A.0b2a3299cc857e29.TopZhot",
                 tokenId = 3547598,
                 value = 1,
                 timestamp = Instant.parse("2021-02-25T05:39:22.00Z"),
@@ -152,5 +153,15 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
         itemHistoryRepository.coSaveAll(activity1, activity2)
         activitiesService.getActivitiesByIds(listOf(activity1.id)).items.map { it.id } shouldContainExactly listOf(activity1.id)
         activitiesService.getActivitiesByIds(listOf(activity2.id)).items.map { it.id } shouldContainExactly listOf(activity2.id)
+
+        activitiesService
+            .getNftOrderActivitiesByCollections(
+                listOf("MINT"), listOf("A.0b2a3299cc857e29.TopShot"), null, null, "LATEST_FIRST"
+            ).items.map { it.id } shouldContainExactly listOf(activity1.id)
+
+        activitiesService
+            .getNftOrderActivitiesByCollections(
+                listOf("MINT"), listOf("A.0b2a3299cc857e29.TopZhot"), null, null, "LATEST_FIRST"
+            ).items.map { it.id } shouldContainExactly listOf(activity2.id)
     }
 }
