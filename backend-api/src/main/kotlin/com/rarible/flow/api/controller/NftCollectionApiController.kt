@@ -30,6 +30,10 @@ class NftCollectionApiController(
         ).okOr404IfNull()
     }
 
+    override suspend fun searchNftCollectionsByIds(ids: List<String>): ResponseEntity<FlowNftCollectionsDto> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun searchNftCollectionsByOwner(
         owner: String,
         continuation: String?,
