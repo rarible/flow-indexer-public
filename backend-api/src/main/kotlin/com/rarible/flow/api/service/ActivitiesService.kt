@@ -8,7 +8,6 @@ import com.rarible.flow.core.repository.filters.ScrollingSort
 import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
-import java.time.Instant
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -22,6 +21,7 @@ import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.mongodb.core.query.where
 import org.springframework.stereotype.Service
+import java.time.Instant
 
 @FlowPreview
 @Service
@@ -161,6 +161,26 @@ class ActivitiesService(
             null,
             "EARLIEST_FIRST"
         )
+    }
+
+    suspend fun getNftOrderActivitiesByItemAndOwner(
+        contract: String,
+        tokenId: Long,
+        owner: String,
+        continuation: String?,
+        size: Int?,
+        sort: String,
+    ): FlowActivitiesDto? {
+        val criteria = Criteria().andOperator(
+            Criteria("activity.contract").isEqualTo(contract),
+            Criteria("activity.tokenId").isEqualTo(tokenId),
+            Criteria().orOperator(
+                Criteria("activity.owner").isEqualTo(owner),
+                Criteria("activity.to").isEqualTo(owner),
+            )
+        )
+
+        return getActivities(criteria, continuation, size, sort)
     }
 
     private suspend fun getActivities(
