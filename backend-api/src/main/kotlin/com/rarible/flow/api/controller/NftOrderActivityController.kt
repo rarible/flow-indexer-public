@@ -49,6 +49,20 @@ class NftOrderActivityController(private val service: ActivitiesService) : FlowN
         )
     }
 
+    override suspend fun getNftOrderActivitiesByItemAndOwner(
+        type: List<String>,
+        contract: String,
+        tokenId: Long,
+        owner: String,
+        continuation: String?,
+        size: Int?,
+        sort: String?,
+    ): ResponseEntity<FlowActivitiesDto> {
+        return ResponseEntity.ok(
+            service.getNftOrderActivitiesByItemAndOwner(type, contract, tokenId, owner, continuation, size, sort ?: defaultSort)
+        )
+    }
+
     override suspend fun getNftOrderActivitiesByUser(
         type: List<String>,
         user: List<String>,
