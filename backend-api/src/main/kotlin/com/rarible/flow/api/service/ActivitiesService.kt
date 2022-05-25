@@ -164,6 +164,7 @@ class ActivitiesService(
     }
 
     suspend fun getNftOrderActivitiesByItemAndOwner(
+        type: List<String>,
         contract: String,
         tokenId: Long,
         owner: String,
@@ -171,7 +172,10 @@ class ActivitiesService(
         size: Int?,
         sort: String,
     ): FlowActivitiesDto? {
-        val criteria = Criteria().andOperator(
+        val types = if (type.isEmpty()) queryTypes else safeOf(type)
+        if (types.isEmpty()) return emptyActivities
+
+        val criteria = defaultCriteria(types).andOperator(
             Criteria("activity.contract").isEqualTo(contract),
             Criteria("activity.tokenId").isEqualTo(tokenId),
             Criteria().orOperator(

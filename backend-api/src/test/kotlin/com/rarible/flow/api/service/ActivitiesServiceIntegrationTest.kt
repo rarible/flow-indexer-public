@@ -196,7 +196,7 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
         itemHistoryRepository.coSaveAll(listOf(mint, transfer).map { randomItemHistory(it) })
 
         activitiesService
-            .getNftOrderActivitiesByItemAndOwner(contract, tokenId, owner, null, null, sort)
+            .getNftOrderActivitiesByItemAndOwner(listOf("MINT", "TRANSFER"), contract, tokenId, owner, null, null, sort)
             ?.let { activities ->
                 activities.items shouldHaveSize 2
                 activities.items[0] should { it is FlowMintDto }
