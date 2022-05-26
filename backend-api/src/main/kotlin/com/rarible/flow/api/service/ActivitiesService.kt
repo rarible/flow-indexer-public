@@ -154,6 +154,22 @@ class ActivitiesService(
         return getActivities(criteria, continuation, size, sort)
     }
 
+    suspend fun getNftOrderActivitiesByCollections(
+        type: List<String>,
+        collections: List<String>,
+        continuation: String?,
+        size: Int?,
+        sort: String,
+    ): FlowActivitiesDto {
+        val types = if (type.isEmpty()) queryTypes else safeOf(type)
+        if (types.isEmpty()) return emptyActivities
+
+        val criteria = defaultCriteria(types)
+            .and("activity.contract").inValues(collections)
+
+        return getActivities(criteria, continuation, size, sort)
+    }
+
     suspend fun getActivitiesByIds(ids: List<String>): FlowActivitiesDto {
         return getActivities(
             ItemHistory::id inValues ids,
