@@ -260,20 +260,21 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
             delay(500)
             val second = itemHistoryRepository.coSave(activity2)
 
+            val types = listOf("MINT")
             val cursor1 = "${first.updatedAt.toEpochMilli()}_${first.id}"
             val cursor2 = "${second.updatedAt.toEpochMilli()}_${second.id}"
             val sort = "EARLIEST_FIRST"
-            val res1 = activitiesService.syncActivities(size = 1, continuation = null, sort)
+            val res1 = activitiesService.syncActivities(types, size = 1, continuation = null, sort)
 
             res1.continuation shouldBe cursor1
             res1.items shouldHaveSize 1
 
-            val res2 = activitiesService.syncActivities(size = 1, continuation = res1.continuation, sort)
+            val res2 = activitiesService.syncActivities(types, size = 1, continuation = res1.continuation, sort)
 
             res2.continuation shouldBe cursor2
             res2.items shouldHaveSize 1
 
-            val res3 = activitiesService.syncActivities(size = 1, continuation = res2.continuation, sort)
+            val res3 = activitiesService.syncActivities(types, size = 1, continuation = res2.continuation, sort)
 
             res3.continuation shouldBe "null"
             res3.items shouldHaveSize 0
