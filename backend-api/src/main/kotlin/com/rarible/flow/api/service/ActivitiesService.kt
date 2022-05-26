@@ -163,8 +163,9 @@ class ActivitiesService(
         )
     }
 
-    suspend fun syncActivities(size: Int?, continuation: String?, sort: String): FlowActivitiesDto {
-        return getActivities(Criteria(), continuation, size, sort, FlowActivityDto::updatedAt)
+    suspend fun syncActivities(type: List<String>, size: Int?, continuation: String?, sort: String): FlowActivitiesDto {
+        val types = if (type.isEmpty()) queryTypes else safeOf(type)
+        return getActivities(defaultCriteria(types), continuation, size, sort, FlowActivityDto::updatedAt)
     }
 
     suspend fun getNftOrderActivitiesByItemAndOwner(

@@ -83,11 +83,12 @@ class NftOrderActivityController(private val service: ActivitiesService) : FlowN
     )
 
     override suspend fun getNftOrderActivitiesSync(
+        type: List<String>,
         continuation: String?,
         size: Int?,
-        sort: String?,
+        sort: String?
     ): ResponseEntity<FlowActivitiesDto> = ResponseEntity.ok(
-        service.syncActivities(size, continuation, sort ?: defaultSort)
+        service.syncActivities(type, size, continuation, sort ?: defaultSort)
     )
 
     override suspend fun getNftOrderAllActivities(
