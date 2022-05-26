@@ -12,6 +12,7 @@ import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TransferActivity
 import com.rarible.flow.core.repository.ItemHistoryRepository
+import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.repository.coSaveAll
 import com.rarible.flow.randomAddress
 import com.rarible.flow.randomContract
@@ -24,11 +25,12 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import java.time.Instant
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.Instant
 
 @FlowPreview
 @IntegrationTest
@@ -36,10 +38,10 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
 
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
-    lateinit var itemHistoryRepository: ItemHistoryRepository
+    private lateinit var itemHistoryRepository: ItemHistoryRepository
 
     @Autowired
-    lateinit var activitiesService: ActivitiesService
+    private lateinit var activitiesService: ActivitiesService
 
     @Test
     fun `should return correct continuation FB-646 - fix`(): Unit = runBlocking {
@@ -174,7 +176,7 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
     }
 
     @Test
-    fun `should find activities by item and owner`() = runBlocking<Unit> {
+    fun `should find activities by item and owner`() = runBlocking {
         val sort = "LATEST_FIRST"
         val owner = randomAddress()
         val contract = "A.0b2a3299cc857e29.TopShot"
@@ -202,6 +204,81 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
                 activities.items[0] should { it is FlowMintDto }
                 activities.items[1] should { it is FlowTransferDto }
             } ?: shouldNotBe(null)
+    }
+
+    @Test
+    internal fun `sync by updatedAt test`() {
+        runBlocking {
+            val activity1 = ItemHistory(
+                Instant.parse("2021-02-25T05:39:22.00Z"),
+                MintActivity(
+                    owner = "0x0b2a3299cc857e29",
+                    creator = "0x0b2a3299cc857e29",
+                    contract = "A.0b2a3299cc857e29.TopShot",
+                    tokenId = 3547597,
+                    value = 1,
+                    timestamp = Instant.parse("2021-02-25T05:39:22.00Z"),
+                    royalties = emptyList(),
+                    metadata = emptyMap()
+                ),
+                FlowLog(
+                    transactionHash = "1903e78154fb70a7fd410e980fa6aaa07199226c5855e743d73b85cd19dcfd62",
+                    status = Log.Status.CONFIRMED,
+                    eventIndex = 0,
+                    eventType = "A.0b2a3299cc857e29.TopShot.MomentMinted",
+                    timestamp = Instant.ofEpochMilli(1614231562934000),
+                    blockHeight = 12236741,
+                    blockHash = "0954c38a1189717a26fe16afce2f06c257dee03e2224496be5aa01b59545c7d0",
+                )
+            )
+
+            val activity2 = ItemHistory(
+                Instant.parse("2021-02-25T05:39:22.00Z"),
+                MintActivity(
+                    owner = "0x0b2a3299cc857e29",
+                    creator = "0x0b2a3299cc857e29",
+                    contract = "A.0b2a3299cc857e29.TopShot",
+                    tokenId = 3547598,
+                    value = 1,
+                    timestamp = Instant.parse("2021-02-25T05:39:22.00Z"),
+                    royalties = emptyList(),
+                    metadata = emptyMap()
+                ),
+                FlowLog(
+                    transactionHash = "1903e78154fb70a7fd410e980fa6aaa07199226c5855e743d73b85cd19dcfd62",
+                    status = Log.Status.CONFIRMED,
+                    eventIndex = 1,
+                    eventType = "A.0b2a3299cc857e29.TopShot.MomentMinted",
+                    timestamp = Instant.ofEpochMilli(1614231562934000),
+                    blockHeight = 12236741,
+                    blockHash = "0954c38a1189717a26fe16afce2f06c257dee03e2224496be5aa01b59545c7d0",
+                )
+            )
+
+
+            val first = itemHistoryRepository.coSave(activity1)
+            delay(500)
+            val second = itemHistoryRepository.coSave(activity2)
+
+            val cursor1 = "${first.updatedAt.toEpochMilli()}_${first.id}"
+            val cursor2 = "${second.updatedAt.toEpochMilli()}_${second.id}"
+            val sort = "EARLIEST_FIRST"
+            val res1 = activitiesService.syncActivities(size = 1, continuation = null, sort)
+
+            res1.continuation shouldBe cursor1
+            res1.items shouldHaveSize 1
+
+            val res2 = activitiesService.syncActivities(size = 1, continuation = res1.continuation, sort)
+
+            res2.continuation shouldBe cursor2
+            res2.items shouldHaveSize 1
+
+            val res3 = activitiesService.syncActivities(size = 1, continuation = res2.continuation, sort)
+
+            res3.continuation shouldBe "null"
+            res3.items shouldHaveSize 0
+
+        }
     }
 
     fun randomItemHistory(
