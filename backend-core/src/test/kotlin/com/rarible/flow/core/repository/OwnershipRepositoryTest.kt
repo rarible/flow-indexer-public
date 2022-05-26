@@ -5,6 +5,9 @@ import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Ownership
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
+import java.time.Instant
+import java.util.Locale
+import kotlin.random.Random
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
@@ -16,10 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
-import java.time.Clock
-import java.time.Instant
-import java.util.*
-import kotlin.random.Random
 
 @MongoTest
 @DataMongoTest(
@@ -33,11 +32,9 @@ import kotlin.random.Random
 )
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
-internal class OwnershipRepositoryTest(
-
-) {
+internal class OwnershipRepositoryTest {
     @Autowired
-    lateinit var ownershipRepository: OwnershipRepository
+    private lateinit var ownershipRepository: OwnershipRepository
 
     @BeforeEach
     fun beforeEach() {
@@ -46,20 +43,22 @@ internal class OwnershipRepositoryTest(
 
     @Test
     fun `should delete and return ownerships`() {
-        val contract = randomAddress()
-        val owner = randomAddress()
+        runBlocking {
+            val contract = randomAddress()
+            val owner = randomAddress()
 
-        val (o1, o2, o3) = listOf(
-            createOwnership(contract, owner),
-            createOwnership(contract, owner),
-            createOwnership(contract, owner)
-        )
-        ownershipRepository.saveAll(
-            listOf(o1, o2, o3)
-        )
+            val (o1, o2, o3) = listOf(
+                createOwnership(contract, owner),
+                createOwnership(contract, owner),
+                createOwnership(contract, owner)
+            )
+            ownershipRepository.coSaveAll(
+                listOf(o1, o2, o3)
+            )
 
-        ownershipRepository.deleteAllByContractAndTokenId(o1.contract, o1.tokenId).subscribe {
-            it shouldBeEqualToComparingFields o1
+            ownershipRepository.deleteAllByContractAndTokenId(o1.contract, o1.tokenId).subscribe {
+                it shouldBeEqualToComparingFields o1
+            }
         }
 
     }
@@ -75,16 +74,13 @@ internal class OwnershipRepositoryTest(
             createOwnership(contract, owner)
         )
             .sortedBy { it.id.toString() }
-        ownershipRepository.saveAll(all).subscribe()
+        ownershipRepository.coSaveAll(all)
 
         val result = ownershipRepository.findByIdIn(all.map { it.id.toString() }).asFlow().toList()
             .sortedBy { it.id.toString() }
 
         assertThat(result).hasSize(3)
-        println(result.zip(all))
-        result.zip(all).forEach { (actual, expected) ->
-            assertThat(actual).isEqualTo(expected)
-        }
+        assertThat(result).containsAll(all)
     }
 
     private fun createOwnership(contract: FlowAddress = randomAddress(), owner: FlowAddress = randomAddress()) =
@@ -93,7 +89,7 @@ internal class OwnershipRepositoryTest(
             Random.nextLong(),
             owner,
             owner,
-            Instant.now(Clock.systemUTC()),
+            Instant.now(),
         )
 
     private fun randomAddress() =

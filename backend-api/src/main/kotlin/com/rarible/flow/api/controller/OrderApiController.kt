@@ -61,6 +61,18 @@ class OrderApiController(
         }.okOr404IfNull()
     }
 
+    override suspend fun getOrdersSync(
+        continuation: String?,
+        size: Int?,
+        sort: String,
+    ): ResponseEntity<FlowOrdersPaginationDto> {
+        val orderSort = OrderFilter.Sort.valueOf(sort)
+        return result(
+            service.findAll(continuation, size, orderSort),
+            orderSort, size
+        )
+    }
+
     override fun getSellCurrencies(itemId: String): ResponseEntity<Flow<FlowAssetDto>> {
         return service.sellCurrenciesByItemId(itemId.itemId()).map {
             FlowAssetFungibleDto(it.contract, it.value)

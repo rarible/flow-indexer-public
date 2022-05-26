@@ -9,6 +9,7 @@ import com.rarible.flow.enum.safeOf
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
 import java.time.Instant
+import kotlin.reflect.KProperty
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -20,7 +21,6 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.and
 import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
-import org.springframework.data.mongodb.core.query.where
 import org.springframework.stereotype.Service
 
 @FlowPreview
@@ -179,23 +179,53 @@ class ActivitiesService(
         )
     }
 
+    suspend fun syncActivities(type: List<String>, size: Int?, continuation: String?, sort: String): FlowActivitiesDto {
+        val types = if (type.isEmpty()) queryTypes else safeOf(type)
+        return getActivities(defaultCriteria(types), continuation, size, sort, FlowActivityDto::updatedAt)
+    }
+
+    suspend fun getNftOrderActivitiesByItemAndOwner(
+        type: List<String>,
+        contract: String,
+        tokenId: Long,
+        owner: String,
+        continuation: String?,
+        size: Int?,
+        sort: String,
+    ): FlowActivitiesDto? {
+        val types = if (type.isEmpty()) queryTypes else safeOf(type)
+        if (types.isEmpty()) return emptyActivities
+
+        val criteria = defaultCriteria(types).andOperator(
+            Criteria("activity.contract").isEqualTo(contract),
+            Criteria("activity.tokenId").isEqualTo(tokenId),
+            Criteria().orOperator(
+                Criteria("activity.owner").isEqualTo(owner),
+                Criteria("activity.to").isEqualTo(owner),
+            )
+        )
+
+        return getActivities(criteria, continuation, size, sort)
+    }
+
     private suspend fun getActivities(
         criteria: Criteria,
         inCont: String?,
         size: Int?,
         sort: String,
+        continuationDateField: KProperty<Instant> = FlowActivityDto::date
     ): FlowActivitiesDto {
-        addContinuation(ActivityContinuation.of(inCont), criteria, sort)
+        addContinuation(ActivityContinuation.of(inCont), criteria, sort, continuationDateField.name)
         val limit = ScrollingSort.Companion.pageSize(size)
         val query = Query()
             .addCriteria(criteria)
             .limit(limit)
-            .with(defaultSort(sort))
+            .with(defaultSort(sort, continuationDateField.name))
         val items = mongoTemplate
             .find(query, ItemHistory::class.java).asFlow()
             .map { ItemHistoryToDtoConverter.convert(it) }
             .toList()
-        val outCont = answerContinuation(items, limit)
+        val outCont = answerContinuation(items, limit, continuationDateField)
 
         return FlowActivitiesDto(
             items = items,
@@ -212,21 +242,21 @@ class ActivitiesService(
         if (c.isNotEmpty()) andOperator(*c.toTypedArray())
     }
 
-    private fun addContinuation(cont: ActivityContinuation?, criteria: Criteria, sort: String) {
+    private fun addContinuation(cont: ActivityContinuation?, criteria: Criteria, sort: String, continuationDateFieldName: String) {
         if (cont != null) {
             when (sort) {
                 "EARLIEST_FIRST" ->
                     criteria.andOperator(
                         Criteria().orOperator(
-                            where(ItemHistory::date).gt(cont.beforeDate),
-                            where(ItemHistory::date).isEqualTo(cont.beforeDate).and(ItemHistory::id).gt(cont.beforeId)
+                            Criteria.where(continuationDateFieldName).gt(cont.beforeDate),
+                            Criteria.where(continuationDateFieldName).isEqualTo(cont.beforeDate).and(ItemHistory::id).gt(cont.beforeId)
                         )
                     )
                 else ->
                     criteria.andOperator(
                        Criteria().orOperator(
-                           where(ItemHistory::date).lt(cont.beforeDate),
-                           where(ItemHistory::date).isEqualTo(cont.beforeDate).and(ItemHistory::id).lt(cont.beforeId)
+                           Criteria.where(continuationDateFieldName).lt(cont.beforeDate),
+                           Criteria.where(continuationDateFieldName).isEqualTo(cont.beforeDate).and(ItemHistory::id).lt(cont.beforeId)
                        )
                     )
             }
@@ -236,13 +266,13 @@ class ActivitiesService(
     private fun defaultCriteria(types: Collection<FlowActivityType>) =
         Criteria.where("activity.type").`in`(types.map(FlowActivityType::name))
 
-    private fun defaultSort(sort: String): Sort = when (sort) {
-        "EARLIEST_FIRST" -> Sort.by(Sort.Direction.ASC, "date", "_id")
-        else -> Sort.by(Sort.Direction.DESC, "date", "_id")
+    private fun defaultSort(sort: String, dateFieldName: String): Sort = when (sort) {
+        "EARLIEST_FIRST" -> Sort.by(Sort.Direction.ASC, dateFieldName, "_id")
+        else -> Sort.by(Sort.Direction.DESC, dateFieldName, "_id")
     }
 
-    private fun answerContinuation(items: List<FlowActivityDto>, limit: Int): ActivityContinuation? =
+    private fun answerContinuation(items: List<FlowActivityDto>, limit: Int, dateField: KProperty<Instant>): ActivityContinuation? =
         if (items.size < limit) null
-        else ActivityContinuation(beforeDate = items.last().date, beforeId = items.last().id)
+        else ActivityContinuation(beforeDate = dateField.call(items.last()), beforeId = items.last().id)
 
 }
