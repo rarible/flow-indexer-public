@@ -274,6 +274,30 @@ class OrderService(
             orderRepository.coSave(order)
         }
     }
+
+    suspend fun enrichTransfer(txHash: String, from: String, to: String): ItemHistory? {
+        return withSpan("enrichTransfer", "db") {
+            itemHistoryRepository.findTransferInTx(txHash, from, to).awaitSingle()
+                ?.let { transfer ->
+                    (transfer.activity as? TransferActivity)?.let { transferActivity ->
+                        itemHistoryRepository.save(transfer.copy(activity = transferActivity.copy(purchased = true)))
+                            .awaitSingle()
+                    }
+                }
+        }
+    }
+
+    suspend fun checkAndEnrichTransfer(txHash: String, from: String, to: String) =
+        itemHistoryRepository.findOrderInTx(txHash, from, to).awaitFirstOrNull()?.let { sell ->
+            (sell.activity as? FlowNftOrderActivitySell)?.let { activity ->
+                if (
+                    activity.left.maker == from && activity.right.maker == to ||
+                    activity.right.maker == from && activity.left.maker == to
+                ) enrichTransfer(txHash, from, to)
+                else null
+            }
+        }
+
     suspend fun enrichCancelList(orderId: String) {
         withSpan("enrichCancelList", "db") {
             val h = itemHistoryRepository
