@@ -277,7 +277,7 @@ class OrderService(
 
     suspend fun enrichTransfer(txHash: String, from: String, to: String): ItemHistory? {
         return withSpan("enrichTransfer", "db") {
-            itemHistoryRepository.findTransferInTx(txHash, from, to).awaitSingle()
+            itemHistoryRepository.findTransferInTx(txHash, from, to).awaitFirstOrNull()
                 ?.let { transfer ->
                     (transfer.activity as? TransferActivity)?.let { transferActivity ->
                         itemHistoryRepository.save(transfer.copy(activity = transferActivity.copy(purchased = true)))
