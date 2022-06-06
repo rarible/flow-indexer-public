@@ -79,6 +79,8 @@ class OrderIndexerEventProcessor(
         ) {
             val o = orderService.close(activity)
             sendUpdate(event, o)
+            orderService.enrichTransfer(event.history.log.transactionHash, activity.left.maker, activity.right.maker)
+                ?.also { sendHistoryUpdate(event, it) }
         }
     }
 
@@ -105,6 +107,8 @@ class OrderIndexerEventProcessor(
         withSpan("acceptBidEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
             val o = orderService.closeBid(activity, event.item)
             sendUpdate(event, o)
+            orderService.enrichTransfer(event.history.log.transactionHash, activity.right.maker, activity.left.maker)
+                ?.also { sendHistoryUpdate(event, it) }
         }
     }
 

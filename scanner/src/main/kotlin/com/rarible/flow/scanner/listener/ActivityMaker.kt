@@ -35,6 +35,7 @@ import com.rarible.flow.scanner.service.balance.FlowBalanceService
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
 import com.rarible.protocol.dto.FlowOrderPlatformDto
+import java.math.BigDecimal
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
@@ -42,7 +43,6 @@ import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import java.math.BigDecimal
 
 interface ActivityMaker {
 
@@ -56,9 +56,6 @@ abstract class NFTActivityMaker : ActivityMaker {
     abstract val contractName: String
 
     protected val cadenceParser: JsonCadenceParser = JsonCadenceParser()
-
-    @Autowired
-    protected lateinit var txManager: TxManager
 
     fun <T> parse(fn: JsonCadenceParser.() -> T): T {
         return fn(cadenceParser)
@@ -130,7 +127,7 @@ abstract class NFTActivityMaker : ActivityMaker {
                         to = cadenceParser.optional(to) {
                             address(it)
                         }!!,
-                        purchased = isPurchased(w.log),
+                        purchased = false,
                     )
                 } else {
                     val burnActivity = burnEvents.find { b ->
@@ -155,7 +152,7 @@ abstract class NFTActivityMaker : ActivityMaker {
                                 address(it)
                             }!!,
                             to = w.event.eventId.contractAddress.formatted,
-                            purchased = isPurchased(w.log),
+                            purchased = false,
                         )
                     }
                 }
@@ -169,7 +166,7 @@ abstract class NFTActivityMaker : ActivityMaker {
                     timestamp = d.log.timestamp,
                     from = d.event.eventId.contractAddress.formatted,
                     to = cadenceParser.optional(to) { address(it) }!!,
-                    purchased = isPurchased(d.log),
+                    purchased = false,
                 )
             }
         }
@@ -183,17 +180,6 @@ abstract class NFTActivityMaker : ActivityMaker {
     protected open fun royalties(logEvent: FlowLogEvent): List<Part> = emptyList()
 
     protected open fun creator(logEvent: FlowLogEvent): String = logEvent.event.eventId.contractAddress.formatted
-
-    private val purchasingEvents = setOf("ListingCompleted", "BidCompleted")
-
-    private suspend fun isPurchased(log: FlowLog): Boolean = false
-/* TODO handle it
-    private suspend fun isPurchased(log: FlowLog): Boolean = withSpan("isPurchased", "network") {
-        txManager.onTransaction(log.blockHeight, FlowId(log.transactionHash)) { txResult ->
-            txResult.events.any { it.type.substringAfterLast(".") in purchasingEvents }
-        }
-    }
-*/
 }
 
 abstract class OrderActivityMaker : ActivityMaker {
