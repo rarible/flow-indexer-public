@@ -1,7 +1,6 @@
 package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.Flow
-import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.CadenceNamespace
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion
@@ -73,17 +72,31 @@ data class JambbMomentsMeta(
 ): MetaBody {
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         return ItemMeta(
-            itemId, contentName, contentDescription,
-            listOf(
+            itemId = itemId,
+            name = contentName,
+            description = contentDescription,
+            attributes = listOf(
                 ItemMetaAttribute("Creator", contentCreator),
                 ItemMetaAttribute("Rarity", rarity),
-                ItemMetaAttribute("Retired?", if(retired) "YES" else "NO"),
+                ItemMetaAttribute("Retired?", if (retired) "YES" else "NO"),
                 ItemMetaAttribute("Set Name", setName),
                 ItemMetaAttribute("Series Name", seriesName),
             ),
-            listOf(
+            contentUrls = listOf(
                 previewImage,
                 videoURI
+            ),
+            content = listOf(
+                ItemMeta.Content(
+                    url = previewImage,
+                    representation = ItemMeta.Content.Representation.PREVIEW,
+                    type = ItemMeta.Content.Type.IMAGE,
+                ),
+                ItemMeta.Content(
+                    url = videoURI,
+                    representation = ItemMeta.Content.Representation.ORIGINAL,
+                    type = ItemMeta.Content.Type.VIDEO,
+                ),
             )
         )
     }
