@@ -4,6 +4,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.mapping.FieldType
 import org.springframework.data.mongodb.core.mapping.MongoId
+import java.time.Instant
 
 /**
  * Represents NFT Items' meta information
@@ -22,6 +23,14 @@ data class ItemMeta(
     val description: String,
     val attributes: List<ItemMetaAttribute>,
     val contentUrls: List<String>,
+    val createdAt: Instant? = null,
+    val tags: List<String>? = null,
+    val genres: List<String>? = null,
+    val language: String? = null,
+    val rights: String? = null,
+    val rightsUrl: String? = null,
+    val externalUri: String? = null,
+    val content: List<Content>? = null,
 ) {
     @Field(targetType = FieldType.BINARY)
     var raw: ByteArray? = null
@@ -38,11 +47,37 @@ data class ItemMeta(
             contentUrls = emptyList()
         )
     }
+
+    data class Content(
+        val url: String,
+        val representation: Representation,
+        val type: Type,
+        val fileName: String? = null,
+        val mimeType: String? = null,
+        val size: Int? = null,
+        val width: Int? = null,
+        val height: Int? = null,
+    ) {
+        enum class Representation {
+            ORIGINAL,
+            BIG,
+            PREVIEW
+        }
+
+        enum class Type {
+            IMAGE,
+            VIDEO,
+            AUDIO,
+            MODEL_3D,
+            HTML,
+            UNKNOWN
+        }
+    }
 }
 
 data class ItemMetaAttribute(
     val key: String,
     val value: String?,
     val type: String? = null,
-    val format: String? = null
+    val format: String? = null,
 )

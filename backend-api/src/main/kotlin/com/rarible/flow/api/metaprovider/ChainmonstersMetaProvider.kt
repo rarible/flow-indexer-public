@@ -85,11 +85,18 @@ data class ChainmonstersMeta(
 ) : MetaBody {
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         return ItemMeta(
-            itemId,
-            name,
-            desc,
-            listOf(ItemMetaAttribute("season", season)),
-            listOf(img)
+            itemId = itemId,
+            name = name,
+            description = desc,
+            attributes = listOf(ItemMetaAttribute("season", season)),
+            contentUrls = listOf(img),
+            content = listOf(
+                ItemMeta.Content(
+                    img,
+                    ItemMeta.Content.Representation.ORIGINAL,
+                    ItemMeta.Content.Type.IMAGE,
+                )
+            )
         )
     }
 }

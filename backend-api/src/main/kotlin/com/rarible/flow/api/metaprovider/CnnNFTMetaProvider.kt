@@ -112,7 +112,23 @@ data class CnnNFTMetaBody(
                 image,
                 preview
             ),
-            attributes = getAttributes()
+            attributes = getAttributes(),
+            content = listOfNotNull(
+                preview?.let {
+                    ItemMeta.Content(
+                        it,
+                        ItemMeta.Content.Representation.PREVIEW,
+                        ItemMeta.Content.Type.IMAGE,
+                    )
+                },
+                image?.let {
+                    ItemMeta.Content(
+                        it,
+                        ItemMeta.Content.Representation.ORIGINAL,
+                        ItemMeta.Content.Type.IMAGE,
+                    )
+                }
+            )
         ).apply {
             raw = toString().toByteArray(charset = Charsets.UTF_8)
         }

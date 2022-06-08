@@ -60,15 +60,31 @@ data class FanfareMeta(
 
     ) : MetaBody {
     override fun toItemMeta(itemId: ItemId): ItemMeta {
-        return ItemMeta(itemId,
-            "$title //$artistName",
-            description,
-            listOf(
+        return ItemMeta(
+            itemId = itemId,
+            name = "$title //$artistName",
+            description = description,
+            attributes = listOf(
                 ItemMetaAttribute(key = "genre", value = genre),
                 ItemMetaAttribute(key = "is_music_video", value = isMusicVideo.toString()),
                 ItemMetaAttribute(key = "total_copies", value = totalCopies.toString()),
                 ItemMetaAttribute(key = "edition", value = edition.toString()),
             ),
-            listOf(imageUrl, audioUrl, externalUrl))
+            contentUrls = listOf(imageUrl, audioUrl, externalUrl),
+            genres = listOf(genre),
+            content = listOf(
+                ItemMeta.Content(
+                    imageUrl,
+                    ItemMeta.Content.Representation.ORIGINAL,
+                    ItemMeta.Content.Type.IMAGE,
+                ),
+                ItemMeta.Content(
+                    audioUrl,
+                    ItemMeta.Content.Representation.ORIGINAL,
+                    ItemMeta.Content.Type.AUDIO,
+                )
+            ),
+            externalUri = externalUrl,
+        )
     }
 }
