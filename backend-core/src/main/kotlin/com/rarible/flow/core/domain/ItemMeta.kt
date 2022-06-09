@@ -31,6 +31,7 @@ data class ItemMeta(
     val rightsUrl: String? = null,
     val externalUri: String? = null,
     val content: List<Content>? = null,
+    val originalMetaUri: String? = null,
 ) {
     @Field(targetType = FieldType.BINARY)
     var raw: ByteArray? = null
@@ -50,7 +51,7 @@ data class ItemMeta(
 
     data class Content(
         val url: String,
-        val representation: Representation,
+        val representation: Representation = Representation.ORIGINAL,
         val type: Type,
         val fileName: String? = null,
         val mimeType: String? = null,

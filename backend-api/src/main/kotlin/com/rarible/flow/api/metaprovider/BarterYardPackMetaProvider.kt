@@ -81,6 +81,13 @@ data class Pass(
             contentUrls = listOf(
                 "ipfs://ipfs/$ipfsCID"
             ),
+            content = listOf(
+                ItemMeta.Content(
+                    "ipfs://ipfs/$ipfsCID",
+                    ItemMeta.Content.Representation.ORIGINAL,
+                    ItemMeta.Content.Type.IMAGE,
+                ),
+            )
         ).apply { this.raw = raw }
     }
 }

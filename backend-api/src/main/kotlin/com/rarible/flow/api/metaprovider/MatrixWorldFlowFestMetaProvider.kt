@@ -1,11 +1,20 @@
 package com.rarible.flow.api.metaprovider
 
 import com.nftco.flow.sdk.Flow
-import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.cadence.*
+import com.nftco.flow.sdk.cadence.CadenceNamespace
+import com.nftco.flow.sdk.cadence.Field
+import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
+import com.nftco.flow.sdk.cadence.JsonCadenceConversion
+import com.nftco.flow.sdk.cadence.JsonCadenceConverter
+import com.nftco.flow.sdk.cadence.OptionalField
+import com.nftco.flow.sdk.cadence.StructField
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.service.ScriptExecutor
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.ItemMeta
+import com.rarible.flow.core.domain.ItemMetaAttribute
+import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.coFindById
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -65,6 +74,13 @@ data class MatrixWorldFlowFestNftMeta(
             contentUrls = listOf(
                 animationUrl
             ),
+            content = listOf(
+                ItemMeta.Content(
+                    meta.animationUrl,
+                    ItemMeta.Content.Representation.ORIGINAL,
+                    ItemMeta.Content.Type.VIDEO,
+                )
+            )
         ).apply {
             raw = toString().toByteArray(Charsets.UTF_8)
         }

@@ -77,6 +77,13 @@ class EvolutionItemMetaProvider(
             description = data["Description"]?.let { jsonCadenceParser.optional(it) { string(it) } }.orEmpty(),
             attributes = attributes,
             contentUrls = contents,
+            content = listOf(
+                ItemMeta.Content(
+                    contents.single(),
+                    ItemMeta.Content.Representation.ORIGINAL,
+                    ItemMeta.Content.Type.IMAGE,
+                )
+            ),
         ).apply {
             raw = toString().toByteArray(Charsets.UTF_8)
         }

@@ -24,13 +24,76 @@ class MugenNFTMetaProvider(
 
     override suspend fun getMeta(item: Item): ItemMeta? {
         return try {
-            return mugenCient
-                .get()
-                .uri("/${item.tokenId}")
-                .retrieve()
-                .awaitBodyOrNull<List<MugenNFTMetaBody>>()
-                ?.firstOrNull()
-                ?.toItemMeta(item.id)
+            val data = client.get().uri(url)
+                .retrieve().awaitBodyOrNull<List<MugenNFTMetaBody>>()?.singleOrNull() ?: return emptyMeta(itemId)
+            ItemMeta(
+                itemId = itemId,
+                name = data.name,
+                description = data.description,
+                attributes = data.attributes.map {
+                    ItemMetaAttribute(
+                        key = it.traitType,
+                        value = it.value
+                    )
+                } + listOf(
+                    ItemMetaAttribute(
+                        key = "backgroundColor",
+                        value = data.backgroundColor,
+                    )
+                ),
+                contentUrls = listOfNotNull(
+                    data.imageBlocto,
+                    data.icon,
+                    data.image,
+                    data.imagePreview,
+                    data.imageHd,
+                    data.externalUrl,
+                    data.animationUrl,
+                    data.animationUrl2,
+                    data.youtubeUrl,
+                ),
+                originalMetaUri = url,
+                externalUri = data.externalUrl,
+                content = listOfNotNull(
+                    data.imagePreview?.let {
+                        ItemMeta.Content(
+                            it,
+                            ItemMeta.Content.Representation.PREVIEW,
+                            ItemMeta.Content.Type.IMAGE,
+                        )
+                    },
+                    data.image?.let {
+                        ItemMeta.Content(
+                            it,
+                            ItemMeta.Content.Representation.ORIGINAL,
+                            ItemMeta.Content.Type.IMAGE,
+                        )
+                    },
+                    data.imageHd?.let {
+                        ItemMeta.Content(
+                            it,
+                            ItemMeta.Content.Representation.BIG,
+                            ItemMeta.Content.Type.IMAGE,
+                        )
+                    },
+                    data.animationUrl?.let {
+                        ItemMeta.Content(
+                            it,
+                            ItemMeta.Content.Representation.ORIGINAL,
+                            ItemMeta.Content.Type.VIDEO,
+                        )
+                    },
+                    data.animationUrl2?.let {
+                        ItemMeta.Content(
+                            it,
+                            ItemMeta.Content.Representation.ORIGINAL,
+                            ItemMeta.Content.Type.VIDEO,
+                        )
+                    },
+                ),
+            ).apply {
+                raw = data.toString().toByteArray(charset = Charsets.UTF_8)
+            }
         } catch (e: Exception) {
             logger.warn("getMeta: ${e.message}", e)
             null

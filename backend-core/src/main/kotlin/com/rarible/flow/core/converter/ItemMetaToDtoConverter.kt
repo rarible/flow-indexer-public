@@ -25,6 +25,7 @@ object ItemMetaToDtoConverter : Converter<ItemMeta, MetaDto> {
             rights = source.rights,
             rightsUrl = source.rightsUrl,
             externalUri = source.externalUri,
+            originalMetaUri = source.originalMetaUri,
             attributes = source.attributes.map {
                 MetaAttributeDto(
                     key = it.key, value = it.value, format = it.format, type = it.type

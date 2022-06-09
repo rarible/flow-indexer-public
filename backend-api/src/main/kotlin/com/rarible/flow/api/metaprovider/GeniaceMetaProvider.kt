@@ -14,6 +14,8 @@ import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.coFindById
+import com.rarible.flow.log.Log
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -56,12 +58,38 @@ data class GeniaceNFT(
     val id: Long,
     val metadata: GeniaceMetadata,
 ) : MetaBody {
+
+    private val logger by Log()
     override fun toItemMeta(itemId: ItemId) = ItemMeta(
-        itemId,
-        metadata.name,
-        metadata.description,
-        attributes(),
-        media(),
+        itemId = itemId,
+        name = metadata.name,
+        description = metadata.description,
+        attributes = attributes(),
+        contentUrls = media(),
+        content = content(),
+    )
+
+    private fun content() = listOfNotNull(
+        metadata.data["galleryImg0 "]?.let {
+            ItemMeta.Content(
+                url = it,
+                representation = ItemMeta.Content.Representation.PREVIEW,
+                type = ItemMeta.Content.Type.IMAGE,
+            )
+        }, ItemMeta.Content(
+            url = metadata.imageUrl,
+            representation = ItemMeta.Content.Representation.ORIGINAL,
+            type = metadata.data["mimetype"].let {
+                when (it) {
+                    "image" -> ItemMeta.Content.Type.IMAGE
+                    "video" -> ItemMeta.Content.Type.VIDEO
+                    else -> {
+                        logger.debug("GeniaceNFT: unknown mimetype `${metadata.data["mimetype"]}`")
+                        ItemMeta.Content.Type.IMAGE
+                    }
+                }
+            }
+        )
     )
 
     private fun media() = listOf(metadata.imageUrl) +

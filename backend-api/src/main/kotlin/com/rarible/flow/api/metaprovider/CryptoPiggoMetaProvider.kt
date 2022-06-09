@@ -40,7 +40,15 @@ class CryptoPiggoMetaProvider(
                 description = "",
                 attributes = extractAttributes(piggoMeta),
                 contentUrls = listOf(piggoMeta.file.url),
-
+                content = listOf(
+                    ItemMeta.Content(
+                        piggoMeta.file.url,
+                        ItemMeta.Content.Representation.ORIGINAL,
+                        ItemMeta.Content.Type.IMAGE,
+                    )
+                ),
+                createdAt = piggoMeta.createdAt,
+                originalMetaUri = metaUrl.replace("{id}", itemId.tokenId.toString()),
             ).apply {
                 raw = mapper.writeValueAsBytes(piggoMeta)
             }

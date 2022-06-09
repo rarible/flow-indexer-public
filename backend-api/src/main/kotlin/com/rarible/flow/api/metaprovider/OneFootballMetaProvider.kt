@@ -62,15 +62,27 @@ data class OneFootballMeta(
 ): MetaBody {
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         return ItemMeta(
-            itemId,
-            name,
-            description,
-            data.map { (k, v) ->
+            itemId = itemId,
+            name = name,
+            description = description,
+            attributes = data.map { (k, v) ->
                 ItemMetaAttribute(k, v)
             },
-            listOf(
+            contentUrls = listOf(
                 media,
                 preview
+            ),
+            content = listOf(
+                ItemMeta.Content(
+                    media,
+                    ItemMeta.Content.Representation.ORIGINAL,
+                    ItemMeta.Content.Type.IMAGE,
+                ),
+                ItemMeta.Content(
+                    preview,
+                    ItemMeta.Content.Representation.PREVIEW,
+                    ItemMeta.Content.Type.IMAGE,
+                )
             )
         )
     }
@@ -80,14 +92,14 @@ class OneFootballMetaConverter: JsonCadenceConverter<OneFootballMeta> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): OneFootballMeta {
         return com.nftco.flow.sdk.cadence.unmarshall(value) {
             OneFootballMeta(
-                id = long(compositeValue.getRequiredField("id")),
-                templateID = long(compositeValue.getRequiredField("templateID")),
-                seriesName = string(compositeValue.getRequiredField("seriesName")),
-                name = string(compositeValue.getRequiredField("name")),
-                description = string(compositeValue.getRequiredField("description")),
-                preview = string(compositeValue.getRequiredField("preview")),
-                media = string(compositeValue.getRequiredField("media")),
-                data = dictionaryMap(compositeValue.getRequiredField("data")) { k, v ->
+                id = long("id"),
+                templateID = long("templateID"),
+                seriesName = string("seriesName"),
+                name = string("name"),
+                description = string("description"),
+                preview = string("preview"),
+                media = string("media"),
+                data = dictionaryMap("data") { k, v ->
                     string(k) to string(v)
                 }
             )

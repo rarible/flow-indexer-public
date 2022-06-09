@@ -42,12 +42,15 @@ class StarlyMetaProvider(
 
     override suspend fun getMeta(item: Item): ItemMeta? {
         return script.call(item.owner!!, item.tokenId)?.let { starlyId ->
-            webClient
+            val uri = "https://starly.io/c/$starlyId.json"
+            uri to webClient
                 .get()
-                .uri("https://starly.io/c/$starlyId.json")
+                .uri(uri)
                 .retrieve()
                 .awaitBodyOrNull<StarlyMeta>()
-        }?.toItemMeta(item.id)
+        }?.let { (uri, starlyMeta) ->
+            starlyMeta?.toItemMeta(itemId)?.copy(originalMetaUri = uri)
+        } ?: ItemMeta.empty(itemId)
     }
 }
 
@@ -66,29 +69,48 @@ data class StarlyMeta(
 ): MetaBody {
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         return ItemMeta(
-            itemId, title, description,
-            listOf(
+            itemId = itemId,
+            name = title,
+            description = description,
+            attributes = listOf(
                 ItemMetaAttribute("creator", creator.name),
                 ItemMetaAttribute("collection", collection.title),
                 ItemMetaAttribute("rarity", rarity),
                 ItemMetaAttribute("edition", edition),
                 ItemMetaAttribute("editions", editions),
             ),
-            mediaSizes.sortedByDescending { it.width }.flatMap {
+            contentUrls = mediaSizes.sortedByDescending { it.width }.flatMap {
                 listOfNotNull(it.screenshot, it.url)
-            }
+            },
+            content = mediaSizes.sortedBy { it.width }.mapIndexed { index, media ->
+                when {
+                    mediaSizes.size > 1 && index == 0 -> media.asContent()
+                        .copy(representation = ItemMeta.Content.Representation.PREVIEW)
+                    mediaSizes.size > 2 && index == mediaSizes.size - 1 -> media.asContent()
+                        .copy(representation = ItemMeta.Content.Representation.BIG)
+                    else -> media.asContent()
+                }
+            },
         )
     }
 }
 
+private fun StarlyMedia.asContent() = ItemMeta.Content(
+    url = url,
+    representation = ItemMeta.Content.Representation.ORIGINAL,
+    type = ItemMeta.Content.Type.IMAGE,
+    width = width,
+    height = height,
+)
+
 data class StarlyCreator(
     val id: String,
-    val name: String
+    val name: String,
 )
 
 data class StarlyCollection(
     val id: String,
-    val title: String
+    val title: String,
 )
 
 data class StarlyMedia(
