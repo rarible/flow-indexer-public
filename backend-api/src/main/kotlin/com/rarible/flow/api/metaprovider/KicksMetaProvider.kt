@@ -83,7 +83,29 @@ data class KicksMeta(
             size?.let { ItemMetaAttribute("size", size) }
         )
         val media = listOfNotNull(video, image)
-        return ItemMeta(itemId, title, description, attributes, media)
+        return ItemMeta(
+            itemId = itemId,
+            name = title,
+            description = description,
+            attributes = attributes,
+            contentUrls = media,
+            content = listOfNotNull(
+                video?.let {
+                    ItemMeta.Content(
+                        it,
+                        ItemMeta.Content.Representation.ORIGINAL,
+                        ItemMeta.Content.Type.VIDEO,
+                    )
+                },
+                image?.let {
+                    ItemMeta.Content(
+                        it,
+                        ItemMeta.Content.Representation.ORIGINAL,
+                        ItemMeta.Content.Type.IMAGE,
+                    )
+                },
+            )
+        )
     }
 }
 

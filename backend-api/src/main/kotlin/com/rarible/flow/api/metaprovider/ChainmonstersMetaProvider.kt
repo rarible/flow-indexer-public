@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.netflix.graphql.dgs.client.WebClientGraphQLClient
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.config.ApiProperties
+import com.rarible.flow.api.config.Config
 import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
@@ -97,7 +98,8 @@ data class ChainmonstersMeta(
                     ItemMeta.Content.Representation.ORIGINAL,
                     ItemMeta.Content.Type.IMAGE,
                 )
-            )
+            ),
+            originalMetaUri = Config.CHAIN_MONSTERS_GRAPH_QL,
         )
     }
 }

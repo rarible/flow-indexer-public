@@ -50,6 +50,45 @@ class MugenNFTMetaProvider : ItemMetaProvider {
                     data.animationUrl2,
                     data.youtubeUrl,
                 ),
+                originalMetaUri = url,
+                externalUri = data.externalUrl,
+                content = listOfNotNull(
+                    data.imagePreview?.let {
+                        ItemMeta.Content(
+                            it,
+                            ItemMeta.Content.Representation.PREVIEW,
+                            ItemMeta.Content.Type.IMAGE,
+                        )
+                    },
+                    data.image?.let {
+                        ItemMeta.Content(
+                            it,
+                            ItemMeta.Content.Representation.ORIGINAL,
+                            ItemMeta.Content.Type.IMAGE,
+                        )
+                    },
+                    data.imageHd?.let {
+                        ItemMeta.Content(
+                            it,
+                            ItemMeta.Content.Representation.BIG,
+                            ItemMeta.Content.Type.IMAGE,
+                        )
+                    },
+                    data.animationUrl?.let {
+                        ItemMeta.Content(
+                            it,
+                            ItemMeta.Content.Representation.ORIGINAL,
+                            ItemMeta.Content.Type.VIDEO,
+                        )
+                    },
+                    data.animationUrl2?.let {
+                        ItemMeta.Content(
+                            it,
+                            ItemMeta.Content.Representation.ORIGINAL,
+                            ItemMeta.Content.Type.VIDEO,
+                        )
+                    },
+                ),
             ).apply {
                 raw = data.toString().toByteArray(charset = Charsets.UTF_8)
             }

@@ -80,7 +80,7 @@ class Config(
     @Bean
     fun chainMonstersGraphQl(): WebClientGraphQLClient {
         return MonoGraphQLClient.createWithWebClient(
-            buildWebClient("chainMonstersGraphQl", "https://europe-west3-chainmonstersmmo.cloudfunctions.net/graphql")
+            buildWebClient("chainMonstersGraphQl", CHAIN_MONSTERS_GRAPH_QL)
         )
     }
 
@@ -88,7 +88,7 @@ class Config(
     fun matrixWorldClient(): WebClient {
         return buildWebClient(
             "matrixWorldClient",
-            "https://api.matrixworld.org/land/api/v1/land/metadata/estate/flow/"
+            MATRIX_WORLD_BASE_URL
         )
     }
 
@@ -122,5 +122,10 @@ class Config(
     @Bean
     fun orderToDtoConverter(currencyApi: CurrencyControllerApi): OrderToDtoConverter {
         return OrderToDtoConverter(currencyApi)
+    }
+
+    companion object {
+        const val MATRIX_WORLD_BASE_URL = "https://api.matrixworld.org/land/api/v1/land/metadata/estate/flow/"
+        const val CHAIN_MONSTERS_GRAPH_QL = "https://europe-west3-chainmonstersmmo.cloudfunctions.net/graphql"
     }
 }

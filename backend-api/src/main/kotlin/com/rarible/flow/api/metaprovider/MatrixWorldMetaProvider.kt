@@ -3,6 +3,7 @@ package com.rarible.flow.api.metaprovider
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.rarible.flow.Contracts
+import com.rarible.flow.api.config.Config
 import com.rarible.flow.api.metaprovider.body.MetaBody
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
@@ -61,6 +62,23 @@ data class MatrixWorldMetaBody(
                 image,
                 animationUrl
             ),
+            content = listOfNotNull(
+                animationUrl?.let {
+                    ItemMeta.Content(
+                        it,
+                        ItemMeta.Content.Representation.ORIGINAL,
+                        ItemMeta.Content.Type.VIDEO,
+                    )
+                },
+                image?.let {
+                    ItemMeta.Content(
+                        it,
+                        ItemMeta.Content.Representation.ORIGINAL,
+                        ItemMeta.Content.Type.IMAGE,
+                    )
+                },
+            ),
+            originalMetaUri = "${Config.MATRIX_WORLD_BASE_URL}/${itemId.tokenId}"
         ).apply {
             raw = toString().toByteArray(charset = Charsets.UTF_8)
         }

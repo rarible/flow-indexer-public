@@ -72,7 +72,13 @@ class SomePlaceCollectibleMetaProvider(
                 attributes = attributes.map {
                     ItemMetaAttribute(it.key, it.value)
                 },
-                contentUrls = listOf(mediaUrl)
+                contentUrls = listOf(mediaUrl),
+                content = listOf(
+                    ItemMeta.Content(
+                        url = mediaUrl,
+                        type = ItemMeta.Content.Type.IMAGE,
+                    )
+                )
             ).apply {
                 raw = jacksonObjectMapper().writeValueAsBytes(this)
             }
@@ -82,11 +88,11 @@ class SomePlaceCollectibleMetaProvider(
     internal class MetaParser: JsonCadenceConverter<Meta> {
         override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): Meta = com.nftco.flow.sdk.cadence.unmarshall(value) {
             Meta(
-                id = long(compositeValue.getRequiredField("id")),
-                title = string(compositeValue.getRequiredField("title")),
-                description = string(compositeValue.getRequiredField("description")),
-                mediaUrl = string(compositeValue.getRequiredField("mediaUrl")),
-                attributes = dictionaryMap(compositeValue.getRequiredField("attributes")) { k, v ->
+                id = long("id"),
+                title = string("title"),
+                description = string("description"),
+                mediaUrl = string("mediaUrl"),
+                attributes = dictionaryMap("attributes") { k, v ->
                     string(k) to string(v)
                 }
             )

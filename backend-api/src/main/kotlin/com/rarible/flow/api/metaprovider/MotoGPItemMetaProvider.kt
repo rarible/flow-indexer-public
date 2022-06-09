@@ -64,7 +64,21 @@ class MotoGPItemMetaProvider(
             name = meta.name,
             description = meta.description,
             attributes = attributes.toList(),
-            contentUrls = listOf(meta.imageUrl, meta.data["videoUrl"].orEmpty())
+            contentUrls = listOfNotNull(meta.imageUrl, meta.data["videoUrl"]),
+            content = listOfNotNull(
+                ItemMeta.Content(
+                    meta.imageUrl,
+                    ItemMeta.Content.Representation.ORIGINAL,
+                    ItemMeta.Content.Type.IMAGE,
+                ),
+                meta.data["videoUrl"]?.let {
+                    ItemMeta.Content(
+                        it,
+                        ItemMeta.Content.Representation.ORIGINAL,
+                        ItemMeta.Content.Type.VIDEO,
+                    )
+                },
+            ),
         ).apply {
             raw = Flow.encodeJsonCadence(resp.jsonCadence)
         }

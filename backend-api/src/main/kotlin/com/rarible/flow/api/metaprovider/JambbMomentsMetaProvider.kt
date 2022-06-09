@@ -106,15 +106,15 @@ class JambbMomentsMetaConverter: JsonCadenceConverter<JambbMomentsMeta> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): JambbMomentsMeta {
         return com.nftco.flow.sdk.cadence.unmarshall(value) {
             JambbMomentsMeta(
-                contentCreator = address(compositeValue.getRequiredField("contentCreator")),
-                contentName = string(compositeValue.getRequiredField("contentName")),
-                contentDescription = string(compositeValue.getRequiredField("contentDescription")),
-                previewImage = string(compositeValue.getRequiredField("previewImage")),
-                videoURI = string(compositeValue.getRequiredField("videoURI")),
-                seriesName = string(compositeValue.getRequiredField("seriesName")),
-                setName = string(compositeValue.getRequiredField("setName")),
-                retired = boolean(compositeValue.getRequiredField("retired")),
-                rarity = string(compositeValue.getRequiredField("rarity"))
+                contentCreator = address("contentCreator"),
+                contentName = string("contentName"),
+                contentDescription = string("contentDescription"),
+                previewImage = string("previewImage"),
+                videoURI = string("videoURI"),
+                seriesName = string("seriesName"),
+                setName = string("setName"),
+                retired = boolean("retired"),
+                rarity = string("rarity"),
             )
         }
     }

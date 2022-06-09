@@ -83,7 +83,7 @@ data class FanfareMeta(
                 ItemMeta.Content(
                     imageUrl,
                     ItemMeta.Content.Representation.ORIGINAL,
-                    ItemMeta.Content.Type.IMAGE,
+                    if (isMusicVideo) ItemMeta.Content.Type.VIDEO else ItemMeta.Content.Type.IMAGE,
                 ),
                 ItemMeta.Content(
                     audioUrl,

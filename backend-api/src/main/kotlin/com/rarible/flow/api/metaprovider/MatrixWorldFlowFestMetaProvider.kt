@@ -59,6 +59,13 @@ class MatrixWorldFlowFestMetaProvider(
             contentUrls = listOf(
                 meta.animationUrl
             ),
+            content = listOf(
+                ItemMeta.Content(
+                    meta.animationUrl,
+                    ItemMeta.Content.Representation.ORIGINAL,
+                    ItemMeta.Content.Type.VIDEO,
+                )
+            )
         ).apply {
             raw = toString().toByteArray(Charsets.UTF_8)
         }
