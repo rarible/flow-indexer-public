@@ -22,6 +22,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import reactor.core.publisher.Mono
+import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
 
@@ -102,7 +103,7 @@ internal class OrderToDtoConverterTest: FunSpec({
             o.itemId shouldBe "0x0000000000000001:1"
             o.taker shouldBe null
             o.fill shouldBe 13.37.toBigDecimal()
-            o.makeStock shouldBe BigInteger.ONE
+            o.makeStock shouldBe BigDecimal.ONE
         }
     }
 

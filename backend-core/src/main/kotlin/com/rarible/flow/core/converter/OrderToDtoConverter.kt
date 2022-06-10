@@ -35,8 +35,6 @@ class OrderToDtoConverter(
 
     private val logger by Log()
 
-    private val multiplier: Int = 18
-
     suspend fun convert(source: Order): FlowOrderDto {
         try {
             val usdRate = try {
@@ -65,7 +63,7 @@ class OrderToDtoConverter(
                 data = convert(source.data ?: OrderData(emptyList(), emptyList())),
                 priceUsd = usdRate * source.take.value,
                 collection = source.collection,
-                makeStock = makeStock(source),
+                makeStock = source.makeStock ?: BigDecimal.ZERO,
                 status = convert(source.status),
                 platform = source.platform
             )
@@ -121,7 +119,7 @@ class OrderToDtoConverter(
     fun makeStock(order: Order): BigInteger {
         return when(order.make) {
             FlowAssetEmpty -> order.makeStock!!
-            is FlowAssetFungible -> order.makeStock!!.movePointRight(multiplier)
+            is FlowAssetFungible -> order.makeStock!!
             is FlowAssetNFT -> order.makeStock!!
         }.toBigInteger()
     }
