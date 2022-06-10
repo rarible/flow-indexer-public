@@ -60,6 +60,7 @@ class OrderToDtoConverter(
                 cancelled = source.cancelled,
                 createdAt = source.createdAt.toInstant(ZoneOffset.UTC),
                 lastUpdateAt = source.lastUpdatedAt!!.toInstant(ZoneOffset.UTC),
+                dbUpdatedAt = source.dbUpdatedAt,
                 amount = source.amount,
                 data = convert(source.data ?: OrderData(emptyList(), emptyList())),
                 priceUsd = usdRate * source.take.value,
