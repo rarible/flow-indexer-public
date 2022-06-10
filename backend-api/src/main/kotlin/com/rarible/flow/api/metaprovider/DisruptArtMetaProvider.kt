@@ -20,6 +20,10 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 @Component
 class DisruptArtMetaProvider(
@@ -55,7 +59,15 @@ class DisruptArtMetaProvider(
                     name = itemMeta["name"] as String,
                     description = itemMeta["name"] as String,
                     attributes = emptyList(),
-                    contentUrls = listOf(contentUrl)
+                    contentUrls = listOf(contentUrl),
+                    content = listOf(
+                        ItemMeta.Content(
+                            contentUrl,
+                            ItemMeta.Content.Representation.ORIGINAL,
+                            ItemMeta.Content.Type.IMAGE,
+                            mimeType = MediaType.IMAGE_JPEG_VALUE,
+                        ),
+                    )
                 ).apply {
                     raw = contentUrl.toByteArray()
                 }
@@ -76,12 +88,36 @@ class DisruptArtMetaProvider(
                 }
                 logger.info("DisruptArt::getMeta::Meta is JSON!")
                 updateRoyalties(item, metaData)
+                val createdAt = runCatching {
+                    LocalDate.parse(
+                        metaData.findValue("MintedDate").textValue(),
+                        DISRUPT_ART_DATE_FORMAT
+                    )
+                }.getOrNull()?.atStartOfDay(ZoneId.systemDefault())?.toInstant()
+                val tags = runCatching {
+                    metaData.findValue("tags").toList().mapNotNull { it.asText() }
+                }.getOrNull()
                 ItemMeta(
                     itemId = itemId,
                     name = itemMeta["name"] as String,
                     description = metaData.findValue("Description").textValue(),
                     attributes = attributes.toList(),
                     contentUrls = listOf(media, mediaPreview),
+                    content = listOf(
+                        ItemMeta.Content(
+                            media,
+                            ItemMeta.Content.Representation.ORIGINAL,
+                            ItemMeta.Content.Type.IMAGE,
+                        ),
+                        ItemMeta.Content(
+                            mediaPreview,
+                            ItemMeta.Content.Representation.PREVIEW,
+                            ItemMeta.Content.Type.IMAGE,
+                        ),
+                    ),
+                    tags = tags,
+                    createdAt = createdAt,
+                    originalMetaUri = contentUrl,
                 ).apply {
                     raw = metaData.toPrettyString().toByteArray()
                 }
@@ -100,12 +136,16 @@ class DisruptArtMetaProvider(
                 )
             )
         }
-        
-        if(royalties.isEmpty()) royalties.addAll(Contracts.DISRUPT_ART.staticRoyalties(appProperties.chainId))
+
+        if (royalties.isEmpty()) royalties.addAll(Contracts.DISRUPT_ART.staticRoyalties(appProperties.chainId))
         logger.info("Saving royalties for item {}: {}", item.id, royalties)
 
         itemRepository.coSave(
             item.copy(royalties = royalties)
         )
+    }
+
+    companion object {
+        private val DISRUPT_ART_DATE_FORMAT = DateTimeFormatter.ofPattern("dd-MMMM-uuuu", Locale.ENGLISH)!!
     }
 }
