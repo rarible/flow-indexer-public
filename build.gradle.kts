@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.rarible.flow"
-version = "1.1.4"
+version = "1.1.5"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 buildscript {
