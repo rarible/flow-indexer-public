@@ -174,7 +174,7 @@ class ActivitiesService(
         return getActivities(
             ItemHistory::id inValues ids,
             null,
-            null,
+            ids.size,
             "EARLIEST_FIRST"
         )
     }
