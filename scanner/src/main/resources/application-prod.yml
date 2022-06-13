@@ -10,7 +10,7 @@ blockchain:
       job:
         reconciliation:
           batchSize: 250
-      retryPolycy:
+      retryPolicy:
         scan:
           maxProcessTime: 10m
 app:
