@@ -12,7 +12,7 @@ import com.rarible.protocol.dto.FlowItemIdsDto
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemRoyaltyDto
 import com.rarible.protocol.dto.FlowNftItemsDto
-import com.rarible.protocol.dto.MetaDto
+import com.rarible.protocol.dto.FlowMetaDto
 import com.rarible.protocol.dto.PayInfoDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftItemControllerApi
 import java.time.Instant
@@ -71,7 +71,7 @@ class NftApiController(
         return ResponseEntity.ok(nftItemService.byCollection(collection, continuation, size))
     }
 
-    override suspend fun getNftItemMetaById(itemId: String): ResponseEntity<MetaDto> {
+    override suspend fun getNftItemMetaById(itemId: String): ResponseEntity<FlowMetaDto> {
         return try {
             val meta = nftItemMetaService.getMetaByItemId(itemId.itemId())
             ItemMetaToDtoConverter.convert(meta).okOr404IfNull()
