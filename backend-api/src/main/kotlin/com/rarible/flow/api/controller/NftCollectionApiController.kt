@@ -31,7 +31,14 @@ class NftCollectionApiController(
     }
 
     override suspend fun searchNftCollectionsByIds(ids: List<String>): ResponseEntity<FlowNftCollectionsDto> {
-        TODO("Not yet implemented")
+        val collections = service.byIds(ids).toList()
+        return ResponseEntity.ok(
+            FlowNftCollectionsDto(
+                total = collections.size.toLong(),
+                data = collections.mapNotNull { convert(it) },
+                continuation = null
+            )
+        )
     }
 
     override suspend fun searchNftCollectionsByOwner(

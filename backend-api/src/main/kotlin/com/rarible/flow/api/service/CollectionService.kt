@@ -29,5 +29,9 @@ class CollectionService(
         ).asFlow()
     }
 
+    fun byIds(ids: List<String>): Flow<ItemCollection> {
+       return repo.findAllById(ids).asFlow()
+    }
+
 
 }
