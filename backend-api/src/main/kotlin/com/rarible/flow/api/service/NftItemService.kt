@@ -11,7 +11,8 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemsDto
-import com.rarible.protocol.dto.MetaDto
+import com.rarible.protocol.dto.FlowMetaDto
+import java.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.fold
@@ -79,11 +80,11 @@ class NftItemService(
         }
     }
 
-    private fun convertItem(item: Item, metaDto: MetaDto?): FlowNftItemDto {
-        return ItemToDtoConverter.convert(item).copy(meta = metaDto)
+    private fun convertItem(item: Item, FlowMetaDto: FlowMetaDto?): FlowNftItemDto {
+        return ItemToDtoConverter.convert(item).copy(meta = FlowMetaDto)
     }
 
-    private suspend fun fillMeta(id: ItemId): MetaDto? {
+    private suspend fun fillMeta(id: ItemId): FlowMetaDto? {
         val meta = itemMetaRepository.findById(id).awaitSingleOrNull() ?: return null
         return ItemMetaToDtoConverter.convert(meta)
     }

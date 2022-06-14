@@ -1,22 +1,23 @@
 package com.rarible.flow.core.converter
 
 import com.rarible.flow.core.domain.ItemMeta
-import com.rarible.protocol.dto.AudioContentDto
-import com.rarible.protocol.dto.HtmlContentDto
-import com.rarible.protocol.dto.ImageContentDto
-import com.rarible.protocol.dto.MetaAttributeDto
-import com.rarible.protocol.dto.MetaContentItemDto
-import com.rarible.protocol.dto.MetaDto
-import com.rarible.protocol.dto.Model3dContentDto
-import com.rarible.protocol.dto.UnknownContentDto
-import com.rarible.protocol.dto.VideoContentDto
+import com.rarible.protocol.dto.FlowAudioContentDto
+import com.rarible.protocol.dto.FlowHtmlContentDto
+import com.rarible.protocol.dto.FlowImageContentDto
+import com.rarible.protocol.dto.FlowMetaAttributeDto
+import com.rarible.protocol.dto.FlowMetaContentItemDto
+import com.rarible.protocol.dto.FlowMetaDto
+import com.rarible.protocol.dto.FlowModel3dContentDto
+import com.rarible.protocol.dto.FlowUnknownContentDto
+import com.rarible.protocol.dto.FlowVideoContentDto
 import org.springframework.core.convert.converter.Converter
 import java.util.*
 
-object ItemMetaToDtoConverter : Converter<ItemMeta, MetaDto> {
+object ItemMetaToDtoConverter : Converter<ItemMeta, FlowMetaDto> {
 
-    override fun convert(source: ItemMeta): MetaDto {
-        return MetaDto(name = source.name,
+    override fun convert(source: ItemMeta): FlowMetaDto {
+        return FlowMetaDto(
+            name = source.name,
             description = source.description,
             createdAt = source.createdAt,
             tags = source.tags,
@@ -27,7 +28,7 @@ object ItemMetaToDtoConverter : Converter<ItemMeta, MetaDto> {
             externalUri = source.externalUri,
             originalMetaUri = source.originalMetaUri,
             attributes = source.attributes.map {
-                MetaAttributeDto(
+                FlowMetaAttributeDto(
                     key = it.key, value = it.value, format = it.format, type = it.type
                 )
             },
@@ -37,7 +38,7 @@ object ItemMetaToDtoConverter : Converter<ItemMeta, MetaDto> {
     }
 
     private fun convert(source: ItemMeta.Content) = when (source.type) {
-        ItemMeta.Content.Type.IMAGE -> ImageContentDto(
+        ItemMeta.Content.Type.IMAGE -> FlowImageContentDto(
             fileName = source.fileName,
             url = source.url,
             representation = convert(source.representation),
@@ -46,7 +47,7 @@ object ItemMetaToDtoConverter : Converter<ItemMeta, MetaDto> {
             width = source.width,
             height = source.height,
         )
-        ItemMeta.Content.Type.VIDEO -> VideoContentDto(
+        ItemMeta.Content.Type.VIDEO -> FlowVideoContentDto(
             fileName = source.fileName,
             url = source.url,
             representation = convert(source.representation),
@@ -55,28 +56,28 @@ object ItemMetaToDtoConverter : Converter<ItemMeta, MetaDto> {
             width = source.width,
             height = source.height,
         )
-        ItemMeta.Content.Type.AUDIO -> AudioContentDto(
+        ItemMeta.Content.Type.AUDIO -> FlowAudioContentDto(
             fileName = source.fileName,
             url = source.url,
             representation = convert(source.representation),
             mimeType = source.mimeType,
             size = source.size,
         )
-        ItemMeta.Content.Type.MODEL_3D -> Model3dContentDto(
+        ItemMeta.Content.Type.MODEL_3D -> FlowModel3dContentDto(
             fileName = source.fileName,
             url = source.url,
             representation = convert(source.representation),
             mimeType = source.mimeType,
             size = source.size,
         )
-        ItemMeta.Content.Type.HTML -> HtmlContentDto(
+        ItemMeta.Content.Type.HTML -> FlowHtmlContentDto(
             fileName = source.fileName,
             url = source.url,
             representation = convert(source.representation),
             mimeType = source.mimeType,
             size = source.size,
         )
-        ItemMeta.Content.Type.UNKNOWN -> UnknownContentDto(
+        ItemMeta.Content.Type.UNKNOWN -> FlowUnknownContentDto(
             fileName = source.fileName,
             url = source.url,
             representation = convert(source.representation),
@@ -85,6 +86,6 @@ object ItemMetaToDtoConverter : Converter<ItemMeta, MetaDto> {
         )
     }
 
-    private fun convert(source: ItemMeta.Content.Representation): MetaContentItemDto.Representation =
-        source.name.let { MetaContentItemDto.Representation.valueOf(it) }
+    private fun convert(source: ItemMeta.Content.Representation): FlowMetaContentItemDto.Representation =
+        source.name.let { FlowMetaContentItemDto.Representation.valueOf(it) }
 }
