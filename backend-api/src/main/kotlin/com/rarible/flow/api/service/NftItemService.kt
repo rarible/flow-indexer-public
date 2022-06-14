@@ -48,7 +48,7 @@ class NftItemService(
 
     suspend fun getItemById(itemId: ItemId): FlowNftItemDto? {
         return itemRepository.coFindById(itemId)?.let {
-            convertItem(it, fillMeta(it.id))
+            ItemToDtoConverter.convert(it)
         }
     }
 
@@ -69,19 +69,12 @@ class NftItemService(
         return if (items.count() == 0) {
             FlowNftItemsDto(0, null, emptyList())
         } else {
-            val meta = itemMetaRepository.findAllByItemIdIn(items.map { it.id }.toList()).asFlow().toList()
-                .associateBy { it.itemId }
-                .mapValues { ItemMetaToDtoConverter.convert(it.value) }
             FlowNftItemsDto(
                 continuation = sort.nextPage(items, size),
-                items = items.map { convertItem(it, meta[it.id]) }.toList(),
+                items = items.map { ItemToDtoConverter.convert(it) }.toList(),
                 total = items.count().toLong()
             )
         }
-    }
-
-    private fun convertItem(item: Item, FlowMetaDto: FlowMetaDto?): FlowNftItemDto {
-        return ItemToDtoConverter.convert(item).copy(meta = FlowMetaDto)
     }
 
     private suspend fun fillMeta(id: ItemId): FlowMetaDto? {
@@ -104,6 +97,19 @@ class NftItemService(
         ).asFlow()
 
         return convert(items, sort, size)
+    }
+
+    suspend fun getItemsByIds(ids: List<ItemId>): FlowNftItemsDto {
+        val items = itemRepository.findAllByIdIn(ids.toSet()).asFlow().toList()
+        return if (items.isEmpty()) {
+            FlowNftItemsDto(0L, null, emptyList())
+        } else {
+            FlowNftItemsDto(
+                total = items.size.toLong(),
+                continuation = null,
+                items = items.map { ItemToDtoConverter.convert(it) }.toList()
+            )
+        }
     }
 
 }
