@@ -7,7 +7,9 @@ import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.randomAddress
 import com.rarible.protocol.dto.FlowNftCollectionDto
 import com.rarible.protocol.dto.FlowNftCollectionsDto
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import kotlinx.coroutines.flow.asFlow
 import org.junit.jupiter.api.BeforeEach
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
 
 @WebFluxTest(
     controllers = [NftCollectionApiController::class],
@@ -78,6 +81,10 @@ class NftCollectionApiControllerTest(
         coEvery {
             service.searchByOwner(eq(FlowAddress("0x02")), any(), any())
         } returns listOf(collection3).asFlow()
+
+        coEvery {
+            service.byIds(any())
+        } answers  { all.filter { arg<List<String>>(0).contains(it.id) }.asFlow() }
     }
 
     @Test
@@ -125,5 +132,21 @@ class NftCollectionApiControllerTest(
 
         response.total shouldBe 1
         response.data[0].owner shouldBe FlowAddress("0x02").formatted
+    }
+
+    @Test
+    internal fun `should return collections by ids`() {
+        client.get()
+            .uri("/v0.1/collections/byIds?ids=ID1&ids=ID4")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowNftCollectionsDto>()
+            .consumeWith { result ->
+                val body = result.responseBody
+                body shouldNotBe null
+                body?.total shouldBe 2
+                body?.data?.map { it.id } shouldContainExactly listOf("ID1", "ID4")
+                body?.continuation shouldBe null
+            }
     }
 }
