@@ -51,9 +51,6 @@ dependencyResolutionManagement {
             version("rarible-core", "2.3.80")
 
             alias("kotest-runner").to("io.kotest", "kotest-runner-junit5").versionRef("kotest")
-//            alias("kotest-spring").to("io.kotest.extensions", "kotest-extensions-spring").version("1.0.0")
-//            alias("kotest-test-containers").to("io.kotest", "kotest-extensions-testcontainers").version("1.0.+")
-//            alias("kotest-kafka").to("io.kotest.extensions", "kotest-extensions-embedded-kafka").version("1.0.+")
             alias("rarible-core-test").to("com.rarible.core", "rarible-core-test-common").versionRef("rarible-core")
 
             bundle("kotest", listOf("kotest-runner"))
