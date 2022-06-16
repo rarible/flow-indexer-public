@@ -362,7 +362,7 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
                         tokenId = tokenId
                     ),
                     take = FlowAssetFungible(
-                        contract = EventId.of(cadenceParser.string(it.event.fields["ftVaultType"]!!)).collection(),
+                        contract = EventId.of(cadenceParser.type(it.event.fields["ftVaultType"]!!)).collection(),
                         value = price
                     )
                 )
