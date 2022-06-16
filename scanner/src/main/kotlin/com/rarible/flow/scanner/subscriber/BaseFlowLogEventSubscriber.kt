@@ -2,7 +2,6 @@ package com.rarible.flow.scanner.subscriber
 
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowEvent
-import com.nftco.flow.sdk.FlowEventPayload
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainBlock
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
@@ -32,17 +31,6 @@ abstract class BaseFlowLogEventSubscriber: FlowLogEventSubscriber {
     @Autowired
     private lateinit var flogEventRepository: FlowLogEventRepository
 
-
-    private val reg1 = Regex.fromLiteral("\"type\":\"Type\"")
-    private val reg2 = Regex("""\{"staticType":"([^"]+)"}""")
-
-    // replace "Type" field to "String" field
-    private fun ByteArray.fixed(): ByteArray {
-        val s1 = reg1.replace(String(this), "\"type\":\"String\"")
-        val s2 = reg2.replace(s1) { "\"${it.groupValues[1]}\"" }
-        return s2.toByteArray()
-    }
-
     abstract val descriptors: Map<FlowChainId, FlowDescriptor>
 
     override fun getDescriptor(): FlowDescriptor = when(chainId) {
@@ -52,24 +40,21 @@ abstract class BaseFlowLogEventSubscriber: FlowLogEventSubscriber {
 
     override fun getEventRecords(block: FlowBlockchainBlock, log: FlowBlockchainLog): Flow<FlowLogRecord<*>> = flow {
         val descriptor = getDescriptor()
-        val payload = FlowEventPayload(log.event.payload.bytes.fixed())
-        val event = log.event.copy(payload = payload)
-        val fixedLog = FlowBlockchainLog(log.hash, log.blockHash, event)
         emitAll(
-            if (descriptor.events.contains(fixedLog.event.id) && isNewEvent(block, event)) {
+            if (descriptor.events.contains(log.event.id) && isNewEvent(block, log.event)) {
                 flowOf(
                     FlowLogEvent(
                         log = FlowLog(
-                            transactionHash = fixedLog.event.transactionId.base16Value,
+                            transactionHash = log.event.transactionId.base16Value,
                             status = Log.Status.CONFIRMED,
-                            eventIndex = fixedLog.event.eventIndex,
-                            eventType = fixedLog.event.type,
+                            eventIndex = log.event.eventIndex,
+                            eventType = log.event.type,
                             timestamp = Instant.ofEpochMilli(block.timestamp),
                             blockHeight = block.number,
                             blockHash = block.hash
                         ),
-                        event = com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, event.event),
-                        type = eventType(fixedLog),
+                        event = com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, log.event.event),
+                        type = eventType(log),
                     )
                 )
             } else emptyFlow()
