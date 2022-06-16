@@ -338,14 +338,14 @@ class NFTStorefrontActivityMaker : OrderActivityMaker() {
                 val price = raribleEventPrice ?: cadenceParser.bigDecimal(it.event.fields["price"]!!)
                 val orderId = cadenceParser.long(it.event.fields["listingResourceID"]!!)
                 val rate = usdRate(
-                    EventId.of(cadenceParser.string(it.event.fields["ftVaultType"]!!)).collection(),
+                    EventId.of(cadenceParser.type(it.event.fields["ftVaultType"]!!)).collection(),
                     it.log.timestamp.toEpochMilli()
                 ) ?: BigDecimal.ZERO
 
                 val priceUsd = if (rate > BigDecimal.ZERO) {
                     price * rate
                 } else BigDecimal.ZERO
-                val nftCollection = EventId.of(cadenceParser.string(it.event.fields["nftType"]!!)).collection()
+                val nftCollection = EventId.of(cadenceParser.type(it.event.fields["nftType"]!!)).collection()
                 val tokenId = cadenceParser.long(it.event.fields["nftID"]!!)
 
                 result[it.log] = FlowNftOrderActivityList(
@@ -475,13 +475,13 @@ class RaribleOpenBidActivityMaker(
             openedBids.forEach {
                 val price = cadenceParser.bigDecimal(it.event.fields["bidPrice"]!!)
                 val orderId = cadenceParser.long(it.event.fields["bidId"]!!)
-                val currencyContract = EventId.of(cadenceParser.string(it.event.fields["vaultType"]!!)).collection()
+                val currencyContract = EventId.of(cadenceParser.type(it.event.fields["vaultType"]!!)).collection()
                 val usdRate = usdRate(currencyContract, it.log.timestamp.toEpochMilli()) ?: BigDecimal.ZERO
 
                 val priceUsd = if (usdRate > BigDecimal.ZERO) {
                     price * usdRate
                 } else BigDecimal.ZERO
-                val nftCollection = EventId.of(cadenceParser.string(it.event.fields["nftType"]!!)).collection()
+                val nftCollection = EventId.of(cadenceParser.type(it.event.fields["nftType"]!!)).collection()
                 val tokenId = cadenceParser.long(it.event.fields["nftId"]!!)
                 val maker = cadenceParser.address(it.event.fields["bidAddress"]!!)
                 result[it.log] = FlowNftOrderActivityBid(

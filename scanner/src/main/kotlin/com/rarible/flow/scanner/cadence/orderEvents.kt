@@ -171,7 +171,7 @@ class OrderClosedConverter : JsonCadenceConverter<OrderClosed> {
             long("orderId"),
             EventId.of(type("nftType")),
             long("nftId"),
-            EventId.of(types("vaultType")),
+            EventId.of(type("vaultType")),
             bigDecimal("price"),
             address("buyerAddress"),
             arrayValues("cuts") { it.parse() }
