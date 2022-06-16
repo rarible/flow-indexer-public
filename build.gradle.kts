@@ -67,6 +67,15 @@ allprojects {
                 artifact()
             }
         }
+        maven {
+            name = "nexus-maven-snapshots"
+            url = uri("http://nexus-ext.rarible.int/repository/maven-snapshots/")
+            isAllowInsecureProtocol = true
+            metadataSources {
+                mavenPom()
+                artifact()
+            }
+        }
     }
 
     tasks.withType<JavaCompile> {
