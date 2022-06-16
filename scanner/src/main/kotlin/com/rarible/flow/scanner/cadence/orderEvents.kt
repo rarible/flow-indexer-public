@@ -156,7 +156,7 @@ class OrderAvailableConverter : JsonCadenceConverter<OrderAvailable> {
             long("orderId"),
             EventId.of(type("nftType")),
             long("nftId"),
-            EventId.of(string("vaultType")),
+            EventId.of(type("vaultType")),
             bigDecimal("price"),
             bigDecimal("offerPrice"),
             arrayValues("payments") { it.parse() }
@@ -171,7 +171,7 @@ class OrderClosedConverter : JsonCadenceConverter<OrderClosed> {
             long("orderId"),
             EventId.of(type("nftType")),
             long("nftId"),
-            EventId.of(string("vaultType")),
+            EventId.of(types("vaultType")),
             bigDecimal("price"),
             address("buyerAddress"),
             arrayValues("cuts") { it.parse() }
@@ -186,7 +186,7 @@ class OrderCancelledConverter : JsonCadenceConverter<OrderCancelled> {
             long("orderId"),
             EventId.of(type("nftType")),
             long("nftId"),
-            EventId.of(string("vaultType")),
+            EventId.of(type("vaultType")),
             bigDecimal("price"),
             arrayValues("cuts") { it.parse() }
         )
@@ -220,7 +220,7 @@ class OpenBidAvailableConverter: JsonCadenceConverter<BidAvailable> {
             bidId = long("bidId"),
             nftType = EventId.of(type("nftType")),
             nftId = long("nftId"),
-            vaultType = EventId.of(string("vaultType")),
+            vaultType = EventId.of(type("vaultType")),
             bidPrice = bigDecimal("bidPrice"),
             brutto = bigDecimal("brutto"),
             cuts = dictionaryMap("cuts") { k, v ->
