@@ -32,7 +32,30 @@ internal class FanfareMetaProviderTest : FunSpec({
             "https://nftfm-videos.s3.us-west-1.amazonaws.com/Comp_1.mp4",
             "https://fanfare-songs.s3.us-west-1.amazonaws.com/6f5fff865d4a4ce1dea4f149b3b0837e.wav",
             "https://www.fanfare.fm",
-        )
+        ),
+        externalUri = "https://www.fanfare.fm",
+        content = listOf(
+            ItemMeta.Content(
+                url = "https://nftfm-videos.s3.us-west-1.amazonaws.com/Comp_1.mp4",
+                representation = ItemMeta.Content.Representation.ORIGINAL,
+                type = ItemMeta.Content.Type.IMAGE,
+                fileName = null,
+                mimeType = null,
+                size = null,
+                width = null,
+                height = null
+            ),
+            ItemMeta.Content(
+                url = "https://fanfare-songs.s3.us-west-1.amazonaws.com/6f5fff865d4a4ce1dea4f149b3b0837e.wav",
+                representation = ItemMeta.Content.Representation.ORIGINAL,
+                type = ItemMeta.Content.Type.AUDIO,
+                fileName = null,
+                mimeType = null,
+                size = null,
+                width = null,
+                height = null
+            )
+        ),
     )
 
     val metaString =

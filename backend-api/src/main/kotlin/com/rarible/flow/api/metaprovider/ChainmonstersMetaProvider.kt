@@ -5,9 +5,8 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.netflix.graphql.dgs.client.WebClientGraphQLClient
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.config.ApiProperties
-import com.rarible.flow.core.domain.Item
 import com.rarible.flow.api.config.Config
-import com.rarible.flow.api.metaprovider.body.MetaBody
+import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute

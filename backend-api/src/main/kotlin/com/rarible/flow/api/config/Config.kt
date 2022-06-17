@@ -94,7 +94,7 @@ class Config(
 
     @Bean(name = ["mugenClient"])
     fun mugenClient(): WebClient {
-        return WebClient.create("https://onchain.mugenart.io/flow/nft/0x2cd46d41da4ce262/metadata")
+        return WebClient.create(MUGEN_ART_BASE_URL)
     }
 
     @EventListener(ApplicationReadyEvent::class)
@@ -132,5 +132,6 @@ class Config(
     companion object {
         const val MATRIX_WORLD_BASE_URL = "https://api.matrixworld.org/land/api/v1/land/metadata/estate/flow/"
         const val CHAIN_MONSTERS_GRAPH_QL = "https://europe-west3-chainmonstersmmo.cloudfunctions.net/graphql"
+        const val MUGEN_ART_BASE_URL = "https://onchain.mugenart.io/flow/nft/0x2cd46d41da4ce262/metadata"
     }
 }

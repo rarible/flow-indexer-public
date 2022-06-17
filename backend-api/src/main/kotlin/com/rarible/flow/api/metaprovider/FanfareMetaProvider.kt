@@ -71,7 +71,7 @@ data class FanfareMeta(
                 ItemMetaAttribute(key = "edition", value = edition.toString()),
             ),
             contentUrls = listOf(imageUrl, audioUrl, externalUrl),
-            genres = listOf(genre),
+            genres = listOfNotNull(genre.takeIf { it.isNotEmpty() }).takeIf { it.isNotEmpty() },
             content = listOf(
                 ItemMeta.Content(
                     imageUrl,

@@ -2,6 +2,7 @@ package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.rarible.flow.api.config.Config
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
@@ -15,7 +16,7 @@ import org.springframework.web.reactive.function.client.awaitBodyOrNull
 @Component
 class MugenNFTMetaProvider(
     @Qualifier("mugenClient")
-    private val mugenCient: WebClient
+    private val mugenClient: WebClient
 ) : ItemMetaProvider {
 
     private val logger by Log()
@@ -24,10 +25,10 @@ class MugenNFTMetaProvider(
 
     override suspend fun getMeta(item: Item): ItemMeta? {
         return try {
-            val data = client.get().uri(url)
-                .retrieve().awaitBodyOrNull<List<MugenNFTMetaBody>>()?.singleOrNull() ?: return emptyMeta(itemId)
+            val data = mugenClient.get().uri("/${item.tokenId}")
+                .retrieve().awaitBodyOrNull<List<MugenNFTMetaBody>>()?.singleOrNull() ?: return emptyMeta(item.id)
             ItemMeta(
-                itemId = itemId,
+                itemId = item.id,
                 name = data.name,
                 description = data.description,
                 attributes = data.attributes.map {
@@ -52,7 +53,7 @@ class MugenNFTMetaProvider(
                     data.animationUrl2,
                     data.youtubeUrl,
                 ),
-                originalMetaUri = url,
+                originalMetaUri = Config.MUGEN_ART_BASE_URL + "/${item.tokenId}",
                 externalUri = data.externalUrl,
                 content = listOfNotNull(
                     data.imagePreview?.let {

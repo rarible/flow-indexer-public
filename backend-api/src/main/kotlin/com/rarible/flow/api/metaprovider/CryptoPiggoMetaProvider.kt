@@ -48,7 +48,7 @@ class CryptoPiggoMetaProvider(
                     )
                 ),
                 createdAt = piggoMeta.createdAt,
-                originalMetaUri = metaUrl.replace("{id}", itemId.tokenId.toString()),
+                originalMetaUri = metaUrl.replace("{id}", item.id.tokenId.toString()),
             ).apply {
                 raw = mapper.writeValueAsBytes(piggoMeta)
             }

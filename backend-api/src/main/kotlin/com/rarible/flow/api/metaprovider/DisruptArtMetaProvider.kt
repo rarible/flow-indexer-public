@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
 import java.time.LocalDate
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -89,7 +89,7 @@ class DisruptArtMetaProvider(
                         metaData.findValue("MintedDate").textValue(),
                         DISRUPT_ART_DATE_FORMAT
                     )
-                }.getOrNull()?.atStartOfDay(ZoneId.systemDefault())?.toInstant()
+                }.getOrNull()?.atStartOfDay(ZoneOffset.UTC)?.toInstant()
                 val tags = runCatching {
                     metaData.findValue("tags").toList().mapNotNull { it.asText() }
                 }.getOrNull()

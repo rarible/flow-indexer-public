@@ -16,10 +16,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import java.time.Instant
 import org.springframework.http.MediaType
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
+import java.time.Instant
 
 
 class DisruptArtMetaProviderTest : FunSpec({
@@ -89,7 +89,33 @@ class DisruptArtMetaProviderTest : FunSpec({
             listOf(
                 "https://ipfs.perma.store/content/bafkreidwr2pytghedsm5gsssuayay2zyc3hzdh5vwb2sye7ein2ca3li3u",
                 "https://ipfs.perma.store/content/bafkreidwr2pytghedsm5gsssuayay2zyc3hzdh5vwb2sye7ein2ca3li3u",
-            )
+            ),
+            createdAt = Instant.parse("2022-02-23T00:00:00Z"),
+            tags = emptyList(),
+            content = listOf(
+                ItemMeta.Content(
+                    url = "https://ipfs.perma.store/content/bafkreidwr2pytghedsm5gsssuayay2zyc3hzdh5vwb2sye7ein2ca3li3u",
+                    representation = ItemMeta.Content.Representation.ORIGINAL,
+                    type = ItemMeta.Content.Type.IMAGE,
+                    fileName = null,
+                    mimeType = null,
+                    size = null,
+                    width = null,
+                    height = null
+                ),
+                ItemMeta.Content(
+                    url = "https://ipfs.perma.store/content/bafkreidwr2pytghedsm5gsssuayay2zyc3hzdh5vwb2sye7ein2ca3li3u",
+                    representation = ItemMeta.Content.Representation.PREVIEW,
+                    type = ItemMeta.Content.Type.IMAGE,
+                    fileName = null,
+                    mimeType = null,
+                    size = null,
+                    width = null,
+                    height = null
+                ),
+            ),
+            originalMetaUri =
+            "https://ipfs.perma.store/content/bafkreicv2agl472w5vsxbfea4a7w3r5bvzb3jrrkgqjcrk674e6l6hncde",
         )
 
         verify {
@@ -118,7 +144,19 @@ class DisruptArtMetaProviderTest : FunSpec({
             emptyList(),
             listOf(
                 "https://ipfs.infura.io/ipfs/QmZakpqL6yYdQL5gb2ESrWao9s7Vt6XqYCqLPB7vUbU5cW"
-            )
+            ),
+            content = listOf(
+                ItemMeta.Content(
+                    url = "https://ipfs.infura.io/ipfs/QmZakpqL6yYdQL5gb2ESrWao9s7Vt6XqYCqLPB7vUbU5cW",
+                    representation = ItemMeta.Content.Representation.ORIGINAL,
+                    type = ItemMeta.Content.Type.IMAGE,
+                    fileName = null,
+                    mimeType = "image/jpeg",
+                    size = null,
+                    width = null,
+                    height = null
+                ),
+            ),
         )
     }
 }) {

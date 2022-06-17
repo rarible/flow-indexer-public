@@ -49,8 +49,8 @@ class StarlyMetaProvider(
                 .retrieve()
                 .awaitBodyOrNull<StarlyMeta>()
         }?.let { (uri, starlyMeta) ->
-            starlyMeta?.toItemMeta(itemId)?.copy(originalMetaUri = uri)
-        } ?: ItemMeta.empty(itemId)
+            starlyMeta?.toItemMeta(item.id)?.copy(originalMetaUri = uri)
+        } ?: ItemMeta.empty(item.id)
     }
 }
 
