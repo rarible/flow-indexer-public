@@ -10,13 +10,12 @@ import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.events.VersusArtItem
 import com.rarible.flow.events.changeCapabilityToAddress
-import java.io.BufferedReader
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
+import java.io.BufferedReader
 
 @Component
 class VersusArtMetaProvider(
@@ -88,7 +87,29 @@ class VersusArtMetaProvider(
 
         val urls = listOfNotNull(contentUrl, nft.url)
 
-        return ItemMeta(item.id, nft.name, nft.description, meta, urls).apply {
+        return ItemMeta(
+            item.id,
+            nft.name,
+            nft.description,
+            meta,
+            urls,
+            content = listOfNotNull(
+                (base64 ?: contentUrl)?.let {
+                    ItemMeta.Content(
+                        url = it,
+                        representation = ItemMeta.Content.Representation.ORIGINAL,
+                        type = ItemMeta.Content.Type.IMAGE,
+                    )
+                },
+                nft.url?.let {
+                    ItemMeta.Content(
+                        url = it,
+                        representation = ItemMeta.Content.Representation.PREVIEW,
+                        type = ItemMeta.Content.Type.IMAGE,
+                    )
+                },
+            )
+        ).apply {
             this.base64 = base64
         }
     }
