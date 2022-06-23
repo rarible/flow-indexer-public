@@ -23,8 +23,8 @@ import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepository
-import com.rarible.flow.scanner.eventlisteners.ItemIndexerEventProcessor
-import com.rarible.flow.scanner.eventlisteners.OrderIndexerEventProcessor
+import com.rarible.flow.scanner.eventprocessor.ItemIndexerEventProcessor
+import com.rarible.flow.scanner.eventprocessor.OrderIndexerEventProcessor
 import com.rarible.flow.scanner.model.IndexerEvent
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -36,11 +36,11 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDateTime
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
 internal class TransferPurchaseUpdateFieldTest : FunSpec({
 

@@ -194,11 +194,13 @@ class ItemHistoryToDtoConverter(
             }
             is AuctionActivityBidClosed -> DummyActivityDto(
                 id = source.id,
-                date = source.date
+                date = source.date,
+                updatedAt = source.updatedAt
             )
             is AuctionActivityBidIncreased -> DummyActivityDto(
                 id = source.id,
-                date = source.date
+                date = source.date,
+                source.updatedAt
             )
             is AuctionActivityBidOpened -> {
                 val lot = mongo.findOne(Query.query(
@@ -216,7 +218,8 @@ class ItemHistoryToDtoConverter(
                     transactionHash = source.log.transactionHash,
                     blockHash = source.log.blockHash,
                     blockNumber = source.log.blockHeight,
-                    logIndex = source.log.eventIndex
+                    logIndex = source.log.eventIndex,
+                    updatedAt = source.updatedAt
                 )
             }
             is AuctionActivityLotCanceled -> {
@@ -231,16 +234,19 @@ class ItemHistoryToDtoConverter(
                     transactionHash = source.log.transactionHash,
                     blockHash = source.log.blockHash,
                     blockNumber = source.log.blockHeight,
-                    logIndex = source.log.eventIndex
+                    logIndex = source.log.eventIndex,
+                    updatedAt = source.updatedAt
                 )
             }
             is AuctionActivityLotCleaned -> DummyActivityDto(
                 id = source.id,
-                date = source.date
+                date = source.date,
+                updatedAt = source.updatedAt
             )
             is AuctionActivityLotEndTimeChanged -> DummyActivityDto(
                 id = source.id,
-                date = source.date
+                date = source.date,
+                updatedAt = source.updatedAt
             )
             is AuctionActivityLot -> {
                 val lot = mongo.findOne(Query.query(
@@ -254,7 +260,8 @@ class ItemHistoryToDtoConverter(
                     transactionHash = source.log.transactionHash,
                     blockHash = source.log.blockHash,
                     blockNumber = source.log.blockHeight,
-                    logIndex = source.log.eventIndex
+                    logIndex = source.log.eventIndex,
+                    updatedAt = source.updatedAt
                 )
             }
             is AuctionActivityLotHammered -> {
@@ -269,7 +276,8 @@ class ItemHistoryToDtoConverter(
                     transactionHash = source.log.transactionHash,
                     blockHash = source.log.blockHash,
                     blockNumber = source.log.blockHeight,
-                    logIndex = source.log.eventIndex
+                    logIndex = source.log.eventIndex,
+                    updatedAt = source.updatedAt
                 )
             }
         }
