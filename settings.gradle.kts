@@ -15,10 +15,10 @@ include(
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            version("flow-sdk-ver", "0.6.0")
-            version("rarible-core", "2.2.4")
+            version("flow-sdk-ver", "0.7.1.5")
+            version("rarible-core", "2.3.80")
             version("rarible-currency", "1.18.2")
-            version("flow-protocol-version", "3.1.10")
+            version("flow-protocol-version", "3.1.11")
             version("blockchain-scanner", "1.1.1")
 
             alias("flow-sdk").to("com.nftco", "flow-jvm-sdk").versionRef("flow-sdk-ver")
@@ -48,12 +48,9 @@ dependencyResolutionManagement {
 
         create("testLibs") {
             version("kotest", "4.6.2")
-            version("rarible-core", "2.0.0")
+            version("rarible-core", "2.3.80")
 
             alias("kotest-runner").to("io.kotest", "kotest-runner-junit5").versionRef("kotest")
-            alias("kotest-spring").to("io.kotest.extensions", "kotest-extensions-spring").version("1.0.0")
-            alias("kotest-test-containers").to("io.kotest", "kotest-extensions-testcontainers").version("1.0.+")
-            alias("kotest-kafka").to("io.kotest.extensions", "kotest-extensions-embedded-kafka").version("1.0.+")
             alias("rarible-core-test").to("com.rarible.core", "rarible-core-test-common").versionRef("rarible-core")
 
             bundle("kotest", listOf("kotest-runner"))

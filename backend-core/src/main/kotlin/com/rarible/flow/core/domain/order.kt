@@ -4,6 +4,7 @@ package com.rarible.flow.core.domain
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.protocol.dto.FlowOrderPlatformDto
 import java.math.BigDecimal
+import java.time.Instant
 import java.time.LocalDateTime
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
@@ -65,6 +66,9 @@ data class Order(
     @Indexed
     val platform: FlowOrderPlatformDto? = null
 ) {
+
+    @Indexed
+    var dbUpdatedAt: Instant = Instant.now()
 
     fun deactivateBid(makeStock: BigDecimal): Order {
         return this.copy(status = OrderStatus.INACTIVE, makeStock = makeStock)

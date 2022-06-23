@@ -14,6 +14,7 @@ import BarterYardPackNFT from 0xBARTERYARDPACKNFT
 import SomePlaceCollectible from 0xSOMEPLACECOLLECTIBLE
 import GeniaceNFT from 0xGENIACENFT
 import CryptoPiggo from 0xCRYPTOPIGGO
+import FanfareNFTContract from 0xFANFARENFTCONTRACT
 
 pub fun idsRaribleNFT(_ account: PublicAccount): [UInt64] {
     return account.getCapability(RaribleNFT.collectionPublicPath)
@@ -107,6 +108,12 @@ pub fun idsCryptoPiggo(_ account: PublicAccount): [UInt64] {
         ?.getIDs() ?? []
 }
 
+pub fun idsFanfareNFTContract(_ account: PublicAccount): [UInt64] {
+    return account.getCapability(FanfareNFTContract.CollectionPublicPath)
+        .borrow<&{FanfareNFTContract.FanfareNFTCollectionPublic}>()
+        ?.getIDs() ?? []
+}
+
 pub fun main(address: Address): {String: [UInt64]} {
     let account = getAccount(address)
     let results : {String: [UInt64]} = {}
@@ -126,6 +133,7 @@ pub fun main(address: Address): {String: [UInt64]} {
     results["SomePlaceCollectible"] = idsSomePlaceCollectible(account)
     results["GeniaceNFT"] = idsGeniaceNFT(account)
     results["CryptoPiggo"] = idsCryptoPiggo(account)
+    results["FanfareNFTContract"] = idsFanfareNFTContract(account)
 
     return results
 }

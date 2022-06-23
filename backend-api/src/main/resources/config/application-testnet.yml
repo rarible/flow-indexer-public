@@ -1,0 +1,34 @@
+logging:
+  level:
+    com.rarible.flow: DEBUG
+    org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG
+
+spring:
+  cloud:
+    consul:
+      discovery:
+        tags:
+          - web-api:flow-api-testnet.rarible.org
+
+rarible:
+  core:
+    filter:
+      cors:
+        enabled: true
+    apm:
+      agent:
+        enabled: false
+
+flow-indexer-api:
+  flow-access-url: "access.devnet.nodes.onflow.org"
+  flow-access-port: 9000
+  chain-id: TESTNET
+
+app:
+  environment: testnet
+  chain-id: TESTNET
+  kafka-replica-set: ${kafka.hosts}
+  web-api-url: ${web-api-url}
+
+application:
+  environment: testnet

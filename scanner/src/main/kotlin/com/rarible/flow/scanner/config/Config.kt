@@ -14,6 +14,7 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing
 
 @Configuration
 @ObsoleteCoroutinesApi
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Configuration
 @EnableMongock
 @EnableFlowBlockchainScanner
 @EnableConfigurationProperties(FlowApiProperties::class)
+@EnableReactiveMongoAuditing
 class Config(
     private val flowApiProperties: FlowApiProperties
 ) {

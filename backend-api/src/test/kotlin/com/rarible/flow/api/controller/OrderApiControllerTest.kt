@@ -20,9 +20,6 @@ import com.rarible.protocol.dto.FlowOrderIdsDto
 import com.rarible.protocol.dto.FlowOrdersPaginationDto
 import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
-import java.math.BigDecimal
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.jupiter.api.Test
@@ -32,6 +29,9 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import java.math.BigDecimal
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @WebFluxTest(
     controllers = [OrderApiController::class],
@@ -224,6 +224,15 @@ class OrderApiControllerTest {
         client.shouldGetBadRequest(
             "/v0.1/orders/sell/byMaker"
         )
+    }
+
+    @Test
+    fun `should sync orders`() {
+        coEvery {
+            orderService.findAll(any(), any(), OrderFilter.Sort.UPDATED_AT_DESC)
+        } returns (1L..10L).map { createOrder(it) }.asFlow()
+
+        client.shouldGetPaginatedResult<FlowOrdersPaginationDto>("/v0.1/orders/sync")
     }
 
     private fun createOrder(tokenId: Long = randomLong()): Order {

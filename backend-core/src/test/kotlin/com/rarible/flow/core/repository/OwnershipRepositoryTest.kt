@@ -5,17 +5,20 @@ import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Ownership
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
+import java.time.Instant
+import java.util.Locale
+import kotlin.random.Random
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.runBlocking
+import org.apache.commons.lang3.RandomStringUtils
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
-import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils
-import java.time.Clock
-import java.time.Instant
-import java.util.*
-import kotlin.random.Random
 
 @MongoTest
 @DataMongoTest(
@@ -29,11 +32,9 @@ import kotlin.random.Random
 )
 @ContextConfiguration(classes = [CoreConfig::class])
 @ActiveProfiles("test")
-internal class OwnershipRepositoryTest(
-
-) {
+internal class OwnershipRepositoryTest {
     @Autowired
-    lateinit var ownershipRepository: OwnershipRepository
+    private lateinit var ownershipRepository: OwnershipRepository
 
     @BeforeEach
     fun beforeEach() {
@@ -42,32 +43,55 @@ internal class OwnershipRepositoryTest(
 
     @Test
     fun `should delete and return ownerships`() {
-        val contract = randomAddress()
-        val owner = randomAddress()
+        runBlocking {
+            val contract = randomAddress()
+            val owner = randomAddress()
 
-        val (o1, o2, o3) = listOf(
-            createOwnership(contract, owner),
-            createOwnership(contract, owner),
-            createOwnership(contract, owner)
-        )
-        ownershipRepository.saveAll(
-            listOf(o1, o2, o3)
-        )
+            val (o1, o2, o3) = listOf(
+                createOwnership(contract, owner),
+                createOwnership(contract, owner),
+                createOwnership(contract, owner)
+            )
+            ownershipRepository.coSaveAll(
+                listOf(o1, o2, o3)
+            )
 
-        ownershipRepository.deleteAllByContractAndTokenId(o1.contract, o1.tokenId).subscribe {
-            it shouldBeEqualToComparingFields o1
+            ownershipRepository.deleteAllByContractAndTokenId(o1.contract, o1.tokenId).subscribe {
+                it shouldBeEqualToComparingFields o1
+            }
         }
 
     }
 
+    @Test
+    fun `should find by ids`() = runBlocking<Unit> {
+        val contract = randomAddress()
+        val owner = randomAddress()
 
-    private fun createOwnership(contract: FlowAddress = randomAddress(), owner: FlowAddress = randomAddress()) = Ownership(
-        contract.formatted,
-        Random.nextLong(),
-        owner,
-        owner,
-        Instant.now(Clock.systemUTC()),
-    )
+        val all = listOf(
+            createOwnership(contract, owner),
+            createOwnership(contract, owner),
+            createOwnership(contract, owner)
+        )
+            .sortedBy { it.id.toString() }
+        ownershipRepository.coSaveAll(all)
 
-    private fun randomAddress() = FlowAddress("0x${RandomStringUtils.random(16, "0123456789ABCDEF")}".lowercase(Locale.ENGLISH))
+        val result = ownershipRepository.findByIdIn(all.map { it.id.toString() }).asFlow().toList()
+            .sortedBy { it.id.toString() }
+
+        assertThat(result).hasSize(3)
+        assertThat(result).containsAll(all)
+    }
+
+    private fun createOwnership(contract: FlowAddress = randomAddress(), owner: FlowAddress = randomAddress()) =
+        Ownership(
+            contract.formatted,
+            Random.nextLong(),
+            owner,
+            owner,
+            Instant.now(),
+        )
+
+    private fun randomAddress() =
+        FlowAddress("0x${RandomStringUtils.random(16, "0123456789ABCDEF")}".lowercase(Locale.ENGLISH))
 }

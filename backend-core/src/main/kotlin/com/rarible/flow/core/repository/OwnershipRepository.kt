@@ -19,6 +19,8 @@ interface OwnershipRepository : ReactiveMongoRepository<Ownership, OwnershipId>,
     fun deleteAllByContractAndTokenIdAndOwnerNot(contract: String, tokenId: TokenId /* = kotlin.Long */, owner: FlowAddress): Flux<Ownership>
 
     fun findAllByContractAndTokenId(contract: String, tokenId: TokenId /* = kotlin.Long */): Flux<Ownership>
+
+    fun findByIdIn(ids: List<String>): Flux<Ownership>
 }
 
 interface ScrollingRepository<T> {

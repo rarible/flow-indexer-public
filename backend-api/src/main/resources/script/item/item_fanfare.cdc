@@ -1,5 +1,5 @@
 //import FanfareNFTContract from 0x4c44f3b1e4e70b20
-import FanfareNFTContract from 0xFANFARE
+import FanfareNFTContract from 0xFANFARENFTCONTRACT
 
 pub fun main(owner: Address, id: UInt64): String? {
      if let col = getAccount(owner)

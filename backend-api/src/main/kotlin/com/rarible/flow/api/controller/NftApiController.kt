@@ -9,13 +9,12 @@ import com.rarible.flow.core.converter.ItemMetaToDtoConverter
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.log.Log
 import com.rarible.protocol.dto.FlowItemIdsDto
-import com.rarible.protocol.dto.FlowMetaDto
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemRoyaltyDto
 import com.rarible.protocol.dto.FlowNftItemsDto
 import com.rarible.protocol.dto.PayInfoDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftItemControllerApi
-import kotlinx.coroutines.DelicateCoroutinesApi
+import java.time.Instant
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.springframework.http.HttpHeaders
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RestController
-import java.time.Instant
 
 @DelicateCoroutinesApi
 @CrossOrigin

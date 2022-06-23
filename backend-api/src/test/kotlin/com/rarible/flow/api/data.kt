@@ -30,7 +30,7 @@ fun createOrder(id: Long = randomLong()) = Order(
     fill = 13.37.toBigDecimal(),
     lastUpdatedAt = LocalDateTime.now(),
     createdAt = LocalDateTime.now(),
-    makeStock = BigDecimal.TEN
+    makeStock = BigDecimal.TEN,
 )
 
 object data {

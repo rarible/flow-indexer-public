@@ -66,6 +66,10 @@ class ItemAndOrderEventsListener(
 
                 saved.sortedBy { it.date }.groupBy { it.log.transactionHash }.forEach { tx ->
                     tx.value.sortedBy { it.log.eventIndex }.forEach { h ->
+                        if (blockEvent.event.eventSource != Source.REINDEX) {
+                            logger.info("Send activity [${h.id}] to kafka!")
+                            protocolEventPublisher.activity(h).ensureSuccess()
+                        }
                         indexerEventService.processEvent(
                             IndexerEvent(
                                 history = h,
@@ -75,10 +79,6 @@ class ItemAndOrderEventsListener(
                                     items.find { it.contract == a.contract && it.tokenId == a.tokenId }
                                 } else null)
                         )
-                        if (blockEvent.event.eventSource != Source.REINDEX) {
-                            logger.info("Send activity [${h.id}] to kafka!")
-                            protocolEventPublisher.activity(h).ensureSuccess()
-                        }
                     }
                 }
             }

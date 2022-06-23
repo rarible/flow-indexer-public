@@ -11,7 +11,6 @@ import com.rarible.flow.events.EventId
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.springframework.stereotype.Component
 
-@ExperimentalCoroutinesApi
 @Component
 class RaribleNFTSubscriber: BaseFlowLogEventSubscriber() {
 

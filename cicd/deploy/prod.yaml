@@ -5,7 +5,7 @@ flow-indexer-backend-api:
     nodePort: 30113
   resources:
     jvm:
-      xmx_megabytes: 1024
+      xmx_megabytes: 1536
       max_direct_memory_megabytes: 256
   networks:
     additional:

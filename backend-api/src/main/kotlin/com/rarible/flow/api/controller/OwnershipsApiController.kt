@@ -8,6 +8,7 @@ import com.rarible.flow.core.domain.OwnershipId
 import com.rarible.flow.core.repository.OwnershipFilter
 import com.rarible.protocol.dto.FlowNftOwnershipDto
 import com.rarible.protocol.dto.FlowNftOwnershipsDto
+import com.rarible.protocol.dto.NftOwnershipsByIdRequestDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftOwnershipControllerApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.count
@@ -37,11 +38,20 @@ class OwnershipsApiController(
             .okOr404IfNull()
     }
 
+    override suspend fun getNftOwnershipsById(nftOwnershipsByIdRequestDto: NftOwnershipsByIdRequestDto): ResponseEntity<FlowNftOwnershipsDto> {
+        val ownerships = service.byIds(nftOwnershipsByIdRequestDto.ids)
+        return FlowNftOwnershipsDto(
+            total = nftOwnershipsByIdRequestDto.ids.size.toLong(),
+            ownerships = ownerships.map(OwnershipToDtoConverter::convert).toList(),
+            continuation = null,
+        ).okOr404IfNull()
+    }
+
     override suspend fun getNftOwnershipsByItem(
         contract: String,
         tokenId: String,
         continuation: String?,
-        size: Int?
+        size: Int?,
     ): ResponseEntity<FlowNftOwnershipsDto> {
         val itemId = ItemId(contract, tokenId.tokenId())
         val sort = OwnershipFilter.Sort.LATEST_FIRST

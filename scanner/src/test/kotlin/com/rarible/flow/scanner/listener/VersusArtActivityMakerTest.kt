@@ -106,13 +106,4 @@ class VersusArtActivityMakerTest : FunSpec({
     }
 })
 
-class TestVersusArt: VersusArtActivityMaker() {
-
-    init {
-        txManager = mockk {
-            coEvery { onTransaction<Boolean>(any(), any(), any()) } returns false
-        }
-    }
-
-
-}
+class TestVersusArt: VersusArtActivityMaker()

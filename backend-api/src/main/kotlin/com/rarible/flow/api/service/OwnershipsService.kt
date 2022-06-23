@@ -6,8 +6,10 @@ import com.rarible.flow.core.domain.OwnershipId
 import com.rarible.flow.core.repository.OwnershipFilter
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.repository.coFindById
+import com.rarible.protocol.dto.FlowNftOwnershipsDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 
 @Service
@@ -36,4 +38,6 @@ class OwnershipsService(
             sort
         ).asFlow()
     }
+
+    fun byIds(ids: List<String>): Flow<Ownership> = ownershipRepository.findByIdIn(ids).asFlow()
 }

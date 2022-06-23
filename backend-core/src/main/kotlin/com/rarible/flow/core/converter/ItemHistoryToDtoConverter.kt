@@ -81,6 +81,7 @@ class ItemHistoryToDtoConverter(
                 blockHash = source.log.blockHash,
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
+                updatedAt = source.updatedAt,
             )
 
             is BurnActivity -> FlowBurnDto(
@@ -94,6 +95,7 @@ class ItemHistoryToDtoConverter(
                 blockHash = source.log.blockHash,
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
+                updatedAt = source.updatedAt,
             )
 
             is TransferActivity -> FlowTransferDto(
@@ -109,6 +111,7 @@ class ItemHistoryToDtoConverter(
                 blockHash = source.log.blockHash,
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
+                updatedAt = source.updatedAt,
             )
             is FlowNftOrderActivitySell -> FlowNftOrderActivitySellDto(
                 id = source.id,
@@ -128,7 +131,8 @@ class ItemHistoryToDtoConverter(
                 blockHash = source.log.blockHash,
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
-                platform = source.activity.platform
+                platform = source.activity.platform,
+                updatedAt = source.updatedAt,
             )
             is FlowNftOrderActivityList -> FlowNftOrderActivityListDto(
                 id = source.id,
@@ -142,6 +146,7 @@ class ItemHistoryToDtoConverter(
                 blockHash = source.log.blockHash,
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
+                updatedAt = source.updatedAt,
             )
             is FlowNftOrderActivityBid -> FlowNftOrderActivityBidDto(
                 id = source.id,
@@ -155,6 +160,7 @@ class ItemHistoryToDtoConverter(
                 blockHash = source.log.blockHash,
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
+                updatedAt = source.updatedAt,
             )
             is FlowNftOrderActivityCancelList -> FlowNftOrderActivityCancelListDto(
                 id = source.id,
@@ -168,6 +174,7 @@ class ItemHistoryToDtoConverter(
                 blockHash = source.log.blockHash,
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
+                updatedAt = source.updatedAt,
             )
             is FlowNftOrderActivityCancelBid -> {
                 FlowNftOrderActivityCancelBidDto(
@@ -182,6 +189,7 @@ class ItemHistoryToDtoConverter(
                     blockHash = source.log.blockHash,
                     blockNumber = source.log.blockHeight,
                     logIndex = source.log.eventIndex,
+                    updatedAt = source.updatedAt,
                 )
             }
             is AuctionActivityBidClosed -> DummyActivityDto(
