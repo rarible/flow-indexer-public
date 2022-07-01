@@ -245,7 +245,7 @@ class ActivitiesService(
 
     private fun addContinuation(cont: ActivityContinuation?, criteria: Criteria, sort: String, continuationDateFieldName: String) {
         if (cont != null) {
-            when (sort) {
+            val result = when (sort) {
                 "EARLIEST_FIRST" ->
                     criteria.andOperator(
                         Criteria().orOperator(
@@ -261,6 +261,8 @@ class ActivitiesService(
                        )
                     )
             }
+            // PT-617 sometimes we have the same entities in response un union service
+            result.and(ItemHistory::id).ne(cont.beforeId)
         }
     }
 
