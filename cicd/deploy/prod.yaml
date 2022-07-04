@@ -1,15 +1,11 @@
 flow-indexer-backend-api:
   replicas: 3
   service:
-    enabled: true
     nodePort: 30113
   resources:
     jvm:
       xmx_megabytes: 1536
       max_direct_memory_megabytes: 256
-  networks:
-    additional:
-    - proxy
 
 flow-indexer-scanner:
   resources:

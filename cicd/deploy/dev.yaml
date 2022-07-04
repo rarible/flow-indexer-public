@@ -1,4 +1,3 @@
 flow-indexer-backend-api:
   service:
-    enabled: true
     nodePort: 30313

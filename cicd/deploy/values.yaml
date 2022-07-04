@@ -1,35 +1,25 @@
 flow-indexer-backend-api:
   image:
     repository: flow-nft-indexer-backend-api
+  service:
+    enabled: true
   environments:
-    APPLICATION_ENVIRONMENT: '{{ include "service.appEnv" $ }}'
-    CONSUL_ROOT_PATH: '{{ include "service.appEnv" $ }}/flow-indexer'
-    SPRING_PROFILES_ACTIVE: 'consul,{{ include "service.appEnv" $ }}'
+    APPLICATION_ENVIRONMENT: '{{ include "service.env" $ }}'
+    CONSUL_ROOT_PATH: '{{ include "service.env" $ }}/flow-indexer'
+    SPRING_PROFILES_ACTIVE: 'consul,{{ include "service.env" $ }}'
   resources:
     jvm:
       xmx_megabytes: 512
       max_direct_memory_megabytes: 64
-  # updateConfig:
-  #   order: start-first
-  networks:
-    common:
-    - '{{ include "service.appEnv" $ }}-backend'
-    additional:
-    - proxy-staging
 
 flow-indexer-scanner:
   image:
     repository: flow-nft-indexer-scanner
   environments:
-    APPLICATION_ENVIRONMENT: '{{ include "service.appEnv" $ }}'
-    CONSUL_ROOT_PATH: '{{ include "service.appEnv" $ }}/flow-indexer'
-    SPRING_PROFILES_ACTIVE: 'consul,{{ include "service.appEnv" $ }}'
-  endpointMode: dnsrr
+    APPLICATION_ENVIRONMENT: '{{ include "service.env" $ }}'
+    CONSUL_ROOT_PATH: '{{ include "service.env" $ }}/flow-indexer'
+    SPRING_PROFILES_ACTIVE: 'consul,{{ include "service.env" $ }}'
   resources:
     jvm:
       xmx_megabytes: 400
       max_direct_memory_megabytes: 32
-  networks:
-    common: 
-    - '{{ include "service.appEnv" $ }}-backend'
-    - internet
