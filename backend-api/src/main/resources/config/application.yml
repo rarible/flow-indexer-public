@@ -9,7 +9,7 @@ flow-indexer-api:
   flow-access-url:
   flow-access-port:
   alchemy-api-key: ${alchemy.api.key}
-  ipfsInnerUrl: "http://ipfs3.rarible.int:8080/ipfs"
+  ipfsInnerUrl: "https://rarible.mypinata.cloud/ipfs"
 
 application:
   service-name: flow-nft-indexer-api
