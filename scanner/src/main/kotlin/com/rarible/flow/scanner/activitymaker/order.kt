@@ -5,11 +5,23 @@ import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowId
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.apm.withSpan
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.BaseActivity
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.domain.FlowLogType
+import com.rarible.flow.core.domain.FlowNftOrderActivityBid
+import com.rarible.flow.core.domain.FlowNftOrderActivityCancelBid
+import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
+import com.rarible.flow.core.domain.FlowNftOrderActivityList
+import com.rarible.flow.core.domain.FlowNftOrderActivitySell
+import com.rarible.flow.core.domain.FlowNftOrderPayment
+import com.rarible.flow.core.domain.OrderActivityMatchSide
+import com.rarible.flow.core.domain.PaymentType
 import com.rarible.flow.events.EventId
 import com.rarible.flow.scanner.service.balance.FlowBalanceService
-import org.springframework.stereotype.Component
 import java.math.BigDecimal
+import org.springframework.stereotype.Component
 
 
 @Component
@@ -51,7 +63,7 @@ class NFTStorefrontActivityMaker : WithPaymentsActivityMaker() {
                 val priceUsd = if (rate > BigDecimal.ZERO) {
                     price * rate
                 } else BigDecimal.ZERO
-                val nftCollection = EventId.of(cadenceParser.string(it.event.fields["nftType"]!!)).collection()
+                val nftCollection = EventId.of(cadenceParser.type(it.event.fields["nftType"]!!)).collection()
                 val tokenId = cadenceParser.long(it.event.fields["nftID"]!!)
                 result[it.log] = FlowNftOrderActivityList(
                     price = price,
@@ -67,7 +79,7 @@ class NFTStorefrontActivityMaker : WithPaymentsActivityMaker() {
                         tokenId = tokenId
                     ),
                     take = FlowAssetFungible(
-                        contract = EventId.of(cadenceParser.string(it.event.fields["ftVaultType"]!!)).collection(),
+                        contract = EventId.of(cadenceParser.type(it.event.fields["ftVaultType"]!!)).collection(),
                         value = price
                     )
                 )
@@ -178,13 +190,13 @@ class RaribleOpenBidActivityMaker(
             openedBids.forEach {
                 val price = cadenceParser.bigDecimal(it.event.fields["bidPrice"]!!)
                 val orderId = cadenceParser.long(it.event.fields["bidId"]!!)
-                val currencyContract = EventId.of(cadenceParser.string(it.event.fields["vaultType"]!!)).collection()
+                val currencyContract = EventId.of(cadenceParser.type(it.event.fields["vaultType"]!!)).collection()
                 val usdRate = usdRate(currencyContract, it.log.timestamp.toEpochMilli()) ?: BigDecimal.ZERO
 
                 val priceUsd = if (usdRate > BigDecimal.ZERO) {
                     price * usdRate
                 } else BigDecimal.ZERO
-                val nftCollection = EventId.of(cadenceParser.string(it.event.fields["nftType"]!!)).collection()
+                val nftCollection = EventId.of(cadenceParser.type(it.event.fields["nftType"]!!)).collection()
                 val tokenId = cadenceParser.long(it.event.fields["nftId"]!!)
                 val maker = cadenceParser.address(it.event.fields["bidAddress"]!!)
                 result[it.log] = FlowNftOrderActivityBid(
