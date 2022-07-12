@@ -56,7 +56,7 @@ class NFTStorefrontActivityMaker : WithPaymentsActivityMaker() {
                 val price = raribleEventPrice ?: cadenceParser.bigDecimal(it.event.fields["price"]!!)
                 val orderId = cadenceParser.long(it.event.fields["listingResourceID"]!!)
                 val rate = usdRate(
-                    EventId.of(cadenceParser.string(it.event.fields["ftVaultType"]!!)).collection(),
+                    EventId.of(cadenceParser.type(it.event.fields["ftVaultType"]!!)).collection(),
                     it.log.timestamp.toEpochMilli()
                 ) ?: BigDecimal.ZERO
 
