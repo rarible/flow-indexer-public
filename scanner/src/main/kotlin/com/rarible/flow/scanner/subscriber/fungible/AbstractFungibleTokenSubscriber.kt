@@ -17,10 +17,18 @@ import com.rarible.flow.events.EventId
 import com.rarible.flow.events.EventMessage
 import com.rarible.flow.log.Log
 import com.rarible.flow.scanner.subscriber.balanceHistory
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.isEqualTo
 
 
 abstract class AbstractFungibleTokenSubscriber : FlowLogEventSubscriber {
@@ -32,6 +40,9 @@ abstract class AbstractFungibleTokenSubscriber : FlowLogEventSubscriber {
 
     @Autowired
     protected lateinit var balanceRepository: BalanceRepository
+
+    @Autowired
+    private lateinit var mongo: ReactiveMongoTemplate
 
     abstract val descriptors: Map<FlowChainId, FlowDescriptor>
 
@@ -55,7 +66,7 @@ abstract class AbstractFungibleTokenSubscriber : FlowLogEventSubscriber {
                     } else {
                         val amount: UFix64NumberField by fields
                         val balanceId = BalanceId(FlowAddress((from.value as AddressField).value!!), token)
-                        if (balanceRepository.existsById(balanceId).awaitSingle()) {
+                        if (isNewEvent(fixedLog) && balanceRepository.existsById(balanceId).awaitSingle()) {
                             flowOf(
                                 balanceHistory(
                                     balanceId, amount.toBigDecimal()!!.negate(), block, fixedLog
@@ -71,7 +82,7 @@ abstract class AbstractFungibleTokenSubscriber : FlowLogEventSubscriber {
                     } else {
                         val amount: UFix64NumberField by fields
                         val balanceId = BalanceId(FlowAddress((to.value as AddressField).value!!), token)
-                        if (balanceRepository.existsById(balanceId).awaitSingle()) {
+                        if (isNewEvent(fixedLog) && balanceRepository.existsById(balanceId).awaitSingle()) {
                             flowOf(
                                 balanceHistory(
                                     to, amount.toBigDecimal()!!, token, block, fixedLog
@@ -88,6 +99,13 @@ abstract class AbstractFungibleTokenSubscriber : FlowLogEventSubscriber {
         )
     }
 
+    private suspend fun isNewEvent(log: FlowBlockchainLog): Boolean {
+        return mongo.exists(
+            Query(Criteria.where("_id").isEqualTo("${log.event.transactionId}${log.event.eventIndex}")),
+            dbCollection
+        ).awaitSingle().not()
+    }
+
     companion object {
         enum class FungibleEvents {
             TokensWithdrawn,
@@ -98,6 +116,6 @@ abstract class AbstractFungibleTokenSubscriber : FlowLogEventSubscriber {
             return FungibleEvents.values().map { it.name }.toSet()
         }
 
-        val logger by Log()
+        private val logger by Log()
     }
 }
