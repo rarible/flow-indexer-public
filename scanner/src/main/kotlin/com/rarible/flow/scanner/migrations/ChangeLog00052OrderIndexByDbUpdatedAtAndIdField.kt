@@ -23,7 +23,6 @@ class ChangeLog00052OrderIndexByDbUpdatedAtAndIdField(
             Index()
                 .on(Order::dbUpdatedAt.name,Sort.Direction.ASC)
                 .on(Order::id.name, Sort.Direction.ASC)
-                .background()
         )
     }
 
