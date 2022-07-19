@@ -201,7 +201,7 @@ class OrderApiControllerTest {
     @Test
     fun `should find orders by maker - success`() {
         coEvery {
-            orderService.getSellOrdersByMaker(any(), any(), any(), any(), OrderFilter.Sort.LATEST_FIRST)
+            orderService.getSellOrdersByMaker(any(), any(), any(), OrderFilter.Sort.LATEST_FIRST)
         } returns (1L..10L).map { createOrder(it) }.asFlow()
 
         client.shouldGetPaginatedResult<FlowOrdersPaginationDto>(

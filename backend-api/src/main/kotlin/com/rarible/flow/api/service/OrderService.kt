@@ -27,14 +27,13 @@ class OrderService(
     }
 
     fun getSellOrdersByMaker(
-        makerAddress: FlowAddress,
-        originAddress: FlowAddress?,
+        makerAddresses: List<FlowAddress>,
         cont: String?,
         size: Int?,
         sort: OrderFilter.Sort
     ): Flow<Order> {
         return orderRepository.search(
-            OrderFilter.ByMaker(makerAddress, originAddress), cont, size, sort
+            OrderFilter.ByMakers(makerAddresses), cont, size, sort
         ).asFlow()
     }
 
@@ -155,7 +154,7 @@ class OrderService(
     }
 
     fun getBidOrdersByMaker(
-        makerAddress: FlowAddress?,
+        makerAddresses: List<FlowAddress>,
         status: List<OrderStatus>,
         origin: String?,
         startDate: Instant?,
@@ -166,7 +165,7 @@ class OrderService(
     ): Flow<Order> {
         return orderRepository.search(
             bidOrders(
-                OrderFilter.ByMaker(makerAddress),
+                OrderFilter.ByMakers(makerAddresses),
                 OrderFilter.ByStatus(status),
                 OrderFilter.ByDateAfter(Order::createdAt, startDate),
                 OrderFilter.ByDateBefore(Order::createdAt, endDate)
