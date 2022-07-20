@@ -64,7 +64,7 @@ class BidApiController(
     }
 
     override suspend fun getOrderBidsByMaker(
-        maker: String,
+        maker: List<String>,
         status: List<FlowOrderStatusDto>,
         origin: String?,
         startDate: Instant?,
@@ -72,12 +72,12 @@ class BidApiController(
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
-        val makerAddress = maker.flowAddress()
+        val makerAddresses = maker.mapNotNull { it.flowAddress() }
         val sort = OrderFilter.Sort.AMOUNT_DESC
         val orderStatuses = OderStatusDtoConverter.convert(status)
         return result(
             service.getBidOrdersByMaker(
-                makerAddress,
+                makerAddresses,
                 orderStatuses,
                 origin,
                 startDate,

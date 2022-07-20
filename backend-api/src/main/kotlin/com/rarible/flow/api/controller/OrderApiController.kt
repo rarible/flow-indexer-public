@@ -148,16 +148,15 @@ class OrderApiController(
     }
 
     override suspend fun getSellOrdersByMaker(
-        maker: String,
+        maker: List<String>,
         origin: String?,
         continuation: String?,
         size: Int?
     ): ResponseEntity<FlowOrdersPaginationDto> {
-        val makerAddress = maker.flowAddress()!!
-        val originAddress = origin.flowAddress()
+        val makerAddresses = maker.mapNotNull { it.flowAddress() }
         val sort = OrderFilter.Sort.LATEST_FIRST
         return result(
-            service.getSellOrdersByMaker(makerAddress, originAddress, continuation, size, sort),
+            service.getSellOrdersByMaker(makerAddresses, continuation, size, sort),
             sort, size
         )
     }
