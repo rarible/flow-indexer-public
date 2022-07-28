@@ -1,7 +1,5 @@
 flow-indexer-backend-api:
   replicas: 3
-  service:
-    nodePort: 30113
   resources:
     jvm:
       xmx_megabytes: 1536

@@ -1,3 +1,0 @@
-flow-indexer-backend-api:
-  service:
-    nodePort: 30213
