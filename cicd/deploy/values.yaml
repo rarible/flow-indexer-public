@@ -4,9 +4,9 @@ flow-indexer-backend-api:
   service:
     enabled: true
   environments:
-    APPLICATION_ENVIRONMENT: '{{ include "service.env" $ }}'
-    CONSUL_ROOT_PATH: '{{ include "service.env" $ }}/flow-indexer'
-    SPRING_PROFILES_ACTIVE: 'consul,{{ include "service.env" $ }}'
+    APPLICATION_ENVIRONMENT: '{{ include "app.env" $ }}'
+    CONSUL_ROOT_PATH: '{{ include "app.env" $ }}/flow-indexer'
+    SPRING_PROFILES_ACTIVE: 'consul,{{ include "app.env" $ }}'
   resources:
     jvm:
       xmx_megabytes: 512
@@ -16,9 +16,10 @@ flow-indexer-scanner:
   image:
     repository: flow-nft-indexer-scanner
   environments:
-    APPLICATION_ENVIRONMENT: '{{ include "service.env" $ }}'
-    CONSUL_ROOT_PATH: '{{ include "service.env" $ }}/flow-indexer'
-    SPRING_PROFILES_ACTIVE: 'consul,{{ include "service.env" $ }}'
+    APPLICATION_ENVIRONMENT: '{{ include "app.env" $ }}'
+    CONSUL_ROOT_PATH: '{{ include "app.env" $ }}/flow-indexer'
+    SPRING_PROFILES_ACTIVE: 'consul,{{ include "app.env" $ }}'
+  priorityClassName: high
   resources:
     jvm:
       xmx_megabytes: 400
