@@ -65,8 +65,8 @@ class BidApiController(
 
     override suspend fun getOrderBidsByMaker(
         maker: List<String>,
-        status: List<FlowOrderStatusDto>,
         origin: String?,
+        status: List<FlowOrderStatusDto>?,
         startDate: Instant?,
         endDate: Instant?,
         continuation: String?,
