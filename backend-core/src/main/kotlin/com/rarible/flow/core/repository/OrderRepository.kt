@@ -3,6 +3,7 @@ package com.rarible.flow.core.repository
 import com.mongodb.client.result.UpdateResult
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.FlowAsset
+import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.filters.ScrollingSort
@@ -24,6 +25,10 @@ interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepository
         {"make.contract": ?0, "make.tokenId": ?1}
     """)
     fun findAllByMake(contract: String, tokenId: Long): Flux<Order>
+
+    fun findByItemId(itemId: ItemId): Flux<Order>
+
+    fun deleteByItemId(itemId: ItemId): Flux<Order>
 
     @Query("""
         {"take.contract": ?0, "take.tokenId": ?1}
