@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
+import java.time.temporal.ChronoUnit
 
 @MongoTest
 @DataMongoTest(
@@ -89,7 +90,7 @@ internal class OwnershipRepositoryTest {
             Random.nextLong(),
             owner,
             owner,
-            Instant.now(),
+            Instant.now().truncatedTo(ChronoUnit.SECONDS),
         )
 
     private fun randomAddress() =
