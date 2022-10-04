@@ -1,1 +1,5 @@
-*   @zolt @atapin @zhalninde
+*   @rarible/flow-dev-team
+# devops team configuratin files
+/.github/ @rarible/devops-team
+/cicd/ @rarible/devops-team
+/Jenkinsfile @rarible/devops-team
