@@ -5,4 +5,4 @@ def pipelineConfig = [
     "slackChannel": "flow-build"
 ]
 
-serviceCI(pipelineConfig)
+pipelineAppCI(pipelineConfig)
