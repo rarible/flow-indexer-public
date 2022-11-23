@@ -4,11 +4,11 @@ flow-indexer-backend-api:
     nodePort: 30113
   resources:
     jvm:
-      xmx_megabytes: 1536
+      xmx_megabytes: 768
       max_direct_memory_megabytes: 256
 
 flow-indexer-scanner:
   resources:
     jvm:
-      xmx_megabytes: 2048
-      max_direct_memory_megabytes: 128
+      xmx_megabytes: 1048
+      max_direct_memory_megabytes: 192
