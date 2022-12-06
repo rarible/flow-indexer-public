@@ -1,4 +1,5 @@
 flow-indexer-backend-api:
+  replicas: 0 # Deactivated
   image:
     repository: flow-nft-indexer-backend-api
   service:
@@ -13,6 +14,7 @@ flow-indexer-backend-api:
       max_direct_memory_megabytes: 64
 
 flow-indexer-scanner:
+  replicas: 0 # Deactivated
   image:
     repository: flow-nft-indexer-scanner
   environments:
