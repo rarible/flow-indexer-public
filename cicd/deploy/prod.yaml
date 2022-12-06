@@ -1,5 +1,5 @@
 flow-indexer-backend-api:
-  replicas: 3
+  replicas: 0 # Deactivated
   service:
     nodePort: 30113
   resources:
@@ -8,6 +8,7 @@ flow-indexer-backend-api:
       max_direct_memory_megabytes: 256
 
 flow-indexer-scanner:
+  replicas: 0 # Deactivated
   resources:
     jvm:
       xmx_megabytes: 1048
