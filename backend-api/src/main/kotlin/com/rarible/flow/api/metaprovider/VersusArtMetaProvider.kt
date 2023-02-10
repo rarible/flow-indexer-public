@@ -8,8 +8,8 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.events.VersusArtItem
-import com.rarible.flow.events.changeCapabilityToAddress
+import com.rarible.flow.core.event.VersusArtItem
+import com.rarible.flow.core.event.changeCapabilityToAddress
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value

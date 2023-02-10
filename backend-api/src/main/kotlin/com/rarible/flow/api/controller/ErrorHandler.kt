@@ -1,7 +1,7 @@
 package com.rarible.flow.api.controller
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order

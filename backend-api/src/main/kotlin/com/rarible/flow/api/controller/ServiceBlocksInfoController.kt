@@ -1,7 +1,7 @@
 package com.rarible.flow.api.controller
 
 import com.rarible.flow.api.service.BlockInfoService
-import com.rarrible.flow.block.ServiceBlockInfo
+import com.rarible.flow.core.block.ServiceBlockInfo
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController

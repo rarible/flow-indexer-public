@@ -9,7 +9,6 @@ import com.nftco.flow.sdk.ScriptBuilder
 import com.nftco.flow.sdk.flowScript
 import kotlinx.coroutines.future.await
 
-
 suspend fun AsyncFlowAccessApi.simpleScript(block: ScriptBuilder.() -> Unit): FlowScriptResponse {
     val api = this
     val builder = flowScript(block)

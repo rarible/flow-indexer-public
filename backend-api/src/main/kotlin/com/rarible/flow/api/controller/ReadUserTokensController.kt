@@ -1,7 +1,7 @@
 package com.rarible.flow.api.controller
 
 import com.rarible.flow.api.service.UserStorageService
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

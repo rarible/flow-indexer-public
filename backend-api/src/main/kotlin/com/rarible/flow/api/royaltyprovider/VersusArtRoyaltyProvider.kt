@@ -6,8 +6,8 @@ import com.nftco.flow.sdk.cadence.ResourceField
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.events.VersusArtItem
-import com.rarible.flow.events.changeCapabilityToAddress
+import com.rarible.flow.core.event.VersusArtItem
+import com.rarible.flow.core.event.changeCapabilityToAddress
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.annotation.Order
 import org.springframework.core.io.Resource

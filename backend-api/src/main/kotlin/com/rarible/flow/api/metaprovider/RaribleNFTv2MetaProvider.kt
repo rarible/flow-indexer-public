@@ -6,7 +6,7 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.events.RaribleNFTv2Meta
+import com.rarible.flow.core.event.RaribleNFTv2Meta
 import org.springframework.stereotype.Component
 
 @Component

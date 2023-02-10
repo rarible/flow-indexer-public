@@ -1,9 +1,9 @@
 package com.rarible.flow.api.service
 
 import com.nftco.flow.sdk.AsyncFlowAccessApi
-import com.rarible.blockchain.scanner.flow.model.FlowBlock
-import com.rarrible.flow.block.BlockInfo
-import com.rarrible.flow.block.ServiceBlockInfo
+import com.rarible.blockchain.scanner.block.Block
+import com.rarible.flow.core.block.BlockInfo
+import com.rarible.flow.core.block.ServiceBlockInfo
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.reactive.awaitFirst
 import org.springframework.data.domain.Sort
@@ -21,8 +21,8 @@ class BlockInfoService(
 
     suspend fun info(): ServiceBlockInfo {
         val blockOnChain = api.getLatestBlock(true).await()
-        val query = Query().addCriteria(Criteria()).limit(1).with(Sort.by(Sort.Direction.DESC, FlowBlock::id.name))
-        val blockInDb = mongo.find(query, FlowBlock::class.java, "flowBlock").awaitFirst()
+        val query = Query().addCriteria(Criteria()).limit(1).with(Sort.by(Sort.Direction.DESC, Block::id.name))
+        val blockInDb = mongo.find(query, Block::class.java, "flowBlock").awaitFirst()
 
         return ServiceBlockInfo(
             lastBlockInBlockchain = BlockInfo(
@@ -31,7 +31,7 @@ class BlockInfoService(
             ),
             lastBlockInIndexer = BlockInfo(
                 blockHeight = blockInDb.id,
-                timestamp = blockInDb.timestamp().toEpochMilli()
+                timestamp = blockInDb.timestamp
             )
         )
     }

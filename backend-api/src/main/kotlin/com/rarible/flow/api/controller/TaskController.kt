@@ -1,6 +1,6 @@
 package com.rarible.flow.api.controller
 
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.bson.types.ObjectId
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate

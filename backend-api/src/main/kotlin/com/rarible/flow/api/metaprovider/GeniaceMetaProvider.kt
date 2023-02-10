@@ -14,8 +14,7 @@ import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.repository.coFindById
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component

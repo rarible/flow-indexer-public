@@ -5,7 +5,7 @@ import com.rarible.flow.core.domain.FlowActivityType
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.repository.ActivityContinuation
 import com.rarible.flow.core.repository.filters.ScrollingSort
-import com.rarible.flow.enum.safeOf
+import com.rarible.flow.core.util.safeOf
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
 import java.time.Instant

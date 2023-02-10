@@ -6,7 +6,7 @@ import com.nftco.flow.sdk.ScriptBuilder
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.core.config.AppProperties
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import com.rarible.flow.sdk.simpleScript
 import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.Resource

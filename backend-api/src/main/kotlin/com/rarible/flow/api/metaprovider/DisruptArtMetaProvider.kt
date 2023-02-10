@@ -12,7 +12,7 @@ import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coSave
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.http.MediaType

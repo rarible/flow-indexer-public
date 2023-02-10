@@ -3,8 +3,9 @@ package com.rarible.flow.api.controller
 import com.nftco.flow.sdk.FlowPublicKey
 import com.nftco.flow.sdk.FlowSignature
 import com.rarible.flow.api.service.FlowSignatureService
-import com.rarible.flow.log.Log
 import com.rarible.protocol.flow.nft.api.controller.FlowNftCryptoControllerApi
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController
@@ -49,7 +50,7 @@ class CryptoController(
     }
 
     companion object {
-        val log by Log()
+        val log: Logger = LoggerFactory.getLogger(CryptoController::class.java)
     }
 
 }

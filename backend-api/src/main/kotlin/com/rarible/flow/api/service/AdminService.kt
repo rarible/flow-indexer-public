@@ -7,7 +7,7 @@ import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepository
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull

@@ -1,7 +1,6 @@
 package com.rarible.flow.api.controller
 
 import com.rarible.core.apm.withSpan
-import com.rarible.flow.log.Log
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter

@@ -23,8 +23,8 @@ import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
-import com.rarible.flow.events.RaribleNFTv2Token
-import com.rarible.flow.pmap
+import com.rarible.flow.core.event.RaribleNFTv2Token
+import com.rarible.flow.core.util.pmap
 import java.time.Instant
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow

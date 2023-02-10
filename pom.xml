@@ -35,6 +35,8 @@
         <rarible.protocol.flow.version>1.43.0</rarible.protocol.flow.version>
         <rarible.protocol.currency.version>1.38.3</rarible.protocol.currency.version>
 
+        <netflix.graphql.version>4.9.7</netflix.graphql.version>
+
         <dev-jna.version>5.7.0</dev-jna.version>
         <kotest.version>4.6.2</kotest.version>
 
@@ -76,6 +78,11 @@
 
             <!-- ============ External dependencies ============ -->
             <dependency>
+                <groupId>com.rarible.protocol</groupId>
+                <artifactId>protocol-flow-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.rarible.protocol.currency</groupId>
                 <artifactId>protocol-client-currency-starter</artifactId>
                 <version>${rarible.protocol.currency.version}</version>
@@ -84,6 +91,11 @@
                 <groupId>com.rarible.protocol.currency</groupId>
                 <artifactId>protocol-model-currency</artifactId>
                 <version>${rarible.protocol.currency.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.netflix.graphql.dgs</groupId>
+                <artifactId>graphql-dgs-client</artifactId>
+                <version>${netflix.graphql.version}</version>
             </dependency>
 
             <!-- ================== Other =================== -->
@@ -169,5 +181,6 @@
     </profiles>
     <modules>
         <module>backend-core</module>
+        <module>backend-api</module>
     </modules>
 </project>

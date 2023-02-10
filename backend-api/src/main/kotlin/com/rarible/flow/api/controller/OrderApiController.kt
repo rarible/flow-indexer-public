@@ -6,7 +6,7 @@ import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.repository.OrderFilter
-import com.rarible.flow.enum.safeOf
+import com.rarible.flow.core.util.safeOf
 import com.rarible.protocol.dto.*
 import com.rarible.protocol.flow.nft.api.controller.FlowOrderControllerApi
 import kotlinx.coroutines.flow.Flow

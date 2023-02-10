@@ -7,7 +7,7 @@ import com.rarible.flow.api.service.NftItemService
 import com.rarible.flow.api.service.withItemsByCollection
 import com.rarible.flow.core.converter.ItemMetaToDtoConverter
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import com.rarible.protocol.dto.FlowItemIdsDto
 import com.rarible.protocol.dto.FlowMetaDto
 import com.rarible.protocol.dto.FlowNftItemDto

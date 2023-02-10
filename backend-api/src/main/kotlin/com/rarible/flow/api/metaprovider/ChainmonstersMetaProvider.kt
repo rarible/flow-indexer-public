@@ -11,7 +11,7 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
 import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.stereotype.Component
