@@ -2,7 +2,7 @@ package com.rarible.flow.core.domain
 
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
-import com.rarible.flow.events.EventMessage
+import com.rarible.flow.core.event.EventMessage
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.FieldType
@@ -16,6 +16,7 @@ data class FlowLogEvent(
     val event: EventMessage,
     @Indexed
     val type: FlowLogType,
-): FlowLogRecord<FlowLogEvent>() {
-    override fun withLog(log: FlowLog): FlowLogRecord<FlowLogEvent> = copy(log = log)
+): FlowLogRecord() {
+    fun withLog(log: FlowLog): FlowLogRecord = copy(log = log)
+    override fun getKey(): String = event.eventId.contractAddress.toString()
 }

@@ -1,4 +1,4 @@
-package com.rarible.flow.events
+package com.rarible.flow.core.event
 
 import com.nftco.flow.sdk.cadence.CadenceNamespace
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion

@@ -5,7 +5,7 @@ import com.rarible.core.kafka.KafkaSendResult
 import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.flow.core.converter.*
 import com.rarible.flow.core.domain.*
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import com.rarible.protocol.dto.*
 import java.util.*
 

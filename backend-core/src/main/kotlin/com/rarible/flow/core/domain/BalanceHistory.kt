@@ -8,7 +8,6 @@ import org.springframework.data.mongodb.core.mapping.MongoId
 import java.math.BigDecimal
 import java.time.Instant
 
-
 data class BalanceHistory(
     val balanceId: BalanceId,
     val change: BigDecimal,
@@ -17,6 +16,7 @@ data class BalanceHistory(
     override val log: FlowLog,
     @MongoId(FieldType.STRING)
     val id: String = "${log.transactionHash}.${log.eventIndex}"
-): FlowLogRecord<BalanceHistory>() {
-    override fun withLog(log: FlowLog): FlowLogRecord<BalanceHistory> = copy(log = log)
+): FlowLogRecord() {
+    fun withLog(log: FlowLog): FlowLogRecord = copy(log = log)
+    override fun getKey() = balanceId.toString()
 }

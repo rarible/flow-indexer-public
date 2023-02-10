@@ -1,4 +1,4 @@
-package com.rarible.flow.test.kafka
+package com.rarible.flow.core.util
 
 import com.rarible.core.kafka.KafkaMessage
 import com.rarible.core.kafka.KafkaProducer

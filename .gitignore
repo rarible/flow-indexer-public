@@ -97,6 +97,10 @@ data/
 /surefire-reports/
 *~
 
+*.iml
+.idea
+target
+.flattened-pom.xml
 
 *~
 

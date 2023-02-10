@@ -39,12 +39,14 @@ data class ItemHistory(
     override val log: FlowLog,
     @MongoId(FieldType.STRING)
     val id: String = "${log.transactionHash}.${log.eventIndex}",
-): FlowLogRecord<ItemHistory>() {
+): FlowLogRecord() {
 
     @LastModifiedDate
     @Field(targetType = FieldType.DATE_TIME)
     var updatedAt: Instant = Instant.now()
 
-    override fun withLog(log: FlowLog): FlowLogRecord<ItemHistory> = copy(log = log)
+    override fun getKey() = activity.getKey()
+
+    fun withLog(log: FlowLog): FlowLogRecord = copy(log = log)
 }
 

@@ -1,4 +1,4 @@
-package com.rarible.flow.events
+package com.rarible.flow.core.event
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.Flow

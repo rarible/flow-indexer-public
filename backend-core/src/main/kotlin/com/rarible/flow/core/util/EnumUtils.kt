@@ -1,4 +1,4 @@
-package com.rarible.flow.enum
+package com.rarible.flow.core.util
 
 /**
  * Converts a enum name to enum value safely

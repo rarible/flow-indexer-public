@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>rarible-protocol-flow-indexer</artifactId>
+    <groupId>com.rarible.protocol</groupId>
+    <packaging>pom</packaging>
+    <version>${revision}</version>
+
+    <parent>
+        <groupId>com.rarible</groupId>
+        <artifactId>rarible-parent-pom</artifactId>
+        <version>2.7.5</version>
+    </parent>
+
+    <repositories>
+        <repository>
+            <id>nexus-ext-maven-public</id>
+            <name>nexus-ext-maven-public</name>
+            <url>https://repo.rarible.org/repository/maven-public/</url>
+        </repository>
+    </repositories>
+
+    <properties>
+        <revision>1.43</revision>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-cloud-gateway.version>3.0.4</spring-cloud-gateway.version>
+        <mockserver-netty.version>5.11.2</mockserver-netty.version>
+        <mockserver.version>1.15.3</mockserver.version>
+
+        <rarible.core.version>2.5.13</rarible.core.version>
+        <rarible.blockchain.scanner.version>2.5.0</rarible.blockchain.scanner.version>
+
+        <rarible.protocol.flow.version>1.43.0</rarible.protocol.flow.version>
+        <rarible.protocol.currency.version>1.38.3</rarible.protocol.currency.version>
+
+        <dev-jna.version>5.7.0</dev-jna.version>
+        <kotest.version>4.6.2</kotest.version>
+
+        <!-- ============== Plugin versions ============== -->
+        <version.plugin.clean>3.1.0</version.plugin.clean>
+        <version.plugin.source>3.2.1</version.plugin.source>
+        <version.plugin.compiler>3.5.1</version.plugin.compiler>
+        <version.plugin.resources>3.2.0</version.plugin.resources>
+        <version.plugin.surefire>2.22.2</version.plugin.surefire>
+        <version.plugin.assembly>3.3.0</version.plugin.assembly>
+        <version.plugin.install>2.5.2</version.plugin.install>
+        <version.plugin.jar>3.2.0</version.plugin.jar>
+        <version.plugin.build.helper>3.2.0</version.plugin.build.helper>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.rarible.core</groupId>
+                <artifactId>rarible-core-parent</artifactId>
+                <version>${rarible.core.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.rarible.protocol.flow</groupId>
+                <artifactId>flow-protocol-api-parent</artifactId>
+                <version>${rarible.protocol.flow.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.rarible.blockchain.scanner</groupId>
+                <artifactId>rarible-blockchain-scanner</artifactId>
+                <version>${rarible.blockchain.scanner.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- ============ External dependencies ============ -->
+            <dependency>
+                <groupId>com.rarible.protocol.currency</groupId>
+                <artifactId>protocol-client-currency-starter</artifactId>
+                <version>${rarible.protocol.currency.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.rarible.protocol.currency</groupId>
+                <artifactId>protocol-model-currency</artifactId>
+                <version>${rarible.protocol.currency.version}</version>
+            </dependency>
+
+            <!-- ================== Other =================== -->
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna</artifactId>
+                <version>${dev-jna.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.sbb</groupId>
+                <artifactId>springboot-graceful-shutdown</artifactId>
+                <version>2.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>io.kotest</groupId>
+                <artifactId>kotest-runner-junit5-jvm</artifactId>
+                <version>${kotest.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.rarible.core</groupId>
+            <artifactId>rarible-core-test-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0-alpha-2</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>../profiles/${config.file}.properties</file>
+                            </files>
+                            <quiet>true</quiet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>DEFAULT</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <config.file>default</config.file>
+            </properties>
+        </profile>
+        <profile>
+            <id>JENKINS</id>
+            <properties>
+                <config.file>jenkins</config.file>
+            </properties>
+        </profile>
+    </profiles>
+    <modules>
+        <module>backend-core</module>
+    </modules>
+</project>

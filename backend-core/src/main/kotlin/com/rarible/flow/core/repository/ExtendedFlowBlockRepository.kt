@@ -1,16 +1,16 @@
 package com.rarible.flow.core.repository
 
-import com.rarible.blockchain.scanner.flow.model.FlowBlock
-import com.rarible.blockchain.scanner.framework.model.Block
+import com.rarible.blockchain.scanner.block.Block
+import com.rarible.blockchain.scanner.block.BlockStatus
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import reactor.core.publisher.Mono
 
 
-interface ExtendedFlowBlockRepository: ReactiveCrudRepository<FlowBlock, Long> {
+interface ExtendedFlowBlockRepository: ReactiveCrudRepository<Block, Long> {
 
-    fun findFirstByOrderByIdAsc(): Mono<FlowBlock>
+    fun findFirstByOrderByIdAsc(): Mono<Block>
 
-    fun findFirstByOrderByIdDesc(): Mono<FlowBlock>
+    fun findFirstByOrderByIdDesc(): Mono<Block>
 
-    fun countByStatus(status: Block.Status): Mono<Long>
+    fun countByStatus(status: BlockStatus): Mono<Long>
 }

@@ -1,4 +1,4 @@
-package com.rarible.flow
+package com.rarible.flow.core.util
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

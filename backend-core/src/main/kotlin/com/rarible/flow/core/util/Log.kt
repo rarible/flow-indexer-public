@@ -1,4 +1,4 @@
-package com.rarible.flow.log
+package com.rarible.flow.core.util
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

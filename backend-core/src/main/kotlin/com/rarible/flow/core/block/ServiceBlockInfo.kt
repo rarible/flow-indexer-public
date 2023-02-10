@@ -1,4 +1,4 @@
-package com.rarrible.flow.block
+package com.rarible.flow.core.block
 
 import java.util.concurrent.TimeUnit
 

@@ -2,7 +2,6 @@ package com.rarible.flow.core.converter
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.domain.BurnActivity
 import com.rarible.flow.core.domain.ItemHistory
@@ -63,8 +62,13 @@ private fun createItemHistory(date: Instant, activity: BaseActivity): ItemHistor
     return ItemHistory(
         date,
         log = FlowLog(
-            "tx_hash", Log.Status.CONFIRMED, 10,
-            "A.EventType", date, 12345, "block_hash"
+
+            "tx_hash",
+            10,
+            "A.EventType",
+            date,
+            12345,
+            "block_hash"
         ),
         activity = activity,
     ).apply {

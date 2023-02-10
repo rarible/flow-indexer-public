@@ -1,6 +1,5 @@
 package com.rarible.flow.core.converter
 
-import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.FlowAssetEmpty
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
@@ -8,11 +7,9 @@ import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderData
 import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.OrderFilter
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
-import com.rarible.protocol.dto.FlowAssetFungibleDto
-import com.rarible.protocol.dto.FlowAssetNFTDto
 import com.rarible.protocol.dto.FlowOrderDataDto
 import com.rarible.protocol.dto.FlowOrderDto
 import com.rarible.protocol.dto.FlowOrderStatusDto

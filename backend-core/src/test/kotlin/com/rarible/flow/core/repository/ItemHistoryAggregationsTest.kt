@@ -2,7 +2,6 @@ package com.rarible.flow.core.repository
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.FlowAssetFungible
@@ -51,7 +50,7 @@ class ItemHistoryAggregationsTest {
         val sell = createSellActivity()
 
         val log = FlowLog(
-            "txHash", Log.Status.CONFIRMED, 1, "abc", Instant.now(), 1L, "blockHash"
+            "txHash", 1, "abc", Instant.now(), 1L, "blockHash"
         )
 
         val events = listOf(
