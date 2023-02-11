@@ -181,8 +181,8 @@
         </profile>
     </profiles>
     <modules>
-        <module>backend-core</module>
-        <module>backend-api</module>
-        <module>scanner</module>
+        <module>api</module>
+        <module>core</module>
+        <module>listener</module>
     </modules>
 </project>
