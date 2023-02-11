@@ -2,8 +2,8 @@ package com.rarible.flow.api.controller
 
 import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.api.service.BlockInfoService
-import com.rarrible.flow.block.BlockInfo
-import com.rarrible.flow.block.ServiceBlockInfo
+import com.rarible.flow.core.block.BlockInfo
+import com.rarible.flow.core.block.ServiceBlockInfo
 import io.mockk.coEvery
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach

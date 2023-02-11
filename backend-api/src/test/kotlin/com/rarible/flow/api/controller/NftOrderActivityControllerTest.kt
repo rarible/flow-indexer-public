@@ -2,7 +2,6 @@ package com.rarible.flow.api.controller
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.api.config.Config
 import com.rarible.flow.core.config.CoreConfig
@@ -148,7 +147,6 @@ class NftOrderActivityControllerTest {
 
         val flowLog1 = FlowLog(
             transactionHash = "32b8e20c643740a6e96b48af96f015655801864d3dbed3f22611ee94af421f86",
-            status = Log.Status.CONFIRMED,
             eventIndex = 0,
             eventType = "",
             timestamp = date1,
@@ -157,7 +155,6 @@ class NftOrderActivityControllerTest {
         )
         val flowLog2 = FlowLog(
             transactionHash = "e2b72842eb40183ce2a956d9103b29c1ce2efe013bccfdd12730c3148e550a10",
-            status = Log.Status.CONFIRMED,
             eventIndex = 0,
             eventType = "",
             timestamp = date2,
@@ -325,7 +322,6 @@ class NftOrderActivityControllerTest {
                 ),
                 FlowLog(
                     transactionHash = "052dd413b2fb22fb078f03b3d5cb93238376f801513a8996b45e848e92700535",
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 1,
                     eventType = "A.1d56d7ba49283a88.RaribleOpenBid.BidAvailable",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:11:36.543Z").toInstant(),
@@ -342,7 +338,6 @@ class NftOrderActivityControllerTest {
                 ),
                 FlowLog(
                     transactionHash = "a1b589c6a8f969f5f219b04457f3ff214c7fdce7a87eae9176805569fab89dc6",
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 0,
                     eventType = "A.1d56d7ba49283a88.RaribleOpenBid.BidCompleted",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:12:24.761Z").toInstant(),
@@ -398,7 +393,6 @@ class NftOrderActivityControllerTest {
                 ),
                 FlowLog(
                     transactionHash = "a1b589c6a8f969f5f219b04457f3ff214c7fdce7a87eae9176805569fab89dd6",
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 0,
                     eventType = "A.1d56d7ba49283a88.RaribleOpenBid.BidCompleted",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:12:24.761Z").toInstant(),
@@ -422,7 +416,6 @@ class NftOrderActivityControllerTest {
                 ),
                 FlowLog(
                     transactionHash = "a1b589c6a8f969f5f219b04457f3ff214c7fdce7a87eae9176805569fab89de6",
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 0,
                     eventType = "A.1d56d7ba49283a88.RaribleOpenBid.BidCompleted",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:12:24.761Z").toInstant(),
@@ -477,7 +470,6 @@ class NftOrderActivityControllerTest {
                 ),
                 FlowLog(
                     transactionHash = "5ee6a33e2b2a41e62eb5e585134231c9597a2212d14afc3de21a23d412292dc8",
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 0,
                     eventType = "A.01ab36aaf654a13e.RaribleNFT.Mint",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:10:46.461Z").toInstant(),
@@ -501,7 +493,6 @@ class NftOrderActivityControllerTest {
                 ),
                 FlowLog(
                     transactionHash = "052dd413b2fb22fb078f03b3d5cb93238376f801513a8996b45e848e92700535",
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 1,
                     eventType = "A.01ab36aaf654a13e.RaribleOrder.OrderAvailable",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:11:36.543Z").toInstant(),
@@ -518,7 +509,6 @@ class NftOrderActivityControllerTest {
                 ),
                 FlowLog(
                     transactionHash = "a1b589c6a8f969f5f219b04457f3ff214c7fdce7a87eae9176805569fab89dc6",
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 0,
                     eventType = "A.01ab36aaf654a13e.RaribleOrder.OrderCancelled",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:12:24.761Z").toInstant(),
@@ -539,7 +529,6 @@ class NftOrderActivityControllerTest {
                 ),
                 FlowLog(
                     transactionHash = "792410fde65b1b9b49d0b723fe6798ae2ab056535a1060f8a0e220e2acbd1e60",
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 0,
                     eventType = "A.01ab36aaf654a13e.RaribleNFT.Withdraw",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:13:29.236Z").toInstant(),
@@ -563,7 +552,6 @@ class NftOrderActivityControllerTest {
                 ),
                 FlowLog(
                     transactionHash = "c0b46d62cbf5086647d49269fdac82689205a708644b9a785e9ae00c2d08e1f6",
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 1,
                     eventType = "A.01ab36aaf654a13e.RaribleOrder.OrderAvailable",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:22:38.747Z").toInstant(),
@@ -580,7 +568,6 @@ class NftOrderActivityControllerTest {
                 ),
                 FlowLog(
                     transactionHash = "773743a95921c169cfd9b405c2ef970871d452229751d385ca6f655a4c83091f",
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 0,
                     eventType = "A.01ab36aaf654a13e.RaribleOrder.OrderCancelled",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:23:22.776Z").toInstant(),
@@ -604,7 +591,6 @@ class NftOrderActivityControllerTest {
                 ),
                 FlowLog(
                     transactionHash = "426b02599cd10f9e7afb92ac02bafceda2e631a38d982326c60444f968b8bbb0",
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 1,
                     eventType = "A.01ab36aaf654a13e.RaribleOrder.OrderAvailable",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:24:16.106Z").toInstant(),
@@ -621,7 +607,6 @@ class NftOrderActivityControllerTest {
                 ),
                 FlowLog(
                     transactionHash = txId,
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 0,
                     eventType = "A.01ab36aaf654a13e.RaribleOrder.OrderCancelled",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:25:05.165Z").toInstant(),
@@ -645,7 +630,6 @@ class NftOrderActivityControllerTest {
                 ),
                 FlowLog(
                     transactionHash = txId,
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 3,
                     eventType = "A.01ab36aaf654a13e.RaribleOrder.OrderAvailable",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:25:05.165Z").toInstant(),
@@ -662,7 +646,6 @@ class NftOrderActivityControllerTest {
                 ),
                 FlowLog(
                     transactionHash = "d434fac4c05f675f34bcf624c706226b453caebe0efd03355e585691a2a6cca9",
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 0,
                     eventType = "A.01ab36aaf654a13e.RaribleOrder.OrderCancelled",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:39:13.909Z").toInstant(),
@@ -682,7 +665,6 @@ class NftOrderActivityControllerTest {
                 ),
                 FlowLog(
                     transactionHash = "7640ec0cc8416e461740f4a7670eb7f4251bba3dad1129e867a49e12f932e18a",
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 1,
                     eventType = "A.01ab36aaf654a13e.RaribleNFT.Destroy",
                     timestamp = ZonedDateTime.parse("2021-11-10T11:40:14.676Z").toInstant(),
@@ -741,7 +723,6 @@ class NftOrderActivityControllerTest {
     private fun randomLog() =
         FlowLog(
             transactionHash = UUID.randomUUID().toString(),
-            status = Log.Status.CONFIRMED,
             eventIndex = 1,
             eventType = "",
             timestamp = Instant.now(Clock.systemUTC()),

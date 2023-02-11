@@ -5,9 +5,8 @@ import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.TokenId
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking

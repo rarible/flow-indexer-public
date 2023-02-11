@@ -48,6 +48,10 @@
         <!-- =============== Protocol-API ================ -->
         <dependency>
             <groupId>com.rarible.protocol.flow</groupId>
+            <artifactId>flow-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.rarible.protocol.flow</groupId>
             <artifactId>flow-protocol-api-nft</artifactId>
         </dependency>
         <dependency>
@@ -135,6 +139,11 @@
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.kotest</groupId>
+            <artifactId>kotest-runner-junit5-jvm</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

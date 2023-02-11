@@ -78,6 +78,11 @@
 
             <!-- ============ External dependencies ============ -->
             <dependency>
+                <groupId>com.rarible.protocol.flow</groupId>
+                <artifactId>flow-api</artifactId>
+                <version>${rarible.protocol.flow.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.rarible.protocol</groupId>
                 <artifactId>protocol-flow-core</artifactId>
                 <version>${project.version}</version>

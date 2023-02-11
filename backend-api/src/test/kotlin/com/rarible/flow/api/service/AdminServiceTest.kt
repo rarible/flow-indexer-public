@@ -2,18 +2,14 @@ package com.rarible.flow.api.service
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.core.kafka.KafkaSendResult
-import com.rarible.core.test.ext.MongoTest
 import com.rarible.flow.api.IntegrationTest
 import com.rarible.flow.api.createOrder
-import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.FlowActivityType
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.MintActivity
-import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
@@ -39,9 +35,6 @@ import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
 import java.time.Clock
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -165,7 +158,6 @@ internal class AdminServiceTest {
     private fun randomLog() =
         FlowLog(
             transactionHash = UUID.randomUUID().toString(),
-            status = Log.Status.CONFIRMED,
             eventIndex = 1,
             eventType = "",
             timestamp = Instant.now(Clock.systemUTC()),

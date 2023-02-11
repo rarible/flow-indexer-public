@@ -1,7 +1,6 @@
 package com.rarible.flow.api.service
 
 import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.core.test.data.randomInt
 import com.rarible.core.test.data.randomString
 import com.rarible.flow.api.BaseIntegrationTest
@@ -60,7 +59,6 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
             ),
             FlowLog(
                 transactionHash = "1903e78154fb70a7fd410e980fa6aaa07199226c5855e743d73b85cd19dcfd62",
-                status = Log.Status.CONFIRMED,
                 eventIndex = 0,
                 eventType = "A.0b2a3299cc857e29.TopShot.MomentMinted",
                 timestamp = Instant.ofEpochMilli(1614231562934000),
@@ -83,7 +81,6 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
             ),
             FlowLog(
                 transactionHash = "1903e78154fb70a7fd410e980fa6aaa07199226c5855e743d73b85cd19dcfd62",
-                status = Log.Status.CONFIRMED,
                 eventIndex = 1,
                 eventType = "A.0b2a3299cc857e29.TopShot.MomentMinted",
                 timestamp = Instant.ofEpochMilli(1614231562934000),
@@ -133,7 +130,6 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
             ),
             FlowLog(
                 transactionHash = "1903e78154fb70a7fd410e980fa6aaa07199226c5855e743d73b85cd19dcfd62",
-                status = Log.Status.CONFIRMED,
                 eventIndex = 0,
                 eventType = "A.0b2a3299cc857e29.TopShot.MomentMinted",
                 timestamp = Instant.ofEpochMilli(1614231562934000),
@@ -156,7 +152,6 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
             ),
             FlowLog(
                 transactionHash = "1903e78154fb70a7fd410e980fa6aaa07199226c5855e743d73b85cd19dcfd62",
-                status = Log.Status.CONFIRMED,
                 eventIndex = 1,
                 eventType = "A.0b2a3299cc857e29.TopShot.MomentMinted",
                 timestamp = Instant.ofEpochMilli(1614231562934000),
@@ -229,7 +224,6 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
                 ),
                 FlowLog(
                     transactionHash = "1903e78154fb70a7fd410e980fa6aaa07199226c5855e743d73b85cd19dcfd62",
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 0,
                     eventType = "A.0b2a3299cc857e29.TopShot.MomentMinted",
                     timestamp = Instant.ofEpochMilli(1614231562934000),
@@ -252,7 +246,6 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
                 ),
                 FlowLog(
                     transactionHash = "1903e78154fb70a7fd410e980fa6aaa07199226c5855e743d73b85cd19dcfd62",
-                    status = Log.Status.CONFIRMED,
                     eventIndex = 1,
                     eventType = "A.0b2a3299cc857e29.TopShot.MomentMinted",
                     timestamp = Instant.ofEpochMilli(1614231562934000),
@@ -299,7 +292,6 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
 
     fun randomFlowLog(
         transactionHash: String = randomHash(),
-        status: Log.Status = Log.Status.CONFIRMED,
         eventIndex: Int = randomInt(100),
         eventType: String = randomString(),
         timestamp: Instant = Instant.now(),
@@ -307,7 +299,6 @@ internal class ActivitiesServiceIntegrationTest: BaseIntegrationTest() {
         blockHash: String = randomHash(),
     ) = FlowLog(
         transactionHash = transactionHash,
-        status = status,
         eventIndex = eventIndex,
         eventType = eventType,
         timestamp = timestamp,
