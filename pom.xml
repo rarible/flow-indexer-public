@@ -187,5 +187,6 @@
     <modules>
         <module>backend-core</module>
         <module>backend-api</module>
+        <module>scanner</module>
     </modules>
 </project>

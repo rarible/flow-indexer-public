@@ -10,7 +10,7 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.OrderRepository
-import com.rarible.flow.events.EventId
+import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.cadence.ListingAvailable
 import com.rarible.flow.scanner.cadence.ListingCompleted

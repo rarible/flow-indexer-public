@@ -1,6 +1,6 @@
 package com.rarible.flow.scanner.job
 
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import com.rarible.flow.scanner.service.OrderService
 import kotlinx.coroutines.runBlocking
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty

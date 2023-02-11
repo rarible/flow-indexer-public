@@ -8,8 +8,8 @@ import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.PaymentType
 import com.rarible.flow.core.repository.ItemCollectionRepository
-import com.rarible.flow.events.EventMessage
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.event.EventMessage
+import com.rarible.flow.core.util.Log
 import com.rarible.flow.scanner.TxManager
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto

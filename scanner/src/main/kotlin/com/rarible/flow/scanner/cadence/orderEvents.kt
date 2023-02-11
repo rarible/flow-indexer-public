@@ -4,7 +4,7 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.*
 import com.rarible.flow.core.domain.PaymentType
 import com.rarible.flow.core.domain.TokenId
-import com.rarible.flow.events.EventId
+import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.model.parse
 import java.math.BigDecimal
 

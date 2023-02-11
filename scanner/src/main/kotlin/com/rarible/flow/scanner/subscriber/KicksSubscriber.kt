@@ -4,9 +4,8 @@ import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.Contracts
-import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.domain.FlowLogType
-import com.rarible.flow.events.EventId
+import com.rarible.flow.core.event.EventId
 import org.springframework.stereotype.Component
 
 @Component

@@ -2,9 +2,6 @@ package com.rarible.flow.scanner.listener
 
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
-import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventListener
-import com.rarible.blockchain.scanner.framework.data.Source
-import com.rarible.blockchain.scanner.subscriber.ProcessedBlockEvent
 import com.rarible.core.apm.CaptureSpan
 import com.rarible.core.apm.SpanType
 import com.rarible.flow.core.domain.FlowLogEvent
@@ -15,7 +12,7 @@ import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coSaveAll
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import com.rarible.flow.scanner.activitymaker.ActivityMaker
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.IndexerEventService

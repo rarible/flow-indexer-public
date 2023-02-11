@@ -8,8 +8,8 @@ import com.nftco.flow.sdk.cadence.NumberField
 import com.nftco.flow.sdk.cadence.OptionalField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.flow.core.domain.*
-import com.rarible.flow.events.EventId
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.event.EventId
+import com.rarible.flow.core.util.Log
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.Instant

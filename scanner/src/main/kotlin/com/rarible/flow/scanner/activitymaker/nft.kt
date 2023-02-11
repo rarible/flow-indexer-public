@@ -16,7 +16,7 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TransferActivity
-import com.rarible.flow.events.RaribleNFTv2Meta
+import com.rarible.flow.core.event.RaribleNFTv2Meta
 import com.rarible.flow.scanner.TxManager
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value

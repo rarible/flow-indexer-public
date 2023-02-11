@@ -6,9 +6,8 @@ import com.nftco.flow.sdk.crypto.Crypto
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.AuctionStatus
 import com.rarible.flow.core.domain.EnglishAuctionLot
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import com.rarible.flow.scanner.config.FlowApiProperties
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking

@@ -9,7 +9,7 @@ import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.OrderRepository
-import com.rarible.flow.events.EventId
+import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.cadence.BidAvailable
 import com.rarible.flow.scanner.cadence.BidCompleted
@@ -29,13 +29,13 @@ class BidSubscriber(
 ) : BaseFlowLogEventSubscriber() {
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.TESTNET to flowDescriptor(
+            FlowChainId.TESTNET to flowOrderDescriptor(
                 address = "1d56d7ba49283a88",
                 contract = "RaribleOpenBid",
                 events = listOf("BidAvailable", "BidCompleted"),
                 dbCollection = collection
             ),
-            FlowChainId.MAINNET to flowDescriptor(
+            FlowChainId.MAINNET to flowOrderDescriptor(
                 address = "01ab36aaf654a13e",
                 contract = "RaribleOpenBid",
                 events = listOf("BidAvailable", "BidCompleted"),
