@@ -17,13 +17,13 @@ class RaribleNFTv2Subscriber: BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.TESTNET to flowDescriptor(
+            FlowChainId.TESTNET to flowNftDescriptor(
                 contract = Contracts.RARIBLE_NFTV2,
                 chainId = FlowChainId.TESTNET,
                 events = events,
                 dbCollection = collection
             ),
-            FlowChainId.EMULATOR to flowDescriptor(
+            FlowChainId.EMULATOR to flowNftDescriptor(
                 contract = Contracts.RARIBLE_NFTV2,
                 chainId = FlowChainId.EMULATOR,
                 events = events,

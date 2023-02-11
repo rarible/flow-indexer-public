@@ -17,20 +17,20 @@ class GeniaceSubscriber : BaseFlowLogEventSubscriber() {
     )
 
     override val descriptors: Map<FlowChainId, FlowDescriptor> = mapOf(
-        FlowChainId.MAINNET to flowDescriptor(
+        FlowChainId.MAINNET to flowNftDescriptor(
             contract = Contracts.GENIACE,
             chainId = FlowChainId.MAINNET,
             events = events.keys,
             startFrom = 21582165L,
             dbCollection = collection,
         ),
-        FlowChainId.TESTNET to flowDescriptor(
+        FlowChainId.TESTNET to flowNftDescriptor(
             contract = Contracts.GENIACE,
             chainId = FlowChainId.TESTNET,
             events = events.keys,
             dbCollection = collection,
         ),
-        FlowChainId.EMULATOR to flowDescriptor(
+        FlowChainId.EMULATOR to flowNftDescriptor(
             contract = Contracts.GENIACE,
             chainId = FlowChainId.EMULATOR,
             events = events.keys,

@@ -16,14 +16,14 @@ class FanfareSubscriber : BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.MAINNET to flowDescriptor(
+            FlowChainId.MAINNET to flowNftDescriptor(
                 contract = Contracts.FANFARE,
                 chainId = FlowChainId.MAINNET,
                 events = events,
                 dbCollection = collection,
                 startFrom = 22741361,
             ),
-            FlowChainId.TESTNET to flowDescriptor(
+            FlowChainId.TESTNET to flowNftDescriptor(
                 contract = Contracts.FANFARE,
                 chainId = FlowChainId.TESTNET,
                 events = events,

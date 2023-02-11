@@ -19,7 +19,7 @@ class EnglishAuctionSubscriber: BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.TESTNET to flowDescriptor(
+            FlowChainId.TESTNET to flowNftDescriptor(
                 address = "ebf4ae01d1284af8",
                 contract = contractName,
                 events = events,

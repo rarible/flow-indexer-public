@@ -19,20 +19,20 @@ class CryptoPiggoSubscriber: BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.MAINNET to flowDescriptor(
+            FlowChainId.MAINNET to flowNftDescriptor(
                 contract = Contracts.CRYPTOPIGGO,
                 chainId = FlowChainId.MAINNET,
                 events = events.keys,
                 startFrom = 21379403L,
                 dbCollection = collection
             ),
-            FlowChainId.TESTNET to flowDescriptor(
+            FlowChainId.TESTNET to flowNftDescriptor(
                 contract = Contracts.CRYPTOPIGGO,
                 chainId = FlowChainId.TESTNET,
                 events = events.keys,
                 dbCollection = collection
             ),
-            FlowChainId.EMULATOR to flowDescriptor(
+            FlowChainId.EMULATOR to flowNftDescriptor(
                 contract = Contracts.CRYPTOPIGGO,
                 chainId = FlowChainId.EMULATOR,
                 events = events.keys,

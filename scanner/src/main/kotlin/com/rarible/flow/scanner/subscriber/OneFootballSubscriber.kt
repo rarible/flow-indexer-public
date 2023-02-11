@@ -14,20 +14,20 @@ class OneFootballSubscriber : BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.MAINNET to flowDescriptor(
+            FlowChainId.MAINNET to flowNftDescriptor(
                 contract = Contracts.ONE_FOOTBALL.contractName,
                 address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.MAINNET]!!.base16Value,
                 events = events,
                 dbCollection = collection,
                 startFrom = 21831983L,
             ),
-            FlowChainId.TESTNET to flowDescriptor(
+            FlowChainId.TESTNET to flowNftDescriptor(
                 contract = Contracts.ONE_FOOTBALL.contractName,
                 address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.TESTNET]!!.base16Value,
                 events = events,
                 dbCollection = collection,
             ),
-            FlowChainId.EMULATOR to flowDescriptor(
+            FlowChainId.EMULATOR to flowNftDescriptor(
                 contract = Contracts.ONE_FOOTBALL.contractName,
                 address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.EMULATOR]!!.base16Value,
                 events = events,

@@ -16,14 +16,14 @@ class MotoGPSubscriber : BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.MAINNET to flowDescriptor(
+            FlowChainId.MAINNET to flowNftDescriptor(
                 contract = Contracts.MOTOGP,
                 chainId = FlowChainId.MAINNET,
                 events = events,
                 startFrom = 16246182L,
                 dbCollection = collection
             ),
-            FlowChainId.TESTNET to flowDescriptor(
+            FlowChainId.TESTNET to flowNftDescriptor(
                 contract = Contracts.MOTOGP,
                 chainId = FlowChainId.TESTNET,
                 events = events,

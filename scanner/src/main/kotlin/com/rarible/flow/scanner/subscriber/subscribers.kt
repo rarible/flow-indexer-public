@@ -70,8 +70,26 @@ fun flowOrderDescriptor(
     groupId = "order-history",
 )
 
+@Deprecated(message = "Use the signature with Contracts type", replaceWith = ReplaceWith(
+    "com.rarible.flow.scanner.subscriber.SubscribersKt.flowDescriptor(com.rarible.flow.Contracts, com.nftco.flow.sdk.FlowChainId, java.lang.Iterable<java.lang.String>, java.lang.Long, java.lang.String, java.lang.Iterable<java.lang.String>)"
+))
+fun flowBalanceDescriptor(
+    address: String,
+    contract: String,
+    events: Iterable<String>,
+    startFrom: Long? = null,
+    dbCollection: String,
+) = flowDescriptor(
+    address = address,
+    contract = contract,
+    events = events,
+    startFrom = startFrom,
+    dbCollection = dbCollection,
+    groupId = "balance-history",
+)
 
-private fun flowHistoryDescriptor(
+
+private fun flowDescriptor(
     contract: Contracts,
     chainId: FlowChainId,
     events: Iterable<String>,
@@ -93,14 +111,14 @@ private fun flowHistoryDescriptor(
     )
 }
 
-internal fun flowNftHistoryDescriptor(
+internal fun flowNftDescriptor(
     contract: Contracts,
     chainId: FlowChainId,
     events: Iterable<String>,
     startFrom: Long? = null,
     dbCollection: String,
     additionalEvents: Iterable<String> = emptyList(),
-): FlowDescriptor = flowHistoryDescriptor(
+): FlowDescriptor = flowDescriptor(
     contract = contract,
     chainId = chainId,
     events = events,
@@ -110,14 +128,14 @@ internal fun flowNftHistoryDescriptor(
     groupId = "item-history"
 )
 
-internal fun flowOrderHistoryDescriptor(
+internal fun flowOrderDescriptor(
     contract: Contracts,
     chainId: FlowChainId,
     events: Iterable<String>,
     startFrom: Long? = null,
     dbCollection: String,
     additionalEvents: Iterable<String> = emptyList(),
-): FlowDescriptor = flowHistoryDescriptor(
+): FlowDescriptor = flowDescriptor(
     contract = contract,
     chainId = chainId,
     events = events,

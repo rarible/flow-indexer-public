@@ -28,7 +28,7 @@ class ChainMonstersSubscriber: BaseFlowLogEventSubscriber() {
                 events = events,
                 dbCollection = collection
             ),
-            FlowChainId.EMULATOR to flowDescriptor(
+            FlowChainId.EMULATOR to flowNftDescriptor(
                 contract = Contracts.CHAINMONSTERS,
                 chainId = FlowChainId.EMULATOR,
                 events = events,

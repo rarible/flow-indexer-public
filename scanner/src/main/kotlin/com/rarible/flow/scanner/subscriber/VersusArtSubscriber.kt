@@ -5,7 +5,7 @@ import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
-import com.rarible.flow.events.EventId
+import com.rarible.flow.core.event.EventId
 import org.springframework.stereotype.Component
 
 @Component
@@ -18,7 +18,7 @@ class VersusArtSubscriber : BaseFlowLogEventSubscriber() {
     )
 
     override val descriptors: Map<FlowChainId, FlowDescriptor> = mapOf(
-        FlowChainId.MAINNET to flowDescriptor(
+        FlowChainId.MAINNET to flowNftDescriptor(
             contract = Contracts.VERSUS_ART,
             chainId = FlowChainId.MAINNET,
             events = events,
@@ -26,14 +26,14 @@ class VersusArtSubscriber : BaseFlowLogEventSubscriber() {
             startFrom = 13965155,
             additionalEvents = additionalEvents,
         ),
-        FlowChainId.TESTNET to flowDescriptor(
+        FlowChainId.TESTNET to flowNftDescriptor(
             contract = Contracts.VERSUS_ART,
             chainId = FlowChainId.TESTNET,
             events = events,
             dbCollection = collection,
             additionalEvents = additionalEvents,
         ),
-        FlowChainId.EMULATOR to flowDescriptor(
+        FlowChainId.EMULATOR to flowNftDescriptor(
             contract = Contracts.VERSUS_ART,
             chainId = FlowChainId.EMULATOR,
             events = events,

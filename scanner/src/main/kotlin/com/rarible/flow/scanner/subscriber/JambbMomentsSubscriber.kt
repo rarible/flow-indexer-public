@@ -16,7 +16,7 @@ class JambbMomentsSubscriber : BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.MAINNET to flowDescriptor(
+            FlowChainId.MAINNET to flowNftDescriptor(
                 contract = Contracts.JAMBB_MOMENTS,
                 chainId =FlowChainId.MAINNET,
                 events = events,
@@ -24,7 +24,7 @@ class JambbMomentsSubscriber : BaseFlowLogEventSubscriber() {
                 startFrom = 20445936,
             ),
 
-            FlowChainId.TESTNET to flowDescriptor(
+            FlowChainId.TESTNET to flowNftDescriptor(
                 contract = Contracts.JAMBB_MOMENTS,
                 chainId = FlowChainId.TESTNET,
                 events = events,
