@@ -2,7 +2,6 @@ package com.rarible.flow.scanner
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.core.repository.OrderRepository
@@ -67,7 +66,6 @@ internal class FungibleLogListenerTest: BaseIntegrationTest() {
         fungibleLogListener.processBalance(
             BalanceHistory(initialBalance.id, BigDecimal.ONE.negate(), Instant.now().plusMillis(10000), FlowLog(
                 transactionHash = "tx_hash",
-                status = Log.Status.CONFIRMED,
                 eventIndex = 1,
                 eventType = "event_type",
                 Instant.now(),
@@ -115,7 +113,6 @@ internal class FungibleLogListenerTest: BaseIntegrationTest() {
         fungibleLogListener.processBalance(
             BalanceHistory(initialBalance.id, BigDecimal.ONE, Instant.now().plusMillis(10000), FlowLog(
                 transactionHash = "tx_hash",
-                status = Log.Status.CONFIRMED,
                 eventIndex = 1,
                 eventType = "event_type",
                 Instant.now(),

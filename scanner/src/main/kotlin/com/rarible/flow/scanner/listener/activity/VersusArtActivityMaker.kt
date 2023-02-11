@@ -3,7 +3,7 @@ package com.rarible.flow.scanner.listener.activity
 import com.nftco.flow.sdk.Flow
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
-import com.rarible.flow.events.VersusArtMetadata
+import com.rarible.flow.core.event.VersusArtMetadata
 import com.rarible.flow.scanner.activitymaker.NFTActivityMaker
 import org.springframework.stereotype.Component
 

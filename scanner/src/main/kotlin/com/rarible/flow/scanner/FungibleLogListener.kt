@@ -1,16 +1,14 @@
 package com.rarible.flow.scanner
 
-import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
-import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventListener
-import com.rarible.blockchain.scanner.subscriber.ProcessedBlockEvent
+import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
+import com.rarible.blockchain.scanner.framework.entity.EntityEventsSubscriber
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.BalanceHistory
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import com.rarible.flow.scanner.service.BidService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
@@ -23,13 +21,12 @@ class FungibleLogListener(
     private val bidService: BidService,
     private val protocolEventPublisher: ProtocolEventPublisher,
     private val orderConverter: OrderToDtoConverter
-) : FlowLogEventListener {
+) : EntityEventsSubscriber {
 
     private val logger by Log()
 
-    override suspend fun onBlockLogsProcessed(blockEvent: ProcessedBlockEvent<FlowLog, FlowLogRecord<*>>) {
-        blockEvent
-            .records
+    override suspend fun onEntityEvents(events: List<LogRecordEvent>) {
+        events
             .filterIsInstance<BalanceHistory>()
             .forEach { history ->
                 processBalance(history)
@@ -66,10 +63,5 @@ class FungibleLogListener(
                 protocolEventPublisher.onOrderUpdate(o, orderConverter)
             }
         }
-    }
-
-    override suspend fun onPendingLogsDropped(logs: List<FlowLogRecord<*>>) {
-        /** do nothing */
-        logger.warn("onPendingLogsDropped not realized yet!")
     }
 }

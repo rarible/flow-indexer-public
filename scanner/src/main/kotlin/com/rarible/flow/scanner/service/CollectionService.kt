@@ -10,12 +10,9 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.NFTActivity
 import com.rarible.flow.core.domain.Ownership
-import com.rarible.flow.events.EventId
-import com.rarible.flow.events.EventMessage
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import com.rarible.flow.scanner.subscriber.flowDescriptorName
 import kotlinx.coroutines.reactive.awaitFirstOrNull
-import org.springframework.data.mapping.div
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
@@ -24,7 +21,6 @@ import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.mongodb.core.remove
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 
 @Service
 class CollectionService(

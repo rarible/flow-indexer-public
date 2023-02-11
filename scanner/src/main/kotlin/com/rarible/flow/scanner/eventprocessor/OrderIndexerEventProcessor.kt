@@ -1,6 +1,5 @@
 package com.rarible.flow.scanner.eventprocessor
 
-import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.core.apm.CaptureSpan
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.converter.OrderToDtoConverter
@@ -126,9 +125,7 @@ class OrderIndexerEventProcessor(
         itemHistory: ItemHistory,
     ) {
         withSpan("sendOrderUpdate", "network") {
-            if (event.source != Source.REINDEX) {
-                protocolEventPublisher.activity(itemHistory)
-            }
+            protocolEventPublisher.activity(itemHistory)
         }
     }
 
@@ -137,9 +134,7 @@ class OrderIndexerEventProcessor(
         o: Order
     ) {
         withSpan("sendOrderUpdate", "network") {
-            if (event.source != Source.REINDEX) {
-                protocolEventPublisher.onOrderUpdate(o, orderConverter)
-            }
+            protocolEventPublisher.onOrderUpdate(o, orderConverter)
         }
     }
 

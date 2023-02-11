@@ -5,14 +5,14 @@ import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.*
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
-import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventListener
-import com.rarible.blockchain.scanner.subscriber.ProcessedBlockEvent
+import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
+import com.rarible.blockchain.scanner.framework.entity.EntityEventsSubscriber
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import com.rarible.flow.scanner.model.parse
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.beans.factory.annotation.Value
@@ -24,7 +24,7 @@ class SoftCollectionEventsListener(
     private val itemCollectionRepository: ItemCollectionRepository,
     @Value("\${blockchain.scanner.flow.chainId}")
     private val chainId: FlowChainId
-) : FlowLogEventListener {
+) : EntityEventsSubscriber {
 
     private val parser = JsonCadenceParser()
 
@@ -32,8 +32,9 @@ class SoftCollectionEventsListener(
 
     private val idDelimiter = '.'
 
-    override suspend fun onBlockLogsProcessed(blockEvent: ProcessedBlockEvent<FlowLog, FlowLogRecord<*>>) {
-        blockEvent.records.filterIsInstance<FlowLogEvent>()
+    override suspend fun onEntityEvents(events: List<LogRecordEvent>) {
+        events
+            .filterIsInstance<FlowLogEvent>()
             .filter {
                 it.type in setOf(FlowLogType.COLLECTION_MINT,
                     FlowLogType.COLLECTION_WITHDRAW,
@@ -143,10 +144,6 @@ class SoftCollectionEventsListener(
             url = collectionMeta.url,
             royalties = royalties ?: entity.royalties,
         ))
-    }
-
-    override suspend fun onPendingLogsDropped(logs: List<FlowLogRecord<*>>) {
-        /** do nothing*/
     }
 }
 

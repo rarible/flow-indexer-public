@@ -1,11 +1,8 @@
 package com.rarible.flow.scanner.listener
 
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
-import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
-import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventListener
-import com.rarible.blockchain.scanner.framework.data.Source
-import com.rarible.blockchain.scanner.subscriber.ProcessedBlockEvent
+import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
+import com.rarible.blockchain.scanner.framework.entity.EntityEventsSubscriber
 import com.rarible.core.apm.CaptureSpan
 import com.rarible.core.apm.SpanType
 import com.rarible.core.apm.withSpan
@@ -14,7 +11,7 @@ import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coSaveAll
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.IndexerEventService
 import kotlinx.coroutines.flow.toSet
@@ -29,11 +26,11 @@ class VersusArtEventListener(
     private val itemRepository: ItemRepository,
     private val indexerEventService: IndexerEventService,
     private val protocolEventPublisher: ProtocolEventPublisher,
-) : FlowLogEventListener {
+) : EntityEventsSubscriber {
 
-    override suspend fun onBlockLogsProcessed(blockEvent: ProcessedBlockEvent<FlowLog, FlowLogRecord<*>>) {
+    override suspend fun onEntityEvents(events: List<LogRecordEvent>) {
         try {
-            val result = processBlockEvents(blockEvent)
+            val result = processBlockEvents(events)
             if (result.isNotEmpty()) {
                 val saved = itemHistoryRepository.coSaveAll(result)
                 val ids = saved.map { it.activity }
@@ -47,18 +44,14 @@ class VersusArtEventListener(
                         indexerEventService.processEvent(
                             IndexerEvent(
                                 history = history,
-                                source = blockEvent.event.eventSource,
                                 item = (history.activity as? NFTActivity)?.let { a ->
                                     items.find { it.contract == a.contract && it.tokenId == a.tokenId }
                                 }
                             )
                         )
-                        if (blockEvent.event.eventSource != Source.REINDEX) {
-                            logger.info("Send activity [${history.id}] to kafka!")
-                            protocolEventPublisher.activity(history).ensureSuccess()
-                        }
+                        logger.info("Send activity [${history.id}] to kafka!")
+                        protocolEventPublisher.activity(history).ensureSuccess()
                     }
-
                 }
             }
         } catch (e: Exception) {
@@ -67,8 +60,8 @@ class VersusArtEventListener(
         }
     }
 
-    private suspend fun processBlockEvents(blockEvent: ProcessedBlockEvent<FlowLog, FlowLogRecord<*>>): List<ItemHistory> {
-        val events = blockEvent.records.filterIsInstance<FlowLogEvent>()
+    private suspend fun processBlockEvents(blockEvent: List<LogRecordEvent>): List<ItemHistory> {
+        val events = blockEvent.filterIsInstance<FlowLogEvent>()
         val custom = events.filter { it.type == FlowLogType.CUSTOM }
         if (custom.isEmpty()) return emptyList()
 
@@ -84,8 +77,6 @@ class VersusArtEventListener(
             }
         }
     }
-
-    override suspend fun onPendingLogsDropped(logs: List<FlowLogRecord<*>>) = Unit
 
     private val cadenceParser: JsonCadenceParser = JsonCadenceParser()
 

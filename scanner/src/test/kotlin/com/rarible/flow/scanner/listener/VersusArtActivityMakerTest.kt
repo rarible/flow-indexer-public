@@ -9,20 +9,17 @@ import com.nftco.flow.sdk.cadence.StringField
 import com.nftco.flow.sdk.cadence.StructField
 import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.TransferActivity
-import com.rarible.flow.events.EventId
-import com.rarible.flow.events.EventMessage
+import com.rarible.flow.core.event.EventId
+import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.listener.activity.VersusArtActivityMaker
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldNotBeInstanceOf
-import io.mockk.coEvery
-import io.mockk.mockk
 import java.time.ZonedDateTime
 
 class VersusArtActivityMakerTest : FunSpec({
@@ -31,7 +28,6 @@ class VersusArtActivityMakerTest : FunSpec({
         type = FlowLogType.MINT,
         log = FlowLog(
             transactionHash = "a2605f244d08395829a360a248249b7d47f8fbd04172f0ce4e82d4f7c25553a0",
-            status = Log.Status.CONFIRMED,
             eventIndex = 2,
             eventType = "A.d796ff17107bbff6.Art.Created",
             timestamp = ZonedDateTime.parse("2021-04-29T08:37:00.545Z").toInstant(),
@@ -70,7 +66,6 @@ class VersusArtActivityMakerTest : FunSpec({
         type = FlowLogType.DEPOSIT,
         log = FlowLog(
             transactionHash = "610f7e5677d6a97174a98fd01e6d91e81a3ad95bf12da7f66d820e116fd96ec3",
-            status = Log.Status.CONFIRMED,
             eventIndex = 2,
             eventType = "A.d796ff17107bbff6.Art.Deposit",
             timestamp = ZonedDateTime.parse("2021-04-30T17:42:22.077Z").toInstant(),

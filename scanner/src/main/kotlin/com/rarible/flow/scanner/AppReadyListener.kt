@@ -18,7 +18,6 @@ class AppReadyListener(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemCollectionRepository: ItemCollectionRepository,
     private val scannerProperties: FlowBlockchainScannerProperties,
-    private val scannerMonitoring: ScannerMonitoring,
     private val sporkService: SporkService
 ) : ApplicationListener<ApplicationReadyEvent> {
 
@@ -223,7 +222,6 @@ class AppReadyListener(
      * Save default item collection's
      */
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
-        scannerMonitoring.start()
         if (scannerProperties.chainId != FlowChainId.EMULATOR) {
             runBlocking {
                 itemCollectionRepository.saveAll(supportedCollections[scannerProperties.chainId]!!).then()

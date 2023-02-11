@@ -25,12 +25,8 @@
         <revision>1.43</revision>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-cloud-gateway.version>3.0.4</spring-cloud-gateway.version>
-        <mockserver-netty.version>5.11.2</mockserver-netty.version>
-        <mockserver.version>1.15.3</mockserver.version>
-
         <rarible.core.version>2.5.13</rarible.core.version>
-        <rarible.blockchain.scanner.version>2.5.0</rarible.blockchain.scanner.version>
+        <rarible.blockchain.scanner.version>2.5.1</rarible.blockchain.scanner.version>
 
         <rarible.protocol.flow.version>1.43.0</rarible.protocol.flow.version>
         <rarible.protocol.currency.version>1.38.3</rarible.protocol.currency.version>

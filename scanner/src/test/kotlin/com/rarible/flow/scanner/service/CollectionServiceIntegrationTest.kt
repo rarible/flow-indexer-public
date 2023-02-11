@@ -4,7 +4,6 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.core.task.Task
 import com.rarible.core.task.TaskRepository
 import com.rarible.core.task.TaskStatus
@@ -19,8 +18,8 @@ import com.rarible.flow.core.repository.FlowLogEventRepository
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
-import com.rarible.flow.events.EventId
-import com.rarible.flow.events.EventMessage
+import com.rarible.flow.core.event.EventId
+import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.BaseIntegrationTest
 import com.rarible.flow.scanner.Data
 import com.rarible.flow.scanner.IntegrationTest
@@ -58,7 +57,7 @@ internal class CollectionServiceIntegrationTest: BaseIntegrationTest() {
 
     val eventType = "${Contracts.KICKS.fqn(FlowChainId.MAINNET)}.SneakerCreated"
     val flowLog = FlowLog(
-        "tx", Log.Status.CONFIRMED, 0, eventType, Instant.now(), 1000, "block"
+        "tx",  0, eventType, Instant.now(), 1000, "block"
     )
 
     @Test

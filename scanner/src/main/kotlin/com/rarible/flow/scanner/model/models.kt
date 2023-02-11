@@ -61,9 +61,7 @@ class MotoGPCardNftConverter: JsonCadenceConverter<MotoGPCardNFT> {
 
 data class IndexerEvent(
     val history: ItemHistory,
-    val source: com.rarible.blockchain.scanner.framework.data.Source,
     val item: Item? = null
 ) {
-
     fun activityType(): FlowActivityType = history.activity.type
 }

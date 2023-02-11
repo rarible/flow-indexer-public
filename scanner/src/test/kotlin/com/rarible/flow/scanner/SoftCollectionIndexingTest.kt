@@ -20,9 +20,9 @@ import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.events.EventId
-import com.rarible.flow.events.RaribleNFTv2Meta
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.event.EventId
+import com.rarible.flow.core.event.RaribleNFTv2Meta
+import com.rarible.flow.core.util.Log
 import com.rarible.flow.scanner.emulator.EmulatorUser
 import java.lang.Thread.sleep
 import kotlinx.coroutines.Dispatchers

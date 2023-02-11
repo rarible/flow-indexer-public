@@ -2,8 +2,6 @@ package com.rarible.flow.scanner.service
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.blockchain.scanner.framework.data.Source
-import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.core.kafka.KafkaSendResult
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
@@ -104,7 +102,6 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
 
     val log = FlowLog(
         transactionHash = tx1Hash,
-        status = Log.Status.CONFIRMED,
         eventIndex = 0,
         eventType = "Any",
         timestamp = timestamp,
@@ -184,7 +181,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
     }
 
     test("on order close: update transport activity") {
-        val event = IndexerEvent(historyOrderClose, Source.BLOCKCHAIN, null)
+        val event = IndexerEvent(historyOrderClose, null)
 
         indexerEventService.processEvent(event)
 
@@ -200,7 +197,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
     }
 
     test("on order close event: not found transfer") {
-        val event = IndexerEvent(historyOrderClose.copy(log = anotherLog), Source.BLOCKCHAIN, null)
+        val event = IndexerEvent(historyOrderClose.copy(log = anotherLog), null)
 
         indexerEventService.processEvent(event)
 
@@ -210,7 +207,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
     }
 
     test("on bid accept: update transport activity") {
-        val event = IndexerEvent(historyAcceptBid, Source.BLOCKCHAIN, null)
+        val event = IndexerEvent(historyAcceptBid, null)
 
         indexerEventService.processEvent(event)
 
@@ -224,7 +221,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
     }
 
     test("on bid accept: not found transfer") {
-        val event = IndexerEvent(historyAcceptBid, Source.BLOCKCHAIN, null)
+        val event = IndexerEvent(historyAcceptBid, null)
 
         indexerEventService.processEvent(event)
 
@@ -234,7 +231,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
     }
 
     test("on transport: found order (must be purchased=true)") {
-        val event = IndexerEvent(historyTransfer, Source.BLOCKCHAIN, null)
+        val event = IndexerEvent(historyTransfer, null)
 
         indexerEventService.processEvent(event)
 
@@ -248,7 +245,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
     }
 
     test("on transport: not found order") {
-        val event = IndexerEvent(historyTransfer, Source.BLOCKCHAIN, null)
+        val event = IndexerEvent(historyTransfer, null)
 
         indexerEventService.processEvent(event)
 

@@ -1,7 +1,7 @@
 package com.rarible.flow.scanner.listener
 
-import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
+import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
+import com.rarible.blockchain.scanner.framework.entity.EntityEventsSubscriber
 import com.rarible.core.apm.CaptureSpan
 import com.rarible.core.apm.SpanType
 import com.rarible.flow.core.domain.FlowLogEvent
@@ -29,14 +29,14 @@ class ItemAndOrderEventsListener(
     private val indexerEventService: IndexerEventService,
     private val itemRepository: ItemRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
-) : FlowLogEventListener {
+) : EntityEventsSubscriber {
 
     private val logger by Log()
 
-    override suspend fun onBlockLogsProcessed(blockEvent: ProcessedBlockEvent<FlowLog, FlowLogRecord<*>>) {
+    override suspend fun onEntityEvents(events: List<LogRecordEvent>) {
         val history: MutableList<ItemHistory> = mutableListOf()
         try {
-            blockEvent.records.filterIsInstance<FlowLogEvent>()
+            events.filterIsInstance<FlowLogEvent>()
                 .groupBy { Pair(it.log.transactionHash, it.event.eventId.collection()) }
                 .forEach { entry ->
                     nftActivityMakers.find { it.isSupportedCollection(entry.key.second) }?.let { maker ->
@@ -63,14 +63,12 @@ class ItemAndOrderEventsListener(
 
                 saved.sortedBy { it.date }.groupBy { it.log.transactionHash }.forEach { tx ->
                     tx.value.sortedBy { it.log.eventIndex }.forEach { h ->
-                        if (blockEvent.event.eventSource != Source.REINDEX) {
-                            logger.info("Send activity [${h.id}] to kafka!")
-                            protocolEventPublisher.activity(h).ensureSuccess()
-                        }
+                        logger.info("Send activity [${h.id}] to kafka!")
+                        protocolEventPublisher.activity(h).ensureSuccess()
+
                         indexerEventService.processEvent(
                             IndexerEvent(
                                 history = h,
-                                source = blockEvent.event.eventSource,
                                 item = if (h.activity is NFTActivity) {
                                     val a = h.activity as NFTActivity
                                     items.find { it.contract == a.contract && it.tokenId == a.tokenId }
@@ -83,9 +81,5 @@ class ItemAndOrderEventsListener(
             logger.error(e.message, e)
             throw Throwable(e)
         }
-    }
-
-    override suspend fun onPendingLogsDropped(logs: List<FlowLogRecord<*>>) {
-        /** do nothing */
     }
 }

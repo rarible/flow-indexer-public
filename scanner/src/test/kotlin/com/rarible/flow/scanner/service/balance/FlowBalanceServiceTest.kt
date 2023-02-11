@@ -6,9 +6,8 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowScriptResponse
 import com.nftco.flow.sdk.cadence.Field
-import com.rarible.flow.core.domain.Balance
 import com.rarible.flow.core.repository.BalanceRepository
-import com.rarible.flow.log.Log
+import com.rarible.flow.core.util.Log
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe

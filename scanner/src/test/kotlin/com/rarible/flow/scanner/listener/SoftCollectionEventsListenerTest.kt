@@ -7,8 +7,8 @@ import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemCollectionRepository
-import com.rarible.flow.events.EventId
-import com.rarible.flow.events.EventMessage
+import com.rarible.flow.core.event.EventId
+import com.rarible.flow.core.event.EventMessage
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe

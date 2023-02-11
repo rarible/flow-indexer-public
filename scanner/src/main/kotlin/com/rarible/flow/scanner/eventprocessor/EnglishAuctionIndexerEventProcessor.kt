@@ -1,6 +1,5 @@
 package com.rarible.flow.scanner.eventprocessor
 
-import com.rarible.blockchain.scanner.framework.data.Source
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
@@ -92,8 +91,6 @@ class EnglishAuctionIndexerEventProcessor(
     }
 
     private suspend fun sendKafka(event: IndexerEvent, lot: EnglishAuctionLot) {
-        if (event.source != Source.REINDEX) {
-            protocolEventPublisher.auction(lot).ensureSuccess()
-        }
+        protocolEventPublisher.auction(lot).ensureSuccess()
     }
 }

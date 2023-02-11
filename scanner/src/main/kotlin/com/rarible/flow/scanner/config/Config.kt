@@ -7,7 +7,7 @@ import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.scanner.service.balance.FlowBalanceService
 import com.rarible.protocol.currency.api.client.CurrencyApiClientFactory
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
-import io.mongock.runner.springboot.EnableMongock
+import com.github.cloudyrock.spring.v5.EnableMongock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi

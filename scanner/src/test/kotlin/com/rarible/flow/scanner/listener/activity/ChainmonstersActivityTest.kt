@@ -5,13 +5,12 @@ import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.UInt32NumberField
 import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.blockchain.scanner.framework.model.Log
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.Part
-import com.rarible.flow.events.EventId
-import com.rarible.flow.events.EventMessage
+import com.rarible.flow.core.event.EventId
+import com.rarible.flow.core.event.EventMessage
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainValue
 import io.kotest.matchers.shouldBe
@@ -64,7 +63,6 @@ internal class ChainmonstersActivityTest: FunSpec({
         val MINT_LOG_EVENT = FlowLogEvent(
             FlowLog(
                 "aa8386f6aaaf74f7e949903c09d685e706130c6dcfd15aa5bc40d2d958efc29c",
-                Log.Status.CONFIRMED,
                 0,
                 "A.93615d25d14fa337.ChainmonstersRewards.NFTMinted",
                 Instant.parse("2021-10-26T14:28:35.621Z"),
