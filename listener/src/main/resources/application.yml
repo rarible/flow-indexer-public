@@ -14,7 +14,7 @@ rarible:
   core:
     apm:
       agent:
-        enabled: true
+        enabled: false
         server: http://elk_apm-server:8200
         packages: org.rarible.flow.indexer
 
@@ -22,3 +22,22 @@ jobs:
   order-price-update:
     enabled: false
     rate: 120000
+
+blockchain:
+  scanner:
+    kafka:
+      maxPollRecords: 100
+    flow:
+      blockchain: "flow"
+      service: "listener"
+      optimisticLockRetries: 5
+      retry-policy:
+        scan:
+          reconnect-delay: 2s
+        client:
+          delay: 2s
+      monitoring:
+        enabled: true
+        rootPath: "protocol.flow.indexer"
+        worker:
+          pollingPeriod: 1m
