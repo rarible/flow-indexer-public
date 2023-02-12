@@ -12,7 +12,9 @@ import org.springframework.stereotype.Component
 @ExperimentalCoroutinesApi
 @Component
 class JambbMomentsSubscriber : BaseFlowLogEventSubscriber() {
-    val events = setOf("MomentMinted", "Withdraw", "Deposit", "MomentDestroyed")
+
+    private val events = setOf("MomentMinted", "Withdraw", "Deposit", "MomentDestroyed")
+    private val name = "jambb_moments"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
@@ -22,13 +24,14 @@ class JambbMomentsSubscriber : BaseFlowLogEventSubscriber() {
                 events = events,
                 dbCollection = collection,
                 startFrom = 20445936,
+                name = name,
             ),
-
             FlowChainId.TESTNET to flowNftDescriptor(
                 contract = Contracts.JAMBB_MOMENTS,
                 chainId = FlowChainId.TESTNET,
                 events = events,
                 dbCollection = collection,
+                name = name,
             )
         )
 

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component
 class DisruptArtSubscriber: BaseFlowLogEventSubscriber() {
 
     private val events = setOf("Mint", "Withdraw", "Deposit", "GroupMint")
+    private val name = "disrupt_art"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
@@ -22,19 +23,22 @@ class DisruptArtSubscriber: BaseFlowLogEventSubscriber() {
                 chainId = FlowChainId.MAINNET,
                 events = events,
                 dbCollection = collection,
-                startFrom = 19100120L
+                startFrom = 19100120L,
+                name = name,
             ),
             FlowChainId.TESTNET to flowNftDescriptor(
                 contract = Contracts.DISRUPT_ART,
                 chainId = FlowChainId.TESTNET,
                 events = events,
-                dbCollection = collection
+                dbCollection = collection,
+                name = name,
             ),
             FlowChainId.EMULATOR to flowNftDescriptor(
                 contract = Contracts.DISRUPT_ART,
                 chainId = FlowChainId.EMULATOR,
                 events = events,
                 dbCollection = collection,
+                name = name,
             ),
         )
 

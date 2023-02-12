@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component
 class EvolutionSubscriber : BaseFlowLogEventSubscriber() {
 
     private val events = "Withdraw,Deposit,CollectibleMinted,CollectibleDestroyed".split(",")
+    private val name = "evolution"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
@@ -21,18 +22,21 @@ class EvolutionSubscriber : BaseFlowLogEventSubscriber() {
                 events = events,
                 startFrom = 13001301L,
                 dbCollection = collection,
+                name = name,
             ),
             FlowChainId.TESTNET to flowNftDescriptor(
                 contract = Contracts.EVOLUTION,
                 chainId = FlowChainId.TESTNET,
                 events = events,
-                dbCollection = collection
+                dbCollection = collection,
+                name = name,
             ),
             FlowChainId.EMULATOR to flowNftDescriptor(
                 contract = Contracts.EVOLUTION,
                 chainId = FlowChainId.EMULATOR,
                 events = events,
                 dbCollection = collection,
+                name = name,
             )
         )
 

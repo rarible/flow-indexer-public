@@ -31,6 +31,7 @@ class NFTStorefrontSubscriber(
 ): BaseFlowLogEventSubscriber() {
 
     private val events = setOf("ListingAvailable", "ListingCompleted")
+    private val name = "nft_storefront"
 
     private lateinit var nftEvents: Set<String>
 
@@ -40,15 +41,16 @@ class NFTStorefrontSubscriber(
             events = events,
             chainId = FlowChainId.MAINNET,
             startFrom = 19799019L,
-            dbCollection = collection
+            dbCollection = collection,
+            name = name
         ),
         FlowChainId.TESTNET to flowOrderDescriptor(
             contract = Contracts.NFTSTOREFRONT,
             events = events,
             chainId = FlowChainId.TESTNET,
-            dbCollection = collection
+            dbCollection = collection,
+            name = name
         )
-
     )
 
     override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when(EventId.of(log.event.type).eventName) {

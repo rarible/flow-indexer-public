@@ -13,6 +13,7 @@ import java.util.*
 class MotoGPSubscriber : BaseFlowLogEventSubscriber() {
 
     private val events = setOf("Mint", "Withdraw", "Deposit", "Burn")
+    private val name = "moto_gp"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
@@ -21,13 +22,15 @@ class MotoGPSubscriber : BaseFlowLogEventSubscriber() {
                 chainId = FlowChainId.MAINNET,
                 events = events,
                 startFrom = 16246182L,
-                dbCollection = collection
+                dbCollection = collection,
+                name = name,
             ),
             FlowChainId.TESTNET to flowNftDescriptor(
                 contract = Contracts.MOTOGP,
                 chainId = FlowChainId.TESTNET,
                 events = events,
-                dbCollection = collection
+                dbCollection = collection,
+                name = name,
             ),
         )
 

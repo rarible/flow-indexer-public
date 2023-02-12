@@ -16,14 +16,16 @@ class EnglishAuctionSubscriber: BaseFlowLogEventSubscriber() {
     private val contractName = Contracts.ENGLISH_AUCTION.contractName
 
     private val events = setOf("LotAvailable", "LotCompleted", "LotEndTimeChanged", "LotCleaned", "OpenBid", "CloseBid", "IncreaseBid")
+    private val name = "english_auction"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.TESTNET to flowNftDescriptor(
+            FlowChainId.TESTNET to flowAuctionDescriptor(
                 address = "ebf4ae01d1284af8",
                 contract = contractName,
                 events = events,
-                dbCollection = collection
+                dbCollection = collection,
+                name = name,
             ),
         )
 

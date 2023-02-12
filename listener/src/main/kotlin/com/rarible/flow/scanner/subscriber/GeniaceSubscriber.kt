@@ -10,11 +10,13 @@ import org.springframework.stereotype.Component
 
 @Component
 class GeniaceSubscriber : BaseFlowLogEventSubscriber() {
+
     private val events = mapOf(
         "Minted" to FlowLogType.MINT,
         "Deposit" to FlowLogType.DEPOSIT,
         "Withdraw" to FlowLogType.WITHDRAW,
     )
+    private val name = "geniace"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor> = mapOf(
         FlowChainId.MAINNET to flowNftDescriptor(
@@ -23,18 +25,21 @@ class GeniaceSubscriber : BaseFlowLogEventSubscriber() {
             events = events.keys,
             startFrom = 21582165L,
             dbCollection = collection,
+            name = name,
         ),
         FlowChainId.TESTNET to flowNftDescriptor(
             contract = Contracts.GENIACE,
             chainId = FlowChainId.TESTNET,
             events = events.keys,
             dbCollection = collection,
+            name = name,
         ),
         FlowChainId.EMULATOR to flowNftDescriptor(
             contract = Contracts.GENIACE,
             chainId = FlowChainId.EMULATOR,
             events = events.keys,
             dbCollection = collection,
+            name = name,
         ),
     )
 

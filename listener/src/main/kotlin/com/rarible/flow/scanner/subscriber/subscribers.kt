@@ -18,20 +18,22 @@ import java.time.Instant
 @Deprecated(message = "Use the signature with Contracts type", replaceWith = ReplaceWith(
     "com.rarible.flow.scanner.subscriber.SubscribersKt.flowDescriptor(com.rarible.flow.Contracts, com.nftco.flow.sdk.FlowChainId, java.lang.Iterable<java.lang.String>, java.lang.Long, java.lang.String, java.lang.Iterable<java.lang.String>)"
 ))
-private fun flowDescriptor(
+private fun flowLegacyDescriptor(
     address: String,
     contract: String,
     events: Iterable<String>,
     startFrom: Long? = null,
     dbCollection: String,
     groupId: String,
+    name: String,
 ) = FlowDescriptor(
     groupId = groupId,
     entityType = FlowLogRecord::class.java,
     id = "${contract}Descriptor",
     events = events.map { "A.$address.$contract.$it" }.toSet(),
     collection = dbCollection,
-    startFrom = startFrom
+    startFrom = startFrom,
+    alias = name
 )
 
 @Deprecated(message = "Use the signature with Contracts type", replaceWith = ReplaceWith(
@@ -43,13 +45,15 @@ fun flowNftDescriptor(
     events: Iterable<String>,
     startFrom: Long? = null,
     dbCollection: String,
-) = flowDescriptor(
+    name: String,
+) = flowLegacyDescriptor(
     address = address,
     contract = contract,
     events = events,
     startFrom = startFrom,
     dbCollection = dbCollection,
     groupId = "item-history",
+    name = name,
 )
 
 @Deprecated(message = "Use the signature with Contracts type", replaceWith = ReplaceWith(
@@ -61,13 +65,35 @@ fun flowOrderDescriptor(
     events: Iterable<String>,
     startFrom: Long? = null,
     dbCollection: String,
-) = flowDescriptor(
+    name: String,
+) = flowLegacyDescriptor(
     address = address,
     contract = contract,
     events = events,
     startFrom = startFrom,
     dbCollection = dbCollection,
     groupId = "order-history",
+    name = name,
+)
+
+@Deprecated(message = "Use the signature with Contracts type", replaceWith = ReplaceWith(
+    "com.rarible.flow.scanner.subscriber.SubscribersKt.flowDescriptor(com.rarible.flow.Contracts, com.nftco.flow.sdk.FlowChainId, java.lang.Iterable<java.lang.String>, java.lang.Long, java.lang.String, java.lang.Iterable<java.lang.String>)"
+))
+fun flowAuctionDescriptor(
+    address: String,
+    contract: String,
+    events: Iterable<String>,
+    startFrom: Long? = null,
+    dbCollection: String,
+    name: String,
+) = flowLegacyDescriptor(
+    address = address,
+    contract = contract,
+    events = events,
+    startFrom = startFrom,
+    dbCollection = dbCollection,
+    groupId = "auction-history",
+    name = name,
 )
 
 @Deprecated(message = "Use the signature with Contracts type", replaceWith = ReplaceWith(
@@ -79,13 +105,15 @@ fun flowBalanceDescriptor(
     events: Iterable<String>,
     startFrom: Long? = null,
     dbCollection: String,
-) = flowDescriptor(
+    name: String,
+) = flowLegacyDescriptor(
     address = address,
     contract = contract,
     events = events,
     startFrom = startFrom,
     dbCollection = dbCollection,
     groupId = "balance-history",
+    name = name,
 )
 
 
@@ -96,7 +124,8 @@ private fun flowDescriptor(
     startFrom: Long? = null,
     dbCollection: String,
     additionalEvents: Iterable<String> = emptyList(),
-    groupId: String
+    groupId: String,
+    name: String,
 ): FlowDescriptor {
     val address = contract.deployments[chainId]?.base16Value
     val eventsSet = events.map { "${contract.fqn(chainId)}.$it" }.toSet()
@@ -107,7 +136,8 @@ private fun flowDescriptor(
         id = contract.flowDescriptorName(),
         events = eventsSet + additionalSet,
         collection = dbCollection,
-        startFrom = startFrom
+        startFrom = startFrom,
+        alias = name
     )
 }
 
@@ -118,6 +148,7 @@ internal fun flowNftDescriptor(
     startFrom: Long? = null,
     dbCollection: String,
     additionalEvents: Iterable<String> = emptyList(),
+    name: String,
 ): FlowDescriptor = flowDescriptor(
     contract = contract,
     chainId = chainId,
@@ -125,7 +156,8 @@ internal fun flowNftDescriptor(
     startFrom = startFrom,
     dbCollection = dbCollection,
     additionalEvents = additionalEvents,
-    groupId = "item-history"
+    groupId = "item-history",
+    name = name
 )
 
 internal fun flowOrderDescriptor(
@@ -135,6 +167,7 @@ internal fun flowOrderDescriptor(
     startFrom: Long? = null,
     dbCollection: String,
     additionalEvents: Iterable<String> = emptyList(),
+    name: String,
 ): FlowDescriptor = flowDescriptor(
     contract = contract,
     chainId = chainId,
@@ -142,7 +175,8 @@ internal fun flowOrderDescriptor(
     startFrom = startFrom,
     dbCollection = dbCollection,
     additionalEvents = additionalEvents,
-    groupId = "order-history"
+    groupId = "order-history",
+    name = name,
 )
 
 fun Contracts.flowDescriptorName() = "${this.contractName}Descriptor"

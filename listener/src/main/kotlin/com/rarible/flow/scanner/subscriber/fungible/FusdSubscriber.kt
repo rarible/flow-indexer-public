@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component
 class FusdSubscriber: AbstractFungibleTokenSubscriber() {
 
     private val events = supportedEvents()
+    private val name = "fusd"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
@@ -17,19 +18,21 @@ class FusdSubscriber: AbstractFungibleTokenSubscriber() {
                 contract = "FUSD",
                 events = events,
                 dbCollection = dbCollection,
+                name = name
             ),
             FlowChainId.TESTNET to flowBalanceDescriptor(
                 address = "e223d8a629e49c68",
                 contract = "FUSD",
                 events = events,
-                dbCollection = dbCollection
+                dbCollection = dbCollection,
+                name = name,
             ),
             FlowChainId.EMULATOR to flowBalanceDescriptor(
                 address = "0ae53cb6e3f42a79",
                 contract = "FUSD",
                 events = events,
                 dbCollection = dbCollection,
+                name = name,
             )
         )
-
 }

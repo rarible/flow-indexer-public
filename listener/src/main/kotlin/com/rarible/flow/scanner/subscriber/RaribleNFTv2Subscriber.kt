@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component
 class RaribleNFTv2Subscriber: BaseFlowLogEventSubscriber() {
 
     private val events = setOf("Minted", "Withdraw", "Deposit", "Burned")
+    private val name = "rarible_nft_v2"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
@@ -21,13 +22,15 @@ class RaribleNFTv2Subscriber: BaseFlowLogEventSubscriber() {
                 contract = Contracts.RARIBLE_NFTV2,
                 chainId = FlowChainId.TESTNET,
                 events = events,
-                dbCollection = collection
+                dbCollection = collection,
+                name = name,
             ),
             FlowChainId.EMULATOR to flowNftDescriptor(
                 contract = Contracts.RARIBLE_NFTV2,
                 chainId = FlowChainId.EMULATOR,
                 events = events,
-                dbCollection = collection
+                dbCollection = collection,
+                name = name,
             )
         )
 

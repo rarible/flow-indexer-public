@@ -12,7 +12,10 @@ import org.springframework.stereotype.Component
 @ExperimentalCoroutinesApi
 @Component
 class CnnNFTSubscriber : BaseFlowLogEventSubscriber() {
+
     val events = setOf("Minted", "Withdraw", "Deposit", "NFTDestroyed")
+    private val name = "cnn_nft"
+
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() =  mapOf(
@@ -22,18 +25,21 @@ class CnnNFTSubscriber : BaseFlowLogEventSubscriber() {
                 events = events,
                 dbCollection = collection,
                 startFrom = 15640000L,
+                name = name,
             ),
             FlowChainId.TESTNET to flowNftDescriptor(
                 contract = Contracts.CNN,
                 chainId = FlowChainId.TESTNET,
                 events = events,
                 dbCollection = collection,
+                name = name,
             ),
             FlowChainId.EMULATOR to flowNftDescriptor(
                 contract = Contracts.CNN,
                 chainId = FlowChainId.EMULATOR,
                 events = events,
                 dbCollection = collection,
+                name = name,
             ),
         )
 

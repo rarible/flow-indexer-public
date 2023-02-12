@@ -12,6 +12,7 @@ import com.rarible.flow.core.event.EventId
 class TopShotSubscriber : BaseFlowLogEventSubscriber() {
 
     private val events = "Withdraw,Deposit,MomentMinted,MomentDestroyed".split(",")
+    private val name = "top_shot"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
@@ -20,20 +21,23 @@ class TopShotSubscriber : BaseFlowLogEventSubscriber() {
                 chainId = FlowChainId.MAINNET,
                 events = events,
                 startFrom = 7641063L,
-                dbCollection = collection
+                dbCollection = collection,
+                name = name,
             ),
             FlowChainId.TESTNET to flowNftDescriptor(
                 contract = Contracts.TOPSHOT,
                 chainId = FlowChainId.TESTNET,
                 events = events,
-                dbCollection = collection
+                dbCollection = collection,
+                name = name,
             ),
             FlowChainId.EMULATOR to flowNftDescriptor(
                 contract = Contracts.TOPSHOT,
                 chainId = FlowChainId.EMULATOR,
                 events = events,
                 startFrom = 1L,
-                dbCollection = collection
+                dbCollection = collection,
+                name = name,
             ),
         )
 

@@ -16,6 +16,7 @@ class RaribleNFTSubscriber: BaseFlowLogEventSubscriber() {
 
     private val events = setOf("Mint", "Withdraw", "Deposit", "Destroy")
     private val contractName = "RaribleNFT"
+    private val name = "rarible_nft"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
@@ -24,19 +25,22 @@ class RaribleNFTSubscriber: BaseFlowLogEventSubscriber() {
                 contract = contractName,
                 events = events,
                 startFrom = 19799019L,
-                dbCollection = collection
+                dbCollection = collection,
+                name = name,
             ),
             FlowChainId.TESTNET to flowNftDescriptor(
                 address = "ebf4ae01d1284af8",
                 events = events,
                 contract = contractName,
-                dbCollection = collection
+                dbCollection = collection,
+                name = name,
             ),
             FlowChainId.EMULATOR to flowNftDescriptor(
                 address = "f8d6e0586b0a20c7",
                 events = events,
                 contract = contractName,
-                dbCollection = collection
+                dbCollection = collection,
+                name = name,
             ),
         )
 

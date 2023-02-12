@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class OneFootballSubscriber : BaseFlowLogEventSubscriber() {
-    val events = setOf("Minted", "Withdraw", "Deposit", "Destroyed")
+    private val events = setOf("Minted", "Withdraw", "Deposit", "Destroyed")
+    private val name = "one_football"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
@@ -20,18 +21,21 @@ class OneFootballSubscriber : BaseFlowLogEventSubscriber() {
                 events = events,
                 dbCollection = collection,
                 startFrom = 21831983L,
+                name = name,
             ),
             FlowChainId.TESTNET to flowNftDescriptor(
                 contract = Contracts.ONE_FOOTBALL.contractName,
                 address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.TESTNET]!!.base16Value,
                 events = events,
                 dbCollection = collection,
+                name = name,
             ),
             FlowChainId.EMULATOR to flowNftDescriptor(
                 contract = Contracts.ONE_FOOTBALL.contractName,
                 address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.EMULATOR]!!.base16Value,
                 events = events,
                 dbCollection = collection,
+                name = name,
             ),
         )
 

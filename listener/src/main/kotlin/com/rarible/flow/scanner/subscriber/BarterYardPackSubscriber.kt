@@ -19,13 +19,15 @@ class BarterYardPackSubscriber: BaseFlowLogEventSubscriber() {
             chainId = FlowChainId.MAINNET,
             events = events,
             startFrom = 24184883L,
-            dbCollection = collection
+            dbCollection = collection,
+            name = DESCRIPTOR_NAME
         ),
         FlowChainId.TESTNET to flowNftDescriptor(
             contract = Contracts.BARTER_YARD_PACK,
             chainId = FlowChainId.TESTNET,
             events = events,
-            dbCollection = collection
+            dbCollection = collection,
+            name = DESCRIPTOR_NAME
         )
     )
 
@@ -35,5 +37,9 @@ class BarterYardPackSubscriber: BaseFlowLogEventSubscriber() {
         "Deposit" -> FlowLogType.DEPOSIT
         "Burn" -> FlowLogType.BURN
         else -> throw IllegalStateException("Unsupported event type: ${log.event.type}!")
+    }
+
+    private companion object {
+        const val DESCRIPTOR_NAME = "barter_yard_pack"
     }
 }

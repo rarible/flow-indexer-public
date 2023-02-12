@@ -14,7 +14,9 @@ import org.springframework.stereotype.Component
 @Component
 @ConditionalOnProperty(name = ["blockchain.scanner.flow.chainId"], havingValue = "MAINNET")
 class StarlyCardSubscriber : BaseFlowLogEventSubscriber() {
+
     val events = setOf("Minted", "Withdraw", "Deposit", "Burned")
+    private val name = "starly_card"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
@@ -24,6 +26,7 @@ class StarlyCardSubscriber : BaseFlowLogEventSubscriber() {
                 events = events,
                 dbCollection = collection,
                 startFrom = 18133134L,
+                name = name
             )
         )
 

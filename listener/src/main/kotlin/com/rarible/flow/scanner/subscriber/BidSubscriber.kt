@@ -27,19 +27,24 @@ class BidSubscriber(
     private val txManager: TxManager,
     private val orderRepository: OrderRepository,
 ) : BaseFlowLogEventSubscriber() {
+
+    private val name = "bid"
+
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
             FlowChainId.TESTNET to flowOrderDescriptor(
                 address = "1d56d7ba49283a88",
                 contract = "RaribleOpenBid",
                 events = listOf("BidAvailable", "BidCompleted"),
-                dbCollection = collection
+                dbCollection = collection,
+                name = name,
             ),
             FlowChainId.MAINNET to flowOrderDescriptor(
                 address = "01ab36aaf654a13e",
                 contract = "RaribleOpenBid",
                 events = listOf("BidAvailable", "BidCompleted"),
-                dbCollection = collection
+                dbCollection = collection,
+                name = name,
             )
         )
 

@@ -12,7 +12,9 @@ import org.springframework.stereotype.Component
 @ExperimentalCoroutinesApi
 @Component
 class MatrixWorldSubscriber : BaseFlowLogEventSubscriber() {
-    val events = setOf("Minted", "Withdraw", "Deposit")
+
+    private val events = setOf("Minted", "Withdraw", "Deposit")
+    private val name = "matrix_world"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
@@ -22,18 +24,21 @@ class MatrixWorldSubscriber : BaseFlowLogEventSubscriber() {
                 events = events,
                 dbCollection = collection,
                 startFrom = 19683032L,
+                name = name,
             ),
             FlowChainId.TESTNET to flowNftDescriptor(
                 contract = Contracts.MATRIX_WORLD_VOUCHER.contractName,
                 address = Contracts.MATRIX_WORLD_VOUCHER.deployments[FlowChainId.TESTNET]!!.base16Value,
                 events = events,
                 dbCollection = collection,
+                name = name,
             ),
             FlowChainId.EMULATOR to flowNftDescriptor(
                 contract = Contracts.MATRIX_WORLD_VOUCHER.contractName,
                 address = Contracts.MATRIX_WORLD_VOUCHER.deployments[FlowChainId.EMULATOR]!!.base16Value,
                 events = events,
                 dbCollection = collection,
+                name = name,
             ),
         )
 
