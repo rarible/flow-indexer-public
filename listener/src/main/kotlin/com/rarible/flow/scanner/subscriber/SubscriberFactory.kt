@@ -133,6 +133,25 @@ object DescriptorFactory {
         name = name
     )
 
+    fun flowVersusArtDescriptor(
+        contract: Contracts,
+        chainId: FlowChainId,
+        events: Iterable<String>,
+        startFrom: Long? = null,
+        dbCollection: String,
+        additionalEvents: Iterable<String> = emptyList(),
+        name: String,
+    ): FlowDescriptor = flowDescriptor(
+        contract = contract,
+        chainId = chainId,
+        events = events,
+        startFrom = startFrom,
+        dbCollection = dbCollection,
+        additionalEvents = additionalEvents,
+        groupId = SubscriberGroups.VERSUS_ART_HISTORY,
+        name = name
+    )
+
     fun flowCollectionDescriptor(
         contract: Contracts,
         chainId: FlowChainId,
