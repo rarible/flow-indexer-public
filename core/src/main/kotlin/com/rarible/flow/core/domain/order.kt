@@ -3,18 +3,14 @@ package com.rarible.flow.core.domain
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.protocol.dto.FlowOrderPlatformDto
-import java.math.BigDecimal
-import java.time.Instant
-import java.time.LocalDateTime
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.mapping.FieldType
 import org.springframework.data.mongodb.core.mapping.MongoId
-
-const val ORDER_COLLECTION = "order"
-
-
+import java.math.BigDecimal
+import java.time.Instant
+import java.time.LocalDateTime
 
 /**
  * Description of an order
@@ -27,7 +23,7 @@ const val ORDER_COLLECTION = "order"
  * @property cancelled       - order canceled
  * @property collection     - item collection
  */
-@Document(collection = ORDER_COLLECTION)
+@Document(Order.COLLECTION)
 data class Order(
     @MongoId
     val id: Long,
@@ -76,6 +72,11 @@ data class Order(
 
     fun reactivateBid(): Order {
         return this.copy(status = OrderStatus.ACTIVE, makeStock = this.make.value)
+    }
+
+    companion object {
+
+        const val COLLECTION = "order"
     }
 }
 

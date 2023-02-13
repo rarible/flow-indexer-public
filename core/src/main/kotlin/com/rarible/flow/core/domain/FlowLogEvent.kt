@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.FieldType
 import org.springframework.data.mongodb.core.mapping.MongoId
 
-@Document("flow_log_event")
+@Document(FlowLogEvent.COLLECTION)
 data class FlowLogEvent(
     override val log: FlowLog,
     @MongoId(FieldType.STRING)
@@ -16,7 +16,12 @@ data class FlowLogEvent(
     val event: EventMessage,
     @Indexed
     val type: FlowLogType,
-): FlowLogRecord() {
-    fun withLog(log: FlowLog): FlowLogRecord = copy(log = log)
+) : FlowLogRecord() {
+
     override fun getKey(): String = event.eventId.contractAddress.toString()
+
+    companion object {
+
+        const val COLLECTION = "flow_log_event"
+    }
 }
