@@ -6,6 +6,7 @@ import com.rarible.blockchain.scanner.flow.client.FlowBlockchainBlock
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.core.apm.withSpan
+import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.OrderRepository
@@ -20,6 +21,7 @@ import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
+import kotlin.contracts.contract
 
 @Component
 class BidSubscriber(
@@ -32,14 +34,14 @@ class BidSubscriber(
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.TESTNET to flowOrderDescriptor(
+            FlowChainId.TESTNET to DescriptorFactory.flowOrderDescriptor(
                 address = "1d56d7ba49283a88",
                 contract = "RaribleOpenBid",
                 events = listOf("BidAvailable", "BidCompleted"),
                 dbCollection = collection,
                 name = name,
             ),
-            FlowChainId.MAINNET to flowOrderDescriptor(
+            FlowChainId.MAINNET to DescriptorFactory.flowOrderDescriptor(
                 address = "01ab36aaf654a13e",
                 contract = "RaribleOpenBid",
                 events = listOf("BidAvailable", "BidCompleted"),

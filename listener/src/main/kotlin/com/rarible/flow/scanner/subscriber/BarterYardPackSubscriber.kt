@@ -14,7 +14,7 @@ class BarterYardPackSubscriber: BaseFlowLogEventSubscriber() {
     private val events = setOf("Mint", "Withdraw", "Deposit", "Burn")
 
     override val descriptors: Map<FlowChainId, FlowDescriptor> = mapOf(
-        FlowChainId.MAINNET to flowNftDescriptor(
+        FlowChainId.MAINNET to DescriptorFactory.flowNftDescriptor(
             contract = Contracts.BARTER_YARD_PACK,
             chainId = FlowChainId.MAINNET,
             events = events,
@@ -22,7 +22,7 @@ class BarterYardPackSubscriber: BaseFlowLogEventSubscriber() {
             dbCollection = collection,
             name = DESCRIPTOR_NAME
         ),
-        FlowChainId.TESTNET to flowNftDescriptor(
+        FlowChainId.TESTNET to DescriptorFactory.flowNftDescriptor(
             contract = Contracts.BARTER_YARD_PACK,
             chainId = FlowChainId.TESTNET,
             events = events,

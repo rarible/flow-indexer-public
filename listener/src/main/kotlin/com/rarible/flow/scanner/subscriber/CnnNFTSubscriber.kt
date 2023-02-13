@@ -19,7 +19,7 @@ class CnnNFTSubscriber : BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() =  mapOf(
-            FlowChainId.MAINNET to flowNftDescriptor(
+            FlowChainId.MAINNET to DescriptorFactory.flowNftDescriptor(
                 contract = Contracts.CNN,
                 chainId = FlowChainId.MAINNET,
                 events = events,
@@ -27,14 +27,14 @@ class CnnNFTSubscriber : BaseFlowLogEventSubscriber() {
                 startFrom = 15640000L,
                 name = name,
             ),
-            FlowChainId.TESTNET to flowNftDescriptor(
+            FlowChainId.TESTNET to DescriptorFactory.flowNftDescriptor(
                 contract = Contracts.CNN,
                 chainId = FlowChainId.TESTNET,
                 events = events,
                 dbCollection = collection,
                 name = name,
             ),
-            FlowChainId.EMULATOR to flowNftDescriptor(
+            FlowChainId.EMULATOR to DescriptorFactory.flowNftDescriptor(
                 contract = Contracts.CNN,
                 chainId = FlowChainId.EMULATOR,
                 events = events,

@@ -1,17 +1,19 @@
 package com.rarible.flow.scanner
 
 import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
-import com.rarible.blockchain.scanner.framework.entity.EntityEventsSubscriber
+import com.rarible.blockchain.scanner.framework.listener.LogRecordEventListener
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.BalanceHistory
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
-import com.rarible.flow.core.util.Log
+import com.rarible.flow.scanner.model.SubscriberGroups
 import com.rarible.flow.scanner.service.BidService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @ExperimentalCoroutinesApi
@@ -21,11 +23,13 @@ class FungibleLogListener(
     private val bidService: BidService,
     private val protocolEventPublisher: ProtocolEventPublisher,
     private val orderConverter: OrderToDtoConverter
-) : EntityEventsSubscriber {
+) : LogRecordEventListener {
 
-    private val logger by Log()
+    override val groupId: String = SubscriberGroups.BALANCE_HISTORY
 
-    override suspend fun onEntityEvents(events: List<LogRecordEvent>) {
+    override val id: String = SubscriberGroups.BALANCE_HISTORY
+
+    override suspend fun onLogRecordEvents(events: List<LogRecordEvent>) {
         events
             .filterIsInstance<BalanceHistory>()
             .forEach { history ->
@@ -63,5 +67,9 @@ class FungibleLogListener(
                 protocolEventPublisher.onOrderUpdate(o, orderConverter)
             }
         }
+    }
+
+    private companion object {
+        val logger: Logger = LoggerFactory.getLogger(FungibleLogListener::class.java)
     }
 }

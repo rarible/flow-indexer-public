@@ -16,7 +16,7 @@ class SomePlaceCollectibleSubscriber: BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.MAINNET to flowNftDescriptor(
+            FlowChainId.MAINNET to DescriptorFactory.flowNftDescriptor(
                 contract = Contracts.SOME_PLACE_COLLECTIBLE,
                 chainId = FlowChainId.MAINNET,
                 events = events,
@@ -24,14 +24,14 @@ class SomePlaceCollectibleSubscriber: BaseFlowLogEventSubscriber() {
                 dbCollection = collection,
                 name = name,
             ),
-            FlowChainId.TESTNET to flowNftDescriptor(
+            FlowChainId.TESTNET to DescriptorFactory.flowNftDescriptor(
                 contract = Contracts.SOME_PLACE_COLLECTIBLE,
                 chainId = FlowChainId.TESTNET,
                 events = events,
                 dbCollection = collection,
                 name = name,
             ),
-            FlowChainId.EMULATOR to flowNftDescriptor(
+            FlowChainId.EMULATOR to DescriptorFactory.flowNftDescriptor(
                 contract = Contracts.SOME_PLACE_COLLECTIBLE,
                 chainId = FlowChainId.EMULATOR,
                 events = events,

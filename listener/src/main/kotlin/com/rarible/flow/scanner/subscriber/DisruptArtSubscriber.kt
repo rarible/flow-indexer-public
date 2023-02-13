@@ -18,7 +18,7 @@ class DisruptArtSubscriber: BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.MAINNET to flowNftDescriptor(
+            FlowChainId.MAINNET to DescriptorFactory.flowNftDescriptor(
                 contract = Contracts.DISRUPT_ART,
                 chainId = FlowChainId.MAINNET,
                 events = events,
@@ -26,14 +26,14 @@ class DisruptArtSubscriber: BaseFlowLogEventSubscriber() {
                 startFrom = 19100120L,
                 name = name,
             ),
-            FlowChainId.TESTNET to flowNftDescriptor(
+            FlowChainId.TESTNET to DescriptorFactory.flowNftDescriptor(
                 contract = Contracts.DISRUPT_ART,
                 chainId = FlowChainId.TESTNET,
                 events = events,
                 dbCollection = collection,
                 name = name,
             ),
-            FlowChainId.EMULATOR to flowNftDescriptor(
+            FlowChainId.EMULATOR to DescriptorFactory.flowNftDescriptor(
                 contract = Contracts.DISRUPT_ART,
                 chainId = FlowChainId.EMULATOR,
                 events = events,

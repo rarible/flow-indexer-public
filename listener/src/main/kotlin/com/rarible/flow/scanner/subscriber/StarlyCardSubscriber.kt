@@ -20,7 +20,7 @@ class StarlyCardSubscriber : BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.MAINNET to flowNftDescriptor(
+            FlowChainId.MAINNET to DescriptorFactory.flowNftDescriptor(
                 contract = Contracts.STARLY_CARD.contractName,
                 address = Contracts.STARLY_CARD.deployments[FlowChainId.MAINNET]!!.base16Value,
                 events = events,

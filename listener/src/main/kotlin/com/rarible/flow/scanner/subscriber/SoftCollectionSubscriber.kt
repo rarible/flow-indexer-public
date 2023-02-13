@@ -16,7 +16,7 @@ class SoftCollectionSubscriber: BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.MAINNET to flowNftDescriptor(
+            FlowChainId.MAINNET to DescriptorFactory.flowCollectionDescriptor(
                 contract = Contracts.SOFT_COLLECTION,
                 chainId = FlowChainId.MAINNET,
                 events = events,
@@ -24,14 +24,14 @@ class SoftCollectionSubscriber: BaseFlowLogEventSubscriber() {
                 dbCollection = collection,
                 name = name,
             ),
-            FlowChainId.TESTNET to flowNftDescriptor(
+            FlowChainId.TESTNET to DescriptorFactory.flowCollectionDescriptor(
                 contract = Contracts.SOFT_COLLECTION,
                 chainId = FlowChainId.TESTNET,
                 events = events,
                 dbCollection = collection,
                 name = name,
             ),
-            FlowChainId.EMULATOR to flowNftDescriptor(
+            FlowChainId.EMULATOR to DescriptorFactory.flowCollectionDescriptor(
                 contract = Contracts.SOFT_COLLECTION,
                 chainId = FlowChainId.EMULATOR,
                 events = events,

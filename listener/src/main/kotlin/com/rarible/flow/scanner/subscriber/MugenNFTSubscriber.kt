@@ -17,7 +17,7 @@ class MugenNFTSubscriber : BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.MAINNET to flowNftDescriptor(
+            FlowChainId.MAINNET to DescriptorFactory.flowNftDescriptor(
                 contract = "MugenNFT",
                 address = "2cd46d41da4ce262",
                 events = events,
@@ -25,14 +25,14 @@ class MugenNFTSubscriber : BaseFlowLogEventSubscriber() {
                 startFrom = 19040960L,
                 name = name
             ),
-            FlowChainId.TESTNET to flowNftDescriptor(
+            FlowChainId.TESTNET to DescriptorFactory.flowNftDescriptor(
                 contract = "MugenNFT",
                 address = "ebf4ae01d1284af8",
                 events = events,
                 dbCollection = collection,
                 name = name
             ),
-            FlowChainId.EMULATOR to flowNftDescriptor(
+            FlowChainId.EMULATOR to DescriptorFactory.flowNftDescriptor(
                 contract = "MugenNFT",
                 address = "f8d6e0586b0a20c7",
                 events = events,

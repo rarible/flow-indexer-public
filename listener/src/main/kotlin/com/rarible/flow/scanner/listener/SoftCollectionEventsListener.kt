@@ -3,18 +3,18 @@ package com.rarible.flow.scanner.listener
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.*
-import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
-import com.rarible.blockchain.scanner.framework.entity.EntityEventsSubscriber
+import com.rarible.blockchain.scanner.framework.listener.LogRecordEventListener
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
-import com.rarible.flow.core.util.Log
+import com.rarible.flow.scanner.model.SubscriberGroups
 import com.rarible.flow.scanner.model.parse
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
@@ -23,16 +23,17 @@ import java.math.BigDecimal
 class SoftCollectionEventsListener(
     private val itemCollectionRepository: ItemCollectionRepository,
     @Value("\${blockchain.scanner.flow.chainId}")
-    private val chainId: FlowChainId
-) : EntityEventsSubscriber {
+    private val chainId: FlowChainId,
+) : LogRecordEventListener {
 
     private val parser = JsonCadenceParser()
 
-    private val logger by Log()
-
     private val idDelimiter = '.'
 
-    override suspend fun onEntityEvents(events: List<LogRecordEvent>) {
+    override val groupId = SubscriberGroups.COLLECTION_HISTORY
+    override val id = SubscriberGroups.COLLECTION_HISTORY
+
+    override suspend fun onLogRecordEvents(events: List<LogRecordEvent>) {
         events
             .filterIsInstance<FlowLogEvent>()
             .filter {
@@ -144,6 +145,10 @@ class SoftCollectionEventsListener(
             url = collectionMeta.url,
             royalties = royalties ?: entity.royalties,
         ))
+    }
+
+    private companion object {
+        val logger: Logger = LoggerFactory.getLogger(SoftCollectionEventsListener::class.java)
     }
 }
 

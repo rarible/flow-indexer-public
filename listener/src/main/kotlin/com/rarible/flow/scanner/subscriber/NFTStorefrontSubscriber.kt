@@ -36,7 +36,7 @@ class NFTStorefrontSubscriber(
     private lateinit var nftEvents: Set<String>
 
     override val descriptors: Map<FlowChainId, FlowDescriptor> = mapOf(
-        FlowChainId.MAINNET to flowOrderDescriptor(
+        FlowChainId.MAINNET to DescriptorFactory.flowOrderDescriptor(
             contract = Contracts.NFTSTOREFRONT,
             events = events,
             chainId = FlowChainId.MAINNET,
@@ -44,7 +44,7 @@ class NFTStorefrontSubscriber(
             dbCollection = collection,
             name = name
         ),
-        FlowChainId.TESTNET to flowOrderDescriptor(
+        FlowChainId.TESTNET to DescriptorFactory.flowOrderDescriptor(
             contract = Contracts.NFTSTOREFRONT,
             events = events,
             chainId = FlowChainId.TESTNET,
