@@ -7,6 +7,7 @@ import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
+import com.rarible.flow.scanner.listener.FungibleLogListener
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking

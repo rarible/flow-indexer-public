@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner
+package com.rarible.flow.scanner.listener
 
 import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
 import com.rarible.blockchain.scanner.framework.listener.LogRecordEventListener
