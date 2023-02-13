@@ -5,10 +5,10 @@ spring:
     mongodb:
       auto-index-creation: true
 
+
 mongock:
-  runner-type: applicationrunner
-  migration-scan-package: "com.rarible.flow.scanner.migrations"
-  default-migration-author: "flow"
+  change-logs-scan-package:
+    - com.rarible.flow.scanner.migrations
 
 rarible:
   core:

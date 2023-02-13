@@ -29,18 +29,20 @@ import java.time.Instant
  * Item history repo
  */
 @Repository
-interface ItemHistoryRepository:
-    ReactiveMongoRepository<ItemHistory, String>,
-    ItemHistoryRepositoryCustom {
+interface ItemHistoryRepository : ReactiveMongoRepository<ItemHistory, String>, ItemHistoryRepositoryCustom {
 
     @Suppress("FunctionName")
     fun existsByLog_TransactionHashAndLog_EventIndex(txHash: String, eventIndex: Int): Mono<Boolean>
 
-    @Query("""
+    @Query(
+        """
             {"activity.type": ?0, "activity.hash": ?1}
-        """)
+        """
+    )
     fun findOrderActivity(type: String, hash: String): Flux<ItemHistory>
-    @DeleteQuery("""
+
+    @DeleteQuery(
+        """
             {"activity.contract": ?0, "activity.tokenId": ?1}
         """)
     fun deleteByItemId(contract: String, tokenId: Long): Flux<ItemHistory>
@@ -65,6 +67,7 @@ interface ItemHistoryRepository:
 }
 
 interface ItemHistoryRepositoryCustom {
+
     fun aggregatePurchaseByCollection(
         start: Instant, end: Instant, size: Long?
     ): Flow<FlowAggregationDataDto>
@@ -82,6 +85,7 @@ interface ItemHistoryRepositoryCustom {
 class ItemHistoryRepositoryCustomImpl(
     private val mongo: ReactiveMongoTemplate
 ) : ItemHistoryRepositoryCustom {
+
     override fun aggregatePurchaseByCollection(
         start: Instant,
         end: Instant,
