@@ -8,7 +8,6 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.event.EventId
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.springframework.stereotype.Component
 
 @Component
@@ -20,7 +19,7 @@ class RaribleNFTSubscriber: BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.MAINNET to DescriptorFactory.flowNftDescriptor(
+            FlowChainId.MAINNET to DescriptorFactory.flowNftOrderDescriptor(
                 address = "01ab36aaf654a13e",
                 contract = contractName,
                 events = events,
@@ -28,14 +27,14 @@ class RaribleNFTSubscriber: BaseFlowLogEventSubscriber() {
                 dbCollection = collection,
                 name = name,
             ),
-            FlowChainId.TESTNET to DescriptorFactory.flowNftDescriptor(
+            FlowChainId.TESTNET to DescriptorFactory.flowNftOrderDescriptor(
                 address = "ebf4ae01d1284af8",
                 events = events,
                 contract = contractName,
                 dbCollection = collection,
                 name = name,
             ),
-            FlowChainId.EMULATOR to DescriptorFactory.flowNftDescriptor(
+            FlowChainId.EMULATOR to DescriptorFactory.flowNftOrderDescriptor(
                 address = "f8d6e0586b0a20c7",
                 events = events,
                 contract = contractName,

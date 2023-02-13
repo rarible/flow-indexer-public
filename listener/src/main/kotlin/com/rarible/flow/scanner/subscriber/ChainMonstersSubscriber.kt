@@ -16,7 +16,7 @@ class ChainMonstersSubscriber: BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.MAINNET to DescriptorFactory.flowNftDescriptor(
+            FlowChainId.MAINNET to DescriptorFactory.flowNftOrderDescriptor(
                 contract = Contracts.CHAINMONSTERS,
                 chainId = FlowChainId.MAINNET,
                 events = events,
@@ -24,14 +24,14 @@ class ChainMonstersSubscriber: BaseFlowLogEventSubscriber() {
                 startFrom = 11283560L,
                 name = name
             ),
-            FlowChainId.TESTNET to DescriptorFactory.flowNftDescriptor(
+            FlowChainId.TESTNET to DescriptorFactory.flowNftOrderDescriptor(
                 contract = Contracts.CHAINMONSTERS,
                 chainId = FlowChainId.TESTNET,
                 events = events,
                 dbCollection = collection,
                 name = name
             ),
-            FlowChainId.EMULATOR to DescriptorFactory.flowNftDescriptor(
+            FlowChainId.EMULATOR to DescriptorFactory.flowNftOrderDescriptor(
                 contract = Contracts.CHAINMONSTERS,
                 chainId = FlowChainId.EMULATOR,
                 events = events,

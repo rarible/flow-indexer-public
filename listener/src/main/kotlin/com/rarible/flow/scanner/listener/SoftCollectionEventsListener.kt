@@ -5,11 +5,15 @@ import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.*
 import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
 import com.rarible.blockchain.scanner.framework.listener.LogRecordEventListener
+import com.rarible.core.application.ApplicationEnvironmentInfo
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
+import com.rarible.flow.scanner.model.CollectionMeta
+import com.rarible.flow.scanner.model.LogRecordEventListeners
+import com.rarible.flow.scanner.model.SoftCollectionRoyalty
 import com.rarible.flow.scanner.model.SubscriberGroups
 import com.rarible.flow.scanner.model.parse
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -17,21 +21,23 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import java.math.BigDecimal
 
 @Component
 class SoftCollectionEventsListener(
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemCollectionRepository: ItemCollectionRepository,
     @Value("\${blockchain.scanner.flow.chainId}")
     private val chainId: FlowChainId,
+    environmentInfo: ApplicationEnvironmentInfo
 ) : LogRecordEventListener {
 
     private val parser = JsonCadenceParser()
 
     private val idDelimiter = '.'
 
-    override val groupId = SubscriberGroups.COLLECTION_HISTORY
-    override val id = SubscriberGroups.COLLECTION_HISTORY
+    final override val groupId = SubscriberGroups.COLLECTION_HISTORY
+
+    override val id: String = LogRecordEventListeners.listenerId(environmentInfo.name, groupId)
 
     override suspend fun onLogRecordEvents(events: List<LogRecordEvent>) {
         events
@@ -147,51 +153,12 @@ class SoftCollectionEventsListener(
         ))
     }
 
+
     private companion object {
         val logger: Logger = LoggerFactory.getLogger(SoftCollectionEventsListener::class.java)
     }
 }
 
-@JsonCadenceConversion(CollectionMetaConversion::class)
-data class CollectionMeta(
-    val name: String,
-    val symbol: String,
-    val icon: String?,
-    val description: String?,
-    val url: String?
-)
 
-class CollectionMetaConversion: JsonCadenceConverter<CollectionMeta> {
-    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): CollectionMeta = unmarshall(value) {
-        CollectionMeta(
-            name = string("name"),
-            symbol = string("symbol"),
-            description = optional("description", JsonCadenceParser::string),
-            icon = optional("icon", JsonCadenceParser::string),
-            url = optional("url", JsonCadenceParser::string),
-        )
-    }
-}
 
-@JsonCadenceConversion(SoftCollectionRoyaltyConverter::class)
-data class SoftCollectionRoyalty(
-    val address: String,
-    val fee: BigDecimal,
-)
 
-class SoftCollectionRoyaltyConverter : JsonCadenceConverter<SoftCollectionRoyalty> {
-    override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): SoftCollectionRoyalty = unmarshall(value) {
-        SoftCollectionRoyalty(address("address"), bigDecimal("fee"))
-    }
-
-    override fun marshall(value: SoftCollectionRoyalty, namespace: CadenceNamespace): Field<*> = marshall {
-        struct {
-            compositeOfPairs(namespace.withNamespace("SoftCollection.Royalty")) {
-                listOf(
-                    "address" to address(value.address),
-                    "fee" to ufix64(value.fee),
-                )
-            }
-        }
-    }
-}

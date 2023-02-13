@@ -4,6 +4,7 @@ import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.UInt64NumberField
+import com.rarible.core.application.ApplicationEnvironmentInfo
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemCollectionRepository
@@ -18,15 +19,16 @@ import io.mockk.verify
 import reactor.core.publisher.Mono
 
 internal class SoftCollectionEventsListenerTest : FunSpec({
+    val environmentInfo = ApplicationEnvironmentInfo("test", "test")
 
     test("should parse royalties") {
-        SoftCollectionEventsListener(mockk(), FlowChainId.TESTNET).parseRoyalties(
+        SoftCollectionEventsListener(mockk(), FlowChainId.TESTNET, environmentInfo).parseRoyalties(
             Flow.decodeJsonCadence(CHANGED_ROYALTIES)
         ) shouldContainExactly listOf(Part(FlowAddress("0x4895ce5fb8a40f47"), 0.55))
     }
 
     test("should parse optional royalties") {
-        SoftCollectionEventsListener(mockk(), FlowChainId.TESTNET).parseRoyalties(
+        SoftCollectionEventsListener(mockk(), FlowChainId.TESTNET, environmentInfo).parseRoyalties(
             Flow.decodeJsonCadence("""{"type": "Optional", "value": $CHANGED_ROYALTIES}""")
         ) shouldContainExactly listOf(Part(FlowAddress("0x4895ce5fb8a40f47"), 0.55))
     }
@@ -48,10 +50,10 @@ internal class SoftCollectionEventsListenerTest : FunSpec({
                 save(any())
             } answers { Mono.just(arg(0)) }
         }
-
         SoftCollectionEventsListener(
             repo,
-            FlowChainId.TESTNET
+            FlowChainId.TESTNET,
+            environmentInfo
         ).updateSoftCollection(CHANGED_EVENT)
 
         verify {

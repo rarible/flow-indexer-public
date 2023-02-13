@@ -61,7 +61,7 @@ object DescriptorFactory {
     }
 
     @Deprecated(message = "Use the signature with Contracts type", replaceWith = ReplaceWith(""))
-    fun flowNftDescriptor(
+    fun flowNftOrderDescriptor(
         address: String,
         contract: String,
         events: Iterable<String>,
@@ -74,25 +74,7 @@ object DescriptorFactory {
         events = events,
         startFrom = startFrom,
         dbCollection = dbCollection,
-        groupId = SubscriberGroups.ITEM_HISTORY,
-        name = name,
-    )
-
-    @Deprecated(message = "Use the signature with Contracts type", replaceWith = ReplaceWith(""))
-    fun flowOrderDescriptor(
-        address: String,
-        contract: String,
-        events: Iterable<String>,
-        startFrom: Long? = null,
-        dbCollection: String,
-        name: String,
-    ) = flowLegacyDescriptor(
-        address = address,
-        contract = contract,
-        events = events,
-        startFrom = startFrom,
-        dbCollection = dbCollection,
-        groupId = SubscriberGroups.ORDER_HISTORY,
+        groupId = SubscriberGroups.NFT_ORDER_HISTORY,
         name = name,
     )
 
@@ -132,7 +114,7 @@ object DescriptorFactory {
         name = name,
     )
 
-    fun flowNftDescriptor(
+    fun flowNftOrderDescriptor(
         contract: Contracts,
         chainId: FlowChainId,
         events: Iterable<String>,
@@ -147,27 +129,8 @@ object DescriptorFactory {
         startFrom = startFrom,
         dbCollection = dbCollection,
         additionalEvents = additionalEvents,
-        groupId = SubscriberGroups.ITEM_HISTORY,
+        groupId = SubscriberGroups.NFT_ORDER_HISTORY,
         name = name
-    )
-
-    fun flowOrderDescriptor(
-        contract: Contracts,
-        chainId: FlowChainId,
-        events: Iterable<String>,
-        startFrom: Long? = null,
-        dbCollection: String,
-        additionalEvents: Iterable<String> = emptyList(),
-        name: String,
-    ): FlowDescriptor = flowDescriptor(
-        contract = contract,
-        chainId = chainId,
-        events = events,
-        startFrom = startFrom,
-        dbCollection = dbCollection,
-        additionalEvents = additionalEvents,
-        groupId = SubscriberGroups.ORDER_HISTORY,
-        name = name,
     )
 
     fun flowCollectionDescriptor(

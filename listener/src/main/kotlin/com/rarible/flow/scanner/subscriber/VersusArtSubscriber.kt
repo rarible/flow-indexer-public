@@ -19,7 +19,7 @@ class VersusArtSubscriber : BaseFlowLogEventSubscriber() {
     private val name = "versus_art"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor> = mapOf(
-        FlowChainId.MAINNET to DescriptorFactory.flowNftDescriptor(
+        FlowChainId.MAINNET to DescriptorFactory.flowNftOrderDescriptor(
             contract = Contracts.VERSUS_ART,
             chainId = FlowChainId.MAINNET,
             events = events,
@@ -28,7 +28,7 @@ class VersusArtSubscriber : BaseFlowLogEventSubscriber() {
             additionalEvents = additionalEvents,
             name = name,
         ),
-        FlowChainId.TESTNET to DescriptorFactory.flowNftDescriptor(
+        FlowChainId.TESTNET to DescriptorFactory.flowNftOrderDescriptor(
             contract = Contracts.VERSUS_ART,
             chainId = FlowChainId.TESTNET,
             events = events,
@@ -36,7 +36,7 @@ class VersusArtSubscriber : BaseFlowLogEventSubscriber() {
             additionalEvents = additionalEvents,
             name = name,
         ),
-        FlowChainId.EMULATOR to DescriptorFactory.flowNftDescriptor(
+        FlowChainId.EMULATOR to DescriptorFactory.flowNftOrderDescriptor(
             contract = Contracts.VERSUS_ART,
             chainId = FlowChainId.EMULATOR,
             events = events,

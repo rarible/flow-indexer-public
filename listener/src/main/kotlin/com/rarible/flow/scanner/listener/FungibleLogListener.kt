@@ -2,12 +2,14 @@ package com.rarible.flow.scanner.listener
 
 import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
 import com.rarible.blockchain.scanner.framework.listener.LogRecordEventListener
+import com.rarible.core.application.ApplicationEnvironmentInfo
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.BalanceHistory
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
+import com.rarible.flow.scanner.model.LogRecordEventListeners
 import com.rarible.flow.scanner.model.SubscriberGroups
 import com.rarible.flow.scanner.service.BidService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,12 +24,13 @@ class FungibleLogListener(
     private val balanceRepository: BalanceRepository,
     private val bidService: BidService,
     private val protocolEventPublisher: ProtocolEventPublisher,
-    private val orderConverter: OrderToDtoConverter
+    private val orderConverter: OrderToDtoConverter,
+    environmentInfo: ApplicationEnvironmentInfo
 ) : LogRecordEventListener {
 
-    override val groupId: String = SubscriberGroups.BALANCE_HISTORY
+    final override val groupId: String = SubscriberGroups.BALANCE_HISTORY
 
-    override val id: String = SubscriberGroups.BALANCE_HISTORY
+    override val id: String = LogRecordEventListeners.listenerId(environmentInfo.name, groupId)
 
     override suspend fun onLogRecordEvents(events: List<LogRecordEvent>) {
         events

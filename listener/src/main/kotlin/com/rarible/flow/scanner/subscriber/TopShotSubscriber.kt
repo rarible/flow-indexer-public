@@ -16,7 +16,7 @@ class TopShotSubscriber : BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.MAINNET to DescriptorFactory.flowNftDescriptor(
+            FlowChainId.MAINNET to DescriptorFactory.flowNftOrderDescriptor(
                 contract = Contracts.TOPSHOT,
                 chainId = FlowChainId.MAINNET,
                 events = events,
@@ -24,14 +24,14 @@ class TopShotSubscriber : BaseFlowLogEventSubscriber() {
                 dbCollection = collection,
                 name = name,
             ),
-            FlowChainId.TESTNET to DescriptorFactory.flowNftDescriptor(
+            FlowChainId.TESTNET to DescriptorFactory.flowNftOrderDescriptor(
                 contract = Contracts.TOPSHOT,
                 chainId = FlowChainId.TESTNET,
                 events = events,
                 dbCollection = collection,
                 name = name,
             ),
-            FlowChainId.EMULATOR to DescriptorFactory.flowNftDescriptor(
+            FlowChainId.EMULATOR to DescriptorFactory.flowNftOrderDescriptor(
                 contract = Contracts.TOPSHOT,
                 chainId = FlowChainId.EMULATOR,
                 events = events,

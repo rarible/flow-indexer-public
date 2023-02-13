@@ -4,6 +4,7 @@ import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
 import com.rarible.blockchain.scanner.framework.listener.LogRecordEventListener
 import com.rarible.core.apm.CaptureSpan
 import com.rarible.core.apm.SpanType
+import com.rarible.core.application.ApplicationEnvironmentInfo
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
@@ -14,6 +15,7 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coSaveAll
 import com.rarible.flow.scanner.activitymaker.ActivityMaker
 import com.rarible.flow.scanner.model.IndexerEvent
+import com.rarible.flow.scanner.model.LogRecordEventListeners
 import com.rarible.flow.scanner.model.SubscriberGroups
 import com.rarible.flow.scanner.service.IndexerEventService
 import kotlinx.coroutines.flow.toSet
@@ -31,10 +33,12 @@ class ItemAndOrderEventsListener(
     private val indexerEventService: IndexerEventService,
     private val itemRepository: ItemRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
+    environmentInfo: ApplicationEnvironmentInfo
 ) : LogRecordEventListener {
 
-    override val groupId = SubscriberGroups.ITEM_HISTORY
-    override val id = SubscriberGroups.ITEM_HISTORY
+    final override val groupId = SubscriberGroups.NFT_ORDER_HISTORY
+
+    override val id: String = LogRecordEventListeners.listenerId(environmentInfo.name, groupId)
 
     override suspend fun onLogRecordEvents(events: List<LogRecordEvent>) {
         val history: MutableList<ItemHistory> = mutableListOf()

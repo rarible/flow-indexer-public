@@ -18,7 +18,7 @@ class MatrixWorldSubscriber : BaseFlowLogEventSubscriber() {
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.MAINNET to DescriptorFactory.flowNftDescriptor(
+            FlowChainId.MAINNET to DescriptorFactory.flowNftOrderDescriptor(
                 contract = Contracts.MATRIX_WORLD_VOUCHER.contractName,
                 address = Contracts.MATRIX_WORLD_VOUCHER.deployments[FlowChainId.MAINNET]!!.base16Value,
                 events = events,
@@ -26,14 +26,14 @@ class MatrixWorldSubscriber : BaseFlowLogEventSubscriber() {
                 startFrom = 19683032L,
                 name = name,
             ),
-            FlowChainId.TESTNET to DescriptorFactory.flowNftDescriptor(
+            FlowChainId.TESTNET to DescriptorFactory.flowNftOrderDescriptor(
                 contract = Contracts.MATRIX_WORLD_VOUCHER.contractName,
                 address = Contracts.MATRIX_WORLD_VOUCHER.deployments[FlowChainId.TESTNET]!!.base16Value,
                 events = events,
                 dbCollection = collection,
                 name = name,
             ),
-            FlowChainId.EMULATOR to DescriptorFactory.flowNftDescriptor(
+            FlowChainId.EMULATOR to DescriptorFactory.flowNftOrderDescriptor(
                 contract = Contracts.MATRIX_WORLD_VOUCHER.contractName,
                 address = Contracts.MATRIX_WORLD_VOUCHER.deployments[FlowChainId.EMULATOR]!!.base16Value,
                 events = events,

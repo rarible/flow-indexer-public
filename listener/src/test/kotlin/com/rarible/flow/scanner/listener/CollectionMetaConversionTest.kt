@@ -2,6 +2,7 @@ package com.rarible.flow.scanner.listener
 
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.cadence.StructField
+import com.rarible.flow.scanner.model.CollectionMeta
 import com.rarible.flow.scanner.model.parse
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
