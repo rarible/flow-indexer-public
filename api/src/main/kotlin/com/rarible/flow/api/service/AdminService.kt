@@ -3,7 +3,6 @@ package com.rarible.flow.api.service
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemHistoryRepository
-import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepository
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service
 @Service
 class AdminService(
     private val itemRepository: ItemRepository,
-    private val itemMetaRepository: ItemMetaRepository,
     private val ownershipRepository: OwnershipRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
     private val orderRepository: OrderRepository,
@@ -35,7 +33,6 @@ class AdminService(
         }
 
         itemRepository.delete(item).awaitFirstOrNull()
-        itemMetaRepository.deleteById(itemId).awaitFirstOrNull()
         orderRepository.deleteByItemId(itemId).asFlow().toList()
         val ownerships = ownershipRepository.deleteAllByContractAndTokenId(item.contract, item.tokenId)
             .asFlow().toList()

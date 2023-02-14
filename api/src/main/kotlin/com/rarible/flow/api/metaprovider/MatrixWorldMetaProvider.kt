@@ -15,7 +15,7 @@ import org.springframework.web.reactive.function.client.awaitBodyOrNull
 
 @Component
 class MatrixWorldMetaProvider(
-    private val matrixWorldClient: WebClient
+    private val ipfsClient: WebClient
 ) : ItemMetaProvider {
 
     private val logger by Log()
@@ -24,7 +24,7 @@ class MatrixWorldMetaProvider(
 
     override suspend fun getMeta(item: Item): ItemMeta? {
         return try {
-            matrixWorldClient
+            ipfsClient
                 .get()
                 .uri("/${item.tokenId}")
                 .retrieve()

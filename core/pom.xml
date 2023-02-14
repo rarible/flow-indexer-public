@@ -81,6 +81,10 @@
             <groupId>com.rarible.core</groupId>
             <artifactId>rarible-core-metrics</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.rarible.core</groupId>
+            <artifactId>rarible-core-meta-resource</artifactId>
+        </dependency>
 
         <!-- ================== Spring =================== -->
 

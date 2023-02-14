@@ -1,31 +1,26 @@
 package com.rarible.flow.api.service
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.core.converter.ItemMetaToDtoConverter
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.repository.ItemFilter
-import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coFindById
-import com.rarible.protocol.dto.FlowMetaDto
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemsDto
-import java.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
+import java.time.Instant
 
 @Service
 class NftItemService(
-    private val itemRepository: ItemRepository,
-    private val itemMetaRepository: ItemMetaRepository
+    private val itemRepository: ItemRepository
 ) {
 
     suspend fun getAllItems(
@@ -74,11 +69,6 @@ class NftItemService(
                 total = items.count().toLong()
             )
         }
-    }
-
-    private suspend fun fillMeta(id: ItemId): FlowMetaDto? {
-        val meta = itemMetaRepository.findById(id).awaitSingleOrNull() ?: return null
-        return ItemMetaToDtoConverter.convert(meta)
     }
 
     suspend fun byAccount(address: String, continuation: String?, size: Int?): FlowNftItemsDto? {

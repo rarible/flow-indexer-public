@@ -35,7 +35,7 @@ class StarlyMetaScript(
 
 @Component
 class StarlyMetaProvider(
-    private val webClient: WebClient,
+    private val ipfsClient: WebClient,
     private val script: StarlyMetaScript
 ): ItemMetaProvider {
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("StarlyCard")
@@ -43,7 +43,7 @@ class StarlyMetaProvider(
     override suspend fun getMeta(item: Item): ItemMeta? {
         return script.call(item.owner!!, item.tokenId)?.let { starlyId ->
             val uri = "https://starly.io/c/$starlyId.json"
-            uri to webClient
+            uri to ipfsClient
                 .get()
                 .uri(uri)
                 .retrieve()

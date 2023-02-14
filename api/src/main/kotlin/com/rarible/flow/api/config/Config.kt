@@ -26,7 +26,6 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
 import reactor.netty.transport.logging.AdvancedByteBufFormat
 
-
 @Configuration
 @EnableConfigurationProperties(ApiProperties::class)
 class Config(
@@ -56,8 +55,8 @@ class Config(
     }
 
     @Bean
-    fun pinataClient(): WebClient {
-        return buildWebClient("pinataClient", apiProperties.ipfsInnerUrl)
+    fun ipfsClient(): WebClient {
+        return buildWebClient("ipfsClient", apiProperties.ipfsInnerUrl)
     }
 
     @Bean
@@ -130,6 +129,7 @@ class Config(
     }
 
     companion object {
+
         const val MATRIX_WORLD_BASE_URL = "https://api.matrixworld.org/land/api/v1/land/metadata/estate/flow/"
         const val CHAIN_MONSTERS_GRAPH_QL = "https://europe-west3-chainmonstersmmo.cloudfunctions.net/graphql"
         const val MUGEN_ART_BASE_URL = "https://onchain.mugenart.io/flow/nft/0x2cd46d41da4ce262/metadata"
