@@ -127,10 +127,12 @@ internal class OrderServiceTest : BaseIntegrationTest() {
 
         // maker is null, currency is null
         shouldReadAllByOne(
-            { cont -> orderService.getSellOrdersByItemAndStatus(
-                ItemId("A", 1), null, null, emptyList(), cont, 1, OrderFilter.Sort.MAKE_PRICE_ASC
-            ).toList() },
-            2, 0, cmp = Comparator.comparing { o -> o.make.value }, sort = OrderFilter.Sort.MAKE_PRICE_ASC
+            { cont ->
+                orderService.getSellOrdersByItemAndStatus(
+                    ItemId("A", 1), null, null, emptyList(), cont, 1, OrderFilter.Sort.AMOUNT_ASC
+                ).toList()
+            },
+            2, 0, cmp = Comparator.comparing { o -> o.make.value }, sort = OrderFilter.Sort.AMOUNT_ASC
         )
 
         shouldReadAllByOne(

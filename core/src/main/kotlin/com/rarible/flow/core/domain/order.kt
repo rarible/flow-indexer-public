@@ -27,39 +27,33 @@ import java.time.LocalDateTime
 data class Order(
     @MongoId
     val id: Long,
-    @Indexed
     val itemId: ItemId,
-    @Indexed
     val maker: FlowAddress,
-    @Indexed
     val taker: FlowAddress? = null,
-    @Indexed
     val make: FlowAsset,
-    @Indexed
     val take: FlowAsset,
-    @Indexed
     val type: OrderType? = OrderType.LIST,
+
     @Field(targetType = FieldType.DECIMAL128)
     val amount: BigDecimal,
+
     @Field(targetType = FieldType.DECIMAL128)
     val fill: BigDecimal = BigDecimal.ZERO,
+
     val cancelled: Boolean = false,
     val data: OrderData? = null,
-    @Indexed
     val createdAt: LocalDateTime,
-    @Indexed
     var lastUpdatedAt: LocalDateTime? = null,
-    @Indexed
     val collection: String,
 
     @Field(targetType = FieldType.DECIMAL128)
     val makeStock: BigDecimal? = BigDecimal.ZERO,
-    @Indexed
+
     val status: OrderStatus = OrderStatus.INACTIVE,
 
     @Field(targetType = FieldType.DECIMAL128)
     val takePriceUsd: BigDecimal? = BigDecimal.ZERO,
-    @Indexed
+
     val platform: FlowOrderPlatformDto? = null
 ) {
 

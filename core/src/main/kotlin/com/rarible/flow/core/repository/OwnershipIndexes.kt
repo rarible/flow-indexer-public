@@ -12,22 +12,34 @@ object OwnershipIndexes {
         ALL_INDEXES.forEach { mongo.indexOps(Ownership.COLLECTION).ensureIndex(it).awaitFirst() }
     }
 
-    // TODO taken from annotation, ensure it is really needed
-    private val DATE_OWNER_CONTRACT_TOKEN_ID: Index = Index()
+    private val BY_UPDATED_AT: Index = Index()
         .on(Ownership::date.name, Sort.Direction.DESC)
+        .on("_id", Sort.Direction.DESC)
+        .background()
+
+    private val BY_OWNER_UPDATED_AT: Index = Index()
         .on(Ownership::owner.name, Sort.Direction.DESC)
+        .on(Ownership::date.name, Sort.Direction.DESC)
+        .on("_id", Sort.Direction.DESC)
+        .background()
+
+    private val BY_CONTRACT_UPDATED_AT: Index = Index()
+        .on(Ownership::contract.name, Sort.Direction.DESC)
+        .on(Ownership::date.name, Sort.Direction.DESC)
+        .on("_id", Sort.Direction.DESC)
+        .background()
+
+    private val BY_CONTRACT_TOKEN_ID_UPDATED_AT: Index = Index()
         .on(Ownership::contract.name, Sort.Direction.DESC)
         .on(Ownership::tokenId.name, Sort.Direction.DESC)
-        .named("date_owner_contract_tokenId")
-
-    // TODO ChangeLog00006OwnershipIndex - check performance
-    private val CONTRACT_TOKEN_ID: Index = Index()
-        .on(Ownership::contract.name, Sort.Direction.ASC)
-        .on(Ownership::tokenId.name, Sort.Direction.DESC)
-        .named("contract_tokenId")
+        .on(Ownership::date.name, Sort.Direction.DESC)
+        .on("_id", Sort.Direction.DESC)
+        .background()
 
     private val ALL_INDEXES = listOf(
-        DATE_OWNER_CONTRACT_TOKEN_ID,
-        CONTRACT_TOKEN_ID
+        BY_UPDATED_AT,
+        BY_OWNER_UPDATED_AT,
+        BY_CONTRACT_UPDATED_AT,
+        BY_CONTRACT_TOKEN_ID_UPDATED_AT
     )
 }

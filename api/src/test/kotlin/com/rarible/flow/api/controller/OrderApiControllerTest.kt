@@ -155,7 +155,7 @@ class OrderApiControllerTest {
                 any(),
                 any(),
                 any(),
-                OrderFilter.Sort.MAKE_PRICE_ASC
+                OrderFilter.Sort.AMOUNT_ASC
             )
         } returns (1L..10L).map { createOrder(it) }.asFlow()
 

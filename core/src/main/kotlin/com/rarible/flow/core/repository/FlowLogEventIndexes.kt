@@ -17,6 +17,7 @@ object FlowLogEventIndexes {
     private val BY_DB_UPDATE_AT: Index = Index()
         .on("${FlowLogEvent::log.name}.${FlowLog::eventType.name}", Sort.Direction.ASC)
         .named("flow_log_event_type")
+        .background()
 
     private val ALL_INDEXES = listOf(
         BY_DB_UPDATE_AT

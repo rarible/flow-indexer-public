@@ -84,27 +84,39 @@ object ItemHistoryIndexes {
         .named("tx_type_from_to")
         .background()
 
+    // For SYNC requests
     private val BY_UPDATED_AT: Index = Index()
-        .on("updatedAt", Sort.Direction.DESC)
-        .named("byUpdatedAt")
+        .on(ItemHistory::updatedAt.name, Sort.Direction.ASC)
+        .on("_id", Sort.Direction.ASC)
+        .background()
+
+    private val BY_TYPE_UPDATED_AT: Index = Index()
+        .on("${ItemHistory::activity.name}.${TypedFlowActivity::type.name}", Sort.Direction.ASC)
+        .on(ItemHistory::updatedAt.name, Sort.Direction.ASC)
+        .on("_id", Sort.Direction.ASC)
+        .background()
 
     private val ALL_INDEXES = listOf(
+        // Since we are using ES, these indices are only we need (except scanner's internal indices)
+        BY_UPDATED_AT,
+        BY_TYPE_UPDATED_AT,
+
+        // TODO check if these indexes are really needed
         ACTIVITY_SIBLINGS_INDEX,
         LOG_UNIQUE,
-        // TODO ChangeLog00003ItemHistoryIndex - looks useless (all 4)
+        // ChangeLog00003ItemHistoryIndex - looks useless (all 4)
         ACTIVITY_FROM,
         ACTIVITY_TO,
         ACTIVITY_TIMESTAMP,
         ACTIVITY_OWNER,
-        // TODO ChangeLog00004ItemHistoryMakerIndex - looks useless
+        // ChangeLog00004ItemHistoryMakerIndex - looks useless
         ACTIVITY_MAKER,
-        // TODO ChangeLog00006AddItemHistorySortIndex
+        // ChangeLog00006AddItemHistorySortIndex
         DEFAULT_ORDER_INDEX,
-        // TODO ChangeLog00049ItemHistoryIndexes
+        // ChangeLog00049ItemHistoryIndexes
         TX_TYPE_LEFT_MAKER_RIGHT_MAKER,
         TX_TYPE_FROM_TO,
-        // TODO ChangeLog00051ItemHistoryUpdatedAtField
-        BY_UPDATED_AT
-    )
+
+        )
 
 }

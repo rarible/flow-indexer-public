@@ -14,17 +14,13 @@ typealias TokenId = Long
 
 @Document
 data class Item (
-    @Indexed
     val contract: String,
     val tokenId: TokenId,
-    @Indexed
     val creator: FlowAddress,
     val royalties: List<Part>,
-    @Indexed
     val owner: FlowAddress?,
     val mintedAt: Instant,
     val meta: String? = null,
-    @Indexed
     val collection: String,
     @Field(targetType = FieldType.DATE_TIME)
     val updatedAt: Instant
