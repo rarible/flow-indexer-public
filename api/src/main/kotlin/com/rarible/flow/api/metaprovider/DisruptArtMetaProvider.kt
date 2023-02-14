@@ -22,12 +22,12 @@ import org.springframework.web.reactive.function.client.awaitBodyOrNull
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Locale
 
 @Component
 class DisruptArtMetaProvider(
     private val itemRepository: ItemRepository,
-    private val webClient: WebClient,
+    private val ipfsClient: WebClient,
     private val appProperties: AppProperties,
 ) : ItemMetaProvider {
 
@@ -47,7 +47,7 @@ class DisruptArtMetaProvider(
                 logger.warn("DisruptArt::getMeta::Item[$itemId] meta content url is empty!")
                 it
             }
-            val spec = webClient.get().uri(contentUrl).retrieve().toBodilessEntity().awaitSingle()
+            val spec = ipfsClient.get().uri(contentUrl).retrieve().toBodilessEntity().awaitSingle()
             if (spec.headers.contentType == MediaType.IMAGE_JPEG) {
                 logger.info("DisruptArt::getMeta::Meta is simple image!")
                 ItemMeta(
@@ -68,7 +68,7 @@ class DisruptArtMetaProvider(
                     raw = contentUrl.toByteArray()
                 }
             } else {
-                val metaData = webClient.get().uri(contentUrl).retrieve().awaitBodyOrNull<ObjectNode>()
+                val metaData = ipfsClient.get().uri(contentUrl).retrieve().awaitBodyOrNull<ObjectNode>()
                     ?: return@withSpan emptyMeta(itemId)
                 val media = metaData.get("Media").findValue("uri").asText()
                 val mediaPreview = metaData.get("MediaPreview").findValue("uri").asText()

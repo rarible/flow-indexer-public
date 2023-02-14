@@ -12,11 +12,10 @@ import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.OwnershipId
 import com.rarible.flow.core.domain.TransferActivity
+import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
-import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
-import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.OrderService
 import kotlinx.coroutines.flow.onEach
@@ -33,7 +32,6 @@ import java.time.Instant
 @CaptureSpan(type = "indexer")
 class ItemIndexerEventProcessor(
     private val itemRepository: ItemRepository,
-    private val itemMetaRepository: ItemMetaRepository,
     private val ownershipRepository: OwnershipRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
     private val orderService: OrderService,
@@ -85,7 +83,6 @@ class ItemIndexerEventProcessor(
             } else event.item
 
             if (forSave != event.item) {
-                itemMetaRepository.deleteById(forSave.id).awaitFirstOrNull()
                 val saved = itemRepository.save(forSave).awaitSingle()
                 val needSendToKafka = willSendToKafka(event)
                 if (needSendToKafka) {

@@ -34,11 +34,11 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDateTime
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 
 internal class TransferPurchaseUpdateFieldTest : FunSpec({
 
@@ -167,7 +167,6 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
 
     val itemIndexerEventProcessor = ItemIndexerEventProcessor(
         itemRepository,
-        mockk(),
         ownershipRepository,
         protocolEventPublisher,
         orderService,

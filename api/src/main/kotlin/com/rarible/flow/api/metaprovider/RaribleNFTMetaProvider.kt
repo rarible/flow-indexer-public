@@ -6,7 +6,7 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import com.rarible.flow.core.util.Log
+import org.slf4j.LoggerFactory
 import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -14,10 +14,10 @@ import org.springframework.web.reactive.function.client.awaitBodyOrNull
 
 @Component
 class RaribleNFTMetaProvider(
-    private val pinataClient: WebClient
+    private val ipfsClient: WebClient
 ) : ItemMetaProvider {
 
-    private val logger by Log()
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.endsWith(".RaribleNFT")
 
@@ -25,7 +25,7 @@ class RaribleNFTMetaProvider(
         val ipfs = readUrl(item) ?: return null
 
         return try {
-            return pinataClient
+            return ipfsClient
                 .get()
                 .uri("/$ipfs")
                 .retrieve()

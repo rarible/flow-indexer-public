@@ -14,7 +14,6 @@ import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemHistoryRepository
-import com.rarible.flow.core.repository.ItemMetaRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepository
@@ -31,9 +30,8 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
-
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Clock
 import java.time.Instant
@@ -54,9 +52,6 @@ internal class AdminServiceTest {
     private lateinit var orderRepository: OrderRepository
 
     @Autowired
-    private lateinit var itemMetaRepository: ItemMetaRepository
-
-    @Autowired
     private lateinit var itemHistoryRepository: ItemHistoryRepository
 
     private lateinit var adminService: AdminService
@@ -71,7 +66,6 @@ internal class AdminServiceTest {
         }
         adminService = AdminService(
             itemRepository,
-            itemMetaRepository,
             ownershipRepository,
             protocolEventPublisher,
             orderRepository,
