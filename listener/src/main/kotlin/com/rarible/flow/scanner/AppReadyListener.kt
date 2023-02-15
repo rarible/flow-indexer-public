@@ -4,7 +4,6 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.configuration.FlowBlockchainScannerProperties
 import com.rarible.blockchain.scanner.flow.service.SporkService
-import com.rarible.core.daemon.sequential.ConsumerWorkerHolder
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.repository.ItemCollectionRepository
@@ -237,8 +236,18 @@ class AppReadyListener(
                 if (scannerProperties.chainId == FlowChainId.MAINNET) {
                     val head = listOf(
                         SporkService.Spork(
-                            from = 40171634L,
+                            from = 44950207,
                             nodeUrl = "access.mainnet.nodes.onflow.org"
+                        ),
+                        SporkService.Spork(
+                            from = 40171634,
+                            to = 44950206,
+                            nodeUrl = "access-001.mainnet20.nodes.onflow.org",
+                        ),
+                        SporkService.Spork(
+                            from = 35858811L,
+                            to = 40171633L,
+                            nodeUrl = "access-001.mainnet19.nodes.onflow.org",
                         ),
                         SporkService.Spork(
                             from = 35858811L,
