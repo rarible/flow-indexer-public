@@ -40,28 +40,14 @@ object OrderIndexes {
         .on(Order::id.name, Sort.Direction.DESC)
         .background()
 
-    private val SELL_BY_UPDATED_AT: Index = Index()
+    private val BY_MAKER_UPDATED_AT: Index = Index()
+        .on(Order::maker.name, Sort.Direction.DESC)
         .on(Order::lastUpdatedAt.name, Sort.Direction.DESC)
         .on(Order::id.name, Sort.Direction.DESC)
-        .partial(sellPartialIndexCriteria)
-        .background()
-
-    private val SELL_BY_STATUS_UPDATED_AT: Index = Index()
-        .on(Order::status.name, Sort.Direction.DESC)
-        .on(Order::lastUpdatedAt.name, Sort.Direction.DESC)
-        .on(Order::id.name, Sort.Direction.DESC)
-        .partial(sellPartialIndexCriteria)
         .background()
 
     private val SELL_BY_COLLECTION_UPDATED_AT: Index = Index()
         .on(Order::collection.name, Sort.Direction.DESC)
-        .on(Order::lastUpdatedAt.name, Sort.Direction.DESC)
-        .on(Order::id.name, Sort.Direction.DESC)
-        .partial(sellPartialIndexCriteria)
-        .background()
-
-    private val SELL_BY_MAKER_UPDATED_AT: Index = Index()
-        .on(Order::maker.name, Sort.Direction.DESC)
         .on(Order::lastUpdatedAt.name, Sort.Direction.DESC)
         .on(Order::id.name, Sort.Direction.DESC)
         .partial(sellPartialIndexCriteria)
@@ -99,28 +85,18 @@ object OrderIndexes {
         .partial(bidPartialIndexCriteria)
         .background()
 
-    private val BID_BY_MAKER_UPDATED_AT: Index = Index()
-        .on(Order::maker.name, Sort.Direction.DESC)
-        .on(Order::lastUpdatedAt.name, Sort.Direction.DESC)
-        .on(Order::id.name, Sort.Direction.DESC)
-        .partial(bidPartialIndexCriteria)
-        .background()
-
     private val ALL_INDEXES = listOf(
         BY_UPDATED_AT,
         BY_DB_UPDATE_AT,
         BY_STATUS_UPDATED_AT,
+        BY_MAKER_UPDATED_AT,
 
-        SELL_BY_UPDATED_AT,
-        SELL_BY_STATUS_UPDATED_AT,
         SELL_BY_COLLECTION_UPDATED_AT,
-        SELL_BY_MAKER_UPDATED_AT,
         SELL_BY_ITEM_PRICE,
         SELL_BY_ITEM_STATUS_CURRENCY_PRICE,
 
         BID_BY_ITEM_PRICE,
         BID_BY_ITEM_STATUS_CURRENCY_PRICE,
-        BID_BY_MAKER_UPDATED_AT
     )
 
 }

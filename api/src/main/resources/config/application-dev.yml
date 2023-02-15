@@ -5,7 +5,7 @@ logging:
 
 spring:
   application:
-    name: flow-nft-indexer-api
+    name: flow-indexer-api
   cloud:
     consul:
       discovery:
