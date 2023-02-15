@@ -4,7 +4,6 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.*
 import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
-import com.rarible.blockchain.scanner.framework.listener.LogRecordEventListener
 import com.rarible.core.application.ApplicationEnvironmentInfo
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.*
@@ -12,7 +11,7 @@ import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.scanner.model.CollectionMeta
-import com.rarible.flow.scanner.model.LogRecordEventListeners
+import com.rarible.flow.scanner.model.Listeners
 import com.rarible.flow.scanner.model.SoftCollectionRoyalty
 import com.rarible.flow.scanner.model.SubscriberGroups
 import com.rarible.flow.scanner.model.parse
@@ -29,15 +28,14 @@ class SoftCollectionEventsListener(
     @Value("\${blockchain.scanner.flow.chainId}")
     private val chainId: FlowChainId,
     environmentInfo: ApplicationEnvironmentInfo
-) : LogRecordEventListener {
-
+) : GeneralFlowLogListener(
+    name = Listeners.SOFT_COLLECTION,
+    flowGroupId = SubscriberGroups.COLLECTION_HISTORY,
+    environmentInfo = environmentInfo
+) {
     private val parser = JsonCadenceParser()
 
     private val idDelimiter = '.'
-
-    final override val groupId = SubscriberGroups.COLLECTION_HISTORY
-
-    override val id: String = LogRecordEventListeners.listenerId(environmentInfo.name, groupId)
 
     override suspend fun onLogRecordEvents(events: List<LogRecordEvent>) {
         events

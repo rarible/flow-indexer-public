@@ -22,10 +22,10 @@ import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing
 @FlowPreview
 @EnableMongock
 @EnableFlowBlockchainScanner
-@EnableConfigurationProperties(FlowApiProperties::class)
+@EnableConfigurationProperties(FlowListenerProperties::class)
 @EnableReactiveMongoAuditing
 class Config(
-    private val flowApiProperties: FlowApiProperties
+    private val flowListenerProperties: FlowListenerProperties
 ) {
     @Bean
     fun currencyApi(factory: CurrencyApiClientFactory): CurrencyControllerApi {
@@ -58,18 +58,18 @@ class Config(
 
         }
 
-        Flow.configureDefaults(chainId = flowApiProperties.chainId)
+        Flow.configureDefaults(chainId = flowListenerProperties.chainId)
 
         return FlowBalanceService(
-            flowApiProperties.chainId,
+            flowListenerProperties.chainId,
             api,
             balanceRepository
         )
     }
 
     @Bean
-    fun asyncApi(): AsyncFlowAccessApi = Flow.newAsyncAccessApi(flowApiProperties.flowAccessUrl, flowApiProperties.flowAccessPort)
+    fun asyncApi(): AsyncFlowAccessApi = Flow.newAsyncAccessApi(flowListenerProperties.flowAccessUrl, flowListenerProperties.flowAccessPort)
 
     @Bean
-    fun syncApy(): FlowAccessApi = Flow.newAccessApi(flowApiProperties.flowAccessUrl, flowApiProperties.flowAccessPort)
+    fun syncApy(): FlowAccessApi = Flow.newAccessApi(flowListenerProperties.flowAccessUrl, flowListenerProperties.flowAccessPort)
 }

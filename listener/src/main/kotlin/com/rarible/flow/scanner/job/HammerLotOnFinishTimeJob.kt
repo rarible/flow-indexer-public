@@ -7,7 +7,7 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.AuctionStatus
 import com.rarible.flow.core.domain.EnglishAuctionLot
 import com.rarible.flow.core.util.Log
-import com.rarible.flow.scanner.config.FlowApiProperties
+import com.rarible.flow.scanner.config.FlowListenerProperties
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
@@ -27,7 +27,7 @@ class HammerLotOnFinishTimeJob(
     private val mongo: ReactiveMongoTemplate,
     private val api: AsyncFlowAccessApi,
     private val syncApi: FlowAccessApi,
-    private val flowApiProperties: FlowApiProperties
+    private val flowApiProperties: FlowListenerProperties
 ) {
 
     private val logger by Log()

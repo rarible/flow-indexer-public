@@ -5,12 +5,12 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.scanner.activitymaker.NFTActivityMaker
-import com.rarible.flow.scanner.config.FlowApiProperties
+import com.rarible.flow.scanner.config.FlowListenerProperties
 import org.springframework.stereotype.Component
 
 @Component
 class JambbMomentsActivity(
-    private val config: FlowApiProperties
+    private val config: FlowListenerProperties
 ): NFTActivityMaker() {
     override val contractName: String = Contracts.JAMBB_MOMENTS.contractName
 

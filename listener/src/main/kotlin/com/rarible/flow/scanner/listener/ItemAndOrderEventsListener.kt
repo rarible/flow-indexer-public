@@ -1,9 +1,6 @@
 package com.rarible.flow.scanner.listener
 
 import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
-import com.rarible.blockchain.scanner.framework.listener.LogRecordEventListener
-import com.rarible.core.apm.CaptureSpan
-import com.rarible.core.apm.SpanType
 import com.rarible.core.application.ApplicationEnvironmentInfo
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.ItemHistory
@@ -15,7 +12,7 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coSaveAll
 import com.rarible.flow.scanner.activitymaker.ActivityMaker
 import com.rarible.flow.scanner.model.IndexerEvent
-import com.rarible.flow.scanner.model.LogRecordEventListeners
+import com.rarible.flow.scanner.model.Listeners
 import com.rarible.flow.scanner.model.SubscriberGroups
 import com.rarible.flow.scanner.service.IndexerEventService
 import kotlinx.coroutines.flow.toSet
@@ -25,7 +22,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
-@CaptureSpan(type = SpanType.APP)
 class ItemAndOrderEventsListener(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository,
@@ -34,16 +30,17 @@ class ItemAndOrderEventsListener(
     private val itemRepository: ItemRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
     environmentInfo: ApplicationEnvironmentInfo
-) : LogRecordEventListener {
-
-    final override val groupId = SubscriberGroups.NFT_ORDER_HISTORY
-
-    override val id: String = LogRecordEventListeners.listenerId(environmentInfo.name, groupId)
-
+) : GeneralFlowLogListener(
+    name = Listeners.NFT_ORDER,
+    flowGroupId = SubscriberGroups.NFT_ORDER_HISTORY,
+    environmentInfo = environmentInfo
+) {
     override suspend fun onLogRecordEvents(events: List<LogRecordEvent>) {
         val history: MutableList<ItemHistory> = mutableListOf()
         try {
-            events.filterIsInstance<FlowLogEvent>()
+            events
+                .map { event -> event.record }
+                .filterIsInstance<FlowLogEvent>()
                 .groupBy { Pair(it.log.transactionHash, it.event.eventId.collection()) }
                 .forEach { entry ->
                     nftActivityMakers.find { it.isSupportedCollection(entry.key.second) }?.let { maker ->

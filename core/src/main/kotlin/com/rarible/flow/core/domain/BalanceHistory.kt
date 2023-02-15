@@ -20,3 +20,5 @@ data class BalanceHistory(
     fun withLog(log: FlowLog): FlowLogRecord = copy(log = log)
     override fun getKey() = balanceId.toString()
 }
+
+

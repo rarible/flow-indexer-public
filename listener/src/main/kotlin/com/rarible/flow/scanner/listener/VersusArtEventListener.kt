@@ -2,9 +2,6 @@ package com.rarible.flow.scanner.listener
 
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
-import com.rarible.blockchain.scanner.framework.listener.LogRecordEventListener
-import com.rarible.core.apm.CaptureSpan
-import com.rarible.core.apm.SpanType
 import com.rarible.core.apm.withSpan
 import com.rarible.core.application.ApplicationEnvironmentInfo
 import com.rarible.flow.core.domain.*
@@ -14,7 +11,7 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coSaveAll
 import com.rarible.flow.core.util.Log
 import com.rarible.flow.scanner.model.IndexerEvent
-import com.rarible.flow.scanner.model.LogRecordEventListeners
+import com.rarible.flow.scanner.model.Listeners
 import com.rarible.flow.scanner.model.SubscriberGroups
 import com.rarible.flow.scanner.service.IndexerEventService
 import kotlinx.coroutines.flow.toSet
@@ -22,7 +19,6 @@ import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Component
 
 @Component
-@CaptureSpan(type = SpanType.APP)
 class VersusArtEventListener(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository,
@@ -30,11 +26,11 @@ class VersusArtEventListener(
     private val indexerEventService: IndexerEventService,
     private val protocolEventPublisher: ProtocolEventPublisher,
     environmentInfo: ApplicationEnvironmentInfo
-) : LogRecordEventListener {
-
-    final override val groupId = SubscriberGroups.VERSUS_ART_HISTORY
-    override val id: String = LogRecordEventListeners.listenerId(environmentInfo.name, groupId)
-
+) : GeneralFlowLogListener(
+    name = Listeners.VERSUS_ART,
+    flowGroupId = SubscriberGroups.VERSUS_ART_HISTORY,
+    environmentInfo = environmentInfo
+) {
     override suspend fun onLogRecordEvents(events: List<LogRecordEvent>) {
         try {
             val result = processBlockEvents(events)
