@@ -11,6 +11,7 @@ import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.scanner.model.Listeners
 import com.rarible.flow.scanner.model.SubscriberGroups
 import com.rarible.flow.scanner.service.BidService
+import com.rarible.protocol.dto.blockchainEventMark
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import org.slf4j.Logger
@@ -41,6 +42,7 @@ class FungibleLogListener(
     }
 
     suspend fun processBalance(history: BalanceHistory) {
+        val marks = blockchainEventMark("indexer-in", history.log.timestamp)
         val balance = balanceRepository
             .coFindById(history.balanceId)
 
@@ -67,7 +69,7 @@ class FungibleLogListener(
                 updatedBalance.account.formatted
             )
             updatedBids.forEach { o ->
-                protocolEventPublisher.onOrderUpdate(o, orderConverter)
+                protocolEventPublisher.onOrderUpdate(o, orderConverter, marks)
             }
         }
     }

@@ -28,7 +28,7 @@
         <rarible.core.version>2.5.13</rarible.core.version>
         <rarible.blockchain.scanner.version>2.5.6</rarible.blockchain.scanner.version>
 
-        <rarible.protocol.flow.version>1.43.1</rarible.protocol.flow.version>
+        <rarible.protocol.flow.version>1.43.2</rarible.protocol.flow.version>
         <rarible.protocol.currency.version>1.38.3</rarible.protocol.currency.version>
 
         <netflix.graphql.version>4.9.7</netflix.graphql.version>

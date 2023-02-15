@@ -20,12 +20,13 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TokenId
+import com.rarible.flow.core.event.RaribleNFTv2Token
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
-import com.rarible.flow.core.event.RaribleNFTv2Token
 import com.rarible.flow.core.util.pmap
-import java.time.Instant
+import com.rarible.protocol.dto.FlowEventTimeMarksDto
+import com.rarible.protocol.dto.offchainEventMark
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
@@ -34,7 +35,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
-
+import java.time.Instant
 
 @Service
 class UserStorageService(
@@ -50,13 +51,14 @@ class UserStorageService(
     private val log: Logger = LoggerFactory.getLogger(UserStorageService::class.java)
 
     suspend fun scanNFT(address: FlowAddress) {
+        val marks = offchainEventMark("indexer-in")
         log.info("Scan user NFT's for address ${address.formatted}")
         val objectMapper = jacksonObjectMapper()
         val parser = JsonCadenceParser()
         val builder = JsonCadenceBuilder()
         scanUserNftScript.call(address).forEach { (collection, itemIds) ->
             try {
-                processItem(collection, itemIds, objectMapper,builder, parser, address)
+                processItem(collection, itemIds, objectMapper, builder, parser, address, marks)
             } catch (e: Exception) {
                 log.error("Failed to save [{}] ids: {}", collection, itemIds, e)
                 emptyList<Item>()
@@ -65,14 +67,14 @@ class UserStorageService(
         log.info("Scan NFT's for address [${address.formatted}] complete!")
     }
 
-
     private suspend fun processItem(
         collection: String,
         itemIds: List<Long>,
         objectMapper: ObjectMapper,
         builder: JsonCadenceBuilder,
         parser: JsonCadenceParser,
-        address: FlowAddress
+        address: FlowAddress,
+        marks: FlowEventTimeMarksDto
     ) {
         when (collection) {
             Contracts.TOPSHOT.contractName -> {
@@ -102,13 +104,14 @@ class UserStorageService(
                         if (i.owner != address) {
                             i.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(i, address)
+                            checkOwnership(i, address, marks)
                             null
                         }
                     }
-                    saveItem(item)
+                    saveItem(item, marks)
                 }
             }
+
             Contracts.MOTOGP.contractName -> {
                 val contract = Contracts.MOTOGP.fqn(appProperties.chainId)
                 val items = itemRepository.findAllByIdIn(
@@ -132,12 +135,13 @@ class UserStorageService(
                         if (item.owner != address) {
                             item.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(item, address)
+                            checkOwnership(item, address, marks)
                             null
                         }
                     }
                 }
             }
+
             Contracts.EVOLUTION.contractName -> {
                 val contract = contract(Contracts.EVOLUTION.import, Contracts.EVOLUTION.contractName)
                 val items = itemRepository.findAllByIdIn(
@@ -172,12 +176,13 @@ class UserStorageService(
                         if (item.owner != address) {
                             item.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(item, address)
+                            checkOwnership(item, address, marks)
                             null
                         }
                     }
                 }
             }
+
             "RaribleNFT" -> {
                 val contract = contract("0xRARIBLETOKEN", "RaribleNFT")
                 val items = itemRepository.findAllByIdIn(
@@ -212,12 +217,13 @@ class UserStorageService(
                         if (item.owner != address) {
                             item.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(item, address)
+                            checkOwnership(item, address, marks)
                             null
                         }
                     }
                 }
             }
+
             "MugenNFT" -> {
                 val contract = contract("0xMUGENNFT", "MugenNFT")
                 val items = itemRepository.findAllByIdIn(
@@ -241,7 +247,7 @@ class UserStorageService(
                         if (item.owner != address) {
                             item.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(item, address)
+                            checkOwnership(item, address, marks)
                             null
                         }
                     }
@@ -249,7 +255,8 @@ class UserStorageService(
             }
 
             Contracts.MATRIX_WORLD_VOUCHER.contractName -> {
-                val contract = contract(Contracts.MATRIX_WORLD_VOUCHER.import, Contracts.MATRIX_WORLD_VOUCHER.contractName)
+                val contract =
+                    contract(Contracts.MATRIX_WORLD_VOUCHER.import, Contracts.MATRIX_WORLD_VOUCHER.contractName)
                 val items = itemRepository.findAllByIdIn(
                     itemIds.map { ItemId(contract, it) }.toSet()
                 ).toIterable().associateBy { it.tokenId }
@@ -271,7 +278,7 @@ class UserStorageService(
                         if (item.owner != address) {
                             item.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(item, address)
+                            checkOwnership(item, address, marks)
                             null
                         }
                     }
@@ -280,7 +287,8 @@ class UserStorageService(
 
             Contracts.MATRIX_WORLD_FLOW_FEST.contractName -> {
                 itemIds.forEach { tokenId ->
-                    val contract = contract(Contracts.MATRIX_WORLD_FLOW_FEST.import, Contracts.MATRIX_WORLD_FLOW_FEST.contractName)
+                    val contract =
+                        contract(Contracts.MATRIX_WORLD_FLOW_FEST.import, Contracts.MATRIX_WORLD_FLOW_FEST.contractName)
                     val item = if (notExistsItem(contract, tokenId)) {
                         Item(
                             contract = contract,
@@ -298,11 +306,11 @@ class UserStorageService(
                         if (i.owner != address) {
                             i.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(i, address)
+                            checkOwnership(i, address, marks)
                             null
                         }
                     }
-                    saveItem(item)
+                    saveItem(item, marks)
                 }
             }
 
@@ -338,13 +346,14 @@ class UserStorageService(
                         if (i.owner != address) {
                             i.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(i, address)
+                            checkOwnership(i, address, marks)
                             null
                         }
                     }
-                    saveItem(item)
+                    saveItem(item, marks)
                 }
             }
+
             Contracts.DISRUPT_ART.contractName -> {
                 itemIds.forEach { tokenId ->
                     val contract = Contracts.DISRUPT_ART.fqn(appProperties.chainId)
@@ -376,13 +385,14 @@ class UserStorageService(
                         if (i.owner != address) {
                             i.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(i, address)
+                            checkOwnership(i, address, marks)
                             null
                         }
                     }
-                    saveItem(item)
+                    saveItem(item, marks)
                 }
             }
+
             "RaribleNFTv2" -> {
                 scriptExecutor.executeFile(
                     "/script/get_rari_v2_items.cdc",
@@ -399,7 +409,12 @@ class UserStorageService(
                                 creator = FlowAddress(token.creator),
                                 owner = address,
                                 mintedAt = Instant.now(),
-                                royalties = token.royalties.map { Part(address = FlowAddress(it.address), fee = it.fee.toDouble()) },
+                                royalties = token.royalties.map {
+                                    Part(
+                                        address = FlowAddress(it.address),
+                                        fee = it.fee.toDouble()
+                                    )
+                                },
                                 updatedAt = Instant.now(),
                                 collection = "${contract("0xSOFTCOLLECTION", "SoftCollection")}:${token.parentId}",
                                 meta = objectMapper.writeValueAsString(token.meta.toMap())
@@ -443,11 +458,11 @@ class UserStorageService(
                         if (i.owner != address) {
                             i.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(i, address)
+                            checkOwnership(i, address, marks)
                             null
                         }
                     }
-                    saveItem(item)
+                    saveItem(item, marks)
                 }
             }
 
@@ -471,11 +486,11 @@ class UserStorageService(
                         if (i.owner != address) {
                             i.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(i, address)
+                            checkOwnership(i, address, marks)
                             null
                         }
                     }
-                    saveItem(item)
+                    saveItem(item, marks)
                 }
             }
 
@@ -499,11 +514,11 @@ class UserStorageService(
                         if (i.owner != address) {
                             i.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(i, address)
+                            checkOwnership(i, address, marks)
                             null
                         }
                     }
-                    saveItem(item)
+                    saveItem(item, marks)
                 }
             }
 
@@ -527,9 +542,11 @@ class UserStorageService(
                             royalties = Contracts.FANFARE.staticRoyalties(appProperties.chainId),
                             owner = address,
                             mintedAt = Instant.now(),
-                            meta = objectMapper.writeValueAsString(mapOf(
-                                "metadata" to meta
-                            )),
+                            meta = objectMapper.writeValueAsString(
+                                mapOf(
+                                    "metadata" to meta
+                                )
+                            ),
                             collection = contract,
                             updatedAt = Instant.now()
                         )
@@ -538,11 +555,11 @@ class UserStorageService(
                         if (i.owner != address) {
                             i.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(i, address)
+                            checkOwnership(i, address, marks)
                             null
                         }
                     }
-                    saveItem(item)
+                    saveItem(item, marks)
                 }
             }
 
@@ -567,11 +584,11 @@ class UserStorageService(
                         if (i.owner != address) {
                             i.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(i, address)
+                            checkOwnership(i, address, marks)
                             null
                         }
                     }
-                    saveItem(item)
+                    saveItem(item, marks)
                 }
             }
 
@@ -596,11 +613,11 @@ class UserStorageService(
                         if (i.owner != address) {
                             i.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(i, address)
+                            checkOwnership(i, address, marks)
                             null
                         }
                     }
-                    saveItem(item)
+                    saveItem(item, marks)
                 }
             }
 
@@ -625,25 +642,30 @@ class UserStorageService(
                         if (i.owner != address) {
                             i.copy(owner = address, updatedAt = Instant.now())
                         } else {
-                            checkOwnership(i, address)
+                            checkOwnership(i, address, marks)
                             null
                         }
                     }
-                    saveItem(item)
+                    saveItem(item, marks)
                 }
             }
 
             Contracts.GENIACE.contractName -> {
-                itemIds.forEach { simpleCheckItem(Contracts.GENIACE, address, it) }
+                itemIds.forEach { simpleCheckItem(Contracts.GENIACE, address, it, marks) }
             }
 
             Contracts.CRYPTOPIGGO.contractName -> {
-                itemIds.forEach { simpleCheckItem(Contracts.CRYPTOPIGGO, address, it) }
+                itemIds.forEach { simpleCheckItem(Contracts.CRYPTOPIGGO, address, it, marks) }
             }
         }
     }
 
-    private suspend fun simpleCheckItem(c: Contracts, owner: FlowAddress, tokenId: TokenId) {
+    private suspend fun simpleCheckItem(
+        c: Contracts,
+        owner: FlowAddress,
+        tokenId: TokenId,
+        marks: FlowEventTimeMarksDto
+    ) {
         val contract = c.fqn(appProperties.chainId)
         val item = if (notExistsItem(contract, tokenId)) {
             Item(
@@ -662,11 +684,11 @@ class UserStorageService(
             if (i.owner != owner) {
                 i.copy(owner = owner, updatedAt = Instant.now())
             } else {
-                checkOwnership(i, owner)
+                checkOwnership(i, owner, marks)
                 null
             }
         }
-        saveItem(item)
+        saveItem(item, marks)
     }
 
     private fun contractAddress(alias: String): FlowAddress {
@@ -690,21 +712,21 @@ class UserStorageService(
         ).awaitSingle()
     }
 
-    private suspend fun saveItem(item: Item?) {
+    private suspend fun saveItem(item: Item?, marks: FlowEventTimeMarksDto) {
         log.debug("saveItem: $item")
         if (item != null) {
             val a = itemRepository.save(item).awaitSingle()
-            protocolEventPublisher.onItemUpdate(a)
-            checkOwnership(item, item.owner!!)
+            protocolEventPublisher.onItemUpdate(a, marks)
+            checkOwnership(item, item.owner!!, marks)
         }
     }
 
-    private suspend fun checkOwnership(item: Item, to: FlowAddress) {
+    private suspend fun checkOwnership(item: Item, to: FlowAddress, marks: FlowEventTimeMarksDto) {
         ownershipRepository.deleteAllByContractAndTokenIdAndOwnerNot(item.contract, item.tokenId, to).asFlow().toList()
-            .forEach { protocolEventPublisher.onDelete(it) }
+            .forEach { protocolEventPublisher.onDelete(it, marks) }
         val o = ownershipRepository.findById(item.ownershipId(to)).awaitSingleOrNull()
             ?: Ownership(item.ownershipId(to), item.creator)
-        protocolEventPublisher.onUpdate(ownershipRepository.save(o).awaitSingle())
+        protocolEventPublisher.onUpdate(ownershipRepository.save(o).awaitSingle(), marks)
     }
 
     private fun scriptText(resourcePath: String): String {
