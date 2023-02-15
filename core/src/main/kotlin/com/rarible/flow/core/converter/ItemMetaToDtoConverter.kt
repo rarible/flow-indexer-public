@@ -11,7 +11,7 @@ import com.rarible.protocol.dto.FlowModel3dContentDto
 import com.rarible.protocol.dto.FlowUnknownContentDto
 import com.rarible.protocol.dto.FlowVideoContentDto
 import org.springframework.core.convert.converter.Converter
-import java.util.*
+import java.util.Base64
 
 object ItemMetaToDtoConverter : Converter<ItemMeta, FlowMetaDto> {
 
@@ -32,9 +32,10 @@ object ItemMetaToDtoConverter : Converter<ItemMeta, FlowMetaDto> {
                     key = it.key, value = it.value, format = it.format, type = it.type
                 )
             },
-            contents = source.contentUrls,
             content = source.content?.map(::convert),
-            raw = source.raw?.let { Base64.getEncoder().encodeToString(it) })
+            raw = source.raw?.let { Base64.getEncoder().encodeToString(it) },
+            status = FlowMetaDto.Status.OK
+        )
     }
 
     private fun convert(source: ItemMeta.Content) = when (source.type) {

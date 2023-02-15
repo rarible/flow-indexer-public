@@ -12,20 +12,36 @@ object ItemIndexes {
         ALL_INDEXES.forEach { mongo.indexOps(Item.COLLECTION).ensureIndex(it).awaitFirst() }
     }
 
-    // TODO ChangeLog00011ItemsSortIndex - check performance
     private val UPDATED_AT: Index = Index()
         .on(Item::updatedAt.name, Sort.Direction.DESC)
         .on("_id", Sort.Direction.DESC)
         .named("item_updatetAt_id_idx")
+        .background()
 
-    // TODO ChangeLog00008AddItemsLastUpdateAndOwnerIndex - check performance
-    private val OWNER_AND_UPDATED_AT: Index = Index()
-        .on(Item::updatedAt.name, Sort.Direction.DESC)
+    // TODO DELETED flag is not considered here!
+    private val BY_OWNER_UPDATED_AT: Index = Index()
         .on(Item::owner.name, Sort.Direction.DESC)
-        .named("owner_and_updated_at_idx")
+        .on(Item::updatedAt.name, Sort.Direction.DESC)
+        .on("_id", Sort.Direction.DESC)
+        .background()
+
+    private val BY_CREATOR_UPDATED_AT: Index = Index()
+        .on(Item::creator.name, Sort.Direction.DESC)
+        .on(Item::updatedAt.name, Sort.Direction.DESC)
+        .on("_id", Sort.Direction.DESC)
+        .background()
+
+    private val BY_COLLECTION_UPDATED_AT: Index = Index()
+        .on(Item::collection.name, Sort.Direction.DESC)
+        .on(Item::updatedAt.name, Sort.Direction.DESC)
+        .on("_id", Sort.Direction.DESC)
+        .background()
 
     private val ALL_INDEXES = listOf(
         UPDATED_AT,
-        OWNER_AND_UPDATED_AT
+        BY_OWNER_UPDATED_AT,
+        BY_CREATOR_UPDATED_AT,
+        BY_COLLECTION_UPDATED_AT
+
     )
 }

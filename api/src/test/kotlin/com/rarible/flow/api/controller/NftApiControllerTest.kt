@@ -15,7 +15,7 @@ import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.protocol.dto.FlowCreatorDto
 import com.rarible.protocol.dto.FlowItemIdsDto
-import com.rarible.protocol.dto.FlowItemMetaDto
+import com.rarible.protocol.dto.FlowMetaDto
 import com.rarible.protocol.dto.FlowNftItemDto
 import com.rarible.protocol.dto.FlowNftItemRoyaltyDto
 import com.rarible.protocol.dto.FlowNftItemsDto
@@ -23,14 +23,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
-import io.mockk.coVerifyOrder
-import java.math.BigDecimal
-import java.math.BigInteger
-import java.time.Clock
-import java.time.Instant
-import java.time.temporal.ChronoUnit
-import kotlin.random.Random
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,6 +32,12 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.web.reactive.function.BodyInserters
+import java.math.BigDecimal
+import java.math.BigInteger
+import java.time.Clock
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import kotlin.random.Random
 
 @WebFluxTest(
     controllers = [NftApiController::class],
@@ -54,7 +52,9 @@ import org.springframework.web.reactive.function.BodyInserters
 @AutoConfigureWebTestClient(timeout = "60000")
 @ActiveProfiles("test")
 internal class NftApiControllerTest {
-    @Autowired lateinit var client: WebTestClient
+
+    @Autowired
+    lateinit var client: WebTestClient
 
     @MockkBean
     lateinit var nftItemService: NftItemService
@@ -227,7 +227,7 @@ internal class NftApiControllerTest {
         )
 
         coEvery {
-           nftItemService.byCreator(any(), any(), any())
+            nftItemService.byCreator(any(), any(), any())
         } coAnswers {
             FlowNftItemsDto(
                 total = items.filter { it.creator == FlowAddress(arg(0)) }.size.toLong(),
@@ -309,7 +309,6 @@ internal class NftApiControllerTest {
             .returnResult().responseBody!!
         response.items shouldHaveSize 0
 
-
     }
 
     @Test
@@ -351,13 +350,13 @@ internal class NftApiControllerTest {
             .get()
             .uri(
                 "/v0.1/items/all?lastUpdatedFrom={from}&lastUpdatedTo={to}",
-                mapOf("from" to Instant.now().toEpochMilli(), "to" to Instant.now().toEpochMilli()))
+                mapOf("from" to Instant.now().toEpochMilli(), "to" to Instant.now().toEpochMilli())
+            )
             .exchange()
             .expectStatus().isOk
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 2
-
 
     }
 
@@ -366,19 +365,26 @@ internal class NftApiControllerTest {
         val goodItem = ItemId("TEST", 1L)
         coEvery {
             nftItemMetaService.getMetaByItemId(goodItem)
-        } returns ItemMeta(goodItem, "good", "good", emptyList(), emptyList())
+        } returns ItemMeta(goodItem, "good", "ok", emptyList(), emptyList())
 
         client
             .get()
-            .uri(
-                "/v0.1/items/meta/{itemId}",
-                goodItem.toString()
+            .uri("/v0.1/items/meta/{itemId}", goodItem.toString())
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowMetaDto>()
+            .isEqualTo(
+                FlowMetaDto(
+                    name = "good",
+                    description = "ok",
+                    attributes = emptyList(),
+                    status = FlowMetaDto.Status.OK
+                )
             )
-            .exchange().expectStatus().isOk.expectBody<FlowItemMetaDto>()
     }
 
     @Test
-    fun `should return 404 for item meta with script error`() {
+    fun `should return error for item meta with script error`() {
         val badItem = ItemId("TEST", 1L)
         coEvery {
             nftItemMetaService.getMetaByItemId(badItem)
@@ -386,11 +392,11 @@ internal class NftApiControllerTest {
 
         client
             .get()
-            .uri(
-                "/v0.1/items/meta/{itemId}",
-                badItem.toString()
-            )
-            .exchange().expectStatus().isNotFound
+            .uri("/v0.1/items/meta/{itemId}", badItem.toString())
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<FlowMetaDto>()
+            .isEqualTo(FlowMetaDto(name = "", status = FlowMetaDto.Status.ERROR))
     }
 
     @Test
@@ -402,53 +408,6 @@ internal class NftApiControllerTest {
                 "malformed"
             )
             .exchange().expectStatus().isBadRequest
-    }
-
-    @Test
-    fun `should process refresh collection meta`() {
-        coEvery {
-            nftItemMetaService.getMetaByItemId(any())
-        } returns ItemMeta(ItemId("A.1234.RaribleNFT", 1), "good", "good", emptyList(), emptyList())
-
-        coEvery {
-            nftItemMetaService.resetMeta(any())
-        } returns Unit
-
-        coEvery {
-            nftItemService.byCollectionRaw(any(), isNull(true), 1000) // isNull(true) == not null
-        } returns listOf(
-            createItem(tokenId = 1335),
-            createItem(tokenId = 1336),
-            createItem(tokenId = 1337)
-        ).asFlow()
-
-        coEvery {
-            nftItemService.byCollectionRaw(any(), null, 1000)
-        } returns (0L..999L).map {
-            createItem(tokenId = it)
-        }.asFlow()
-
-        client
-            .put()
-            .uri(
-                "/v0.1/items/refreshCollectionMeta/{collection}",
-                "A.1234.RaribleNFT"
-            )
-            .exchange().expectStatus().isOk
-
-        coVerifyOrder {
-            nftItemService.byCollectionRaw("A.1234.RaribleNFT", null, 1000)
-
-            (0L..999L).forEach { tokenId ->
-                nftItemMetaService.resetMeta(ItemId("A.1234.RaribleNFT", tokenId))
-                nftItemMetaService.getMetaByItemId(ItemId("A.1234.RaribleNFT", tokenId))
-            }
-
-            listOf(1335L, 1336L, 1337L).forEach { tokenId ->
-                nftItemMetaService.resetMeta(ItemId("A.1234.RaribleNFT", tokenId))
-                nftItemMetaService.getMetaByItemId(ItemId("A.1234.RaribleNFT", tokenId))
-            }
-        }
     }
 
     @Test

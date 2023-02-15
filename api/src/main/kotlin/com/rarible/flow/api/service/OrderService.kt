@@ -26,17 +26,6 @@ class OrderService(
         return orderRepository.coFindById(orderId)
     }
 
-    fun getSellOrdersByMaker(
-        makerAddresses: List<FlowAddress>,
-        cont: String?,
-        size: Int?,
-        sort: OrderFilter.Sort
-    ): Flow<Order> {
-        return orderRepository.search(
-            OrderFilter.ByMakers(makerAddresses), cont, size, sort
-        ).asFlow()
-    }
-
     fun findAll(cont: String?, size: Int?, sort: OrderFilter.Sort): Flow<Order> {
         return orderRepository.search(
             OrderFilter.All, cont, size, sort
@@ -49,6 +38,17 @@ class OrderService(
         ).asFlow()
     }
 
+    fun getSellOrdersByMaker(
+        makerAddresses: List<FlowAddress>,
+        cont: String?,
+        size: Int?,
+        sort: OrderFilter.Sort
+    ): Flow<Order> {
+        return orderRepository.search(
+            sellOrders(OrderFilter.ByMakers(makerAddresses)), cont, size, sort
+        ).asFlow()
+    }
+
     fun getSellOrdersByCollection(
         collection: String,
         cont: String?,
@@ -56,7 +56,7 @@ class OrderService(
         sort: OrderFilter.Sort
     ): Flow<Order> {
         return orderRepository.search(
-            OrderFilter.ByCollection(collection), cont, size, sort
+            sellOrders(OrderFilter.ByCollection(collection)), cont, size, sort
         ).asFlow()
     }
 
@@ -143,9 +143,10 @@ class OrderService(
                 OrderFilter.ByItemId(itemId),
                 OrderFilter.ByMakers(makers),
                 OrderFilter.ByStatus(status),
-                OrderFilter.ByBiddingCurrency(currency),
-                OrderFilter.ByDateAfter(Order::createdAt, startDate),
-                OrderFilter.ByDateBefore(Order::createdAt, endDate)
+                OrderFilter.ByBiddingCurrency(currency)
+                // TODO there is no start/end in flow orders
+                //OrderFilter.ByDateAfter(Order::createdAt, startDate),
+                //OrderFilter.ByDateBefore(Order::createdAt, endDate)
             ),
             continuation,
             size,
@@ -167,8 +168,9 @@ class OrderService(
             bidOrders(
                 OrderFilter.ByMakers(makerAddresses),
                 OrderFilter.ByStatus(status),
-                OrderFilter.ByDateAfter(Order::createdAt, startDate),
-                OrderFilter.ByDateBefore(Order::createdAt, endDate)
+                // TODO there is no start/end in flow orders
+                //OrderFilter.ByDateAfter(Order::createdAt, startDate),
+                //OrderFilter.ByDateBefore(Order::createdAt, endDate)
             ),
             continuation,
             size,

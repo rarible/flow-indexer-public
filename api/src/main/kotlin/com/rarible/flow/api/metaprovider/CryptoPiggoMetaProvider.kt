@@ -11,14 +11,14 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import java.time.Instant
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
+import java.time.Instant
 
 @Component
 class CryptoPiggoMetaProvider(
-    private val webClient: WebClient,
+    private val ipfsClient: WebClient,
     private val appProperties: AppProperties
 ): ItemMetaProvider {
 
@@ -31,7 +31,7 @@ class CryptoPiggoMetaProvider(
 
     override suspend fun getMeta(item: Item): ItemMeta {
         return withSpan("CryptoPiggoMetaProvider::getMeta", "network") {
-            val piggoMeta = webClient.get().uri(metaUrl, item.tokenId)
+            val piggoMeta = ipfsClient.get().uri(metaUrl, item.tokenId)
                 .retrieve().awaitBodyOrNull<PiggoItem>() ?: return@withSpan emptyMeta(item.id)
 
             return@withSpan ItemMeta(
