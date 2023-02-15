@@ -19,7 +19,7 @@ spring:
 blockchain:
   scanner:
     kafka:
-      broker-replica-set: ${kafka.hosts}
+      brokerReplicaSet: ${kafka.hosts}
 
 flow-api:
   service-account:

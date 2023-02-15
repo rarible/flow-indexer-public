@@ -26,7 +26,7 @@ jobs:
 blockchain:
   scanner:
     kafka:
-      maxPollRecords: 100
+      numberOfPartitionsPerLogGroup: 18
     flow:
       blockchain: "flow"
       service: "listener"
