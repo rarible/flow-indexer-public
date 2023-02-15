@@ -1,6 +1,6 @@
 spring:
   application:
-    name: flow-nft-indexer-api
+    name: flow-indexer-api
   data:
     mongodb:
       auto-index-creation: false
@@ -12,7 +12,7 @@ flow-indexer-api:
   ipfsInnerUrl: "https://rarible.mypinata.cloud/ipfs"
 
 application:
-  service-name: flow-nft-indexer-api
+  service-name: flow-indexer-api
 
 rarible:
   core:

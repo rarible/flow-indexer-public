@@ -16,8 +16,10 @@ spring:
       cache:
         enabled: false
 
-scanner:
-  kafka-replica-set: ${kafka.hosts}
+blockchain:
+  scanner:
+    kafka:
+      broker-replica-set: ${kafka.hosts}
 
 flow-api:
   service-account:

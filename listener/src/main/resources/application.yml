@@ -1,9 +1,9 @@
 spring:
   application:
-    name: flow-scanner
+    name: flow-indexer-listener
   data:
     mongodb:
-      auto-index-creation: true
+      auto-index-creation: false
 
 
 mongock:
