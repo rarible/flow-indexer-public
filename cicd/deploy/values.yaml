@@ -1,4 +1,4 @@
-flow-indexer-backend-api:
+flow-indexer-api:
   replicas: 0 # Deactivated
   image:
     repository: flow-indexer-api
@@ -11,9 +11,9 @@ flow-indexer-backend-api:
   resources:
     jvm:
       xmx_megabytes: 512
-      max_direct_memory_megabytes: 128
+      max_direct_memory_megabytes: 512
 
-flow-indexer-scanner:
+flow-indexer-listener:
   replicas: 0 # Deactivated
   image:
     repository: flow-indexer-listener
@@ -25,4 +25,4 @@ flow-indexer-scanner:
   resources:
     jvm:
       xmx_megabytes: 400
-      max_direct_memory_megabytes: 128
+      max_direct_memory_megabytes: 512
