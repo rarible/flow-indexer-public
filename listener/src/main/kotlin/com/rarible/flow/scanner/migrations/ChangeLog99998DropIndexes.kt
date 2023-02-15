@@ -7,10 +7,12 @@ import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.Ownership
 import io.changock.migration.api.annotations.NonLockGuarded
+import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.indexOps
 
 @ChangeLog(order = "99998")
 class ChangeLog99998DropIndexes {
@@ -73,8 +75,11 @@ class ChangeLog99998DropIndexes {
     ) = runBlocking {
         logger.info("Dropping unused indices")
         unusedIndices.forEach { (collection, indices) ->
-            indices.forEach {
-                mongo.indexOps(collection).dropIndex(it).awaitFirstOrNull()
+            indices.forEach { index ->
+                val existing = mongo.indexOps(collection).indexInfo.map { it.name }.collectList().awaitFirst()
+                if (existing.contains(index)) {
+                    mongo.indexOps(collection).dropIndex(index).awaitFirstOrNull()
+                }
             }
         }
         logger.info("All unused indices has been dropped")
