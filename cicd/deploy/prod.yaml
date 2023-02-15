@@ -1,4 +1,4 @@
-flow-indexer-backend-api:
+flow-indexer-api:
   replicas: 0 # Deactivated
   service:
     nodePort: 30113
@@ -7,7 +7,7 @@ flow-indexer-backend-api:
       xmx_megabytes: 768
       max_direct_memory_megabytes: 256
 
-flow-indexer-scanner:
+flow-indexer-listener:
   replicas: 0 # Deactivated
   resources:
     jvm:

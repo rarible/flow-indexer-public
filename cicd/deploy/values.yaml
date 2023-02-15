@@ -1,7 +1,7 @@
 flow-indexer-backend-api:
   replicas: 0 # Deactivated
   image:
-    repository: flow-nft-indexer-backend-api
+    repository: flow-indexer-api
   service:
     enabled: true
   environments:
@@ -11,12 +11,12 @@ flow-indexer-backend-api:
   resources:
     jvm:
       xmx_megabytes: 512
-      max_direct_memory_megabytes: 64
+      max_direct_memory_megabytes: 128
 
 flow-indexer-scanner:
   replicas: 0 # Deactivated
   image:
-    repository: flow-nft-indexer-scanner
+    repository: flow-indexer-listener
   environments:
     APPLICATION_ENVIRONMENT: '{{ include "app.env" $ }}'
     CONSUL_ROOT_PATH: '{{ include "app.env" $ }}/flow-indexer'
@@ -25,4 +25,4 @@ flow-indexer-scanner:
   resources:
     jvm:
       xmx_megabytes: 400
-      max_direct_memory_megabytes: 32
+      max_direct_memory_megabytes: 128
