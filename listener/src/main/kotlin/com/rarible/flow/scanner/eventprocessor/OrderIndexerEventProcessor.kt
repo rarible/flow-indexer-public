@@ -16,6 +16,8 @@ import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.OrderService
+import com.rarible.protocol.dto.FlowEventTimeMarksDto
+import com.rarible.protocol.dto.blockchainEventMark
 import org.springframework.stereotype.Component
 
 @Component
@@ -37,104 +39,107 @@ class OrderIndexerEventProcessor(
     override fun isSupported(event: IndexerEvent): Boolean = event.activityType() in supportedTypes
 
     override suspend fun process(event: IndexerEvent) {
+        val marks = blockchainEventMark("indexer-in", event.history.log.timestamp)
         when (event.activityType()) {
-            FlowActivityType.LIST -> list(event)
-            FlowActivityType.SELL -> close(event)
-            FlowActivityType.CANCEL_LIST -> orderCancelled(event)
-            FlowActivityType.BID -> bid(event)
-            FlowActivityType.CANCEL_BID -> cancelBid(event)
+            FlowActivityType.LIST -> list(event, marks)
+            FlowActivityType.SELL -> close(event, marks)
+            FlowActivityType.CANCEL_LIST -> orderCancelled(event, marks)
+            FlowActivityType.BID -> bid(event, marks)
+            FlowActivityType.CANCEL_BID -> cancelBid(event, marks)
             else -> throw IllegalStateException("Unsupported order event! [${event.activityType()}]")
         }
     }
 
-    private suspend fun list(event: IndexerEvent) {
+    private suspend fun list(event: IndexerEvent, marks: FlowEventTimeMarksDto) {
         val activity = event.history.activity as FlowNftOrderActivityList
         withSpan(
-            "listOrderEvent",
+            name = "listOrderEvent",
             type = "event",
             labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")
         ) {
             orderService.enrichCancelList(activity.hash)
-            val o = orderService.openList(activity, event.item)
-            sendUpdate(event, o)
+            val order = orderService.openList(activity, event.item)
+            sendUpdate(order, marks)
         }
     }
 
-    private suspend fun close(event: IndexerEvent) {
+    private suspend fun close(event: IndexerEvent, marks: FlowEventTimeMarksDto) {
         val activity = event.history.activity as FlowNftOrderActivitySell
         return when (activity.left.asset) {
-            is FlowAssetNFT -> orderClose(event)
-            is FlowAssetFungible -> acceptBid(event)
+            is FlowAssetNFT -> orderClose(event, marks)
+            is FlowAssetFungible -> acceptBid(event, marks)
             else -> throw IllegalStateException("Invalid order asset: ${activity.left.asset}, in activity: $activity")
         }
     }
 
-    private suspend fun orderClose(event: IndexerEvent) {
+    private suspend fun orderClose(event: IndexerEvent, marks: FlowEventTimeMarksDto) {
         val activity = event.history.activity as FlowNftOrderActivitySell
         withSpan(
             "closeOrderEvent",
             type = "event",
             labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")
         ) {
-            val o = orderService.close(activity)
-            sendUpdate(event, o)
+            val order = orderService.close(activity)
+            sendUpdate(order, marks)
             orderService.enrichTransfer(event.history.log.transactionHash, activity.left.maker, activity.right.maker)
-                ?.also { sendHistoryUpdate(event, it) }
+                ?.also { sendHistoryUpdate(it) }
         }
     }
 
-    private suspend fun orderCancelled(event: IndexerEvent) {
+    private suspend fun orderCancelled(event: IndexerEvent, marks: FlowEventTimeMarksDto) {
         val activity = event.history.activity as FlowNftOrderActivityCancelList
         withSpan("cancelOrderEvent", type = "event", labels = listOf("hash" to activity.hash)) {
             orderService.enrichCancelList(activity.hash)
-            val o = orderService.cancel(activity, event.item)
-            sendUpdate(event, o)
+            val order = orderService.cancel(activity, event.item)
+            sendUpdate(order, marks)
         }
     }
 
-    private suspend fun bid(event: IndexerEvent) {
+    private suspend fun bid(event: IndexerEvent, marks: FlowEventTimeMarksDto) {
         val activity = event.history.activity as FlowNftOrderActivityBid
-        withSpan("openBidEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
+        withSpan(
+            "openBidEvent",
+            type = "event",
+            labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")
+        ) {
             orderService.enrichCancelBid(activity.hash)
-            val o = orderService.openBid(activity, event.item)
-            sendUpdate(event, o)
+            val order = orderService.openBid(activity, event.item)
+            sendUpdate(order, marks)
         }
     }
 
-    private suspend fun acceptBid(event: IndexerEvent) {
+    private suspend fun acceptBid(event: IndexerEvent, marks: FlowEventTimeMarksDto) {
         val activity = event.history.activity as FlowNftOrderActivitySell
-        withSpan("acceptBidEvent", type = "event", labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")) {
-            val o = orderService.closeBid(activity, event.item)
-            sendUpdate(event, o)
+        withSpan(
+            "acceptBidEvent",
+            type = "event",
+            labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")
+        ) {
+            val order = orderService.closeBid(activity, event.item)
+            sendUpdate(order, marks)
             orderService.enrichTransfer(event.history.log.transactionHash, activity.right.maker, activity.left.maker)
-                ?.also { sendHistoryUpdate(event, it) }
+                ?.also { sendHistoryUpdate(it) }
         }
     }
 
-    private suspend fun cancelBid(event: IndexerEvent) {
+    private suspend fun cancelBid(event: IndexerEvent, marks: FlowEventTimeMarksDto) {
         val activity = event.history.activity as FlowNftOrderActivityCancelBid
         withSpan("cancelBidEvent", type = "event", labels = listOf("hash" to activity.hash)) {
             orderService.enrichCancelBid(activity.hash)
-            val o = orderService.cancelBid(activity, event.item)
-            sendUpdate(event, o)
+            val order = orderService.cancelBid(activity, event.item)
+            sendUpdate(order, marks)
         }
     }
 
-    private suspend fun sendHistoryUpdate(
-        event: IndexerEvent,
-        itemHistory: ItemHistory,
-    ) {
+    private suspend fun sendHistoryUpdate(itemHistory: ItemHistory) {
         withSpan("sendOrderUpdate", "network") {
             protocolEventPublisher.activity(itemHistory)
         }
     }
 
-    private suspend fun sendUpdate(
-        event: IndexerEvent,
-        o: Order
-    ) {
+    private suspend fun sendUpdate(order: Order, marks: FlowEventTimeMarksDto) {
         withSpan("sendOrderUpdate", "network") {
-            protocolEventPublisher.onOrderUpdate(o, orderConverter)
+            protocolEventPublisher.onOrderUpdate(order, orderConverter, marks)
         }
     }
 

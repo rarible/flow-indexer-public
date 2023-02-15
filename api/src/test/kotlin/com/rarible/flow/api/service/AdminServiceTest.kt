@@ -61,8 +61,13 @@ internal class AdminServiceTest {
         itemRepository.deleteAll().awaitFirstOrNull()
 
         val protocolEventPublisher = mockk<ProtocolEventPublisher> {
-            coEvery { onItemDelete(any()) } answers { KafkaSendResult.Success(firstArg<ItemId>().toString()) }
-            coEvery { onDelete(any<List<Ownership>>()) } answers { KafkaSendResult.Success(firstArg<List<Ownership>>().size.toString()) }
+            coEvery { onItemDelete(any(), any()) } answers { KafkaSendResult.Success(firstArg<ItemId>().toString()) }
+            coEvery {
+                onDelete(
+                    any<List<Ownership>>(),
+                    any()
+                )
+            } answers { KafkaSendResult.Success(firstArg<List<Ownership>>().size.toString()) }
         }
         adminService = AdminService(
             itemRepository,

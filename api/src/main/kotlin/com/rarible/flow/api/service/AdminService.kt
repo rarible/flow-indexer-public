@@ -7,6 +7,7 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.util.Log
+import com.rarible.protocol.dto.offchainEventMark
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -25,7 +26,7 @@ class AdminService(
     val logger by Log()
 
     suspend fun deleteItemById(itemId: ItemId) {
-
+        val marks = offchainEventMark("indexer-in")
         val item = itemRepository.findById(itemId).awaitFirstOrNull()
         if (item == null) {
             logger.warn("Item $itemId not found")
@@ -38,7 +39,7 @@ class AdminService(
             .asFlow().toList()
         itemHistoryRepository.deleteByItemId(itemId.contract, itemId.tokenId).asFlow().toList()
 
-        protocolEventPublisher.onItemDelete(item.id)
-        protocolEventPublisher.onDelete(ownerships)
+        protocolEventPublisher.onItemDelete(item.id, marks)
+        protocolEventPublisher.onDelete(ownerships, marks)
     }
 }

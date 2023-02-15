@@ -116,9 +116,15 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
     val historyTransfer = ItemHistory(timestamp, transferActivity, log.copy(eventIndex = 2))
 
     val protocolEventPublisher = mockk<ProtocolEventPublisher> {
-        coEvery { onOrderUpdate(any(), any()) } answers { KafkaSendResult.Success(firstArg<Order>().id.toString()) }
-        coEvery { onItemUpdate(any()) } answers { KafkaSendResult.Success(firstArg<Item>().id.toString()) }
-        coEvery { onUpdate(any()) } answers { KafkaSendResult.Success(firstArg<Ownership>().id.toString()) }
+        coEvery {
+            onOrderUpdate(
+                any(),
+                any(),
+                any()
+            )
+        } answers { KafkaSendResult.Success(firstArg<Order>().id.toString()) }
+        coEvery { onItemUpdate(any(), any()) } answers { KafkaSendResult.Success(firstArg<Item>().id.toString()) }
+        coEvery { onUpdate(any(), any()) } answers { KafkaSendResult.Success(firstArg<Ownership>().id.toString()) }
         coEvery { activity(any()) } answers { KafkaSendResult.Success(firstArg<ItemHistory>().id) }
     }
 
