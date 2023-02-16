@@ -28,14 +28,15 @@ blockchain:
     kafka:
       numberOfPartitionsPerLogGroup: 18
     flow:
-      blockchain: "flow"
-      service: "listener"
       optimisticLockRetries: 5
       retry-policy:
         scan:
           reconnect-delay: 2s
         client:
           delay: 2s
+      scan:
+        batchLoad:
+          batchSize: 20
       monitoring:
         enabled: true
         rootPath: "protocol.flow.indexer"
