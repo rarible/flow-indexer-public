@@ -96,7 +96,7 @@ class ListingDetailsConverter: JsonCadenceConverter<ListingDetails> {
             storefrontID = long("storefrontID"),
             purchased = boolean("purchased"),
             nftID = long("nftID"),
-            nftType = string("nftType"), // was type
+            nftType = type("nftType"),
             salePrice = bigDecimal("salePrice"),
             saleCuts = arrayValues("saleCuts") {
                 SaleCut(
@@ -113,9 +113,9 @@ class ListingAvailableConverter: JsonCadenceConverter<ListingAvailable> {
         ListingAvailable(
             storefrontAddress = FlowAddress(address("storefrontAddress")),
             listingResourceID = long("listingResourceID"),
-            nftType = string("nftType"), // was type
+            nftType = type("nftType"),
             nftID = long("nftID"),
-            ftVaultType = string("nftType"), // was type
+            ftVaultType = type("nftType"),
             price = bigDecimal("price")
         )
     }
@@ -154,7 +154,7 @@ class OrderAvailableConverter : JsonCadenceConverter<OrderAvailable> {
         OrderAvailable(
             FlowAddress(address("orderAddress")),
             long("orderId"),
-            EventId.of(string("nftType")), // was type
+            EventId.of(type("nftType")),
             long("nftId"),
             EventId.of(string("vaultType")),
             bigDecimal("price"),
@@ -169,9 +169,9 @@ class OrderClosedConverter : JsonCadenceConverter<OrderClosed> {
         OrderClosed(
             address("orderAddress"),
             long("orderId"),
-            EventId.of(string("nftType")), //was type
+            EventId.of(type("nftType")),
             long("nftId"),
-            EventId.of(string("vaultType")), // was type
+            EventId.of(type("vaultType")),
             bigDecimal("price"),
             address("buyerAddress"),
             arrayValues("cuts") { it.parse() }
@@ -184,9 +184,9 @@ class OrderCancelledConverter : JsonCadenceConverter<OrderCancelled> {
         OrderCancelled(
             address("orderAddress"),
             long("orderId"),
-            EventId.of(string("nftType")), // was type
+            EventId.of(type("nftType")),
             long("nftId"),
-            EventId.of(string("vaultType")), // was type
+            EventId.of(type("vaultType")),
             bigDecimal("price"),
             arrayValues("cuts") { it.parse() }
         )
@@ -218,9 +218,9 @@ class OpenBidAvailableConverter: JsonCadenceConverter<BidAvailable> {
         BidAvailable(
             bidAddress = FlowAddress(address("bidAddress")),
             bidId = long("bidId"),
-            nftType = EventId.of(string("nftType")), // was type
+            nftType = EventId.of(type("nftType")),
             nftId = long("nftId"),
-            vaultType = EventId.of(string("vaultType")), // was type
+            vaultType = EventId.of(type("vaultType")),
             bidPrice = bigDecimal("bidPrice"),
             brutto = bigDecimal("brutto"),
             cuts = dictionaryMap("cuts") { k, v ->
