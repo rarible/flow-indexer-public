@@ -36,7 +36,7 @@ blockchain:
           delay: 2s
       scan:
         batchLoad:
-          batchSize: 20
+          batchSize: 5
       monitoring:
         enabled: true
         rootPath: "protocol.flow.indexer"
