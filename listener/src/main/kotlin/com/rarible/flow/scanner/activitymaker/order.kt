@@ -79,7 +79,10 @@ class NFTStorefrontActivityMaker : WithPaymentsActivityMaker() {
                         tokenId = tokenId
                     ),
                     take = FlowAssetFungible(
-                        contract = EventId.of(cadenceParser.type(it.event.fields["ftVaultType"]!!)).col                        val                           )
+                        contract = EventId.of(cadenceParser.type(it.event.fields["ftVaultType"]!!)).collection(),
+                        value = price
+                    )
+                )
             }
             orderPurchased.forEach { logEvent ->
                 val allTxEvents = readEvents(blockHeight = logEvent.log.blockHeight, txId = FlowId(logEvent.log.transactionHash))
