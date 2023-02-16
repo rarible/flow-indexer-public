@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.subscriber
+package com.rarible.flow.scanner.subscriber.nft
 
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
@@ -6,46 +6,41 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.event.EventId
+import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
+import com.rarible.flow.scanner.subscriber.DescriptorFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
+import org.springframework.stereotype.Component
 
-// TODO uncomment when legal is ready
-//@Component
-class TopShotSubscriber : BaseFlowLogEventSubscriber() {
+@Component
+@ConditionalOnExpression("false")
+class RaribleNFTv2Subscriber: BaseFlowLogEventSubscriber() {
 
-    private val events = "Withdraw,Deposit,MomentMinted,MomentDestroyed".split(",")
-    private val name = "top_shot"
+    private val events = setOf("Minted", "Withdraw", "Deposit", "Burned")
+    private val name = "rarible_nft_v2"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
-            FlowChainId.MAINNET to DescriptorFactory.flowNftOrderDescriptor(
-                contract = Contracts.TOPSHOT,
-                chainId = FlowChainId.MAINNET,
-                events = events,
-                startFrom = 7641063L,
-                dbCollection = collection,
-                name = name,
-            ),
             FlowChainId.TESTNET to DescriptorFactory.flowNftOrderDescriptor(
-                contract = Contracts.TOPSHOT,
+                contract = Contracts.RARIBLE_NFTV2,
                 chainId = FlowChainId.TESTNET,
                 events = events,
                 dbCollection = collection,
                 name = name,
             ),
             FlowChainId.EMULATOR to DescriptorFactory.flowNftOrderDescriptor(
-                contract = Contracts.TOPSHOT,
+                contract = Contracts.RARIBLE_NFTV2,
                 chainId = FlowChainId.EMULATOR,
                 events = events,
-                startFrom = 1L,
                 dbCollection = collection,
                 name = name,
-            ),
+            )
         )
 
-    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when (EventId.of(log.event.id).eventName) {
+    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when(EventId.of(log.event.id).eventName) {
+        "Minted" -> FlowLogType.MINT
         "Withdraw" -> FlowLogType.WITHDRAW
         "Deposit" -> FlowLogType.DEPOSIT
-        "MomentMinted" -> FlowLogType.MINT
-        "MomentDestroyed" -> FlowLogType.BURN
+        "Burned" -> FlowLogType.BURN
         else -> throw IllegalStateException("Unsupported event type: ${log.event.id}")
     }
 }

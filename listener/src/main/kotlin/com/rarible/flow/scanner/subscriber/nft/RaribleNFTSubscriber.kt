@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.subscriber
+package com.rarible.flow.scanner.subscriber.nft
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
@@ -8,6 +8,8 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.event.EventId
+import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
+import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import org.springframework.stereotype.Component
 
 @Component

@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.subscriber
+package com.rarible.flow.scanner.subscriber.disabled
 
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
@@ -6,47 +6,44 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.event.EventId
-import org.springframework.stereotype.Component
+import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
+import com.rarible.flow.scanner.subscriber.DescriptorFactory
 
-@Component
-class SomePlaceCollectibleSubscriber: BaseFlowLogEventSubscriber() {
-
-    private val events = listOf("Mint", "Deposit", "Withdraw", "Burn")
-    private val name = "some_place_collection"
+class OneFootballSubscriber : BaseFlowLogEventSubscriber() {
+    private val events = setOf("Minted", "Withdraw", "Deposit", "Destroyed")
+    private val name = "one_football"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
             FlowChainId.MAINNET to DescriptorFactory.flowNftOrderDescriptor(
-                contract = Contracts.SOME_PLACE_COLLECTIBLE,
-                chainId = FlowChainId.MAINNET,
+                contract = Contracts.ONE_FOOTBALL.contractName,
+                address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.MAINNET]!!.base16Value,
                 events = events,
-                startFrom = 25435115L,
                 dbCollection = collection,
+                startFrom = 21831983L,
                 name = name,
             ),
             FlowChainId.TESTNET to DescriptorFactory.flowNftOrderDescriptor(
-                contract = Contracts.SOME_PLACE_COLLECTIBLE,
-                chainId = FlowChainId.TESTNET,
+                contract = Contracts.ONE_FOOTBALL.contractName,
+                address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.TESTNET]!!.base16Value,
                 events = events,
                 dbCollection = collection,
                 name = name,
             ),
             FlowChainId.EMULATOR to DescriptorFactory.flowNftOrderDescriptor(
-                contract = Contracts.SOME_PLACE_COLLECTIBLE,
-                chainId = FlowChainId.EMULATOR,
+                contract = Contracts.ONE_FOOTBALL.contractName,
+                address = Contracts.ONE_FOOTBALL.deployments[FlowChainId.EMULATOR]!!.base16Value,
                 events = events,
                 dbCollection = collection,
                 name = name,
-            )
+            ),
         )
 
     override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when(EventId.of(log.event.type).eventName) {
-        "Mint" -> FlowLogType.MINT
-        "Deposit" -> FlowLogType.DEPOSIT
         "Withdraw" -> FlowLogType.WITHDRAW
-        "Burn" -> FlowLogType.BURN
-        else -> throw IllegalStateException("Unsupported event type: ${log.event.type}")
+        "Deposit" -> FlowLogType.DEPOSIT
+        "Minted" -> FlowLogType.MINT
+        "Destroyed" -> FlowLogType.BURN
+        else ->  throw IllegalStateException("Unsupported event type: ${log.event.type}")
     }
-
-
 }

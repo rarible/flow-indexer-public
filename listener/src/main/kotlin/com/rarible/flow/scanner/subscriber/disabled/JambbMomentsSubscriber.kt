@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.subscriber
+package com.rarible.flow.scanner.subscriber.disabled
 
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
@@ -6,35 +6,40 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.event.EventId
+import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
+import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.stereotype.Component
 
 @ExperimentalCoroutinesApi
-@Component
-@ConditionalOnProperty(name = ["blockchain.scanner.flow.chainId"], havingValue = "MAINNET")
-class StarlyCardSubscriber : BaseFlowLogEventSubscriber() {
+class JambbMomentsSubscriber : BaseFlowLogEventSubscriber() {
 
-    val events = setOf("Minted", "Withdraw", "Deposit", "Burned")
-    private val name = "starly_card"
+    private val events = setOf("MomentMinted", "Withdraw", "Deposit", "MomentDestroyed")
+    private val name = "jambb_moments"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
             FlowChainId.MAINNET to DescriptorFactory.flowNftOrderDescriptor(
-                contract = Contracts.STARLY_CARD.contractName,
-                address = Contracts.STARLY_CARD.deployments[FlowChainId.MAINNET]!!.base16Value,
+                contract = Contracts.JAMBB_MOMENTS,
+                chainId = FlowChainId.MAINNET,
                 events = events,
                 dbCollection = collection,
-                startFrom = 18133134L,
-                name = name
+                startFrom = 20445936,
+                name = name,
+            ),
+            FlowChainId.TESTNET to DescriptorFactory.flowNftOrderDescriptor(
+                contract = Contracts.JAMBB_MOMENTS,
+                chainId = FlowChainId.TESTNET,
+                events = events,
+                dbCollection = collection,
+                name = name,
             )
         )
 
     override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when(EventId.of(log.event.type).eventName) {
         "Withdraw" -> FlowLogType.WITHDRAW
         "Deposit" -> FlowLogType.DEPOSIT
-        "Minted" -> FlowLogType.MINT
-        "Burned" -> FlowLogType.BURN
+        "MomentMinted" -> FlowLogType.MINT
+        "MomentDestroyed" -> FlowLogType.BURN
         else ->  throw IllegalStateException("Unsupported event type: ${log.event.type}")
     }
 }

@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.subscriber
+package com.rarible.flow.scanner.subscriber.disabled
 
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
@@ -6,32 +6,27 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.event.EventId
+import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
+import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.springframework.stereotype.Component
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 
 @ExperimentalCoroutinesApi
-@Component
-class FanfareSubscriber : BaseFlowLogEventSubscriber() {
+@ConditionalOnProperty(name = ["blockchain.scanner.flow.chainId"], havingValue = "MAINNET")
+class StarlyCardSubscriber : BaseFlowLogEventSubscriber() {
 
-    private val events = setOf("Minted", "Withdraw", "Deposit")
-    private val name = "fanfare"
+    val events = setOf("Minted", "Withdraw", "Deposit", "Burned")
+    private val name = "starly_card"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = mapOf(
             FlowChainId.MAINNET to DescriptorFactory.flowNftOrderDescriptor(
-                contract = Contracts.FANFARE,
-                chainId = FlowChainId.MAINNET,
+                contract = Contracts.STARLY_CARD.contractName,
+                address = Contracts.STARLY_CARD.deployments[FlowChainId.MAINNET]!!.base16Value,
                 events = events,
                 dbCollection = collection,
-                startFrom = 22741361,
-                name = name,
-            ),
-            FlowChainId.TESTNET to DescriptorFactory.flowNftOrderDescriptor(
-                contract = Contracts.FANFARE,
-                chainId = FlowChainId.TESTNET,
-                events = events,
-                dbCollection = collection,
-                name = name,
+                startFrom = 18133134L,
+                name = name
             )
         )
 
@@ -39,6 +34,7 @@ class FanfareSubscriber : BaseFlowLogEventSubscriber() {
         "Withdraw" -> FlowLogType.WITHDRAW
         "Deposit" -> FlowLogType.DEPOSIT
         "Minted" -> FlowLogType.MINT
+        "Burned" -> FlowLogType.BURN
         else ->  throw IllegalStateException("Unsupported event type: ${log.event.type}")
     }
 }

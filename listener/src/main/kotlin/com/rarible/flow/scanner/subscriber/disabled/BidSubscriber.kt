@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.subscriber
+package com.rarible.flow.scanner.subscriber.disabled
 
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowEvent
@@ -6,7 +6,6 @@ import com.rarible.blockchain.scanner.flow.client.FlowBlockchainBlock
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.core.apm.withSpan
-import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.OrderRepository
@@ -15,15 +14,14 @@ import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.cadence.BidAvailable
 import com.rarible.flow.scanner.cadence.BidCompleted
 import com.rarible.flow.scanner.model.parse
+import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
+import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
-import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
-import kotlin.contracts.contract
 
-@Component
 class BidSubscriber(
     private val collectionRepository: ItemCollectionRepository,
     private val txManager: TxManager,

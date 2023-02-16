@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.subscriber
+package com.rarible.flow.scanner.subscriber.order
 
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowEvent
@@ -15,6 +15,8 @@ import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.cadence.ListingAvailable
 import com.rarible.flow.scanner.cadence.ListingCompleted
 import com.rarible.flow.scanner.model.parse
+import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
+import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import javax.annotation.PostConstruct
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow

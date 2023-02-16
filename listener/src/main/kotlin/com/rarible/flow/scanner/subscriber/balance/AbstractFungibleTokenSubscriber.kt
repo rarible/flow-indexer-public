@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.subscriber.fungible
+package com.rarible.flow.scanner.subscriber.balance
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
