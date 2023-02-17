@@ -45,9 +45,14 @@ class ItemAndOrderEventsListener(
                 }
                 .map { event -> event.record }
                 .filterIsInstance<FlowLogEvent>()
+                .onEach {
+                    logger.info("[2278] filter passed")
+                }
                 .groupBy { Pair(it.log.transactionHash, it.event.eventId.collection()) }
                 .forEach { entry ->
+                    logger.info("[2278] try make ItemHistory: ${entry.key.second}")
                     nftActivityMakers.find { it.isSupportedCollection(entry.key.second) }?.let { maker ->
+                        logger.info("[2278] found activity maker")
                         val activities = maker.activities(entry.value).map { entry ->
                             ItemHistory(
                                 log = entry.key,
