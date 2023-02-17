@@ -36,9 +36,13 @@ class ItemAndOrderEventsListener(
     environmentInfo = environmentInfo
 ) {
     override suspend fun onLogRecordEvents(events: List<LogRecordEvent>) {
+        logger.info("[2278] Detected ${events.size} events")
         val history: MutableList<ItemHistory> = mutableListOf()
         try {
             events
+                .onEach {
+                    logger.info("[2278] eventRecordType=${it.record.javaClass}, $it")
+                }
                 .map { event -> event.record }
                 .filterIsInstance<FlowLogEvent>()
                 .groupBy { Pair(it.log.transactionHash, it.event.eventId.collection()) }
