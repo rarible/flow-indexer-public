@@ -40,5 +40,6 @@ blockchain:
       monitoring:
         enabled: true
         rootPath: "protocol.flow.indexer"
+        timestampUnit: millisecond
         worker:
           pollingPeriod: 1m
