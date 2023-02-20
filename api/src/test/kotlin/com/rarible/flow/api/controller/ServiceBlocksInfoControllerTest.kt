@@ -60,8 +60,8 @@ class ServiceBlocksInfoControllerTest(
             .consumeWith {
                 val data = it.responseBody
                 Assertions.assertNotNull(data)
-                Assertions.assertTrue(data!!.lastBlockInBlockchain.blockHeight > data.lastBlockInIndexer.blockHeight)
-                Assertions.assertTrue(data.lastBlockInBlockchain.timestamp > data.lastBlockInIndexer.timestamp)
+                Assertions.assertTrue(data!!.lastBlockInBlockchain.blockHeight > data.lastBlockInIndexer!!.blockHeight)
+                Assertions.assertTrue(data.lastBlockInBlockchain.timestamp > data.lastBlockInIndexer!!.timestamp)
             }
     }
 }

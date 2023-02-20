@@ -3,12 +3,12 @@ package com.rarible.flow.core.block
 import java.util.concurrent.TimeUnit
 
 data class ServiceBlockInfo(
-    val lastBlockInIndexer: BlockInfo,
+    val lastBlockInIndexer: BlockInfo?,
     val lastBlockInBlockchain: BlockInfo
 ) {
 
-    val blockLatency: Long = lastBlockInBlockchain.blockHeight - lastBlockInIndexer.blockHeight
-    val timeLatencyMs: Long = lastBlockInBlockchain.timestamp - lastBlockInIndexer.timestamp
+    val blockLatency: Long = lastBlockInBlockchain.blockHeight - (lastBlockInIndexer?.blockHeight ?: 0)
+    val timeLatencyMs: Long = lastBlockInBlockchain.timestamp - (lastBlockInIndexer?.timestamp ?: 0)
     val timeLatency: String = timeLatencyMs.toHoursStr()
 }
 

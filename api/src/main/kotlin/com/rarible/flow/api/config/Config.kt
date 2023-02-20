@@ -7,6 +7,9 @@ import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.impl.AsyncFlowAccessApiImpl
+import com.rarible.blockchain.scanner.BlockchainScanner
+import com.rarible.blockchain.scanner.EnableBlockchainScannerComponents
+import com.rarible.blockchain.scanner.block.BlockRepository
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.service.FlowSignatureService
 import com.rarible.flow.core.config.AppProperties
@@ -19,6 +22,7 @@ import org.onflow.protobuf.access.AccessAPIGrpc
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.event.EventListener
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
@@ -27,6 +31,7 @@ import reactor.netty.http.client.HttpClient
 import reactor.netty.transport.logging.AdvancedByteBufFormat
 
 @Configuration
+@EnableBlockchainScannerComponents
 @EnableConfigurationProperties(ApiProperties::class)
 class Config(
     val appProperties: AppProperties,
