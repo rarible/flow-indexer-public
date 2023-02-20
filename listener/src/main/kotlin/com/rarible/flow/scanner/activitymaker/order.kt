@@ -104,11 +104,15 @@ class NFTStorefrontActivityMaker : WithPaymentsActivityMaker() {
                     val price = payInfo.filterNot {
                         it.type == PaymentType.BUYER_FEE
                     }.sumOf { it.amount }
-                    val usdRate =
-                        usdRate(payInfo.first().currencyContract, logEvent.log.timestamp.toEpochMilli()) ?: BigDecimal.ZERO
+
+                    val usdRate = payInfo.firstOrNull()?.let {
+                        usdRate(it.currencyContract, logEvent.log.timestamp.toEpochMilli())
+                    } ?: BigDecimal.ZERO
+
                     val priceUsd = if (usdRate > BigDecimal.ZERO) {
                         price * usdRate
                     } else BigDecimal.ZERO
+
                     val tokenId = cadenceParser.long(withdrawnEvent.fields["id"]!!)
                     val hash = cadenceParser.long(logEvent.event.fields["listingResourceID"]!!).toString()
                     result[logEvent.log] = FlowNftOrderActivitySell(
