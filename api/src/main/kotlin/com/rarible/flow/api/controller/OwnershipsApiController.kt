@@ -39,10 +39,10 @@ class OwnershipsApiController(
     }
 
     override suspend fun getNftOwnershipsById(nftOwnershipsByIdRequestDto: NftOwnershipsByIdRequestDto): ResponseEntity<FlowNftOwnershipsDto> {
-        val ownerships = service.byIds(nftOwnershipsByIdRequestDto.ids)
+        val ownerships = service.byIds(nftOwnershipsByIdRequestDto.ids).toList()
         return FlowNftOwnershipsDto(
-            total = nftOwnershipsByIdRequestDto.ids.size.toLong(),
-            ownerships = ownerships.map(OwnershipToDtoConverter::convert).toList(),
+            total = ownerships.size.toLong(),
+            ownerships = ownerships.map(OwnershipToDtoConverter::convert),
             continuation = null,
         ).okOr404IfNull()
     }
