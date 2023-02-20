@@ -67,6 +67,8 @@ class ItemAndOrderEventsListener(
                 }
 
             if (history.isNotEmpty()) {
+                logger.info("[2278] Saved and handle history: size ${history.size}. ${history.joinToString { it.activity.javaClass.name }}")
+
                 val saved = itemHistoryRepository.coSaveAll(history)
                 val ids = saved.filter { it.activity is NFTActivity }.map {
                     val a = it.activity as NFTActivity
@@ -79,6 +81,7 @@ class ItemAndOrderEventsListener(
                         logger.info("Send activity [${h.id}] to kafka!")
                         protocolEventPublisher.activity(h).ensureSuccess()
 
+                        logger.info("[2278] processEvent ${h.activity}")
                         indexerEventService.processEvent(
                             IndexerEvent(
                                 history = h,
