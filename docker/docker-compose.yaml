@@ -1,0 +1,80 @@
+﻿version: '3.9'
+
+x-common-variables: &common-variables
+  APPLICATION_ENVIRONMENT: local
+  SPRING_PROFILES_ACTIVE: swarm
+  SPRING_CLOUD_CONSUL_CONFIG_ENABLED: "false"
+  SPRING_CLOUD_BOOTSTRAP_ENABLED: "false"
+  SPRING_CLOUD_SERVICEREGISTRY_AUTOREGISTRATION_ENABLED: "false"
+  SPRING_CLOUD_DISCOVERY_ENABLED: "false"
+  LOGGING_LOGSTASH_TCP-SOCKET_ENABLED: "false"
+  LOGGING_LOGJSON_ENABLED: "false"
+  KAFKA_HOST: PLAINTEXT://protocol-kafka-1:9092
+  BLOCKCHAIN_SCANNER_KAFKA_BROKER-REPLICA-SET: PLAINTEXT://protocol-kafka-1:9092
+  SPRING_DATA_MONGODB_URI: mongodb://protocol-mongodb
+  SPRING_DATA_MONGODB_DATABASE: "local-flow-indexer"
+
+x-common-service-variables: &common-service-variables
+  <<: *common-variables
+
+services:
+
+  local-flow-indexer-api:
+    build:
+      context: ../api
+      dockerfile: ../docker/Dockerfile
+    image: protocol-flow-indexer-api
+    environment:
+      <<: *common-service-variables
+      JAVA_OPTIONS: '-Xmx512m -Xms512m -XX:MaxDirectMemorySize=256m'
+
+  local-flow-indexer-listener:
+    build:
+      context: ../listener
+      dockerfile: ../docker/Dockerfile
+    image: protocol-flow-indexer-listener
+    environment:
+      <<: *common-service-variables
+      JAVA_OPTIONS: '-Xmx512m -Xms512m -XX:MaxDirectMemorySize=256m'
+
+  protocol-zookeeper-1:
+    image: zookeeper:3.7.0
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_PORT: 2181
+      ZOO_SERVERS: server.1=protocol-zookeeper-1:2888:3888;2181
+    volumes:
+      - protocol-zookeeper-1:/data
+      - protocol-zookeeper-log-1:/datalog
+
+  protocol-kafka-1:
+    image: confluentinc/cp-kafka:6.1.1
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://protocol-kafka-1:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "protocol-zookeeper-1:2181"
+      KAFKA_BROKER_ID: 1
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_NUM_PARTITIONS: 9
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG_RETENTION_HOURS: 24
+    volumes:
+      - protocol-kafka-1:/var/lib/kafka/data
+
+  protocol-mongodb:
+    image: mongo:4.2.0
+    command: --port 27017 --wiredTigerCacheSizeGB 1
+    volumes:
+      - protocol-mongodb:/data/db
+    ports:
+      - "47017:27017"
+
+volumes:
+  protocol-zookeeper-1: {}
+  protocol-zookeeper-log-1: {}
+  protocol-kafka-1: {}
+  protocol-mongodb: {}
