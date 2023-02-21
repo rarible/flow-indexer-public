@@ -37,7 +37,7 @@ abstract class WithPaymentsActivityMaker : ActivityMaker {
         currencies[chainId]!!.flatMap { listOf("${it}.TokensDeposited", "${it}.TokensWithdrawn") }.toSet()
     }
 
-    private val logger by Log()
+    protected val logger by Log()
 
     @Value("\${blockchain.scanner.flow.chainId}")
     protected lateinit var chainId: FlowChainId
@@ -93,14 +93,19 @@ abstract class WithPaymentsActivityMaker : ActivityMaker {
         sellerAddress: String
     ): List<PayInfo> {
         try {
-            val payments = currencyEvents.filter { it.eventId.eventName == "TokensDeposited" }
+            val payments = currencyEvents
+                .onEach {
+                    logger.info("[2296] try find currency = ${it.eventId.eventName}")
+                }
+                .filter {
+                    it.eventId.eventName == "TokensDeposited"
+                }
                 .filter { msg ->
                     val address = cadenceParser.optional(msg.fields["to"]!!) {
                         address(it)
                     }
                     address != null && address != Flow.DEFAULT_ADDRESS_REGISTRY.addressOf(FLOW_FEES, chainId)!!.formatted
                 }
-
 
             var feeFounded = false
             val payInfo = payments
