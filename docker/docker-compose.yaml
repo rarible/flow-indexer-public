@@ -48,7 +48,7 @@ services:
       - protocol-zookeeper-log-1:/datalog
 
   protocol-kafka-1:
-    image: confluentinc/cp-kafka:6.1.1
+    image: confluentinc/cp-kafka:7.2.3
     environment:
       KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://protocol-kafka-1:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT
