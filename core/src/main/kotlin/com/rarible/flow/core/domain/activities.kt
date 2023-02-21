@@ -29,7 +29,7 @@ sealed class FlowNftActivity : NFTActivity() {
     abstract val value: Long
 }
 
-sealed class FlowNftOrderActivity : BaseActivity() {
+sealed class FlowNftOrderActivity : NFTActivity() {
     abstract val price: BigDecimal?
     abstract val priceUsd: BigDecimal?
     abstract val hash: String
@@ -44,8 +44,8 @@ data class FlowNftOrderActivitySell(
     override val priceUsd: BigDecimal,
     override val timestamp: Instant,
     override val hash: String,
-    val tokenId: TokenId,
-    val contract: String,
+    override val tokenId: TokenId,
+    override val contract: String,
     val left: OrderActivityMatchSide,
     val right: OrderActivityMatchSide,
     val payments: List<FlowNftOrderPayment> = emptyList(),
@@ -60,8 +60,8 @@ data class FlowNftOrderActivityList(
     override val priceUsd: BigDecimal,
     override val timestamp: Instant,
     override val hash: String,
-    val tokenId: TokenId,
-    val contract: String,
+    override val tokenId: TokenId,
+    override val contract: String,
     val maker: String,
     val make: FlowAsset,
     val take: FlowAsset,
@@ -70,17 +70,19 @@ data class FlowNftOrderActivityList(
 data class FlowNftOrderActivityCancelList(
     override val type: FlowActivityType = FlowActivityType.CANCEL_LIST,
     override val timestamp: Instant,
-    override val hash: String,
+    val hash: String,
     @Field(targetType = FieldType.DECIMAL128)
-    override val price: BigDecimal? = null,
+    val price: BigDecimal? = null,
     @Field(targetType = FieldType.DECIMAL128)
-    override val priceUsd: BigDecimal? = null,
+    val priceUsd: BigDecimal? = null,
     val tokenId: TokenId? = null,
     val contract: String? = null,
     val maker: String? = null,
     val make: FlowAsset? = null,
     val take: FlowAsset? = null,
-) : FlowNftOrderActivity()
+) : BaseActivity() {
+    override fun getKey() = hash
+}
 
 data class FlowNftOrderActivityBid(
     override val type: FlowActivityType = FlowActivityType.BID,
@@ -89,8 +91,8 @@ data class FlowNftOrderActivityBid(
     override val priceUsd: BigDecimal,
     override val timestamp: Instant,
     override val hash: String,
-    val tokenId: TokenId,
-    val contract: String,
+    override val tokenId: TokenId,
+    override val contract: String,
     val maker: String,
     val make: FlowAsset,
     val take: FlowAsset,
@@ -99,15 +101,17 @@ data class FlowNftOrderActivityBid(
 data class FlowNftOrderActivityCancelBid(
     override val type: FlowActivityType = FlowActivityType.CANCEL_BID,
     override val timestamp: Instant,
-    override val hash: String,
-    override val price: BigDecimal? = null,
-    override val priceUsd: BigDecimal? = null,
+    val hash: String,
+    val price: BigDecimal? = null,
+    val priceUsd: BigDecimal? = null,
     val tokenId: TokenId? = null,
     val contract: String? = null,
     val maker: String? = null,
     val make: FlowAsset? = null,
     val take: FlowAsset? = null,
-) : FlowNftOrderActivity()
+) : BaseActivity() {
+    override fun getKey() = hash
+}
 
 
 data class FlowNftOrderPayment(
