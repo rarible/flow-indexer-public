@@ -37,3 +37,6 @@ flow-api:
   flow-access-url: "access.mainnet.nodes.onflow.org"
   flow-access-port: 9000
   chain-id: MAINNET
+  cleanup:
+    enabled: true
+    preservedCollections: "A.01ab36aaf654a13e.RaribleNFT,A.01ab36aaf654a13e.RaribleNFTv2"
