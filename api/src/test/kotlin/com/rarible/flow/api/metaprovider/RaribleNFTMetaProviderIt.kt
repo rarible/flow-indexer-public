@@ -4,6 +4,7 @@ import com.rarible.flow.api.IntegrationTest
 import com.rarible.flow.api.service.UrlService
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.ItemMeta
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.every
@@ -48,9 +49,15 @@ class RaribleNFTMetaProviderIt {
 
         val meta = provider.getMeta(item)!!
 
+        val expectedContent = ItemMeta.Content(
+            "test_image",
+            ItemMeta.Content.Representation.ORIGINAL,
+            ItemMeta.Content.Type.IMAGE
+        )
+
         assertThat(meta.name).isEqualTo("test_name")
         assertThat(meta.description).isEqualTo("test_desc")
-        assertThat(meta.contentUrls).isEqualTo(listOf("test_image"))
+        assertThat(meta.content).isEqualTo(listOf(expectedContent))
     }
 
     @Test
@@ -67,7 +74,6 @@ class RaribleNFTMetaProviderIt {
 
         assertThat(meta.name).isEqualTo("test_name")
         assertThat(meta.description).isEqualTo("test_desc")
-        assertThat(meta.contentUrls).isEqualTo(listOf("test_image"))
     }
 
     @Test

@@ -57,7 +57,8 @@ data class RaribleNFTMetaBody(
     @get:JsonProperty("animation_url")
     val animationUrl: String? = null,
     val attributes: List<RaribleNftAttr>
-): MetaBody {
+) : MetaBody {
+
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         return ItemMeta(
             itemId = itemId,
@@ -69,7 +70,23 @@ data class RaribleNFTMetaBody(
                     value = it.value
                 )
             },
-            contentUrls = listOfNotNull(image, animationUrl),
+            contentUrls = emptyList(),
+            content = listOfNotNull(
+                image?.let {
+                    ItemMeta.Content(
+                        it,
+                        ItemMeta.Content.Representation.ORIGINAL,
+                        ItemMeta.Content.Type.IMAGE
+                    )
+                },
+                animationUrl?.let {
+                    ItemMeta.Content(
+                        it,
+                        ItemMeta.Content.Representation.ORIGINAL,
+                        ItemMeta.Content.Type.VIDEO
+                    )
+                }
+            ),
         ).apply {
             raw = toString().toByteArray(charset = Charsets.UTF_8)
         }
