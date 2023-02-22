@@ -1,8 +1,8 @@
 package com.rarible.flow.api.service
 
-import com.rarible.flow.api.metaprovider.ItemMetaProvider
+import com.rarible.flow.api.meta.ItemMeta
+import com.rarible.flow.api.meta.provider.ItemMetaProvider
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coFindById
 import org.slf4j.LoggerFactory

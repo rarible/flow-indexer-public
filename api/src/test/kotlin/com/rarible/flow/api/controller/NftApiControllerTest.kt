@@ -3,14 +3,14 @@ package com.rarible.flow.api.controller
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowException
 import com.ninjasquad.springmockk.MockkBean
-import com.rarible.flow.api.royaltyprovider.Royalty
+import com.rarible.flow.api.meta.ItemMeta
+import com.rarible.flow.api.royalty.provider.Royalty
 import com.rarible.flow.api.service.ItemRoyaltyService
 import com.rarible.flow.api.service.NftItemMetaService
 import com.rarible.flow.api.service.NftItemService
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.protocol.dto.FlowCreatorDto

@@ -1,15 +1,14 @@
 package com.rarible.flow.api.service
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.api.royaltyprovider.ItemRoyaltyProvider
-import com.rarible.flow.api.royaltyprovider.Royalty
+import com.rarible.flow.api.royalty.provider.ItemRoyaltyProvider
+import com.rarible.flow.api.royalty.provider.Royalty
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.repository.withEntity
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
 
 @Service

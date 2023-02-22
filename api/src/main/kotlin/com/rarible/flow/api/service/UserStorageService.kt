@@ -9,9 +9,9 @@ import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.nftco.flow.sdk.cadence.OptionalField
 import com.nftco.flow.sdk.cadence.UInt32NumberField
 import com.rarible.flow.Contracts
-import com.rarible.flow.api.metaprovider.CnnNFTConverter
-import com.rarible.flow.api.metaprovider.DisruptArtNFT
-import com.rarible.flow.api.metaprovider.RaribleNFT
+import com.rarible.flow.api.meta.provider.legacy.CnnNFTConverter
+import com.rarible.flow.api.meta.provider.legacy.DisruptArtNFT
+import com.rarible.flow.api.meta.provider.legacy.RaribleNFT
 import com.rarible.flow.api.service.flowrpc.ScanUserNftScript
 import com.rarible.flow.api.service.flowrpc.TopShotMomentScript
 import com.rarible.flow.core.config.AppProperties
