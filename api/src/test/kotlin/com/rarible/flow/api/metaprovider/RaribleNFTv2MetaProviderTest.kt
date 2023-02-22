@@ -4,14 +4,14 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemMeta
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
 class RaribleNFTv2MetaProviderTest {
 
     @Test
-    internal fun metaParseTest() = runBlocking {
+    fun `get meta - ok`() = runBlocking {
         val provider = RaribleNFTv2MetaProvider()
         val item = Item(
             contract = "A.f8d6e0586b0a20c7.RaribleNFTv2",
@@ -35,11 +35,11 @@ class RaribleNFTv2MetaProviderTest {
 
         val actualMeta = provider.getMeta(item)
 
-        Assertions.assertNotNull(actualMeta)
-        Assertions.assertEquals(expectedMeta.itemId, actualMeta?.itemId)
-        Assertions.assertEquals(expectedMeta.name, actualMeta?.name)
-        Assertions.assertEquals(expectedMeta.description, actualMeta?.description)
-        Assertions.assertEquals(expectedMeta.attributes, actualMeta?.attributes)
-        Assertions.assertEquals(expectedMeta.contentUrls, actualMeta?.contentUrls)
+        assertThat(actualMeta).isNotNull
+        assertThat(actualMeta?.itemId).isEqualTo(expectedMeta.itemId)
+        assertThat(actualMeta?.name).isEqualTo(expectedMeta.name)
+        assertThat(actualMeta?.description).isEqualTo(expectedMeta.description)
+        assertThat(actualMeta?.attributes).isEqualTo(expectedMeta.attributes)
+        assertThat(actualMeta?.contentUrls).isEqualTo(expectedMeta.contentUrls)
     }
 }

@@ -9,7 +9,9 @@ flow-indexer-api:
   flow-access-url:
   flow-access-port:
   alchemy-api-key: ${alchemy.api.key}
-  ipfsInnerUrl: "https://rarible.mypinata.cloud/ipfs"
+  ipfs:
+    internalGateway: "https://ipfs.io"
+    publicGateway: "https://ipfs.io"
 
 application:
   service-name: flow-indexer-api

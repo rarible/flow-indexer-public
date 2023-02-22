@@ -11,10 +11,13 @@ import org.springframework.stereotype.Component
 
 @Component
 class RaribleNFTv2MetaProvider: ItemMetaProvider {
+
+    private val mapper = jacksonObjectMapper()
+
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.endsWith(".RaribleNFTv2")
 
     override suspend fun getMeta(item: Item): ItemMeta? {
-        val meta = jacksonObjectMapper().readValue<RaribleNFTv2Meta>(item.meta!!)
+        val meta = mapper.readValue<RaribleNFTv2Meta>(item.meta!!)
         return ItemMeta(
             itemId = item.id,
             name = meta.name,

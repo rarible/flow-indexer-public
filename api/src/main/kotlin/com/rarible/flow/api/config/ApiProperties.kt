@@ -11,5 +11,28 @@ data class ApiProperties(
     val flowAccessPort: Int,
     val chainId: FlowChainId,
     val alchemyApiKey: String,
-    val ipfsInnerUrl: String,
+    val ipfs: IpfsProperties,
+    val httpClient: HttpClientProperties = HttpClientProperties(),
+    val featureFlags: FeatureFlags = FeatureFlags()
+)
+
+data class IpfsProperties(
+    val internalGateway: String,
+    val publicGateway: String
+)
+
+data class HttpClientProperties(
+    val proxy: ProxyProperties = ProxyProperties(),
+    val requestTimeout: Long = 60000
+)
+
+data class ProxyProperties(
+    val url: String = "",
+    val readTimeout: Int = 30000,
+    val connectTimeout: Int = 30000,
+    val requestTimeout: Long = 60000
+)
+
+data class FeatureFlags(
+    val enableProxyForMetaDownload: Boolean = false
 )

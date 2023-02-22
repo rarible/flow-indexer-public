@@ -3,6 +3,7 @@ package com.rarible.flow.api.service
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.kafka.KafkaSendResult
+import com.rarible.flow.api.BaseIntegrationTest
 import com.rarible.flow.api.IntegrationTest
 import com.rarible.flow.api.createOrder
 import com.rarible.flow.core.domain.FlowActivityType
@@ -40,7 +41,7 @@ import java.util.UUID
 import kotlin.random.Random
 
 @IntegrationTest
-internal class AdminServiceTest {
+internal class AdminServiceTest : BaseIntegrationTest() {
 
     @Autowired
     private lateinit var itemRepository: ItemRepository
