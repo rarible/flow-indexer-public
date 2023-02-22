@@ -14,6 +14,7 @@ import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.OwnershipId
 import com.rarible.flow.core.util.Log
 import com.rarible.protocol.dto.FlowActivityDto
 import com.rarible.protocol.dto.FlowAuctionDto

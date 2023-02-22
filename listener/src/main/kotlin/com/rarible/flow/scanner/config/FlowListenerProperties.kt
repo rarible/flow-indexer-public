@@ -14,10 +14,17 @@ data class FlowListenerProperties(
     val chainId: FlowChainId,
     val serviceAccount: FlowNetworkServiceAccount = FlowNetworkServiceAccount(FlowAddress("0x00"), ""),
     val scannerLogRecordDaemon: DaemonWorkerProperties = DaemonWorkerProperties(),
-    val scannerLogRecordListeners: Map<String, Int> = emptyMap()
+    val scannerLogRecordListeners: Map<String, Int> = emptyMap(),
+    val cleanup: CleanUpProperties = CleanUpProperties()
 )
 
 data class FlowNetworkServiceAccount(
     val address: FlowAddress,
     val privateKey: String
+)
+
+data class CleanUpProperties(
+    val enabled: Boolean = false,
+    val batchSize: Int = 100,
+    val preservedCollections: List<String> = emptyList()
 )
