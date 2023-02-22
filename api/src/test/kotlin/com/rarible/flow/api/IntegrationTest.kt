@@ -15,7 +15,8 @@ import org.testcontainers.junit.jupiter.Testcontainers
         "spring.cloud.service-registry.auto-registration.enabled = false",
         "spring.cloud.discovery.enabled = false",
         "spring.cloud.consul.config.enabled = false",
-        "logging.logstash.tcp-socket.enabled = false"
+        "logging.logstash.tcp-socket.enabled = false",
+        "logging.logjson.enabled = false",
     ]
 )
 @ActiveProfiles("test")

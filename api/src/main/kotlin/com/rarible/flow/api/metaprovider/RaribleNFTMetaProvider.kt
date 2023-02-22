@@ -2,57 +2,50 @@ package com.rarible.flow.api.metaprovider
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.rarible.core.meta.resource.model.UrlResource
+import com.rarible.flow.api.service.UrlService
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.ItemMeta
 import com.rarible.flow.core.domain.ItemMetaAttribute
-import org.slf4j.LoggerFactory
-import org.springframework.boot.json.JacksonJsonParser
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBodyOrNull
 
 @Component
 class RaribleNFTMetaProvider(
-    private val ipfsClient: WebClient
+    private val rawPropertiesProvider: RawPropertiesProvider,
+    private val urlService: UrlService
 ) : ItemMetaProvider {
 
-    private val logger = LoggerFactory.getLogger(javaClass)
+    private val mapper = jacksonObjectMapper()
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.endsWith(".RaribleNFT")
 
     override suspend fun getMeta(item: Item): ItemMeta? {
-        val ipfs = readUrl(item) ?: return null
+        val resource = readUrl(item)
+        val json = rawPropertiesProvider.getContent(item.id, resource) ?: throw MetaException(
+            "Failed to get meta",
+            MetaException.Status.ERROR
+        )
 
-        return try {
-            return ipfsClient
-                .get()
-                .uri("/$ipfs")
-                .retrieve()
-                .awaitBodyOrNull<RaribleNFTMetaBody>()
-                ?.toItemMeta(item.id)
-        } catch (e: Exception) {
-            logger.warn("Failed RaribleNFTMetaProvider.getMeta({})", item, e)
-            null
-        }
+        // TODO ideally make it manually
+        return mapper.readValue(json, RaribleNFTMetaBody::class.java).toItemMeta(item.id)
+
     }
 
-    private fun readUrl(item: Item): String? {
-        var url = item.meta ?: return null
-        if (url.startsWith("{")) {
-            url = JacksonJsonParser().parseMap(url)["metaURI"] as String?
-                ?: return null
-        }
+    private fun readUrl(item: Item): UrlResource {
+        val itemId = item.id.toString()
+        val rawUrl = item.meta
+            ?: throw MetaException("Item $itemId doesn't have metaURI", MetaException.Status.NOT_FOUND)
 
-        if (url.startsWith("ipfs://ipfs/")) {
-            url = url.substring("ipfs://ipfs/".length)
-        }
+        urlService.parseUrl(rawUrl, itemId)?.let { return it }
 
-        if (url.isEmpty()) {
-            return null
-        }
+        val json = JsonPropertiesParser.parse(itemId, rawUrl)
+        val url = json.get("metaURI").asText()
 
-        return url
+        urlService.parseUrl(url, itemId)?.let { return it }
+
+        throw MetaException("Unparseable metaURI in json: $url", MetaException.Status.CORRUPTED_URL)
     }
 }
 

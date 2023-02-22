@@ -1,5 +1,6 @@
 package com.rarible.flow.api.controller
 
+import com.rarible.flow.api.metaprovider.MetaException
 import com.rarible.flow.api.service.ItemRoyaltyService
 import com.rarible.flow.api.service.NftItemMetaService
 import com.rarible.flow.api.service.NftItemService
@@ -70,8 +71,11 @@ class NftApiController(
         val meta = try {
             val meta = nftItemMetaService.getMetaByItemId(id)
             meta?.let { ItemMetaToDtoConverter.convert(meta) }
+        } catch (e: MetaException) {
+            logger.error("Failed to get meta of [{}] from blockchain: {}", itemId, e.message)
+            withStatus(e.status.toDto())
         } catch (e: Exception) {
-            logger.error("Failed to get meta of [{}] from blockchain", itemId, e)
+            logger.error("Failed to get meta of [{}] from blockchain: ", itemId, e)
             withStatus(FlowMetaDto.Status.ERROR)
         }
         val result = meta ?: withStatus(FlowMetaDto.Status.NOT_FOUND)

@@ -7,9 +7,19 @@ import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.impl.AsyncFlowAccessApiImpl
-import com.rarible.blockchain.scanner.BlockchainScanner
 import com.rarible.blockchain.scanner.EnableBlockchainScannerComponents
-import com.rarible.blockchain.scanner.block.BlockRepository
+import com.rarible.core.common.safeSplit
+import com.rarible.core.meta.resource.http.DefaultHttpClient
+import com.rarible.core.meta.resource.http.ExternalHttpClient
+import com.rarible.core.meta.resource.http.ProxyHttpClient
+import com.rarible.core.meta.resource.http.builder.DefaultWebClientBuilder
+import com.rarible.core.meta.resource.http.builder.ProxyWebClientBuilder
+import com.rarible.core.meta.resource.parser.UrlParser
+import com.rarible.core.meta.resource.resolver.ConstantGatewayProvider
+import com.rarible.core.meta.resource.resolver.IpfsGatewayResolver
+import com.rarible.core.meta.resource.resolver.LegacyIpfsGatewaySubstitutor
+import com.rarible.core.meta.resource.resolver.RandomGatewayProvider
+import com.rarible.core.meta.resource.resolver.UrlResolver
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.service.FlowSignatureService
 import com.rarible.flow.core.config.AppProperties
@@ -22,9 +32,9 @@ import org.onflow.protobuf.access.AccessAPIGrpc
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.event.EventListener
+import org.springframework.http.HttpHeaders
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
@@ -40,6 +50,16 @@ class Config(
 
     @Suppress("PrivatePropertyName")
     private val DEFAULT_MESSAGE_SIZE: Int = 33554432 //32 Mb in bites
+
+    @Bean
+    fun ipfsProperties(): IpfsProperties {
+        return apiProperties.ipfs
+    }
+
+    @Bean
+    fun featureFlags(): FeatureFlags {
+        return apiProperties.featureFlags
+    }
 
     @Bean
     fun signatureService(api: AsyncFlowAccessApi): FlowSignatureService {
@@ -61,12 +81,72 @@ class Config(
 
     @Bean
     fun ipfsClient(): WebClient {
-        return buildWebClient("ipfsClient", apiProperties.ipfsInnerUrl)
+        return buildWebClient("ipfsClient", apiProperties.ipfs.internalGateway)
     }
 
     @Bean
     fun webClient(): WebClient {
         return WebClient.create()
+    }
+
+    @Bean
+    fun urlParser() = UrlParser()
+
+    @Bean
+    fun urlResolver(ipfs: IpfsProperties): UrlResolver {
+        val internalGatewayProvider = RandomGatewayProvider(
+            ipfs.internalGateway.safeSplit().map { it.trimEnd('/') }
+        )
+        val publicGatewayProvider = ConstantGatewayProvider(
+            ipfs.publicGateway.trimEnd('/')
+        )
+
+        return UrlResolver(
+            ipfsGatewayResolver = IpfsGatewayResolver(
+                publicGatewayProvider = publicGatewayProvider,
+                internalGatewayProvider = internalGatewayProvider,
+                customGatewaysResolver = LegacyIpfsGatewaySubstitutor(listOf())
+            )
+        )
+    }
+
+    @Bean
+    fun externalHttpClient(): ExternalHttpClient {
+        val httpClientProperties = apiProperties.httpClient
+        val proxyProperties = httpClientProperties.proxy
+
+        val followRedirect = true  // TODO Move to properties?
+
+        val defaultHeaders = HttpHeaders()
+        defaultHeaders.set(HttpHeaders.USER_AGENT, "rarible-protocol")
+
+        val defaultWebClientBuilder = DefaultWebClientBuilder(
+            followRedirect = followRedirect,
+            defaultHeaders = defaultHeaders
+        )
+        val proxyWebClientBuilder = ProxyWebClientBuilder(
+            readTimeout = proxyProperties.readTimeout,
+            connectTimeout = proxyProperties.connectTimeout,
+            proxyUrl = proxyProperties.url,
+            followRedirect = followRedirect,
+            defaultHeaders = defaultHeaders
+        )
+
+        val defaultHttpClient = DefaultHttpClient(
+            builder = defaultWebClientBuilder,
+            requestTimeout = httpClientProperties.requestTimeout
+
+        )
+        val proxyHttpClient = ProxyHttpClient(
+            builder = proxyWebClientBuilder,
+            requestTimeout = proxyProperties.requestTimeout
+        )
+
+        return ExternalHttpClient(
+            defaultClient = defaultHttpClient,
+            proxyClient = proxyHttpClient,
+            customClients = listOf()
+        )
     }
 
     private fun buildWebClient(loggerName: String, baseUrl: String): WebClient {
