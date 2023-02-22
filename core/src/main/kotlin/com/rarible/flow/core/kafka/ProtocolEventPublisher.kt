@@ -1,7 +1,6 @@
 package com.rarible.flow.core.kafka
 
 import com.rarible.core.kafka.KafkaMessage
-import com.rarible.core.kafka.KafkaSendResult
 import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.flow.core.converter.AuctionToDtoConverter
 import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
@@ -14,7 +13,6 @@ import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.Ownership
-import com.rarible.flow.core.domain.OwnershipId
 import com.rarible.flow.core.util.Log
 import com.rarible.protocol.dto.FlowActivityDto
 import com.rarible.protocol.dto.FlowAuctionDto
@@ -42,7 +40,7 @@ class ProtocolEventPublisher(
 
     private val logger by Log()
 
-    suspend fun onItemUpdate(item: Item, marks: FlowEventTimeMarksDto): KafkaSendResult {
+    suspend fun onItemUpdate(item: Item, marks: FlowEventTimeMarksDto) {
         val key = item.id.toString()
         val message = FlowNftItemUpdateEventDto(
             eventId = "${item.id}.${UUID.randomUUID()}",
@@ -50,10 +48,10 @@ class ProtocolEventPublisher(
             item = ItemToDtoConverter.convert(item),
             eventTimeMarks = marks.onIndexerOut()
         )
-        return send(items, key, message)
+        send(items, key, message)
     }
 
-    suspend fun onUpdate(ownership: Ownership, marks: FlowEventTimeMarksDto): KafkaSendResult {
+    suspend fun onUpdate(ownership: Ownership, marks: FlowEventTimeMarksDto) {
         val key = ownership.id.toString()
         val message = FlowNftOwnershipUpdateEventDto(
             eventId = "${ownership.id}.${UUID.randomUUID()}",
@@ -61,7 +59,7 @@ class ProtocolEventPublisher(
             ownership = OwnershipToDtoConverter.convert(ownership),
             eventTimeMarks = marks.onIndexerOut()
         )
-        return send(ownerships, key, message)
+        send(ownerships, key, message)
     }
 
     suspend fun onDelete(ownership: List<Ownership>, marks: FlowEventTimeMarksDto) {
@@ -73,12 +71,11 @@ class ProtocolEventPublisher(
                 ownership = OwnershipToDtoConverter.convert(it),
                 eventTimeMarks = marks.onIndexerOut()
             )
-
             send(ownerships, key, message)
         }
     }
 
-    suspend fun onDelete(ownership: Ownership, marks: FlowEventTimeMarksDto): KafkaSendResult {
+    suspend fun onDelete(ownership: Ownership, marks: FlowEventTimeMarksDto) {
         val key = ownership.id.toString()
         val message = FlowNftOwnershipDeleteEventDto(
             eventId = "${ownership.id}.${UUID.randomUUID()}",
@@ -86,14 +83,14 @@ class ProtocolEventPublisher(
             ownership = OwnershipToDtoConverter.convert(ownership),
             eventTimeMarks = marks.onIndexerOut()
         )
-        return send(ownerships, key, message)
+        send(ownerships, key, message)
     }
 
     suspend fun onOrderUpdate(
         order: Order,
         converter: OrderToDtoConverter,
         marks: FlowEventTimeMarksDto
-    ): KafkaSendResult {
+    ) {
         val orderId = order.id
         val key = orderId.toString()
         val message = FlowOrderUpdateEventDto(
@@ -102,10 +99,10 @@ class ProtocolEventPublisher(
             order = converter.convert(order),
             eventTimeMarks = marks.onIndexerOut()
         )
-        return send(orders, key, message)
+        send(orders, key, message)
     }
 
-    suspend fun onItemDelete(itemId: ItemId, marks: FlowEventTimeMarksDto): KafkaSendResult {
+    suspend fun onItemDelete(itemId: ItemId, marks: FlowEventTimeMarksDto) {
         val key = itemId.toString()
         val message = FlowNftItemDeleteEventDto(
             eventId = "${itemId}.${UUID.randomUUID()}",
@@ -113,43 +110,31 @@ class ProtocolEventPublisher(
             item = FlowNftDeletedItemDto(key, itemId.contract, itemId.tokenId),
             eventTimeMarks = marks.onIndexerOut()
         )
-        return send(items, key, message)
+        send(items, key, message)
     }
 
-    suspend fun activity(history: ItemHistory): KafkaSendResult {
-        return send(
+    suspend fun activity(history: ItemHistory) {
+        send(
             activities,
             "${history.id}:${history.activity.type}-${history.activity.timestamp}",
             itemHistoryToDtoConverter.convert(history)
         )
     }
 
-    suspend fun auction(auction: EnglishAuctionLot): KafkaSendResult {
-        return send(
+    suspend fun auction(auction: EnglishAuctionLot) {
+        send(
             auctions,
             "${auction.id}.${UUID.randomUUID()}",
             AuctionToDtoConverter.convert(auction)
         )
     }
 
-    private suspend fun <V> send(producer: RaribleKafkaProducer<V>, key: String, message: V): KafkaSendResult {
-        logger.info("Sending to kafka: {} [hashCode={}]...", message, message.hashCode())
-        val sendResult = producer.send(
-            KafkaMessage(key, message)
-        )
-        when (sendResult) {
-            is KafkaSendResult.Success -> logger.debug(
-                "Message [hashCode={}] is successfully sent.",
-                message.hashCode()
-            )
-
-            is KafkaSendResult.Fail -> logger.error("Failed to send message [hashCode={}]", message.hashCode())
-        }
-        return sendResult
+    private suspend fun <V> send(producer: RaribleKafkaProducer<V>, key: String, message: V) {
+        logger.info("Sending to kafka: {}...", message)
+        producer.send(KafkaMessage(key, message)).ensureSuccess()
     }
 
     private fun FlowEventTimeMarksDto.onIndexerOut(): FlowEventTimeMarksDto {
         return this.add("indexer-out")
     }
-
 }

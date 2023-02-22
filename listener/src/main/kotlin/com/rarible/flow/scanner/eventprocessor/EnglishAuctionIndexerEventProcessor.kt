@@ -91,6 +91,6 @@ class EnglishAuctionIndexerEventProcessor(
     }
 
     private suspend fun sendKafka(event: IndexerEvent, lot: EnglishAuctionLot) {
-        protocolEventPublisher.auction(lot).ensureSuccess()
+        protocolEventPublisher.auction(lot)
     }
 }

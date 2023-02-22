@@ -7,13 +7,13 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 abstract class AbstractEntityCleanupJob<Entity, EntityId>(
-    properties: FlowListenerProperties
+    private val properties: FlowListenerProperties
 ) {
-    protected val logger = LoggerFactory.getLogger(javaClass)
-    private val cleanup = properties.cleanup
+    protected val logger: Logger = LoggerFactory.getLogger(javaClass)
 
     protected abstract suspend fun find(fromId: EntityId?, batchSize: Int): Flow<Entity>
 
@@ -36,8 +36,8 @@ abstract class AbstractEntityCleanupJob<Entity, EntityId>(
     }
 
     private suspend fun cleanupFrom(fromId: EntityId?): EntityId? {
-        val batchSize = cleanup.batchSize
-        val preservedCollections = cleanup.preservedCollections
+        val batchSize = properties.cleanup.batchSize
+        val preservedCollections = properties.cleanup.preservedCollections
         val batch = find(fromId, batchSize).toList()
 
         coroutineScope {

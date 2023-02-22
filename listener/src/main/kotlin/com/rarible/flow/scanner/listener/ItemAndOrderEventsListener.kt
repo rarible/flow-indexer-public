@@ -69,7 +69,7 @@ class ItemAndOrderEventsListener(
                 saved.sortedBy { it.date }.groupBy { it.log.transactionHash }.forEach { tx ->
                     tx.value.sortedBy { it.log.eventIndex }.forEach { h ->
                         logger.info("Send activity [${h.id}] to kafka!")
-                        protocolEventPublisher.activity(h).ensureSuccess()
+                        protocolEventPublisher.activity(h)
 
                         logger.info("[2278] processEvent ${h.activity}")
                         indexerEventService.processEvent(

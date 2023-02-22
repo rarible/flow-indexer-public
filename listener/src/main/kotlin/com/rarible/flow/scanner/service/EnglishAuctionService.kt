@@ -181,12 +181,12 @@ class EnglishAuctionService(
                 logger.info("Found: ${finished.size} finished auctions ...")
                 if (started.isNotEmpty()) {
                     repo.saveAll(started.map { it.copy(ongoing = true, lastUpdatedAt = Instant.now()) }).asFlow().collect {
-                        publisher.auction(it).ensureSuccess()
+                        publisher.auction(it)
                     }
                 }
                 if (finished.isNotEmpty()) {
                     repo.saveAll(finished.map { it.copy(ongoing = false, lastUpdatedAt = Instant.now()) }).asFlow().collect {
-                        publisher.auction(it).ensureSuccess()
+                        publisher.auction(it)
                     }
                 }
             } catch (e: Throwable) {
