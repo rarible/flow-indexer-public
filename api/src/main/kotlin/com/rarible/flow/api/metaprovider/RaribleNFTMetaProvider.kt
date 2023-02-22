@@ -29,7 +29,9 @@ class RaribleNFTMetaProvider(
         )
 
         // TODO ideally make it manually
-        return mapper.readValue(json, RaribleNFTMetaBody::class.java).toItemMeta(item.id)
+        return mapper.readValue(json, RaribleNFTMetaBody::class.java)
+            .toItemMeta(item.id)
+            .copy(originalMetaUri = resource.original)
 
     }
 
@@ -87,9 +89,7 @@ data class RaribleNFTMetaBody(
                     )
                 }
             ),
-        ).apply {
-            raw = toString().toByteArray(charset = Charsets.UTF_8)
-        }
+        )
     }
 }
 
