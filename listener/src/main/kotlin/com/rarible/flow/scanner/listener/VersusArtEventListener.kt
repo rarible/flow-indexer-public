@@ -53,7 +53,7 @@ class VersusArtEventListener(
                             )
                         )
                         logger.info("Send activity [${history.id}] to kafka!")
-                        protocolEventPublisher.activity(history).ensureSuccess()
+                        protocolEventPublisher.activity(history)
                     }
                 }
             }
