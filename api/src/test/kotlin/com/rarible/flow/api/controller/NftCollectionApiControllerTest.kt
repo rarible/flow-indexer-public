@@ -107,8 +107,6 @@ class NftCollectionApiControllerTest(
             .expectStatus().isOk
             .expectBody(FlowNftCollectionsDto::class.java)
             .returnResult().responseBody!!
-
-        response.total shouldBe 3
     }
 
     @Test
@@ -120,7 +118,6 @@ class NftCollectionApiControllerTest(
             .expectBody(FlowNftCollectionsDto::class.java)
             .returnResult().responseBody!!
 
-        response.total shouldBe 1
         response.data[0].owner shouldBe FlowAddress("0x01").formatted
 
         response = client.get()
@@ -130,7 +127,6 @@ class NftCollectionApiControllerTest(
             .expectBody(FlowNftCollectionsDto::class.java)
             .returnResult().responseBody!!
 
-        response.total shouldBe 1
         response.data[0].owner shouldBe FlowAddress("0x02").formatted
     }
 
@@ -144,7 +140,6 @@ class NftCollectionApiControllerTest(
             .consumeWith { result ->
                 val body = result.responseBody
                 body shouldNotBe null
-                body?.total shouldBe 2
                 body?.data?.map { it.id } shouldContainExactly listOf("ID1", "ID4")
                 body?.continuation shouldBe null
             }

@@ -75,7 +75,6 @@ internal class NftApiControllerTest {
         coEvery {
             nftItemService.getAllItems(any(), any(), any(), any(), any())
         } returns FlowNftItemsDto(
-            total = items.size.toLong(),
             continuation = "",
             items = items.map(ItemToDtoConverter::convert)
         )
@@ -180,7 +179,6 @@ internal class NftApiControllerTest {
             nftItemService.byAccount(any(), any(), any())
         } coAnswers {
             FlowNftItemsDto(
-                total = items.filter { it.owner == FlowAddress(arg(0)) }.size.toLong(),
                 items = items.filter { it.owner == FlowAddress(arg(0)) }.map(ItemToDtoConverter::convert),
                 continuation = ""
             )
@@ -230,7 +228,6 @@ internal class NftApiControllerTest {
             nftItemService.byCreator(any(), any(), any())
         } coAnswers {
             FlowNftItemsDto(
-                total = items.filter { it.creator == FlowAddress(arg(0)) }.size.toLong(),
                 items = items.filter { it.creator == FlowAddress(arg(0)) }.map(ItemToDtoConverter::convert),
                 continuation = ""
             )
@@ -276,7 +273,6 @@ internal class NftApiControllerTest {
             nftItemService.byCollection(any(), null, any())
         } coAnswers {
             FlowNftItemsDto(
-                total = items.filter { it.collection == arg(0) }.size.toLong(),
                 items = items.filter { it.collection == arg(0) }.map(ItemToDtoConverter::convert),
                 continuation = ""
             )
@@ -322,7 +318,6 @@ internal class NftApiControllerTest {
             nftItemService.getAllItems(any(), null, any(), any(), any())
         } coAnswers {
             FlowNftItemsDto(
-                total = 2L,
                 items = items.map(ItemToDtoConverter::convert),
                 continuation = ""
             )
@@ -433,7 +428,6 @@ internal class NftApiControllerTest {
             val answerIds = arg<List<ItemId>>(0)
             val answerItems = items.filter { it.id in answerIds }
             FlowNftItemsDto(
-                total = answerItems.size.toLong(),
                 continuation = null,
                 items = answerItems.map { ItemToDtoConverter.convert(it) }
             )
@@ -446,7 +440,6 @@ internal class NftApiControllerTest {
             .expectBody<FlowNftItemsDto>().consumeWith { res ->
                 res.responseBody shouldNotBe null
                 res.responseBody?.let { body ->
-                    body.total shouldBe testIds.size.toLong()
                     body.continuation shouldBe null
                     body.items.all { itemDto -> itemDto.id in testIds.map { "$it" } } shouldBe true
                 }

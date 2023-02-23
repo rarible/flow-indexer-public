@@ -11,7 +11,6 @@ import com.rarible.protocol.dto.FlowNftOwnershipsDto
 import com.rarible.protocol.dto.NftOwnershipsByIdRequestDto
 import com.rarible.protocol.flow.nft.api.controller.FlowNftOwnershipControllerApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.springframework.http.ResponseEntity
@@ -41,7 +40,6 @@ class OwnershipsApiController(
     override suspend fun getNftOwnershipsById(nftOwnershipsByIdRequestDto: NftOwnershipsByIdRequestDto): ResponseEntity<FlowNftOwnershipsDto> {
         val ownerships = service.byIds(nftOwnershipsByIdRequestDto.ids).toList()
         return FlowNftOwnershipsDto(
-            total = ownerships.size.toLong(),
             ownerships = ownerships.map(OwnershipToDtoConverter::convert),
             continuation = null,
         ).okOr404IfNull()
@@ -66,7 +64,6 @@ class OwnershipsApiController(
         sort: OwnershipFilter.Sort
     ): FlowNftOwnershipsDto {
         return FlowNftOwnershipsDto(
-            total = flow.count().toLong(),
             ownerships = flow.map { o -> OwnershipToDtoConverter.convert(o) }.toList(),
             continuation = sort.nextPage(flow, size)
         )

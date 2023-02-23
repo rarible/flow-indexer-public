@@ -61,12 +61,11 @@ class NftItemService(
 
     private suspend fun convert(items: Flow<Item>, sort: ItemFilter.Sort, size: Int?): FlowNftItemsDto {
         return if (items.count() == 0) {
-            FlowNftItemsDto(0, null, emptyList())
+            FlowNftItemsDto(null, emptyList())
         } else {
             FlowNftItemsDto(
                 continuation = sort.nextPage(items, size),
-                items = items.map { ItemToDtoConverter.convert(it) }.toList(),
-                total = items.count().toLong()
+                items = items.map { ItemToDtoConverter.convert(it) }.toList()
             )
         }
     }
@@ -91,10 +90,9 @@ class NftItemService(
     suspend fun getItemsByIds(ids: List<ItemId>): FlowNftItemsDto {
         val items = itemRepository.findAllByIdIn(ids.toSet()).asFlow().toList()
         return if (items.isEmpty()) {
-            FlowNftItemsDto(0L, null, emptyList())
+            FlowNftItemsDto(null, emptyList())
         } else {
             FlowNftItemsDto(
-                total = items.size.toLong(),
                 continuation = null,
                 items = items.map { ItemToDtoConverter.convert(it) }.toList()
             )

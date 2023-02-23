@@ -8,8 +8,6 @@ import com.rarible.flow.core.repository.filters.ScrollingSort
 import com.rarible.flow.core.util.safeOf
 import com.rarible.protocol.dto.FlowActivitiesDto
 import com.rarible.protocol.dto.FlowActivityDto
-import java.time.Instant
-import kotlin.reflect.KProperty
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -22,6 +20,8 @@ import org.springframework.data.mongodb.core.query.and
 import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.stereotype.Service
+import java.time.Instant
+import kotlin.reflect.KProperty
 
 @FlowPreview
 @Service
@@ -80,7 +80,7 @@ class ActivitiesService(
             }
         )
 
-        private val emptyActivities = FlowActivitiesDto(items = emptyList(), total = 0)
+        private val emptyActivities = FlowActivitiesDto(items = emptyList())
     }
 
     suspend fun getNftOrderActivitiesByItem(
@@ -230,7 +230,6 @@ class ActivitiesService(
 
         return FlowActivitiesDto(
             items = items,
-            total = items.size,
             continuation = outCont.toString()
         )
     }
