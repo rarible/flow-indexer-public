@@ -25,18 +25,6 @@ interface OwnershipRepository : ReactiveMongoRepository<Ownership, OwnershipId>,
     fun findAllByContractAndTokenId(contract: String, tokenId: TokenId /* = kotlin.Long */): Flux<Ownership>
 
     fun findByIdIn(ids: List<String>): Flux<Ownership>
-
-    fun find(fromId: OwnershipId?, limit: Int): Flow<Ownership> {
-        val criteria = Criteria().andOperator(
-            listOfNotNull(
-                fromId?.let { Criteria.where("_id").gt(it) }
-            )
-        )
-        val query = Query(criteria)
-            .with(Sort.by("_id"))
-            .limit(limit)
-        return findByQuery(query).asFlow()
-    }
 }
 
 interface ScrollingRepository<T> {
@@ -51,15 +39,31 @@ interface ScrollingRepository<T> {
     }
 }
 
-interface OwnershipRepositoryCustom: ScrollingRepository<Ownership>
+interface OwnershipRepositoryCustom : ScrollingRepository<Ownership> {
+
+    fun find(fromId: OwnershipId?, limit: Int): Flow<Ownership>
+}
 
 @Suppress("unused")
 class OwnershipRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate): OwnershipRepositoryCustom {
+
     override fun defaultSort(): ScrollingSort<Ownership> {
         return OwnershipFilter.Sort.LATEST_FIRST
     }
 
     override fun findByQuery(query: Query): Flux<Ownership> {
         return mongoTemplate.find(query)
+    }
+
+    override fun find(fromId: OwnershipId?, limit: Int): Flow<Ownership> {
+        val criteria = Criteria().andOperator(
+            listOfNotNull(
+                fromId?.let { Criteria.where("_id").gt(it) }
+            )
+        )
+        val query = Query(criteria)
+            .with(Sort.by("_id"))
+            .limit(limit)
+        return findByQuery(query).asFlow()
     }
 }

@@ -373,6 +373,7 @@ internal class NftApiControllerTest {
                     name = "good",
                     description = "ok",
                     attributes = emptyList(),
+                    content = emptyList(),
                     status = FlowMetaDto.Status.OK
                 )
             )
