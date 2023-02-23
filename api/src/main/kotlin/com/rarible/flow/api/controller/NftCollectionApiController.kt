@@ -34,7 +34,6 @@ class NftCollectionApiController(
         val collections = service.byIds(ids).toList()
         return ResponseEntity.ok(
             FlowNftCollectionsDto(
-                total = collections.size.toLong(),
                 data = collections.mapNotNull { convert(it) },
                 continuation = null
             )
@@ -66,10 +65,9 @@ class NftCollectionApiController(
     private suspend fun convert(collections: Flow<ItemCollection>, size: Int?): FlowNftCollectionsDto {
         val data: List<ItemCollection> = collections.toList()
         return if(data.isEmpty()) {
-            FlowNftCollectionsDto(0, null, emptyList())
+            FlowNftCollectionsDto(null, emptyList())
         } else {
             FlowNftCollectionsDto(
-                data.size.toLong(),
                 CollectionFilter.Sort.BY_ID.nextPage(collections, size),
                 data.map { convert(it)!! }
             )
