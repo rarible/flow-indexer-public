@@ -1,6 +1,7 @@
-package com.rarible.flow.scanner
+package com.rarible.flow.core.test
 
 import com.nftco.flow.sdk.FlowAddress
+import com.rarible.core.common.nowMillis
 import com.rarible.core.test.data.randomString
 import com.rarible.flow.core.domain.*
 import org.apache.activemq.artemis.utils.RandomUtil.randomLong
@@ -10,8 +11,8 @@ import java.time.Clock
 import java.time.Instant
 import java.time.LocalDateTime
 
-
 object Data {
+
     @Deprecated("Use randomItem()")
     fun createItem(): Item {
         return Item(
@@ -57,17 +58,28 @@ object Data {
     }
 }
 
-fun randomItem(): Item {
+fun randomItem(
+    contract: String = randomString(),
+    tokenId: TokenId = randomPositiveLong(),
+    creator: FlowAddress = FlowAddress("0x01"),
+    royalties: List<Part> = emptyList(),
+    owner: FlowAddress? = FlowAddress("0x02"),
+    mintedAt: Instant = nowMillis(),
+    meta: String? = null,
+    collection: String = randomString(),
+    updatedAt: Instant = nowMillis()
+): Item {
     return Item(
-            randomString(),
-            randomLong(),
-            FlowAddress("0x01"),
-            emptyList(),
-            owner = FlowAddress("0x02"),
-            mintedAt = Instant.now(),
-            collection = randomString(),
-            updatedAt = Instant.now()
-        )
+        contract = contract,
+        tokenId = tokenId,
+        creator = creator,
+        royalties = royalties,
+        owner = owner,
+        mintedAt = mintedAt,
+        meta = meta,
+        collection = collection,
+        updatedAt = updatedAt
+    )
 }
 
 fun randomOwnership(): Ownership {

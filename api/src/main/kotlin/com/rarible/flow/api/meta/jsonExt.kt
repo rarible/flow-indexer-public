@@ -42,3 +42,10 @@ fun JsonNode.getArray(vararg paths: List<String>): List<JsonNode> {
     }
     return emptyList()
 }
+
+fun <K, V> Map<K, V>.getFirst(vararg paths: K): V? {
+    paths.forEach { path ->
+        this[path]?.let { return it }
+    }
+    return null
+}

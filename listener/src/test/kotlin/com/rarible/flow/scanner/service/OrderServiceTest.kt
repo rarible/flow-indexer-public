@@ -1,11 +1,15 @@
 package com.rarible.flow.scanner.service
 
 import com.rarible.flow.core.converter.OrderToDtoConverter
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.FlowNftOrderActivityList
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.OrderRepository
-import com.rarible.flow.scanner.Data
+import com.rarible.flow.core.test.Data
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
 import com.rarible.protocol.currency.dto.CurrencyRateDto

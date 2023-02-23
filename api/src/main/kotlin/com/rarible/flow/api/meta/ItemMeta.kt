@@ -25,7 +25,7 @@ data class ItemMeta(
     val rights: String? = null,
     val rightsUrl: String? = null,
     val externalUri: String? = null,
-    val content: List<ItemMetaContent>? = null,
+    val content: List<ItemMetaContent> = emptyList(),
     val originalMetaUri: String? = null,
 ) {
 

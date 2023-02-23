@@ -1,22 +1,5 @@
 package com.rarible.flow.scanner.migrations
 
-import com.nftco.flow.sdk.FlowAddress
-import com.rarible.core.test.ext.MongoTest
-import com.rarible.flow.core.config.CoreConfig
-import com.rarible.flow.core.domain.Ownership
-import com.rarible.flow.core.repository.ItemRepository
-import com.rarible.flow.core.util.Log
-import com.rarible.flow.scanner.Data
-import io.kotest.matchers.collections.shouldHaveSize
-import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate
-import org.springframework.data.mongodb.core.findAll
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
-
-
 //@MongoTest
 //@DataMongoTest(
 //    properties = [

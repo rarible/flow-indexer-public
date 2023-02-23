@@ -1,0 +1,113 @@
+{
+  "value": {
+    "id": "A.9f36754d9b38f155.HWGaragePM.UpdatePackEditionMetadata",
+    "fields": [
+      {
+        "value": {
+          "value": "34526",
+          "type": "UInt64"
+        },
+        "name": "id"
+      },
+      {
+        "value": {
+          "value": [
+            {
+              "key": {
+                "type": "String",
+                "value": "thumbnailCID"
+              },
+              "value": {
+                "type": "String",
+                "value": "Qmdw3hCeuPDQfgCKwFJN631L31b2SeYRN2ANz7NTe6PM33"
+              }
+            },
+            {
+              "key": {
+                "type": "String",
+                "value": "tokenExpireDate"
+              },
+              "value": {
+                "type": "String",
+                "value": "3/28/23"
+              }
+            },
+            {
+              "key": {
+                "type": "String",
+                "value": "originalCardSerial"
+              },
+              "value": {
+                "type": "String",
+                "value": "QANFT0001931668"
+              }
+            },
+            {
+              "key": {
+                "type": "String",
+                "value": "cardID"
+              },
+              "value": {
+                "type": "String",
+                "value": "1"
+              }
+            },
+            {
+              "key": {
+                "type": "String",
+                "value": "templateID"
+              },
+              "value": {
+                "type": "String",
+                "value": "Series_4_Token_1"
+              }
+            },
+            {
+              "key": {
+                "type": "String",
+                "value": "tokenReleaseDate"
+              },
+              "value": {
+                "type": "String",
+                "value": "3/14/23"
+              }
+            },
+            {
+              "key": {
+                "type": "String",
+                "value": "name"
+              },
+              "value": {
+                "type": "String",
+                "value": "Series_4_Token"
+              }
+            },
+            {
+              "key": {
+                "type": "String",
+                "value": "carName"
+              },
+              "value": {
+                "type": "String",
+                "value": "82 Cadillac Seville Redemption"
+              }
+            },
+            {
+              "key": {
+                "type": "String",
+                "value": "tokenSerial"
+              },
+              "value": {
+                "type": "String",
+                "value": "QANFT0002229625"
+              }
+            }
+          ],
+          "type": "Dictionary"
+        },
+        "name": "metadata"
+      }
+    ]
+  },
+  "type": "Event"
+}
