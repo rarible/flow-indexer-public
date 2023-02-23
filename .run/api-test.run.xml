@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="api-test" type="JUnit" factoryName="JUnit">
+        <module name="protocol-flow-api"/>
+        <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true"/>
+        <option name="ALTERNATIVE_JRE_PATH" value="liberica-1.8 aarch64"/>
+        <option name="PACKAGE_NAME" value="com.rarible.flow.api"/>
+        <option name="MAIN_CLASS_NAME" value=""/>
+        <option name="METHOD_NAME" value=""/>
+        <option name="TEST_OBJECT" value="package"/>
+        <option name="WORKING_DIRECTORY" value="$MODULE_DIR$"/>
+        <method v="2">
+            <option name="Make" enabled="true"/>
+        </method>
+    </configuration>
+</component>

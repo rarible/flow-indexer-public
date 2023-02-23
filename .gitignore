@@ -93,7 +93,6 @@ fabric.properties
 build/
 data/
 **/target/**
-.run/
 /surefire-reports/
 *~
 
