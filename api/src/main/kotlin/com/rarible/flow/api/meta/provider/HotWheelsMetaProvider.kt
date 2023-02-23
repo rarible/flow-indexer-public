@@ -30,20 +30,10 @@ abstract class HotWheelsMetaProvider : ItemMetaProvider {
             itemId = itemId,
             name = name,
             description = map.getFirst(*fieldDescription) ?: "",
-            externalUri = map.getFirst(*fieldExternalUri),
             rights = map.getFirst(*fieldRights),
             content = listOfNotNull(
                 map.getFirst(*fieldImageOriginal)?.let {
                     ItemMetaContent(it, ItemMetaContent.Type.IMAGE)
-                },
-                map.getFirst(*fieldImageBig)?.let {
-                    ItemMetaContent(it, ItemMetaContent.Type.IMAGE, ItemMetaContent.Representation.BIG)
-                },
-                map.getFirst(*fieldImagePreview)?.let {
-                    ItemMetaContent(it, ItemMetaContent.Type.IMAGE, ItemMetaContent.Representation.PREVIEW)
-                },
-                map.getFirst(*fieldVideoOriginal)?.let {
-                    ItemMetaContent(it, ItemMetaContent.Type.VIDEO)
                 }
             ),
             attributes = map.filter { attributesWhiteList.contains(it.key) }.map {
@@ -81,11 +71,11 @@ abstract class HotWheelsMetaProvider : ItemMetaProvider {
     abstract val fieldName: Array<String>
     abstract val fieldDescription: Array<String>
     abstract val fieldImageOriginal: Array<String>
-    abstract val fieldImagePreview: Array<String>
-    abstract val fieldImageBig: Array<String>
-    abstract val fieldVideoOriginal: Array<String>
-    abstract val fieldExternalUri: Array<String>
     abstract val fieldRights: Array<String>
     abstract val attributesWhiteList: Set<String>
+
+    protected fun fields(vararg fields: String): Array<String> {
+        return fields.toList().toTypedArray()
+    }
 
 }
