@@ -1,41 +1,45 @@
 package com.rarible.flow
 
-import com.nftco.flow.sdk.AddressRegistry
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.flow.RoyaltySize.FIVE_PERCENT
 import com.rarible.flow.RoyaltySize.TEN_PERCENT
 import com.rarible.flow.RoyaltySize.percent
-import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Part
 
-interface Contract {
-    val contractName: String
-    val deployments: Map<FlowChainId, FlowAddress>
-    val import: String
-
-    fun supports(itemId: ItemId): Boolean =
-        itemId.contract.endsWith(this.contractName)
-
-    fun register(registry: AddressRegistry): AddressRegistry {
-        return deployments.entries.fold(registry) { reg, (chain, addr) ->
-            reg.register(this.import, addr, chain)
-        }
-    }
-
-    fun fqn(chain: FlowChainId): String {
-        val address = deployments[chain]
-        if (address == null) {
-            throw IllegalArgumentException("No deployment of contract $contractName exists on chainId $chain")
-        } else {
-            return "A.${address.base16Value}.$contractName"
-        }
-    }
-
-    fun staticRoyalties(chain: FlowChainId): List<Part> = emptyList()
-}
-
 enum class Contracts : Contract {
+    HW_GARAGE_CARD {
+        override val contractName: String = "HWGarageCard"
+
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                //https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGarageCard
+                FlowChainId.MAINNET to FlowAddress("0xd0bcefdf1e67ea85"),
+                //https://testnet.flowscan.org/contract/A.9f36754d9b38f155.HWGarageCard
+                FlowChainId.TESTNET to FlowAddress("0x9f36754d9b38f155"),
+            )
+
+        override val import: String
+            get() = "0xHWGARAGECARD"
+    },
+
+    RARIBLE_NFT {
+        override val contractName: String = "RaribleNFT"
+
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                //https://flowscan.org/contract/A.01ab36aaf654a13e.RaribleNFT
+                FlowChainId.MAINNET to FlowAddress("0x01ab36aaf654a13e"),
+                //https://flowscan.org/contract/A.ebf4ae01d1284af8.RaribleNFT
+                FlowChainId.TESTNET to FlowAddress("0xebf4ae01d1284af8"),
+                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
+            )
+
+        override val import: String
+            get() = "0xRARIBLENFT"
+    },
+
+    //=========== Disabled contracts
     ONE_FOOTBALL {
         override val import: String
             get() = "0xONEFOOTBALL"
@@ -432,9 +436,3 @@ enum class Contracts : Contract {
     }
 }
 
-object RoyaltySize {
-    const val TEN_PERCENT = 0.1
-    const val FIVE_PERCENT = 0.05
-
-    fun Double.percent() = this.div(100)
-}

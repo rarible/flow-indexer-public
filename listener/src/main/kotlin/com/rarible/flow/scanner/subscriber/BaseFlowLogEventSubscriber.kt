@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import java.time.Instant
 
-abstract class BaseFlowLogEventSubscriber: FlowLogEventSubscriber {
+abstract class BaseFlowLogEventSubscriber : FlowLogEventSubscriber {
 
     @Value("\${blockchain.scanner.flow.chainId}")
     protected lateinit var chainId: FlowChainId
