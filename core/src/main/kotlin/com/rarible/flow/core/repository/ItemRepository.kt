@@ -17,21 +17,12 @@ import reactor.core.publisher.Flux
 interface ItemRepository : ReactiveMongoRepository<Item, ItemId>, ItemRepositoryCustom {
     fun findAllByCreator(creator: FlowAddress): Flux<Item>
     fun findAllByIdIn(ids: Set<ItemId>): Flux<Item>
-
-    fun find(fromId: ItemId?, limit: Int): Flow<Item> {
-        val criteria = Criteria().andOperator(
-            listOfNotNull(
-                fromId?.let { Criteria.where("_id").gt(it) }
-            )
-        )
-        val query = Query(criteria)
-            .with(Sort.by("_id"))
-            .limit(limit)
-        return findByQuery(query).asFlow()
-    }
 }
 
-interface ItemRepositoryCustom: ScrollingRepository<Item>
+interface ItemRepositoryCustom : ScrollingRepository<Item> {
+
+    fun find(fromId: ItemId?, limit: Int): Flow<Item>
+}
 
 @Suppress("unused")
 class ItemRepositoryCustomImpl(
@@ -44,5 +35,17 @@ class ItemRepositoryCustomImpl(
 
     override fun findByQuery(query: Query): Flux<Item> {
         return mongo.find(query)
+    }
+
+    override fun find(fromId: ItemId?, limit: Int): Flow<Item> {
+        val criteria = Criteria().andOperator(
+            listOfNotNull(
+                fromId?.let { Criteria.where("_id").gt(it) }
+            )
+        )
+        val query = Query(criteria)
+            .with(Sort.by("_id"))
+            .limit(limit)
+        return findByQuery(query).asFlow()
     }
 }
