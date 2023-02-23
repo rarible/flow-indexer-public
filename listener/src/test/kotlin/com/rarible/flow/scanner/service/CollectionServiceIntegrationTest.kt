@@ -14,14 +14,14 @@ import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.OwnershipId
+import com.rarible.flow.core.event.EventId
+import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.core.repository.FlowLogEventRepository
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
-import com.rarible.flow.core.event.EventId
-import com.rarible.flow.core.event.EventMessage
+import com.rarible.flow.core.test.Data
 import com.rarible.flow.scanner.BaseIntegrationTest
-import com.rarible.flow.scanner.Data
 import com.rarible.flow.scanner.IntegrationTest
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -32,7 +32,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
-import java.util.*
+import java.util.Date
 
 @IntegrationTest
 internal class CollectionServiceIntegrationTest: BaseIntegrationTest() {

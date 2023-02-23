@@ -22,7 +22,7 @@ class CryptoPiggoMetaProviderTest {
 
     private val mapper = jacksonObjectMapper().registerModule(JavaTimeModule())
 
-    private val resource = ClassPathResource("jsonData/cryptoPiggoMeta.json")
+    private val resource = ClassPathResource("json/crypto_piggo_meta.json")
 
     private val expectedMeta = ItemMeta(
         itemId = ItemId(Contracts.CRYPTOPIGGO.fqn(FlowChainId.MAINNET), 17L),

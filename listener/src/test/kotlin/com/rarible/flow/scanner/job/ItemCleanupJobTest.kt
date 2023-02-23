@@ -2,10 +2,10 @@ package com.rarible.flow.scanner.job
 
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.test.randomItem
+import com.rarible.flow.core.test.randomItemId
 import com.rarible.flow.scanner.config.CleanUpProperties
 import com.rarible.flow.scanner.config.FlowListenerProperties
-import com.rarible.flow.scanner.randomItem
-import com.rarible.flow.scanner.randomItemId
 import io.mockk.coEvery
 import io.mockk.coVerifyOrder
 import io.mockk.every

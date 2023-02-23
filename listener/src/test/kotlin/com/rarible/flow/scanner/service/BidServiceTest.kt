@@ -6,7 +6,7 @@ import com.rarible.flow.core.domain.Balance
 import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.core.repository.OrderRepository
-import com.rarible.flow.scanner.Data
+import com.rarible.flow.core.test.Data
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coVerify

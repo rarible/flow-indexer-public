@@ -2,9 +2,9 @@ package com.rarible.flow.scanner.job
 
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.OwnershipRepository
+import com.rarible.flow.core.test.randomOwnership
 import com.rarible.flow.scanner.config.CleanUpProperties
 import com.rarible.flow.scanner.config.FlowListenerProperties
-import com.rarible.flow.scanner.randomOwnership
 import io.mockk.coEvery
 import io.mockk.coVerifyOrder
 import io.mockk.every

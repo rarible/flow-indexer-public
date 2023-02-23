@@ -5,18 +5,11 @@ import com.rarible.flow.api.meta.ItemMeta
 import com.rarible.flow.api.meta.MetaException
 import com.rarible.flow.api.meta.getArray
 import com.rarible.flow.api.meta.getText
-import com.rarible.flow.api.service.UrlService
 import com.rarible.flow.core.domain.ItemId
 import org.springframework.stereotype.Component
 
 @Component
-class HotWheelsPackMetaProvider(
-    rawPropertiesProvider: RawMetaProvider,
-    urlService: UrlService
-) : HotWheelsMetaProvider(
-    rawPropertiesProvider,
-    urlService
-) {
+class HotWheelsPackMetaProvider : HotWheelsMetaProvider() {
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.endsWith(".HWGaragePack")
 
@@ -31,42 +24,41 @@ class HotWheelsPackMetaProvider(
 
     override val fieldName = listOf(
         // TODO add or replace
-        "name"
+        "seriesName"
     ).toTypedArray()
 
-    override val fieldDescription = listOf(
-        // TODO add or replace
-        "description"
+    override val fieldDescription = listOf<String>(
+        // TODO add or replace or remove
     ).toTypedArray()
 
-    override val fieldImageOriginal = listOf(
+    override val fieldImageOriginal = listOf<String>(
         // TODO add or replace
-        "image"
+        "thumbnailCID"
     ).toTypedArray()
 
-    override val fieldImagePreview = listOf(
-        // TODO add or replace
-        "imagePreview"
+    override val fieldImagePreview = listOf<String>(
+        // TODO add or replace or remove
     ).toTypedArray()
 
-    override val fieldImageBig = listOf(
-        // TODO add or replace
-        "imageBig"
+    override val fieldImageBig = listOf<String>(
+        // TODO add or replace or remove
     ).toTypedArray()
 
-    override val fieldVideoOriginal = listOf(
-        // TODO add or replace
-        "animation"
+    override val fieldVideoOriginal = listOf<String>(
+        // TODO add or replace or remove
     ).toTypedArray()
 
-    override val fieldExternalUri = listOf(
-        // TODO add or replace
-        "external_url"
+    override val fieldExternalUri = listOf<String>(
+        // TODO add or replace or remove
+    ).toTypedArray()
+
+    override val fieldRights = listOf<String>(
+        // TODO add or replace or remove
     ).toTypedArray()
 
     override val attributesWhiteList = setOf(
         // TODO extend
-        "releaseYear"
+        "totalItemCount"
     )
 
 }

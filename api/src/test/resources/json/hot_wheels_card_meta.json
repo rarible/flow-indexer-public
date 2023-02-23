@@ -1,0 +1,185 @@
+{
+  "type": "Dictionary",
+  "value": [
+    {
+      "key": {
+        "type": "String",
+        "value": "packHash"
+      },
+      "value": {
+        "type": "String",
+        "value": "0022e32218f30e14d5f67465b49151a88268b8f6f12fb4bb48de1c2d6f158063"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "seriesName"
+      },
+      "value": {
+        "type": "String",
+        "value": "Series 4"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "carName"
+      },
+      "value": {
+        "type": "String",
+        "value": "Chevy Silverado Off Road"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "cardId"
+      },
+      "value": {
+        "type": "String",
+        "value": "58"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "templateId"
+      },
+      "value": {
+        "type": "String",
+        "value": "Series_4_58"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "mint"
+      },
+      "value": {
+        "type": "String",
+        "value": "2780"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "totalSupply"
+      },
+      "value": {
+        "type": "String",
+        "value": "3000"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "seriesMint"
+      },
+      "value": {
+        "type": "String",
+        "value": "90780"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "seriesTotalSupply"
+      },
+      "value": {
+        "type": "String",
+        "value": "295750"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "rarity"
+      },
+      "value": {
+        "type": "String",
+        "value": "Super Rare"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "releaseYear"
+      },
+      "value": {
+        "type": "String",
+        "value": "2015"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "releaseDate"
+      },
+      "value": {
+        "type": "String",
+        "value": "2022-12-15"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "redeemable"
+      },
+      "value": {
+        "type": "String",
+        "value": "Yes"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "type"
+      },
+      "value": {
+        "type": "String",
+        "value": "Premium"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "imageUrl"
+      },
+      "value": {
+        "type": "String",
+        "value": "https://sfipfs.infura-ipfs.io/ipfs/123"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "imageCID"
+      },
+      "value": {
+        "type": "String",
+        "value": "QmNfc1gZfC46MfSBjypqTiXyfRhNMikS9yoiqzzupGgtrw"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "serialNumber"
+      },
+      "value": {
+        "type": "String",
+        "value": "QANFT0002022362"
+      }
+    },
+    {
+      "key": {
+        "type": "String",
+        "value": "licensorLegal"
+      },
+      "value": {
+        "type": "String",
+        "value": "©Copyright General Motors 2022"
+      }
+    }
+  ]
+}

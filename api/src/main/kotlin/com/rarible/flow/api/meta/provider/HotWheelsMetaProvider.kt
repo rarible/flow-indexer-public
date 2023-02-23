@@ -1,7 +1,6 @@
 package com.rarible.flow.api.meta.provider
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.rarible.core.meta.resource.model.UrlResource
 import com.rarible.flow.api.meta.ItemMeta
 import com.rarible.flow.api.meta.ItemMetaAttribute
 import com.rarible.flow.api.meta.ItemMetaContent
@@ -10,31 +9,17 @@ import com.rarible.flow.api.meta.MetaException
 import com.rarible.flow.api.meta.getArray
 import com.rarible.flow.api.meta.getFirst
 import com.rarible.flow.api.meta.getText
-import com.rarible.flow.api.service.UrlService
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 
-abstract class HotWheelsMetaProvider(
-    protected val rawPropertiesProvider: RawMetaProvider,
-    protected val urlService: UrlService
-) : ItemMetaProvider {
+abstract class HotWheelsMetaProvider : ItemMetaProvider {
 
     override suspend fun getMeta(item: Item): ItemMeta? {
-        val resource = readUrl(item)
-        val json = rawPropertiesProvider.getContent(item.id, resource)
-            ?: throw MetaException("Failed to get meta", MetaException.Status.ERROR)
+        val json = item.meta
+            ?: throw MetaException("Item ${item.id} doesn't have meta json", MetaException.Status.NOT_FOUND)
 
         val jsonNode = JsonPropertiesParser.parse(item.id, json)
         return map(item.id, jsonNode)
-    }
-
-    private fun readUrl(item: Item): UrlResource {
-        // TODO get URL
-        val rawUrl = item.meta
-            ?: throw MetaException("Item ${item.id} doesn't have metaURI", MetaException.Status.NOT_FOUND)
-
-        return urlService.parseUrl(rawUrl, item.id.toString())
-            ?: throw MetaException("Item ${item.id} doesn't have metaURI", MetaException.Status.CORRUPTED_URL)
     }
 
     protected open fun map(itemId: ItemId, node: JsonNode): ItemMeta {
@@ -46,6 +31,7 @@ abstract class HotWheelsMetaProvider(
             name = name,
             description = map.getFirst(*fieldDescription) ?: "",
             externalUri = map.getFirst(*fieldExternalUri),
+            rights = map.getFirst(*fieldRights),
             content = listOfNotNull(
                 map.getFirst(*fieldImageOriginal)?.let {
                     ItemMetaContent(it, ItemMetaContent.Type.IMAGE)
@@ -83,10 +69,11 @@ abstract class HotWheelsMetaProvider(
             throw MetaException("root 'value' field not found", MetaException.Status.CORRUPTED_DATA)
         }
 
-        return values.mapNotNull {
+        return values.mapNotNull { attrNode ->
             // TODO filter if type != String ?
-            val key = node.getText(listOf("key", "value")) ?: return@mapNotNull null
-            val value = node.getText(listOf("value", "value")) ?: return@mapNotNull null
+            val key = attrNode.getText(listOf("key", "value")) ?: return@mapNotNull null
+            val value = attrNode.getText(listOf("value", "value")) ?: return@mapNotNull null
+            // TODO pretty traits? seriesName -> Series name
             key to value
         }.toMap()
     }
@@ -98,6 +85,7 @@ abstract class HotWheelsMetaProvider(
     abstract val fieldImageBig: Array<String>
     abstract val fieldVideoOriginal: Array<String>
     abstract val fieldExternalUri: Array<String>
+    abstract val fieldRights: Array<String>
     abstract val attributesWhiteList: Set<String>
 
 }

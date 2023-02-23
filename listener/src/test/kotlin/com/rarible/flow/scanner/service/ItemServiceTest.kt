@@ -1,7 +1,7 @@
 package com.rarible.flow.scanner.service
 
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.scanner.Data.createItem
+import com.rarible.flow.core.test.Data.createItem
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every

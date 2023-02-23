@@ -1,58 +1,54 @@
 package com.rarible.flow.api.meta.provider
 
-import com.rarible.flow.api.service.UrlService
 import com.rarible.flow.core.domain.ItemId
 import org.springframework.stereotype.Component
 
 @Component
-class HotWheelsCardMetaProvider(
-    rawPropertiesProvider: RawMetaProvider,
-    urlService: UrlService
-) : HotWheelsMetaProvider(
-    rawPropertiesProvider,
-    urlService
-) {
+class HotWheelsCardMetaProvider : HotWheelsMetaProvider() {
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.endsWith(".HWGarageCard")
 
     override val fieldName = listOf(
         // TODO add or replace
-        "name"
+        "carName"
     ).toTypedArray()
 
-    override val fieldDescription = listOf(
+    override val fieldDescription = listOf<String>(
         // TODO add or replace
-        "description"
     ).toTypedArray()
 
     override val fieldImageOriginal = listOf(
         // TODO add or replace
-        "image"
+        "imageUrl"
     ).toTypedArray()
 
-    override val fieldImagePreview = listOf(
-        // TODO add or replace
-        "imagePreview"
+    override val fieldImagePreview = listOf<String>(
+        // TODO add or replace or remove
     ).toTypedArray()
 
-    override val fieldImageBig = listOf(
-        // TODO add or replace
-        "imageBig"
+    override val fieldImageBig = listOf<String>(
+        // TODO add or replace or remove
     ).toTypedArray()
 
-    override val fieldVideoOriginal = listOf(
-        // TODO add or replace
-        "animation"
+    override val fieldVideoOriginal = listOf<String>(
+        // TODO add or replace or remove
     ).toTypedArray()
 
-    override val fieldExternalUri = listOf(
-        // TODO add or replace
-        "external_url"
+    override val fieldExternalUri = listOf<String>(
+        // TODO add or replace or remove
+    ).toTypedArray()
+
+    override val fieldRights = listOf<String>(
+        "licensorLegal"
     ).toTypedArray()
 
     override val attributesWhiteList = setOf(
         // TODO extend
-        "releaseYear"
+        "seriesName",
+        "releaseYear",
+        "rarity",
+        "redeemable",
+        "type"
     )
 
 }
