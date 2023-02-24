@@ -21,7 +21,7 @@ import com.rarible.core.meta.resource.resolver.LegacyIpfsGatewaySubstitutor
 import com.rarible.core.meta.resource.resolver.RandomGatewayProvider
 import com.rarible.core.meta.resource.resolver.UrlResolver
 import com.rarible.flow.Contracts
-import com.rarible.flow.api.service.FlowSignatureService
+import com.rarible.flow.api.service.SignatureService
 import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.protocol.currency.api.client.CurrencyApiClientFactory
@@ -62,8 +62,8 @@ class Config(
     }
 
     @Bean
-    fun signatureService(api: AsyncFlowAccessApi): FlowSignatureService {
-        return FlowSignatureService(
+    fun signatureService(api: AsyncFlowAccessApi): SignatureService {
+        return SignatureService(
             appProperties.chainId,
             api
         )

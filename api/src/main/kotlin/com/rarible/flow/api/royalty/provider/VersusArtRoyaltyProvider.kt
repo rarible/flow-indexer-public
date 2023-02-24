@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component
 @Order(1)
 class VersusArtRoyaltyProvider(
     private val scriptExecutor: ScriptExecutor,
-    @Value("classpath:script/versus-art-metadata.cdc")
+    @Value("classpath:script/versus_art_meta.cdc")
     private val scriptFile: Resource,
 ) : ItemRoyaltyProvider {
 

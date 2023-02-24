@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component
 @Component
 class JambbMomentsMetaScript(
     private val scriptExecutor: ScriptExecutor,
-    @Value("classpath:script/meta_jambb_moment.cdc")
+    @Value("classpath:script/jambb_moment_meta.cdc")
     private val script: Resource
 ) {
     suspend fun call(tokenId: TokenId): JambbMomentsMeta? {

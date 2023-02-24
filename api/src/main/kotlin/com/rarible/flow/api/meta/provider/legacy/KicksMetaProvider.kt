@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component
 @Component
 class KicksMetaScript(
     private val scriptExecutor: ScriptExecutor,
-    @Value("classpath:script/meta/kicks.cdc")
+    @Value("classpath:script/kicks_meta.cdc")
     private val script: Resource
 ) {
     suspend fun call(owner: FlowAddress, tokenId: TokenId): MetaBody? {
