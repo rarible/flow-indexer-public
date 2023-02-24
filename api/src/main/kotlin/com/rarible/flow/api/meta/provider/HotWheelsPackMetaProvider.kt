@@ -3,14 +3,14 @@ package com.rarible.flow.api.meta.provider
 import com.fasterxml.jackson.databind.JsonNode
 import com.rarible.flow.api.meta.ItemMeta
 import com.rarible.flow.api.meta.MetaException
-import com.rarible.flow.api.meta.fetcher.HotWheelsMetaFetcher
+import com.rarible.flow.api.meta.fetcher.HWMetaFetcher
 import com.rarible.flow.api.meta.getArray
 import com.rarible.flow.api.meta.getText
 import com.rarible.flow.core.domain.ItemId
 import org.springframework.stereotype.Component
 
 @Component
-class HotWheelsPackMetaProvider(fetcher: HotWheelsMetaFetcher) : HotWheelsMetaProvider(fetcher) {
+class HotWheelsPackMetaProvider(fetcher: HWMetaFetcher) : HotWheelsMetaProvider(fetcher) {
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.endsWith(".HWGaragePack")
 

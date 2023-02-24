@@ -2,6 +2,7 @@ package com.rarible.flow.api.meta.fetcher
 
 import com.nftco.flow.sdk.AsyncFlowAccessApi
 import com.nftco.flow.sdk.bytesToHex
+import com.rarible.flow.api.service.HWMetaEventTypeProvider
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.repository.ItemHistoryRepository
@@ -11,10 +12,10 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
-class HotWheelsMetaFetcher(
+class HWMetaFetcher(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository,
-    private val hwMetaEventTypeProvider: HotWheelsMetaEventTypeProvider,
+    private val hwMetaEventTypeProvider: HWMetaEventTypeProvider,
     private val accessApi: AsyncFlowAccessApi,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)

@@ -2,7 +2,7 @@ package com.rarible.flow.api.meta.provider
 
 import com.rarible.flow.api.meta.ItemMetaAttribute
 import com.rarible.flow.api.meta.ItemMetaContent
-import com.rarible.flow.api.meta.fetcher.HotWheelsMetaFetcher
+import com.rarible.flow.api.meta.fetcher.HWMetaFetcher
 import com.rarible.flow.core.test.randomItem
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -18,7 +18,7 @@ class HotWheelsPackMetaProviderTest {
     private val jsonV2 = this.javaClass.getResourceAsStream("/json/hot_wheels_pack_meta_2.json")!!
         .bufferedReader().use { it.readText() }
 
-    private val fetcher = mockk<HotWheelsMetaFetcher>()
+    private val fetcher = mockk<HWMetaFetcher>()
 
     private val provider = HotWheelsPackMetaProvider(fetcher)
 

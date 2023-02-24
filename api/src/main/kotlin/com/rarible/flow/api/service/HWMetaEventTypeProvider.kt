@@ -1,4 +1,4 @@
-package com.rarible.flow.api.meta.fetcher
+package com.rarible.flow.api.service
 
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.config.ApiProperties
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @Suppress("SameParameterValue")
-class HotWheelsMetaEventTypeProvider(properties: ApiProperties) {
+class HWMetaEventTypeProvider(properties: ApiProperties) {
 
     private val chainId = properties.chainId
 
