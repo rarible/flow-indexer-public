@@ -35,7 +35,7 @@ enum class Contracts : Contract {
             )
 
         override val import: String
-            get() = "0xHWGARAGECARD"
+            get() = "0xHWGARAGEPACK"
     },
 
     HW_GARAGE_PM {
@@ -67,6 +67,45 @@ enum class Contracts : Contract {
 
         override val import: String
             get() = "0xRARIBLENFT"
+    },
+
+    RARIBLE_GARAGE_CARD {
+        override val contractName: String = "HWGarageCard"
+
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGarageCard
+                FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
+            )
+
+        override val import: String
+            get() = "0xHWGARAGECARD"
+    },
+
+    RARIBLE_GARAGE_PACK {
+        override val contractName: String = "HWGaragePack"
+
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGaragePack
+                FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
+            )
+
+        override val import: String
+            get() = "0xHWGARAGEPACK"
+    },
+
+    RARIBLE_GARAGE_PM {
+        override val contractName: String = "HWGaragePM"
+
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGaragePM
+                FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
+            )
+
+        override val import: String
+            get() = "0xHWGARAGEPM"
     },
 
     //=========== Disabled contracts
