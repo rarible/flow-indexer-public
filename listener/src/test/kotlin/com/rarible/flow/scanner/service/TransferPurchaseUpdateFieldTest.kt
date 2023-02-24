@@ -2,18 +2,15 @@ package com.rarible.flow.scanner.service
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.core.kafka.KafkaSendResult
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.FlowNftOrderActivitySell
-import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderActivityMatchSide
 import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.domain.OrderType
-import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.domain.OwnershipId
 import com.rarible.flow.core.domain.TransferActivity
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
@@ -122,10 +119,10 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
                 any(),
                 any()
             )
-        } answers { KafkaSendResult.Success(firstArg<Order>().id.toString()) }
-        coEvery { onItemUpdate(any(), any()) } answers { KafkaSendResult.Success(firstArg<Item>().id.toString()) }
-        coEvery { onUpdate(any(), any()) } answers { KafkaSendResult.Success(firstArg<Ownership>().id.toString()) }
-        coEvery { activity(any()) } answers { KafkaSendResult.Success(firstArg<ItemHistory>().id) }
+        } returns Unit
+        coEvery { onItemUpdate(any(), any()) } returns Unit
+        coEvery { onUpdate(any(), any()) } returns Unit
+        coEvery { activity(any()) } returns Unit
     }
 
     @Suppress("ReactiveStreamsUnusedPublisher")
@@ -206,8 +203,8 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
 
         indexerEventService.processEvent(event)
 
-        coVerify {
-            protocolEventPublisher.activity(any()) wasNot Called
+        coVerify(exactly = 0) {
+            protocolEventPublisher.activity(any())
         }
     }
 
@@ -231,7 +228,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
         indexerEventService.processEvent(event)
 
         coVerify {
-            protocolEventPublisher.activity(any()) wasNot Called
+            protocolEventPublisher.activity(any())
         }
     }
 
@@ -255,7 +252,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
         indexerEventService.processEvent(event)
 
         coVerify {
-            protocolEventPublisher.activity(any()) wasNot Called
+            protocolEventPublisher.activity(any())
         }
     }
 })
