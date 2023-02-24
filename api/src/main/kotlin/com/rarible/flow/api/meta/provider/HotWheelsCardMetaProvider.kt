@@ -1,10 +1,11 @@
 package com.rarible.flow.api.meta.provider
 
+import com.rarible.flow.api.meta.fetcher.HotWheelsMetaFetcher
 import com.rarible.flow.core.domain.ItemId
 import org.springframework.stereotype.Component
 
 @Component
-class HotWheelsCardMetaProvider : HotWheelsMetaProvider() {
+class HotWheelsCardMetaProvider(fetcher: HotWheelsMetaFetcher) : HotWheelsMetaProvider(fetcher) {
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.endsWith(".HWGarageCard")
 

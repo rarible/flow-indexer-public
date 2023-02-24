@@ -38,6 +38,21 @@ enum class Contracts : Contract {
             get() = "0xHWGARAGECARD"
     },
 
+    HW_GARAGE_PM {
+        override val contractName: String = "HWGaragePM"
+
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                //https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGaragePM
+                FlowChainId.MAINNET to FlowAddress("0xd0bcefdf1e67ea85"),
+                //https://testnet.flowscan.org/contract/A.9f36754d9b38f155.HWGaragePM
+                FlowChainId.TESTNET to FlowAddress("0x9f36754d9b38f155"),
+            )
+
+        override val import: String
+            get() = "0xHWGARAGEPM"
+    },
+
     RARIBLE_NFT {
         override val contractName: String = "RaribleNFT"
 

@@ -6,16 +6,19 @@ import com.rarible.flow.api.meta.ItemMetaAttribute
 import com.rarible.flow.api.meta.ItemMetaContent
 import com.rarible.flow.api.meta.JsonPropertiesParser
 import com.rarible.flow.api.meta.MetaException
+import com.rarible.flow.api.meta.fetcher.HotWheelsMetaFetcher
 import com.rarible.flow.api.meta.getArray
 import com.rarible.flow.api.meta.getFirst
 import com.rarible.flow.api.meta.getText
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 
-abstract class HotWheelsMetaProvider : ItemMetaProvider {
+abstract class HotWheelsMetaProvider(
+    private val fetcher: HotWheelsMetaFetcher
+) : ItemMetaProvider {
 
     override suspend fun getMeta(item: Item): ItemMeta? {
-        val json = item.meta
+        val json = fetcher.getContent(item.id)
             ?: throw MetaException("Item ${item.id} doesn't have meta json", MetaException.Status.NOT_FOUND)
 
         val jsonNode = JsonPropertiesParser.parse(item.id, json)
