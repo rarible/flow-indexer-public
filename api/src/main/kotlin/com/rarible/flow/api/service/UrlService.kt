@@ -3,6 +3,7 @@ package com.rarible.flow.api.service
 import com.rarible.core.meta.resource.model.UrlResource
 import com.rarible.core.meta.resource.parser.UrlParser
 import com.rarible.core.meta.resource.resolver.UrlResolver
+import com.rarible.flow.api.util.itemMetaWarn
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 

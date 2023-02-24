@@ -27,7 +27,7 @@ class MotoGPItemMetaProvider(
 @Component
 class MotoGpCardScript(
     private val scriptExecutor: ScriptExecutor,
-    @Value("classpath:script/motogp-card-metadata.cdc")
+    @Value("classpath:script/motogp_card_meta.cdc")
     private val scriptFile: Resource,
 ) {
 
