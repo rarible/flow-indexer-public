@@ -37,7 +37,7 @@ class GeniaceMetaProvider(
 @Component
 class GeniaceGetMetaScript(
     private val scriptExecutor: ScriptExecutor,
-    @Value("classpath:script/meta/geniace_meta.cdc")
+    @Value("classpath:script/geniace_meta.cdc")
     private val script: Resource,
 ) {
     suspend operator fun invoke(owner: FlowAddress, tokenId: TokenId) = scriptExecutor.executeFile(

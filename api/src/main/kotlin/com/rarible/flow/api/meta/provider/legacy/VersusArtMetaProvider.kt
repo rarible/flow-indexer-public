@@ -22,9 +22,9 @@ import java.io.BufferedReader
 @Component
 class VersusArtMetaProvider(
     private val scriptExecutor: ScriptExecutor,
-    @Value("classpath:script/versus-art-metadata.cdc")
+    @Value("classpath:script/versus_art_meta.cdc")
     private val getMetadataScriptResource: Resource,
-    @Value("classpath:script/versus-art-content.cdc")
+    @Value("classpath:script/versus_art_content.cdc")
     private val getContentScriptResource: Resource,
     @Value("\${app.web-api-url}")
     private val webApiUrl: String

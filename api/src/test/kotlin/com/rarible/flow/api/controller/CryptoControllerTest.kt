@@ -4,12 +4,10 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowPublicKey
 import com.nftco.flow.sdk.FlowSignature
 import com.ninjasquad.springmockk.MockkBean
-import com.rarible.flow.api.service.FlowSignatureService
+import com.rarible.flow.api.service.SignatureService
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
-import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,7 +18,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 
 @WebFluxTest(
-    controllers = [CryptoController::class],
+    controllers = [SignatureController::class],
     properties = [
         "application.environment = dev",
         "spring.cloud.service-registry.auto-registration.enabled = false",
@@ -35,7 +33,7 @@ internal class CryptoControllerTest {
     @Autowired lateinit var client: WebTestClient
 
     @MockkBean(relaxed = true)
-    lateinit var flowSignatureService: FlowSignatureService
+    lateinit var flowSignatureService: SignatureService
 
     @Test
     fun `should respond true`() = runBlocking<Unit> {

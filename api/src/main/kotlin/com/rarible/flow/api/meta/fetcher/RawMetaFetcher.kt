@@ -6,8 +6,8 @@ import com.rarible.core.meta.resource.model.UrlResource
 import com.rarible.flow.api.config.FeatureFlags
 import com.rarible.flow.api.meta.MetaException
 import com.rarible.flow.api.service.UrlService
-import com.rarible.flow.api.service.itemMetaError
-import com.rarible.flow.api.service.itemMetaInfo
+import com.rarible.flow.api.util.itemMetaError
+import com.rarible.flow.api.util.itemMetaInfo
 import com.rarible.flow.core.domain.ItemId
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.json.JsonReadFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.rarible.flow.api.service.itemMetaInfo
-import com.rarible.flow.api.service.itemMetaWarn
+import com.rarible.flow.api.util.itemMetaInfo
+import com.rarible.flow.api.util.itemMetaWarn
 import com.rarible.flow.core.domain.ItemId
 import org.slf4j.LoggerFactory
 import java.util.Base64

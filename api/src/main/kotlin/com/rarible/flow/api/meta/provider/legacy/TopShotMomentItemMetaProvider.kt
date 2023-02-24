@@ -19,7 +19,7 @@ import org.springframework.web.reactive.function.client.WebClient
 
 @Component
 class TopShotMomentItemMetaProvider(
-    @Value("classpath:script/tshot_play_meta.cdc")
+    @Value("classpath:script/topshot_play_meta.cdc")
     private val scriptFile: Resource,
     private val scriptExecutor: ScriptExecutor,
 ) : ItemMetaProvider {
