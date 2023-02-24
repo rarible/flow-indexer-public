@@ -1,6 +1,9 @@
 package com.rarible.flow.core.repository
 
+import com.rarible.flow.core.domain.FlowActivityType
 import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.core.domain.TokenId
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.mongodb.repository.DeleteQuery
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
@@ -47,4 +50,13 @@ interface ItemHistoryRepository : ReactiveMongoRepository<ItemHistory, String> {
             {"log.transactionHash": ?0, "activity.type": "TRANSFER", "activity.from": ?1, "activity.to": ?2}
         """)
     fun findTransferInTx(txHash: String, from: String, to: String): Flux<ItemHistory>
+
+    @Query("""
+            {"activity.type": ?0, "activity.contract": ?1, "activity.tokenId": ?2}
+        """)
+    fun findItemActivity(contract: String, tokenId: TokenId, type: FlowActivityType): Flux<ItemHistory>
+}
+
+suspend fun ItemHistoryRepository.findItemMint(contract: String, tokenId: TokenId): List<ItemHistory> {
+    return findItemActivity(contract, tokenId, FlowActivityType.MINT).collectList().awaitSingle()
 }

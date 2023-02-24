@@ -1,7 +1,12 @@
 package com.rarible.flow.core.test
 
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowEvent
+import com.nftco.flow.sdk.FlowEventResult
+import com.nftco.flow.sdk.FlowId
+import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.common.nowMillis
+import com.rarible.core.test.data.randomInt
 import com.rarible.core.test.data.randomString
 import com.rarible.flow.core.domain.*
 import org.apache.activemq.artemis.utils.RandomUtil.randomLong
@@ -102,4 +107,60 @@ fun randomItemId(): ItemId {
 
 fun randomOwnershipId(): OwnershipId {
     return OwnershipId(randomString(), randomTokenId(), FlowAddress("0x02"))
+}
+
+fun randomMintItemHistory(): ItemHistory {
+    return ItemHistory(
+        date = Instant.now(),
+        activity = randomMintActivity(),
+        log = randomFlowLog(),
+    )
+}
+
+fun ItemHistory.with(
+    eventIndex: Int,
+    transaction: String
+): ItemHistory {
+    return this.copy(
+        log = log.copy(
+            eventIndex = eventIndex,
+            transactionHash = transaction
+        )
+    )
+}
+
+fun randomMintActivity(): MintActivity {
+    return MintActivity(
+        owner = randomString(),
+        contract = randomString(),
+        tokenId = randomTokenId(),
+        value = randomLong(),
+        timestamp = Instant.now(),
+        creator = randomString(),
+        royalties = emptyList(),
+        metadata = emptyMap(),
+    )
+}
+
+fun randomFlowLog(): FlowLog {
+    return FlowLog(
+        blockHash = randomString(),
+        blockHeight = randomLong(),
+        eventIndex = randomInt(),
+        eventType = randomString(),
+        timestamp = Instant.now(),
+        transactionHash = randomString()
+    )
+}
+
+fun randomFlowEventResult(
+    blockHeight: Long = randomLong(),
+    events: List<FlowEvent> = emptyList()
+): FlowEventResult {
+    return FlowEventResult(
+        blockHeight = blockHeight,
+        events = events,
+        blockId = FlowId("79f853d2775ccf402528603b3178f3e29051f0ee0f9ea55c29bd8c2fbef81905"),
+        blockTimestamp = LocalDateTime.now()
+    )
 }

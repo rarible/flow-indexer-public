@@ -2,7 +2,10 @@ package com.rarible.flow.api.meta.provider
 
 import com.rarible.flow.api.meta.ItemMetaAttribute
 import com.rarible.flow.api.meta.ItemMetaContent
+import com.rarible.flow.api.meta.fetcher.HWMetaFetcher
 import com.rarible.flow.core.test.randomItem
+import io.mockk.coEvery
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -12,11 +15,15 @@ class HotWheelsCardMetaProviderTest {
     private val json = this.javaClass.getResourceAsStream("/json/hot_wheels_card_meta.json")!!
         .bufferedReader().use { it.readText() }
 
-    private val provider = HotWheelsCardMetaProvider()
+    private val fetcher = mockk<HWMetaFetcher>()
+
+    private val provider = HotWheelsCardMetaProvider(fetcher)
 
     @Test
     fun `get meta - ok`() = runBlocking<Unit> {
-        val meta = provider.getMeta(randomItem(meta = json))!!
+        val item = randomItem()
+        coEvery { fetcher.getContent(item.id) } returns json
+        val meta = provider.getMeta(item)!!
         val content = meta.content[0]
 
         assertThat(meta.name).isEqualTo("Chevy Silverado Off Road")

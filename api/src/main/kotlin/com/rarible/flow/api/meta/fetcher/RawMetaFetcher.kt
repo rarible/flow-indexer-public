@@ -1,4 +1,4 @@
-package com.rarible.flow.api.meta.provider
+package com.rarible.flow.api.meta.fetcher
 
 import com.rarible.core.meta.resource.http.ExternalHttpClient
 import com.rarible.core.meta.resource.model.HttpUrl
@@ -14,12 +14,11 @@ import org.springframework.stereotype.Component
 import java.net.URL
 
 @Component
-class RawMetaProvider(
+class RawMetaFetcher(
     private val urlService: UrlService,
     private val externalHttpClient: ExternalHttpClient,
     private var featureFlags: FeatureFlags
 ) {
-
     private val logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun getContent(itemId: ItemId, resource: UrlResource): String? {

@@ -2,7 +2,10 @@ package com.rarible.flow.api.meta.provider
 
 import com.rarible.flow.api.meta.ItemMetaAttribute
 import com.rarible.flow.api.meta.ItemMetaContent
+import com.rarible.flow.api.meta.fetcher.HWMetaFetcher
 import com.rarible.flow.core.test.randomItem
+import io.mockk.coEvery
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -15,11 +18,15 @@ class HotWheelsPackMetaProviderTest {
     private val jsonV2 = this.javaClass.getResourceAsStream("/json/hot_wheels_pack_meta_2.json")!!
         .bufferedReader().use { it.readText() }
 
-    private val provider = HotWheelsPackMetaProvider()
+    private val fetcher = mockk<HWMetaFetcher>()
+
+    private val provider = HotWheelsPackMetaProvider(fetcher)
 
     @Test
     fun `get meta - ok, pack v1`() = runBlocking<Unit> {
-        val meta = provider.getMeta(randomItem(meta = jsonV1))!!
+        val item = randomItem()
+        coEvery { fetcher.getContent(item.id) } returns jsonV1
+        val meta = provider.getMeta(item)!!
         val content = meta.content[0]
 
         assertThat(meta.name).isEqualTo("Series 4")
@@ -37,7 +44,9 @@ class HotWheelsPackMetaProviderTest {
 
     @Test
     fun `get meta - ok, pack v2`() = runBlocking<Unit> {
-        val meta = provider.getMeta(randomItem(meta = jsonV2))!!
+        val item = randomItem()
+        coEvery { fetcher.getContent(item.id) } returns jsonV2
+        val meta = provider.getMeta(item)!!
         val content = meta.content[0]
 
         assertThat(meta.name).isEqualTo("82 Cadillac Seville Redemption")
