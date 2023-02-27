@@ -1,13 +1,14 @@
 package com.rarible.flow.scanner.config
 
+import com.github.cloudyrock.spring.v5.EnableMongock
 import com.nftco.flow.sdk.*
 import com.rarible.blockchain.scanner.flow.EnableFlowBlockchainScanner
+import com.rarible.core.task.EnableRaribleTask
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.scanner.service.balance.FlowBalanceService
 import com.rarible.protocol.currency.api.client.CurrencyApiClientFactory
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
-import com.github.cloudyrock.spring.v5.EnableMongock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
@@ -21,6 +22,7 @@ import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing
 @ExperimentalCoroutinesApi
 @FlowPreview
 @EnableMongock
+@EnableRaribleTask
 @EnableFlowBlockchainScanner
 @EnableConfigurationProperties(FlowListenerProperties::class)
 @EnableReactiveMongoAuditing
