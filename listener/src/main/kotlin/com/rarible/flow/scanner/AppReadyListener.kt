@@ -283,7 +283,7 @@ class AppReadyListener(
                             nodeUrl = "access-001.mainnet14.nodes.onflow.org"
                         ),
                     )
-                    val tail = sporkService.sporks()[FlowChainId.MAINNET]!!.drop(1)
+                    val tail = sporkService.sporks(FlowChainId.MAINNET).drop(1)
                     sporkService.replace(FlowChainId.MAINNET, head + tail)
                 }
             }
