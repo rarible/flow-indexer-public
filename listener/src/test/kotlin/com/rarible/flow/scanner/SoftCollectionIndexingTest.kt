@@ -12,6 +12,7 @@ import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.nftco.flow.sdk.crypto.Crypto
 import com.nftco.flow.sdk.simpleFlowTransaction
 import com.rarible.blockchain.scanner.flow.model.FlowLog
+import com.rarible.blockchain.scanner.flow.service.Spork
 import com.rarible.blockchain.scanner.flow.service.SporkService
 import com.rarible.core.test.containers.KGenericContainer
 import com.rarible.core.test.ext.MongoCleanup
@@ -91,12 +92,12 @@ class SoftCollectionIndexingTest {
         @Bean
         fun appListener(sporkService: SporkService): ApplicationListener<ApplicationReadyEvent> {
             return ApplicationListener<ApplicationReadyEvent> {
-                sporkService.allSporks[FlowChainId.EMULATOR] = listOf(
-                    SporkService.Spork(
+                sporkService.replace(FlowChainId.EMULATOR, listOf(
+                    Spork(
                         from = 1L,
                         nodeUrl = flowEmulator.host,
                         port = flowEmulator.getMappedPort(3569)
-                    )
+                    ))
                 )
             }
         }
