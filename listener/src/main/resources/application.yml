@@ -43,3 +43,6 @@ blockchain:
         timestampUnit: millisecond
         worker:
           pollingPeriod: 1m
+      task:
+        reindex:
+          enabled: true
