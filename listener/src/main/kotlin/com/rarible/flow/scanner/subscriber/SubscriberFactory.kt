@@ -31,6 +31,7 @@ object DescriptorFactory {
         entityType = FlowLogRecord::class.java,
         id = "${contract}Descriptor",
         events = events.map { "A.$address.$contract.$it" }.toSet(),
+        address = address,
         collection = dbCollection,
         startFrom = startFrom,
         alias = name
@@ -46,7 +47,7 @@ object DescriptorFactory {
         groupId: String,
         name: String,
     ): FlowDescriptor {
-        val address = contract.deployments[chainId]?.base16Value
+        val address = contract.deployments[chainId]!!.base16Value
         val eventsSet = events.map { "${contract.fqn(chainId)}.$it" }.toSet()
         val additionalSet = additionalEvents.map { "A.${address}.$it" }
         return FlowDescriptor(
@@ -54,6 +55,7 @@ object DescriptorFactory {
             entityType = FlowLogRecord::class.java,
             id = contract.flowDescriptorName(),
             events = eventsSet + additionalSet,
+            address = address,
             collection = dbCollection,
             startFrom = startFrom,
             alias = name

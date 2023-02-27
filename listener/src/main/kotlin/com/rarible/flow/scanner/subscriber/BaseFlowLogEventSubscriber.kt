@@ -10,8 +10,8 @@ import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventSubscriber
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
-import com.rarible.flow.core.repository.FlowLogEventRepository
 import com.rarible.flow.core.event.EventMessage
+import com.rarible.flow.core.repository.FlowLogEventRepository
 import com.rarible.flow.core.util.Log
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.awaitSingle
@@ -69,6 +69,7 @@ abstract class BaseFlowLogEventSubscriber : FlowLogEventSubscriber {
 
     private companion object {
         val EMPTY_DESCRIPTOR = FlowDescriptor(
+            address = "",
             collection = "",
             groupId = "",
             entityType = Any::class.java,
