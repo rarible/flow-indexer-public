@@ -15,7 +15,7 @@ import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.TransferActivity
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
-import com.rarible.flow.scanner.listener.activity.VersusArtActivityMaker
+import com.rarible.flow.scanner.listener.activity.disabled.VersusArtActivityMaker
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -87,18 +87,16 @@ class VersusArtActivityMakerTest : FunSpec({
     )
 
     test("mint w/o deposit") {
-        TestVersusArt().activities(listOf(minted)) should { log ->
+        VersusArtActivityMaker().activities(listOf(minted)) should { log ->
             log.size shouldBe 1
             log.entries.first().shouldNotBeInstanceOf<MintActivity>()
         }
     }
 
     test("deposit w/o withdraw as transfer") {
-        TestVersusArt().activities(listOf(deposit)) should { log ->
+        VersusArtActivityMaker().activities(listOf(deposit)) should { log ->
             log.size shouldBe 1
             log.entries.first().shouldNotBeInstanceOf<TransferActivity>()
         }
     }
 })
-
-class TestVersusArt: VersusArtActivityMaker()

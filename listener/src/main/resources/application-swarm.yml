@@ -18,4 +18,4 @@ blockchain:
     flow:
       chainId: ${app.chain-id}
       scan:
-        firstAvailableBlock: 95253356
+        firstAvailableBlock: 95808975
