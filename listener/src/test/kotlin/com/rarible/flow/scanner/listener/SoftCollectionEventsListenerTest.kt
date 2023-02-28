@@ -10,6 +10,7 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
+import com.rarible.flow.scanner.listener.disabled.SoftCollectionEventsListener
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe

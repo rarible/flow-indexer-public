@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.listener
+package com.rarible.flow.scanner.listener.disabled
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
@@ -10,6 +10,7 @@ import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
+import com.rarible.flow.scanner.listener.GeneralFlowLogListener
 import com.rarible.flow.scanner.model.CollectionMeta
 import com.rarible.flow.scanner.model.Listeners
 import com.rarible.flow.scanner.model.SoftCollectionRoyalty
@@ -19,9 +20,7 @@ import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Component
 
-@Component
 class SoftCollectionEventsListener(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemCollectionRepository: ItemCollectionRepository,

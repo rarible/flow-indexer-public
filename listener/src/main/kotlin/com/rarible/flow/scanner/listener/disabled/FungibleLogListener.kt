@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.listener
+package com.rarible.flow.scanner.listener.disabled
 
 import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
 import com.rarible.core.application.ApplicationEnvironmentInfo
@@ -8,6 +8,7 @@ import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
+import com.rarible.flow.scanner.listener.BalanceFlowLogListener
 import com.rarible.flow.scanner.model.Listeners
 import com.rarible.flow.scanner.model.SubscriberGroups
 import com.rarible.flow.scanner.service.BidService
@@ -16,10 +17,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
 
 @ExperimentalCoroutinesApi
-@Component
 class FungibleLogListener(
     private val balanceRepository: BalanceRepository,
     private val bidService: BidService,

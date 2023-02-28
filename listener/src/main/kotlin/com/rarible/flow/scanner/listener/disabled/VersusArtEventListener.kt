@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.listener
+package com.rarible.flow.scanner.listener.disabled
 
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
@@ -10,15 +10,14 @@ import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coSaveAll
 import com.rarible.flow.core.util.Log
+import com.rarible.flow.scanner.listener.GeneralFlowLogListener
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.model.Listeners
 import com.rarible.flow.scanner.model.SubscriberGroups
 import com.rarible.flow.scanner.service.IndexerEventService
 import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactive.asFlow
-import org.springframework.stereotype.Component
 
-@Component
 class VersusArtEventListener(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository,

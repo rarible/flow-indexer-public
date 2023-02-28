@@ -1,8 +1,9 @@
-package com.rarible.flow.scanner.subscriber.balance
+package com.rarible.flow.scanner.subscriber.balance.disabled
 
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
+import com.rarible.flow.scanner.subscriber.balance.AbstractFungibleTokenSubscriber
 
 class FusdSubscriber: AbstractFungibleTokenSubscriber() {
 

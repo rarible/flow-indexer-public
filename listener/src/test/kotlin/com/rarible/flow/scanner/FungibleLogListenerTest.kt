@@ -2,12 +2,16 @@ package com.rarible.flow.scanner
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.flow.model.FlowLog
+import com.rarible.core.application.ApplicationEnvironmentInfo
+import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
-import com.rarible.flow.scanner.listener.FungibleLogListener
+import com.rarible.flow.scanner.listener.disabled.FungibleLogListener
+import com.rarible.flow.scanner.service.BidService
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -26,14 +30,33 @@ internal class FungibleLogListenerTest: BaseIntegrationTest() {
     lateinit var orderRepository: OrderRepository
 
     @Autowired
-    lateinit var fungibleLogListener: FungibleLogListener
+    lateinit var bidService: BidService
+
+    @Autowired
+    lateinit var protocolEventPublisher: ProtocolEventPublisher
+
+    @Autowired
+    lateinit var orderConverter: OrderToDtoConverter
 
     @Autowired
     lateinit var balanceRepository: BalanceRepository
 
+    @Autowired
+    lateinit var environmentInfo: ApplicationEnvironmentInfo
+
+    lateinit var fungibleLogListener: FungibleLogListener
+
     @BeforeEach
     fun beforeEach() {
         orderRepository.deleteAll().block()
+
+        fungibleLogListener = FungibleLogListener(
+            balanceRepository = balanceRepository,
+            bidService = bidService,
+            protocolEventPublisher = protocolEventPublisher,
+            orderConverter = orderConverter,
+            environmentInfo = environmentInfo
+        )
     }
 
     @Test
