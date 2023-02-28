@@ -2,6 +2,7 @@ package com.rarible.flow.api.meta.fetcher
 
 import com.nftco.flow.sdk.AsyncFlowAccessApi
 import com.nftco.flow.sdk.bytesToHex
+import com.nftco.flow.sdk.cadence.Field
 import com.rarible.flow.api.service.HWMetaEventTypeProvider
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
@@ -24,10 +25,10 @@ class HWMetaFetcher(
         val mint = getMintEvent(itemId) ?: return null
         val metaEventType = getMetaEventType(itemId) ?: return null
         return getEditionMetadataPayload(
+            tokenId = itemId.tokenId,
             metaEventType = metaEventType,
             blockHeight = mint.log.blockHeight,
             transaction = mint.log.transactionHash,
-            eventIndex = mint.log.eventIndex
         )
     }
 
@@ -50,7 +51,7 @@ class HWMetaFetcher(
         metaEventType: String,
         blockHeight: Long,
         transaction: String,
-        eventIndex: Int
+        tokenId: Long
     ): String? {
         val range = LongRange(blockHeight, blockHeight)
         val blockEvents = accessApi.getEventsForHeightRange(metaEventType, range).await().run {
@@ -60,9 +61,10 @@ class HWMetaFetcher(
             } else single().events
         }
         val metadataEvent = blockEvents.firstOrNull {
-            it.transactionId.bytes.bytesToHex() == transaction && it.eventIndex == eventIndex
+            val id = it.event.get<Field<String>>("id")?.value?.toLong()
+            it.transactionId.bytes.bytesToHex() == transaction && id == tokenId
         } ?: run {
-            logger.error("Can't find event (tx=$transaction, eventIndex=$eventIndex, type=$metaEventType)")
+            logger.error("Can't find event (tx=$transaction, tokenId=$tokenId, type=$metaEventType)")
             return null
         }
         return metadataEvent.payload.stringValue
