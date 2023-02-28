@@ -26,7 +26,13 @@ abstract class HotWheelsMetaProvider(
     }
 
     protected open fun map(itemId: ItemId, node: JsonNode): ItemMeta {
-        val map = toKeyValueMap(node)
+        val dictionary = node.get("value")
+            .getArray("fields")
+            .find { it.getText("name") == "metadata" }
+            ?.get("value")
+            ?: throw MetaException("'metadata' node not found", MetaException.Status.CORRUPTED_DATA)
+
+        val map = toKeyValueMap(dictionary)
         val name = map.getFirst(*fieldName)
             ?: throw MetaException("'name' field not found", MetaException.Status.CORRUPTED_DATA)
         return ItemMeta(

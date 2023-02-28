@@ -4,6 +4,9 @@ import com.nftco.flow.sdk.AsyncFlowAccessApi
 import com.nftco.flow.sdk.FlowEvent
 import com.nftco.flow.sdk.FlowEventPayload
 import com.nftco.flow.sdk.FlowId
+import com.nftco.flow.sdk.cadence.EventField
+import com.nftco.flow.sdk.cadence.Field
+import com.nftco.flow.sdk.cadence.UInt256NumberField
 import com.rarible.core.test.data.randomByteArray
 import com.rarible.core.test.data.randomString
 import com.rarible.flow.api.service.HWMetaEventTypeProvider
@@ -46,9 +49,13 @@ class HWMetaFetcherTest {
             eventIndex = expectedEventIndex,
             transaction = expectedTransactionId.bytes.toHexString()
         )
+        val eventField = mockk<EventField> {
+            every { get<Field<String>>("id") } returns UInt256NumberField(itemId.tokenId.toString())
+        }
         val metaEvent = mockk<FlowEvent> {
             every { eventIndex } returns expectedEventIndex
             every { transactionId } returns expectedTransactionId
+            every { event } returns eventField
             every { payload } returns expectedMeta
         }
         val eventResult = randomFlowEventResult(events = listOf(metaEvent))
