@@ -52,7 +52,7 @@ interface ItemHistoryRepository : ReactiveMongoRepository<ItemHistory, String> {
     fun findTransferInTx(txHash: String, from: String, to: String): Flux<ItemHistory>
 
     @Query("""
-            {"activity.type": ?0, "activity.contract": ?1, "activity.tokenId": ?2}
+            {"activity.contract": ?0, "activity.tokenId": ?1, "activity.type": ?2}
         """)
     fun findItemActivity(contract: String, tokenId: TokenId, type: FlowActivityType): Flux<ItemHistory>
 }
