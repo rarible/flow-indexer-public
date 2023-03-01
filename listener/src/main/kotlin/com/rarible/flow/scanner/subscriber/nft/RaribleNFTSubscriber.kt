@@ -5,7 +5,6 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.model.RaribleNftEventType
-import com.rarible.flow.scanner.subscriber.NonFungibleTokenSubscriber
 import org.springframework.stereotype.Component
 
 @Component

@@ -14,6 +14,7 @@ import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.cadence.ListingAvailable
 import com.rarible.flow.scanner.cadence.ListingCompleted
+import com.rarible.flow.scanner.model.NFTStorefrontEventType
 import com.rarible.flow.scanner.model.parse
 import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
@@ -22,43 +23,31 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
-import org.springframework.stereotype.Component
 
-@Component
-class NFTStorefrontSubscriber(
-    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
+abstract class AbstractNFTStorefrontSubscriber(
     private val collectionRepository: ItemCollectionRepository,
     private val txManager: TxManager,
     private val orderRepository: OrderRepository
 ): BaseFlowLogEventSubscriber() {
 
-    private val events = setOf("ListingAvailable", "ListingCompleted")
-    private val name = "nft_storefront"
+    private val events = NFTStorefrontEventType.EVENT_NAMES
+    protected abstract val name: String
+    protected abstract val contract: Contracts
 
     private lateinit var nftEvents: Set<String>
 
-    override val descriptors: Map<FlowChainId, FlowDescriptor> = mapOf(
-        FlowChainId.MAINNET to DescriptorFactory.flowNftOrderDescriptor(
-            contract = Contracts.NFTSTOREFRONT,
-            events = events,
-            chainId = FlowChainId.MAINNET,
-            startFrom = 19799019L,
-            dbCollection = collection,
-            name = name
-        ),
-        FlowChainId.TESTNET to DescriptorFactory.flowNftOrderDescriptor(
-            contract = Contracts.NFTSTOREFRONT,
-            events = events,
-            chainId = FlowChainId.TESTNET,
-            dbCollection = collection,
-            name = name
-        )
-    )
+    override val descriptors: Map<FlowChainId, FlowDescriptor>
+        get() = createDescriptors()
 
-    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when(EventId.of(log.event.type).eventName) {
-        "ListingAvailable" -> FlowLogType.LISTING_AVAILABLE
-        "ListingCompleted" -> FlowLogType.LISTING_COMPLETED
-        else -> throw IllegalStateException("Unsupported event type [${log.event.type}]")
+    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType {
+        val eventType = NFTStorefrontEventType.fromEventName(
+            EventId.of(log.event.id).eventName
+        )
+        return when (eventType) {
+            NFTStorefrontEventType.LISTING_AVAILABLE -> FlowLogType.LISTING_AVAILABLE
+            NFTStorefrontEventType.LISTING_COMPLETED -> FlowLogType.LISTING_COMPLETED
+            null -> throw IllegalStateException("Unsupported event type: ${log.event.id}")
+        }
     }
 
     override suspend fun isNewEvent(block: FlowBlockchainBlock, event: FlowEvent): Boolean {
@@ -87,6 +76,26 @@ class NFTStorefrontSubscriber(
             }
             else -> false
         } }
+    }
+
+    private fun createDescriptors(): Map<FlowChainId, FlowDescriptor> {
+        return FlowChainId.values()
+            .mapNotNull { chainId ->
+                if (contract.deployments[chainId] != null)
+                    chainId to createFlowNftOrderDescriptor(chainId)
+                else null
+            }
+            .toMap()
+    }
+
+    private fun createFlowNftOrderDescriptor(chainId: FlowChainId): FlowDescriptor {
+        return DescriptorFactory.flowNftOrderDescriptor(
+            contract = contract,
+            events = events,
+            chainId = chainId,
+            dbCollection = collection,
+            name = name
+        )
     }
 
     @PostConstruct

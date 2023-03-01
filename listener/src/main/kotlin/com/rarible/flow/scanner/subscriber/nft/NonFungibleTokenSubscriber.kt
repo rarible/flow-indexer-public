@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.subscriber
+package com.rarible.flow.scanner.subscriber.nft
 
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
@@ -7,6 +7,8 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.model.NonFungibleTokenEventType
+import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
+import com.rarible.flow.scanner.subscriber.DescriptorFactory
 
 abstract class NonFungibleTokenSubscriber: BaseFlowLogEventSubscriber() {
     protected open val events = NonFungibleTokenEventType.EVENT_NAMES

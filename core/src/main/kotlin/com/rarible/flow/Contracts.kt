@@ -117,6 +117,35 @@ enum class Contracts : Contract {
             get() = "0xHWGARAGEPM"
     },
 
+    NFT_STOREFRONT {
+        override val contractName = "NFTStorefront"
+
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                //https://flowscan.org/contract/A.4eb8a10cb9f87357.NFTStorefront
+                FlowChainId.MAINNET to FlowAddress("0x4eb8a10cb9f87357"),
+                FlowChainId.TESTNET to FlowAddress("0x94b06cfca1d8a476"),
+                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
+            )
+        override val import: String
+            get() = "0x${contractName.uppercase()}"
+    },
+
+    NFT_STOREFRONT_V2 {
+        override val contractName = "NFTStorefrontV2"
+
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                //https://flowscan.org/contract/A.4eb8a10cb9f87357.NFTStorefrontV2
+                FlowChainId.MAINNET to FlowAddress("0x4eb8a10cb9f87357"),
+                //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.NFTStorefrontV2
+                FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
+            )
+        override val import: String
+            get() = "0x${contractName.uppercase()}"
+    },
+
+
     //=========== Disabled contracts
     ONE_FOOTBALL {
         override val import: String
@@ -461,19 +490,6 @@ enum class Contracts : Contract {
             FlowChainId.MAINNET -> listOf(Part(FlowAddress("0x8e2e0ebf3c03aa88"), TEN_PERCENT))
             else -> super.staticRoyalties(chain)
         }
-    },
-
-    NFTSTOREFRONT {
-        override val contractName: String
-            get() = "NFTStorefront"
-        override val deployments: Map<FlowChainId, FlowAddress>
-            get() = mapOf(
-                FlowChainId.MAINNET to FlowAddress("0x4eb8a10cb9f87357"),
-                FlowChainId.TESTNET to FlowAddress("0x94b06cfca1d8a476"),
-                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
-            )
-        override val import: String
-            get() = "0x${contractName.uppercase()}"
     },
 
     GENIACE {
