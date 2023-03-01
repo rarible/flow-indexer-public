@@ -1,9 +1,9 @@
-package com.rarible.flow.scanner.listener.activity.disabled
+package com.rarible.flow.scanner.activity.disabled
 
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Part
-import com.rarible.flow.scanner.listener.activity.NFTActivityMaker
+import com.rarible.flow.scanner.activity.NFTActivityMaker
 
 class EvolutionActivityMaker : NFTActivityMaker() {
     override val contractName: String = Contracts.EVOLUTION.contractName

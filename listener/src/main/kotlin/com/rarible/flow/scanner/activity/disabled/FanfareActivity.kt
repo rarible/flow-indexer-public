@@ -1,27 +1,28 @@
-package com.rarible.flow.scanner.listener.activity.disabled
+package com.rarible.flow.scanner.activity.disabled
 
 import com.nftco.flow.sdk.cadence.StringField
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Part
+import com.rarible.flow.scanner.activity.NFTActivityMaker
 import com.rarible.flow.scanner.config.FlowListenerProperties
-import com.rarible.flow.scanner.listener.activity.NFTActivityMaker
 
-class StarlyActivity(
+class FanfareActivity(
     private val config: FlowListenerProperties
 ): NFTActivityMaker() {
-    override val contractName: String = Contracts.STARLY_CARD.contractName
+    override val contractName: String = Contracts.FANFARE.contractName
 
     override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> {
-        val starlyID: StringField by logEvent.event.fields
+        val metadata: StringField by logEvent.event.fields
+
         return mapOf(
-            "starlyId" to starlyID.value!!,
+            "metadata" to metadata.value!!
         )
     }
 
     override fun royalties(logEvent: FlowLogEvent): List<Part> {
-        return Contracts.STARLY_CARD.staticRoyalties(config.chainId)
+        return Contracts.FANFARE.staticRoyalties(config.chainId)
     }
 }

@@ -1,10 +1,10 @@
-package com.rarible.flow.scanner.listener.activity.disabled
+package com.rarible.flow.scanner.activity.disabled
 
 import com.nftco.flow.sdk.Flow
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.event.VersusArtMetadata
-import com.rarible.flow.scanner.listener.activity.NFTActivityMaker
+import com.rarible.flow.scanner.activity.NFTActivityMaker
 
 class VersusArtActivityMaker : NFTActivityMaker() {
 

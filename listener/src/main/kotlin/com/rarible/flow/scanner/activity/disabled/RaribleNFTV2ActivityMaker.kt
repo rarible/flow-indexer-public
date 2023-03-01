@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.listener.activity.disabled
+package com.rarible.flow.scanner.activity.disabled
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.StructField
@@ -7,7 +7,7 @@ import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.event.RaribleNFTv2Meta
-import com.rarible.flow.scanner.listener.activity.NFTActivityMaker
+import com.rarible.flow.scanner.activity.NFTActivityMaker
 
 class RaribleNFTV2ActivityMaker: NFTActivityMaker() {
 

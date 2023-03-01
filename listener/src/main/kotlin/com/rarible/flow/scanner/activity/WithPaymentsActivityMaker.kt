@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.listener.activity
+package com.rarible.flow.scanner.activity
 
 import com.nftco.flow.sdk.AddressRegistry.Companion.FLOW_FEES
 import com.nftco.flow.sdk.Flow
@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import java.math.BigDecimal
 
-abstract class WithPaymentsActivityMaker : ActivityMaker {
+abstract class WithPaymentsActivityMaker : com.rarible.flow.scanner.activity.ActivityMaker {
 
     abstract val contractName: String
 

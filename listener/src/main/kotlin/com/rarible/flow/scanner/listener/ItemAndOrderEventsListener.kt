@@ -10,7 +10,7 @@ import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coSaveAll
-import com.rarible.flow.scanner.listener.activity.ActivityMaker
+import com.rarible.flow.scanner.activity.ActivityMaker
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.model.Listeners
 import com.rarible.flow.scanner.model.SubscriberGroups
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component
 class ItemAndOrderEventsListener(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository,
-    private val nftActivityMakers: List<ActivityMaker>,
+    private val nftActivityMakers: List<com.rarible.flow.scanner.activity.ActivityMaker>,
     private val indexerEventService: IndexerEventService,
     private val itemRepository: ItemRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,

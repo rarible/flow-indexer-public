@@ -10,7 +10,7 @@ import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
-import com.rarible.flow.scanner.listener.activity.disabled.CnnActivity
+import com.rarible.flow.scanner.activity.disabled.CnnActivity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainValue
 import io.kotest.matchers.shouldBe
