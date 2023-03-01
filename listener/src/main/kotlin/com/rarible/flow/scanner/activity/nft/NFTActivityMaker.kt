@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.activity
+package com.rarible.flow.scanner.activity.nft
 
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
@@ -13,10 +13,11 @@ import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TransferActivity
 import com.rarible.flow.scanner.TxManager
+import com.rarible.flow.scanner.activity.ActivityMaker
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 
-abstract class NFTActivityMaker : com.rarible.flow.scanner.activity.ActivityMaker {
+abstract class NFTActivityMaker : ActivityMaker {
 
     abstract val contractName: String
 

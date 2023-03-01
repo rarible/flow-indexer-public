@@ -5,7 +5,7 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.scanner.config.FlowListenerProperties
-import com.rarible.flow.scanner.activity.NFTActivityMaker
+import com.rarible.flow.scanner.activity.nft.NFTActivityMaker
 
 class StarlyActivity(
     private val config: FlowListenerProperties

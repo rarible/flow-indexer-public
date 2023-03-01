@@ -2,7 +2,7 @@ package com.rarible.flow.scanner.activity.disabled
 
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
-import com.rarible.flow.scanner.activity.NFTActivityMaker
+import com.rarible.flow.scanner.activity.nft.NFTActivityMaker
 
 class GeniaceActivityMaker : NFTActivityMaker() {
     override val contractName = Contracts.GENIACE.contractName

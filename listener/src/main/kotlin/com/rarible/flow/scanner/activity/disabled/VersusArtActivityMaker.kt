@@ -4,7 +4,7 @@ import com.nftco.flow.sdk.Flow
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.event.VersusArtMetadata
-import com.rarible.flow.scanner.activity.NFTActivityMaker
+import com.rarible.flow.scanner.activity.nft.NFTActivityMaker
 
 class VersusArtActivityMaker : NFTActivityMaker() {
 

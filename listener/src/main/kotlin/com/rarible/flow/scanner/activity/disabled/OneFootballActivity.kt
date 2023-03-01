@@ -4,7 +4,7 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Part
-import com.rarible.flow.scanner.activity.NFTActivityMaker
+import com.rarible.flow.scanner.activity.nft.NFTActivityMaker
 
 class OneFootballActivity(
     private val appProperties: AppProperties

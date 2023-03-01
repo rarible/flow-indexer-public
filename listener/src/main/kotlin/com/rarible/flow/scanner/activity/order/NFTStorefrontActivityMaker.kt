@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.activity
+package com.rarible.flow.scanner.activity.order
 
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowId
@@ -18,7 +18,6 @@ import com.rarible.flow.core.domain.PaymentType
 import com.rarible.flow.core.event.EventId
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
-
 
 @Component
 class NFTStorefrontActivityMaker : WithPaymentsActivityMaker() {

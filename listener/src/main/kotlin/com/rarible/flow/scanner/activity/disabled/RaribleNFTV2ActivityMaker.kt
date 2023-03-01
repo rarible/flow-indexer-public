@@ -7,7 +7,7 @@ import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.event.RaribleNFTv2Meta
-import com.rarible.flow.scanner.activity.NFTActivityMaker
+import com.rarible.flow.scanner.activity.nft.NFTActivityMaker
 
 class RaribleNFTV2ActivityMaker: NFTActivityMaker() {
 

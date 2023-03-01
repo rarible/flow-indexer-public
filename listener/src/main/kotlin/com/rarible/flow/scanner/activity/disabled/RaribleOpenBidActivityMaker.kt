@@ -16,7 +16,7 @@ import com.rarible.flow.core.domain.FlowNftOrderPayment
 import com.rarible.flow.core.domain.OrderActivityMatchSide
 import com.rarible.flow.core.domain.PaymentType
 import com.rarible.flow.core.event.EventId
-import com.rarible.flow.scanner.activity.WithPaymentsActivityMaker
+import com.rarible.flow.scanner.activity.order.WithPaymentsActivityMaker
 import com.rarible.flow.scanner.service.balance.FlowBalanceService
 import java.math.BigDecimal
 

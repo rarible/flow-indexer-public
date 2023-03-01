@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.activity
+package com.rarible.flow.scanner.activity.nft
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.StructField
@@ -8,7 +8,7 @@ import com.rarible.flow.core.domain.Part
 import org.springframework.stereotype.Component
 
 @Component
-class RaribleNFTActivityMaker : com.rarible.flow.scanner.activity.NFTActivityMaker() {
+class RaribleNFTActivityMaker : NFTActivityMaker() {
     override val contractName: String = Contracts.RARIBLE_NFT.contractName
 
     override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
