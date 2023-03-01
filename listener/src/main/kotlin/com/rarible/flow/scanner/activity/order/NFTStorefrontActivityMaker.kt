@@ -13,10 +13,9 @@ import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontV2ListingEven
 import org.springframework.stereotype.Component
 
 abstract class NFTStorefrontActivityMaker(
-    private val parsers: List<NFTStorefrontEventParser<*>>
+    private val parsers: List<NFTStorefrontEventParser<*>>,
+    override val contractName: String
 ) : WithPaymentsActivityMaker() {
-
-    override val contractName: String = Contracts.NFT_STOREFRONT.contractName
 
     override suspend fun activities(events: List<FlowLogEvent>): Map<FlowLog, BaseActivity> {
         return withSpan("generateOrderActivities", "event") {
@@ -36,7 +35,8 @@ class NFTStorefrontV1ActivityMaker(
     cancelParser: NFTStorefrontCancelEventParser,
     purchaseParser: NFTStorefrontPurchaseEventParser
 ) : NFTStorefrontActivityMaker(
-    listOf(cancelParser, listParser, purchaseParser)
+    contractName = Contracts.NFT_STOREFRONT.contractName,
+    parsers = listOf(cancelParser, listParser, purchaseParser)
 )
 
 @Component
@@ -45,7 +45,8 @@ class NFTStorefrontV2ActivityMaker(
     cancelParser: NFTStorefrontCancelEventParser,
     purchaseParser: NFTStorefrontPurchaseEventParser
 ) : NFTStorefrontActivityMaker(
-    listOf(cancelParser, listParser, purchaseParser)
+    contractName = Contracts.NFT_STOREFRONT_V2.contractName,
+    parsers = listOf(cancelParser, listParser, purchaseParser)
 )
 
 
