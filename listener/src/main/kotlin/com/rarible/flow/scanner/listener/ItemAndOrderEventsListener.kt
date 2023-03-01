@@ -36,7 +36,6 @@ class ItemAndOrderEventsListener(
     environmentInfo = environmentInfo
 ) {
     override suspend fun onLogRecordEvents(events: List<LogRecordEvent>) {
-        logger.info("[2296] onLogRecordEvents: $events")
         val history: MutableList<ItemHistory> = mutableListOf()
         try {
             events
@@ -71,7 +70,6 @@ class ItemAndOrderEventsListener(
                         logger.info("Send activity [${h.id}] to kafka!")
                         protocolEventPublisher.activity(h)
 
-                        logger.info("[2278] processEvent ${h.activity}")
                         indexerEventService.processEvent(
                             IndexerEvent(
                                 history = h,
@@ -84,7 +82,6 @@ class ItemAndOrderEventsListener(
                 }
             }
         } catch (e: Exception) {
-            logger.error("[2296] can't handle: $events", e)
             logger.error(e.message, e)
             throw Throwable(e)
         }
