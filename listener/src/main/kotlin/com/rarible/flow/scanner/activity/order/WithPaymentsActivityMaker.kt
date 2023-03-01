@@ -96,9 +96,6 @@ abstract class WithPaymentsActivityMaker : ActivityMaker {
     ): List<PayInfo> {
         try {
             val payments = currencyEvents
-                .onEach {
-                    logger.info("[2296] try find currency = ${it.eventId.eventName}")
-                }
                 .filter {
                     it.eventId.eventName == "TokensDeposited"
                 }

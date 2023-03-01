@@ -81,13 +81,8 @@ class NFTStorefrontActivityMaker : WithPaymentsActivityMaker() {
             }
             orderPurchased.forEach { logEvent ->
                 val allTxEvents = readEvents(blockHeight = logEvent.log.blockHeight, txId = FlowId(logEvent.log.transactionHash))
-                logger.info("[2296] logEvent=${logEvent}")
-
                 val tokenEvents = allTxEvents.filter { it.eventId.toString() in nftCollectionEvents }
-                logger.info("[2296] tokenEvents=${tokenEvents}")
-
                 val currencyEvents = allTxEvents.filter { it.eventId.toString() in currenciesEvents }
-                logger.info("[2296] currencyEvents=${currencyEvents}")
 
                 if (tokenEvents.isNotEmpty() && currencyEvents.isNotEmpty()) {
                     val withdrawnEvent = tokenEvents.find { it.eventId.eventName == "Withdraw" }!!
@@ -101,7 +96,6 @@ class NFTStorefrontActivityMaker : WithPaymentsActivityMaker() {
                     }!!
 
                     val payInfo = payInfos(currencyEvents, sellerAddress)
-                    logger.info("[2296] payInfo=${payInfo}")
                     val price = payInfo.filterNot {
                         it.type == PaymentType.BUYER_FEE
                     }.sumOf { it.amount }
