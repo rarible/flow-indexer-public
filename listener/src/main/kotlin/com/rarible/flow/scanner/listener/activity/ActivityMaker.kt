@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.activitymaker
+package com.rarible.flow.scanner.listener.activity
 
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.flow.core.domain.BaseActivity

@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.activitymaker
+package com.rarible.flow.scanner.listener.activity.disabled
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowId
@@ -9,6 +9,7 @@ import com.nftco.flow.sdk.cadence.OptionalField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.event.EventId
+import com.rarible.flow.scanner.listener.activity.WithPaymentsActivityMaker
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.Instant

@@ -5,7 +5,7 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.Part
-import com.rarible.flow.scanner.activitymaker.NFTActivityMaker
+import com.rarible.flow.scanner.listener.activity.NFTActivityMaker
 
 class TopShotActivityMaker : NFTActivityMaker() {
     override val contractName: String = Contracts.TOPSHOT.contractName

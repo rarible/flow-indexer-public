@@ -1,22 +1,19 @@
 package com.rarible.flow.scanner.listener.activity.disabled
 
 import com.rarible.flow.Contracts
-import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.scanner.listener.activity.NFTActivityMaker
 
-class OneFootballActivity(
-    private val appProperties: AppProperties
-) : NFTActivityMaker() {
+class MotoGPActivityMaker : NFTActivityMaker() {
 
-    override val contractName: String = Contracts.ONE_FOOTBALL.contractName
+    override val contractName: String = "MotoGPCard"
 
     override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> = emptyMap()
 
     override fun royalties(logEvent: FlowLogEvent): List<Part> {
-        return Contracts.ONE_FOOTBALL.staticRoyalties(appProperties.chainId)
+        return Contracts.MOTOGP.staticRoyalties(chainId)
     }
 }

@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.activitymaker
+package com.rarible.flow.scanner.listener.activity
 
 import com.nftco.flow.sdk.AddressRegistry.Companion.FLOW_FEES
 import com.nftco.flow.sdk.Flow
@@ -7,10 +7,11 @@ import com.nftco.flow.sdk.FlowId
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.PaymentType
-import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.event.EventMessage
+import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.util.Log
 import com.rarible.flow.scanner.TxManager
+import com.rarible.flow.scanner.model.PayInfo
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
 import kotlinx.coroutines.flow.toList
@@ -152,9 +153,3 @@ abstract class WithPaymentsActivityMaker : ActivityMaker {
     )
 }
 
-data class PayInfo(
-    val address: String,
-    val amount: BigDecimal,
-    val currencyContract: String,
-    val type: PaymentType
-)

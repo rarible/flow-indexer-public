@@ -1,26 +1,20 @@
-package com.rarible.flow.scanner.activitymaker
+package com.rarible.flow.scanner.listener.activity
 
-import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.nftco.flow.sdk.cadence.OptionalField
-import com.nftco.flow.sdk.cadence.StructField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.apm.withSpan
-import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.domain.BurnActivity
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
-import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TransferActivity
-import com.rarible.flow.core.event.RaribleNFTv2Meta
 import com.rarible.flow.scanner.TxManager
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Component
 
 abstract class NFTActivityMaker : ActivityMaker {
 
@@ -157,66 +151,4 @@ abstract class NFTActivityMaker : ActivityMaker {
     protected open fun creator(logEvent: FlowLogEvent): String = logEvent.event.eventId.contractAddress.formatted
 
     protected open suspend fun itemCollection(mintEvent: FlowLogEvent): String = mintEvent.event.eventId.collection()
-}
-
-@Component
-class MotoGPActivityMaker : NFTActivityMaker() {
-
-    override val contractName: String = "MotoGPCard"
-
-    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
-
-    override fun meta(logEvent: FlowLogEvent): Map<String, String> = emptyMap()
-
-    override fun royalties(logEvent: FlowLogEvent): List<Part> {
-        return Contracts.MOTOGP.staticRoyalties(chainId)
-    }
-}
-
-@Component
-class RaribleNFTV2ActivityMaker: NFTActivityMaker() {
-
-    override val contractName: String = Contracts.RARIBLE_NFTV2.contractName
-
-    override fun tokenId(logEvent: FlowLogEvent): Long {
-        return cadenceParser.long(logEvent.event.fields["id"]!!)
-    }
-
-    override fun meta(logEvent: FlowLogEvent): Map<String, String> {
-        val meta by logEvent.event.fields
-        val rariMeta = cadenceParser.unmarshall<RaribleNFTv2Meta>(meta, Contracts.RARIBLE_NFTV2.deployments[chainId]!!)
-        return rariMeta.toMap()
-    }
-
-    override fun royalties(logEvent: FlowLogEvent): List<Part> {
-        return cadenceParser.arrayValues(logEvent.event.fields["royalties"]!!) {
-            it as StructField
-            Part(
-                address = FlowAddress(address(it.value!!.getRequiredField("address"))),
-                fee = double(it.value!!.getRequiredField("fee"))
-            )
-        }
-    }
-
-    override suspend fun itemCollection(mintEvent: FlowLogEvent): String {
-        val parentId = cadenceParser.long(mintEvent.event.fields["parentId"]!!)
-        return "${ItemId(Contracts.SOFT_COLLECTION.fqn(chainId), parentId)}"
-    }
-}
-
-@Component
-class EvolutionActivityMaker : NFTActivityMaker() {
-    override val contractName: String = Contracts.EVOLUTION.contractName
-
-    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
-
-    override fun meta(logEvent: FlowLogEvent): Map<String, String> = mapOf(
-        "itemId" to "${cadenceParser.int(logEvent.event.fields["itemId"]!!)}",
-        "setId" to "${cadenceParser.int(logEvent.event.fields["setId"]!!)}",
-        "serialNumber" to "${cadenceParser.int(logEvent.event.fields["serialNumber"]!!)}"
-    )
-
-    override fun royalties(logEvent: FlowLogEvent): List<Part> {
-        return Contracts.EVOLUTION.staticRoyalties(chainId)
-    }
 }

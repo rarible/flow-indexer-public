@@ -4,7 +4,7 @@ import com.nftco.flow.sdk.cadence.UInt32NumberField
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Part
-import com.rarible.flow.scanner.activitymaker.NFTActivityMaker
+import com.rarible.flow.scanner.listener.activity.NFTActivityMaker
 
 class KicksActivity: NFTActivityMaker() {
     override val contractName: String = Contracts.KICKS.contractName

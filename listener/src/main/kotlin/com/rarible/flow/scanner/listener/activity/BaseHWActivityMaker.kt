@@ -3,11 +3,10 @@ package com.rarible.flow.scanner.listener.activity
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Part
-import com.rarible.flow.scanner.activitymaker.NFTActivityMaker
 import com.rarible.flow.scanner.config.FlowListenerProperties
 import org.springframework.stereotype.Component
 
-sealed class BaseHWActivity(
+sealed class BaseHWActivityMaker(
     private val config: FlowListenerProperties
 ) : NFTActivityMaker() {
 
@@ -21,21 +20,21 @@ sealed class BaseHWActivity(
 }
 
 @Component
-class HWCardActivity(config: FlowListenerProperties) : BaseHWActivity(config) {
+class HWCardActivity(config: FlowListenerProperties) : BaseHWActivityMaker(config) {
     override val contractName: String = Contracts.HW_GARAGE_CARD.contractName
 }
 
 @Component
-class HWPackActivity(config: FlowListenerProperties) : BaseHWActivity(config) {
+class HWPackActivity(config: FlowListenerProperties) : BaseHWActivityMaker(config) {
     override val contractName: String = Contracts.HW_GARAGE_PACK.contractName
 }
 
 @Component
-class RaribleCardActivity(config: FlowListenerProperties) : BaseHWActivity(config) {
+class RaribleCardActivity(config: FlowListenerProperties) : BaseHWActivityMaker(config) {
     override val contractName: String = Contracts.RARIBLE_GARAGE_CARD.contractName
 }
 
 @Component
-class RariblePackActivity(config: FlowListenerProperties) : BaseHWActivity(config) {
+class RariblePackActivity(config: FlowListenerProperties) : BaseHWActivityMaker(config) {
     override val contractName: String = Contracts.RARIBLE_GARAGE_PACK.contractName
 }

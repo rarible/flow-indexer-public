@@ -10,7 +10,7 @@ import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coSaveAll
-import com.rarible.flow.scanner.activitymaker.ActivityMaker
+import com.rarible.flow.scanner.listener.activity.ActivityMaker
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.model.Listeners
 import com.rarible.flow.scanner.model.SubscriberGroups
