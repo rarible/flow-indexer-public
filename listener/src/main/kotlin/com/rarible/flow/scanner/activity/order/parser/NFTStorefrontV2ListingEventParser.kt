@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 import java.math.BigDecimal
 
 @Component
-class NFTStorefrontV2ListingEventParser(
+open class NFTStorefrontV2ListingEventParser(
     currencyService: CurrencyService
 ): NFTStorefrontListingEventParser(currencyService) {
 
@@ -19,4 +19,3 @@ class NFTStorefrontV2ListingEventParser(
         return EventId.of(cadenceParser.type(event.fields["salePaymentVaultType"]!!)).collection()
     }
 }
-

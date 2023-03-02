@@ -5,6 +5,8 @@ import com.nftco.flow.sdk.FlowEvent
 import com.nftco.flow.sdk.FlowEventPayload
 import com.nftco.flow.sdk.FlowEventResult
 import com.nftco.flow.sdk.FlowId
+import com.nftco.flow.sdk.FlowTransactionResult
+import com.nftco.flow.sdk.FlowTransactionStatus
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.common.nowMillis
 import com.rarible.core.test.data.randomInt
@@ -189,6 +191,15 @@ fun randomFlowEventResult(
         events = events,
         blockId = FlowId("79f853d2775ccf402528603b3178f3e29051f0ee0f9ea55c29bd8c2fbef81905"),
         blockTimestamp = LocalDateTime.now()
+    )
+}
+
+fun randomFlowTransactionResult(events: List<FlowEvent> = emptyList()): FlowTransactionResult {
+    return FlowTransactionResult(
+        events = events,
+        errorMessage = "",
+        status = FlowTransactionStatus.FINALIZED,
+        statusCode = 0
     )
 }
 

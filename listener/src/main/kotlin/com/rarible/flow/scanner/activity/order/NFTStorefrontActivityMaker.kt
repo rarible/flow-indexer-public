@@ -7,9 +7,10 @@ import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontCancelEventParser
 import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontEventParser
-import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontPurchaseEventParser
 import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontV1ListingEventParser
+import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontV1PurchaseEventParser
 import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontV2ListingEventParser
+import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontV2PurchaseEventParser
 import org.springframework.stereotype.Component
 
 abstract class NFTStorefrontActivityMaker(
@@ -32,8 +33,8 @@ abstract class NFTStorefrontActivityMaker(
 @Component
 class NFTStorefrontV1ActivityMaker(
     listParser: NFTStorefrontV1ListingEventParser,
+    purchaseParser: NFTStorefrontV1PurchaseEventParser,
     cancelParser: NFTStorefrontCancelEventParser,
-    purchaseParser: NFTStorefrontPurchaseEventParser
 ) : NFTStorefrontActivityMaker(
     contractName = Contracts.NFT_STOREFRONT.contractName,
     parsers = listOf(cancelParser, listParser, purchaseParser)
@@ -42,8 +43,8 @@ class NFTStorefrontV1ActivityMaker(
 @Component
 class NFTStorefrontV2ActivityMaker(
     listParser: NFTStorefrontV2ListingEventParser,
+    purchaseParser: NFTStorefrontV2PurchaseEventParser,
     cancelParser: NFTStorefrontCancelEventParser,
-    purchaseParser: NFTStorefrontPurchaseEventParser
 ) : NFTStorefrontActivityMaker(
     contractName = Contracts.NFT_STOREFRONT_V2.contractName,
     parsers = listOf(cancelParser, listParser, purchaseParser)

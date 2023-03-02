@@ -16,10 +16,16 @@ abstract class BaseNFTStorefrontEventParserTest {
     protected fun getFlowLogEvent(json: String, type: FlowLogType): FlowLogEvent {
         val flowEvent = getFlowEvent(json)
         val eventMessage = com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, flowEvent.event)
-        return randomFlowLogEvent().copy(event = eventMessage, type = type)
+        val flowLogEvent = randomFlowLogEvent()
+        val log = flowLogEvent.log.copy(transactionHash = "80eefea7f1ccf8c89accab5118eec4f0e9af88bb7373b5b258c0cab5c5c45192")
+        return flowLogEvent.copy(
+            event = eventMessage,
+            type = type,
+            log = log
+        )
     }
 
-    private fun getFlowEvent(resource: String): FlowEvent {
+    fun getFlowEvent(resource: String): FlowEvent {
         val json = this.javaClass
             .getResourceAsStream(resource)!!
             .bufferedReader().use { it.readText() }

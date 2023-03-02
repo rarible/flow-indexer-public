@@ -1,0 +1,25 @@
+{
+  "value": {
+    "id": "A.eee6bdee2b2bdfc8.Basketballs.Deposit",
+    "fields": [
+      {
+        "value": {
+          "value": "2",
+          "type": "UInt64"
+        },
+        "name": "id"
+      },
+      {
+        "value": {
+          "value": {
+            "value": "0x8500afb0163a33c8",
+            "type": "Address"
+          },
+          "type": "Optional"
+        },
+        "name": "to"
+      }
+    ]
+  },
+  "type": "Event"
+}

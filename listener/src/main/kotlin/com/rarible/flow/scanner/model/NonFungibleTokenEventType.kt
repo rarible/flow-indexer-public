@@ -7,6 +7,10 @@ enum class NonFungibleTokenEventType(val eventName: String) {
     BURN("Burn"),
     ;
 
+    fun full(contract: String): String {
+        return "$contract.${eventName}"
+    }
+
     companion object {
         private val NAME_MAP = NonFungibleTokenEventType.values().associateBy { it.eventName }
 

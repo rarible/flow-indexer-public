@@ -6,7 +6,7 @@ import com.rarible.flow.scanner.service.CurrencyService
 
 abstract class NFTStorefrontListingCompletedEventParser<T : BaseActivity>(
     currencyService: CurrencyService
-) : NFTStorefrontEventParser<T>(currencyService) {
+) : AbstractNFTStorefrontEventParser<T>(currencyService) {
 
     protected open fun wasPurchased(event: EventMessage): Boolean {
         return cadenceParser.boolean(event.fields["purchased"]!!)

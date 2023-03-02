@@ -13,7 +13,7 @@ import java.math.BigDecimal
 
 abstract class NFTStorefrontListingEventParser(
     currencyService: CurrencyService
-) : NFTStorefrontEventParser<FlowNftOrderActivityList>(currencyService) {
+) : AbstractNFTStorefrontEventParser<FlowNftOrderActivityList>(currencyService) {
 
     override suspend fun parseActivities(logEvent: List<FlowLogEvent>): Map<FlowLog, FlowNftOrderActivityList> {
         return logEvent
@@ -21,7 +21,7 @@ abstract class NFTStorefrontListingEventParser(
             .associate { it.log to parseActivity(it) }
     }
 
-    protected open suspend fun parseActivity(logEvent: FlowLogEvent): FlowNftOrderActivityList {
+    open suspend fun parseActivity(logEvent: FlowLogEvent): FlowNftOrderActivityList {
         val log = logEvent.log
         val event = logEvent.event
 
