@@ -26,7 +26,7 @@ class HotWheelsCardMetaProviderTest {
         val meta = provider.getMeta(item)!!
         val content = meta.content[0]
 
-        assertThat(meta.name).isEqualTo("Chevy Silverado Off Road")
+        assertThat(meta.name).isEqualTo("Chevy Silverado Off Road #58")
         assertThat(meta.description).isEqualTo("")
         assertThat(meta.rights).isEqualTo("©Copyright General Motors 2022")
         assertThat(meta.content).hasSize(1)
@@ -40,7 +40,9 @@ class HotWheelsCardMetaProviderTest {
             ItemMetaAttribute("releaseYear", "2015"),
             ItemMetaAttribute("rarity", "Super Rare"),
             ItemMetaAttribute("redeemable", "Yes"),
-            ItemMetaAttribute("type", "Premium")
+            ItemMetaAttribute("type", "Premium"),
+            ItemMetaAttribute("mint", "2780"),
+            ItemMetaAttribute("totalSupply", "3000")
         )
     }
 
