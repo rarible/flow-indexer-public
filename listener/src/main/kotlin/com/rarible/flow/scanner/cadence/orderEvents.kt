@@ -64,8 +64,6 @@ data class ListingAvailable(
     val listingResourceID: Long,
     val nftType: String,
     val nftID: Long,
-    val ftVaultType: String,
-    val price: BigDecimal
 )
 
 @JsonCadenceConversion(ListingCompletedConverter::class)
@@ -115,8 +113,6 @@ class ListingAvailableConverter: JsonCadenceConverter<ListingAvailable> {
             listingResourceID = long("listingResourceID"),
             nftType = type("nftType"),
             nftID = long("nftID"),
-            ftVaultType = type("nftType"),
-            price = bigDecimal("price")
         )
     }
 }
