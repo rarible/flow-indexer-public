@@ -19,7 +19,7 @@ import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.config.FlowListenerProperties
 import com.rarible.flow.scanner.model.PayInfo
-import com.rarible.protocol.currency.api.client.CurrencyControllerApi
+import com.rarible.flow.scanner.service.CurrencyService
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
@@ -29,10 +29,10 @@ import java.math.BigDecimal
 @Component
 class NFTStorefrontPurchaseEventParser(
     private val txManager: TxManager,
-    currencyApi: CurrencyControllerApi,
+    currencyService: CurrencyService,
     collectionRepository: ItemCollectionRepository,
     properties: FlowListenerProperties
-) : NFTStorefrontListingCompletedEventParser<FlowNftOrderActivitySell>(currencyApi) {
+) : NFTStorefrontListingCompletedEventParser<FlowNftOrderActivitySell>(currencyService) {
 
     private val chainId = properties.chainId
 
@@ -86,7 +86,7 @@ class NFTStorefrontPurchaseEventParser(
             }.sumOf { it.amount }
 
             val usdRate = payInfo.firstOrNull()?.let {
-                usdRate(it.currencyContract, logEvent.log.timestamp.toEpochMilli())
+                usdRate(it.currencyContract, logEvent.log.timestamp)
             } ?: BigDecimal.ZERO
 
             val priceUsd = if (usdRate > BigDecimal.ZERO) {

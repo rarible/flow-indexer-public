@@ -2,6 +2,7 @@ package com.rarible.flow.core.test
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowEvent
+import com.nftco.flow.sdk.FlowEventPayload
 import com.nftco.flow.sdk.FlowEventResult
 import com.nftco.flow.sdk.FlowId
 import com.rarible.blockchain.scanner.flow.model.FlowLog
@@ -9,6 +10,8 @@ import com.rarible.core.common.nowMillis
 import com.rarible.core.test.data.randomInt
 import com.rarible.core.test.data.randomString
 import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.event.EventId
+import com.rarible.flow.core.event.EventMessage
 import org.apache.activemq.artemis.utils.RandomUtil.randomLong
 import org.apache.activemq.artemis.utils.RandomUtil.randomPositiveLong
 import java.math.BigDecimal
@@ -153,6 +156,30 @@ fun randomFlowLog(): FlowLog {
     )
 }
 
+fun randomEventId(): EventId {
+    return EventId(
+        type = randomString(),
+        contractAddress = FlowAddress("0x02"),
+        contractName = randomString(),
+        eventName = randomString()
+    )
+}
+
+fun randomEventMessage(): EventMessage {
+    return EventMessage(
+        eventId = randomEventId(),
+        fields =  emptyMap()
+    )
+}
+
+fun randomFlowLogEvent(): FlowLogEvent  {
+    return FlowLogEvent(
+        log = randomFlowLog(),
+        event = randomEventMessage(),
+        type = FlowLogType.values().random(),
+    )
+}
+
 fun randomFlowEventResult(
     blockHeight: Long = randomLong(),
     events: List<FlowEvent> = emptyList()
@@ -164,3 +191,14 @@ fun randomFlowEventResult(
         blockTimestamp = LocalDateTime.now()
     )
 }
+
+fun randomFlowEvent(): FlowEvent {
+    return FlowEvent(
+        type = "Listing",
+        transactionId = FlowId("0x"),
+        transactionIndex = 0,
+        eventIndex = 0,
+        payload =  FlowEventPayload(ByteArray(0))
+    )
+}
+

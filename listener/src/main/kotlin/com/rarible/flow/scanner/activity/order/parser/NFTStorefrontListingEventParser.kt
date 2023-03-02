@@ -8,12 +8,12 @@ import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.FlowNftOrderActivityList
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
-import com.rarible.protocol.currency.api.client.CurrencyControllerApi
+import com.rarible.flow.scanner.service.CurrencyService
 import java.math.BigDecimal
 
 abstract class NFTStorefrontListingEventParser(
-    currencyApi: CurrencyControllerApi
-) : NFTStorefrontEventParser<FlowNftOrderActivityList>(currencyApi) {
+    currencyService: CurrencyService
+) : NFTStorefrontEventParser<FlowNftOrderActivityList>(currencyService) {
 
     override suspend fun parseActivities(logEvent: List<FlowLogEvent>): Map<FlowLog, FlowNftOrderActivityList> {
         return logEvent
@@ -21,7 +21,7 @@ abstract class NFTStorefrontListingEventParser(
             .associate { it.log to parseActivity(it) }
     }
 
-    open suspend fun parseActivity(logEvent: FlowLogEvent): FlowNftOrderActivityList {
+    protected open suspend fun parseActivity(logEvent: FlowLogEvent): FlowNftOrderActivityList {
         val log = logEvent.log
         val event = logEvent.event
 
@@ -29,7 +29,7 @@ abstract class NFTStorefrontListingEventParser(
         val orderId = getOrderId(event)
         val contract = getCurrencyContract(event)
 
-        val rate = usdRate(contract, log.timestamp.toEpochMilli()) ?: BigDecimal.ZERO
+        val rate = usdRate(contract, log.timestamp) ?: BigDecimal.ZERO
         val priceUsd = if (rate > BigDecimal.ZERO) price * rate else BigDecimal.ZERO
 
         val maker = getMaker(event)
@@ -43,7 +43,7 @@ abstract class NFTStorefrontListingEventParser(
             tokenId = tokenId,
             contract = nftCollection,
             timestamp = timestamp,
-            hash = "$orderId",
+            hash = getOrderHash(event),
             maker = maker,
             make = FlowAssetNFT(
                 contract = nftCollection,

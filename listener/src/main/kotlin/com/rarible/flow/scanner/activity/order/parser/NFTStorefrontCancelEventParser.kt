@@ -4,13 +4,13 @@ import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
-import com.rarible.protocol.currency.api.client.CurrencyControllerApi
+import com.rarible.flow.scanner.service.CurrencyService
 import org.springframework.stereotype.Component
 
 @Component
 class NFTStorefrontCancelEventParser(
-    currencyApi: CurrencyControllerApi
-) : NFTStorefrontListingCompletedEventParser<FlowNftOrderActivityCancelList>(currencyApi) {
+    currencyService: CurrencyService
+) : NFTStorefrontListingCompletedEventParser<FlowNftOrderActivityCancelList>(currencyService) {
 
     override suspend fun parseActivities(logEvent: List<FlowLogEvent>): Map<FlowLog, FlowNftOrderActivityCancelList> {
         return logEvent

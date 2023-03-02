@@ -6,16 +6,16 @@ import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowNftOrderActivityList
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.config.FlowListenerProperties
-import com.rarible.protocol.currency.api.client.CurrencyControllerApi
+import com.rarible.flow.scanner.service.CurrencyService
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 
 @Component
 class NFTStorefrontV1ListingEventParser(
-    currencyApi: CurrencyControllerApi,
+    currencyService: CurrencyService,
     properties: FlowListenerProperties,
     private val txManager: TxManager,
-): NFTStorefrontListingEventParser(currencyApi) {
+): NFTStorefrontListingEventParser(currencyService) {
 
     private val chainId = properties.chainId
 

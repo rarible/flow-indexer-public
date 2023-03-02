@@ -1,0 +1,450 @@
+{
+  "value": {
+    "id": "A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted",
+    "fields": [
+      {
+        "value": {
+          "value": "910674636",
+          "type": "UInt64"
+        },
+        "name": "listingResourceID"
+      },
+      {
+        "value": {
+          "value": "874263804",
+          "type": "UInt64"
+        },
+        "name": "storefrontResourceID"
+      },
+      {
+        "value": {
+          "value": false,
+          "type": "Bool"
+        },
+        "name": "purchased"
+      },
+      {
+        "value": {
+          "value": {
+            "staticType": {
+              "type": "",
+              "kind": "Resource",
+              "typeID": "A.e81193c424cfd3fb.Wearables.NFT",
+              "fields": [
+                {
+                  "type": {
+                    "kind": "UInt64"
+                  },
+                  "id": "uuid"
+                },
+                {
+                  "type": {
+                    "kind": "UInt64"
+                  },
+                  "id": "id"
+                },
+                {
+                  "type": {
+                    "type": "",
+                    "kind": "Struct",
+                    "typeID": "A.e81193c424cfd3fb.Wearables.Template",
+                    "fields": [
+                      {
+                        "type": {
+                          "kind": "UInt64"
+                        },
+                        "id": "id"
+                      },
+                      {
+                        "type": {
+                          "kind": "String"
+                        },
+                        "id": "name"
+                      },
+                      {
+                        "type": {
+                          "kind": "UInt64"
+                        },
+                        "id": "set"
+                      },
+                      {
+                        "type": {
+                          "kind": "UInt64"
+                        },
+                        "id": "position"
+                      },
+                      {
+                        "type": {
+                          "type": {
+                            "type": "",
+                            "kind": "Struct",
+                            "typeID": "A.e81193c424cfd3fb.Wearables.Tag",
+                            "fields": [
+                              {
+                                "type": {
+                                  "kind": "String"
+                                },
+                                "id": "value"
+                              },
+                              {
+                                "type": {
+                                  "key": {
+                                    "kind": "String"
+                                  },
+                                  "value": {
+                                    "kind": "AnyStruct"
+                                  },
+                                  "kind": "Dictionary"
+                                },
+                                "id": "extra"
+                              }
+                            ],
+                            "initializers": []
+                          },
+                          "kind": "VariableSizedArray"
+                        },
+                        "id": "tags"
+                      },
+                      {
+                        "type": {
+                          "type": "",
+                          "kind": "Struct",
+                          "typeID": "A.1d7e57aa55817448.MetadataViews.Media",
+                          "fields": [
+                            {
+                              "type": {
+                                "kind": "Restriction",
+                                "typeID": "AnyStruct{A.1d7e57aa55817448.MetadataViews.File}",
+                                "type": {
+                                  "kind": "AnyStruct"
+                                },
+                                "restrictions": [
+                                  {
+                                    "type": "",
+                                    "kind": "StructInterface",
+                                    "typeID": "A.1d7e57aa55817448.MetadataViews.File",
+                                    "fields": [],
+                                    "initializers": []
+                                  }
+                                ]
+                              },
+                              "id": "file"
+                            },
+                            {
+                              "type": {
+                                "kind": "String"
+                              },
+                              "id": "mediaType"
+                            }
+                          ],
+                          "initializers": []
+                        },
+                        "id": "thumbnail"
+                      },
+                      {
+                        "type": "A.1d7e57aa55817448.MetadataViews.Media",
+                        "id": "image"
+                      },
+                      {
+                        "type": {
+                          "kind": "Bool"
+                        },
+                        "id": "active"
+                      },
+                      {
+                        "type": {
+                          "kind": "Bool"
+                        },
+                        "id": "hidden"
+                      },
+                      {
+                        "type": {
+                          "kind": "Bool"
+                        },
+                        "id": "plural"
+                      },
+                      {
+                        "type": {
+                          "key": {
+                            "kind": "String"
+                          },
+                          "value": {
+                            "kind": "AnyStruct"
+                          },
+                          "kind": "Dictionary"
+                        },
+                        "id": "extra"
+                      }
+                    ],
+                    "initializers": []
+                  },
+                  "id": "template"
+                },
+                {
+                  "type": {
+                    "type": {
+                      "type": "",
+                      "kind": "Struct",
+                      "typeID": "A.e81193c424cfd3fb.Templates.EditionInfo",
+                      "fields": [
+                        {
+                          "type": {
+                            "kind": "String"
+                          },
+                          "id": "counter"
+                        },
+                        {
+                          "type": {
+                            "kind": "String"
+                          },
+                          "id": "name"
+                        },
+                        {
+                          "type": {
+                            "kind": "UInt64"
+                          },
+                          "id": "number"
+                        }
+                      ],
+                      "initializers": []
+                    },
+                    "kind": "VariableSizedArray"
+                  },
+                  "id": "editions"
+                },
+                {
+                  "type": {
+                    "type": {
+                      "type": "",
+                      "kind": "Struct",
+                      "typeID": "A.e81193c424cfd3fb.Wearables.Pointer",
+                      "fields": [
+                        {
+                          "type": {
+                            "kind": "UInt64"
+                          },
+                          "id": "id"
+                        },
+                        {
+                          "type": {
+                            "kind": "UInt64"
+                          },
+                          "id": "characterId"
+                        },
+                        {
+                          "type": {
+                            "kind": "Address"
+                          },
+                          "id": "address"
+                        },
+                        {
+                          "type": {
+                            "key": {
+                              "kind": "String"
+                            },
+                            "value": {
+                              "kind": "AnyStruct"
+                            },
+                            "kind": "Dictionary"
+                          },
+                          "id": "extra"
+                        }
+                      ],
+                      "initializers": []
+                    },
+                    "kind": "VariableSizedArray"
+                  },
+                  "id": "interactions"
+                },
+                {
+                  "type": {
+                    "kind": "UInt64"
+                  },
+                  "id": "nounce"
+                },
+                {
+                  "type": {
+                    "type": "",
+                    "kind": "Struct",
+                    "typeID": "A.1d7e57aa55817448.MetadataViews.Royalties",
+                    "fields": [
+                      {
+                        "type": {
+                          "type": {
+                            "type": "",
+                            "kind": "Struct",
+                            "typeID": "A.1d7e57aa55817448.MetadataViews.Royalty",
+                            "fields": [
+                              {
+                                "type": {
+                                  "type": {
+                                    "type": {
+                                      "kind": "Restriction",
+                                      "typeID": "AnyResource{A.f233dcee88fe0abe.FungibleToken.Receiver}",
+                                      "type": {
+                                        "kind": "AnyResource"
+                                      },
+                                      "restrictions": [
+                                        {
+                                          "type": "",
+                                          "kind": "ResourceInterface",
+                                          "typeID": "A.f233dcee88fe0abe.FungibleToken.Receiver",
+                                          "fields": [
+                                            {
+                                              "type": {
+                                                "kind": "UInt64"
+                                              },
+                                              "id": "uuid"
+                                            }
+                                          ],
+                                          "initializers": []
+                                        }
+                                      ]
+                                    },
+                                    "kind": "Reference",
+                                    "authorized": false
+                                  },
+                                  "kind": "Capability"
+                                },
+                                "id": "receiver"
+                              },
+                              {
+                                "type": {
+                                  "kind": "UFix64"
+                                },
+                                "id": "cut"
+                              },
+                              {
+                                "type": {
+                                  "kind": "String"
+                                },
+                                "id": "description"
+                              }
+                            ],
+                            "initializers": []
+                          },
+                          "kind": "VariableSizedArray"
+                        },
+                        "id": "cutInfos"
+                      }
+                    ],
+                    "initializers": []
+                  },
+                  "id": "royalties"
+                },
+                {
+                  "type": {
+                    "key": {
+                      "kind": "String"
+                    },
+                    "value": {
+                      "kind": "String"
+                    },
+                    "kind": "Dictionary"
+                  },
+                  "id": "context"
+                },
+                {
+                  "type": {
+                    "key": {
+                      "kind": "String"
+                    },
+                    "value": {
+                      "kind": "AnyStruct"
+                    },
+                    "kind": "Dictionary"
+                  },
+                  "id": "extra"
+                }
+              ],
+              "initializers": []
+            }
+          },
+          "type": "Type"
+        },
+        "name": "nftType"
+      },
+      {
+        "value": {
+          "value": "884032011",
+          "type": "UInt64"
+        },
+        "name": "nftUUID"
+      },
+      {
+        "value": {
+          "value": "884032011",
+          "type": "UInt64"
+        },
+        "name": "nftID"
+      },
+      {
+        "value": {
+          "value": {
+            "staticType": {
+              "type": "",
+              "kind": "Resource",
+              "typeID": "A.ead892083b3e2c6c.FlowUtilityToken.Vault",
+              "fields": [
+                {
+                  "type": {
+                    "kind": "UInt64"
+                  },
+                  "id": "uuid"
+                },
+                {
+                  "type": {
+                    "kind": "UFix64"
+                  },
+                  "id": "balance"
+                }
+              ],
+              "initializers": []
+            }
+          },
+          "type": "Type"
+        },
+        "name": "salePaymentVaultType"
+      },
+      {
+        "value": {
+          "value": "190.00000000",
+          "type": "UFix64"
+        },
+        "name": "salePrice"
+      },
+      {
+        "value": {
+          "value": {
+            "value": "gaiamarketplace",
+            "type": "String"
+          },
+          "type": "Optional"
+        },
+        "name": "customID"
+      },
+      {
+        "value": {
+          "value": "0.00000000",
+          "type": "UFix64"
+        },
+        "name": "commissionAmount"
+      },
+      {
+        "value": {
+          "value": null,
+          "type": "Optional"
+        },
+        "name": "commissionReceiver"
+      },
+      {
+        "value": {
+          "value": "1680273894",
+          "type": "UInt64"
+        },
+        "name": "expiry"
+      }
+    ]
+  },
+  "type": "Event"
+}
