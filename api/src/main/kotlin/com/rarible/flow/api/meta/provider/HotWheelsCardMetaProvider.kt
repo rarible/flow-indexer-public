@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component
 class HotWheelsCardMetaProvider(fetcher: HWMetaFetcher) : HotWheelsMetaProvider(fetcher) {
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.endsWith(".HWGarageCard")
+    override fun getName(map: Map<String, String>): String? {
+        return map.get("carName") + " #" +  map.get("cardId")
+    }
 
     override val fieldName = fields("carName")
     override val fieldDescription = fields()
@@ -19,7 +22,9 @@ class HotWheelsCardMetaProvider(fetcher: HWMetaFetcher) : HotWheelsMetaProvider(
         "releaseYear",
         "rarity",
         "redeemable",
-        "type"
+        "type",
+        "mint",
+        "totalSupply"
     )
 
 }
