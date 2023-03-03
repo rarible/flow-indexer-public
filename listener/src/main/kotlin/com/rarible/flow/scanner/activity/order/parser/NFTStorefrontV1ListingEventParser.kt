@@ -4,18 +4,22 @@ import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowId
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowNftOrderActivityList
+import com.rarible.flow.core.event.EventId
+import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.config.FlowListenerProperties
 import com.rarible.flow.scanner.service.CurrencyService
+import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 
 @Component
 class NFTStorefrontV1ListingEventParser(
     currencyService: CurrencyService,
+    supportedNftCollectionProvider: SupportedNftCollectionProvider,
     properties: FlowListenerProperties,
     private val txManager: TxManager,
-): NFTStorefrontListingEventParser(currencyService) {
+): AbstractNFTStorefrontListingEventParser(currencyService, supportedNftCollectionProvider) {
 
     private val chainId = properties.chainId
 
@@ -28,6 +32,14 @@ class NFTStorefrontV1ListingEventParser(
         val listActivity = super.parseActivity(logEvent)
         val price = checkRaribleEventPrice(logEvent)
         return if (price != null) listActivity.copy(price = price) else listActivity
+    }
+
+    override suspend fun getSellPrice(event: EventMessage): BigDecimal {
+        return cadenceParser.bigDecimal(event.fields["price"]!!)
+    }
+
+    override fun getCurrencyContract(event: EventMessage): String {
+        return EventId.of(cadenceParser.type(event.fields["ftVaultType"]!!)).collection()
     }
 
     private suspend fun checkRaribleEventPrice(event: FlowLogEvent): BigDecimal? {

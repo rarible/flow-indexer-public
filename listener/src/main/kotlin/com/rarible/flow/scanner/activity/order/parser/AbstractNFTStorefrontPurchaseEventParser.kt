@@ -4,10 +4,12 @@ import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.FlowNftOrderActivitySell
 import com.rarible.flow.scanner.service.CurrencyService
+import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
 
-abstract class NFTStorefrontPurchaseEventParser(
+abstract class AbstractNFTStorefrontPurchaseEventParser(
     currencyService: CurrencyService,
-) : NFTStorefrontListingCompletedEventParser<FlowNftOrderActivitySell>(currencyService) {
+    supportedNftCollectionProvider: SupportedNftCollectionProvider
+) : AbstractNFTStorefrontEventParser<FlowNftOrderActivitySell>(currencyService, supportedNftCollectionProvider) {
 
     override fun isSupported(logEvent: FlowLogEvent): Boolean {
         return logEvent.type == FlowLogType.LISTING_COMPLETED && wasPurchased(logEvent.event)

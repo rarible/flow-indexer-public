@@ -13,14 +13,11 @@ import com.rarible.flow.core.domain.FlowNftOrderPayment
 import com.rarible.flow.core.domain.OrderActivityMatchSide
 import com.rarible.flow.core.domain.PaymentType
 import com.rarible.flow.core.event.EventMessage
-import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.config.FlowListenerProperties
 import com.rarible.flow.scanner.model.PayInfo
 import com.rarible.flow.scanner.service.CurrencyService
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.runBlocking
+import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 
@@ -28,11 +25,12 @@ import java.math.BigDecimal
 class NFTStorefrontV1PurchaseEventParser(
     private val txManager: TxManager,
     currencyService: CurrencyService,
-    collectionRepository: ItemCollectionRepository,
+    supportedCollectionService: SupportedNftCollectionProvider,
     properties: FlowListenerProperties
-) : NFTStorefrontPurchaseEventParser(currencyService) {
+) : AbstractNFTStorefrontPurchaseEventParser(currencyService, supportedCollectionService) {
 
     private val chainId = properties.chainId
+    private val nftCollectionEvents = supportedCollectionService.getEvents(properties.chainId)
 
     override suspend fun parseActivity(logEvent: FlowLogEvent): FlowNftOrderActivitySell? {
         val event = logEvent.event
@@ -107,16 +105,6 @@ class NFTStorefrontV1PurchaseEventParser(
         currencies[chainId]!!.flatMap { listOf("${it}.TokensDeposited", "${it}.TokensWithdrawn") }.toSet()
     }
 
-    private val nftCollectionEvents: Set<String> by lazy {
-        runBlocking {
-            collectionRepository
-                .findAll()
-                .asFlow()
-                .toList()
-                .flatMap { listOf("${it.id}.Withdraw", "${it.id}.Deposit") }
-                .toSet()
-        }
-    }
 
     protected fun payInfos(
         currencyEvents: List<EventMessage>,

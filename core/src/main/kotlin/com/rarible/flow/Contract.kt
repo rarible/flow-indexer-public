@@ -11,6 +11,12 @@ interface Contract {
     val deployments: Map<FlowChainId, FlowAddress>
     val import: String
 
+    val enabled: Boolean
+        get() = true
+
+    val nft: Boolean
+        get() = true
+
     fun supports(itemId: ItemId): Boolean =
         itemId.contract.endsWith(this.contractName)
 

@@ -1,22 +1,22 @@
 package com.rarible.flow.scanner.activity.order.parser
 
-import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.FlowNftOrderActivityList
-import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.service.CurrencyService
+import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
 import java.math.BigDecimal
 
-abstract class NFTStorefrontListingEventParser(
-    currencyService: CurrencyService
-) : AbstractNFTStorefrontEventParser<FlowNftOrderActivityList>(currencyService) {
+abstract class AbstractNFTStorefrontListingEventParser(
+    currencyService: CurrencyService,
+    supportedNftCollectionProvider: SupportedNftCollectionProvider
+) : AbstractNFTStorefrontEventParser<FlowNftOrderActivityList>(currencyService, supportedNftCollectionProvider) {
 
     override fun isSupported(logEvent: FlowLogEvent): Boolean {
-        return logEvent.type == FlowLogType.LISTING_AVAILABLE
+        return logEvent.type == FlowLogType.LISTING_AVAILABLE && super.isSupported(logEvent)
     }
 
     override suspend fun parseActivity(logEvent: FlowLogEvent): FlowNftOrderActivityList {
@@ -55,24 +55,8 @@ abstract class NFTStorefrontListingEventParser(
         )
     }
 
-    protected open suspend fun getSellPrice(event: EventMessage): BigDecimal {
-        return cadenceParser.bigDecimal(event.fields["price"]!!)
-    }
+    protected abstract suspend fun getSellPrice(event: EventMessage): BigDecimal
 
-    protected open fun getCurrencyContract(event: EventMessage): String {
-        return EventId.of(cadenceParser.type(event.fields["ftVaultType"]!!)).collection()
-    }
-
-    protected open fun getMaker(event: EventMessage): String {
-        return cadenceParser.address(event.fields["storefrontAddress"]!!)
-    }
-
-    protected open fun getNftCollection(event: EventMessage): String {
-        return EventId.of(cadenceParser.type(event.fields["nftType"]!!)).collection()
-    }
-
-    protected open fun getTokenId(event: EventMessage): Long {
-        return cadenceParser.long(event.fields["nftID"]!!)
-    }
+    protected abstract fun getCurrencyContract(event: EventMessage): String
 }
 

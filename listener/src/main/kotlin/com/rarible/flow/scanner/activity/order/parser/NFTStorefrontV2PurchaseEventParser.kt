@@ -14,16 +14,18 @@ import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.model.NonFungibleTokenEventType
 import com.rarible.flow.scanner.service.CurrencyService
+import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 
 @Component
 class NFTStorefrontV2PurchaseEventParser(
     currencyService: CurrencyService,
+    supportedNftCollectionProvider: SupportedNftCollectionProvider,
     private val txManager: TxManager,
-) : NFTStorefrontPurchaseEventParser(currencyService) {
+) : AbstractNFTStorefrontPurchaseEventParser(currencyService, supportedNftCollectionProvider) {
 
-    override suspend fun parseActivity(logEvent: FlowLogEvent): FlowNftOrderActivitySell {
+    override suspend fun parseActivity(logEvent: FlowLogEvent): FlowNftOrderActivitySell? {
         val listing = delegate.safeParseActivity(logEvent)
         val transactionEvents = txManager.getTransactionEvents(
             blockHeight = logEvent.log.blockHeight,
@@ -62,7 +64,7 @@ class NFTStorefrontV2PurchaseEventParser(
         )
     }
 
-    private val delegate = object : NFTStorefrontV2ListingEventParser(currencyService) {
+    private val delegate = object : NFTStorefrontV2ListingEventParser(currencyService, supportedNftCollectionProvider) {
         override fun getMaker(event: EventMessage): String {
             return ""
         }

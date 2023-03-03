@@ -6,7 +6,6 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontCancelEventParser
-import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontEventParser
 import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontV1ListingEventParser
 import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontV1PurchaseEventParser
 import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontV2ListingEventParser

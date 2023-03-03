@@ -4,24 +4,34 @@ import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
+import com.rarible.flow.scanner.activity.order.NFTStorefrontEventParser
 import com.rarible.flow.scanner.service.CurrencyService
+import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.math.BigDecimal
 import java.time.Instant
 
 abstract class AbstractNFTStorefrontEventParser<T: BaseActivity>(
-    private val currencyService: CurrencyService
+    private val currencyService: CurrencyService,
+    supportedNftCollectionProvider: SupportedNftCollectionProvider
 ) : NFTStorefrontEventParser<T> {
 
     protected val logger: Logger = LoggerFactory.getLogger(javaClass)
+
+    private val supportedNftCollections = supportedNftCollectionProvider.get()
 
     override suspend fun parseActivities(logEvent: List<FlowLogEvent>): Map<FlowLog, T> {
         return logEvent
             .filter { isSupported(it) }
             .mapNotNull { event -> safeParseActivity(event)?.let { event.log to it } }
             .toMap()
+    }
+
+    override fun isSupported(logEvent: FlowLogEvent): Boolean {
+        return getNftCollection(logEvent.event) in supportedNftCollections
     }
 
     internal open suspend fun safeParseActivity(logEvent: FlowLogEvent): T? {
@@ -50,6 +60,22 @@ abstract class AbstractNFTStorefrontEventParser<T: BaseActivity>(
 
     protected open fun getOrderId(event: EventMessage): Long {
         return cadenceParser.long(event.fields["listingResourceID"]!!)
+    }
+
+    protected open fun getNftCollection(event: EventMessage): String {
+        return EventId.of(cadenceParser.type(event.fields["nftType"]!!)).collection()
+    }
+
+    protected open fun wasPurchased(event: EventMessage): Boolean {
+        return cadenceParser.boolean(event.fields["purchased"]!!)
+    }
+
+    protected open fun getMaker(event: EventMessage): String {
+        return cadenceParser.address(event.fields["storefrontAddress"]!!)
+    }
+
+    protected open fun getTokenId(event: EventMessage): Long {
+        return cadenceParser.long(event.fields["nftID"]!!)
     }
 
     protected suspend fun usdRate(contract: String, timestamp: Instant): BigDecimal? {

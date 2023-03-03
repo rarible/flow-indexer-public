@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.activity.order.parser
+package com.rarible.flow.scanner.activity.order
 
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.flow.core.domain.BaseActivity

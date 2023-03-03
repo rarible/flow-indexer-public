@@ -1,12 +1,18 @@
 package com.rarible.flow.scanner.activity.order.parser
 
 import com.rarible.flow.core.domain.FlowLogType
+import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 
 class NFTStorefrontCancelEventParserTest : BaseNFTStorefrontEventParserTest() {
-    private val parser = NFTStorefrontCancelEventParser(currencyService)
+    private val provider = mockk<SupportedNftCollectionProvider> {
+        every { get() } returns setOf("A.e81193c424cfd3fb.Wearables")
+    }
+    private val parser = NFTStorefrontCancelEventParser(currencyService, provider)
 
     @Test
     fun `parse - ok`() = runBlocking<Unit> {

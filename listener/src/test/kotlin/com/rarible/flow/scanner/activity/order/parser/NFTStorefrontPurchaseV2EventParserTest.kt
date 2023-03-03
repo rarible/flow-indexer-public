@@ -6,7 +6,9 @@ import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.test.randomFlowTransactionResult
 import com.rarible.flow.scanner.TxManager
+import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions
@@ -15,10 +17,14 @@ import java.math.BigDecimal
 
 class NFTStorefrontPurchaseV2EventParserTest : BaseNFTStorefrontEventParserTest() {
     private val txManager = mockk<TxManager>()
+    private val provider = mockk<SupportedNftCollectionProvider> {
+        every { get() } returns setOf("A.eee6bdee2b2bdfc8.Basketballs")
+    }
     private val parser = NFTStorefrontV2PurchaseEventParser(
-            txManager = txManager,
-            currencyService = currencyService,
-        )
+        txManager = txManager,
+        currencyService = currencyService,
+        supportedNftCollectionProvider = provider
+    )
 
     @Test
     fun `parse - ok`() = runBlocking<Unit> {

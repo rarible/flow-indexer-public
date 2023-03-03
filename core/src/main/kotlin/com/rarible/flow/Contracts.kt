@@ -54,6 +54,9 @@ enum class Contracts : Contract {
 
         override val import: String
             get() = "0xHWGARAGEPM"
+
+        override val nft: Boolean
+            get() = false
     },
 
     RARIBLE_NFT {
@@ -115,6 +118,9 @@ enum class Contracts : Contract {
 
         override val import: String
             get() = "0xHWGARAGEPM"
+
+        override val nft: Boolean
+            get() = false
     },
 
     NFT_STOREFRONT {
@@ -129,6 +135,9 @@ enum class Contracts : Contract {
             )
         override val import: String
             get() = "0x${contractName.uppercase()}"
+
+        override val nft: Boolean
+            get() = false
     },
 
     NFT_STOREFRONT_V2 {
@@ -143,6 +152,9 @@ enum class Contracts : Contract {
             )
         override val import: String
             get() = "0x${contractName.uppercase()}"
+
+        override val nft: Boolean
+            get() = false
     },
 
 
@@ -169,6 +181,9 @@ enum class Contracts : Contract {
                 )
             } else super.staticRoyalties(chain)
         }
+
+        override val enabled: Boolean
+            get() = false
     },
 
     STARLY_CARD {
@@ -187,6 +202,9 @@ enum class Contracts : Contract {
                 listOf(Part(FlowAddress("0x12c122ca9266c278"), TEN_PERCENT))
             } else super.staticRoyalties(chain)
         }
+
+        override val enabled: Boolean
+            get() = false
     },
 
     MATRIX_WORLD_VOUCHER {
@@ -206,6 +224,9 @@ enum class Contracts : Contract {
                 Part(FlowAddress("0x46f1e88b54fcb73c"), FIVE_PERCENT) // 5%
             ) else super.staticRoyalties(chain)
         }
+
+        override val enabled: Boolean
+            get() = false
     },
 
     MATRIX_WORLD_FLOW_FEST {
@@ -225,6 +246,9 @@ enum class Contracts : Contract {
                 Part(FlowAddress("0x46f1e88b54fcb73c"), FIVE_PERCENT) // 5%
             ) else super.staticRoyalties(chain)
         }
+
+        override val enabled: Boolean
+            get() = false
     },
 
     JAMBB_MOMENTS {
@@ -244,6 +268,9 @@ enum class Contracts : Contract {
                 Part(FlowAddress("0x609a2ea0548b4b51"), FIVE_PERCENT) // 5%
             ) else super.staticRoyalties(chain)
         }
+
+        override val enabled: Boolean
+            get() = false
     },
 
     CNN {
@@ -263,6 +290,9 @@ enum class Contracts : Contract {
                 Part(FlowAddress("0x55c8be371f74168f"), TEN_PERCENT) // 10%
             ) else super.staticRoyalties(chain)
         }
+
+        override val enabled: Boolean
+            get() = false
     },
 
     VERSUS_ART {
@@ -292,6 +322,9 @@ enum class Contracts : Contract {
                 Part(FlowAddress("0x77b78d7d3f0d1787"), TEN_PERCENT) // 10%
             ) else super.staticRoyalties(chain)
         }
+
+        override val enabled: Boolean
+            get() = false
     },
 
     MOTOGP {
@@ -311,6 +344,9 @@ enum class Contracts : Contract {
                 Part(FlowAddress("0x1b0d0e046c306e2f"), 7.5.percent()) // 7.5%
             ) else super.staticRoyalties(chain)
         }
+
+        override val enabled: Boolean
+            get() = false
     },
 
     FANFARE {
@@ -329,6 +365,9 @@ enum class Contracts : Contract {
                 listOf(Part(FlowAddress("0xa161c109f0902908"), 15.0.percent()))
             } else super.staticRoyalties(chain)
         }
+
+        override val enabled: Boolean
+            get() = false
     },
 
     CHAINMONSTERS {
@@ -350,6 +389,9 @@ enum class Contracts : Contract {
                 listOf(Part(FlowAddress("0x64f83c60989ce555"), FIVE_PERCENT))
             } else super.staticRoyalties(chain)
         }
+
+        override val enabled: Boolean
+            get() = false
     },
 
     BARTER_YARD_PACK {
@@ -367,6 +409,9 @@ enum class Contracts : Contract {
             FlowChainId.TESTNET -> listOf(Part(FlowAddress("0x4300fc3a11778a9a"), FIVE_PERCENT))
             else -> super.staticRoyalties(chain)
         }
+
+        override val enabled: Boolean
+            get() = false
     },
 
     KICKS {
@@ -388,6 +433,9 @@ enum class Contracts : Contract {
                 listOf(Part(FlowAddress("0xf3cc54f4d91c2f6c"), FIVE_PERCENT))
             } else super.staticRoyalties(chain)
         }
+
+        override val enabled: Boolean
+            get() = false
     },
 
     DISRUPT_ART {
@@ -409,6 +457,9 @@ enum class Contracts : Contract {
                 else -> null
             })
         }
+
+        override val enabled: Boolean
+            get() = false
     },
 
     TOPSHOT {
@@ -433,6 +484,9 @@ enum class Contracts : Contract {
                 )
             } else super.staticRoyalties(chain)
         }
+
+        override val enabled: Boolean
+            get() = false
     },
 
     ENGLISH_AUCTION {
@@ -446,6 +500,9 @@ enum class Contracts : Contract {
             )
         override val import: String
             get() = "0xENGLISHAUCTION"
+
+        override val enabled: Boolean
+            get() = false
     },
 
     SOFT_COLLECTION {
@@ -459,6 +516,9 @@ enum class Contracts : Contract {
             )
 
         override val import: String = "0xSOFTCOLLECTION"
+
+        override val enabled: Boolean
+            get() = false
     },
 
     RARIBLE_NFTV2 {
@@ -472,6 +532,9 @@ enum class Contracts : Contract {
             )
         override val import: String
             get() = "0xRARIBLENFTV2"
+
+        override val enabled: Boolean
+            get() = false
     },
 
     SOME_PLACE_COLLECTIBLE {
@@ -490,6 +553,9 @@ enum class Contracts : Contract {
             FlowChainId.MAINNET -> listOf(Part(FlowAddress("0x8e2e0ebf3c03aa88"), TEN_PERCENT))
             else -> super.staticRoyalties(chain)
         }
+
+        override val enabled: Boolean
+            get() = false
     },
 
     GENIACE {
@@ -507,6 +573,9 @@ enum class Contracts : Contract {
                 else -> super.staticRoyalties(chain)
             }
         }
+
+        override val enabled: Boolean
+            get() = false
     },
 
     CRYPTOPIGGO {
@@ -527,6 +596,9 @@ enum class Contracts : Contract {
                 else -> super.staticRoyalties(chain)
             }
         }
+
+        override val enabled: Boolean
+            get() = false
     }
 }
 

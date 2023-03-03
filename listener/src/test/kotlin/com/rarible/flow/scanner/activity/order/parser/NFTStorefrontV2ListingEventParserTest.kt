@@ -3,14 +3,20 @@ package com.rarible.flow.scanner.activity.order.parser
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.FlowLogType
+import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
 import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
 class NFTStorefrontV2ListingEventParserTest : BaseNFTStorefrontEventParserTest() {
-    private val parser = NFTStorefrontV2ListingEventParser(currencyService)
+    private val provider = mockk<SupportedNftCollectionProvider> {
+        every { get() } returns setOf("A.eee6bdee2b2bdfc8.Basketballs")
+    }
+    private val parser = NFTStorefrontV2ListingEventParser(currencyService, provider)
 
     @Test
     fun `parse - ok`() = runBlocking<Unit> {
