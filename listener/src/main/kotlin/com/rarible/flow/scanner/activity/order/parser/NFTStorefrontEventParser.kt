@@ -6,5 +6,7 @@ import com.rarible.flow.core.domain.FlowLogEvent
 
 interface NFTStorefrontEventParser<T: BaseActivity> {
 
+    fun isSupported(logEvent: FlowLogEvent): Boolean
+
     suspend fun parseActivities(logEvent: List<FlowLogEvent>): Map<FlowLog, T>
 }

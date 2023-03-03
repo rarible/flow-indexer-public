@@ -15,13 +15,11 @@ abstract class NFTStorefrontListingEventParser(
     currencyService: CurrencyService
 ) : AbstractNFTStorefrontEventParser<FlowNftOrderActivityList>(currencyService) {
 
-    override suspend fun parseActivities(logEvent: List<FlowLogEvent>): Map<FlowLog, FlowNftOrderActivityList> {
-        return logEvent
-            .filter { it.type == FlowLogType.LISTING_AVAILABLE }
-            .associate { it.log to parseActivity(it) }
+    override fun isSupported(logEvent: FlowLogEvent): Boolean {
+        return logEvent.type == FlowLogType.LISTING_AVAILABLE
     }
 
-    open suspend fun parseActivity(logEvent: FlowLogEvent): FlowNftOrderActivityList {
+    override suspend fun parseActivity(logEvent: FlowLogEvent): FlowNftOrderActivityList {
         val log = logEvent.log
         val event = logEvent.event
 

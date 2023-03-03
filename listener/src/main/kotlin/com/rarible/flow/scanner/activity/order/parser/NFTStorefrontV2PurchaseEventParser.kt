@@ -6,6 +6,7 @@ import com.nftco.flow.sdk.FlowTransactionResult
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.domain.FlowNftOrderActivityList
 import com.rarible.flow.core.domain.FlowNftOrderActivitySell
 import com.rarible.flow.core.domain.OrderActivityMatchSide
 import com.rarible.flow.core.domain.TokenId
@@ -22,9 +23,8 @@ class NFTStorefrontV2PurchaseEventParser(
     private val txManager: TxManager,
 ) : NFTStorefrontPurchaseEventParser(currencyService) {
 
-
     override suspend fun parseActivity(logEvent: FlowLogEvent): FlowNftOrderActivitySell {
-        val listing = delegate.parseActivity(logEvent)
+        val listing = delegate.safeParseActivity(logEvent)
         val transactionEvents = txManager.getTransactionEvents(
             blockHeight = logEvent.log.blockHeight,
             transactionId = FlowId(logEvent.log.transactionHash)
@@ -65,6 +65,10 @@ class NFTStorefrontV2PurchaseEventParser(
     private val delegate = object : NFTStorefrontV2ListingEventParser(currencyService) {
         override fun getMaker(event: EventMessage): String {
             return ""
+        }
+
+        override suspend fun safeParseActivity(logEvent: FlowLogEvent): FlowNftOrderActivityList {
+            return super.safeParseActivity(logEvent) ?: error("Unexpected null")
         }
     }
 

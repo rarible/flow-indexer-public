@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 import java.math.BigDecimal
 
 @Component
-open class NFTStorefrontV2ListingEventParser(
+class NFTStorefrontV2ListingEventParser(
     currencyService: CurrencyService
 ): NFTStorefrontListingEventParser(currencyService) {
 
