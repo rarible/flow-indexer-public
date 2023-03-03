@@ -1,6 +1,5 @@
 package com.rarible.flow.scanner.activity.order.parser
 
-import com.nftco.flow.sdk.FlowEvent
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.event.EventMessage
