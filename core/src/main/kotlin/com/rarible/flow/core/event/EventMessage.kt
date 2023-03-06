@@ -11,11 +11,16 @@ data class EventMessage(
 )
 
 class EventMessageCadenceConverter: JsonCadenceConverter<EventMessage> {
-    override fun unmarshall(value: com.nftco.flow.sdk.cadence.Field<*>, namespace: CadenceNamespace): EventMessage =
-        com.nftco.flow.sdk.cadence.unmarshall(value) {
-            EventMessage(
-                eventId = EventId.of(this.compositeValue.id),
-                fields = this.compositeValue.fields.associate { it.name to it.value }
-            )
+    override fun unmarshall(value: com.nftco.flow.sdk.cadence.Field<*>, namespace: CadenceNamespace) = convert(value)
+
+    companion object {
+        fun convert(value: com.nftco.flow.sdk.cadence.Field<*>): EventMessage {
+            return com.nftco.flow.sdk.cadence.unmarshall(value) {
+                EventMessage(
+                    eventId = EventId.of(this.compositeValue.id),
+                    fields = this.compositeValue.fields.associate { it.name to it.value }
+                )
+            }
         }
+    }
 }
