@@ -8,25 +8,19 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
-import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.event.EventId
-import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.cadence.ListingAvailable
 import com.rarible.flow.scanner.cadence.ListingCompleted
 import com.rarible.flow.scanner.model.NFTStorefrontEventType
 import com.rarible.flow.scanner.model.parse
+import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
 import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
-import javax.annotation.PostConstruct
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.runBlocking
 
 abstract class AbstractNFTStorefrontSubscriber(
-    private val collectionRepository: ItemCollectionRepository,
-    private val txManager: TxManager,
+    supportedNftCollectionProvider: SupportedNftCollectionProvider,
     private val orderRepository: OrderRepository
 ): BaseFlowLogEventSubscriber() {
 
@@ -34,45 +28,25 @@ abstract class AbstractNFTStorefrontSubscriber(
     protected abstract val name: String
     protected abstract val contract: Contracts
 
-    private lateinit var nftEvents: Set<String>
+    private val nftCollections = supportedNftCollectionProvider.get()
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = createDescriptors()
 
     override suspend fun eventType(log: FlowBlockchainLog): FlowLogType {
-        val eventType = NFTStorefrontEventType.fromEventName(
-            EventId.of(log.event.id).eventName
-        )
-        return when (eventType) {
-            NFTStorefrontEventType.LISTING_AVAILABLE -> FlowLogType.LISTING_AVAILABLE
-            NFTStorefrontEventType.LISTING_COMPLETED -> FlowLogType.LISTING_COMPLETED
-            null -> throw IllegalStateException("Unsupported event type: ${log.event.id}")
-        }
+        return convertToLogType(log.event)
     }
 
     override suspend fun isNewEvent(block: FlowBlockchainBlock, event: FlowEvent): Boolean {
-        if (nftEvents.isEmpty()) {
-            nftEvents = collectionRepository.findAll().asFlow().toList().flatMap {
-                listOf("${it.id}.Withdraw", "${it.id}.Deposit")
-            }.toSet()
-        }
-        return withSpan("checkOrderIsNewEvent", "event") { super.isNewEvent(block, event) && when(EventId.of(event.type).eventName) {
-            "ListingAvailable" -> {
+        return withSpan("checkOrderIsNewEvent", "event") { super.isNewEvent(block, event) && when (convertToLogType(event)) {
+            FlowLogType.LISTING_AVAILABLE -> {
                 val e = event.event.parse<ListingAvailable>()
-                val nftCollection = EventId.of(e.nftType).collection()
-                collectionRepository.existsById(nftCollection).awaitSingle()
+                e.nftCollection in nftCollections
             }
-            "ListingCompleted" -> {
+            FlowLogType.LISTING_COMPLETED -> {
                 val e = event.event.parse<ListingCompleted>()
                 val orderExists = orderRepository.existsById(e.listingResourceID).awaitSingle()
-                return@withSpan orderExists || (e.purchased && txManager.onTransaction(
-                    blockHeight = block.number,
-                    transactionId = event.transactionId
-                ) { result ->
-                    result.events.map { EventId.of(it.type) }.any {
-                        nftEvents.contains(it.toString())
-                    }
-                })
+                orderExists || e.nftCollection in nftCollections
             }
             else -> false
         } }
@@ -98,11 +72,14 @@ abstract class AbstractNFTStorefrontSubscriber(
         )
     }
 
-    @PostConstruct
-    private fun postConstruct() = runBlocking {
-        nftEvents =
-            collectionRepository.findAll().asFlow().toList().flatMap {
-                listOf("${it.id}.Withdraw", "${it.id}.Deposit")
-            }.toSet()
+    private fun convertToLogType(event: FlowEvent): FlowLogType {
+        val eventType = NFTStorefrontEventType.fromEventName(
+            EventId.of(event.id).eventName
+        )
+        return when (eventType) {
+            NFTStorefrontEventType.LISTING_AVAILABLE -> FlowLogType.LISTING_AVAILABLE
+            NFTStorefrontEventType.LISTING_COMPLETED -> FlowLogType.LISTING_COMPLETED
+            null -> throw IllegalStateException("Unsupported event type: ${event.id}")
+        }
     }
 }

@@ -29,6 +29,10 @@ class SupportedNftCollectionProvider(
             .toSet()
     }
 
+    fun getEvents(): Set<String> {
+        return getEvents(properties.chainId)
+    }
+
     fun getEvents(chainId: FlowChainId): Set<String> {
         return get(chainId)
             .flatMap {

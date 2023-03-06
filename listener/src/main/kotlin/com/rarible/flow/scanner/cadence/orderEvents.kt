@@ -58,20 +58,27 @@ data class OrderCancelled(
     val cuts: List<PaymentPart>,
 )
 
+sealed class StorefrontEvent {
+    abstract val nftType: String
+
+    val nftCollection: String = EventId.of(nftType).collection()
+}
+
 @JsonCadenceConversion(ListingAvailableConverter::class)
 data class ListingAvailable(
     val storefrontAddress: FlowAddress,
     val listingResourceID: Long,
-    val nftType: String,
     val nftID: Long,
-)
+    override val nftType: String,
+) : StorefrontEvent()
 
 @JsonCadenceConversion(ListingCompletedConverter::class)
 data class ListingCompleted(
     val listingResourceID: Long,
     val storefrontResourceID: Long,
-    val purchased: Boolean
-)
+    val purchased: Boolean,
+    override val nftType: String,
+) : StorefrontEvent()
 
 @JsonCadenceConversion(ListingDetailsConverter::class)
 data class ListingDetails(
@@ -120,9 +127,10 @@ class ListingAvailableConverter: JsonCadenceConverter<ListingAvailable> {
 class ListingCompletedConverter: JsonCadenceConverter<ListingCompleted> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): ListingCompleted = unmarshall(value) {
         ListingCompleted(
-            long("listingResourceID"),
-            long("storefrontResourceID"),
-            boolean("purchased")
+            listingResourceID = long("listingResourceID"),
+            storefrontResourceID = long("storefrontResourceID"),
+            purchased = boolean("purchased"),
+            nftType = type("nftType")
         )
     }
 }
