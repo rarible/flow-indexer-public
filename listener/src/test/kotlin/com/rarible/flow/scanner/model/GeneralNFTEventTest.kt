@@ -20,4 +20,18 @@ class GeneralNFTEventTest : BaseJsonEventTest() {
         assertThat(withdraw.id).isEqualTo(2)
         assertThat(withdraw.from).isEqualTo("0x987ef81a43bb4780")
     }
+
+    @Test
+    fun `creat - ok, mint`() {
+        val event = getEventMessage("/json/nft_mint.json")
+        val mint = GeneralMintEvent(event)
+        assertThat(mint.id).isEqualTo(19)
+    }
+
+    @Test
+    fun `creat - ok, burn`() {
+        val event = getEventMessage("/json/nft_burn.json")
+        val burn = GeneralBurnEvent(event)
+        assertThat(burn.id).isEqualTo(19)
+    }
 }

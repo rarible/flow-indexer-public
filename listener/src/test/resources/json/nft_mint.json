@@ -1,0 +1,15 @@
+{
+  "value": {
+    "id": "A.80102bce1de42dc4.HWGaragePack.Mint",
+    "fields": [
+      {
+        "value": {
+          "value": "19",
+          "type": "UInt64"
+        },
+        "name": "id"
+      }
+    ]
+  },
+  "type": "Event"
+}
