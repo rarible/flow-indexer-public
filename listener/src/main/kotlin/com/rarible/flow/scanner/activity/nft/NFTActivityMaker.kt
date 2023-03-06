@@ -2,9 +2,8 @@ package com.rarible.flow.scanner.activity.nft
 
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
-import com.nftco.flow.sdk.cadence.OptionalField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.core.apm.withSpan
+import com.rarible.blockchain.scanner.flow.repository.FlowLogRepository
 import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.domain.BurnActivity
 import com.rarible.flow.core.domain.FlowLogEvent
@@ -12,8 +11,22 @@ import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TransferActivity
+import com.rarible.flow.core.util.findAfterEventIndex
+import com.rarible.flow.core.util.findBeforeEventIndex
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.activity.ActivityMaker
+import com.rarible.flow.scanner.model.BurnEvent
+import com.rarible.flow.scanner.model.DepositEvent
+import com.rarible.flow.scanner.model.GeneralBurnEvent
+import com.rarible.flow.scanner.model.GeneralDepositEvent
+import com.rarible.flow.scanner.model.GeneralMintEvent
+import com.rarible.flow.scanner.model.GeneralWithdrawEvent
+import com.rarible.flow.scanner.model.MintEvent
+import com.rarible.flow.scanner.model.NFTEvent
+import com.rarible.flow.scanner.model.WithdrawEvent
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 
@@ -29,6 +42,9 @@ abstract class NFTActivityMaker : ActivityMaker {
     @Autowired
     protected lateinit var txManager: TxManager
 
+    @Autowired
+    protected lateinit var flowLogRepository: FlowLogRepository
+
     fun <T> parse(fn: JsonCadenceParser.() -> T): T {
         return fn(cadenceParser)
     }
@@ -38,118 +54,109 @@ abstract class NFTActivityMaker : ActivityMaker {
 
     override suspend fun activities(events: List<FlowLogEvent>): Map<FlowLog, BaseActivity> {
         val result: MutableMap<FlowLog, BaseActivity> = mutableMapOf()
-        withSpan("generateNftActivities", "event") {
-            val filtered = events.filterNot {
-                when (it.type) {
-                    FlowLogType.WITHDRAW -> cadenceParser.optional(it.event.fields["from"]!!) { value ->
-                        address(value)
-                    } == null
-                    FlowLogType.DEPOSIT -> cadenceParser.optional(it.event.fields["to"]!!) { value ->
-                        address(value)
-                    } == null
-                    else -> false
-                }
+        events.forEach {
+            val activity = when (it.type) {
+                FlowLogType.MINT -> getMintActivity(it)
+                FlowLogType.BURN -> getBurnActivity(it)
+                FlowLogType.DEPOSIT -> getTransferActivity(it)
+                else -> null
             }
-
-            val mintEvents = filtered.filter { it.type == FlowLogType.MINT }
-            val withdrawEvents = filtered.filter { it.type == FlowLogType.WITHDRAW }
-            val depositEvents = filtered.filter { it.type == FlowLogType.DEPOSIT }
-            val burnEvents = filtered.filter { it.type == FlowLogType.BURN }
-            val usedDeposit = mutableSetOf<FlowLogEvent>()
-
-            mintEvents.forEach {
-                val tokenId = tokenId(it)
-                val owner = depositEvents
-                    .firstOrNull { d -> cadenceParser.long(d.event.fields["id"]!!) == tokenId }
-                    ?.also(usedDeposit::add)
-                    ?.let { d ->
-                        cadenceParser.optional(d.event.fields["to"]!!) { value ->
-                            address(value)
-                        }
-                    }
-                    ?: it.event.eventId.contractAddress.formatted
-                result[it.log] = MintActivity(
-                    creator = creator(it),
-                    owner = owner,
-                    contract = it.event.eventId.collection(),
-                    tokenId = tokenId,
-                    timestamp = it.log.timestamp,
-                    metadata = meta(it),
-                    royalties = royalties(it),
-                    collection = itemCollection(it)
-                )
-            }
-
-            withdrawEvents.forEach { w ->
-                val tokenId = tokenId(w)
-                val from: OptionalField by w.event.fields
-                val depositActivity = depositEvents.find { d ->
-                    val dTokenId = cadenceParser.long(d.event.fields["id"]!!)
-                    dTokenId == tokenId && d.log.timestamp >= w.log.timestamp
-                }?.also(usedDeposit::add)
-
-                if (depositActivity != null) {
-                    val to: OptionalField by depositActivity.event.fields
-                    result[depositActivity.log] = TransferActivity(
-                        contract = w.event.eventId.collection(),
-                        tokenId = tokenId,
-                        timestamp = depositActivity.log.timestamp,
-                        from = cadenceParser.optional(from) {
-                            address(it)
-                        }!!,
-                        to = cadenceParser.optional(to) {
-                            address(it)
-                        }!!
-                    )
-                } else {
-                    val burnActivity = burnEvents.find { b ->
-                        val bTokenId = cadenceParser.long(b.event.fields["id"]!!)
-                        bTokenId == tokenId && b.log.timestamp >= w.log.timestamp
-                    }
-                    if (burnActivity != null) {
-                        result[burnActivity.log] = BurnActivity(
-                            contract = burnActivity.event.eventId.collection(),
-                            tokenId = tokenId,
-                            owner = cadenceParser.optional(from) {
-                                address(it)
-                            },
-                            timestamp = burnActivity.log.timestamp
-                        )
-                    } else {
-                        result[w.log] = TransferActivity(
-                            contract = w.event.eventId.collection(),
-                            tokenId = tokenId,
-                            timestamp = w.log.timestamp,
-                            from = cadenceParser.optional(from) {
-                                address(it)
-                            }!!,
-                            to = w.event.eventId.contractAddress.formatted
-                        )
-                    }
-                }
-            }
-
-            (depositEvents - usedDeposit).forEach { d ->
-                val to: OptionalField by d.event.fields
-                result[d.log] = TransferActivity(
-                    contract = d.event.eventId.collection(),
-                    tokenId = tokenId(d),
-                    timestamp = d.log.timestamp,
-                    from = d.event.eventId.contractAddress.formatted,
-                    to = cadenceParser.optional(to) { address(it) }!!
-                )
-            }
+            if (activity != null) result[it.log] = activity
         }
-        return result.toMap()
+        return result
+    }
+
+    private suspend fun getMintActivity(event: FlowLogEvent): MintActivity? {
+        val mint = mint(event)
+        val deposit = findDepositAfter(mint)
+        return MintActivity(
+            creator = creator(event),
+            contract = mint.collection,
+            tokenId = mint.tokenId,
+            owner = deposit?.to ?: mint.contractAddress,
+            metadata = meta(event),
+            royalties = royalties(event),
+            collection = itemCollection(event),
+            timestamp = event.log.timestamp,
+        )
+    }
+
+    private suspend fun getBurnActivity(event: FlowLogEvent): BurnActivity? {
+        val burn = burn(event)
+        val withdraw = findWithdrawBefore(burn)
+        return BurnActivity(
+            contract = burn.collection,
+            tokenId = burn.tokenId,
+            owner = withdraw?.from ?: burn.contractAddress,
+            timestamp = event.log.timestamp
+        )
+    }
+
+    private suspend fun getTransferActivity(event: FlowLogEvent): TransferActivity? {
+        val deposit = deposit(event)
+        val withdraw = findWithdrawBefore(deposit)
+        return if (deposit.optionalTo != null) {
+            TransferActivity(
+                contract = deposit.collection,
+                tokenId = deposit.tokenId,
+                to = deposit.to,
+                from = withdraw?.from ?: deposit.contractAddress,
+                timestamp = event.log.timestamp
+            )
+        } else null
+    }
+
+    private suspend fun findDepositAfter(event: NFTEvent): DepositEvent? {
+        val result = flowLogRepository.findAfterEventIndex(
+            transactionHash = event.transactionHash,
+            afterEventIndex = event.eventIndex,
+        )
+        return result
+            .filter { it.type == FlowLogType.DEPOSIT }
+            .map { deposit(it) }
+            .firstOrNull { it.sameNftEvent(event) }
+    }
+
+    private suspend fun findWithdrawBefore(event: NFTEvent): WithdrawEvent? {
+        val result = flowLogRepository.findBeforeEventIndex(
+            transactionHash = event.transactionHash,
+            beforeEventIndex = event.eventIndex,
+        )
+        return result
+            .filter { it.type == FlowLogType.WITHDRAW }
+            .map { withdraw(it) }
+            .firstOrNull { it.sameNftEvent(event) }
     }
 
     abstract fun tokenId(logEvent: FlowLogEvent): Long
 
     abstract fun meta(logEvent: FlowLogEvent): Map<String, String>
 
-    protected open fun royalties(logEvent: FlowLogEvent): List<Part> = emptyList()
+    protected open fun mint(logEvent: FlowLogEvent): MintEvent {
+        return GeneralMintEvent(logEvent)
+    }
 
-    protected open fun creator(logEvent: FlowLogEvent): String = logEvent.event.eventId.contractAddress.formatted
+    protected open fun burn(logEvent: FlowLogEvent): BurnEvent {
+        return GeneralBurnEvent(logEvent)
+    }
 
-    protected open suspend fun itemCollection(mintEvent: FlowLogEvent): String = mintEvent.event.eventId.collection()
+    protected open fun deposit(logEvent: FlowLogEvent): DepositEvent {
+        return GeneralDepositEvent(logEvent)
+    }
+
+    protected open fun withdraw(logEvent: FlowLogEvent): WithdrawEvent {
+        return GeneralWithdrawEvent(logEvent)
+    }
+
+    protected open fun royalties(logEvent: FlowLogEvent): List<Part> {
+        return emptyList()
+    }
+
+    protected open fun creator(logEvent: FlowLogEvent): String {
+        return logEvent.event.eventId.contractAddress.formatted
+    }
+
+    protected open suspend fun itemCollection(mintEvent: FlowLogEvent): String {
+        return mintEvent.event.eventId.collection()
+    }
 }

@@ -3,7 +3,15 @@ package com.rarible.flow.scanner.model
 import com.rarible.flow.core.domain.TokenId
 
 interface NFTEvent {
-    val id: TokenId
+    val tokenId: TokenId
+    val collection: String
+    val contractAddress: String
+    val transactionHash: String
+    val eventIndex: Int
+
+    fun sameNftEvent(other: NFTEvent): Boolean {
+        return this.tokenId == other.tokenId && this.collection == other.collection
+    }
 }
 
 interface MintEvent : NFTEvent
