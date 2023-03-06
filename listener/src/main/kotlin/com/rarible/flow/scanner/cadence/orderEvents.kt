@@ -61,7 +61,9 @@ data class OrderCancelled(
 sealed class StorefrontEvent {
     abstract val nftType: String
 
-    val nftCollection: String = EventId.of(nftType).collection()
+    fun nftCollection(): String {
+        return EventId.of(nftType).collection()
+    }
 }
 
 @JsonCadenceConversion(ListingAvailableConverter::class)

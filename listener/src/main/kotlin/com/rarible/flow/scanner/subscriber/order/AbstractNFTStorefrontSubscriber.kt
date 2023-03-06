@@ -41,12 +41,12 @@ abstract class AbstractNFTStorefrontSubscriber(
         return withSpan("checkOrderIsNewEvent", "event") { super.isNewEvent(block, event) && when (convertToLogType(event)) {
             FlowLogType.LISTING_AVAILABLE -> {
                 val e = event.event.parse<ListingAvailable>()
-                e.nftCollection in nftCollections
+                e.nftCollection() in nftCollections
             }
             FlowLogType.LISTING_COMPLETED -> {
                 val e = event.event.parse<ListingCompleted>()
                 val orderExists = orderRepository.existsById(e.listingResourceID).awaitSingle()
-                orderExists || e.nftCollection in nftCollections
+                orderExists || e.nftCollection() in nftCollections
             }
             else -> false
         } }
