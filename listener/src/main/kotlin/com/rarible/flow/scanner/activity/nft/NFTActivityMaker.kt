@@ -46,6 +46,10 @@ abstract class NFTActivityMaker(
     override fun isSupportedCollection(collection: String): Boolean =
         collection.substringAfterLast(".").lowercase() == contractName.lowercase()
 
+    open fun tokenId(logEvent: FlowLogEvent): Long {
+        return mint(logEvent).tokenId
+    }
+
     override suspend fun activities(events: List<FlowLogEvent>): Map<FlowLog, BaseActivity> {
         val result: MutableMap<FlowLog, BaseActivity> = mutableMapOf()
         events.forEach {
@@ -168,8 +172,6 @@ abstract class NFTActivityMaker(
                 }.takeIf { nftEvent -> nftEvent.sameNft(event) }
             }
     }
-
-    abstract fun tokenId(logEvent: FlowLogEvent): Long
 
     abstract fun meta(logEvent: FlowLogEvent): Map<String, String>
 

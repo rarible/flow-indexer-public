@@ -16,7 +16,6 @@ import com.rarible.flow.scanner.model.ChainMonstersWithdrawEvent
 import com.rarible.flow.scanner.model.DepositEvent
 import com.rarible.flow.scanner.model.MintEvent
 import com.rarible.flow.scanner.model.WithdrawEvent
-import kotlin.math.min
 
 class ChainMonstersActivity(
     flowLogRepository: FlowLogRepository,
