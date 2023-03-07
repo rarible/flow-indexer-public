@@ -1,13 +1,21 @@
 package com.rarible.flow.scanner.activity.disabled
 
 import com.nftco.flow.sdk.cadence.NumberField
+import com.rarible.blockchain.scanner.flow.repository.FlowLogRepository
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.Part
+import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.activity.nft.NFTActivityMaker
+import com.rarible.flow.scanner.config.FlowListenerProperties
 
-class TopShotActivityMaker : NFTActivityMaker() {
+class TopShotActivityMaker(
+    flowLogRepository: FlowLogRepository,
+    txManager: TxManager,
+    properties: FlowListenerProperties,
+) : NFTActivityMaker(flowLogRepository, txManager, properties) {
+
     override val contractName: String = Contracts.TOPSHOT.contractName
 
     override fun isSupportedCollection(collection: String): Boolean {

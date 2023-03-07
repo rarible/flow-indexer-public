@@ -1,6 +1,5 @@
 package com.rarible.flow.scanner.activity.nft
 
-import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.repository.FlowLogRepository
@@ -15,6 +14,7 @@ import com.rarible.flow.core.util.findAfterEventIndex
 import com.rarible.flow.core.util.findBeforeEventIndex
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.activity.ActivityMaker
+import com.rarible.flow.scanner.config.FlowListenerProperties
 import com.rarible.flow.scanner.model.BurnEvent
 import com.rarible.flow.scanner.model.DepositEvent
 import com.rarible.flow.scanner.model.GeneralBurnEvent
@@ -24,26 +24,20 @@ import com.rarible.flow.scanner.model.GeneralWithdrawEvent
 import com.rarible.flow.scanner.model.MintEvent
 import com.rarible.flow.scanner.model.NFTEvent
 import com.rarible.flow.scanner.model.WithdrawEvent
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.toList
 
-abstract class NFTActivityMaker : ActivityMaker {
+abstract class NFTActivityMaker(
+    private val flowLogRepository: FlowLogRepository,
+    private val txManager: TxManager,
+    properties: FlowListenerProperties,
+) : ActivityMaker {
 
     abstract val contractName: String
 
     protected val cadenceParser: JsonCadenceParser = JsonCadenceParser()
 
-    @Value("\${blockchain.scanner.flow.chainId}")
-    lateinit var chainId: FlowChainId
-
-    @Autowired
-    protected lateinit var txManager: TxManager
-
-    @Autowired
-    protected lateinit var flowLogRepository: FlowLogRepository
+    protected val chainId = properties.chainId
 
     fun <T> parse(fn: JsonCadenceParser.() -> T): T {
         return fn(cadenceParser)
@@ -58,7 +52,8 @@ abstract class NFTActivityMaker : ActivityMaker {
             val activity = when (it.type) {
                 FlowLogType.MINT -> getMintActivity(it)
                 FlowLogType.BURN -> getBurnActivity(it)
-                FlowLogType.DEPOSIT -> getTransferActivity(it)
+                FlowLogType.DEPOSIT -> getDepositTransferActivity(it)
+                FlowLogType.WITHDRAW -> getWithdrawTransferActivity(it)
                 else -> null
             }
             if (activity != null) result[it.log] = activity
@@ -92,9 +87,17 @@ abstract class NFTActivityMaker : ActivityMaker {
         )
     }
 
-    private suspend fun getTransferActivity(event: FlowLogEvent): TransferActivity? {
+    private suspend fun getDepositTransferActivity(event: FlowLogEvent): TransferActivity? {
         val deposit = deposit(event)
-        val withdraw = findWithdrawBefore(deposit)
+        val events = findBefore(deposit, listOf(FlowLogType.WITHDRAW, FlowLogType.MINT))
+        require(events.size <= 1) {
+            "Found more then 1 event coupled with deposit: tx=${event.log.transactionHash}, index=${event.log.eventIndex}"
+        }
+        val withdraw = when (val nftEvent = events.singleOrNull()) {
+            is WithdrawEvent -> nftEvent
+            null -> null
+            else -> return null
+        }
         return if (deposit.optionalTo != null) {
             TransferActivity(
                 contract = deposit.collection,
@@ -106,26 +109,64 @@ abstract class NFTActivityMaker : ActivityMaker {
         } else null
     }
 
+    private suspend fun getWithdrawTransferActivity(event: FlowLogEvent): TransferActivity? {
+        val withdraw = withdraw(event)
+        val events = findAfter(withdraw, listOf(FlowLogType.DEPOSIT, FlowLogType.BURN))
+        require(events.size <= 1) {
+            "Found more then 1 event coupled with withdraw: tx=${event.log.transactionHash}, index=${event.log.eventIndex}"
+        }
+        when (events.singleOrNull()) {
+            null -> {}
+            else -> return null
+        }
+        return if (withdraw.optionalFrom != null) {
+            TransferActivity(
+                contract = withdraw.collection,
+                tokenId = withdraw.tokenId,
+                from = withdraw.from,
+                to = withdraw.contractAddress,
+                timestamp = event.log.timestamp
+            )
+        } else null
+    }
+
     private suspend fun findDepositAfter(event: NFTEvent): DepositEvent? {
-        val result = flowLogRepository.findAfterEventIndex(
-            transactionHash = event.transactionHash,
-            afterEventIndex = event.eventIndex,
-        )
-        return result
-            .filter { it.type == FlowLogType.DEPOSIT }
-            .map { deposit(it) }
-            .firstOrNull { it.sameNftEvent(event) }
+        return findAfter(event, listOf(FlowLogType.DEPOSIT)).firstOrNull() as DepositEvent?
     }
 
     private suspend fun findWithdrawBefore(event: NFTEvent): WithdrawEvent? {
-        val result = flowLogRepository.findBeforeEventIndex(
-            transactionHash = event.transactionHash,
-            beforeEventIndex = event.eventIndex,
-        )
+        return findBefore(event, listOf(FlowLogType.WITHDRAW)).firstOrNull() as WithdrawEvent?
+    }
+
+    private suspend fun findAfter(event: NFTEvent, types: List<FlowLogType>): List<NFTEvent> {
+        return findNftEvent(event, types) { tx, index ->
+            flowLogRepository.findAfterEventIndex(tx, index)
+        }
+    }
+
+    private suspend fun findBefore(event: NFTEvent, types: List<FlowLogType>): List<NFTEvent> {
+        return findNftEvent(event, types) { tx, index ->
+            flowLogRepository.findBeforeEventIndex(tx, index)
+        }
+    }
+
+    private suspend fun findNftEvent(
+        event: NFTEvent,
+        types: List<FlowLogType>,
+        search: suspend (String, Int) -> Flow<FlowLogEvent>
+    ): List<NFTEvent> {
+        val result = search(event.transactionHash, event.eventIndex).toList()
         return result
-            .filter { it.type == FlowLogType.WITHDRAW }
-            .map { withdraw(it) }
-            .firstOrNull { it.sameNftEvent(event) }
+            .filter { it.type in types }
+            .mapNotNull {
+                when (it.type) {
+                    FlowLogType.MINT -> mint(it)
+                    FlowLogType.BURN -> burn(it)
+                    FlowLogType.DEPOSIT -> deposit(it)
+                    FlowLogType.WITHDRAW -> withdraw(it)
+                    else -> throw IllegalArgumentException("Unsupported event type in $types")
+                }.takeIf { nftEvent -> nftEvent.sameNft(event) }
+            }
     }
 
     abstract fun tokenId(logEvent: FlowLogEvent): Long

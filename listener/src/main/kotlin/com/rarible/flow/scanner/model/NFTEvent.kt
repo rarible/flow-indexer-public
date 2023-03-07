@@ -9,7 +9,7 @@ interface NFTEvent {
     val transactionHash: String
     val eventIndex: Int
 
-    fun sameNftEvent(other: NFTEvent): Boolean {
+    fun sameNft(other: NFTEvent): Boolean {
         return this.tokenId == other.tokenId && this.collection == other.collection
     }
 }

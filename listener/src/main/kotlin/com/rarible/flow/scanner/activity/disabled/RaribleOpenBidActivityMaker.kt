@@ -21,8 +21,9 @@ import com.rarible.flow.scanner.service.balance.FlowBalanceService
 import java.math.BigDecimal
 
 class RaribleOpenBidActivityMaker(
-    val flowBalanceService: FlowBalanceService
+    private val flowBalanceService: FlowBalanceService
 ) : WithPaymentsActivityMaker() {
+
     override val contractName: String = "RaribleOpenBid"
 
     override suspend fun activities(events: List<FlowLogEvent>): Map<FlowLog, BaseActivity> {
