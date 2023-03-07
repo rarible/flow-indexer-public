@@ -16,7 +16,7 @@ class OneFootballActivity(
 
     override val contractName: String = Contracts.ONE_FOOTBALL.contractName
 
-    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
+    override fun tokenId(logEvent: FlowLogEvent): Long = mint(logEvent).tokenId
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> = emptyMap()
 

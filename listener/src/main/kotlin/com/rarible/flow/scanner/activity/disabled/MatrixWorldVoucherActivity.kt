@@ -17,7 +17,7 @@ class MatrixWorldVoucherActivity(
 
     override val contractName: String = Contracts.MATRIX_WORLD_VOUCHER.contractName
 
-    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
+    override fun tokenId(logEvent: FlowLogEvent): Long = mint(logEvent).tokenId
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> {
         val name by logEvent.event.fields

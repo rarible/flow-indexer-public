@@ -12,6 +12,7 @@ import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.activity.disabled.MotoGPActivityMaker
 import io.kotest.matchers.maps.shouldContainValue
 import io.kotest.matchers.shouldBe
+import io.mockk.coVerify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -38,6 +39,14 @@ internal class MotoGPActivityMakerTest : AbstractNftActivityTest() {
             timestamp = Instant.parse("2021-10-26T14:28:35.621Z"),
             collection = "A.a49cc0ee46c54bfb.MotoGPCard"
         )
+        coVerify {
+            logRepository.findAfterEventIndex(
+                eq(MINT_LOG_EVENT.log.transactionHash),
+                eq(MINT_LOG_EVENT.log.eventIndex),
+                any(),
+                any()
+            )
+        }
     }
 
     @Test

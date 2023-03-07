@@ -12,6 +12,7 @@ import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.activity.disabled.CnnActivity
 import io.kotest.matchers.maps.shouldContainValue
 import io.kotest.matchers.shouldBe
+import io.mockk.coVerify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -37,6 +38,14 @@ internal class CnnActivityTest : AbstractNftActivityTest() {
             timestamp = Instant.parse("2021-10-26T14:28:35.621Z"),
             collection = "A.329feb3ab062d289.CNN_NFT"
         )
+        coVerify {
+            logRepository.findAfterEventIndex(
+                eq(MINT_LOG_EVENT.log.transactionHash),
+                eq(MINT_LOG_EVENT.log.eventIndex),
+                any(),
+                any()
+            )
+        }
     }
 
     @Test

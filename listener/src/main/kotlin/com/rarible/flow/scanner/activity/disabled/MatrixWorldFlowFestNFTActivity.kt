@@ -17,7 +17,7 @@ class MatrixWorldFlowFestNFTActivity(
 
     override val contractName: String = Contracts.MATRIX_WORLD_FLOW_FEST.contractName
 
-    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
+    override fun tokenId(logEvent: FlowLogEvent): Long = mint(logEvent).tokenId
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> {
         val name: StringField by logEvent.event.fields

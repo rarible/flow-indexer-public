@@ -16,7 +16,7 @@ class EvolutionActivityMaker(
 
     override val contractName: String = Contracts.EVOLUTION.contractName
 
-    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
+    override fun tokenId(logEvent: FlowLogEvent): Long = mint(logEvent).tokenId
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> = mapOf(
         "itemId" to "${cadenceParser.int(logEvent.event.fields["itemId"]!!)}",

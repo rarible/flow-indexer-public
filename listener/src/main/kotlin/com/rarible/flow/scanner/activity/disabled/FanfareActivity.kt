@@ -17,7 +17,7 @@ class FanfareActivity(
 
     override val contractName: String = Contracts.FANFARE.contractName
 
-    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
+    override fun tokenId(logEvent: FlowLogEvent): Long = mint(logEvent).tokenId
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> {
         val metadata: StringField by logEvent.event.fields

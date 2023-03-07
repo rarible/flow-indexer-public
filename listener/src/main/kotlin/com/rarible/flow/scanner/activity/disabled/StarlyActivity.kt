@@ -8,6 +8,7 @@ import com.rarible.flow.core.domain.Part
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.config.FlowListenerProperties
 import com.rarible.flow.scanner.activity.nft.NFTActivityMaker
+import kotlin.math.min
 
 class StarlyActivity(
     flowLogRepository: FlowLogRepository,
@@ -17,7 +18,7 @@ class StarlyActivity(
 
     override val contractName: String = Contracts.STARLY_CARD.contractName
 
-    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
+    override fun tokenId(logEvent: FlowLogEvent): Long = mint(logEvent).tokenId
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> {
         val starlyID: StringField by logEvent.event.fields

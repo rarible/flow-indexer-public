@@ -8,6 +8,14 @@ import com.rarible.flow.core.domain.Part
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.activity.nft.NFTActivityMaker
 import com.rarible.flow.scanner.config.FlowListenerProperties
+import com.rarible.flow.scanner.model.BurnEvent
+import com.rarible.flow.scanner.model.DepositEvent
+import com.rarible.flow.scanner.model.JambbMomentsBurnEvent
+import com.rarible.flow.scanner.model.JambbMomentsDepositEvent
+import com.rarible.flow.scanner.model.JambbMomentsMintEvent
+import com.rarible.flow.scanner.model.JambbMomentsWithdrawEvent
+import com.rarible.flow.scanner.model.MintEvent
+import com.rarible.flow.scanner.model.WithdrawEvent
 
 class JambbMomentsActivity(
     flowLogRepository: FlowLogRepository,
@@ -17,9 +25,7 @@ class JambbMomentsActivity(
 
     override val contractName: String = Contracts.JAMBB_MOMENTS.contractName
 
-    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(
-        logEvent.event.fields["momentID"] ?: logEvent.event.fields["id"]!!
-    )
+    override fun tokenId(logEvent: FlowLogEvent): Long = mint(logEvent).tokenId
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> {
         val momentID: UInt64NumberField by logEvent.event.fields
@@ -37,6 +43,22 @@ class JambbMomentsActivity(
             "seriesID" to seriesID.value!!,
             "setID" to setID.value!!,
         )
+    }
+
+    override fun mint(logEvent: FlowLogEvent): MintEvent {
+        return JambbMomentsMintEvent(logEvent)
+    }
+
+    override fun burn(logEvent: FlowLogEvent): BurnEvent {
+        return JambbMomentsBurnEvent(logEvent)
+    }
+
+    override fun deposit(logEvent: FlowLogEvent): DepositEvent {
+        return JambbMomentsDepositEvent(logEvent)
+    }
+
+    override fun withdraw(logEvent: FlowLogEvent): WithdrawEvent {
+        return JambbMomentsWithdrawEvent(logEvent)
     }
 
     override fun royalties(logEvent: FlowLogEvent): List<Part> {

@@ -17,7 +17,7 @@ class VersusArtActivityMaker(
 
     override val contractName = Contracts.VERSUS_ART.contractName
 
-    override fun tokenId(logEvent: FlowLogEvent) = cadenceParser.long(logEvent.event.fields["id"]!!)
+    override fun tokenId(logEvent: FlowLogEvent) = mint(logEvent).tokenId
 
     override fun meta(logEvent: FlowLogEvent) = try {
         val meta = Flow.unmarshall(VersusArtMetadata::class, logEvent.event.fields["metadata"]!!)

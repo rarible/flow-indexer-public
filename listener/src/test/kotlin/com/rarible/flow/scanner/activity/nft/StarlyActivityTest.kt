@@ -13,6 +13,7 @@ import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.activity.disabled.StarlyActivity
 import io.kotest.matchers.maps.shouldContainValue
 import io.kotest.matchers.shouldBe
+import io.mockk.coVerify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -41,6 +42,14 @@ internal class StarlyActivityTest: AbstractNftActivityTest() {
             timestamp = Instant.parse("2021-10-26T14:28:35.621Z"),
             collection = "A.5b82f21c0edf76e3.StarlyCard"
         )
+        coVerify {
+            logRepository.findAfterEventIndex(
+                eq(MotoGPActivityMakerTest.MINT_LOG_EVENT.log.transactionHash),
+                eq(MotoGPActivityMakerTest.MINT_LOG_EVENT.log.eventIndex),
+                any(),
+                any()
+            )
+        }
     }
 
     @Test

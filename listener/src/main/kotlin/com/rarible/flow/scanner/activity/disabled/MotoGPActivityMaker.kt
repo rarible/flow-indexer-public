@@ -16,7 +16,7 @@ class MotoGPActivityMaker(
 
     override val contractName: String = "MotoGPCard"
 
-    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
+    override fun tokenId(logEvent: FlowLogEvent): Long = mint(logEvent).tokenId
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> = emptyMap()
 

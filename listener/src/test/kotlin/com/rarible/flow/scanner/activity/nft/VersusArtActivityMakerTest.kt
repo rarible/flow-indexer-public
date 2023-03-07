@@ -26,7 +26,7 @@ import java.time.ZonedDateTime
 class VersusArtActivityMakerTest : AbstractNftActivityTest() {
     private val activityMaker = VersusArtActivityMaker(logRepository, txManager, properties)
 
-    val minted = FlowLogEvent(
+    private val mint = FlowLogEvent(
         type = FlowLogType.MINT,
         log = FlowLog(
             transactionHash = "a2605f244d08395829a360a248249b7d47f8fbd04172f0ce4e82d4f7c25553a0",
@@ -64,7 +64,7 @@ class VersusArtActivityMakerTest : AbstractNftActivityTest() {
         ),
     )
 
-    val deposit = FlowLogEvent(
+    private val deposit = FlowLogEvent(
         type = FlowLogType.DEPOSIT,
         log = FlowLog(
             transactionHash = "610f7e5677d6a97174a98fd01e6d91e81a3ad95bf12da7f66d820e116fd96ec3",
@@ -90,7 +90,7 @@ class VersusArtActivityMakerTest : AbstractNftActivityTest() {
 
     @Test
     fun `mint without deposit`() = runBlocking<Unit> {
-        activityMaker.activities(listOf(minted)) should { log ->
+        activityMaker.activities(listOf(mint)) should { log ->
             log.size shouldBe 1
             log.entries.first().shouldNotBeInstanceOf<MintActivity>()
         }
