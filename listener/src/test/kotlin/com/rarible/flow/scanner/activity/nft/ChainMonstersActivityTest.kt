@@ -10,15 +10,16 @@ import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
-import com.rarible.flow.scanner.activity.disabled.ChainmonstersActivity
+import com.rarible.flow.scanner.activity.disabled.ChainMonstersActivity
 import io.kotest.matchers.maps.shouldContainValue
 import io.kotest.matchers.shouldBe
+import io.mockk.coVerify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
-internal class ChainmonstersActivityTest : AbstractNftActivityTest() {
-    val activityMaker = ChainmonstersActivity(logRepository, txManager, properties)
+internal class ChainMonstersActivityTest : AbstractNftActivityTest() {
+    val activityMaker = ChainMonstersActivity(logRepository, txManager, properties)
 
     @Test
     fun `should mint item`() = runBlocking<Unit> {
@@ -41,6 +42,14 @@ internal class ChainmonstersActivityTest : AbstractNftActivityTest() {
             timestamp = Instant.parse("2021-10-26T14:28:35.621Z"),
             collection = "A.93615d25d14fa337.ChainmonstersRewards"
         )
+        coVerify {
+            logRepository.findAfterEventIndex(
+                eq(MINT_LOG_EVENT.log.transactionHash),
+                eq(MINT_LOG_EVENT.log.eventIndex),
+                any(),
+                any()
+            )
+        }
     }
 
     @Test
