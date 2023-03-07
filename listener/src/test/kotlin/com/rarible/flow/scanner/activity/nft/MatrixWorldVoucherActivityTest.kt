@@ -1,7 +1,6 @@
-package com.rarible.flow.scanner.listener.activity
+package com.rarible.flow.scanner.activity.nft
 
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.StringField
 import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
@@ -11,28 +10,26 @@ import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
-import com.rarible.flow.scanner.activity.disabled.MatrixWorldFlowFestNFTActivity
-import io.kotest.core.spec.style.FunSpec
+import com.rarible.flow.scanner.activity.disabled.MatrixWorldVoucherActivity
 import io.kotest.matchers.maps.shouldContainValue
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Test
 import java.time.Instant
 
-internal class MatrixWorldFlowFestActivityTest: FunSpec({
+internal class MatrixWorldVoucherActivityTest: AbstractNftActivityTest() {
 
-    val activityMaker = MatrixWorldFlowFestNFTActivity(mockk {
-        every { chainId } returns FlowChainId.MAINNET
-    })
+    val activityMaker = MatrixWorldVoucherActivity(logRepository, txManager, properties)
 
-    test("should mint item") {
+    @Test
+    fun `mint item - ok`() = runBlocking<Unit> {
         activityMaker.activities(
             listOf(
                 MINT_LOG_EVENT
             )
         ) shouldContainValue MintActivity(
             owner = "0x0d77ec47bbad8ef6",
-            contract = "A.0d77ec47bbad8ef6.MatrixWorldFlowFestNFT",
+            contract = "A.0d77ec47bbad8ef6.MatrixWorldVoucher",
             tokenId = 0,
             creator = "0x0d77ec47bbad8ef6",
             metadata = mapOf(
@@ -46,15 +43,17 @@ internal class MatrixWorldFlowFestActivityTest: FunSpec({
                 Part(FlowAddress("0x46f1e88b54fcb73c"), 0.05)
             ),
             timestamp = Instant.parse("2021-10-26T14:28:35.621Z"),
-            collection = "A.0d77ec47bbad8ef6.MatrixWorldFlowFestNFT"
+            collection = "A.0d77ec47bbad8ef6.MatrixWorldVoucher"
         )
     }
 
-    test("tokenId") {
+    @Test
+    fun tokenId() {
         activityMaker.tokenId(MINT_LOG_EVENT) shouldBe 0
     }
 
-    test("meta") {
+    @Test
+    fun meta() {
         activityMaker.meta(MINT_LOG_EVENT) shouldBe mapOf(
             "name" to "LandVoucher",
             "description" to "Matrix World Land Voucher",
@@ -64,23 +63,28 @@ internal class MatrixWorldFlowFestActivityTest: FunSpec({
         )
     }
 
-    test("contractName") {
-        activityMaker.contractName shouldBe "MatrixWorldFlowFestNFT"
+    @Test
+    fun contractName() {
+        activityMaker.contractName shouldBe "MatrixWorldVoucher"
     }
 
-}) {
+    @Test
+    fun isSupported() {
+        activityMaker.isSupportedCollection("A.0d77ec47bbad8ef6.MatrixWorldVoucher")
+    }
+
     companion object {
         val MINT_LOG_EVENT = FlowLogEvent(
             FlowLog(
                 "aa8386f6aaaf74f7e949903c09d685e706130c6dcfd15aa5bc40d2d958efc29c",
                 0,
-                "A.0d77ec47bbad8ef6.MatrixWorldFlowFestNFT.Minted",
+                "A.0d77ec47bbad8ef6.MatrixWorldVoucher.Minted",
                 Instant.parse("2021-10-26T14:28:35.621Z"),
                 19683033,
                 "85992a4b68aae43d7743cc68c5bf622655242dd841a036910230ca29fa96da49"
             ),
             event = EventMessage(
-                EventId.of("A.0d77ec47bbad8ef6.MatrixWorldFlowFestNFT.Minted"),
+                EventId.of("A.0d77ec47bbad8ef6.MatrixWorldVoucher.Minted"),
                 mapOf(
                     "id" to UInt64NumberField("0"),
                     "name" to StringField("LandVoucher"),
@@ -92,6 +96,6 @@ internal class MatrixWorldFlowFestActivityTest: FunSpec({
             ),
             type = FlowLogType.MINT,
 
-        )
+            )
     }
 }

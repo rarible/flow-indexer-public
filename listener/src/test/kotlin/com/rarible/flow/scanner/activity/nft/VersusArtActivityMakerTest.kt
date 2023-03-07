@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.listener
+package com.rarible.flow.scanner.activity.nft
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.AddressField
@@ -16,13 +16,15 @@ import com.rarible.flow.core.domain.TransferActivity
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.activity.disabled.VersusArtActivityMaker
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldNotBeInstanceOf
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Test
 import java.time.ZonedDateTime
 
-class VersusArtActivityMakerTest : FunSpec({
+class VersusArtActivityMakerTest : AbstractNftActivityTest() {
+    private val activityMaker = VersusArtActivityMaker(logRepository, txManager, properties)
 
     val minted = FlowLogEvent(
         type = FlowLogType.MINT,
@@ -86,17 +88,19 @@ class VersusArtActivityMakerTest : FunSpec({
         )
     )
 
-    test("mint w/o deposit") {
-        VersusArtActivityMaker().activities(listOf(minted)) should { log ->
+    @Test
+    fun `mint without deposit`() = runBlocking<Unit> {
+        activityMaker.activities(listOf(minted)) should { log ->
             log.size shouldBe 1
             log.entries.first().shouldNotBeInstanceOf<MintActivity>()
         }
     }
 
-    test("deposit w/o withdraw as transfer") {
-        VersusArtActivityMaker().activities(listOf(deposit)) should { log ->
+    @Test
+    fun `deposit without withdraw as transfer`() = runBlocking<Unit> {
+        activityMaker.activities(listOf(deposit)) should { log ->
             log.size shouldBe 1
             log.entries.first().shouldNotBeInstanceOf<TransferActivity>()
         }
     }
-})
+}

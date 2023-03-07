@@ -1,7 +1,6 @@
-package com.rarible.flow.scanner.listener.activity
+package com.rarible.flow.scanner.activity.nft
 
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.UInt32NumberField
 import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
@@ -12,17 +11,17 @@ import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.activity.disabled.ChainmonstersActivity
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainValue
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Test
 import java.time.Instant
 
-internal class ChainmonstersActivityTest: FunSpec({
-    val activityMaker = ChainmonstersActivity().apply {
-        chainId = FlowChainId.MAINNET
-    }
+internal class ChainmonstersActivityTest : AbstractNftActivityTest() {
+    val activityMaker = ChainmonstersActivity(logRepository, txManager, properties)
 
-    test("should mint item") {
+    @Test
+    fun `should mint item`() = runBlocking<Unit> {
         activityMaker.activities(
             listOf(
                 MINT_LOG_EVENT
@@ -44,22 +43,24 @@ internal class ChainmonstersActivityTest: FunSpec({
         )
     }
 
-    test("tokenId") {
+    @Test
+    fun tokenId() {
         activityMaker.tokenId(MINT_LOG_EVENT) shouldBe 11
     }
 
-    test("meta") {
+    @Test
+    fun meta() {
         activityMaker.meta(MINT_LOG_EVENT) shouldBe mapOf(
             "rewardId" to "1000",
             "serialNumber" to "33"
         )
     }
 
-    test("contractName") {
+    @Test
+    fun contractName() {
         activityMaker.contractName shouldBe "ChainmonstersRewards"
     }
 
-}) {
     companion object {
         val MINT_LOG_EVENT = FlowLogEvent(
             FlowLog(

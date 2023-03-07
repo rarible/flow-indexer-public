@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.listener
+package com.rarible.flow.scanner.activity.nft
 
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress

@@ -1,7 +1,6 @@
-package com.rarible.flow.scanner.listener.activity
+package com.rarible.flow.scanner.activity.nft
 
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.flow.core.domain.FlowLogEvent
@@ -11,20 +10,18 @@ import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.activity.disabled.OneFootballActivity
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainValue
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Test
 import java.time.Instant
 
-internal class OneFootballActivityTest: FunSpec({
+internal class OneFootballActivityTest : AbstractNftActivityTest() {
 
-    val activityMaker = OneFootballActivity(mockk {
-        every { chainId } returns FlowChainId.MAINNET
-    })
+    val activityMaker = OneFootballActivity(logRepository, txManager, properties)
 
-    test("should mint item") {
+    @Test
+    fun `mint item - ok`() = runBlocking<Unit> {
         activityMaker.activities(
             listOf(
                 MINT_LOG_EVENT
@@ -43,23 +40,26 @@ internal class OneFootballActivityTest: FunSpec({
         )
     }
 
-    test("tokenId") {
+    @Test
+    fun tokenId() {
         activityMaker.tokenId(MINT_LOG_EVENT) shouldBe 1
     }
 
-    test("meta") {
+    @Test
+    fun meta() {
         activityMaker.meta(MINT_LOG_EVENT) shouldBe emptyMap()
     }
 
-    test("contractName") {
+    @Test
+    fun contractName() {
         activityMaker.contractName shouldBe "OneFootballCollectible"
     }
 
-    test("isSupportedCollection") {
+    @Test
+    fun isSupportedCollection() {
         activityMaker.isSupportedCollection("A.6831760534292098.OneFootballCollectible")
     }
 
-}) {
     companion object {
         val MINT_LOG_EVENT = FlowLogEvent(
             FlowLog(
@@ -79,6 +79,6 @@ internal class OneFootballActivityTest: FunSpec({
             ),
             type = FlowLogType.MINT,
 
-        )
+            )
     }
 }
