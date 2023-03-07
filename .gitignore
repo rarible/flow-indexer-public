@@ -100,6 +100,7 @@ data/
 .idea
 target
 .flattened-pom.xml
+*-local.yml
 
 *~
 
