@@ -1,5 +1,6 @@
 package com.rarible.flow.core.config
 
+import com.rarible.blockchain.scanner.flow.mongo.FlowFieldConverter
 import com.rarible.flow.core.converter.FlowConversions
 import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
 import com.rarible.flow.core.converter.ItemIdConversions
@@ -31,7 +32,7 @@ class CoreConfig(
     @Bean
     fun mongoCustomConversions(): MongoCustomConversions {
         return MongoCustomConversions(
-            FlowConversions + ItemIdConversions + OwnershipIdConversions + decimalConversions()
+            FlowConversions + ItemIdConversions + OwnershipIdConversions + decimalConversions() + FlowFieldConverter
         )
     }
 

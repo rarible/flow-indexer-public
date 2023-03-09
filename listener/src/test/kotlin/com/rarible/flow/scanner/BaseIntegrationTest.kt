@@ -11,7 +11,7 @@ import javax.annotation.PostConstruct
 @MongoTest
 @MongoCleanup
 @KafkaTest
-abstract class BaseIntegrationTest {
+abstract class BaseIntegrationTest : BaseJsonEventTest() {
 
     @Autowired
     protected lateinit var mongo: ReactiveMongoOperations

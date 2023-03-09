@@ -147,14 +147,18 @@ fun randomMintActivity(): MintActivity {
     )
 }
 
-fun randomFlowLog(): FlowLog {
+fun randomFlowLog(
+    blockHash: String = randomString(),
+    transactionHash: String = randomString(),
+    eventIndex: Int = randomInt()
+): FlowLog {
     return FlowLog(
-        blockHash = randomString(),
+        blockHash = blockHash,
+        transactionHash = transactionHash,
+        eventIndex = eventIndex,
         blockHeight = randomLong(),
-        eventIndex = randomInt(),
         eventType = randomString(),
         timestamp = Instant.now(),
-        transactionHash = randomString()
     )
 }
 
@@ -174,10 +178,19 @@ fun randomEventMessage(): EventMessage {
     )
 }
 
-fun randomFlowLogEvent(): FlowLogEvent  {
+fun randomFlowLogEvent(
+    blockHash: String = randomString(),
+    transactionHash: String = randomString(),
+    eventIndex: Int = randomInt(),
+    event: EventMessage = randomEventMessage()
+): FlowLogEvent  {
     return FlowLogEvent(
-        log = randomFlowLog(),
-        event = randomEventMessage(),
+        log = randomFlowLog(
+            blockHash = blockHash,
+            transactionHash = transactionHash,
+            eventIndex = eventIndex
+        ),
+        event = event,
         type = FlowLogType.values().random(),
     )
 }
