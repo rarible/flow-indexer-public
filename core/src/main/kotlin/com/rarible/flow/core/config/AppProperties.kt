@@ -12,5 +12,12 @@ data class AppProperties(
     val environment: String,
     val kafkaReplicaSet: String,
     val chainId: FlowChainId,
-    val webApiUrl: String
+    val webApiUrl: String,
+    val featureFlags: FeatureFlagsProperties = FeatureFlagsProperties()
+)
+
+data class FeatureFlagsProperties(
+    val enableRaribleCard: Boolean = true,
+    val enableRariblePack: Boolean = true,
+    val enableRaribleNft: Boolean = true,
 )

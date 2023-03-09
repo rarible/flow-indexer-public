@@ -5,9 +5,11 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.model.RaribleNftEventType
+import com.rarible.flow.scanner.subscriber.EnableRaribleNft
 import org.springframework.stereotype.Component
 
 @Component
+@EnableRaribleNft
 class RaribleNFTSubscriber: NonFungibleTokenSubscriber() {
     override val events = RaribleNftEventType.EVENT_NAMES
     override val name = "rarible_nft"

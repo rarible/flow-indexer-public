@@ -24,7 +24,9 @@ import java.math.BigDecimal
 @EnableReactiveMongoRepositories(basePackages = [
     "com.rarible.flow.core.repository"
 ])
-@EnableConfigurationProperties(AppProperties::class)
+@EnableConfigurationProperties(value = [
+    AppProperties::class
+])
 class CoreConfig(
     private val appProperties: AppProperties
 ) {

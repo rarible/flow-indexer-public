@@ -23,6 +23,12 @@ jobs:
     enabled: false
     rate: 120000
 
+app:
+  featureFlags:
+    enableRaribleCard: true
+    enableRariblePack: true
+    enableRaribleNft: true
+
 blockchain:
   scanner:
     kafka:
