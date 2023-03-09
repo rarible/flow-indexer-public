@@ -45,4 +45,3 @@ flow-api:
   chain-id: MAINNET
   cleanup:
     enabled: true
-    preservedCollections: "A.01ab36aaf654a13e.RaribleNFT"
