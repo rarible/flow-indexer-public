@@ -16,3 +16,13 @@ annotation class EnableRariblePack
 @Retention(AnnotationRetention.RUNTIME)
 @ConditionalOnProperty(name = ["app.feature-flags.enable-rarible-nft"], havingValue = "true")
 annotation class EnableRaribleNft
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+@ConditionalOnProperty(name = ["app.feature-flags.enable-storefront-v1"], havingValue = "true")
+annotation class EnableStorefrontV1
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+@ConditionalOnProperty(name = ["app.feature-flags.enable-storefront-v2"], havingValue = "true")
+annotation class EnableStorefrontV2

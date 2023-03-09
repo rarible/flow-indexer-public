@@ -28,6 +28,8 @@ app:
     enableRaribleCard: true
     enableRariblePack: true
     enableRaribleNft: true
+    enableStorefrontV1: true
+    enableStorefrontV2: true
 
 blockchain:
   scanner:
