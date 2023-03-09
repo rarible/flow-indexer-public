@@ -38,11 +38,7 @@ class ItemRepositoryCustomImpl(
     }
 
     override fun find(fromId: ItemId?, limit: Int): Flow<Item> {
-        val criteria = Criteria().andOperator(
-            listOfNotNull(
-                fromId?.let { Criteria.where("_id").gt(it) }
-            )
-        )
+        val criteria = if (fromId != null) Criteria.where("_id").gt(fromId) else Criteria()
         val query = Query(criteria)
             .with(Sort.by("_id"))
             .limit(limit)

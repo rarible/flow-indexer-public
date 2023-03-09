@@ -56,11 +56,7 @@ class OwnershipRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate):
     }
 
     override fun find(fromId: OwnershipId?, limit: Int): Flow<Ownership> {
-        val criteria = Criteria().andOperator(
-            listOfNotNull(
-                fromId?.let { Criteria.where("_id").gt(it) }
-            )
-        )
+        val criteria = if (fromId != null) Criteria.where("_id").gt(fromId) else Criteria()
         val query = Query(criteria)
             .with(Sort.by("_id"))
             .limit(limit)
