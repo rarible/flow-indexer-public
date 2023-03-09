@@ -6,6 +6,7 @@ import com.rarible.blockchain.scanner.flow.EnableFlowBlockchainScanner
 import com.rarible.core.task.EnableRaribleTask
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.repository.BalanceRepository
+import com.rarible.flow.core.repository.TaskItemHistoryRepository
 import com.rarible.flow.scanner.service.balance.FlowBalanceService
 import com.rarible.protocol.currency.api.client.CurrencyApiClientFactory
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
@@ -16,6 +17,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 
 @Configuration
 @ObsoleteCoroutinesApi
@@ -74,4 +76,9 @@ class Config(
 
     @Bean
     fun syncApy(): FlowAccessApi = Flow.newAccessApi(flowListenerProperties.flowAccessUrl, flowListenerProperties.flowAccessPort)
+
+    @Bean
+    fun taskItemHistoryRepository(mongo: ReactiveMongoTemplate): TaskItemHistoryRepository {
+        return TaskItemHistoryRepository(mongo)
+    }
 }

@@ -21,8 +21,6 @@ abstract class AbstractEntityCleanupJob<Entity, EntityId>(
 
     protected abstract fun extractId(entity: Entity): EntityId
 
-    protected abstract fun extractContract(entity: Entity): String?
-
     fun execute(fromId: EntityId?): Flow<EntityId> {
         return flow {
             var next = fromId
@@ -37,13 +35,12 @@ abstract class AbstractEntityCleanupJob<Entity, EntityId>(
 
     private suspend fun cleanupFrom(fromId: EntityId?): EntityId? {
         val batchSize = properties.cleanup.batchSize
-        val preservedCollections = properties.cleanup.preservedCollections
         val batch = find(fromId, batchSize).toList()
 
         coroutineScope {
             batch.map {
                 async {
-                    if (extractContract(it) !in preservedCollections) cleanup(it)
+                    cleanup(it)
                 }
             }.awaitAll()
         }

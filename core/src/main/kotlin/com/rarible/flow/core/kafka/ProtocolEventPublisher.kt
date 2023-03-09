@@ -113,11 +113,11 @@ class ProtocolEventPublisher(
         send(items, key, message)
     }
 
-    suspend fun activity(history: ItemHistory) {
+    suspend fun activity(history: ItemHistory, reverted: Boolean = false) {
         send(
             activities,
             "${history.id}:${history.activity.type}-${history.activity.timestamp}",
-            itemHistoryToDtoConverter.convert(history)
+            itemHistoryToDtoConverter.convert(history, reverted)
         )
     }
 

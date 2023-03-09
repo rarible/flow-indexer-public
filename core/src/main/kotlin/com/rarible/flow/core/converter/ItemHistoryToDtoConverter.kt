@@ -53,8 +53,7 @@ import org.springframework.stereotype.Component
 @Component
 class ItemHistoryToDtoConverter(
     private val mongo: MongoTemplate
-): Converter<ItemHistory, FlowActivityDto?> {
-
+) {
     private fun convertAsset(asset: FlowAsset) = when (asset) {
         is FlowAssetNFT -> FlowAssetNFTDto(
             contract = asset.contract,
@@ -68,7 +67,7 @@ class ItemHistoryToDtoConverter(
         else -> throw IllegalStateException("Invalid asset: ${asset.javaClass}")
     }
 
-    override fun convert(source: ItemHistory): FlowActivityDto {
+    fun convert(source: ItemHistory, reverted: Boolean = false): FlowActivityDto {
         return when (source.activity) {
             is MintActivity -> FlowMintDto(
                 id = source.id,
@@ -82,6 +81,7 @@ class ItemHistoryToDtoConverter(
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
                 updatedAt = source.updatedAt,
+                reverted = reverted,
             )
 
             is BurnActivity -> FlowBurnDto(
@@ -96,6 +96,7 @@ class ItemHistoryToDtoConverter(
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
                 updatedAt = source.updatedAt,
+                reverted = reverted,
             )
 
             is TransferActivity -> FlowTransferDto(
@@ -112,6 +113,7 @@ class ItemHistoryToDtoConverter(
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
                 updatedAt = source.updatedAt,
+                reverted = reverted,
             )
             is FlowNftOrderActivitySell -> FlowNftOrderActivitySellDto(
                 id = source.id,
@@ -133,6 +135,7 @@ class ItemHistoryToDtoConverter(
                 logIndex = source.log.eventIndex,
                 platform = source.activity.platform,
                 updatedAt = source.updatedAt,
+                reverted = reverted,
             )
             is FlowNftOrderActivityList -> FlowNftOrderActivityListDto(
                 id = source.id,
@@ -147,6 +150,7 @@ class ItemHistoryToDtoConverter(
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
                 updatedAt = source.updatedAt,
+                reverted = reverted,
             )
             is FlowNftOrderActivityBid -> FlowNftOrderActivityBidDto(
                 id = source.id,
@@ -161,6 +165,7 @@ class ItemHistoryToDtoConverter(
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
                 updatedAt = source.updatedAt,
+                reverted = reverted,
             )
             is FlowNftOrderActivityCancelList -> FlowNftOrderActivityCancelListDto(
                 id = source.id,
@@ -175,6 +180,7 @@ class ItemHistoryToDtoConverter(
                 blockNumber = source.log.blockHeight,
                 logIndex = source.log.eventIndex,
                 updatedAt = source.updatedAt,
+                reverted = reverted,
             )
             is FlowNftOrderActivityCancelBid -> {
                 FlowNftOrderActivityCancelBidDto(
@@ -190,17 +196,20 @@ class ItemHistoryToDtoConverter(
                     blockNumber = source.log.blockHeight,
                     logIndex = source.log.eventIndex,
                     updatedAt = source.updatedAt,
+                    reverted = reverted,
                 )
             }
             is AuctionActivityBidClosed -> DummyActivityDto(
                 id = source.id,
                 date = source.date,
-                updatedAt = source.updatedAt
+                updatedAt = source.updatedAt,
+                reverted = reverted,
             )
             is AuctionActivityBidIncreased -> DummyActivityDto(
                 id = source.id,
                 date = source.date,
-                source.updatedAt
+                source.updatedAt,
+                reverted = reverted,
             )
             is AuctionActivityBidOpened -> {
                 val lot = mongo.findOne(Query.query(
@@ -219,7 +228,8 @@ class ItemHistoryToDtoConverter(
                     blockHash = source.log.blockHash,
                     blockNumber = source.log.blockHeight,
                     logIndex = source.log.eventIndex,
-                    updatedAt = source.updatedAt
+                    updatedAt = source.updatedAt,
+                    reverted = reverted,
                 )
             }
             is AuctionActivityLotCanceled -> {
@@ -235,18 +245,21 @@ class ItemHistoryToDtoConverter(
                     blockHash = source.log.blockHash,
                     blockNumber = source.log.blockHeight,
                     logIndex = source.log.eventIndex,
-                    updatedAt = source.updatedAt
+                    updatedAt = source.updatedAt,
+                    reverted = reverted,
                 )
             }
             is AuctionActivityLotCleaned -> DummyActivityDto(
                 id = source.id,
                 date = source.date,
-                updatedAt = source.updatedAt
+                updatedAt = source.updatedAt,
+                reverted = reverted,
             )
             is AuctionActivityLotEndTimeChanged -> DummyActivityDto(
                 id = source.id,
                 date = source.date,
-                updatedAt = source.updatedAt
+                updatedAt = source.updatedAt,
+                reverted = reverted,
             )
             is AuctionActivityLot -> {
                 val lot = mongo.findOne(Query.query(
@@ -261,7 +274,8 @@ class ItemHistoryToDtoConverter(
                     blockHash = source.log.blockHash,
                     blockNumber = source.log.blockHeight,
                     logIndex = source.log.eventIndex,
-                    updatedAt = source.updatedAt
+                    updatedAt = source.updatedAt,
+                    reverted = reverted,
                 )
             }
             is AuctionActivityLotHammered -> {
@@ -277,7 +291,8 @@ class ItemHistoryToDtoConverter(
                     blockHash = source.log.blockHash,
                     blockNumber = source.log.blockHeight,
                     logIndex = source.log.eventIndex,
-                    updatedAt = source.updatedAt
+                    updatedAt = source.updatedAt,
+                    reverted = reverted,
                 )
             }
         }

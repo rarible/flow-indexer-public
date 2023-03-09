@@ -56,8 +56,6 @@ class CoreConfig(
         GatewayEventsProducers.auctionsUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
         itemHistoryToDtoConverter
     )
-
-
 }
 
 @WritingConverter

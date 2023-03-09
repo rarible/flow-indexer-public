@@ -31,6 +31,4 @@ class OwnershipCleanupJob(
     ) = ownershipRepository.find(fromId, batchSize)
 
     override fun extractId(entity: Ownership) = entity.id
-
-    override fun extractContract(entity: Ownership) = entity.contract
 }

@@ -31,6 +31,4 @@ class ItemCleanupJob(
     ) = itemRepository.find(fromId, batchSize)
 
     override fun extractId(entity: Item) = entity.id
-
-    override fun extractContract(entity: Item) = entity.contract
 }

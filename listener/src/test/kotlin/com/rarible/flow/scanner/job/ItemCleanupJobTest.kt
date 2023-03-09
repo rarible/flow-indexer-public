@@ -60,30 +60,4 @@ class ItemCleanupJobTest {
             itemRepository.find(item2.id, cleanup.batchSize)
         }
     }
-
-    @Test
-    fun `clean - skip preserved collections`() = runBlocking<Unit> {
-        val item1 = randomItem()
-        val item2 = randomItem()
-        val cleanup = CleanUpProperties().copy(preservedCollections = listOf(item2.contract))
-
-        every { properties.cleanup } returns cleanup
-        every { itemRepository.find(null, cleanup.batchSize) } returns flow {
-            listOf(item1, item2).forEach { emit(it) }
-        }
-        every { itemRepository.find(item2.id, cleanup.batchSize) } returns flow {
-
-        }
-        coEvery { itemRepository.delete(item1) } returns Mono.empty()
-        coEvery { protocolEventPublisher.onItemDelete(item1.id, any()) } returns Unit
-
-        job.execute(null).toList()
-
-        verify {
-            itemRepository.delete(item1)
-        }
-        verify(exactly = 0) {
-            itemRepository.delete(item2)
-        }
-    }
 }

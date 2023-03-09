@@ -34,7 +34,8 @@ internal class ItemHistoryToDtoConverterTest: FunSpec({
             10,
             "tx_hash.10",
             date,
-            date
+            date,
+            false,
         )
     }
 
@@ -52,7 +53,8 @@ internal class ItemHistoryToDtoConverterTest: FunSpec({
             10,
             "tx_hash.10",
             date,
-            date
+            date,
+            false
         )
     }
 

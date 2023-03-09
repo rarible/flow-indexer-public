@@ -26,5 +26,4 @@ data class FlowNetworkServiceAccount(
 data class CleanUpProperties(
     val enabled: Boolean = false,
     val batchSize: Int = 100,
-    val preservedCollections: List<String> = emptyList()
 )
