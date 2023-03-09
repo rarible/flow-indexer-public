@@ -239,8 +239,13 @@ class AppReadyListener(
                 if (scannerProperties.chainId == FlowChainId.MAINNET) {
                     val head = listOf(
                         Spork(
-                            from = 44950207,
+                            from = 47169687,
                             nodeUrl = "access.mainnet.nodes.onflow.org"
+                        ),
+                        Spork(
+                            from = 44950207,
+                            to = 47169686,
+                            nodeUrl = "access-001.mainnet21.nodes.onflow.org",
                         ),
                         Spork(
                             from = 40171634,
