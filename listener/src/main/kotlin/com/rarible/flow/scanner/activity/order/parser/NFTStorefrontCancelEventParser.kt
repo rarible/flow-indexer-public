@@ -8,10 +8,10 @@ import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
 import org.springframework.stereotype.Component
 
 @Component
-class NFTStorefrontCancelEventParser(
+class NftStorefrontCancelEventParser(
     currencyService: CurrencyService,
     supportedNftCollectionProvider: SupportedNftCollectionProvider
-) : AbstractNFTStorefrontEventParser<FlowNftOrderActivityCancelList>(currencyService, supportedNftCollectionProvider) {
+) : AbstractNftStorefrontEventParser<FlowNftOrderActivityCancelList>(currencyService, supportedNftCollectionProvider) {
 
     override fun isSupported(logEvent: FlowLogEvent): Boolean {
         return logEvent.type == FlowLogType.LISTING_COMPLETED &&

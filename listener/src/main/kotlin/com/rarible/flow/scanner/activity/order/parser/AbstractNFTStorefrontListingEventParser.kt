@@ -1,5 +1,6 @@
 package com.rarible.flow.scanner.activity.order.parser
 
+import com.rarible.flow.core.domain.EstimatedFee
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.FlowLogEvent
@@ -10,10 +11,10 @@ import com.rarible.flow.scanner.service.CurrencyService
 import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
 import java.math.BigDecimal
 
-abstract class AbstractNFTStorefrontListingEventParser(
+abstract class AbstractNftStorefrontListingEventParser(
     currencyService: CurrencyService,
     supportedNftCollectionProvider: SupportedNftCollectionProvider
-) : AbstractNFTStorefrontEventParser<FlowNftOrderActivityList>(currencyService, supportedNftCollectionProvider) {
+) : AbstractNftStorefrontEventParser<FlowNftOrderActivityList>(currencyService, supportedNftCollectionProvider) {
 
     override fun isSupported(logEvent: FlowLogEvent): Boolean {
         return logEvent.type == FlowLogType.LISTING_AVAILABLE && super.isSupported(logEvent)
@@ -24,7 +25,6 @@ abstract class AbstractNFTStorefrontListingEventParser(
         val event = logEvent.event
 
         val price = getSellPrice(event)
-        val orderId = getOrderId(event)
         val contract = getCurrencyContract(event)
 
         val rate = usdRate(contract, log.timestamp) ?: BigDecimal.ZERO
@@ -51,9 +51,12 @@ abstract class AbstractNFTStorefrontListingEventParser(
             take = FlowAssetFungible(
                 contract = contract,
                 value = price
-            )
+            ),
+            estimatedFee = getEstimatedFee(event)
         )
     }
+
+    protected abstract fun getEstimatedFee(event: EventMessage): EstimatedFee?
 
     protected abstract suspend fun getSellPrice(event: EventMessage): BigDecimal
 

@@ -70,6 +70,7 @@ internal class OrderServiceTest: FunSpec({
             maker = "0x01",
             make = FlowAssetNFT("RaribleNFT", BigDecimal.ONE, 13),
             take = FlowAssetFungible("Flow", BigDecimal("13.37")),
+            estimatedFee = null,
         )
 
         service.openList(activity, null) should { order ->

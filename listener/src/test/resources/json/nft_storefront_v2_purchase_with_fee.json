@@ -1,0 +1,146 @@
+{
+  "value": {
+    "id": "A.80102bce1de42dc4.NFTStorefrontV2.ListingCompleted",
+    "fields": [
+      {
+        "value": {
+          "value": "138846986",
+          "type": "UInt64"
+        },
+        "name": "listingResourceID"
+      },
+      {
+        "value": {
+          "value": "133400631",
+          "type": "UInt64"
+        },
+        "name": "storefrontResourceID"
+      },
+      {
+        "value": {
+          "value": true,
+          "type": "Bool"
+        },
+        "name": "purchased"
+      },
+      {
+        "value": {
+          "value": {
+            "staticType": {
+              "type": "",
+              "kind": "Resource",
+              "typeID": "A.80102bce1de42dc4.HWGarageCard.NFT",
+              "fields": [
+                {
+                  "type": {
+                    "kind": "UInt64"
+                  },
+                  "id": "uuid"
+                },
+                {
+                  "type": {
+                    "kind": "UInt64"
+                  },
+                  "id": "id"
+                },
+                {
+                  "type": {
+                    "kind": "UInt64"
+                  },
+                  "id": "packID"
+                }
+              ],
+              "initializers": []
+            }
+          },
+          "type": "Type"
+        },
+        "name": "nftType"
+      },
+      {
+        "value": {
+          "value": "137666105",
+          "type": "UInt64"
+        },
+        "name": "nftUUID"
+      },
+      {
+        "value": {
+          "value": "145",
+          "type": "UInt64"
+        },
+        "name": "nftID"
+      },
+      {
+        "value": {
+          "value": {
+            "staticType": {
+              "type": "",
+              "kind": "Resource",
+              "typeID": "A.7e60df042a9c0868.FlowToken.Vault",
+              "fields": [
+                {
+                  "type": {
+                    "kind": "UInt64"
+                  },
+                  "id": "uuid"
+                },
+                {
+                  "type": {
+                    "kind": "UFix64"
+                  },
+                  "id": "balance"
+                }
+              ],
+              "initializers": []
+            }
+          },
+          "type": "Type"
+        },
+        "name": "salePaymentVaultType"
+      },
+      {
+        "value": {
+          "value": "10.50000000",
+          "type": "UFix64"
+        },
+        "name": "salePrice"
+      },
+      {
+        "value": {
+          "value": {
+            "value": "RARIBLE",
+            "type": "String"
+          },
+          "type": "Optional"
+        },
+        "name": "customID"
+      },
+      {
+        "value": {
+          "value": "0.50000000",
+          "type": "UFix64"
+        },
+        "name": "commissionAmount"
+      },
+      {
+        "value": {
+          "value": {
+            "value": "0x4895ce5fb8a40f47",
+            "type": "Address"
+          },
+          "type": "Optional"
+        },
+        "name": "commissionReceiver"
+      },
+      {
+        "value": {
+          "value": "11680404779",
+          "type": "UInt64"
+        },
+        "name": "expiry"
+      }
+    ]
+  },
+  "type": "Event"
+}

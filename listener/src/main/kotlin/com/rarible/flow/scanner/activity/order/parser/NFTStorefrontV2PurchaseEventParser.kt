@@ -3,6 +3,7 @@ package com.rarible.flow.scanner.activity.order.parser
 import com.nftco.flow.sdk.FlowEvent
 import com.nftco.flow.sdk.FlowId
 import com.nftco.flow.sdk.FlowTransactionResult
+import com.rarible.flow.core.domain.EstimatedFee
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.FlowLogEvent
@@ -19,11 +20,11 @@ import org.springframework.stereotype.Component
 import java.math.BigDecimal
 
 @Component
-class NFTStorefrontV2PurchaseEventParser(
+class NftStorefrontV2PurchaseEventParser(
     currencyService: CurrencyService,
     supportedNftCollectionProvider: SupportedNftCollectionProvider,
     private val txManager: TxManager,
-) : AbstractNFTStorefrontPurchaseEventParser(currencyService, supportedNftCollectionProvider) {
+) : AbstractNftStorefrontPurchaseEventParser(currencyService, supportedNftCollectionProvider) {
 
     override suspend fun parseActivity(logEvent: FlowLogEvent): FlowNftOrderActivitySell? {
         val listing = delegate.safeParseActivity(logEvent)
@@ -64,9 +65,13 @@ class NFTStorefrontV2PurchaseEventParser(
         )
     }
 
-    private val delegate = object : NFTStorefrontV2ListingEventParser(currencyService, supportedNftCollectionProvider) {
+    private val delegate = object : NftStorefrontV2ListingEventParser(currencyService, supportedNftCollectionProvider) {
         override fun getMaker(event: EventMessage): String {
             return ""
+        }
+
+        override fun getEstimatedFee(event: EventMessage): EstimatedFee? {
+            return null
         }
 
         override suspend fun safeParseActivity(logEvent: FlowLogEvent): FlowNftOrderActivityList {

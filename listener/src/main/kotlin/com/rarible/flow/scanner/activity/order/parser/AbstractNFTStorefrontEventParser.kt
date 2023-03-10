@@ -6,7 +6,7 @@ import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
-import com.rarible.flow.scanner.activity.order.NFTStorefrontEventParser
+import com.rarible.flow.scanner.activity.order.NftStorefrontEventParser
 import com.rarible.flow.scanner.service.CurrencyService
 import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
 import org.slf4j.Logger
@@ -14,10 +14,10 @@ import org.slf4j.LoggerFactory
 import java.math.BigDecimal
 import java.time.Instant
 
-abstract class AbstractNFTStorefrontEventParser<T: BaseActivity>(
+abstract class AbstractNftStorefrontEventParser<T: BaseActivity>(
     private val currencyService: CurrencyService,
     supportedNftCollectionProvider: SupportedNftCollectionProvider
-) : NFTStorefrontEventParser<T> {
+) : NftStorefrontEventParser<T> {
 
     protected val logger: Logger = LoggerFactory.getLogger(javaClass)
 

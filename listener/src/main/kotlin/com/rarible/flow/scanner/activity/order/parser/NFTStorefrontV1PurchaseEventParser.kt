@@ -22,12 +22,12 @@ import org.springframework.stereotype.Component
 import java.math.BigDecimal
 
 @Component
-class NFTStorefrontV1PurchaseEventParser(
+class NftStorefrontV1PurchaseEventParser(
     private val txManager: TxManager,
     currencyService: CurrencyService,
     supportedCollectionService: SupportedNftCollectionProvider,
     properties: FlowListenerProperties
-) : AbstractNFTStorefrontPurchaseEventParser(currencyService, supportedCollectionService) {
+) : AbstractNftStorefrontPurchaseEventParser(currencyService, supportedCollectionService) {
 
     private val chainId = properties.chainId
     private val nftCollectionEvents = supportedCollectionService.getEvents(properties.chainId)

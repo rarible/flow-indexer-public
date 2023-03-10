@@ -2,6 +2,7 @@ package com.rarible.flow.scanner.activity.order.parser
 
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowId
+import com.rarible.flow.core.domain.EstimatedFee
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowNftOrderActivityList
 import com.rarible.flow.core.event.EventId
@@ -14,12 +15,12 @@ import org.springframework.stereotype.Component
 import java.math.BigDecimal
 
 @Component
-class NFTStorefrontV1ListingEventParser(
+class NftStorefrontV1ListingEventParser(
     currencyService: CurrencyService,
     supportedNftCollectionProvider: SupportedNftCollectionProvider,
     properties: FlowListenerProperties,
     private val txManager: TxManager,
-): AbstractNFTStorefrontListingEventParser(currencyService, supportedNftCollectionProvider) {
+): AbstractNftStorefrontListingEventParser(currencyService, supportedNftCollectionProvider) {
 
     private val chainId = properties.chainId
 
@@ -32,6 +33,10 @@ class NFTStorefrontV1ListingEventParser(
         val listActivity = super.parseActivity(logEvent)
         val price = checkRaribleEventPrice(logEvent)
         return if (price != null) listActivity.copy(price = price) else listActivity
+    }
+
+    override fun getEstimatedFee(event: EventMessage): EstimatedFee? {
+        return null
     }
 
     override suspend fun getSellPrice(event: EventMessage): BigDecimal {

@@ -5,15 +5,15 @@ import com.rarible.core.apm.withSpan
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.domain.FlowLogEvent
-import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontCancelEventParser
-import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontV1ListingEventParser
-import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontV1PurchaseEventParser
-import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontV2ListingEventParser
-import com.rarible.flow.scanner.activity.order.parser.NFTStorefrontV2PurchaseEventParser
+import com.rarible.flow.scanner.activity.order.parser.NftStorefrontCancelEventParser
+import com.rarible.flow.scanner.activity.order.parser.NftStorefrontV1ListingEventParser
+import com.rarible.flow.scanner.activity.order.parser.NftStorefrontV1PurchaseEventParser
+import com.rarible.flow.scanner.activity.order.parser.NftStorefrontV2ListingEventParser
+import com.rarible.flow.scanner.activity.order.parser.NftStorefrontV2PurchaseEventParser
 import org.springframework.stereotype.Component
 
-abstract class NFTStorefrontActivityMaker(
-    private val parsers: List<NFTStorefrontEventParser<*>>,
+abstract class NftStorefrontActivityMaker(
+    private val parsers: List<NftStorefrontEventParser<*>>,
     override val contractName: String
 ) : WithPaymentsActivityMaker() {
 
@@ -30,23 +30,22 @@ abstract class NFTStorefrontActivityMaker(
 }
 
 @Component
-class NFTStorefrontV1ActivityMaker(
-    listParser: NFTStorefrontV1ListingEventParser,
-    purchaseParser: NFTStorefrontV1PurchaseEventParser,
-    cancelParser: NFTStorefrontCancelEventParser,
-) : NFTStorefrontActivityMaker(
+class NftStorefrontV1ActivityMaker(
+    listParser: NftStorefrontV1ListingEventParser,
+    purchaseParser: NftStorefrontV1PurchaseEventParser,
+    cancelParser: NftStorefrontCancelEventParser,
+) : NftStorefrontActivityMaker(
     contractName = Contracts.NFT_STOREFRONT.contractName,
     parsers = listOf(cancelParser, listParser, purchaseParser)
 )
 
 @Component
-class NFTStorefrontV2ActivityMaker(
-    listParser: NFTStorefrontV2ListingEventParser,
-    purchaseParser: NFTStorefrontV2PurchaseEventParser,
-    cancelParser: NFTStorefrontCancelEventParser,
-) : NFTStorefrontActivityMaker(
+class NftStorefrontV2ActivityMaker(
+    listParser: NftStorefrontV2ListingEventParser,
+    purchaseParser: NftStorefrontV2PurchaseEventParser,
+    cancelParser: NftStorefrontCancelEventParser,
+) : NftStorefrontActivityMaker(
     contractName = Contracts.NFT_STOREFRONT_V2.contractName,
     parsers = listOf(cancelParser, listParser, purchaseParser)
 )
-
 

@@ -12,7 +12,7 @@ class NFTStorefrontCancelEventParserTest : BaseNFTStorefrontEventParserTest() {
     private val provider = mockk<SupportedNftCollectionProvider> {
         every { get() } returns setOf("A.e81193c424cfd3fb.Wearables")
     }
-    private val parser = NFTStorefrontCancelEventParser(currencyService, provider)
+    private val parser = NftStorefrontCancelEventParser(currencyService, provider)
 
     @Test
     fun `parse - ok`() = runBlocking<Unit> {

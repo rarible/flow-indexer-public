@@ -16,7 +16,7 @@ class NFTStorefrontV2ListingEventParserTest : BaseNFTStorefrontEventParserTest()
     private val provider = mockk<SupportedNftCollectionProvider> {
         every { get() } returns setOf("A.eee6bdee2b2bdfc8.Basketballs")
     }
-    private val parser = NFTStorefrontV2ListingEventParser(currencyService, provider)
+    private val parser = NftStorefrontV2ListingEventParser(currencyService, provider)
 
     @Test
     fun `parse - ok`() = runBlocking<Unit> {
@@ -50,5 +50,22 @@ class NFTStorefrontV2ListingEventParserTest : BaseNFTStorefrontEventParserTest()
         assertThat(listing.tokenId).isEqualTo(expectedNftAsset.tokenId)
         assertThat(listing.timestamp).isEqualTo(flowLogEvent.log.timestamp)
         assertThat(listing.priceUsd).isEqualTo(BigDecimal("1.000000000"))
+        assertThat(listing.estimatedFee).isNull()
+    }
+
+    @Test
+    fun `parse - ok, with estimated fee`() = runBlocking<Unit> {
+        val flowLogEvent = getFlowLogEvent(
+            json = "/json/nft_storefront_v2_listing_with_fee.json",
+            type = FlowLogType.LISTING_AVAILABLE)
+
+        coEvery { currencyService.getUsdRate(any(), any()) } returns BigDecimal("0.1")
+
+        val activities = parser.parseActivities(listOf(flowLogEvent))
+        assertThat(activities).hasSize(1)
+
+        val listing = activities.entries.single().value
+        assertThat(listing.estimatedFee?.receivers).containsExactlyInAnyOrder("0x8b3a1957d16153ed", "0x4895ce5fb8a40f47")
+        assertThat(listing.estimatedFee?.amount).isEqualTo(BigDecimal("0.50000000"))
     }
 }

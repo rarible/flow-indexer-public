@@ -20,7 +20,7 @@ class NFTStorefrontPurchaseV2EventParserTest : BaseNFTStorefrontEventParserTest(
     private val provider = mockk<SupportedNftCollectionProvider> {
         every { get() } returns setOf("A.eee6bdee2b2bdfc8.Basketballs")
     }
-    private val parser = NFTStorefrontV2PurchaseEventParser(
+    private val parser = NftStorefrontV2PurchaseEventParser(
         txManager = txManager,
         currencyService = currencyService,
         supportedNftCollectionProvider = provider

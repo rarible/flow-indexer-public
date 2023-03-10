@@ -54,7 +54,9 @@ data class Order(
     @Field(targetType = FieldType.DECIMAL128)
     val takePriceUsd: BigDecimal? = BigDecimal.ZERO,
 
-    val platform: FlowOrderPlatformDto? = null
+    val platform: FlowOrderPlatformDto? = null,
+    val start: Long? = null,
+    val end: Long? = null,
 ) {
 
     @Indexed

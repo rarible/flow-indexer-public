@@ -4,7 +4,7 @@ import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.domain.FlowLogEvent
 
-interface NFTStorefrontEventParser<T: BaseActivity> {
+interface NftStorefrontEventParser<T: BaseActivity> {
 
     fun isSupported(logEvent: FlowLogEvent): Boolean
 
