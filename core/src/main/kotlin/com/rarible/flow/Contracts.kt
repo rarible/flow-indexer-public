@@ -22,6 +22,9 @@ enum class Contracts : Contract {
 
         override val import: String
             get() = "0xHWGARAGECARD"
+
+        override val symbol: String
+            get() = "HWGC"
     },
 
     HW_GARAGE_PACK {
@@ -38,6 +41,9 @@ enum class Contracts : Contract {
 
         override val import: String
             get() = "0xHWGARAGEPACK"
+
+        override val symbol: String
+            get() = "HWGP"
     },
 
     HW_GARAGE_PM {
@@ -73,6 +79,15 @@ enum class Contracts : Contract {
 
         override val import: String
             get() = "0xRARIBLENFT"
+
+        override val collectionName: String
+            get() = "Rarible"
+
+        override val symbol: String
+            get() = "RARIBLE"
+
+        override val features: Set<String>
+            get() = setOf("SECONDARY_SALE_FEES", "BURN")
     },
 
     RARIBLE_GARAGE_CARD {
@@ -88,6 +103,9 @@ enum class Contracts : Contract {
 
         override val import: String
             get() = "0xHWGARAGECARD"
+
+        override val symbol: String
+            get() = "HWGC"
     },
 
     RARIBLE_GARAGE_PACK {
@@ -103,6 +121,9 @@ enum class Contracts : Contract {
 
         override val import: String
             get() = "0xHWGARAGEPACK"
+
+        override val symbol: String
+            get() = "HWGP"
     },
 
     RARIBLE_GARAGE_PM {
@@ -162,8 +183,10 @@ enum class Contracts : Contract {
     ONE_FOOTBALL {
         override val import: String
             get() = "0xONEFOOTBALL"
+
         override val contractName: String
             get() = "OneFootballCollectible"
+
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
                 FlowChainId.MAINNET to FlowAddress("0x6831760534292098"),
@@ -184,13 +207,21 @@ enum class Contracts : Contract {
 
         override val enabled: Boolean
             get() = false
+
+        override val collectionName: String
+            get() = "OneFootball"
+
+        override val features: Set<String>
+            get() = setOf("BURN")
     },
 
     STARLY_CARD {
         override val contractName: String
             get() = "StarlyCard"
+
         override val import: String
             get() = "0xSTARLY"
+
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
                 FlowChainId.MAINNET to FlowAddress("0x5b82f21c0edf76e3"),
@@ -205,13 +236,21 @@ enum class Contracts : Contract {
 
         override val enabled: Boolean
             get() = false
+
+        override val collectionName: String
+            get() = "Starly"
+
+        override val features: Set<String>
+            get() = setOf("BURN")
     },
 
     MATRIX_WORLD_VOUCHER {
         override val contractName: String
             get() = "MatrixWorldVoucher"
+
         override val import: String
             get() = "0xMATRIXWORLDVOUCHER"
+
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
                 FlowChainId.MAINNET to FlowAddress("0x0d77ec47bbad8ef6"),
@@ -227,17 +266,25 @@ enum class Contracts : Contract {
 
         override val enabled: Boolean
             get() = false
+
+        override val collectionName: String
+            get() = "Matrix World Voucher"
+
+        override val symbol: String
+            get() = "MXWRLDV"
     },
 
     MATRIX_WORLD_FLOW_FEST {
         override val contractName: String
             get() = "MatrixWorldFlowFestNFT"
+
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
                 FlowChainId.MAINNET to FlowAddress("0x2d2750f240198f91"),
                 FlowChainId.TESTNET to FlowAddress("0xe2f1b000e0203c1d"),
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7")
             )
+
         override val import: String
             get() = "0xMATRIXWORLDFLOWFEST"
 
@@ -249,17 +296,25 @@ enum class Contracts : Contract {
 
         override val enabled: Boolean
             get() = false
+
+        override val collectionName: String
+            get() = "Matrix World Flow Fest"
+
+        override val symbol: String
+            get() = "MXWRLDFFEST"
     },
 
     JAMBB_MOMENTS {
         override val contractName: String
             get() = "Moments"
+
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
                 FlowChainId.MAINNET to FlowAddress("0xd4ad4740ee426334"),
                 FlowChainId.TESTNET to FlowAddress("0xe94a6e229293f196"),
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7")
             )
+
         override val import: String
             get() = "0xJAMBBMOMENTS"
 
@@ -271,6 +326,12 @@ enum class Contracts : Contract {
 
         override val enabled: Boolean
             get() = false
+
+        override val collectionName: String
+            get() = "Jambb"
+
+        override val features: Set<String>
+            get() = setOf("BURN")
     },
 
     CNN {
@@ -293,27 +354,46 @@ enum class Contracts : Contract {
 
         override val enabled: Boolean
             get() = false
+
+        override val collectionName: String
+            get() = "CNN"
+
+        override val features: Set<String>
+            get() = setOf("BURN")
     },
 
     VERSUS_ART {
         override val contractName = "Art"
+
         override val deployments = mapOf(
             FlowChainId.MAINNET to FlowAddress("0xd796ff17107bbff6"),
             FlowChainId.TESTNET to FlowAddress("0x99ca04281098b33d"),
             FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7")
         )
+
         override val import = "0xART"
+
+        override val enabled: Boolean
+            get() = false
+
+        override val collectionName: String
+            get() = "VersusArt"
+
+        override val symbol: String
+            get() = "VERSUS"
     },
 
     EVOLUTION {
         override val contractName: String
             get() = "Evolution"
+
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
                 FlowChainId.MAINNET to FlowAddress("0xf4264ac8f3256818"),
                 FlowChainId.TESTNET to FlowAddress("0x01658d9b94068f3c"),
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7")
             )
+
         override val import: String
             get() = "0xEVOLUTIONTOKEN"
 
@@ -322,6 +402,9 @@ enum class Contracts : Contract {
                 Part(FlowAddress("0x77b78d7d3f0d1787"), TEN_PERCENT) // 10%
             ) else super.staticRoyalties(chain)
         }
+
+        override val features: Set<String>
+            get() = setOf("BURN")
 
         override val enabled: Boolean
             get() = false
@@ -345,6 +428,15 @@ enum class Contracts : Contract {
             ) else super.staticRoyalties(chain)
         }
 
+        override val symbol: String
+            get() = "MotoGP™"
+
+        override val collectionName: String
+            get() = "MotoGP™ Ignition"
+
+        override val features: Set<String>
+            get() = setOf("BURN")
+
         override val enabled: Boolean
             get() = false
     },
@@ -352,12 +444,14 @@ enum class Contracts : Contract {
     FANFARE {
         override val contractName: String
             get() = "FanfareNFTContract"
+
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
                 FlowChainId.MAINNET to FlowAddress("0x4c44f3b1e4e70b20"),
                 FlowChainId.TESTNET to FlowAddress("0xd7a4dcfb23d327da"),
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7")
             )
+
         override val import = "0x${contractName.uppercase()}"
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
@@ -368,6 +462,9 @@ enum class Contracts : Contract {
 
         override val enabled: Boolean
             get() = false
+
+        override val collectionName: String
+            get() = "Fanfare"
     },
 
     CHAINMONSTERS {
@@ -392,6 +489,9 @@ enum class Contracts : Contract {
 
         override val enabled: Boolean
             get() = false
+
+        override val collectionName: String
+            get() = "Chainmonsters"
     },
 
     BARTER_YARD_PACK {
@@ -412,6 +512,15 @@ enum class Contracts : Contract {
 
         override val enabled: Boolean
             get() = false
+
+        override val collectionName: String
+            get() = "Barter Yard Club - Mint Pass"
+
+        override val symbol: String
+            get() = "BYC-MP"
+
+        override val features: Set<String>
+            get() = setOf("BURN")
     },
 
     KICKS {
@@ -436,17 +545,22 @@ enum class Contracts : Contract {
 
         override val enabled: Boolean
             get() = false
+
+        override val features: Set<String>
+            get() = setOf("BURN")
     },
 
     DISRUPT_ART {
         override val contractName: String
             get() = "DisruptArt"
+
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
                 FlowChainId.MAINNET to FlowAddress("0xcd946ef9b13804c6"),
                 FlowChainId.TESTNET to FlowAddress("0x439c2b49c0b2f62b"),
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
             )
+
         override val import: String
             get() = "0xDISRUPTART"
 
@@ -460,6 +574,9 @@ enum class Contracts : Contract {
 
         override val enabled: Boolean
             get() = false
+
+        override val symbol: String
+            get() = "DISRUPT ART"
     },
 
     TOPSHOT {
@@ -484,6 +601,15 @@ enum class Contracts : Contract {
                 )
             } else super.staticRoyalties(chain)
         }
+
+        override val symbol: String
+            get() = "NBA TS"
+
+        override val collectionName: String
+            get() = "NBA Top Shot"
+
+        override val features: Set<String>
+            get() = setOf("BURN")
 
         override val enabled: Boolean
             get() = false
@@ -530,22 +656,34 @@ enum class Contracts : Contract {
                 FlowChainId.TESTNET to FlowAddress("0xebf4ae01d1284af8"),
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
             )
+
         override val import: String
             get() = "0xRARIBLENFTV2"
 
         override val enabled: Boolean
             get() = false
+
+        override val collectionName: String
+            get() = "RaribleV2"
+
+        override val symbol: String
+            get() = "RARIBLE_V2"
+
+        override val features: Set<String>
+            get() = setOf("SECONDARY_SALE_FEES", "BURN")
     },
 
     SOME_PLACE_COLLECTIBLE {
         override val contractName: String
             get() = "SomePlaceCollectible"
+
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
                 FlowChainId.MAINNET to FlowAddress("0x667a16294a089ef8"),
                 FlowChainId.TESTNET to FlowAddress("0x0c153e28da9f988a"),
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
             )
+
         override val import: String
             get() = "0x${contractName.uppercase()}"
 
@@ -556,15 +694,26 @@ enum class Contracts : Contract {
 
         override val enabled: Boolean
             get() = false
+
+        override val collectionName: String
+            get() = "The Potion"
+
+        override val symbol: String
+            get() = "POTION"
+
+        override val features: Set<String>
+            get() = setOf("BURN")
     },
 
     GENIACE {
         override val contractName = "GeniaceNFT"
+
         override val deployments = mapOf(
             FlowChainId.MAINNET to FlowAddress("0xabda6627c70c7f52"),
             FlowChainId.TESTNET to FlowAddress("0x99eb28310626e56a"),
             FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
         )
+
         override val import = "0x${contractName.uppercase()}"
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
@@ -576,6 +725,12 @@ enum class Contracts : Contract {
 
         override val enabled: Boolean
             get() = false
+
+        override val collectionName: String
+            get() = "Geniace"
+
+        override val symbol: String
+            get() = "GEN"
     },
 
     CRYPTOPIGGO {
@@ -587,6 +742,7 @@ enum class Contracts : Contract {
                 FlowChainId.TESTNET to FlowAddress("0x57e1b27618c5bb69"),
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
             )
+
         override val import: String
             get() = "0x${contractName.uppercase()}"
 
@@ -599,6 +755,29 @@ enum class Contracts : Contract {
 
         override val enabled: Boolean
             get() = false
+
+        override val symbol: String
+            get() = "CPIG"
+    },
+
+    MUGEN {
+        override val contractName: String
+            get() = "MugenNFT"
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                FlowChainId.MAINNET to FlowAddress("0x2cd46d41da4ce262"),
+                FlowChainId.TESTNET to FlowAddress("0xebf4ae01d1284af8"),
+                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
+            )
+
+        override val import: String
+            get() = "0x${contractName.uppercase()}"
+
+        override val enabled: Boolean
+            get() = false
+
+        override val collectionName: String
+            get() = "Mugen"
     }
 }
 

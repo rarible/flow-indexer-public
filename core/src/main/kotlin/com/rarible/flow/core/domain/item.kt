@@ -68,6 +68,7 @@ data class ItemCollection(
     val description: String? = null,
     val burned: Boolean = false,
     val icon: String? = null,
-    val url: String? = null
+    val url: String? = null,
+    val enabled: Boolean = true
 )
 
