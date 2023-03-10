@@ -19,8 +19,13 @@ object FlowLogEventIndexes {
         .named("flow_log_event_type")
         .background()
 
-    private val ALL_INDEXES = listOf(
-        BY_DB_UPDATE_AT
-    )
+    private val BY_TRANSACTION_HASH_AND_EVENT_INDEX: Index = Index()
+        .on("${FlowLogEvent::log.name}.${FlowLog::transactionHash.name}", Sort.Direction.ASC)
+        .on("${FlowLogEvent::log.name}.${FlowLog::eventIndex.name}", Sort.Direction.ASC)
+        .background()
 
+    private val ALL_INDEXES = listOf(
+        BY_DB_UPDATE_AT,
+        BY_TRANSACTION_HASH_AND_EVENT_INDEX,
+    )
 }
