@@ -23,7 +23,7 @@ object KafkaLogRecordEventConsumerFactory {
             logRecordType = listener.eventType,
             logRecordMapper = listener.eventMapper,
             logRecordFilters = emptyList(),
-            workerCount = workers.getOrDefault(listener.name, 1)
+            workerCount = workers.getOrDefault(listener.name, 9)
         )
     }
 }
