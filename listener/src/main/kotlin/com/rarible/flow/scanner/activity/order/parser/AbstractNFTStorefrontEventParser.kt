@@ -78,7 +78,7 @@ abstract class AbstractNftStorefrontEventParser<T: BaseActivity>(
         return cadenceParser.long(event.fields["nftID"]!!)
     }
 
-    protected suspend fun usdRate(contract: String, timestamp: Instant): BigDecimal? {
+    internal suspend fun usdRate(contract: String, timestamp: Instant): BigDecimal? {
         return currencyService.getUsdRate(contract, timestamp)
     }
 }

@@ -60,6 +60,6 @@ abstract class AbstractNftStorefrontListingEventParser(
 
     protected abstract suspend fun getSellPrice(event: EventMessage): BigDecimal
 
-    protected abstract fun getCurrencyContract(event: EventMessage): String
+    internal abstract fun getCurrencyContract(event: EventMessage): String
 }
 

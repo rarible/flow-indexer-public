@@ -4,6 +4,7 @@ import com.nftco.flow.sdk.FlowId
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.FlowLogType
+import com.rarible.flow.core.domain.PaymentType
 import com.rarible.flow.core.test.randomFlowTransactionResult
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
@@ -69,5 +70,36 @@ class NFTStorefrontPurchaseV2EventParserTest : BaseNFTStorefrontEventParserTest(
         Assertions.assertThat(purchase.tokenId).isEqualTo(expectedNftAsset.tokenId)
         Assertions.assertThat(purchase.timestamp).isEqualTo(purchaseLogEvent.log.timestamp)
         Assertions.assertThat(purchase.priceUsd).isEqualTo(BigDecimal("1.000000000"))
+        Assertions.assertThat(purchase.payments).isEmpty()
+    }
+
+    @Test
+    fun `parse - ok,with fee`() = runBlocking<Unit> {
+        val purchaseLogEvent = getFlowLogEvent(
+            json = "/json/nft_storefront_v2_purchase_with_fee.json",
+            type = FlowLogType.LISTING_COMPLETED
+        )
+
+        val depositLogEvent = getFlowEvent("/json/nft_deposit.json")
+        val withdrawLogEvent = getFlowEvent("/json/nft_withdraw.json")
+        val expectedRate = BigDecimal("0.1")
+
+        coEvery { txManager.getTransactionEvents(
+            blockHeight = any(),
+            transactionId = any()
+        ) } returns randomFlowTransactionResult(events = listOf(withdrawLogEvent, depositLogEvent))
+
+        coEvery {
+            currencyService.getUsdRate("A.7e60df042a9c0868.FlowToken", purchaseLogEvent.log.timestamp)
+        } returns BigDecimal("0.1")
+
+        val activities = parser.parseActivities(listOf(purchaseLogEvent))
+        Assertions.assertThat(activities).hasSize(1)
+
+        val purchase = activities.entries.single().value
+        Assertions.assertThat(purchase.payments.single().address).isEqualTo("0x4895ce5fb8a40f47")
+        Assertions.assertThat(purchase.payments.single().amount).isEqualTo(BigDecimal("0.50000000"))
+        Assertions.assertThat(purchase.payments.single().type).isEqualTo(PaymentType.SELLER_FEE)
+        Assertions.assertThat(purchase.payments.single().rate).isEqualTo(expectedRate)
     }
 }

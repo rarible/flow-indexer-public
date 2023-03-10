@@ -31,7 +31,7 @@ class NftStorefrontV2ListingEventParser(
         return EventId.of(cadenceParser.type(event.fields["salePaymentVaultType"]!!)).collection()
     }
 
-    private fun getCommissionAmount(event: EventMessage): BigDecimal {
+    internal fun getCommissionAmount(event: EventMessage): BigDecimal {
         return cadenceParser.bigDecimal(event.fields["commissionAmount"]!!)
     }
 }

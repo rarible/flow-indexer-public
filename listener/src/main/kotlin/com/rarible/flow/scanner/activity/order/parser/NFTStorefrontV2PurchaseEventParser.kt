@@ -9,7 +9,9 @@ import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowNftOrderActivityList
 import com.rarible.flow.core.domain.FlowNftOrderActivitySell
+import com.rarible.flow.core.domain.FlowNftOrderPayment
 import com.rarible.flow.core.domain.OrderActivityMatchSide
+import com.rarible.flow.core.domain.PaymentType
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.TxManager
@@ -39,6 +41,7 @@ class NftStorefrontV2PurchaseEventParser(
         val seller = transfer.from
         val buyer = transfer.to
 
+
         return FlowNftOrderActivitySell(
             price = listing.price,
             priceUsd = listing.priceUsd,
@@ -61,7 +64,7 @@ class NftStorefrontV2PurchaseEventParser(
                 )
             ),
             timestamp = logEvent.log.timestamp,
-            payments = emptyList()
+            payments = getFees(logEvent)
         )
     }
 
@@ -77,6 +80,27 @@ class NftStorefrontV2PurchaseEventParser(
         override suspend fun safeParseActivity(logEvent: FlowLogEvent): FlowNftOrderActivityList {
             return super.safeParseActivity(logEvent) ?: error("Unexpected null")
         }
+    }
+
+    private suspend fun getFees(logEvent: FlowLogEvent): List<FlowNftOrderPayment> {
+        val event = logEvent.event
+        val timestamp = logEvent.log.timestamp
+
+        val receiver = cadenceParser.optional(event.fields["commissionReceiver"]!!) {
+            address(it)
+        }
+        val amount = delegate.getCommissionAmount(event)
+        return if (receiver != null) {
+            val rate = usdRate(delegate.getCurrencyContract(event), timestamp) ?: BigDecimal.ZERO
+            listOf(
+                FlowNftOrderPayment(
+                    type = PaymentType.SELLER_FEE,
+                    address = receiver,
+                    rate = rate,
+                    amount = amount,
+                )
+            )
+        } else emptyList()
     }
 
     internal data class NftTransfer(
