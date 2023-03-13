@@ -2,6 +2,7 @@ package com.rarible.flow.core.domain
 
 
 import com.nftco.flow.sdk.FlowAddress
+import com.rarible.core.common.nowMillis
 import com.rarible.protocol.dto.FlowOrderPlatformDto
 import org.springframework.data.annotation.Version
 import org.springframework.data.mongodb.core.index.Indexed
@@ -12,6 +13,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 /**
  * Description of an order
@@ -70,6 +72,33 @@ data class Order(
 
     fun reactivateBid(): Order {
         return this.copy(status = OrderStatus.ACTIVE, makeStock = this.make.value)
+    }
+
+    fun withUpdatedStatus(updateTime: Instant = nowMillis()): Order {
+        return copy(
+            status = actualStatus(),
+            lastUpdatedAt = LocalDateTime.ofInstant(updateTime, ZoneOffset.UTC)
+        )
+    }
+
+    private fun actualStatus(): OrderStatus {
+        return when {
+            status == OrderStatus.ACTIVE && !isAlive() -> OrderStatus.INACTIVE
+            status == OrderStatus.INACTIVE && isAlive() -> OrderStatus.ACTIVE
+            else -> status
+        }
+    }
+
+    private fun isAlive() = isStarted(start) && !isEnded(end)
+
+    private fun isEnded(end: Long?): Boolean {
+        val now = Instant.now().epochSecond
+        return end?.let { it in 1 until now } ?: false
+    }
+
+    private fun isStarted(start: Long?): Boolean {
+        val now = Instant.now().epochSecond
+        return start?.let { it <= now } ?: true
     }
 
     companion object {

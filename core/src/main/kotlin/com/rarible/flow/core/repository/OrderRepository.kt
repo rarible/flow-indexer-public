@@ -7,14 +7,25 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.filters.ScrollingSort
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.find
+import org.springframework.data.mongodb.core.query
+import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.UpdateDefinition
+import org.springframework.data.mongodb.core.query.exists
+import org.springframework.data.mongodb.core.query.gt
+import org.springframework.data.mongodb.core.query.gte
+import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.core.query.lt
+import org.springframework.data.mongodb.core.query.lte
 import org.springframework.data.mongodb.core.update
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
+import java.time.Instant
 import java.time.LocalDateTime
 
 interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepositoryCustom {
@@ -48,6 +59,8 @@ interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepository
 interface OrderRepositoryCustom: ScrollingRepository<Order> {
 
     suspend fun update(filter: OrderFilter, updateDefinition: UpdateDefinition): UpdateResult
+    fun findExpiredOrders(now: Instant): Flow<Order>
+    fun findNotStartedOrders(now: Instant): Flow<Order>
 }
 
 @Suppress("unused")
@@ -67,5 +80,43 @@ class OrderRepositoryCustomImpl(val mongo: ReactiveMongoTemplate): OrderReposito
             .apply(updateDefinition)
             .all()
             .awaitSingle()
+    }
+
+    override fun findExpiredOrders(now: Instant): Flow<Order> {
+        val query = org.springframework.data.mongodb.core.query.Query(
+            Criteria().andOperator(
+                Order::status isEqualTo OrderStatus.ACTIVE,
+                Order::end exists true,
+                Order::end gt 0,
+                Order::end lt now.epochSecond
+            )
+        )
+        return mongo.query<Order>().matching(query).all().asFlow()
+    }
+
+    override fun findNotStartedOrders(now: Instant): Flow<Order> {
+        val query = org.springframework.data.mongodb.core.query.Query(
+            Criteria().andOperator(
+                Order::status isEqualTo OrderStatus.INACTIVE,
+                Criteria().orOperator(
+                    Criteria().orOperator(
+                        Order::end exists false,
+                        Order::end isEqualTo 0,
+                    ),
+                    Criteria().andOperator(
+                        Order::end exists true,
+                        Order::end gte now.epochSecond
+                    )
+                ),
+                Criteria().orOperator(
+                    Order::start exists false,
+                    Criteria().andOperator(
+                        Order::start exists true,
+                        Order::start lte now.epochSecond
+                    )
+                )
+            )
+        )
+        return mongo.query<Order>().matching(query).all().asFlow()
     }
 }
