@@ -61,8 +61,9 @@ abstract class BaseFlowLogEventSubscriber : FlowLogEventSubscriber {
                     event = com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, log.event.event),
                     type = eventType(log),
                 ).let {
-                    val recordKey = recordKeyProvider.getRecordKey(it)
-                    it.copy(recordKey = recordKey)
+//                    val recordKey = recordKeyProvider.getRecordKey(it)
+//                    it.copy(recordKey = recordKey)
+                    it
                 }
             )
         } else emptyList()

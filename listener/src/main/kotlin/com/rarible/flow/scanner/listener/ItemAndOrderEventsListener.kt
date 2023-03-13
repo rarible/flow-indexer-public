@@ -10,7 +10,6 @@ import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coSaveAll
-import com.rarible.flow.scanner.activity.ActivityMaker
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.model.Listeners
 import com.rarible.flow.scanner.model.SubscriberGroups
@@ -37,53 +36,49 @@ class ItemAndOrderEventsListener(
 ) {
     override suspend fun onLogRecordEvents(events: List<LogRecordEvent>) {
         val history: MutableList<ItemHistory> = mutableListOf()
-        try {
-            events
-                .map { event -> event.record }
-                .filterIsInstance<FlowLogEvent>()
-                .groupBy { Pair(it.log.transactionHash, it.event.eventId.collection()) }
-                .forEach { entry ->
-                    nftActivityMakers.find { it.isSupportedCollection(entry.key.second) }?.let { maker ->
-                        val activities = maker.activities(entry.value).map { entry ->
-                            ItemHistory(
-                                log = entry.key,
-                                activity = entry.value,
-                                date = entry.value.timestamp
-                            )
-                        }
-
-                        logger.info("{} produced {} activities", maker::class, activities.size)
-                        history.addAll(activities)
-                    }
-                }
-
-            if (history.isNotEmpty()) {
-                val saved = itemHistoryRepository.coSaveAll(history)
-                val ids = saved.filter { it.activity is NFTActivity }.map {
-                    val a = it.activity as NFTActivity
-                    ItemId(a.contract, a.tokenId)
-                }.toSet()
-                val items = itemRepository.findAllByIdIn(ids).asFlow().toSet()
-
-                saved.sortedBy { it.date }.groupBy { it.log.transactionHash }.forEach { tx ->
-                    tx.value.sortedBy { it.log.eventIndex }.forEach { h ->
-                        logger.info("Send activity [${h.id}] to kafka!")
-                        protocolEventPublisher.activity(h)
-
-                        indexerEventService.processEvent(
-                            IndexerEvent(
-                                history = h,
-                                item = if (h.activity is NFTActivity) {
-                                    val a = h.activity as NFTActivity
-                                    items.find { it.contract == a.contract && it.tokenId == a.tokenId }
-                                } else null)
+        events
+            .map { event -> event.record }
+            .filterIsInstance<FlowLogEvent>()
+            .groupBy { Pair(it.log.transactionHash, it.event.eventId.collection()) }
+            .forEach { entry ->
+                nftActivityMakers.find { it.isSupportedCollection(entry.key.second) }?.let { maker ->
+                    val activities = maker.activities(entry.value).map { entry ->
+                        ItemHistory(
+                            log = entry.key,
+                            activity = entry.value,
+                            date = entry.value.timestamp
                         )
                     }
+
+                    logger.info("{} produced {} activities", maker::class, activities.size)
+                    history.addAll(activities)
                 }
             }
-        } catch (e: Exception) {
-            logger.error(e.message, e)
-            throw Throwable(e)
+
+        if (history.isNotEmpty()) {
+            val saved = itemHistoryRepository.coSaveAll(history)
+            val ids = saved.filter { it.activity is NFTActivity }.map {
+                val a = it.activity as NFTActivity
+                ItemId(a.contract, a.tokenId)
+            }.toSet()
+            val items = itemRepository.findAllByIdIn(ids).asFlow().toSet()
+
+            saved.sortedBy { it.date }.groupBy { it.log.transactionHash }.forEach { tx ->
+                tx.value.sortedBy { it.log.eventIndex }.forEach { h ->
+                    logger.info("Send activity [${h.id}] to kafka!")
+                    protocolEventPublisher.activity(h)
+
+                    indexerEventService.processEvent(
+                        IndexerEvent(
+                            history = h,
+                            item = if (h.activity is NFTActivity) {
+                                val a = h.activity as NFTActivity
+                                items.find { it.contract == a.contract && it.tokenId == a.tokenId }
+                            } else null
+                        )
+                    )
+                }
+            }
         }
     }
 
