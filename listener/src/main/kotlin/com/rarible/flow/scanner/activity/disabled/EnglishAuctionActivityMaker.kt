@@ -18,6 +18,9 @@ import java.time.Instant
 class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
 
     override val contractName: String = "EnglishAuction"
+    override fun getItemId(event: FlowLogEvent): ItemId? {
+        return null
+    }
 
     override suspend fun activities(events: List<FlowLogEvent>): Map<FlowLog, BaseActivity> {
         try {

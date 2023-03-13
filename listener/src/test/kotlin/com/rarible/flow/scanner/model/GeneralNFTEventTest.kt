@@ -30,7 +30,7 @@ class GeneralNFTEventTest : BaseJsonEventTest() {
         val event = getEventMessage("/json/nft_mint.json")
         val logEvent = randomFlowLogEvent().copy(event = event)
         val mint = GeneralMintEvent(logEvent)
-        assertThat(mint.tokenId).isEqualTo(19)
+        assertThat(mint.tokenId).isEqualTo(2)
     }
 
     @Test
@@ -38,6 +38,6 @@ class GeneralNFTEventTest : BaseJsonEventTest() {
         val event = getEventMessage("/json/nft_burn.json")
         val logEvent = randomFlowLogEvent().copy(event = event)
         val burn = GeneralBurnEvent(logEvent)
-        assertThat(burn.tokenId).isEqualTo(19)
+        assertThat(burn.tokenId).isEqualTo(2)
     }
 }

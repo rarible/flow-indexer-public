@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 
 class NFTStorefrontCancelEventParserTest : BaseNFTStorefrontEventParserTest() {
     private val provider = mockk<SupportedNftCollectionProvider> {
-        every { get() } returns setOf("A.e81193c424cfd3fb.Wearables")
+        every { get() } returns setOf("A.80102bce1de42dc4.HWGaragePack")
     }
     private val parser = NftStorefrontCancelEventParser(currencyService, provider)
 

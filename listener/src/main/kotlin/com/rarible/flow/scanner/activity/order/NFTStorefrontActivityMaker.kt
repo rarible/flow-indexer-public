@@ -5,6 +5,7 @@ import com.rarible.core.apm.withSpan
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.scanner.activity.order.parser.NftStorefrontCancelEventParser
 import com.rarible.flow.scanner.activity.order.parser.NftStorefrontV1ListingEventParser
 import com.rarible.flow.scanner.activity.order.parser.NftStorefrontV1PurchaseEventParser
@@ -26,6 +27,14 @@ abstract class NftStorefrontActivityMaker(
                     acc
                 }
         }
+    }
+
+    override fun getItemId(event: FlowLogEvent): ItemId? {
+        val iterator = parsers.iterator()
+        while (iterator.hasNext()) {
+            return iterator.next().getItemId(event) ?: continue
+        }
+        return null
     }
 }
 

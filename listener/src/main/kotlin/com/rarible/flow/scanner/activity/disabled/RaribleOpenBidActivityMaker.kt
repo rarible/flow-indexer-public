@@ -13,6 +13,7 @@ import com.rarible.flow.core.domain.FlowNftOrderActivityBid
 import com.rarible.flow.core.domain.FlowNftOrderActivityCancelBid
 import com.rarible.flow.core.domain.FlowNftOrderActivitySell
 import com.rarible.flow.core.domain.FlowNftOrderPayment
+import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.OrderActivityMatchSide
 import com.rarible.flow.core.domain.PaymentType
 import com.rarible.flow.core.event.EventId
@@ -25,6 +26,9 @@ class RaribleOpenBidActivityMaker(
 ) : WithPaymentsActivityMaker() {
 
     override val contractName: String = "RaribleOpenBid"
+    override fun getItemId(event: FlowLogEvent): ItemId? {
+        return null
+    }
 
     override suspend fun activities(events: List<FlowLogEvent>): Map<FlowLog, BaseActivity> {
         val result: MutableMap<FlowLog, BaseActivity> = mutableMapOf()
@@ -147,7 +151,4 @@ class RaribleOpenBidActivityMaker(
         }
         return result.toMap()
     }
-
-
-
 }

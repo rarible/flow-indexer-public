@@ -29,7 +29,7 @@
             "staticType": {
               "type": "",
               "kind": "Resource",
-              "typeID": "A.e81193c424cfd3fb.Wearables.NFT",
+              "typeID": "A.80102bce1de42dc4.HWGaragePack.NFT",
               "fields": [
                 {
                   "type": {
@@ -373,7 +373,7 @@
       },
       {
         "value": {
-          "value": "884032011",
+          "value": "2",
           "type": "UInt64"
         },
         "name": "nftID"

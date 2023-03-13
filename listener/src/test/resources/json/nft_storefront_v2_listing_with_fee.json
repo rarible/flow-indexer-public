@@ -22,7 +22,7 @@
             "staticType": {
               "type": "",
               "kind": "Resource",
-              "typeID": "A.eee6bdee2b2bdfc8.Basketballs.NFT",
+              "typeID": "A.80102bce1de42dc4.HWGaragePack.NFT",
               "fields": [
                 {
                   "type": {
@@ -59,7 +59,7 @@
       },
       {
         "value": {
-          "value": "145",
+          "value": "2",
           "type": "UInt64"
         },
         "name": "nftID"

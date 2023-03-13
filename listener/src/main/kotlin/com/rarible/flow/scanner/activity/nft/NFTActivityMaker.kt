@@ -7,9 +7,11 @@ import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.domain.BurnActivity
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
+import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TransferActivity
+import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.core.util.findAfterEventIndex
 import com.rarible.flow.core.util.findBeforeEventIndex
 import com.rarible.flow.scanner.TxManager
@@ -48,6 +50,10 @@ abstract class NFTActivityMaker(
 
     open fun tokenId(logEvent: FlowLogEvent): Long {
         return mint(logEvent).tokenId
+    }
+
+    override fun getItemId(event: FlowLogEvent): ItemId {
+        return ItemId(itemCollection(event), tokenId(event))
     }
 
     override suspend fun activities(events: List<FlowLogEvent>): Map<FlowLog, BaseActivity> {
@@ -199,7 +205,7 @@ abstract class NFTActivityMaker(
         return logEvent.event.eventId.contractAddress.formatted
     }
 
-    protected open suspend fun itemCollection(mintEvent: FlowLogEvent): String {
+    protected open fun itemCollection(mintEvent: FlowLogEvent): String {
         return mintEvent.event.eventId.collection()
     }
 }

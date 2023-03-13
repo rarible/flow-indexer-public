@@ -14,8 +14,6 @@ sealed class HWActivityMaker(
     properties: FlowListenerProperties,
 ) : NFTActivityMaker(flowLogRepository, txManager, properties) {
 
-    override fun tokenId(logEvent: FlowLogEvent): Long = cadenceParser.long(logEvent.event.fields["id"]!!)
-
     override fun meta(logEvent: FlowLogEvent): Map<String, String> = emptyMap()
 
     override fun royalties(logEvent: FlowLogEvent): List<Part> {

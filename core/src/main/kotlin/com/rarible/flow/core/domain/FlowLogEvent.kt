@@ -16,9 +16,12 @@ data class FlowLogEvent(
     val event: EventMessage,
     @Indexed
     val type: FlowLogType,
+    val recordKey: String? = null
 ) : FlowLogRecord() {
 
-    override fun getKey(): String = event.eventId.contractAddress.toString()
+    override fun getKey(): String {
+        return recordKey ?: event.eventId.contractAddress.toString()
+    }
 
     companion object {
 

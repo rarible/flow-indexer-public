@@ -38,7 +38,7 @@ class NFTStorefrontPurchaseV2EventParserTest : BaseNFTStorefrontEventParserTest(
         val withdrawLogEvent = getFlowEvent("/json/nft_withdraw.json")
 
         val expectedNftAsset = FlowAssetNFT(
-            contract = "A.eee6bdee2b2bdfc8.Basketballs",
+            contract = "A.80102bce1de42dc4.HWGaragePack",
             value = BigDecimal.ONE,
             tokenId = 2,
         )

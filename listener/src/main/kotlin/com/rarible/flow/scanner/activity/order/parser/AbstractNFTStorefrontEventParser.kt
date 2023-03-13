@@ -4,6 +4,7 @@ import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.activity.order.NftStorefrontEventParser
@@ -32,6 +33,12 @@ abstract class AbstractNftStorefrontEventParser<T: BaseActivity>(
 
     override fun isSupported(logEvent: FlowLogEvent): Boolean {
         return getNftCollection(logEvent.event) in supportedNftCollections
+    }
+
+    override fun getItemId(event: FlowLogEvent): ItemId {
+        val tokeId = getTokenId(event.event)
+        val collection = getNftCollection(event.event)
+        return ItemId(collection, tokeId)
     }
 
     internal open suspend fun safeParseActivity(logEvent: FlowLogEvent): T? {

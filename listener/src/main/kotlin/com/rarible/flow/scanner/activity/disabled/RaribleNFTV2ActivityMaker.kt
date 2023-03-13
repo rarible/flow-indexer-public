@@ -40,7 +40,7 @@ class RaribleNFTV2ActivityMaker(
         }
     }
 
-    override suspend fun itemCollection(mintEvent: FlowLogEvent): String {
+    override fun itemCollection(mintEvent: FlowLogEvent): String {
         val parentId = cadenceParser.long(mintEvent.event.fields["parentId"]!!)
         return "${ItemId(Contracts.SOFT_COLLECTION.fqn(chainId), parentId)}"
     }

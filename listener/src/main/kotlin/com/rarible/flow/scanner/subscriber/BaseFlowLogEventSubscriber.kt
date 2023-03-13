@@ -13,6 +13,7 @@ import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.core.repository.FlowLogEventRepository
 import com.rarible.flow.core.util.Log
+import com.rarible.flow.scanner.service.RecordKeyProvider
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,6 +31,9 @@ abstract class BaseFlowLogEventSubscriber : FlowLogEventSubscriber {
 
     @Autowired
     private lateinit var flogEventRepository: FlowLogEventRepository
+
+    @Autowired
+    private lateinit var recordKeyProvider: RecordKeyProvider
 
     abstract val descriptors: Map<FlowChainId, FlowDescriptor>
 
@@ -56,7 +60,10 @@ abstract class BaseFlowLogEventSubscriber : FlowLogEventSubscriber {
                     ),
                     event = com.nftco.flow.sdk.Flow.unmarshall(EventMessage::class, log.event.event),
                     type = eventType(log),
-                )
+                ).let {
+                    val recordKey = recordKeyProvider.getRecordKey(it)
+                    it.copy(recordKey = recordKey)
+                }
             )
         } else emptyList()
     }
