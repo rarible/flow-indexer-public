@@ -81,7 +81,7 @@ internal class OwnershipRepositoryTest {
             .sortedBy { it.id.toString() }
 
         assertThat(result).hasSize(3)
-        assertThat(result).containsAll(all)
+        assertThat(result.map { it.copy(version = null) }).containsAll(all)
     }
 
     private fun createOwnership(contract: FlowAddress = randomAddress(), owner: FlowAddress = randomAddress()) =

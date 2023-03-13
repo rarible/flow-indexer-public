@@ -3,6 +3,7 @@ package com.rarible.flow.core.domain
 import com.nftco.flow.sdk.FlowAddress
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
+import org.springframework.data.annotation.Version
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
@@ -23,7 +24,9 @@ data class Item (
     val meta: String? = null,
     val collection: String,
     @Field(targetType = FieldType.DATE_TIME)
-    val updatedAt: Instant
+    val updatedAt: Instant,
+    @Version
+    val version: Long? = null
 ) {
 
     @get:Id

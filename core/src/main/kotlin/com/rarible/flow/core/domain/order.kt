@@ -3,6 +3,7 @@ package com.rarible.flow.core.domain
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.protocol.dto.FlowOrderPlatformDto
+import org.springframework.data.annotation.Version
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
@@ -57,8 +58,9 @@ data class Order(
     val platform: FlowOrderPlatformDto? = null,
     val start: Long? = null,
     val end: Long? = null,
+    @Version
+    val version: Long? = null
 ) {
-
     @Indexed
     var dbUpdatedAt: Instant = Instant.now()
 

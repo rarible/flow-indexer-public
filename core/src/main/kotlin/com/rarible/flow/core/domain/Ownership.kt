@@ -3,6 +3,7 @@ package com.rarible.flow.core.domain
 import com.nftco.flow.sdk.FlowAddress
 import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.Id
+import org.springframework.data.annotation.Version
 import org.springframework.data.mongodb.core.mapping.Document
 import java.io.Serializable
 import java.time.Clock
@@ -14,7 +15,9 @@ data class Ownership(
     val tokenId: TokenId,
     val owner: FlowAddress,
     val creator: FlowAddress,
-    val date: Instant = Instant.now(Clock.systemUTC())
+    val date: Instant = Instant.now(Clock.systemUTC()),
+    @Version
+    val version: Long? = null
 ) : Serializable {
 
     constructor(
