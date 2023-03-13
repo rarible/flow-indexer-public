@@ -14,8 +14,7 @@ import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.model.Listeners
 import com.rarible.flow.scanner.model.SubscriberGroups
 import com.rarible.flow.scanner.service.IndexerEventService
-import kotlinx.coroutines.flow.toSet
-import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -35,7 +34,6 @@ class ItemAndOrderEventsListener(
     environmentInfo = environmentInfo
 ) {
     override suspend fun onLogRecordEvents(events: List<LogRecordEvent>) {
-        logger.info("[PT-2431] Got events: {}", events.joinToString { (it.record as FlowLogEvent).id })
         val history: MutableList<ItemHistory> = mutableListOf()
         events
             .map { event -> event.record }
@@ -58,24 +56,20 @@ class ItemAndOrderEventsListener(
 
         if (history.isNotEmpty()) {
             val saved = itemHistoryRepository.coSaveAll(history)
-            val ids = saved.filter { it.activity is NFTActivity }.map {
-                val a = it.activity as NFTActivity
-                ItemId(a.contract, a.tokenId)
-            }.toSet()
-            val items = itemRepository.findAllByIdIn(ids).asFlow().toSet()
 
             saved.sortedBy { it.date }.groupBy { it.log.transactionHash }.forEach { tx ->
                 tx.value.sortedBy { it.log.eventIndex }.forEach { h ->
                     logger.info("Send activity [${h.id}] to kafka!")
                     protocolEventPublisher.activity(h)
 
+                    val item = (h.activity as? NFTActivity)
+                        ?.let { ItemId(it.contract, it.tokenId) }
+                        ?.let { itemRepository.findById(it).awaitFirstOrNull() }
+
                     indexerEventService.processEvent(
                         IndexerEvent(
                             history = h,
-                            item = if (h.activity is NFTActivity) {
-                                val a = h.activity as NFTActivity
-                                items.find { it.contract == a.contract && it.tokenId == a.tokenId }
-                            } else null
+                            item = item
                         )
                     )
                 }
