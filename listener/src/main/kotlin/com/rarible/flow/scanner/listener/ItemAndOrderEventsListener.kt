@@ -35,6 +35,7 @@ class ItemAndOrderEventsListener(
     environmentInfo = environmentInfo
 ) {
     override suspend fun onLogRecordEvents(events: List<LogRecordEvent>) {
+        logger.info("[PT-2431] Got events: {}", events.joinToString { (it.record as FlowLogEvent).id })
         val history: MutableList<ItemHistory> = mutableListOf()
         events
             .map { event -> event.record }
