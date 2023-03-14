@@ -71,6 +71,7 @@ internal class OrderServiceTest: FunSpec({
             make = FlowAssetNFT("RaribleNFT", BigDecimal.ONE, 13),
             take = FlowAssetFungible("Flow", BigDecimal("13.37")),
             estimatedFee = null,
+            expiry = null
         )
 
         service.openList(activity, null) should { order ->

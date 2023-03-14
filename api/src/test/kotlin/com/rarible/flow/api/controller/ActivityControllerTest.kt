@@ -319,6 +319,7 @@ class ActivityControllerTest {
                     maker = user,
                     hash = "79268631",
                     estimatedFee = null,
+                    expiry = null
                 ),
                 FlowLog(
                     transactionHash = "052dd413b2fb22fb078f03b3d5cb93238376f801513a8996b45e848e92700535",
@@ -491,6 +492,7 @@ class ActivityControllerTest {
                     maker = acc1,
                     hash = "79268631",
                     estimatedFee = null,
+                    expiry = null
                 ),
                 FlowLog(
                     transactionHash = "052dd413b2fb22fb078f03b3d5cb93238376f801513a8996b45e848e92700535",
@@ -551,6 +553,7 @@ class ActivityControllerTest {
                     maker = acc1,
                     hash = "79268934",
                     estimatedFee = null,
+                    expiry = null
                 ),
                 FlowLog(
                     transactionHash = "c0b46d62cbf5086647d49269fdac82689205a708644b9a785e9ae00c2d08e1f6",
@@ -591,6 +594,7 @@ class ActivityControllerTest {
                     maker = acc1,
                     hash = orderId1,
                     estimatedFee = null,
+                    expiry = null
                 ),
                 FlowLog(
                     transactionHash = "426b02599cd10f9e7afb92ac02bafceda2e631a38d982326c60444f968b8bbb0",
@@ -631,6 +635,7 @@ class ActivityControllerTest {
                     maker = acc1,
                     hash = orderId2,
                     estimatedFee = null,
+                    expiry = null
                 ),
                 FlowLog(
                     transactionHash = txId,

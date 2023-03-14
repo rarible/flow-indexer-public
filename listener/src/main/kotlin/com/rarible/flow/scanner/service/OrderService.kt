@@ -59,9 +59,9 @@ class OrderService(
 
     suspend fun openList(activity: FlowNftOrderActivityList, item: Item?): Order {
         return withSpan("openList", "db") {
-            val status =
-                if (item == null || item.owner?.formatted != activity.maker) OrderStatus.INACTIVE else OrderStatus.ACTIVE
-
+            val status = if (item == null || item.owner?.formatted != activity.maker) OrderStatus.INACTIVE else OrderStatus.ACTIVE
+            val start = activity.expiry?.let { activity.timestamp.epochSecond }
+            val end = activity.expiry?.epochSecond
             val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
                 itemId = ItemId(activity.make.contract, activity.tokenId),
                 maker = FlowAddress(activity.maker),
@@ -73,7 +73,9 @@ class OrderService(
                 makeStock = activity.make.value,
                 lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
                 type = OrderType.LIST,
-                takePriceUsd = activity.priceUsd
+                takePriceUsd = activity.priceUsd,
+                start = start,
+                end = end
             ) ?: Order(
                 id = activity.hash.toLong(),
                 status = status,
@@ -87,9 +89,10 @@ class OrderService(
                 makeStock = activity.make.value,
                 lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
                 type = OrderType.LIST,
-                takePriceUsd = activity.priceUsd
+                takePriceUsd = activity.priceUsd,
+                start = start,
+                end = end
             )
-
             return@withSpan orderRepository.coSave(order)
         }
     }

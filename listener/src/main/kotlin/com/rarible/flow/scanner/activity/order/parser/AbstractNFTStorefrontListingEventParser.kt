@@ -10,6 +10,7 @@ import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.service.CurrencyService
 import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
 import java.math.BigDecimal
+import java.time.Instant
 
 abstract class AbstractNftStorefrontListingEventParser(
     currencyService: CurrencyService,
@@ -52,11 +53,14 @@ abstract class AbstractNftStorefrontListingEventParser(
                 contract = contract,
                 value = price
             ),
-            estimatedFee = getEstimatedFee(event)
+            estimatedFee = getEstimatedFee(event),
+            expiry = getExpiry(event)
         )
     }
 
     protected abstract fun getEstimatedFee(event: EventMessage): EstimatedFee?
+
+    protected abstract fun getExpiry(event: EventMessage): Instant?
 
     protected abstract suspend fun getSellPrice(event: EventMessage): BigDecimal
 

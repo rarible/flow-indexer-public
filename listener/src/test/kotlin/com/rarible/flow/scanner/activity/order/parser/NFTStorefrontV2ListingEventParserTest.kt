@@ -51,6 +51,7 @@ class NFTStorefrontV2ListingEventParserTest : BaseNFTStorefrontEventParserTest()
         assertThat(listing.timestamp).isEqualTo(flowLogEvent.log.timestamp)
         assertThat(listing.priceUsd).isEqualTo(BigDecimal("1.000000000"))
         assertThat(listing.estimatedFee).isNull()
+        assertThat(listing.expiry?.toEpochMilli()).isEqualTo(1733817600000)
     }
 
     @Test

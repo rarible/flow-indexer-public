@@ -13,6 +13,7 @@ import com.rarible.flow.scanner.service.CurrencyService
 import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
+import java.time.Instant
 
 @Component
 class NftStorefrontV1ListingEventParser(
@@ -45,6 +46,10 @@ class NftStorefrontV1ListingEventParser(
 
     override fun getCurrencyContract(event: EventMessage): String {
         return EventId.of(cadenceParser.type(event.fields["ftVaultType"]!!)).collection()
+    }
+
+    override fun getExpiry(event: EventMessage): Instant? {
+        return null
     }
 
     private suspend fun checkRaribleEventPrice(event: FlowLogEvent): BigDecimal? {

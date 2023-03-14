@@ -65,7 +65,8 @@ data class FlowNftOrderActivityList(
     val maker: String,
     val make: FlowAsset,
     val take: FlowAsset,
-    val estimatedFee: EstimatedFee?
+    val estimatedFee: EstimatedFee?,
+    val expiry: Instant?,
 ) : FlowNftOrderActivity()
 
 data class FlowNftOrderActivityCancelList(
