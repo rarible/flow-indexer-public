@@ -81,6 +81,8 @@ data class Order(
         )
     }
 
+    fun isEnded() = isEnded(end)
+
     private fun actualStatus(): OrderStatus {
         return when {
             status == OrderStatus.ACTIVE && !isAlive() -> OrderStatus.CANCELLED

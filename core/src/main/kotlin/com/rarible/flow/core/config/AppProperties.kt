@@ -13,7 +13,8 @@ data class AppProperties(
     val kafkaReplicaSet: String,
     val chainId: FlowChainId,
     val webApiUrl: String,
-    val featureFlags: FeatureFlagsProperties = FeatureFlagsProperties()
+    val featureFlags: FeatureFlagsProperties = FeatureFlagsProperties(),
+    val metricRootPath: String = "protocol.flow.indexer"
 )
 
 data class FeatureFlagsProperties(

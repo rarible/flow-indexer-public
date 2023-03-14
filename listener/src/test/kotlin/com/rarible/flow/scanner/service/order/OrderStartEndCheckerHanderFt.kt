@@ -1,6 +1,6 @@
 package com.rarible.flow.scanner.service.order
 
-import com.ninjasquad.springmockk.MockkBean
+import com.rarible.core.telemetry.metrics.RegisteredCounter
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderStatus
@@ -11,6 +11,7 @@ import com.rarible.flow.scanner.BaseIntegrationTest
 import com.rarible.flow.scanner.IntegrationTest
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.mockk
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -28,12 +29,15 @@ internal class OrderStartEndCheckerHanderFt : BaseIntegrationTest() {
     @Autowired
     lateinit var orderConverter: OrderToDtoConverter
 
-    @MockkBean
-    lateinit var protocolEventPublisher: ProtocolEventPublisher
+    val protocolEventPublisher: ProtocolEventPublisher = mockk()
+    val orderStartedMetric: RegisteredCounter = mockk()
+    val orderExpiredMetric: RegisteredCounter = mockk()
 
     @BeforeEach
     fun setUp() {
         coEvery { protocolEventPublisher.onOrderUpdate(any(), any(), any()) } returns Unit
+        coEvery { orderStartedMetric.increment() } returns Unit
+        coEvery { orderExpiredMetric.increment() } returns Unit
     }
 
     @Test
@@ -41,7 +45,9 @@ internal class OrderStartEndCheckerHanderFt : BaseIntegrationTest() {
         val handler = OrderStartEndCheckerHandler(
             orderRepository = orderRepository,
             orderConverter = orderConverter,
-            protocolEventPublisher = protocolEventPublisher
+            protocolEventPublisher = protocolEventPublisher,
+            orderStartedMetric = orderStartedMetric,
+            orderExpiredMetric = orderExpiredMetric,
         )
 
         val expiredOrder = orderRepository.save(
@@ -57,6 +63,8 @@ internal class OrderStartEndCheckerHanderFt : BaseIntegrationTest() {
         checkStatus(normalOrder, OrderStatus.ACTIVE)
 
         coVerify(exactly = 2) { protocolEventPublisher.onOrderUpdate(any(), any(), any()) }
+        coVerify(exactly = 1) { orderStartedMetric.increment() }
+        coVerify(exactly = 1) { orderExpiredMetric.increment() }
     }
 
     private suspend fun checkStatus(order: Order, status: OrderStatus) {
