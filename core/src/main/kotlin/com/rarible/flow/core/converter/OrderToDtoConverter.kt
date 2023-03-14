@@ -62,7 +62,9 @@ class OrderToDtoConverter(
                 collection = source.collection,
                 makeStock = source.makeStock ?: BigDecimal.ZERO,
                 status = convert(source.status),
-                platform = source.platform
+                platform = source.platform,
+                start = source.start?.let { Instant.ofEpochSecond(it) },
+                end = source.end?.let { Instant.ofEpochSecond(it) }
             )
         } catch (e: Exception) {
             logger.error(e.message, e)
