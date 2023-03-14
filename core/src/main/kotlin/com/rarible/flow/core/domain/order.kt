@@ -83,7 +83,7 @@ data class Order(
 
     private fun actualStatus(): OrderStatus {
         return when {
-            status == OrderStatus.ACTIVE && !isAlive() -> OrderStatus.INACTIVE
+            status == OrderStatus.ACTIVE && !isAlive() -> OrderStatus.CANCELLED
             status == OrderStatus.INACTIVE && isAlive() -> OrderStatus.ACTIVE
             else -> status
         }

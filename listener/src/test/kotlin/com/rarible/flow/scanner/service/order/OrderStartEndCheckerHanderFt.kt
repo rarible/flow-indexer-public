@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.job
+package com.rarible.flow.scanner.service.order
 
 import com.ninjasquad.springmockk.MockkBean
 import com.rarible.flow.core.converter.OrderToDtoConverter
@@ -9,8 +9,6 @@ import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.test.Data.createOrder
 import com.rarible.flow.scanner.BaseIntegrationTest
 import com.rarible.flow.scanner.IntegrationTest
-import com.rarible.flow.scanner.config.StartEndWorkerProperties
-import io.micrometer.core.instrument.MeterRegistry
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlinx.coroutines.reactor.awaitSingle
@@ -22,13 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant.now
 
 @IntegrationTest
-internal class OrderStartEndWorkerFt : BaseIntegrationTest() {
+internal class OrderStartEndCheckerHanderFt : BaseIntegrationTest() {
 
     @Autowired
     lateinit var orderRepository: OrderRepository
-
-    @Autowired
-    lateinit var meterRegistry: MeterRegistry
 
     @Autowired
     lateinit var orderConverter: OrderToDtoConverter
@@ -43,12 +38,10 @@ internal class OrderStartEndWorkerFt : BaseIntegrationTest() {
 
     @Test
     fun `should have correct statuses`() = runBlocking<Unit> {
-        val job = OrderStartEndWorker(
+        val handler = OrderStartEndCheckerHandler(
             orderRepository = orderRepository,
             orderConverter = orderConverter,
-            protocolEventPublisher = protocolEventPublisher,
-            properties = StartEndWorkerProperties(),
-            meterRegistry = meterRegistry
+            protocolEventPublisher = protocolEventPublisher
         )
 
         val expiredOrder = orderRepository.save(
@@ -57,9 +50,9 @@ internal class OrderStartEndWorkerFt : BaseIntegrationTest() {
             createOrder().copy(status = OrderStatus.INACTIVE, start = now().minusSeconds(100L).epochSecond)).awaitSingle()
         val normalOrder = orderRepository.save(createOrder().copy(status = OrderStatus.ACTIVE)).awaitSingle()
 
-        job.update(now())
+        handler.handle()
 
-        checkStatus(expiredOrder, OrderStatus.INACTIVE)
+        checkStatus(expiredOrder, OrderStatus.CANCELLED)
         checkStatus(notStartedOrder, OrderStatus.ACTIVE)
         checkStatus(normalOrder, OrderStatus.ACTIVE)
 

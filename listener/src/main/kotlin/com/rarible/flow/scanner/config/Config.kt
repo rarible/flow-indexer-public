@@ -7,12 +7,16 @@ import com.rarible.core.task.EnableRaribleTask
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.core.repository.TaskItemHistoryRepository
+import com.rarible.flow.scanner.job.OrderStartEndCheckerWorker
 import com.rarible.flow.scanner.service.balance.FlowBalanceService
+import com.rarible.flow.scanner.service.order.OrderStartEndCheckerHandler
 import com.rarible.protocol.currency.api.client.CurrencyApiClientFactory
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
+import io.micrometer.core.instrument.MeterRegistry
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -69,6 +73,20 @@ class Config(
             api,
             balanceRepository
         )
+    }
+
+    @Bean
+    @ExperimentalCoroutinesApi
+    @ConditionalOnProperty(
+        prefix = "flow-api",
+        name=["start-end-worker.enabled"],
+        havingValue="true"
+    )
+    fun startEndWorker(
+        handler: OrderStartEndCheckerHandler,
+        meterRegistry: MeterRegistry,
+    ): OrderStartEndCheckerWorker {
+        return OrderStartEndCheckerWorker(handler, flowListenerProperties.startEndWorker, meterRegistry).apply { start() }
     }
 
     @Bean

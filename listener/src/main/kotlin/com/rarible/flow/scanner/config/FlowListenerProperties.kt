@@ -35,3 +35,4 @@ data class StartEndWorkerProperties(
     val pollingPeriod: Duration = Duration.ofMinutes(1),
     val errorDelay: Duration = Duration.ofMinutes(2)
 )
+
