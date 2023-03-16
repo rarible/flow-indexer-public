@@ -85,6 +85,12 @@ object OrderIndexes {
         .partial(bidPartialIndexCriteria)
         .background()
 
+    private val STATUS_END_START: Index = Index()
+        .on(Order::status.name, Sort.Direction.ASC)
+        .on(Order::end.name, Sort.Direction.ASC)
+        .on(Order::start.name, Sort.Direction.ASC)
+        .background()
+
     private val ALL_INDEXES = listOf(
         BY_UPDATED_AT,
         BY_DB_UPDATE_AT,
@@ -97,6 +103,8 @@ object OrderIndexes {
 
         BID_BY_ITEM_PRICE,
         BID_BY_ITEM_STATUS_CURRENCY_PRICE,
+
+        STATUS_END_START
     )
 
 }
