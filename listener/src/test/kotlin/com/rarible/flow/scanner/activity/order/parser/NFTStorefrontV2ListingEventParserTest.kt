@@ -55,6 +55,21 @@ class NFTStorefrontV2ListingEventParserTest : BaseNFTStorefrontEventParserTest()
     }
 
     @Test
+    fun `parse - ok, with seconds in expiry`() = runBlocking<Unit> {
+        val flowLogEvent = getFlowLogEvent(
+            json = "/json/nft_storefront_v2_listing_with_second_expire.json",
+            type = FlowLogType.LISTING_AVAILABLE)
+
+        coEvery {
+            currencyService.getUsdRate(any(), any())
+        } returns BigDecimal("0.1")
+
+        val activities = parser.parseActivities(listOf(flowLogEvent))
+        val listing = activities.entries.single().value
+        assertThat(listing.expiry?.toEpochMilli()).isEqualTo(1733817600000)
+    }
+
+    @Test
     fun `parse - ok, with estimated fee`() = runBlocking<Unit> {
         val flowLogEvent = getFlowLogEvent(
             json = "/json/nft_storefront_v2_listing_with_fee.json",
