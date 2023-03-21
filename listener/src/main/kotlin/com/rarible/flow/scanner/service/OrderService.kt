@@ -490,7 +490,7 @@ class OrderService(
         return if (receivers.isEmpty() || amount == BigDecimal.ZERO) {
             return emptyList()
         } else {
-            val part = (amount * Payout.MULTIPLIER).divide(price).setScale(0, RoundingMode.UP)
+            val part = (amount * Payout.MULTIPLIER / price).setScale(0, RoundingMode.UP)
             val address = FlowAddress(receivers.first())
             listOf(Payout(address, part))
         }
