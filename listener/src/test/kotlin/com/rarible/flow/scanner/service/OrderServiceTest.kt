@@ -1,6 +1,8 @@
 package com.rarible.flow.scanner.service
 
+import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.converter.OrderToDtoConverter
+import com.rarible.flow.core.domain.EstimatedFee
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.FlowNftOrderActivityList
@@ -70,12 +72,13 @@ internal class OrderServiceTest: FunSpec({
             maker = "0x01",
             make = FlowAssetNFT("RaribleNFT", BigDecimal.ONE, 13),
             take = FlowAssetFungible("Flow", BigDecimal("13.37")),
-            estimatedFee = null,
+            estimatedFee = EstimatedFee(listOf("80102bce1de42dc4"), BigDecimal("0.5")),
             expiry = null
         )
-
         service.openList(activity, null) should { order ->
             order.itemId shouldBe ItemId("RaribleNFT", 13)
+            order.data?.originalFees?.single()?.account shouldBe FlowAddress("80102bce1de42dc4")
+            order.data?.originalFees?.single()?.value shouldBe BigDecimal("374")
         }
 
         verify {

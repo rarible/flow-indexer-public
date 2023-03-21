@@ -32,8 +32,11 @@ class NftStorefrontV2ListingEventParser(
         return EventId.of(cadenceParser.type(event.fields["salePaymentVaultType"]!!)).collection()
     }
 
-    override fun getExpiry(event: EventMessage): Instant? {
-        return Instant.ofEpochMilli(cadenceParser.long(event.fields["expiry"]!!))
+    override fun getExpiry(blockTimestamp: Instant, event: EventMessage): Instant? {
+        val expiry = cadenceParser.long(event.fields["expiry"]!!)
+        val seconds = Instant.ofEpochSecond(expiry)
+        val milli = Instant.ofEpochMilli(expiry)
+        return if (milli > blockTimestamp) milli else seconds
     }
 
     internal fun getCommissionAmount(event: EventMessage): BigDecimal {

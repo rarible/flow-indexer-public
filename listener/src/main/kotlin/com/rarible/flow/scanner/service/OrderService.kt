@@ -3,6 +3,7 @@ package com.rarible.flow.scanner.service
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.converter.OrderToDtoConverter
+import com.rarible.flow.core.domain.EstimatedFee
 import com.rarible.flow.core.domain.FlowAsset
 import com.rarible.flow.core.domain.FlowAssetEmpty
 import com.rarible.flow.core.domain.FlowAssetFungible
@@ -41,6 +42,7 @@ import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -62,6 +64,8 @@ class OrderService(
             val status = if (item == null || item.owner?.formatted != activity.maker) OrderStatus.INACTIVE else OrderStatus.ACTIVE
             val start = activity.expiry?.let { activity.timestamp.epochSecond }
             val end = activity.expiry?.epochSecond
+            val originalFee = convert(activity.price, activity.estimatedFee)
+            val data = OrderData.withOriginalFees(originalFee)
             val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
                 itemId = ItemId(activity.make.contract, activity.tokenId),
                 maker = FlowAddress(activity.maker),
@@ -74,6 +78,7 @@ class OrderService(
                 lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
                 type = OrderType.LIST,
                 takePriceUsd = activity.priceUsd,
+                data = data,
                 start = start,
                 end = end
             ) ?: Order(
@@ -90,6 +95,7 @@ class OrderService(
                 lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
                 type = OrderType.LIST,
                 takePriceUsd = activity.priceUsd,
+                data = data,
                 start = start,
                 end = end
             )
@@ -134,23 +140,16 @@ class OrderService(
         }
     }
 
-    //TODO tests
     suspend fun close(activity: FlowNftOrderActivitySell): Order {
         return withSpan("closeOrder", "db") {
+            val originalFee = convert(activity.price, activity.estimatedFee)
+            val data = OrderData.withOriginalFees(originalFee)
             val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
                 fill = BigDecimal.ONE,
                 makeStock = BigDecimal.ZERO,
                 taker = FlowAddress(activity.right.maker),
                 status = OrderStatus.FILLED,
-                data = OrderData(
-                    activity.payments.filter {
-                        it.type !in arrayOf(
-                            PaymentType.SELLER_FEE,
-                            PaymentType.BUYER_FEE
-                        )
-                    }.map { Payout(account = FlowAddress(it.address), value = it.amount) },
-                    activity.payments.filter { it.type in arrayOf(PaymentType.SELLER_FEE, PaymentType.BUYER_FEE) }
-                        .map { Payout(account = FlowAddress(it.address), value = it.amount) }),
+                data = data,
                 lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
                 platform = if (activity.payments.any { it.type == PaymentType.SELLER_FEE }) {
                     FlowOrderPlatformDto.RARIBLE
@@ -168,18 +167,7 @@ class OrderService(
                 collection = activity.contract,
                 make = activity.left.asset,
                 take = activity.right.asset,
-                data = OrderData(
-                    payouts = activity.payments.filter {
-                        it.type == PaymentType.REWARD
-                    }.map { Payout(account = FlowAddress(it.address), value = it.amount) },
-                    originalFees = activity.payments.filter {
-                        it.type in arrayOf(
-                            PaymentType.SELLER_FEE,
-                            PaymentType.BUYER_FEE
-                        )
-
-                    }
-                        .map { Payout(account = FlowAddress(it.address), value = it.amount) }),
+                data = data,
                 lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
                 type = OrderType.LIST,
                 takePriceUsd = activity.priceUsd,
@@ -187,7 +175,6 @@ class OrderService(
                     FlowOrderPlatformDto.RARIBLE
                 } else FlowOrderPlatformDto.OTHER
             )
-
             orderRepository.coSave(order)
         }
     }
@@ -496,4 +483,16 @@ class OrderService(
         } else Mono.empty()
     }
 
+    private fun convert(price: BigDecimal, estimatedFee: EstimatedFee?): List<Payout> {
+        if (estimatedFee == null) return emptyList()
+        val amount = estimatedFee.amount
+        val receivers = estimatedFee.receivers
+        return if (receivers.isEmpty() || amount == BigDecimal.ZERO) {
+            return emptyList()
+        } else {
+            val part = (amount * Payout.MULTIPLIER / price).setScale(0, RoundingMode.UP)
+            val address = FlowAddress(receivers.first())
+            listOf(Payout(address, part))
+        }
+    }
 }

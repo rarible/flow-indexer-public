@@ -48,7 +48,7 @@ class NftStorefrontV1ListingEventParser(
         return EventId.of(cadenceParser.type(event.fields["ftVaultType"]!!)).collection()
     }
 
-    override fun getExpiry(event: EventMessage): Instant? {
+    override fun getExpiry(blockTimestamp: Instant, event: EventMessage): Instant? {
         return null
     }
 

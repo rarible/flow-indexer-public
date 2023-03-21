@@ -124,11 +124,21 @@ enum class OrderStatus {
 data class OrderData(
     val payouts: List<Payout>,
     val originalFees: List<Payout>
-)
+) {
+    companion object {
+        fun withOriginalFees(value: List<Payout>): OrderData {
+            return OrderData(originalFees = value, payouts = emptyList()
+            )
+        }
+    }
+}
 
 data class Payout(
     val account: FlowAddress,
-
     @Field(targetType = FieldType.DECIMAL128)
     val value: BigDecimal
-)
+) {
+    companion object {
+        val MULTIPLIER: BigDecimal = BigDecimal("10000")
+    }
+}

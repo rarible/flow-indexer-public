@@ -97,9 +97,7 @@ class NFTStorefrontPurchaseV2EventParserTest : BaseNFTStorefrontEventParserTest(
         Assertions.assertThat(activities).hasSize(1)
 
         val purchase = activities.entries.single().value
-        Assertions.assertThat(purchase.payments.single().address).isEqualTo("0x4895ce5fb8a40f47")
-        Assertions.assertThat(purchase.payments.single().amount).isEqualTo(BigDecimal("0.50000000"))
-        Assertions.assertThat(purchase.payments.single().type).isEqualTo(PaymentType.SELLER_FEE)
-        Assertions.assertThat(purchase.payments.single().rate).isEqualTo(expectedRate)
+        Assertions.assertThat(purchase.estimatedFee?.receivers?.single()).isEqualTo("0x4895ce5fb8a40f47")
+        Assertions.assertThat(purchase.estimatedFee?.amount).isEqualTo(BigDecimal("0.50000000"))
     }
 }

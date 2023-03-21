@@ -54,13 +54,13 @@ abstract class AbstractNftStorefrontListingEventParser(
                 value = price
             ),
             estimatedFee = getEstimatedFee(event),
-            expiry = getExpiry(event)
+            expiry = getExpiry(logEvent.log.timestamp, event)
         )
     }
 
     protected abstract fun getEstimatedFee(event: EventMessage): EstimatedFee?
 
-    protected abstract fun getExpiry(event: EventMessage): Instant?
+    protected abstract fun getExpiry(blockTimestamp: Instant, event: EventMessage): Instant?
 
     protected abstract suspend fun getSellPrice(event: EventMessage): BigDecimal
 
