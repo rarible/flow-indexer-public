@@ -49,6 +49,7 @@ data class FlowNftOrderActivitySell(
     val left: OrderActivityMatchSide,
     val right: OrderActivityMatchSide,
     val payments: List<FlowNftOrderPayment> = emptyList(),
+    val estimatedFee: EstimatedFee? = null,
     val platform: FlowOrderPlatformDto? = FlowOrderPlatformDto.RARIBLE
 ) : FlowNftOrderActivity()
 
