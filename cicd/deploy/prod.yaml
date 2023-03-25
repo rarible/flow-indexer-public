@@ -1,14 +1,10 @@
 flow-indexer-api:
-  replicas: 2
-  service:
-    nodePort: 30113
   resources:
     jvm:
       xmx_megabytes: 768
       max_direct_memory_megabytes: 256
 
 flow-indexer-listener:
-  replicas: 1
   resources:
     jvm:
       xmx_megabytes: 1024
