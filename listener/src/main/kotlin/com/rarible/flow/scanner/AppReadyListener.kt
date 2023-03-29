@@ -25,7 +25,7 @@ class AppReadyListener(
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
         runBlocking {
             val supportedCollections = Contracts.values()
-                .filter { it.nft }
+                .filter { it.nft && it.enabled }
                 .mapNotNull { it.toItemCollection(scannerProperties.chainId) }
 
             itemCollectionRepository.saveAll(supportedCollections)
