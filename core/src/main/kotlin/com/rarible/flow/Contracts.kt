@@ -97,7 +97,6 @@ enum class Contracts : Contract {
             get() = mapOf(
                 //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGarageCard
                 FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
-                FlowChainId.MAINNET to FlowAddress("0x80102bce1de42dc4"),
                 FlowChainId.EMULATOR to FlowAddress("0x80102bce1de42dc4"),
             )
 
@@ -115,7 +114,6 @@ enum class Contracts : Contract {
             get() = mapOf(
                 //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGaragePack
                 FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
-                FlowChainId.MAINNET to FlowAddress("0x80102bce1de42dc4"),
                 FlowChainId.EMULATOR to FlowAddress("0x80102bce1de42dc4"),
             )
 
