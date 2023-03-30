@@ -23,7 +23,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 @FlowPreview
-@EnableMongock
+//@EnableMongock
 @EnableRaribleTask
 @EnableFlowBlockchainScanner
 @EnableConfigurationProperties(FlowListenerProperties::class)
