@@ -17,29 +17,7 @@ abstract class NonFungibleTokenSubscriber: BaseFlowLogEventSubscriber() {
     protected abstract val contract: Contracts
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>
-        get() = mapOf(
-            FlowChainId.MAINNET to DescriptorFactory.flowNftOrderDescriptor(
-                contract = contract,
-                chainId = FlowChainId.MAINNET,
-                events = events,
-                dbCollection = collection,
-                name = name,
-            ),
-            FlowChainId.TESTNET to DescriptorFactory.flowNftOrderDescriptor(
-                contract = contract,
-                chainId = FlowChainId.TESTNET,
-                events = events,
-                dbCollection = collection,
-                name = name,
-            ),
-            FlowChainId.EMULATOR to DescriptorFactory.flowNftOrderDescriptor(
-                contract = contract,
-                chainId = FlowChainId.EMULATOR,
-                events = events,
-                dbCollection = collection,
-                name = name,
-            ),
-        )
+        get() = createDescriptors()
 
     override suspend fun eventType(log: FlowBlockchainLog): FlowLogType {
         val eventType = NonFungibleTokenEventType.fromEventName(
@@ -52,5 +30,23 @@ abstract class NonFungibleTokenSubscriber: BaseFlowLogEventSubscriber() {
             NonFungibleTokenEventType.BURN -> FlowLogType.BURN
             null -> throw IllegalStateException("Unsupported event type: ${log.event.id}")
         }
+    }
+
+    private fun createDescriptors(): Map<FlowChainId, FlowDescriptor> {
+        return FlowChainId.values()
+            .mapNotNull { chainId ->
+                if (contract.deployments[chainId] != null) chainId to createFlowNftOrderDescriptor(chainId) else null
+            }
+            .toMap()
+    }
+
+    private fun createFlowNftOrderDescriptor(chainId: FlowChainId): FlowDescriptor {
+        return DescriptorFactory.flowNftOrderDescriptor(
+            contract = contract,
+            events = events,
+            chainId = chainId,
+            dbCollection = collection,
+            name = name
+        )
     }
 }
