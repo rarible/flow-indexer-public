@@ -11,5 +11,10 @@ spring:
     bootstrap:
       enabled: true
 
+blockchain:
+  scanner:
+    kafka:
+      broker-replica-set: ${kafka.hosts}
+
 flow-indexer-api:
   kafka-replica-set: ${kafka.hosts}
