@@ -1,5 +1,7 @@
 package com.rarible.flow.api
 
+import com.rarible.core.test.ext.MongoCleanup
+import com.rarible.core.test.ext.MongoTest
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
@@ -19,6 +21,8 @@ import org.testcontainers.junit.jupiter.Testcontainers
         "logging.logjson.enabled = false",
     ]
 )
+@MongoTest
+@MongoCleanup
 @ActiveProfiles("test")
 @Testcontainers
 @Import(TestPropertiesConfiguration::class)
