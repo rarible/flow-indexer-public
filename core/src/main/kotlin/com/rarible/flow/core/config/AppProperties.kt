@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Profile
 @Profile("!without-kafka")
 data class AppProperties(
     val environment: String,
+    val flowAccessUrl: String,
+    val flowAccessPort: Int,
     val kafkaReplicaSet: String,
     val chainId: FlowChainId,
     val webApiUrl: String,

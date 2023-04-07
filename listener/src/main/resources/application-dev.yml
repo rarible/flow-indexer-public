@@ -6,6 +6,8 @@ logging:
     com.rarible.flow: DEBUG
 
 app:
+  flow-access-url: "access.devnet.nodes.onflow.org"
+  flow-access-port: 9000
   environment: dev
   chain-id: TESTNET
   kafka-replica-set: ${kafka.hosts}

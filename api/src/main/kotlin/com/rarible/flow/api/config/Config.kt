@@ -7,6 +7,7 @@ import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.impl.AsyncFlowAccessApiImpl
+import com.rarible.blockchain.scanner.EnableBlockchainScanner
 import com.rarible.blockchain.scanner.EnableBlockchainScannerComponents
 import com.rarible.core.common.safeSplit
 import com.rarible.core.meta.resource.http.DefaultHttpClient
@@ -41,7 +42,7 @@ import reactor.netty.http.client.HttpClient
 import reactor.netty.transport.logging.AdvancedByteBufFormat
 
 @Configuration
-@EnableBlockchainScannerComponents
+@EnableBlockchainScanner
 @EnableConfigurationProperties(ApiProperties::class)
 class Config(
     val appProperties: AppProperties,

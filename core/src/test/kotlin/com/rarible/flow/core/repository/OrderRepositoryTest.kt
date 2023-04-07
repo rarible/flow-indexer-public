@@ -1,6 +1,7 @@
 package com.rarible.flow.core.repository
 
 import com.rarible.core.test.ext.MongoTest
+import com.rarible.flow.core.TestBeanConfiguration
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.Order
@@ -30,7 +31,7 @@ import java.math.BigDecimal
         "logging.logstash.tcp-socket.enabled = false"
     ]
 )
-@ContextConfiguration(classes = [CoreConfig::class])
+@ContextConfiguration(classes = [CoreConfig::class, TestBeanConfiguration::class])
 @ActiveProfiles("test")
 internal class OrderRepositoryTest(
 

@@ -22,6 +22,8 @@ flow-indexer-api:
   chain-id: TESTNET
 
 app:
+  flow-access-url: "access.devnet.nodes.onflow.org"
+  flow-access-port: 9000
   environment: staging
   chain-id: TESTNET
   kafka-replica-set: ${kafka.hosts}

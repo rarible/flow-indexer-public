@@ -14,6 +14,8 @@ blockchain:
         scan:
           maxProcessTime: 10m
 app:
+  flow-access-url: "access.mainnet.nodes.onflow.org"
+  flow-access-port: 9000
   environment: prod
   kafka-replica-set: ${kafka.hosts}
   chain-id: MAINNET

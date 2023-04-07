@@ -2,6 +2,7 @@ package com.rarible.flow.core.repository
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
+import com.rarible.flow.core.TestBeanConfiguration
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Ownership
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
@@ -31,7 +32,7 @@ import java.time.temporal.ChronoUnit
         "logging.logstash.tcp-socket.enabled = false"
     ]
 )
-@ContextConfiguration(classes = [CoreConfig::class])
+@ContextConfiguration(classes = [CoreConfig::class, TestBeanConfiguration::class])
 @ActiveProfiles("test")
 internal class OwnershipRepositoryTest {
     @Autowired
