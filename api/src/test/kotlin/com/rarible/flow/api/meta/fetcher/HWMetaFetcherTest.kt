@@ -1,12 +1,14 @@
 package com.rarible.flow.api.meta.fetcher
 
-import com.nftco.flow.sdk.AsyncFlowAccessApi
 import com.nftco.flow.sdk.FlowEvent
 import com.nftco.flow.sdk.FlowEventPayload
 import com.nftco.flow.sdk.FlowId
 import com.nftco.flow.sdk.cadence.EventField
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.UInt256NumberField
+import com.nftco.flow.sdk.impl.AsyncFlowAccessApiImpl
+import com.rarible.blockchain.scanner.flow.service.Spork
+import com.rarible.blockchain.scanner.flow.service.SporkService
 import com.rarible.core.test.data.randomByteArray
 import com.rarible.core.test.data.randomString
 import com.rarible.flow.api.service.HWMetaEventTypeProvider
@@ -29,12 +31,14 @@ import java.util.concurrent.CompletableFuture
 class HWMetaFetcherTest {
     private val itemHistoryRepository = mockk<ItemHistoryRepository>()
     private val hwMetaEventTypeProvider = mockk<HWMetaEventTypeProvider>()
-    private val accessApi = mockk<AsyncFlowAccessApi>()
+    private val spork = mockk<Spork>()
+    private val accessApi = mockk<AsyncFlowAccessApiImpl>()
+    private val sporkService = mockk<SporkService>()
 
     private val fetcher = HWMetaFetcher(
         itemHistoryRepository = itemHistoryRepository,
         hwMetaEventTypeProvider = hwMetaEventTypeProvider,
-        accessApi = accessApi,
+        sporkService = sporkService,
     )
 
     @Test
@@ -67,7 +71,12 @@ class HWMetaFetcherTest {
         every {
             hwMetaEventTypeProvider.getMetaEventType(itemId)
         } returns eventType
-
+        every {
+            sporkService.spork(history.log.blockHeight)
+        } returns spork
+        every {
+            spork.api
+        } returns accessApi
         every {
             accessApi.getEventsForHeightRange(eventType, LongRange(history.log.blockHeight, history.log.blockHeight))
         } returns CompletableFuture.completedFuture(listOf(eventResult))

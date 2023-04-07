@@ -1,8 +1,8 @@
 package com.rarible.flow.api.meta.fetcher
 
-import com.nftco.flow.sdk.AsyncFlowAccessApi
 import com.nftco.flow.sdk.bytesToHex
 import com.nftco.flow.sdk.cadence.Field
+import com.rarible.blockchain.scanner.flow.service.SporkService
 import com.rarible.flow.api.service.HWMetaEventTypeProvider
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
@@ -17,7 +17,7 @@ class HWMetaFetcher(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository,
     private val hwMetaEventTypeProvider: HWMetaEventTypeProvider,
-    private val accessApi: AsyncFlowAccessApi,
+    private val sporkService: SporkService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -54,7 +54,7 @@ class HWMetaFetcher(
         tokenId: Long
     ): String? {
         val range = LongRange(blockHeight, blockHeight)
-        val blockEvents = accessApi.getEventsForHeightRange(metaEventType, range).await().run {
+        val blockEvents = sporkService.spork(blockHeight).api.getEventsForHeightRange(metaEventType, range).await().run {
             if (this.size != 1) {
                 logger.error("Found $size blocks by height $blockHeight, expected 1")
                 return null
