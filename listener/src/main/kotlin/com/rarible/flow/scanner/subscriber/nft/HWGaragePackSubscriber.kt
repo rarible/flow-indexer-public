@@ -8,3 +8,4 @@ class HWGaragePackSubscriber: NonFungibleTokenSubscriber() {
     override val name = "hw_pack"
     override val contract = Contracts.HW_GARAGE_PACK
 }
+
