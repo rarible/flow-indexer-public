@@ -181,6 +181,41 @@ enum class Contracts : Contract {
             get() = "HWGP"
     },
 
+
+    RARIBLE_GARAGE_CARD_V2 {
+        override val contractName: String = "HWGarageCardV2"
+
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGarageCardV2
+                FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
+                FlowChainId.EMULATOR to FlowAddress("0x80102bce1de42dc4"),
+            )
+
+        override val import: String
+            get() = "0xHWGARAGECARDV2"
+
+        override val symbol: String
+            get() = "HWGCV2"
+    },
+
+    RARIBLE_GARAGE_PACK_V2 {
+        override val contractName: String = "HWGaragePackV2"
+
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGaragePackV2
+                FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
+                FlowChainId.EMULATOR to FlowAddress("0x80102bce1de42dc4"),
+            )
+
+        override val import: String
+            get() = "0xHWGARAGEPACKV2"
+
+        override val symbol: String
+            get() = "HWGPV2"
+    },
+
     RARIBLE_GARAGE_PM {
         override val contractName: String = "HWGaragePM"
 
@@ -194,6 +229,23 @@ enum class Contracts : Contract {
 
         override val import: String
             get() = "0xHWGARAGEPM"
+
+        override val nft: Boolean
+            get() = false
+    },
+
+    RARIBLE_GARAGE_PM_V2 {
+        override val contractName: String = "HWGaragePMV2"
+
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGaragePMV2
+                FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
+                FlowChainId.EMULATOR to FlowAddress("0x80102bce1de42dc4"),
+            )
+
+        override val import: String
+            get() = "0xHWGARAGEPMV2"
 
         override val nft: Boolean
             get() = false
