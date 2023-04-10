@@ -72,13 +72,13 @@ internal class OrderServiceTest: FunSpec({
             maker = "0x01",
             make = FlowAssetNFT("RaribleNFT", BigDecimal.ONE, 13),
             take = FlowAssetFungible("Flow", BigDecimal("13.37")),
-            estimatedFee = EstimatedFee(listOf("80102bce1de42dc4"), BigDecimal("0.5")),
+            estimatedFee = EstimatedFee(listOf("80102bce1de42dc4"), BigDecimal("1.5")),
             expiry = null
         )
         service.openList(activity, null) should { order ->
             order.itemId shouldBe ItemId("RaribleNFT", 13)
             order.data?.originalFees?.single()?.account shouldBe FlowAddress("80102bce1de42dc4")
-            order.data?.originalFees?.single()?.value shouldBe BigDecimal("374")
+            order.data?.originalFees?.single()?.value shouldBe BigDecimal("0.1")
         }
 
         verify {
