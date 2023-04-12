@@ -22,7 +22,9 @@ app:
   web-api-url: ${web-api-url}
   featureFlags:
     enableRaribleCard: false
+    enableRaribleCardV2: false
     enableRariblePack: false
+    enableRariblePackV2: false
     enableRaribleNft: false
     enableStorefrontV1: false
     enableStorefrontV2: false

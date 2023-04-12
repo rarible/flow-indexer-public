@@ -21,6 +21,7 @@ data class AppProperties(
 data class FeatureFlagsProperties(
     val enableRaribleCard: Boolean = true,
     val enableRariblePack: Boolean = true,
+    val enableRariblePackV2: Boolean = true,
     val enableRaribleNft: Boolean = true,
     val enableStorefrontV1: Boolean = true,
     val enableStorefrontV2: Boolean = true,
