@@ -31,12 +31,30 @@ class HWCardActivity(
 }
 
 @Component
+class HWCardActivityV2(
+    logRepository: FlowLogRepository,
+    txManager: TxManager,
+    properties: FlowListenerProperties,
+) : HWActivityMaker(logRepository, txManager, properties) {
+    override val contractName: String = Contracts.HW_GARAGE_CARD_V2.contractName
+}
+
+@Component
 class HWPackActivity(
     logRepository: FlowLogRepository,
     txManager: TxManager,
     properties: FlowListenerProperties,
 ) : HWActivityMaker(logRepository, txManager, properties) {
     override val contractName: String = Contracts.HW_GARAGE_PACK.contractName
+}
+
+@Component
+class HWPackActivityV2(
+    logRepository: FlowLogRepository,
+    txManager: TxManager,
+    properties: FlowListenerProperties,
+) : HWActivityMaker(logRepository, txManager, properties) {
+    override val contractName: String = Contracts.HW_GARAGE_PACK_V2.contractName
 }
 
 @Component
@@ -49,10 +67,28 @@ class RaribleCardActivity(
 }
 
 @Component
+class RaribleCardActivityV2(
+    logRepository: FlowLogRepository,
+    txManager: TxManager,
+    properties: FlowListenerProperties,
+) : HWActivityMaker(logRepository, txManager, properties) {
+    override val contractName: String = Contracts.RARIBLE_GARAGE_CARD_V2.contractName
+}
+
+@Component
 class RariblePackActivity(
     logRepository: FlowLogRepository,
     txManager: TxManager,
     properties: FlowListenerProperties,
 ) : HWActivityMaker(logRepository, txManager, properties) {
     override val contractName: String = Contracts.RARIBLE_GARAGE_PACK.contractName
+}
+
+@Component
+class RariblePackActivityV2(
+    logRepository: FlowLogRepository,
+    txManager: TxManager,
+    properties: FlowListenerProperties,
+) : HWActivityMaker(logRepository, txManager, properties) {
+    override val contractName: String = Contracts.RARIBLE_GARAGE_PACK_V2.contractName
 }
