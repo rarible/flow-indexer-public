@@ -33,3 +33,8 @@ app:
   chain-id: TESTNET
   kafka-replica-set: ${kafka.hosts}
   web-api-url: ${web-api-url}
+
+blockchain:
+  scanner:
+    flow:
+      chainId: TESTNET

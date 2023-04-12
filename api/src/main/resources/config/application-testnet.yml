@@ -34,3 +34,8 @@ app:
 
 application:
   environment: testnet
+
+blockchain:
+  scanner:
+    flow:
+      chainId: TESTNET
