@@ -54,6 +54,7 @@ class HWMetaFetcher(
         tokenId: Long
     ): String? {
         val range = LongRange(blockHeight, blockHeight)
+        logger.info("----> get fo range: $range, chainId=${sporkService.chainId}, sporks=${sporkService.sporks(sporkService.chainId)}")
         val blockEvents = sporkService.spork(blockHeight).api.getEventsForHeightRange(metaEventType, range).await().run {
             if (this.size != 1) {
                 logger.error("Found $size blocks by height $blockHeight, expected 1")
