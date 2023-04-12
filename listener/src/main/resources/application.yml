@@ -27,8 +27,8 @@ app:
   featureFlags:
     enableRaribleCard: true
     enableRariblePack: true
-    enableRaribleNft: true
-    enableStorefrontV1: true
+    enableRaribleNft: false
+    enableStorefrontV1: false
     enableStorefrontV2: true
 
 blockchain:
