@@ -2,6 +2,7 @@ package com.rarible.flow.core.repository
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.test.ext.MongoTest
+import com.rarible.flow.core.TestBeanConfiguration
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.repository.data.randomAddress
@@ -29,7 +30,7 @@ import java.time.temporal.ChronoUnit
         "spring.data.mongodb.auto-index-creation = true"
     ]
 )
-@ContextConfiguration(classes = [CoreConfig::class])
+@ContextConfiguration(classes = [CoreConfig::class, TestBeanConfiguration::class])
 @ActiveProfiles("test")
 class ItemRepositoryTest {
 

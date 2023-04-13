@@ -15,6 +15,8 @@ flow-indexer-api:
   chain-id: TESTNET
 
 app:
+  flow-access-url: "access.devnet.nodes.onflow.org"
+  flow-access-port: 9000
   chain-id: TESTNET
   kafka-replica-set: ${kafka.hosts}
   environment: test
@@ -26,3 +28,7 @@ rarible:
       agent:
         enabled: false
 
+blockchain:
+  scanner:
+    kafka:
+      broker-replica-set: ${kafka.hosts}

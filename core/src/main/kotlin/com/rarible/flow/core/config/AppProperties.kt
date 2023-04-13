@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Profile
 @Profile("!without-kafka")
 data class AppProperties(
     val environment: String,
+    val flowAccessUrl: String,
+    val flowAccessPort: Int,
     val kafkaReplicaSet: String,
     val chainId: FlowChainId,
     val webApiUrl: String,
@@ -20,6 +22,7 @@ data class AppProperties(
 data class FeatureFlagsProperties(
     val enableRaribleCard: Boolean = true,
     val enableRariblePack: Boolean = true,
+    val enableRariblePackV2: Boolean = true,
     val enableRaribleNft: Boolean = true,
     val enableStorefrontV1: Boolean = true,
     val enableStorefrontV2: Boolean = true,

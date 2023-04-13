@@ -26,9 +26,11 @@ jobs:
 app:
   featureFlags:
     enableRaribleCard: true
+    enableRaribleCardV2: true
     enableRariblePack: true
-    enableRaribleNft: true
-    enableStorefrontV1: true
+    enableRariblePackV2: true
+    enableRaribleNft: false
+    enableStorefrontV1: false
     enableStorefrontV2: true
 
 blockchain:

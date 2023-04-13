@@ -4,6 +4,8 @@ logging:
     org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG
 
 app:
+  flow-access-url: "access.devnet.nodes.onflow.org"
+  flow-access-port: 9000
   chain-id: TESTNET
   kafka-replica-set: ${kafka.hosts}
   environment: test

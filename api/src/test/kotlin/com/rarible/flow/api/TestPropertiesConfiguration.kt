@@ -1,5 +1,6 @@
 package com.rarible.flow.api
 
+import com.rarible.blockchain.scanner.flow.service.SporkService
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
@@ -31,5 +32,10 @@ class TestPropertiesConfiguration {
     @Primary
     fun testOrderConverter(currencyApi: CurrencyControllerApi): OrderToDtoConverter {
         return OrderToDtoConverter(currencyApi)
+    }
+
+    @Bean
+    fun mockkSporkService(): SporkService {
+        return mockk()
     }
 }

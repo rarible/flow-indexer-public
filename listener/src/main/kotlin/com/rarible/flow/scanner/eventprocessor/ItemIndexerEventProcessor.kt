@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.apm.CaptureSpan
 import com.rarible.core.apm.withSpan
+import com.rarible.core.common.optimisticLock
 import com.rarible.flow.core.domain.BurnActivity
 import com.rarible.flow.core.domain.FlowActivityType
 import com.rarible.flow.core.domain.Item
@@ -105,7 +106,7 @@ class ItemIndexerEventProcessor(
                             marks
                         )
                     }
-                    val o = ownershipRepository.save(
+                    val o = saveOwnership(
                         Ownership(
                             contract = mintActivity.contract,
                             tokenId = mintActivity.tokenId,
@@ -113,7 +114,7 @@ class ItemIndexerEventProcessor(
                             creator = creator,
                             date = mintActivity.timestamp
                         )
-                    ).awaitSingle()
+                    )
                     orderService.restoreOrdersForOwnership(o, mintActivity.timestamp, needSendToKafka, marks)
                     if (needSendToKafka) {
                         protocolEventPublisher.onDelete(deleted, marks)
@@ -139,7 +140,7 @@ class ItemIndexerEventProcessor(
                                 }
                                 .toList()
                             if (o.creator != creator) {
-                                val ownership = ownershipRepository.save(o.copy(creator = creator)).awaitSingle()
+                                val ownership = saveOwnership(o.copy(creator = creator))
                                 if (needSendToKafka) {
                                     protocolEventPublisher.onUpdate(ownership, marks)
                                 }
@@ -226,7 +227,7 @@ class ItemIndexerEventProcessor(
             }
             if (item != null) {
                 if (item.updatedAt <= transferActivity.timestamp && item.owner != null) {
-                    val newOwnership = ownershipRepository.save(
+                    val newOwnership = saveOwnership(
                         Ownership(
                             contract = transferActivity.contract,
                             tokenId = transferActivity.tokenId,
@@ -234,19 +235,19 @@ class ItemIndexerEventProcessor(
                             creator = item.creator,
                             date = transferActivity.timestamp
                         )
-                    ).awaitSingle()
-                    val s = itemRepository.save(item.copy(owner = newOwner, updatedAt = transferActivity.timestamp))
-                        .awaitSingle()
+                    )
+                    val updatedItem = itemRepository.save(item.copy(owner = newOwner, updatedAt = transferActivity.timestamp)).awaitSingle()
+
                     orderService.restoreOrdersForOwnership(
                         newOwnership,
                         transferActivity.timestamp,
                         needSendToKafka,
                         marks
                     )
-                    Pair(s, newOwnership)
+                    Pair(updatedItem, newOwnership)
                 } else Pair(item, null)
             } else {
-                val newOwnership = ownershipRepository.save(
+                val newOwnership = saveOwnership(
                     Ownership(
                         contract = transferActivity.contract,
                         tokenId = transferActivity.tokenId,
@@ -254,7 +255,7 @@ class ItemIndexerEventProcessor(
                         creator = newOwner,
                         date = transferActivity.timestamp
                     )
-                ).awaitSingle()
+                )
                 orderService.restoreOrdersForOwnership(
                     newOwnership,
                     transferActivity.timestamp,
@@ -285,6 +286,11 @@ class ItemIndexerEventProcessor(
             newOwnership?.let { protocolEventPublisher.onUpdate(it, marks) }
         }
 
+    }
+
+    private suspend fun saveOwnership(ownership: Ownership) = optimisticLock {
+        val existedOwnership = ownershipRepository.findById(ownership.id).awaitFirstOrNull()
+        ownershipRepository.save(ownership.copy(version = existedOwnership?.version)).awaitSingle()
     }
 
     private suspend fun sendHistoryUpdate(

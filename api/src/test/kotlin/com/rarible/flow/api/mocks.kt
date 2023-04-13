@@ -30,7 +30,7 @@ object mocks {
                     )
                 }
             },
-            AppProperties("test", "", FlowChainId.EMULATOR, "http://localhost:8080")
+            AppProperties("test", "", 80, "", FlowChainId.EMULATOR, "http://localhost:8080")
         )
     }
 

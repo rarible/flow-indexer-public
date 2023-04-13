@@ -8,7 +8,9 @@ import org.springframework.stereotype.Component
 @Component
 class HotWheelsPackMetaProvider(fetcher: HWMetaFetcher) : HotWheelsMetaProvider(fetcher) {
 
-    override fun isSupported(itemId: ItemId): Boolean = itemId.contract.endsWith(".HWGaragePack")
+    override fun isSupported(itemId: ItemId): Boolean =
+        itemId.contract.endsWith(".HWGaragePack") || itemId.contract.endsWith(".HWGaragePackV2")
+
     override fun getName(map: Map<String, String>): String? {
         return map.getFirst(*fieldName)
     }

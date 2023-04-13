@@ -19,11 +19,23 @@ class HWMetaEventTypeProvider(properties: ApiProperties) {
             Contracts.HW_GARAGE_CARD.fqn(chainId) -> {
                 getCardMetadataEvent(Contracts.HW_GARAGE_PM)
             }
+            Contracts.HW_GARAGE_PACK_V2.fqn(chainId) -> {
+                getPackMetadataEvent(Contracts.HW_GARAGE_PM_V2)
+            }
+            Contracts.HW_GARAGE_CARD_V2.fqn(chainId) -> {
+                getCardMetadataEvent(Contracts.HW_GARAGE_PM_V2)
+            }
             Contracts.RARIBLE_GARAGE_PACK.fqn(chainId) -> {
                 getPackMetadataEvent(Contracts.RARIBLE_GARAGE_PM)
             }
             Contracts.RARIBLE_GARAGE_CARD.fqn(chainId) -> {
                 getCardMetadataEvent(Contracts.RARIBLE_GARAGE_PM)
+            }
+            Contracts.RARIBLE_GARAGE_PACK_V2.fqn(chainId) -> {
+                getPackMetadataEvent(Contracts.RARIBLE_GARAGE_PM_V2)
+            }
+            Contracts.RARIBLE_GARAGE_CARD_V2.fqn(chainId) -> {
+                getCardMetadataEvent(Contracts.RARIBLE_GARAGE_PM_V2)
             }
             else -> null
         }

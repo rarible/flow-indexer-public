@@ -13,6 +13,10 @@ flow-indexer-api:
     internalGateway: "https://ipfs.io"
     publicGateway: "https://ipfs.io"
 
+app:
+  flow-access-url:
+  flow-access-port:
+
 application:
   service-name: flow-indexer-api
 
@@ -28,3 +32,14 @@ rarible:
           enabled: true
       annotation:
         enabled: true
+
+blockchain:
+  scanner:
+    flow:
+      scan:
+        enabled: false
+      monitoring:
+        enabled: false
+      task:
+        reindex:
+          enabled: false

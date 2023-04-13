@@ -93,7 +93,7 @@ class VersusArtMetaProviderTest : FunSpec({
                         executeScriptAtLatestBlock(eq(FlowScript("getContentScript")), any())
                     } throws IllegalStateException()
                 },
-                AppProperties("test", "", FlowChainId.EMULATOR, "http://localhost:8080"),
+                AppProperties("test", "", 80, "", FlowChainId.EMULATOR, "http://localhost:8080"),
             ),
             mocks.resource("getMetadataScript"),
             mocks.resource("getContentScript"),
