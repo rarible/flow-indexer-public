@@ -29,7 +29,7 @@ class SporkConfigurationService(
             sporkService.replace(
                 FlowChainId.TESTNET, listOf(
                 Spork(
-                    from = 93156994,
+                    from = 99452067,
                     nodeUrl = "access.devnet.nodes.onflow.org"
                 )
             ))
