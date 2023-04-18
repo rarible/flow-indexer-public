@@ -32,10 +32,10 @@ class HWMetaEventTypeProvider(properties: ApiProperties) {
                 getCardMetadataEvent(Contracts.RARIBLE_GARAGE_PM)
             }
             Contracts.RARIBLE_GARAGE_PACK_V2.fqn(chainId) -> {
-                getPackMetadataEvent(Contracts.RARIBLE_GARAGE_PM_V2)
+                getAdminMintPackMetadataEvent(Contracts.RARIBLE_GARAGE_PM_V2)
             }
             Contracts.RARIBLE_GARAGE_CARD_V2.fqn(chainId) -> {
-                getCardMetadataEvent(Contracts.RARIBLE_GARAGE_PM_V2)
+                getAdminMintCardMetadataEvent(Contracts.RARIBLE_GARAGE_PM_V2)
             }
             else -> null
         }
@@ -49,8 +49,19 @@ class HWMetaEventTypeProvider(properties: ApiProperties) {
         return "${pmContract.fqn(chainId)}.$UPDATE_TOKEN_EDITION_METADATA"
     }
 
+    private fun getAdminMintPackMetadataEvent(pmContract: Contracts): String {
+        return "${pmContract.fqn(chainId)}.$ADMIN_MINT_PACK"
+    }
+
+    private fun getAdminMintCardMetadataEvent(pmContract: Contracts): String {
+        return "${pmContract.fqn(chainId)}.$ADMIN_MINT_CARD"
+    }
+
+
     private companion object {
         const val UPDATE_PACK_EDITION_METADATA = "UpdatePackEditionMetadata"
         const val UPDATE_TOKEN_EDITION_METADATA = "UpdateTokenEditionMetadata"
+        const val ADMIN_MINT_CARD = "AdminMintCard"
+        const val ADMIN_MINT_PACK = "AdminMintPack"
     }
 }
