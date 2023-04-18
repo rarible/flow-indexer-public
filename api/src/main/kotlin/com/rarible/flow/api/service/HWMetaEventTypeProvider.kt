@@ -11,7 +11,7 @@ class HWMetaEventTypeProvider(properties: ApiProperties) {
 
     private val chainId = properties.chainId
 
-    fun getMetaEventType(itemId: ItemId): String? {
+    fun getMetaEventType(itemId: ItemId): Result? {
         return when (itemId.contract) {
             Contracts.HW_GARAGE_PACK.fqn(chainId) -> {
                 getPackMetadataEvent(Contracts.HW_GARAGE_PM)
@@ -41,24 +41,31 @@ class HWMetaEventTypeProvider(properties: ApiProperties) {
         }
     }
 
-    private fun getPackMetadataEvent(pmContract: Contracts): String {
-        return "${pmContract.fqn(chainId)}.$UPDATE_PACK_EDITION_METADATA"
+    private fun getPackMetadataEvent(pmContract: Contracts): Result {
+        return Result( "${pmContract.fqn(chainId)}.$UPDATE_PACK_EDITION_METADATA")
     }
 
-    private fun getCardMetadataEvent(pmContract: Contracts): String {
-        return "${pmContract.fqn(chainId)}.$UPDATE_TOKEN_EDITION_METADATA"
+    private fun getCardMetadataEvent(pmContract: Contracts): Result {
+        return Result("${pmContract.fqn(chainId)}.$UPDATE_TOKEN_EDITION_METADATA")
     }
 
-    private fun getAdminMintPackMetadataEvent(pmContract: Contracts): String {
-        return "${pmContract.fqn(chainId)}.$ADMIN_MINT_PACK"
+    private fun getAdminMintPackMetadataEvent(pmContract: Contracts): Result {
+        return Result("${pmContract.fqn(chainId)}.$ADMIN_MINT_PACK", PACK_V2_ID)
     }
 
-    private fun getAdminMintCardMetadataEvent(pmContract: Contracts): String {
-        return "${pmContract.fqn(chainId)}.$ADMIN_MINT_CARD"
+    private fun getAdminMintCardMetadataEvent(pmContract: Contracts): Result {
+        return Result("${pmContract.fqn(chainId)}.$ADMIN_MINT_CARD")
     }
 
+    data class Result(
+        val eventType: String,
+        val id: String = DEFAULT_ID,
+    )
 
     private companion object {
+        const val DEFAULT_ID = "id"
+        const val PACK_V2_ID = "packID"
+
         const val UPDATE_PACK_EDITION_METADATA = "UpdatePackEditionMetadata"
         const val UPDATE_TOKEN_EDITION_METADATA = "UpdateTokenEditionMetadata"
         const val ADMIN_MINT_CARD = "AdminMintCard"
