@@ -15,9 +15,9 @@ class HotWheelsPackMetaProvider(fetcher: HWMetaFetcher) : HotWheelsMetaProvider(
         return map.getFirst(*fieldName)
     }
 
-    // "seriesName" - for v1, "carName" - for v2
-    override val fieldName = fields("seriesName", "carName")
-    override val fieldDescription = fields()
+    // "seriesName" - for v1, "carName" - for v2, packName - for V2
+    override val fieldName = fields("seriesName", "carName", "packName")
+    override val fieldDescription = fields("packDescription")
     override val fieldImageOriginal = fields("thumbnailCID")
     override val fieldRights = fields()
 
@@ -26,6 +26,8 @@ class HotWheelsPackMetaProvider(fetcher: HWMetaFetcher) : HotWheelsMetaProvider(
         "totalItemCount",
         // for v2
         "tokenReleaseDate",
-        "tokenExpireDate"
+        "tokenExpireDate",
+        "collectionName",
+        "collectionDescription",
     )
 }
