@@ -20,10 +20,10 @@ class HWMetaEventTypeProvider(properties: ApiProperties) {
                 getCardMetadataEvent(Contracts.HW_GARAGE_PM)
             }
             Contracts.HW_GARAGE_PACK_V2.fqn(chainId) -> {
-                getPackMetadataEvent(Contracts.HW_GARAGE_PM_V2)
+                getAdminMintPackMetadataEvent(Contracts.HW_GARAGE_PM_V2)
             }
             Contracts.HW_GARAGE_CARD_V2.fqn(chainId) -> {
-                getCardMetadataEvent(Contracts.HW_GARAGE_PM_V2)
+                getAdminMintCardMetadataEvent(Contracts.HW_GARAGE_PM_V2)
             }
             Contracts.RARIBLE_GARAGE_PACK.fqn(chainId) -> {
                 getPackMetadataEvent(Contracts.RARIBLE_GARAGE_PM)
