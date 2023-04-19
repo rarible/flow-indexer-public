@@ -12,6 +12,10 @@ sealed interface FlowActivity
 
 sealed class TypedFlowActivity : FlowActivity {
     abstract val type: FlowActivityType
+
+    fun isCancelList(): Boolean {
+        return this.type == FlowActivityType.CANCEL_LIST
+    }
 }
 
 sealed class BaseActivity : TypedFlowActivity(), Partitionable {

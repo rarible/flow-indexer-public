@@ -289,31 +289,29 @@ class OrderService(
             }
         }
 
-    suspend fun enrichCancelList(orderId: String) {
-        withSpan("enrichCancelList", "db") {
-            val h = itemHistoryRepository
-                .findOrderActivity("CANCEL_LIST", orderId).awaitFirstOrNull()
-                ?: return@withSpan
+    suspend fun enrichCancelList(orderId: String): ItemHistory? {
+        val h = itemHistoryRepository
+            .findOrderActivity("CANCEL_LIST", orderId).awaitFirstOrNull()
+            ?: return null
 
-            val openActivity = itemHistoryRepository
-                .findOrderActivity("LIST", orderId).awaitFirstOrNull()
-                ?.let { it.activity as? FlowNftOrderActivityList }
-                ?: return@withSpan
+        val openActivity = itemHistoryRepository
+            .findOrderActivity("LIST", orderId).awaitFirstOrNull()
+            ?.let { it.activity as? FlowNftOrderActivityList }
+            ?: return null
 
-            val closeActivity = h.activity as? FlowNftOrderActivityCancelList
-                ?: return@withSpan
+        val closeActivity = h.activity as? FlowNftOrderActivityCancelList
+            ?: return null
 
-            val newActivity = closeActivity.copy(
-                price = openActivity.price,
-                priceUsd = openActivity.priceUsd,
-                tokenId = openActivity.tokenId,
-                contract = openActivity.contract,
-                maker = openActivity.maker,
-                make = openActivity.make,
-                take = openActivity.take,
-            )
-            itemHistoryRepository.save(h.copy(activity = newActivity)).awaitSingle()
-        }
+        val newActivity = closeActivity.copy(
+            price = openActivity.price,
+            priceUsd = openActivity.priceUsd,
+            tokenId = openActivity.tokenId,
+            contract = openActivity.contract,
+            maker = openActivity.maker,
+            make = openActivity.make,
+            take = openActivity.take,
+        )
+        return itemHistoryRepository.save(h.copy(activity = newActivity)).awaitSingle()
     }
 
     suspend fun cancelBid(activity: FlowNftOrderActivityCancelBid, item: Item?): Order {
