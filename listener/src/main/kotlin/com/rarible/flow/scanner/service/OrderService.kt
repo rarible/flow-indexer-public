@@ -42,6 +42,7 @@ import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -487,9 +488,13 @@ class OrderService(
         return if (receivers.isEmpty() || amount == BigDecimal.ZERO) {
             return emptyList()
         } else {
-            val part = amount / price
+            val part = ((amount * BASE_POINT) / price).setScale(0, RoundingMode.HALF_UP)
             val address = FlowAddress(receivers.first())
             listOf(Payout(address, part))
         }
+    }
+
+    private companion object {
+        val BASE_POINT: BigDecimal = BigDecimal(10).pow(4)
     }
 }
