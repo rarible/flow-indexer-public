@@ -488,13 +488,9 @@ class OrderService(
         return if (receivers.isEmpty() || amount == BigDecimal.ZERO) {
             return emptyList()
         } else {
-            val part = ((amount * BASE_POINT) / price).setScale(0, RoundingMode.HALF_UP)
+            val part = amount / price
             val address = FlowAddress(receivers.first())
             listOf(Payout(address, part))
         }
-    }
-
-    private companion object {
-        val BASE_POINT: BigDecimal = BigDecimal(10).pow(4)
     }
 }

@@ -52,25 +52,26 @@ internal class OrderToDtoConverterTest: FunSpec({
 
     test("should convert filled order data") {
         val orderData = OrderData(
-            listOf(
-                Payout(FlowAddress("0x01"), 7500.toBigDecimal()),
-                Payout(FlowAddress("0x02"), 2500.toBigDecimal()),
+            payouts = listOf(
+                Payout(FlowAddress("0x01"), 0.75.toBigDecimal()),
+                Payout(FlowAddress("0x02"), 0.25.toBigDecimal()),
             ),
-            listOf(
-                Payout(FlowAddress("0x01"), 75.toBigDecimal()),
-                Payout(FlowAddress("0x02"), 25.toBigDecimal()),
+            originalFees = listOf(
+                Payout(FlowAddress("0x01"), 0.075.toBigDecimal()),
+                Payout(FlowAddress("0x02"), 0.025.toBigDecimal()),
             )
         )
 
-        converter.convert(orderData) should { od: FlowOrderDataDto ->
-            od.originalFees shouldContainAll listOf(
-                PayInfoDto(FlowAddress("0x01").formatted, 75.toBigDecimal()),
-                PayInfoDto(FlowAddress("0x02").formatted, 25.toBigDecimal())
-            )
+        val converted = converter.convert(orderData)
 
+        converted should { od: FlowOrderDataDto ->
             od.payouts shouldContainAll listOf(
-                PayInfoDto(FlowAddress("0x01").formatted, 7500.toBigDecimal()),
-                PayInfoDto(FlowAddress("0x02").formatted, 2500.toBigDecimal())
+                PayInfoDto(FlowAddress("0x01").formatted, BigDecimal("7500.00")),
+                PayInfoDto(FlowAddress("0x02").formatted, BigDecimal("2500.00"))
+            )
+            od.originalFees shouldContainAll listOf(
+                PayInfoDto(FlowAddress("0x01").formatted, BigDecimal("750.000")),
+                PayInfoDto(FlowAddress("0x02").formatted, BigDecimal("250.000"))
             )
         }
     }

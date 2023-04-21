@@ -78,7 +78,7 @@ internal class OrderServiceTest: FunSpec({
         service.openList(activity, null) should { order ->
             order.itemId shouldBe ItemId("RaribleNFT", 13)
             order.data?.originalFees?.single()?.account shouldBe FlowAddress("80102bce1de42dc4")
-            order.data?.originalFees?.single()?.value shouldBe BigDecimal("1122")
+            order.data?.originalFees?.single()?.value shouldBe BigDecimal("0.1")
         }
 
         verify {
