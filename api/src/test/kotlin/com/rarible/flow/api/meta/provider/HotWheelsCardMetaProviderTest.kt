@@ -42,7 +42,8 @@ class HotWheelsCardMetaProviderTest {
             ItemMetaAttribute("redeemable", "Yes"),
             ItemMetaAttribute("type", "Premium"),
             ItemMetaAttribute("mint", "2780"),
-            ItemMetaAttribute("totalSupply", "3000")
+            ItemMetaAttribute("totalSupply", "3000"),
+            ItemMetaAttribute("cardId", "58")
         )
     }
 
