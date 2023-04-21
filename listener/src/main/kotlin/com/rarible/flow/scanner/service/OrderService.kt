@@ -42,6 +42,7 @@ import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -289,31 +290,29 @@ class OrderService(
             }
         }
 
-    suspend fun enrichCancelList(orderId: String) {
-        withSpan("enrichCancelList", "db") {
-            val h = itemHistoryRepository
-                .findOrderActivity("CANCEL_LIST", orderId).awaitFirstOrNull()
-                ?: return@withSpan
+    suspend fun enrichCancelList(orderId: String): ItemHistory? {
+        val h = itemHistoryRepository
+            .findOrderActivity("CANCEL_LIST", orderId).awaitFirstOrNull()
+            ?: return null
 
-            val openActivity = itemHistoryRepository
-                .findOrderActivity("LIST", orderId).awaitFirstOrNull()
-                ?.let { it.activity as? FlowNftOrderActivityList }
-                ?: return@withSpan
+        val openActivity = itemHistoryRepository
+            .findOrderActivity("LIST", orderId).awaitFirstOrNull()
+            ?.let { it.activity as? FlowNftOrderActivityList }
+            ?: return null
 
-            val closeActivity = h.activity as? FlowNftOrderActivityCancelList
-                ?: return@withSpan
+        val closeActivity = h.activity as? FlowNftOrderActivityCancelList
+            ?: return null
 
-            val newActivity = closeActivity.copy(
-                price = openActivity.price,
-                priceUsd = openActivity.priceUsd,
-                tokenId = openActivity.tokenId,
-                contract = openActivity.contract,
-                maker = openActivity.maker,
-                make = openActivity.make,
-                take = openActivity.take,
-            )
-            itemHistoryRepository.save(h.copy(activity = newActivity)).awaitSingle()
-        }
+        val newActivity = closeActivity.copy(
+            price = openActivity.price,
+            priceUsd = openActivity.priceUsd,
+            tokenId = openActivity.tokenId,
+            contract = openActivity.contract,
+            maker = openActivity.maker,
+            make = openActivity.make,
+            take = openActivity.take,
+        )
+        return itemHistoryRepository.save(h.copy(activity = newActivity)).awaitSingle()
     }
 
     suspend fun cancelBid(activity: FlowNftOrderActivityCancelBid, item: Item?): Order {
@@ -489,9 +488,13 @@ class OrderService(
         return if (receivers.isEmpty() || amount == BigDecimal.ZERO) {
             return emptyList()
         } else {
-            val part = amount / price
+            val part = ((amount * BASE_POINT) / price).setScale(0, RoundingMode.HALF_UP)
             val address = FlowAddress(receivers.first())
             listOf(Payout(address, part))
         }
+    }
+
+    private companion object {
+        val BASE_POINT: BigDecimal = BigDecimal(10).pow(4)
     }
 }

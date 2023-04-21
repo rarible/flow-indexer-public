@@ -60,8 +60,10 @@ class ItemAndOrderEventsListener(
             saved.sortedBy { it.date }.groupBy { it.log.transactionHash }.forEach { tx ->
                 tx.value.sortedBy { it.log.eventIndex }.forEach { h ->
                     logger.info("Send activity [${h.id}] to kafka!")
-                    protocolEventPublisher.activity(h)
-
+                    // Cancel list activity hasn't enough information yet to be published
+                    if (h.activity.isCancelList().not()) {
+                        protocolEventPublisher.activity(h)
+                    }
                     val item = (h.activity as? NFTActivity)
                         ?.let { ItemId(it.contract, it.tokenId) }
                         ?.let { itemRepository.findById(it).awaitFirstOrNull() }

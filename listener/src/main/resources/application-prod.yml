@@ -27,7 +27,7 @@ app:
     enableRariblePackV2: false
     enableRaribleNft: false
     enableStorefrontV1: false
-    enableStorefrontV2: false
+    enableStorefrontV2: true
 
 spring:
   data:

@@ -88,11 +88,10 @@ class OrderIndexerEventProcessor(
 
     private suspend fun orderCancelled(event: IndexerEvent, marks: FlowEventTimeMarksDto) {
         val activity = event.history.activity as FlowNftOrderActivityCancelList
-        withSpan("cancelOrderEvent", type = "event", labels = listOf("hash" to activity.hash)) {
-            orderService.enrichCancelList(activity.hash)
-            val order = orderService.cancel(activity, event.item)
-            sendUpdate(order, marks)
-        }
+        val enrichedActivity = orderService.enrichCancelList(activity.hash)
+        val order = orderService.cancel(activity, event.item)
+        sendUpdate(order, marks)
+        enrichedActivity?.let { sendHistoryUpdate(it) }
     }
 
     private suspend fun bid(event: IndexerEvent, marks: FlowEventTimeMarksDto) {

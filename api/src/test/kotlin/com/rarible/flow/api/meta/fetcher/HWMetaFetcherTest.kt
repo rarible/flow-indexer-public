@@ -44,7 +44,7 @@ class HWMetaFetcherTest {
     @Test
     fun `fetch - ok`() = runBlocking<Unit> {
         val itemId = randomItemId()
-        val eventType = randomString()
+        val eventType = HWMetaEventTypeProvider.Result(randomString())
         val expectedEventIndex = 1
         val expectedTransactionId = FlowId("e9225a74ce161fad735b45fa3fd80c03d28218effa0be74876cf68648c0696d5")
         val expectedMeta = FlowEventPayload(randomByteArray())
@@ -78,7 +78,7 @@ class HWMetaFetcherTest {
             spork.api
         } returns accessApi
         every {
-            accessApi.getEventsForHeightRange(eventType, LongRange(history.log.blockHeight, history.log.blockHeight))
+            accessApi.getEventsForHeightRange(eventType.eventType, LongRange(history.log.blockHeight, history.log.blockHeight))
         } returns CompletableFuture.completedFuture(listOf(eventResult))
 
         val meta = fetcher.getContent(itemId)

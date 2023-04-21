@@ -26,7 +26,8 @@ class HWMetaFetcher(
         val metaEventType = getMetaEventType(itemId) ?: return null
         return getEditionMetadataPayload(
             tokenId = itemId.tokenId,
-            metaEventType = metaEventType,
+            metaEventType = metaEventType.eventType,
+            idField = metaEventType.id,
             blockHeight = mint.log.blockHeight,
             transaction = mint.log.transactionHash,
         )
@@ -41,7 +42,7 @@ class HWMetaFetcher(
         }
     }
 
-    private fun getMetaEventType(itemId: ItemId): String? {
+    private fun getMetaEventType(itemId: ItemId): HWMetaEventTypeProvider.Result? {
         val type = hwMetaEventTypeProvider.getMetaEventType(itemId)
         if (type == null) logger.error("Can't find meta event type for $itemId")
         return type
@@ -49,6 +50,7 @@ class HWMetaFetcher(
 
     private suspend fun getEditionMetadataPayload(
         metaEventType: String,
+        idField: String,
         blockHeight: Long,
         transaction: String,
         tokenId: Long
@@ -61,7 +63,7 @@ class HWMetaFetcher(
             } else single().events
         }
         val metadataEvent = blockEvents.firstOrNull {
-            val id = it.event.get<Field<String>>("id")?.value?.toLong()
+            val id = it.event.get<Field<String>>(idField)?.value?.toLong()
             it.transactionId.bytes.bytesToHex() == transaction && id == tokenId
         } ?: run {
             logger.error("Can't find event (tx=$transaction, tokenId=$tokenId, type=$metaEventType)")
