@@ -12,16 +12,20 @@ import com.rarible.flow.api.meta.getFirst
 import com.rarible.flow.api.meta.getText
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
+import org.slf4j.LoggerFactory
 
 abstract class HotWheelsMetaProvider(
     private val fetcher: HWMetaFetcher
 ) : ItemMetaProvider {
+
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     override suspend fun getMeta(item: Item): ItemMeta? {
         val json = fetcher.getContent(item.id)
             ?: throw MetaException("Item ${item.id} doesn't have meta json", MetaException.Status.NOT_FOUND)
 
         val jsonNode = JsonPropertiesParser.parse(item.id, json)
+        logger.info("Received meta json: {}", json)
         return map(item.id, jsonNode)
     }
 
