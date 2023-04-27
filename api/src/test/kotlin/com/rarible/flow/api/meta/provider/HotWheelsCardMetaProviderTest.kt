@@ -43,7 +43,8 @@ class HotWheelsCardMetaProviderTest {
             ItemMetaAttribute("type", "Premium"),
             ItemMetaAttribute("mint", "2780"),
             ItemMetaAttribute("totalSupply", "3000"),
-            ItemMetaAttribute("cardId", "58")
+            ItemMetaAttribute("cardId", "58"),
+            ItemMetaAttribute("miniCollection", "HW Road Trippin'")
         )
     }
 

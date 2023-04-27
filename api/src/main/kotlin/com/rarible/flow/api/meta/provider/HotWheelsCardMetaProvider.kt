@@ -28,7 +28,7 @@ class HotWheelsCardMetaProvider(fetcher: HWMetaFetcher) : HotWheelsMetaProvider(
         "mint",
         "totalSupply",
         "cardId",
-        "collection"
+        "miniCollection"
     )
 
 }

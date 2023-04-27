@@ -44,6 +44,16 @@
             },
             {
               "key": {
+                "value": "miniCollection",
+                "type": "String"
+              },
+              "value": {
+                "value": "HW Road Trippin'",
+                "type": "String"
+              }
+            },
+            {
+              "key": {
                 "type": "String",
                 "value": "cardId"
               },
