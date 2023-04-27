@@ -25,7 +25,7 @@ abstract class HotWheelsMetaProvider(
             ?: throw MetaException("Item ${item.id} doesn't have meta json", MetaException.Status.NOT_FOUND)
 
         val jsonNode = JsonPropertiesParser.parse(item.id, json)
-        logger.info("Received meta json: {}", json)
+        //logger.info("Received meta json: {}", json)
         return map(item.id, jsonNode)
     }
 
