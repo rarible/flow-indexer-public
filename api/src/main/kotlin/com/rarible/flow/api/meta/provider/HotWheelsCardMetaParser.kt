@@ -1,17 +1,9 @@
 package com.rarible.flow.api.meta.provider
 
-import com.rarible.flow.api.meta.fetcher.HWMetaFetcher
-import com.rarible.flow.core.domain.ItemId
-import org.springframework.stereotype.Component
-
-@Component
-class HotWheelsCardMetaProvider(fetcher: HWMetaFetcher) : HotWheelsMetaProvider(fetcher) {
-
-    override fun isSupported(itemId: ItemId): Boolean =
-        itemId.contract.endsWith(".HWGarageCard") || itemId.contract.endsWith(".HWGarageCardV2")
+object HotWheelsCardMetaParser : MattelMetaParser() {
 
     override fun getName(map: Map<String, String>): String? {
-        return map.get("carName") + " #" +  map.get("cardId")
+        return map.get("carName") + " #" + map.get("cardId")
     }
 
     override val fieldName = fields("carName")
