@@ -3,7 +3,7 @@ package com.rarible.flow.api.meta.fetcher
 import com.nftco.flow.sdk.bytesToHex
 import com.nftco.flow.sdk.cadence.Field
 import com.rarible.blockchain.scanner.flow.service.SporkService
-import com.rarible.flow.api.service.HWMetaEventTypeProvider
+import com.rarible.flow.api.service.meta.MetaEventType
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.repository.ItemHistoryRepository
@@ -13,17 +13,20 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
-class HWMetaFetcher(
+class MetaFetcher(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemHistoryRepository: ItemHistoryRepository,
-    private val hwMetaEventTypeProvider: HWMetaEventTypeProvider,
     private val sporkService: SporkService,
 ) {
+
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun getContent(itemId: ItemId): String? {
+    suspend fun getContent(itemId: ItemId, metaEventType: MetaEventType?): String? {
         val mint = getMintEvent(itemId) ?: return null
-        val metaEventType = getMetaEventType(itemId) ?: return null
+        if (metaEventType == null) {
+            logger.error("Can't find meta event type for $itemId")
+            return null
+        }
         return getEditionMetadataPayload(
             tokenId = itemId.tokenId,
             metaEventType = metaEventType.eventType,
@@ -40,12 +43,6 @@ class HWMetaFetcher(
                 null
             } else single()
         }
-    }
-
-    private fun getMetaEventType(itemId: ItemId): HWMetaEventTypeProvider.Result? {
-        val type = hwMetaEventTypeProvider.getMetaEventType(itemId)
-        if (type == null) logger.error("Can't find meta event type for $itemId")
-        return type
     }
 
     private suspend fun getEditionMetadataPayload(

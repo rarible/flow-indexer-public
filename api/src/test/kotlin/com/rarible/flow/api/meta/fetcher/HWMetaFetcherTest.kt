@@ -11,7 +11,7 @@ import com.rarible.blockchain.scanner.flow.service.Spork
 import com.rarible.blockchain.scanner.flow.service.SporkService
 import com.rarible.core.test.data.randomByteArray
 import com.rarible.core.test.data.randomString
-import com.rarible.flow.api.service.HWMetaEventTypeProvider
+import com.rarible.flow.api.service.meta.MetaEventType
 import com.rarible.flow.core.domain.FlowActivityType
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.test.randomFlowEventResult
@@ -30,21 +30,19 @@ import java.util.concurrent.CompletableFuture
 @Suppress("ReactiveStreamsUnusedPublisher")
 class HWMetaFetcherTest {
     private val itemHistoryRepository = mockk<ItemHistoryRepository>()
-    private val hwMetaEventTypeProvider = mockk<HWMetaEventTypeProvider>()
     private val spork = mockk<Spork>()
     private val accessApi = mockk<AsyncFlowAccessApiImpl>()
     private val sporkService = mockk<SporkService>()
 
-    private val fetcher = HWMetaFetcher(
+    private val fetcher = MetaFetcher(
         itemHistoryRepository = itemHistoryRepository,
-        hwMetaEventTypeProvider = hwMetaEventTypeProvider,
         sporkService = sporkService,
     )
 
     @Test
     fun `fetch - ok`() = runBlocking<Unit> {
         val itemId = randomItemId()
-        val eventType = HWMetaEventTypeProvider.Result(randomString())
+        val eventType = MetaEventType(randomString())
         val expectedEventIndex = 1
         val expectedTransactionId = FlowId("e9225a74ce161fad735b45fa3fd80c03d28218effa0be74876cf68648c0696d5")
         val expectedMeta = FlowEventPayload(randomByteArray())
@@ -69,9 +67,6 @@ class HWMetaFetcherTest {
         } returns Flux.just(history)
 
         every {
-            hwMetaEventTypeProvider.getMetaEventType(itemId)
-        } returns eventType
-        every {
             sporkService.spork(history.log.blockHeight)
         } returns spork
         every {
@@ -81,7 +76,7 @@ class HWMetaFetcherTest {
             accessApi.getEventsForHeightRange(eventType.eventType, LongRange(history.log.blockHeight, history.log.blockHeight))
         } returns CompletableFuture.completedFuture(listOf(eventResult))
 
-        val meta = fetcher.getContent(itemId)
+        val meta = fetcher.getContent(itemId, eventType)
         assertThat(meta).isEqualTo(expectedMeta.stringValue)
     }
 }

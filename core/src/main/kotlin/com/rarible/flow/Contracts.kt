@@ -9,6 +9,7 @@ import com.rarible.flow.core.domain.Part
 
 enum class Contracts : Contract {
     HW_GARAGE_CARD {
+
         override val contractName: String = "HWGarageCard"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -28,6 +29,7 @@ enum class Contracts : Contract {
     },
 
     HW_GARAGE_PACK {
+
         override val contractName: String = "HWGaragePack"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -47,6 +49,7 @@ enum class Contracts : Contract {
     },
 
     HW_GARAGE_CARD_V2 {
+
         override val contractName: String = "HWGarageCardV2"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -66,6 +69,7 @@ enum class Contracts : Contract {
     },
 
     HW_GARAGE_PACK_V2 {
+
         override val contractName: String = "HWGaragePackV2"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -85,6 +89,7 @@ enum class Contracts : Contract {
     },
 
     HW_GARAGE_PM {
+
         override val contractName: String = "HWGaragePM"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -104,6 +109,7 @@ enum class Contracts : Contract {
     },
 
     HW_GARAGE_PM_V2 {
+
         override val contractName: String = "HWGaragePMV2"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -122,7 +128,73 @@ enum class Contracts : Contract {
             get() = false
     },
 
+    BARBIE_CARD {
+
+        override val contractName: String = "BBxBarbieCard"
+        override val import = "0XBBXBARBIECARD"
+        override val symbol = "BBBC"
+
+        override val deployments = mapOf(
+            // TODO replace with prod
+            //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbieCard
+            //FlowChainId.MAINNET to FlowAddress("0xeff462cf475a0c02"),
+            //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbieCard
+            FlowChainId.TESTNET to FlowAddress("0xeff462cf475a0c02"),
+            FlowChainId.EMULATOR to FlowAddress("0xeff462cf475a0c02"),
+        )
+    },
+
+    BARBIE_PACK {
+
+        override val contractName: String = "BBxBarbiePack"
+        override val import = "0xBBXBARBIEPACK"
+        override val symbol = "BBBP"
+
+        override val deployments = mapOf(
+            // TODO replace with prod
+            //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbiePack
+            //FlowChainId.MAINNET to FlowAddress("0xeff462cf475a0c02"),
+            //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbiePack
+            FlowChainId.TESTNET to FlowAddress("0xeff462cf475a0c02"),
+            FlowChainId.EMULATOR to FlowAddress("0xeff462cf475a0c02"),
+        )
+    },
+
+    BARBIE_TOKEN {
+
+        override val contractName: String = "BBxBarbieToken"
+        override val import = "0xBBXBARBIETOKEN"
+        override val symbol = "BBBT"
+
+        override val deployments = mapOf(
+            // TODO replace with prod
+            //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbieToken
+            //FlowChainId.MAINNET to FlowAddress("0xeff462cf475a0c02"),
+            //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbieToken
+            FlowChainId.TESTNET to FlowAddress("0xeff462cf475a0c02"),
+            FlowChainId.EMULATOR to FlowAddress("0xeff462cf475a0c02"),
+        )
+
+    },
+
+    BARBIE_PM {
+
+        override val contractName: String = "BBxBarbiePM"
+        override val import = "0xBBXBARBIEPM"
+        override val nft = false
+
+        override val deployments = mapOf(
+            // TODO replace with prod
+            //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbiePM
+            //FlowChainId.MAINNET to FlowAddress("0xeff462cf475a0c02"),
+            //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbiePM
+            FlowChainId.TESTNET to FlowAddress("0xeff462cf475a0c02"),
+            FlowChainId.EMULATOR to FlowAddress("0xeff462cf475a0c02"),
+        )
+    },
+
     RARIBLE_NFT {
+
         override val contractName: String = "RaribleNFT"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -148,6 +220,7 @@ enum class Contracts : Contract {
     },
 
     RARIBLE_GARAGE_CARD {
+
         override val contractName: String = "HWGarageCard"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -165,6 +238,7 @@ enum class Contracts : Contract {
     },
 
     RARIBLE_GARAGE_PACK {
+
         override val contractName: String = "HWGaragePack"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -181,8 +255,8 @@ enum class Contracts : Contract {
             get() = "HWGP"
     },
 
-
     RARIBLE_GARAGE_CARD_V2 {
+
         override val contractName: String = "HWGarageCardV2"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -200,6 +274,7 @@ enum class Contracts : Contract {
     },
 
     RARIBLE_GARAGE_PACK_V2 {
+
         override val contractName: String = "HWGaragePackV2"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -217,6 +292,7 @@ enum class Contracts : Contract {
     },
 
     RARIBLE_GARAGE_PM {
+
         override val contractName: String = "HWGaragePM"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -235,6 +311,7 @@ enum class Contracts : Contract {
     },
 
     RARIBLE_GARAGE_PM_V2 {
+
         override val contractName: String = "HWGaragePMV2"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -252,6 +329,7 @@ enum class Contracts : Contract {
     },
 
     NFT_STOREFRONT {
+
         override val contractName = "NFTStorefront"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -269,6 +347,7 @@ enum class Contracts : Contract {
     },
 
     NFT_STOREFRONT_V2 {
+
         override val contractName = "NFTStorefrontV2"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -285,9 +364,9 @@ enum class Contracts : Contract {
             get() = false
     },
 
-
     //=========== Disabled contracts
     ONE_FOOTBALL {
+
         override val import: String
             get() = "0xONEFOOTBALL"
 
@@ -302,7 +381,7 @@ enum class Contracts : Contract {
             )
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
-            return if(chain == FlowChainId.MAINNET) {
+            return if (chain == FlowChainId.MAINNET) {
                 listOf(
                     Part(
                         FlowAddress("0x6831760534292098"),
@@ -323,6 +402,7 @@ enum class Contracts : Contract {
     },
 
     STARLY_CARD {
+
         override val contractName: String
             get() = "StarlyCard"
 
@@ -352,6 +432,7 @@ enum class Contracts : Contract {
     },
 
     MATRIX_WORLD_VOUCHER {
+
         override val contractName: String
             get() = "MatrixWorldVoucher"
 
@@ -382,6 +463,7 @@ enum class Contracts : Contract {
     },
 
     MATRIX_WORLD_FLOW_FEST {
+
         override val contractName: String
             get() = "MatrixWorldFlowFestNFT"
 
@@ -396,7 +478,7 @@ enum class Contracts : Contract {
             get() = "0xMATRIXWORLDFLOWFEST"
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
-            return if(chain == FlowChainId.MAINNET) listOf(
+            return if (chain == FlowChainId.MAINNET) listOf(
                 Part(FlowAddress("0x46f1e88b54fcb73c"), FIVE_PERCENT) // 5%
             ) else super.staticRoyalties(chain)
         }
@@ -412,6 +494,7 @@ enum class Contracts : Contract {
     },
 
     JAMBB_MOMENTS {
+
         override val contractName: String
             get() = "Moments"
 
@@ -442,6 +525,7 @@ enum class Contracts : Contract {
     },
 
     CNN {
+
         override val contractName: String
             get() = "CNN_NFT"
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -470,6 +554,7 @@ enum class Contracts : Contract {
     },
 
     VERSUS_ART {
+
         override val contractName = "Art"
 
         override val deployments = mapOf(
@@ -491,6 +576,7 @@ enum class Contracts : Contract {
     },
 
     EVOLUTION {
+
         override val contractName: String
             get() = "Evolution"
 
@@ -518,6 +604,7 @@ enum class Contracts : Contract {
     },
 
     MOTOGP {
+
         override val contractName: String
             get() = "MotoGPCard"
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -549,6 +636,7 @@ enum class Contracts : Contract {
     },
 
     FANFARE {
+
         override val contractName: String
             get() = "FanfareNFTContract"
 
@@ -575,6 +663,7 @@ enum class Contracts : Contract {
     },
 
     CHAINMONSTERS {
+
         override val contractName: String
             get() = "ChainmonstersRewards"
 
@@ -602,6 +691,7 @@ enum class Contracts : Contract {
     },
 
     BARTER_YARD_PACK {
+
         override val contractName: String = "BarterYardPackNFT"
 
         override val deployments: Map<FlowChainId, FlowAddress> = mapOf(
@@ -611,7 +701,7 @@ enum class Contracts : Contract {
 
         override val import: String = "0xBARTERYARDPACKNFT"
 
-        override fun staticRoyalties(chain: FlowChainId): List<Part> = when(chain) {
+        override fun staticRoyalties(chain: FlowChainId): List<Part> = when (chain) {
             FlowChainId.MAINNET -> listOf(Part(FlowAddress("0xb07b788eb60b6528"), FIVE_PERCENT))
             FlowChainId.TESTNET -> listOf(Part(FlowAddress("0x4300fc3a11778a9a"), FIVE_PERCENT))
             else -> super.staticRoyalties(chain)
@@ -631,6 +721,7 @@ enum class Contracts : Contract {
     },
 
     KICKS {
+
         override val contractName: String
             get() = "Kicks"
 
@@ -658,6 +749,7 @@ enum class Contracts : Contract {
     },
 
     DISRUPT_ART {
+
         override val contractName: String
             get() = "DisruptArt"
 
@@ -672,11 +764,13 @@ enum class Contracts : Contract {
             get() = "0xDISRUPTART"
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
-            return listOfNotNull(when (chain) {
-                FlowChainId.MAINNET -> Part(FlowAddress("0x420f47f16a214100"), 15.0.percent())
-                FlowChainId.TESTNET -> Part(FlowAddress("0x439c2b49c0b2f62b"), 15.0.percent())
-                else -> null
-            })
+            return listOfNotNull(
+                when (chain) {
+                    FlowChainId.MAINNET -> Part(FlowAddress("0x420f47f16a214100"), 15.0.percent())
+                    FlowChainId.TESTNET -> Part(FlowAddress("0x439c2b49c0b2f62b"), 15.0.percent())
+                    else -> null
+                }
+            )
         }
 
         override val enabled: Boolean
@@ -687,6 +781,7 @@ enum class Contracts : Contract {
     },
 
     TOPSHOT {
+
         override val contractName: String
             get() = "TopShot"
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -699,7 +794,7 @@ enum class Contracts : Contract {
             get() = "0xTOPSHOT"
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
-            return if(chain == FlowChainId.MAINNET) {
+            return if (chain == FlowChainId.MAINNET) {
                 listOf(
                     Part(
                         address = FlowAddress("0x0b2a3299cc857e29"),
@@ -723,6 +818,7 @@ enum class Contracts : Contract {
     },
 
     ENGLISH_AUCTION {
+
         override val contractName: String
             get() = "EnglishAuction"
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -739,6 +835,7 @@ enum class Contracts : Contract {
     },
 
     SOFT_COLLECTION {
+
         override val contractName: String = "SoftCollection"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -755,6 +852,7 @@ enum class Contracts : Contract {
     },
 
     RARIBLE_NFTV2 {
+
         override val contractName: String = "RaribleNFTv2"
 
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -781,6 +879,7 @@ enum class Contracts : Contract {
     },
 
     SOME_PLACE_COLLECTIBLE {
+
         override val contractName: String
             get() = "SomePlaceCollectible"
 
@@ -794,7 +893,7 @@ enum class Contracts : Contract {
         override val import: String
             get() = "0x${contractName.uppercase()}"
 
-        override fun staticRoyalties(chain: FlowChainId): List<Part> = when(chain) {
+        override fun staticRoyalties(chain: FlowChainId): List<Part> = when (chain) {
             FlowChainId.MAINNET -> listOf(Part(FlowAddress("0x8e2e0ebf3c03aa88"), TEN_PERCENT))
             else -> super.staticRoyalties(chain)
         }
@@ -813,6 +912,7 @@ enum class Contracts : Contract {
     },
 
     GENIACE {
+
         override val contractName = "GeniaceNFT"
 
         override val deployments = mapOf(
@@ -841,6 +941,7 @@ enum class Contracts : Contract {
     },
 
     CRYPTOPIGGO {
+
         override val contractName: String
             get() = "CryptoPiggo"
         override val deployments: Map<FlowChainId, FlowAddress>
@@ -854,7 +955,7 @@ enum class Contracts : Contract {
             get() = "0x${contractName.uppercase()}"
 
         override fun staticRoyalties(chain: FlowChainId): List<Part> {
-            return when(chain) {
+            return when (chain) {
                 FlowChainId.MAINNET -> listOf(Part(FlowAddress("0x4bf7023c25942322"), 3.5.percent()))
                 else -> super.staticRoyalties(chain)
             }
@@ -868,6 +969,7 @@ enum class Contracts : Contract {
     },
 
     MUGEN {
+
         override val contractName: String
             get() = "MugenNFT"
         override val deployments: Map<FlowChainId, FlowAddress>
