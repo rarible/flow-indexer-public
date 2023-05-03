@@ -76,13 +76,13 @@ class OrderToDtoConverter(
         payouts = data.payouts.map {
             PayInfoDto(
                 account = it.account.formatted,
-                value = it.value
+                value = toBasePoints(it.value)
             )
         },
         originalFees = data.originalFees.map {
             PayInfoDto(
                 account = it.account.formatted,
-                value = it.value
+                value = toBasePoints(it.value)
             )
         }
     )
@@ -114,5 +114,13 @@ class OrderToDtoConverter(
                 sort.nextPage(orders, size)
             )
         }
+    }
+
+    private fun toBasePoints(v: BigDecimal): BigDecimal {
+        return v.multiply(BP_MULTIPLIER)
+    }
+
+    private companion object {
+        val BP_MULTIPLIER = BigDecimal(10000)
     }
 }
