@@ -2,6 +2,7 @@ package com.rarible.flow.api.meta.provider
 
 import com.rarible.flow.api.meta.getFirst
 
+// TODO update when know meta format
 object BarbieTokenMetaParser : MattelMetaParser() {
 
     override fun getName(map: Map<String, String>): String? {
