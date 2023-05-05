@@ -61,7 +61,7 @@ class MetaFetcher(
         }
         val metadataEvent = blockEvents.firstOrNull {
             val id = it.event.get<Field<String>>(idField)?.value?.toLong()
-            logger.info("Checking event: ${it.transactionId.bytes.bytesToHex()} id=$id")
+            logger.info("Checking event: ${it.transactionId.bytes.bytesToHex()}, data=${it.event}")
             it.transactionId.bytes.bytesToHex() == transaction && id == tokenId
         } ?: run {
             logger.error("Can't find event (tx=$transaction, tokenId=$tokenId, type=$metaEventType)")
