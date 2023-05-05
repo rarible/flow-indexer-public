@@ -30,11 +30,11 @@ class BarbieMetaEventTypeProvider(properties: ApiProperties) : MetaEventTypeProv
     }
 
     private fun getPackMetadataEvent(pmContract: Contracts): MetaEventType {
-        return MetaEventType("${pmContract.fqn(chainId)}.$ADMIN_MINT_PACK")
+        return MetaEventType("${pmContract.fqn(chainId)}.$ADMIN_MINT_PACK", "packID")
     }
 
     private fun getCardMetadataEvent(pmContract: Contracts): MetaEventType {
-        return MetaEventType("${pmContract.fqn(chainId)}.$ADMIN_MINT_CARD", "packID")
+        return MetaEventType("${pmContract.fqn(chainId)}.$ADMIN_MINT_CARD")
     }
 
     private fun getTokenMetadataEvent(pmContract: Contracts): MetaEventType {
