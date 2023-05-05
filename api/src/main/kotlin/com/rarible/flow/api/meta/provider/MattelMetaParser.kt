@@ -18,6 +18,7 @@ abstract class MattelMetaParser {
 
     suspend fun parse(json: String, itemId: ItemId): ItemMeta {
         val jsonNode = JsonPropertiesParser.parse(itemId, json)
+        logger.info("Received json for item {}: {}", itemId, json)
         return map(itemId, jsonNode)
     }
 
