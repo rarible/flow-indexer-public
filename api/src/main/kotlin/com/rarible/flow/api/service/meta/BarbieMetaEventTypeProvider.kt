@@ -21,16 +21,24 @@ class BarbieMetaEventTypeProvider(properties: ApiProperties) : MetaEventTypeProv
                 getCardMetadataEvent(Contracts.BARBIE_PM)
             }
 
+            Contracts.BARBIE_TOKEN.fqn(chainId) -> {
+                getTokenMetadataEvent(Contracts.BARBIE_PM)
+            }
+
             else -> null
         }
     }
 
     private fun getPackMetadataEvent(pmContract: Contracts): MetaEventType {
-        return MetaEventType("${pmContract.fqn(chainId)}.$UPDATE_PACK_EDITION_METADATA")
+        return MetaEventType("${pmContract.fqn(chainId)}.$ADMIN_MINT_PACK")
     }
 
     private fun getCardMetadataEvent(pmContract: Contracts): MetaEventType {
-        return MetaEventType("${pmContract.fqn(chainId)}.$UPDATE_TOKEN_EDITION_METADATA")
+        return MetaEventType("${pmContract.fqn(chainId)}.$ADMIN_MINT_CARD")
+    }
+
+    private fun getTokenMetadataEvent(pmContract: Contracts): MetaEventType {
+        return MetaEventType("${pmContract.fqn(chainId)}.$ADMIN_MINT_TOKEN")
     }
 
     data class Result(
@@ -42,7 +50,8 @@ class BarbieMetaEventTypeProvider(properties: ApiProperties) : MetaEventTypeProv
 
         const val DEFAULT_ID = "id"
 
-        const val UPDATE_PACK_EDITION_METADATA = "UpdatePackEditionMetadata"
-        const val UPDATE_TOKEN_EDITION_METADATA = "UpdateTokenEditionMetadata"
+        const val ADMIN_MINT_CARD = "AdminMintCard"
+        const val ADMIN_MINT_PACK = "AdminMintPack"
+        const val ADMIN_MINT_TOKEN = "AdminMintToken"
     }
 }
