@@ -1,11 +1,12 @@
 package com.rarible.flow.api.meta.provider
 
 import com.rarible.flow.api.meta.getFirst
+import com.rarible.flow.core.domain.ItemId
 
 // TODO update when know meta format
 object BarbieCardMetaParser : MattelMetaParser() {
 
-    override fun getName(map: Map<String, String>): String? {
+    override fun getName(map: Map<String, String>, itemId: ItemId): String? {
         return map.getFirst(*BarbieTokenMetaParser.fieldName)
     }
 
