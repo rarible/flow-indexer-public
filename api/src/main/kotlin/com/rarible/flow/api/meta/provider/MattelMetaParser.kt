@@ -22,7 +22,7 @@ abstract class MattelMetaParser {
         return map(itemId, jsonNode)
     }
 
-    abstract fun getName(map: Map<String, String>): String?
+    abstract fun getName(map: Map<String, String>, itemId: ItemId): String?
     protected open fun map(itemId: ItemId, node: JsonNode): ItemMeta {
         val dictionary = node.get("value")
             .getArray("fields")
@@ -30,7 +30,7 @@ abstract class MattelMetaParser {
             ?.get("value")
             ?: throw MetaException("'metadata' node not found", MetaException.Status.CORRUPTED_DATA)
         val map = toKeyValueMap(dictionary)
-        val name = getName(map)
+        val name = getName(map, itemId)
             ?: throw MetaException("'name' field not found", MetaException.Status.CORRUPTED_DATA)
         return ItemMeta(
             itemId = itemId,
