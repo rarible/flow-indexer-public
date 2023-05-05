@@ -34,22 +34,15 @@ class BarbieMetaEventTypeProvider(properties: ApiProperties) : MetaEventTypeProv
     }
 
     private fun getCardMetadataEvent(pmContract: Contracts): MetaEventType {
-        return MetaEventType("${pmContract.fqn(chainId)}.$ADMIN_MINT_CARD")
+        return MetaEventType("${pmContract.fqn(chainId)}.$ADMIN_MINT_CARD", "packID")
     }
 
     private fun getTokenMetadataEvent(pmContract: Contracts): MetaEventType {
         return MetaEventType("${pmContract.fqn(chainId)}.$ADMIN_MINT_TOKEN")
     }
 
-    data class Result(
-        val eventType: String,
-        val id: String = DEFAULT_ID,
-    )
 
     private companion object {
-
-        const val DEFAULT_ID = "id"
-
         const val ADMIN_MINT_CARD = "AdminMintCard"
         const val ADMIN_MINT_PACK = "AdminMintPack"
         const val ADMIN_MINT_TOKEN = "AdminMintToken"
