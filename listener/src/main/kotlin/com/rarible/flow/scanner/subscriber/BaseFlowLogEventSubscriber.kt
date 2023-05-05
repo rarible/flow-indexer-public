@@ -47,6 +47,11 @@ abstract class BaseFlowLogEventSubscriber : FlowLogEventSubscriber {
         log: FlowBlockchainLog
     ): List<FlowLogRecord> {
         val descriptor = getDescriptor()
+        val isNewEvent = isNewEvent(block, log.event)
+        logger.info(
+            "Got event: ${log.event.id} of block ${block.number}," +
+                " descriptor events: ${descriptor.events}, is new event: ${isNewEvent} for key ${log.event.transactionId.base16Value}.${log.event.eventIndex}"
+        )
         return if (descriptor.events.contains(log.event.id) && isNewEvent(block, log.event)) {
             listOf(
                 FlowLogEvent(
