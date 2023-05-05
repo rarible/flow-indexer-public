@@ -2,7 +2,6 @@ package com.rarible.flow.api.meta.provider
 
 import com.rarible.flow.api.meta.getFirst
 
-// TODO update when know meta format
 object BarbiePackMetaParser : MattelMetaParser() {
 
     override fun getName(map: Map<String, String>): String? {
@@ -16,5 +15,6 @@ object BarbiePackMetaParser : MattelMetaParser() {
 
     override val attributesWhiteList = setOf(
         "type",
+        "totalItemCount"
     )
 }

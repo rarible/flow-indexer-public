@@ -12,10 +12,34 @@ object BarbieCardMetaParser : MattelMetaParser() {
     override val fieldName = fields("name")
     override val fieldDescription = fields()
     override val fieldImageOriginal = fields("imageUrl")
-    override val fieldRights = fields("licensorLegal")
+    override val fieldRights = fields("eula")
 
     override val attributesWhiteList = setOf(
-        "type",
+        "Type",
+        "Background",
+        "Eyes",
+        "Rarity",
+        "Hair",
+        "Nose",
+        "releaseYear",
+        "cardId",
+        "releaseDate",
+        "Skin Tone",
+        "Lips",
+        "Necklace",
+        "Lip Color",
+        "Face Shape",
+        "Hair Color",
+        "Freckles",
+        "Earrings",
+        "seriesName",
+        "Eyebrows Color",
+        "Eye Color",
+        "Eyebrows",
+        "miniCollection",
+        "totalSupply",
+        "Redeemable",
+        "Makeup",
+        "Glasses"
     )
-
 }
