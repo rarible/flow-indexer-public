@@ -8,13 +8,14 @@ object BarbiePackMetaParser : MattelMetaParser() {
         return map.getFirst(*fieldName)
     }
 
-    override val fieldName = fields("packName")
+    override val fieldName = fields("collectionName")
     override val fieldDescription = fields("packDescription")
     override val fieldImageOriginal = fields("thumbnailCID")
     override val fieldRights = fields()
 
     override val attributesWhiteList = setOf(
         "type",
-        "totalItemCount"
+        "totalItemCount",
+        "packName"
     )
 }
