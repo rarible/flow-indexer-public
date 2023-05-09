@@ -50,3 +50,33 @@ class BarbieTokenActivity(
 
     override val contractName: String = Contracts.BARBIE_TOKEN.contractName
 }
+
+@Component
+class RaribleBarbieCardActivity(
+    logRepository: FlowLogRepository,
+    txManager: TxManager,
+    properties: FlowListenerProperties,
+) : BarbieActivityMaker(logRepository, txManager, properties) {
+
+    override val contractName: String = Contracts.RARIBLE_BARBIE_CARD.contractName
+}
+
+@Component
+class RaribleBarbiePackActivity(
+    logRepository: FlowLogRepository,
+    txManager: TxManager,
+    properties: FlowListenerProperties,
+) : BarbieActivityMaker(logRepository, txManager, properties) {
+
+    override val contractName: String = Contracts.RARIBLE_BARBIE_PACK.contractName
+}
+
+@Component
+class RaribleBarbieTokenActivity(
+    logRepository: FlowLogRepository,
+    txManager: TxManager,
+    properties: FlowListenerProperties,
+) : BarbieActivityMaker(logRepository, txManager, properties) {
+
+    override val contractName: String = Contracts.RARIBLE_BARBIE_TOKEN.contractName
+}
