@@ -30,7 +30,6 @@ app:
     enableRaribleBarbiePack: false
     enableRaribleBarbieToken: false
     enableStorefrontV1: false
-    enableStorefrontV2: true
 
 spring:
   data:
