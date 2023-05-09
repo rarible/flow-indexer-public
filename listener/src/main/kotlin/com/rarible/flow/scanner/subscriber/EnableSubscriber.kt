@@ -24,6 +24,21 @@ annotation class EnableRariblePackV2
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
+@ConditionalOnProperty(name = ["app.feature-flags.enable-rarible-barbie-card"], havingValue = "true")
+annotation class EnableRaribleBarbieCard
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+@ConditionalOnProperty(name = ["app.feature-flags.enable-rarible-barbie-pack"], havingValue = "true")
+annotation class EnableRaribleBarbiePack
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+@ConditionalOnProperty(name = ["app.feature-flags.enable-rarible-barbie-token"], havingValue = "true")
+annotation class EnableRaribleBarbieToken
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
 @ConditionalOnProperty(name = ["app.feature-flags.enable-rarible-nft"], havingValue = "true")
 annotation class EnableRaribleNft
 

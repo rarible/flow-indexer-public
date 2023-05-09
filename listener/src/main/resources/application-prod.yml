@@ -26,6 +26,9 @@ app:
     enableRariblePack: false
     enableRariblePackV2: false
     enableRaribleNft: false
+    enableRaribleBarbieCard: false
+    enableRaribleBarbiePack: false
+    enableRaribleBarbieToken: false
     enableStorefrontV1: false
     enableStorefrontV2: true
 

@@ -328,6 +328,50 @@ enum class Contracts : Contract {
             get() = false
     },
 
+    RARIBLE_BARBIE_CARD {
+
+        override val contractName: String = "BBxBarbieCard"
+        override val import = "0XBBXBARBIECARD"
+        override val symbol = "BBBC"
+
+        override val deployments = mapOf(
+            FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
+        )
+    },
+
+    RARIBLE_BARBIE_PACK {
+
+        override val contractName: String = "BBxBarbiePack"
+        override val import = "0xBBXBARBIEPACK"
+        override val symbol = "BBBP"
+
+        override val deployments = mapOf(
+            FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
+        )
+    },
+
+    RARIBLE_BARBIE_TOKEN {
+
+        override val contractName: String = "BBxBarbieToken"
+        override val import = "0xBBXBARBIETOKEN"
+        override val symbol = "BBBT"
+
+        override val deployments = mapOf(
+            FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
+        )
+    },
+
+    RARIBLE_BARBIE_PM {
+
+        override val contractName: String = "BBxBarbiePM"
+        override val import = "0xBBXBARBIEPM"
+        override val nft = false
+
+        override val deployments = mapOf(
+            FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
+        )
+    },
+
     NFT_STOREFRONT {
 
         override val contractName = "NFTStorefront"

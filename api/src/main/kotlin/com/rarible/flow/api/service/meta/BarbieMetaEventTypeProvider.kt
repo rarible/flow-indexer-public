@@ -25,6 +25,18 @@ class BarbieMetaEventTypeProvider(properties: ApiProperties) : MetaEventTypeProv
                 getTokenMetadataEvent(Contracts.BARBIE_PM)
             }
 
+            Contracts.RARIBLE_BARBIE_PACK.fqn(chainId) -> {
+                getPackMetadataEvent(Contracts.RARIBLE_BARBIE_PM)
+            }
+
+            Contracts.RARIBLE_BARBIE_CARD.fqn(chainId) -> {
+                getCardMetadataEvent(Contracts.RARIBLE_BARBIE_PM)
+            }
+
+            Contracts.RARIBLE_BARBIE_TOKEN.fqn(chainId) -> {
+                getTokenMetadataEvent(Contracts.RARIBLE_BARBIE_PM)
+            }
+
             else -> null
         }
     }

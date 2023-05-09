@@ -27,11 +27,14 @@ app:
   featureFlags:
     enableRaribleCard: true
     enableRaribleCardV2: true
-    enableRariblePack: true
-    enableRariblePackV2: true
+    enableRariblePack: false
+    enableRariblePackV2: false
     enableRaribleNft: false
     enableStorefrontV1: false
     enableStorefrontV2: true
+    enableRaribleBarbieCard: true
+    enableRaribleBarbiePack: true
+    enableRaribleBarbieToken: true
 
 blockchain:
   scanner:
