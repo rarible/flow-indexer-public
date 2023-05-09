@@ -33,7 +33,7 @@ app:
     enableStorefrontV1: false
     enableRaribleBarbieCard: true
     enableRaribleBarbiePack: true
-    enableRaribleBarbieToken: true
+    enableRaribleBarbieToken: false
 
 blockchain:
   scanner:
