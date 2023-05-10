@@ -12,8 +12,11 @@ import com.rarible.blockchain.scanner.flow.service.SporkService
 import com.rarible.core.test.data.randomByteArray
 import com.rarible.core.test.data.randomString
 import com.rarible.flow.api.service.meta.MetaEventType
+import com.rarible.flow.core.config.FeatureFlagsProperties
 import com.rarible.flow.core.domain.FlowActivityType
+import com.rarible.flow.core.domain.RawOnChainMeta
 import com.rarible.flow.core.repository.ItemHistoryRepository
+import com.rarible.flow.core.repository.RawOnChainMetaCacheRepository
 import com.rarible.flow.core.test.randomFlowEventResult
 import com.rarible.flow.core.test.randomItemId
 import com.rarible.flow.core.test.randomMintItemHistory
@@ -25,22 +28,31 @@ import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.daemon.common.toHexString
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.util.concurrent.CompletableFuture
 
 @Suppress("ReactiveStreamsUnusedPublisher")
-class HWMetaFetcherTest {
+class RawOnChainMetaFetcherTest {
+
     private val itemHistoryRepository = mockk<ItemHistoryRepository>()
+    private val rawOnChainMetaCacheRepository = mockk<RawOnChainMetaCacheRepository>()
     private val spork = mockk<Spork>()
     private val accessApi = mockk<AsyncFlowAccessApiImpl>()
     private val sporkService = mockk<SporkService>()
+    private val ff: FeatureFlagsProperties = FeatureFlagsProperties(
+        enableRawOnChainMetaCacheRead = true,
+        enableRawOnChainMetaCacheWrite = true
+    )
 
-    private val fetcher = MetaFetcher(
+    private val fetcher = RawOnChainMetaFetcher(
         itemHistoryRepository = itemHistoryRepository,
         sporkService = sporkService,
+        rawOnChainMetaCacheRepository = rawOnChainMetaCacheRepository,
+        ff = ff
     )
 
     @Test
-    fun `fetch - ok`() = runBlocking<Unit> {
+    fun `fetch - ok, not cached`() = runBlocking<Unit> {
         val itemId = randomItemId()
         val eventType = MetaEventType(randomString())
         val expectedEventIndex = 1
@@ -66,17 +78,33 @@ class HWMetaFetcherTest {
             itemHistoryRepository.findItemActivity(itemId.contract, itemId.tokenId, FlowActivityType.MINT)
         } returns Flux.just(history)
 
+        every { rawOnChainMetaCacheRepository.findById(itemId.toString()) } returns Mono.empty()
+
+        every { sporkService.spork(history.log.blockHeight) } returns spork
+        every { spork.api } returns accessApi
+
         every {
-            sporkService.spork(history.log.blockHeight)
-        } returns spork
-        every {
-            spork.api
-        } returns accessApi
-        every {
-            accessApi.getEventsForHeightRange(eventType.eventType, LongRange(history.log.blockHeight, history.log.blockHeight))
+            accessApi.getEventsForHeightRange(
+                eventType.eventType,
+                LongRange(history.log.blockHeight, history.log.blockHeight)
+            )
         } returns CompletableFuture.completedFuture(listOf(eventResult))
+
+        val rawMeta = RawOnChainMeta(itemId.toString(), expectedMeta.stringValue)
+        every { rawOnChainMetaCacheRepository.save(rawMeta) } returns Mono.just(rawMeta)
 
         val meta = fetcher.getContent(itemId, eventType)
         assertThat(meta).isEqualTo(expectedMeta.stringValue)
+    }
+
+    @Test
+    fun `fetch - ok, cached`() = runBlocking<Unit> {
+        val itemId = randomItemId()
+        val cachedRawMeta = RawOnChainMeta(itemId.toString(), randomString())
+
+        every { rawOnChainMetaCacheRepository.findById(itemId.toString()) } returns Mono.just(cachedRawMeta)
+
+        val meta = fetcher.getContent(itemId, MetaEventType(randomString()))
+        assertThat(meta).isEqualTo(cachedRawMeta.data)
     }
 }

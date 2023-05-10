@@ -26,4 +26,7 @@ data class FeatureFlagsProperties(
     val enableRaribleNft: Boolean = true,
     val enableStorefrontV1: Boolean = true,
     val enableStorefrontV2: Boolean = true,
+    val enableProxyForMetaDownload: Boolean = false,
+    val enableRawOnChainMetaCacheRead: Boolean = true,
+    val enableRawOnChainMetaCacheWrite: Boolean = true,
 )

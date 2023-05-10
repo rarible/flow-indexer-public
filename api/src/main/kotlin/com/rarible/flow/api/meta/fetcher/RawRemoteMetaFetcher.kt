@@ -3,22 +3,23 @@ package com.rarible.flow.api.meta.fetcher
 import com.rarible.core.meta.resource.http.ExternalHttpClient
 import com.rarible.core.meta.resource.model.HttpUrl
 import com.rarible.core.meta.resource.model.UrlResource
-import com.rarible.flow.api.config.FeatureFlags
 import com.rarible.flow.api.meta.MetaException
 import com.rarible.flow.api.service.UrlService
 import com.rarible.flow.api.util.itemMetaError
 import com.rarible.flow.api.util.itemMetaInfo
+import com.rarible.flow.core.config.FeatureFlagsProperties
 import com.rarible.flow.core.domain.ItemId
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.net.URL
 
 @Component
-class RawMetaFetcher(
+class RawRemoteMetaFetcher(
     private val urlService: UrlService,
     private val externalHttpClient: ExternalHttpClient,
-    private var featureFlags: FeatureFlags
+    private val featureFlags: FeatureFlagsProperties
 ) {
+
     private val logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun getContent(itemId: ItemId, resource: UrlResource): String? {

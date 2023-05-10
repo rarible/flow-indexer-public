@@ -2,7 +2,7 @@ package com.rarible.flow.api.meta.provider
 
 import com.rarible.flow.api.IntegrationTest
 import com.rarible.flow.api.meta.ItemMetaContent
-import com.rarible.flow.api.meta.fetcher.RawMetaFetcher
+import com.rarible.flow.api.meta.fetcher.RawRemoteMetaFetcher
 import com.rarible.flow.api.service.UrlService
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
@@ -22,7 +22,7 @@ class RaribleNFTMetaProviderIt {
     @Autowired
     lateinit var urlService: UrlService
     lateinit var provider: RaribleMetaProvider
-    private val rawPropertiesProvider = mockk<RawMetaFetcher>()
+    private val rawPropertiesProvider = mockk<RawRemoteMetaFetcher>()
 
     private val itemId = ItemId("A.1234.RaribleNFT", 1337)
     val json = """{

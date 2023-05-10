@@ -22,12 +22,16 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
 import java.math.BigDecimal
 
 @Configuration
-@EnableReactiveMongoRepositories(basePackages = [
-    "com.rarible.flow.core.repository",
-])
-@EnableConfigurationProperties(value = [
-    AppProperties::class
-])
+@EnableReactiveMongoRepositories(
+    basePackages = [
+        "com.rarible.flow.core.repository",
+    ]
+)
+@EnableConfigurationProperties(
+    value = [
+        AppProperties::class
+    ]
+)
 @ComponentScan(
     basePackageClasses = [
         ServicePackage::class,
@@ -62,10 +66,16 @@ class CoreConfig(
         GatewayEventsProducers.auctionsUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
         itemHistoryToDtoConverter
     )
+
+    @Bean
+    fun featureFlagsProperties(): FeatureFlagsProperties {
+        return appProperties.featureFlags
+    }
 }
 
 @WritingConverter
 private class BigDecimalDecimal128Converter : Converter<BigDecimal, Decimal128> {
+
     override fun convert(source: BigDecimal): Decimal128 {
         return Decimal128(source)
     }
@@ -73,6 +83,7 @@ private class BigDecimalDecimal128Converter : Converter<BigDecimal, Decimal128> 
 
 @ReadingConverter
 private class Decimal128BigDecimalConverter : Converter<Decimal128, BigDecimal> {
+
     override fun convert(source: Decimal128): BigDecimal {
         return source.bigDecimalValue()
     }
