@@ -30,7 +30,8 @@ class SporkConfigurationService(
                 FlowChainId.TESTNET, listOf(
                 Spork(
                     from = 99452067,
-                    nodeUrl = "access.devnet.nodes.onflow.org"
+                    nodeUrl = properties.flowAccessUrl,
+                    port = properties.flowAccessPort,
                 )
             ))
         }
