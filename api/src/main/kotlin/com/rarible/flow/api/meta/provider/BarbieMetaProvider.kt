@@ -1,12 +1,12 @@
 package com.rarible.flow.api.meta.provider
 
-import com.rarible.flow.api.meta.fetcher.MetaFetcher
+import com.rarible.flow.api.meta.fetcher.RawOnChainMetaFetcher
 import com.rarible.flow.api.service.meta.BarbieMetaEventTypeProvider
 import com.rarible.flow.core.domain.ItemId
 import org.springframework.stereotype.Component
 
 sealed class BarbieMetaProvider(
-    fetcher: MetaFetcher,
+    fetcher: RawOnChainMetaFetcher,
     parser: MattelMetaParser,
     metaEventTypeProvider: BarbieMetaEventTypeProvider,
 ) : AbstractMetaProvider(
@@ -17,7 +17,7 @@ sealed class BarbieMetaProvider(
 
 @Component
 class BarbieCardMetaProvider(
-    fetcher: MetaFetcher,
+    fetcher: RawOnChainMetaFetcher,
     metaEventTypeProvider: BarbieMetaEventTypeProvider,
 ) : BarbieMetaProvider(fetcher, BarbieCardMetaParser, metaEventTypeProvider) {
 
@@ -28,7 +28,7 @@ class BarbieCardMetaProvider(
 
 @Component
 class BarbiePackMetaProvider(
-    fetcher: MetaFetcher,
+    fetcher: RawOnChainMetaFetcher,
     metaEventTypeProvider: BarbieMetaEventTypeProvider,
 ) : BarbieMetaProvider(fetcher, BarbiePackMetaParser, metaEventTypeProvider) {
 
@@ -39,7 +39,7 @@ class BarbiePackMetaProvider(
 
 @Component
 class BarbieTokenMetaProvider(
-    fetcher: MetaFetcher,
+    fetcher: RawOnChainMetaFetcher,
     metaEventTypeProvider: BarbieMetaEventTypeProvider,
 ) : BarbieMetaProvider(fetcher, BarbieTokenMetaParser, metaEventTypeProvider) {
 

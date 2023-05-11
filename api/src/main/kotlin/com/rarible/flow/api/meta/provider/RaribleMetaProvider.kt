@@ -7,7 +7,7 @@ import com.rarible.flow.api.meta.ItemMetaAttribute
 import com.rarible.flow.api.meta.ItemMetaContent
 import com.rarible.flow.api.meta.JsonPropertiesParser
 import com.rarible.flow.api.meta.MetaException
-import com.rarible.flow.api.meta.fetcher.RawMetaFetcher
+import com.rarible.flow.api.meta.fetcher.RawRemoteMetaFetcher
 import com.rarible.flow.api.meta.getArray
 import com.rarible.flow.api.meta.getText
 import com.rarible.flow.api.service.UrlService
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class RaribleMetaProvider(
-    private val rawPropertiesProvider: RawMetaFetcher,
+    private val rawPropertiesProvider: RawRemoteMetaFetcher,
     private val urlService: UrlService
 ) : ItemMetaProvider {
 

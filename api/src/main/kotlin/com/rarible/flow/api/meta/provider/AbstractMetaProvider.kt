@@ -2,12 +2,12 @@ package com.rarible.flow.api.meta.provider
 
 import com.rarible.flow.api.meta.ItemMeta
 import com.rarible.flow.api.meta.MetaException
-import com.rarible.flow.api.meta.fetcher.MetaFetcher
+import com.rarible.flow.api.meta.fetcher.RawOnChainMetaFetcher
 import com.rarible.flow.api.service.meta.MetaEventTypeProvider
 import com.rarible.flow.core.domain.Item
 
 abstract class AbstractMetaProvider(
-    private val fetcher: MetaFetcher,
+    private val fetcher: RawOnChainMetaFetcher,
     private val parser: MattelMetaParser,
     private val metaEventTypeProvider: MetaEventTypeProvider,
 ) : ItemMetaProvider {

@@ -1,12 +1,12 @@
 package com.rarible.flow.api.meta.provider
 
-import com.rarible.flow.api.meta.fetcher.MetaFetcher
+import com.rarible.flow.api.meta.fetcher.RawOnChainMetaFetcher
 import com.rarible.flow.api.service.meta.HWMetaEventTypeProvider
 import com.rarible.flow.core.domain.ItemId
 import org.springframework.stereotype.Component
 
 sealed class HotWheelsMetaProvider(
-    fetcher: MetaFetcher,
+    fetcher: RawOnChainMetaFetcher,
     parser: MattelMetaParser,
     metaEventTypeProvider: HWMetaEventTypeProvider,
 ) : AbstractMetaProvider(
@@ -17,7 +17,7 @@ sealed class HotWheelsMetaProvider(
 
 @Component
 class HotWheelsCardMetaProvider(
-    fetcher: MetaFetcher,
+    fetcher: RawOnChainMetaFetcher,
     metaEventTypeProvider: HWMetaEventTypeProvider,
 ) : HotWheelsMetaProvider(fetcher, HotWheelsCardMetaParser, metaEventTypeProvider) {
 
@@ -28,7 +28,7 @@ class HotWheelsCardMetaProvider(
 
 @Component
 class HotWheelsPackMetaProvider(
-    fetcher: MetaFetcher,
+    fetcher: RawOnChainMetaFetcher,
     metaEventTypeProvider: HWMetaEventTypeProvider,
 ) : HotWheelsMetaProvider(fetcher, HotWheelsPackMetaParser, metaEventTypeProvider) {
 
