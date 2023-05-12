@@ -29,7 +29,7 @@ app:
     enableRaribleBarbieCard: false
     enableRaribleBarbiePack: false
     enableRaribleBarbieToken: false
-    enableStorefrontV1: true
+    enableStorefrontV1: false
 
 spring:
   data:
