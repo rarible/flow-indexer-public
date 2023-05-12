@@ -135,9 +135,8 @@ enum class Contracts : Contract {
         override val symbol = "BBBC"
 
         override val deployments = mapOf(
-            // TODO replace with prod
-            //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbieCard
-            //FlowChainId.MAINNET to FlowAddress("0xeff462cf475a0c02"),
+            //https://flowscan.org/contract/A.e5bf4d436ca23932.BBxBarbieCard
+            FlowChainId.MAINNET to FlowAddress("0xe5bf4d436ca23932"),
             //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbieCard
             FlowChainId.TESTNET to FlowAddress("0xeff462cf475a0c02"),
             FlowChainId.EMULATOR to FlowAddress("0xeff462cf475a0c02"),
@@ -151,9 +150,8 @@ enum class Contracts : Contract {
         override val symbol = "BBBP"
 
         override val deployments = mapOf(
-            // TODO replace with prod
-            //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbiePack
-            //FlowChainId.MAINNET to FlowAddress("0xeff462cf475a0c02"),
+            //https://flowscan.org/contract/A.e5bf4d436ca23932.BBxBarbiePack
+            FlowChainId.MAINNET to FlowAddress("0xe5bf4d436ca23932"),
             //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbiePack
             FlowChainId.TESTNET to FlowAddress("0xeff462cf475a0c02"),
             FlowChainId.EMULATOR to FlowAddress("0xeff462cf475a0c02"),
@@ -167,14 +165,12 @@ enum class Contracts : Contract {
         override val symbol = "BBBT"
 
         override val deployments = mapOf(
-            // TODO replace with prod
-            //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbieToken
-            //FlowChainId.MAINNET to FlowAddress("0xeff462cf475a0c02"),
+            //https://flowscan.org/contract/A.e5bf4d436ca23932.BBxBarbieToken
+            FlowChainId.MAINNET to FlowAddress("0xe5bf4d436ca23932"),
             //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbieToken
             FlowChainId.TESTNET to FlowAddress("0xeff462cf475a0c02"),
             FlowChainId.EMULATOR to FlowAddress("0xeff462cf475a0c02"),
         )
-
     },
 
     BARBIE_PM {
@@ -184,9 +180,8 @@ enum class Contracts : Contract {
         override val nft = false
 
         override val deployments = mapOf(
-            // TODO replace with prod
-            //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbiePM
-            //FlowChainId.MAINNET to FlowAddress("0xeff462cf475a0c02"),
+            //https://flowscan.org/contract/A.e5bf4d436ca23932.BBxBarbiePM
+            FlowChainId.MAINNET to FlowAddress("0xe5bf4d436ca23932"),
             //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbiePM
             FlowChainId.TESTNET to FlowAddress("0xeff462cf475a0c02"),
             FlowChainId.EMULATOR to FlowAddress("0xeff462cf475a0c02"),
