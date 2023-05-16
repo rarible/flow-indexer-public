@@ -49,5 +49,15 @@ annotation class EnableStorefrontV1
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-@ConditionalOnProperty(name = ["app.feature-flags.enable-barbie"], havingValue = "true", matchIfMissing = false)
-annotation class EnableBarbie
+@ConditionalOnProperty(name = ["app.feature-flags.enable-barbie-card"], havingValue = "true", matchIfMissing = false)
+annotation class EnableBarbieCard
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+@ConditionalOnProperty(name = ["app.feature-flags.enable-barbie-pack"], havingValue = "true", matchIfMissing = false)
+annotation class EnableBarbiePack
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+@ConditionalOnProperty(name = ["app.feature-flags.enable-barbie-token"], havingValue = "true", matchIfMissing = false)
+annotation class EnableBarbieToken
