@@ -20,7 +20,6 @@ class ScriptExecutor(
 ) {
     private val parser = JsonCadenceParser()
 
-    @Deprecated("use executeFile")
     suspend fun execute(code: String, args: MutableList<Field<*>>): FlowScriptResponse {
         val response = api.simpleScript {
             script(code, appProperties.chainId)

@@ -36,10 +36,9 @@ class VersusArtRoyaltyProvider(
                 builder.address(item.owner!!.formatted),
                 builder.uint64(item.tokenId)
             ),
-        ).let { it.copy(bytes = it.bytes.changeCapabilityToAddress()) }
+        )
         val value = result.jsonCadence.value as ResourceField
         val nft = Flow.unmarshall(VersusArtItem::class, value)
         return nft.royalty.map { Royalty(it.value.wallet, it.value.cut) }
     }
-
 }
