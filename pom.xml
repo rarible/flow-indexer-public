@@ -25,7 +25,7 @@
         <revision>1.48</revision>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <rarible.core.version>2.5.13</rarible.core.version>
+        <rarible.core.version>2.5.19</rarible.core.version>
         <rarible.blockchain.scanner.version>2.6.17</rarible.blockchain.scanner.version>
 
         <rarible.protocol.flow.version>1.48.0</rarible.protocol.flow.version>
