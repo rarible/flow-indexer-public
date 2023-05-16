@@ -20,12 +20,6 @@ class ScannerConsumerConfiguration(
     private val meterRegistry: MeterRegistry,
     private val applicationEnvironmentInfo: ApplicationEnvironmentInfo
 ) {
-
-    @Bean
-    fun startEndWorkerProperties(): StartEndWorkerProperties {
-        return flowListenerProperties.startEndWorker
-    }
-
     @Bean
     fun consumerWorkerFactory(): LogRecordConsumerWorkerFactory {
         return KafkaLogRecordConsumerWorkerFactory(

@@ -7,9 +7,7 @@ import com.rarible.flow.scanner.service.order.OrderStartEndCheckerHandler
 import io.micrometer.core.instrument.MeterRegistry
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.time.delay
-import org.springframework.stereotype.Component
 
-@Component
 @ExperimentalCoroutinesApi
 class OrderStartEndCheckerWorker(
     private val handler: OrderStartEndCheckerHandler,
