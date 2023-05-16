@@ -131,7 +131,7 @@ enum class Contracts : Contract {
     BARBIE_CARD {
 
         override val contractName: String = "BBxBarbieCard"
-        override val import = "0XBBXBARBIECARD"
+        override val import = "0xBBXBARBIECARD"
         override val symbol = "BBBC"
 
         override val deployments = mapOf(
@@ -395,6 +395,24 @@ enum class Contracts : Contract {
                 FlowChainId.MAINNET to FlowAddress("0x4eb8a10cb9f87357"),
                 //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.NFTStorefrontV2
                 FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
+            )
+        override val import: String
+            get() = "0x${contractName.uppercase()}"
+
+        override val nft: Boolean
+            get() = false
+    },
+
+    METADATA_VIEWS {
+
+        override val contractName = "MetadataViews"
+
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                //https://flowscan.org/contract/A.1d7e57aa55817448.MetadataViews
+                FlowChainId.MAINNET to FlowAddress("0x1d7e57aa55817448"),
+                //https://testnet.flowscan.org/contract/A.631e88ae7f1d7c20.MetadataViews
+                FlowChainId.TESTNET to FlowAddress("0x631e88ae7f1d7c20"),
             )
         override val import: String
             get() = "0x${contractName.uppercase()}"
