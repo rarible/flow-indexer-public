@@ -14,11 +14,6 @@ class HWGarageCardV2RoyaltyProvider(
 ) : AbstractMattelRoyaltyProvider(
     Contracts.HW_GARAGE_CARD_V2,
     scriptExecutor,
-    SCRIPT_FILE,
     properties,
-) {
-    companion object {
-        const val SCRIPT_FILE = "get_nft_metadata_HWGarageCardV2.cdc"
-    }
-}
+)
 

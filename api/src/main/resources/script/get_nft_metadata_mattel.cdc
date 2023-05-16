@@ -1,7 +1,6 @@
-//import MetadataViews from "../contracts/utility/MetadataViews.cdc"
-//import BBxBarbieToken from "../contracts/BBxBarbieToken.cdc"
 import MetadataViews from 0xMETADATAVIEWS
-import BBxBarbieToken from 0xBBXBARBIETOKEN
+import #CONTRACNAME from 0xCONTRACTADDRESS
+
 
 pub struct NFTView {
     pub let id: UInt64
@@ -26,7 +25,7 @@ pub fun main(address: Address, id: UInt64): NFTView {
     let account = getAccount(address)
 
     let collection = account
-        .getCapability(BBxBarbieToken.CollectionPublicPath)
+        .getCapability(#CONTRACNAME.CollectionPublicPath)
         .borrow<&{MetadataViews.ResolverCollection}>()
         ?? panic("Could not borrow a reference to the collection")
 

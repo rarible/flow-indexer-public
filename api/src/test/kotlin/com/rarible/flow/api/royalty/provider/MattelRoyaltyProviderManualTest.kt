@@ -20,7 +20,7 @@ import java.math.BigDecimal
 import java.net.URI
 
 @Disabled
-class AbstractMattelRoyaltyProviderTest {
+class MattelRoyaltyProviderManualTest {
     private val api = run {
         val node = URI.create("https://access.mainnet.nodes.onflow.org:9000")
         val channel = ManagedChannelBuilder.forAddress(node.host, node.port)

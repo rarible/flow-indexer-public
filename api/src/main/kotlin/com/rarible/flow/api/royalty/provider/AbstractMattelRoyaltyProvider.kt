@@ -14,8 +14,8 @@ import java.lang.IllegalArgumentException
 abstract class AbstractMattelRoyaltyProvider(
     private val contract: Contract,
     private val scriptExecutor: ScriptExecutor,
-    scriptFile: String,
     properties: ApiProperties,
+    scriptFile: String = SCRIPT_FILE,
 ) : ItemRoyaltyProvider {
 
     private val builder = JsonCadenceBuilder()
@@ -60,8 +60,13 @@ abstract class AbstractMattelRoyaltyProvider(
         val contractAddress = contract.deployments[chainId] ?: return null
         val metaViewAddress = nftMetadataViews.deployments[chainId] ?: return null
         return script
-            .replace(contract.import, contractAddress.formatted)
+            .replace("#CONTRACNAME", contract.contractName)
+            .replace("0xCONTRACTADDRESS", contractAddress.formatted)
             .replace(nftMetadataViews.import, metaViewAddress.formatted)
+    }
+
+    companion object {
+        const val SCRIPT_FILE = "get_nft_metadata_mattel.cdc"
     }
 }
 

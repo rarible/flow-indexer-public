@@ -14,10 +14,5 @@ class BarbieCardRoyaltyProvider(
 ) : AbstractMattelRoyaltyProvider(
     Contracts.BARBIE_CARD,
     scriptExecutor,
-    SCRIPT_FILE,
     properties,
-) {
-    companion object {
-        const val SCRIPT_FILE = "get_nft_metadata_BBxBarbieCard.cdc"
-    }
-}
+)
