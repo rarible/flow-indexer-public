@@ -6,7 +6,7 @@ import com.rarible.flow.core.domain.ItemId
 object BarbieCardMetaParser : MattelMetaParser() {
 
     override fun getName(map: Map<String, String>, itemId: ItemId): String? {
-        return map.getFirst(*BarbieTokenMetaParser.fieldName) + "#" + map.getFirst("cardId")
+        return map.getFirst(*BarbieTokenMetaParser.fieldName) + " #" + map.getFirst("cardId")
     }
 
     override val fieldName = fields("name")
