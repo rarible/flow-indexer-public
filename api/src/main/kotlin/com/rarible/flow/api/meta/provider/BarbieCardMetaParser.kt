@@ -3,11 +3,10 @@ package com.rarible.flow.api.meta.provider
 import com.rarible.flow.api.meta.getFirst
 import com.rarible.flow.core.domain.ItemId
 
-// TODO update when know meta format
 object BarbieCardMetaParser : MattelMetaParser() {
 
     override fun getName(map: Map<String, String>, itemId: ItemId): String? {
-        return map.getFirst(*BarbieTokenMetaParser.fieldName)
+        return map.getFirst(*BarbieTokenMetaParser.fieldName) + "#" + map.getFirst("cardId")
     }
 
     override val fieldName = fields("name")
@@ -16,31 +15,37 @@ object BarbieCardMetaParser : MattelMetaParser() {
     override val fieldRights = fields("eula")
 
     override val attributesWhiteList = setOf(
-        "Type",
-        "Background",
-        "Eyes",
-        "Rarity",
-        "Hair",
-        "Nose",
+        "lips",
+        "hairColor",
+        "mint",
+        "hair",
+        "tokenId",
+        "nose",
+        "eyeColor",
+        "makeup",
         "releaseYear",
+        "eyebrowsColor",
+        "freckles",
         "cardId",
+        "glasses",
         "releaseDate",
-        "Skin Tone",
-        "Lips",
-        "Necklace",
-        "Lip Color",
-        "Face Shape",
-        "Hair Color",
-        "Freckles",
-        "Earrings",
+        "career",
+        "eyes",
+        "version",
+        "skinTone",
+        "lipColor",
         "seriesName",
-        "Eyebrows Color",
-        "Eye Color",
-        "Eyebrows",
+        "earrings",
+        "faceShape",
+        "type",
+        "rarity",
+        "firstAppearance",
+        "necklace",
+        "background",
+        "eyebrows",
         "miniCollection",
         "totalSupply",
-        "Redeemable",
-        "Makeup",
-        "Glasses"
+        "editionSize",
+        "redeemable"
     )
 }
