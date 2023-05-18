@@ -26,8 +26,8 @@ jobs:
 app:
   featureFlags:
     enableBarbieCard: true
-    enableBarbiePack: false
-    enableBarbieToken: false
+    enableBarbiePack: true
+    enableBarbieToken: true
     enableRaribleCard: false
     enableRaribleCardV2: false
     enableRariblePack: false

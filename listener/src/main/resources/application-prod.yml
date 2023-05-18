@@ -21,6 +21,8 @@ app:
   chain-id: MAINNET
   web-api-url: ${web-api-url}
   featureFlags:
+    enableBarbiePack: false
+    enableBarbieToken: false
     enableRaribleCard: false
     enableRaribleCardV2: false
     enableRariblePack: false
