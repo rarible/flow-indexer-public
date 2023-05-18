@@ -17,7 +17,7 @@
         <repository>
             <id>nexus-ext-maven-public</id>
             <name>nexus-ext-maven-public</name>
-            <url>https://repo.rarible.org/repository/maven-public/</url>
+            <url>https://repo.rarible.org/reposЎitory/maven-public/</url>
         </repository>
     </repositories>
 
@@ -26,7 +26,7 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <rarible.core.version>2.5.13</rarible.core.version>
-        <rarible.blockchain.scanner.version>2.6.18</rarible.blockchain.scanner.version>
+        <rarible.blockchain.scanner.version>2.6.19</rarible.blockchain.scanner.version>
 
         <rarible.protocol.flow.version>1.47.0</rarible.protocol.flow.version>
         <rarible.protocol.currency.version>1.38.3</rarible.protocol.currency.version>
