@@ -24,4 +24,3 @@ class HWGarageCardV2MetaSubscriber: AbstractNFTMetaSubscriber() {
     }
 }
 
-
