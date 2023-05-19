@@ -54,9 +54,9 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGarageCard
+                //https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGarageCardV2
                 FlowChainId.MAINNET to FlowAddress("0xd0bcefdf1e67ea85"),
-                //https://testnet.flowscan.org/contract/A.9f36754d9b38f155.HWGarageCard
+                //https://testnet.flowscan.org/contract/A.9f36754d9b38f155.HWGarageCardV2
                 FlowChainId.TESTNET to FlowAddress("0x9f36754d9b38f155"),
                 FlowChainId.EMULATOR to FlowAddress("0x9f36754d9b38f155"),
             )
