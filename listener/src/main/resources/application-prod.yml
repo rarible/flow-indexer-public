@@ -25,6 +25,7 @@ app:
     enableBarbieToken: false
     enableRaribleCard: false
     enableRaribleCardV2: false
+    enableRaribleCardV2Meta: false
     enableRariblePack: false
     enableRariblePackV2: false
     enableRaribleNft: false

@@ -9,7 +9,12 @@ annotation class EnableRaribleCard
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-@ConditionalOnProperty(name = ["app.feature-flags.enable-rarible-card-v2"], havingValue = "true")
+@ConditionalOnProperty(name = ["app.feature-flags.enable-rarible-card-v2-meta"], havingValue = "true")
+annotation class EnableRaribleCardV2Meta
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+@ConditionalOnProperty(name = ["app.feature-flags.enable-barbie-token"], havingValue = "true", matchIfMissing = false)
 annotation class EnableRaribleCardV2
 
 @Target(AnnotationTarget.CLASS)
