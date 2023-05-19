@@ -31,12 +31,30 @@ class HWCardActivity(
 }
 
 @Component
-class HWCardActivityV2(
+class HWOtherCardActivity(
+    logRepository: FlowLogRepository,
+    txManager: TxManager,
+    properties: FlowListenerProperties,
+) : HWActivityMaker(logRepository, txManager, properties) {
+    override val contractName: String = Contracts.HW_OTHER_GARAGE_CARD.contractName
+}
+
+@Component
+class HWCardV2Activity(
     logRepository: FlowLogRepository,
     txManager: TxManager,
     properties: FlowListenerProperties,
 ) : HWActivityMaker(logRepository, txManager, properties) {
     override val contractName: String = Contracts.HW_GARAGE_CARD_V2.contractName
+}
+
+@Component
+class HWOtherCardV2Activity(
+    logRepository: FlowLogRepository,
+    txManager: TxManager,
+    properties: FlowListenerProperties,
+) : HWActivityMaker(logRepository, txManager, properties) {
+    override val contractName: String = Contracts.HW_OTHER_GARAGE_CARD_V2.contractName
 }
 
 @Component

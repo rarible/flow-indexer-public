@@ -4,7 +4,8 @@ import com.rarible.flow.Contracts
 import org.springframework.stereotype.Component
 
 @Component
-class HWGarageCardSubscriberV2: NonFungibleTokenSubscriber() {
+class HWGarageCardV2Subscriber: NonFungibleTokenSubscriber() {
     override val name = "hw_card_v2"
     override val contract = Contracts.HW_GARAGE_CARD_V2
 }
+

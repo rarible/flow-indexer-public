@@ -28,6 +28,8 @@ app:
     enableBarbieCard: true
     enableBarbiePack: true
     enableBarbieToken: true
+    enableHwOtherCard: true
+    enableHwOtherCardV2: true
     enableRaribleCard: false
     enableRaribleCardV2: false
     enableRaribleCardV2Meta: true
