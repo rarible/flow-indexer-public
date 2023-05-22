@@ -29,4 +29,6 @@ data class FeatureFlagsProperties(
     val enableProxyForMetaDownload: Boolean = false,
     val enableRawOnChainMetaCacheRead: Boolean = true,
     val enableRawOnChainMetaCacheWrite: Boolean = true,
+    val enableBarbieDefaultVideoContentType: Boolean = true,
+    val enableHotWheelsDefaultVideoContentType: Boolean = true
 )

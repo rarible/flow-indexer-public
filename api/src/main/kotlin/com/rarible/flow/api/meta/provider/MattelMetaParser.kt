@@ -16,14 +16,15 @@ abstract class MattelMetaParser {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun parse(json: String, itemId: ItemId): ItemMeta {
+    fun parse(json: String, itemId: ItemId, defaultContentType: ItemMetaContent.Type): ItemMeta {
         val jsonNode = JsonPropertiesParser.parse(itemId, json)
         logger.info("Received json for item {}: {}", itemId, json)
-        return map(itemId, jsonNode)
+        return map(itemId, jsonNode, defaultContentType)
     }
 
     abstract fun getName(map: Map<String, String>, itemId: ItemId): String?
-    protected open fun map(itemId: ItemId, node: JsonNode): ItemMeta {
+
+    protected open fun map(itemId: ItemId, node: JsonNode, defaultContentType: ItemMetaContent.Type): ItemMeta {
         val dictionary = node.get("value")
             .getArray("fields")
             .find { it.getText("name") == "metadata" }
@@ -39,7 +40,7 @@ abstract class MattelMetaParser {
             rights = map.getFirst(*fieldRights),
             content = listOfNotNull(
                 map.getFirst(*fieldImageOriginal)?.let {
-                    ItemMetaContent(it, ItemMetaContent.Type.IMAGE)
+                    ItemMetaContent(it, defaultContentType)
                 }
             ),
             attributes = map.filter { attributesWhiteList.contains(it.key) }.map {
