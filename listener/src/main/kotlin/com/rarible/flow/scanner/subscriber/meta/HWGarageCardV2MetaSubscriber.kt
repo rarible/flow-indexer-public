@@ -7,7 +7,7 @@ import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.model.AdminMintCardEventType
 import org.springframework.stereotype.Component
 
-@Component
+//@Component
 class HWGarageCardV2MetaSubscriber: AbstractNFTMetaSubscriber() {
     override val name = "hw_meta_card_v2"
     override val contract = Contracts.HW_GARAGE_PM_V2
