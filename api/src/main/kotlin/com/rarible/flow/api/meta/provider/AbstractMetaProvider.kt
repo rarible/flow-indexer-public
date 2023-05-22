@@ -1,6 +1,7 @@
 package com.rarible.flow.api.meta.provider
 
 import com.rarible.flow.api.meta.ItemMeta
+import com.rarible.flow.api.meta.ItemMetaContent
 import com.rarible.flow.api.meta.MetaException
 import com.rarible.flow.api.meta.fetcher.RawOnChainMetaFetcher
 import com.rarible.flow.api.service.meta.MetaEventTypeProvider
@@ -12,10 +13,13 @@ abstract class AbstractMetaProvider(
     private val metaEventTypeProvider: MetaEventTypeProvider,
 ) : ItemMetaProvider {
 
+    open val defaultContentType: ItemMetaContent.Type = ItemMetaContent.Type.IMAGE
+
     override suspend fun getMeta(item: Item): ItemMeta? {
         val json = fetcher.getContent(item.id, metaEventTypeProvider.getMetaEventType(item.id))
             ?: throw MetaException("Item ${item.id} doesn't have meta json", MetaException.Status.NOT_FOUND)
 
-        return parser.parse(json, item.id)
+        return parser.parse(json, item.id, defaultContentType)
     }
+
 }

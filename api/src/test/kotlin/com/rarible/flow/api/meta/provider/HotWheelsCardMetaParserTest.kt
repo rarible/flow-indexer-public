@@ -14,7 +14,7 @@ class HotWheelsCardMetaParserTest {
 
     @Test
     fun `get meta - ok`() = runBlocking<Unit> {
-        val meta = HotWheelsCardMetaParser.parse(json, randomItemId())!!
+        val meta = HotWheelsCardMetaParser.parse(json, randomItemId(), ItemMetaContent.Type.IMAGE)!!
         val content = meta.content[0]
 
         assertThat(meta.name).isEqualTo("Chevy Silverado Off Road #58")
