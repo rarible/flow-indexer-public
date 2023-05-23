@@ -17,7 +17,7 @@ class HotWheelsPackMetaParserTest {
 
     @Test
     fun `get meta - ok, pack v1`() = runBlocking<Unit> {
-        val meta = HotWheelsPackMetaParser.parse(jsonV1, randomItemId())
+        val meta = HotWheelsPackMetaParser.parse(jsonV1, randomItemId(), ItemMetaContent.Type.VIDEO)
         val content = meta.content[0]
 
         assertThat(meta.name).isEqualTo("Series 4")
@@ -26,7 +26,7 @@ class HotWheelsPackMetaParserTest {
 
         assertThat(content.url).isEqualTo("QmPcs6V5RfLrCzUm8zfU62UGQWNArKE44xYYof8iA5bRm8")
         assertThat(content.representation).isEqualTo(ItemMetaContent.Representation.ORIGINAL)
-        assertThat(content.type).isEqualTo(ItemMetaContent.Type.IMAGE)
+        assertThat(content.type).isEqualTo(ItemMetaContent.Type.VIDEO)
 
         assertThat(meta.attributes).containsExactlyInAnyOrder(
             ItemMetaAttribute("totalItemCount", "7")
@@ -35,7 +35,7 @@ class HotWheelsPackMetaParserTest {
 
     @Test
     fun `get meta - ok, pack v2`() = runBlocking<Unit> {
-        val meta = HotWheelsPackMetaParser.parse(jsonV2, randomItemId())
+        val meta = HotWheelsPackMetaParser.parse(jsonV2, randomItemId(), ItemMetaContent.Type.IMAGE)
         val content = meta.content[0]
 
         assertThat(meta.name).isEqualTo("82 Cadillac Seville Redemption")

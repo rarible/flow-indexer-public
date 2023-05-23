@@ -26,12 +26,13 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <rarible.core.version>2.5.19</rarible.core.version>
-        <rarible.blockchain.scanner.version>2.6.17</rarible.blockchain.scanner.version>
+        <rarible.blockchain.scanner.version>2.6.24</rarible.blockchain.scanner.version>
 
-        <rarible.protocol.flow.version>1.48.0</rarible.protocol.flow.version>
+        <rarible.protocol.flow.version>1.48.1</rarible.protocol.flow.version>
         <rarible.protocol.currency.version>1.38.3</rarible.protocol.currency.version>
 
         <netflix.graphql.version>4.9.7</netflix.graphql.version>
+
 
         <dev-jna.version>5.7.0</dev-jna.version>
         <kotest.version>4.6.2</kotest.version>

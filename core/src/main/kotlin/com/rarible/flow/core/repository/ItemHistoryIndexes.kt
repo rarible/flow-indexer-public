@@ -19,6 +19,7 @@ object ItemHistoryIndexes {
     }
 
     // TODO taken from annotation, ensure it is really needed
+    // TODO: Need remove
     private val ACTIVITY_SIBLINGS_INDEX: Index = Index()
         .on("${ItemHistory::activity.name}.${TypedFlowActivity::type.name}", Sort.Direction.ASC)
         .on("${ItemHistory::activity.name}.${NFTActivity::contract.name}", Sort.Direction.ASC)
@@ -26,6 +27,14 @@ object ItemHistoryIndexes {
         .on("${ItemHistory::log.name}.${FlowLog::transactionHash.name}", Sort.Direction.ASC)
         .on("${ItemHistory::log.name}.${FlowLog::eventIndex.name}", Sort.Direction.ASC)
         .named("activity_siblings")
+        .background()
+
+    private val ACTIVITY_BY_TYPE_CONTRACT_TOKEN_ID_INDEX: Index = Index()
+        .on("${ItemHistory::activity.name}.${TypedFlowActivity::type.name}", Sort.Direction.ASC)
+        .on("${ItemHistory::activity.name}.${NFTActivity::contract.name}", Sort.Direction.ASC)
+        .on("${ItemHistory::activity.name}.${NFTActivity::tokenId.name}", Sort.Direction.ASC)
+        .on("${ItemHistory::log.name}.${FlowLog::blockHeight.name}", Sort.Direction.ASC)
+        .on("${ItemHistory::log.name}.${FlowLog::eventIndex.name}", Sort.Direction.ASC)
         .background()
 
     // TODO taken from annotation, ensure it is really needed
@@ -116,7 +125,7 @@ object ItemHistoryIndexes {
         // ChangeLog00049ItemHistoryIndexes
         TX_TYPE_LEFT_MAKER_RIGHT_MAKER,
         TX_TYPE_FROM_TO,
-
+        ACTIVITY_BY_TYPE_CONTRACT_TOKEN_ID_INDEX,
         )
 
 }

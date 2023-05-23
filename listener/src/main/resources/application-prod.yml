@@ -21,13 +21,20 @@ app:
   chain-id: MAINNET
   web-api-url: ${web-api-url}
   featureFlags:
+    enableHwOtherCard: false
+    enableHwOtherCardV2: false
+    enableBarbiePack: false
+    enableBarbieToken: false
     enableRaribleCard: false
     enableRaribleCardV2: false
+    enableRaribleCardV2Meta: false
     enableRariblePack: false
     enableRariblePackV2: false
     enableRaribleNft: false
+    enableRaribleBarbieCard: false
+    enableRaribleBarbiePack: false
+    enableRaribleBarbieToken: false
     enableStorefrontV1: false
-    enableStorefrontV2: true
 
 spring:
   data:

@@ -41,5 +41,4 @@ class VersusArtRoyaltyProvider(
         val nft = Flow.unmarshall(VersusArtItem::class, value)
         return nft.royalty.map { Royalty(it.value.wallet, it.value.cut) }
     }
-
 }

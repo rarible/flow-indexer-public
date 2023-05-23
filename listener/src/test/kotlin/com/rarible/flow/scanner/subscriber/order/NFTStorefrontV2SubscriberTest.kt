@@ -7,7 +7,6 @@ import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
 import io.mockk.every
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
-import org.jetbrains.kotlin.daemon.common.toHexString
 import org.junit.jupiter.api.Test
 
 class NFTStorefrontV2SubscriberTest {
@@ -24,6 +23,6 @@ class NFTStorefrontV2SubscriberTest {
     fun `get descriptor map`() {
         val descriptors = storefrontV2.descriptors
         val testnet = descriptors[FlowChainId.TESTNET]
-        assertThat(testnet?.address).isEqualTo(Contracts.NFT_STOREFRONT_V2.deployments[FlowChainId.TESTNET]?.bytes?.toHexString())
+        assertThat(testnet?.address).isEqualTo(Contracts.NFT_STOREFRONT_V2.fqn(FlowChainId.TESTNET))
     }
 }

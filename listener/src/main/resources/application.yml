@@ -25,13 +25,21 @@ jobs:
 
 app:
   featureFlags:
-    enableRaribleCard: true
-    enableRaribleCardV2: true
-    enableRariblePack: true
-    enableRariblePackV2: true
+    enableBarbieCard: true
+    enableBarbiePack: true
+    enableBarbieToken: true
+    enableHwOtherCard: true
+    enableHwOtherCardV2: true
+    enableRaribleCard: false
+    enableRaribleCardV2: false
+    enableRaribleCardV2Meta: true
+    enableRariblePack: false
+    enableRariblePackV2: false
     enableRaribleNft: false
     enableStorefrontV1: false
-    enableStorefrontV2: true
+    enableRaribleBarbieCard: false
+    enableRaribleBarbiePack: false
+    enableRaribleBarbieToken: false
 
 blockchain:
   scanner:

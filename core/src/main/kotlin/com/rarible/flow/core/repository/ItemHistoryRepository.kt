@@ -58,9 +58,10 @@ interface ItemHistoryRepository : ReactiveMongoRepository<ItemHistory, String> {
         """)
     fun findTransferInTx(txHash: String, from: String, to: String): Flux<ItemHistory>
 
-    @Query("""
-            {"activity.contract": ?0, "activity.tokenId": ?1, "activity.type": ?2}
-        """)
+    @Query(
+        value = """{"activity.contract": ?0, "activity.tokenId": ?1, "activity.type": ?2}""",
+        sort = """{"log.blockHeight" : 1, "log.eventIndex" : 1}"""
+    )
     fun findItemActivity(contract: String, tokenId: TokenId, type: FlowActivityType): Flux<ItemHistory>
 }
 
@@ -83,4 +84,8 @@ class TaskItemHistoryRepository(
 
 suspend fun ItemHistoryRepository.findItemMint(contract: String, tokenId: TokenId): List<ItemHistory> {
     return findItemActivity(contract, tokenId, FlowActivityType.MINT).collectList().awaitSingle()
+}
+
+suspend fun ItemHistoryRepository.findItemFirstTransfer(contract: String, tokenId: TokenId): ItemHistory? {
+    return findItemActivity(contract, tokenId, FlowActivityType.TRANSFER).awaitFirstOrNull()
 }

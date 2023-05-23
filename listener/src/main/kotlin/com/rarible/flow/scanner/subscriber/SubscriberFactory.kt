@@ -47,7 +47,7 @@ object DescriptorFactory {
         groupId: String,
         name: String,
     ): FlowDescriptor {
-        val address = contract.deployments[chainId]!!.base16Value
+        val address = contract.fqn(chainId)
         val eventsSet = events.map { "${contract.fqn(chainId)}.$it" }.toSet()
         val additionalSet = additionalEvents.map { "A.${address}.$it" }
         return FlowDescriptor(

@@ -13,6 +13,10 @@ flow-indexer-api:
   flow-access-url: "access.devnet.nodes.onflow.org"
   flow-access-port: 9000
   chain-id: TESTNET
+  alchemyApiKey: ""
+  ipfs:
+    internalGateway: "ipfs.io"
+    publicGateway: "ipfs.io"
 
 app:
   flow-access-url: "access.devnet.nodes.onflow.org"

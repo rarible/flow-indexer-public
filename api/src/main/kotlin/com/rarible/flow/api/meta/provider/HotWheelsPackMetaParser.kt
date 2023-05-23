@@ -1,10 +1,11 @@
 package com.rarible.flow.api.meta.provider
 
 import com.rarible.flow.api.meta.getFirst
+import com.rarible.flow.core.domain.ItemId
 
 object HotWheelsPackMetaParser : MattelMetaParser() {
 
-    override fun getName(map: Map<String, String>): String? {
+    override fun getName(map: Map<String, String>, itemId: ItemId): String? {
         return map.getFirst(*fieldName)
     }
 

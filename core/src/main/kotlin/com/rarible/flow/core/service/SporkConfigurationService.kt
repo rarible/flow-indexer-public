@@ -4,6 +4,8 @@ import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.service.Spork
 import com.rarible.blockchain.scanner.flow.service.SporkService
 import com.rarible.flow.core.config.AppProperties
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
@@ -13,6 +15,7 @@ class SporkConfigurationService(
 ) {
     suspend fun config() {
         val chainId = properties.chainId
+        logger.info("Config: chainId=$chainId, accessUrl=${properties.flowAccessUrl}")
 
         if (chainId == FlowChainId.EMULATOR) {
             sporkService.replace(
@@ -30,7 +33,8 @@ class SporkConfigurationService(
                 FlowChainId.TESTNET, listOf(
                 Spork(
                     from = 99452067,
-                    nodeUrl = "access.devnet.nodes.onflow.org"
+                    nodeUrl = properties.flowAccessUrl,
+                    port = properties.flowAccessPort,
                 )
             ))
         }
@@ -38,7 +42,8 @@ class SporkConfigurationService(
             val head = listOf(
                 Spork(
                     from = 47169687,
-                    nodeUrl = "access.mainnet.nodes.onflow.org"
+                    nodeUrl = properties.flowAccessUrl,
+                    port = properties.flowAccessPort,
                 ),
                 Spork(
                     from = 44950207,
@@ -89,5 +94,9 @@ class SporkConfigurationService(
             val tail = sporkService.sporks(FlowChainId.MAINNET).drop(1)
             sporkService.replace(FlowChainId.MAINNET, head + tail)
         }
+    }
+
+    private companion object {
+        val logger: Logger = LoggerFactory.getLogger(SporkConfigurationService::class.java)
     }
 }

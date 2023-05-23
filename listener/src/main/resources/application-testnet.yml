@@ -8,6 +8,10 @@ logging:
 blockchain:
   scanner:
     flow:
+      enableHttpClient: true
+      httpApiClient:
+        endpoint: https://rest-testnet.onflow.org
+
       chainId: TESTNET
       poller:
         delay: 100
@@ -17,7 +21,6 @@ blockchain:
         retryPolicy:
           scan:
             maxProcessTime: 1m
-
 app:
   flow-access-url: "access.devnet.nodes.onflow.org"
   flow-access-port: 9000

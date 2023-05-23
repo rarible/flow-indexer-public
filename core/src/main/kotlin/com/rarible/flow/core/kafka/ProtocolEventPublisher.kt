@@ -9,6 +9,7 @@ import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.converter.OwnershipToDtoConverter
 import com.rarible.flow.core.domain.EnglishAuctionLot
 import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
@@ -127,6 +128,10 @@ class ProtocolEventPublisher(
             "${auction.id}.${UUID.randomUUID()}",
             AuctionToDtoConverter.convert(auction)
         )
+    }
+
+    suspend fun onCollection(collection: ItemCollection, marks: FlowEventTimeMarksDto) {
+
     }
 
     private suspend fun <V> send(producer: RaribleKafkaProducer<V>, key: String, message: V) {
