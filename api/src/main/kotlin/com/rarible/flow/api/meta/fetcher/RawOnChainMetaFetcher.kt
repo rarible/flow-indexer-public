@@ -10,6 +10,7 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.RawOnChainMeta
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.RawOnChainMetaCacheRepository
+import com.rarible.flow.core.repository.findItemFirstTransfer
 import com.rarible.flow.core.repository.findItemMint
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.reactive.awaitFirst
@@ -58,12 +59,8 @@ class RawOnChainMetaFetcher(
     }
 
     private suspend fun getMintEvent(itemId: ItemId): ItemHistory? {
-        return itemHistoryRepository.findItemMint(itemId.contract, itemId.tokenId).run {
-            if (this.size != 1) {
-                logger.error("Found $size mints for item $itemId, expected 1 event")
-                null
-            } else single()
-        }
+        return itemHistoryRepository.findItemMint(itemId.contract, itemId.tokenId).firstOrNull()
+            ?: itemHistoryRepository.findItemFirstTransfer(itemId.contract, itemId.tokenId)
     }
 
     private suspend fun getEditionMetadataPayload(

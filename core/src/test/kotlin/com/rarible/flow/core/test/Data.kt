@@ -14,6 +14,7 @@ import com.rarible.core.test.data.randomString
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
+import kotlinx.coroutines.reactive.publishInternal
 import org.apache.activemq.artemis.utils.RandomUtil.randomLong
 import org.apache.activemq.artemis.utils.RandomUtil.randomPositiveLong
 import java.math.BigDecimal
@@ -122,6 +123,17 @@ fun randomMintItemHistory(): ItemHistory {
     )
 }
 
+fun randomItemHistory(
+    activity: BaseActivity = randomMintActivity(),
+    log: FlowLog = randomFlowLog()
+): ItemHistory {
+    return ItemHistory(
+        date = Instant.now(),
+        activity = activity,
+        log = log,
+    )
+}
+
 fun ItemHistory.with(
     eventIndex: Int,
     transaction: String
@@ -134,11 +146,14 @@ fun ItemHistory.with(
     )
 }
 
-fun randomMintActivity(): MintActivity {
+fun randomMintActivity(
+    contract: String = randomString(),
+    tokenId: Long = randomLong()
+): MintActivity {
     return MintActivity(
         owner = randomString(),
-        contract = randomString(),
-        tokenId = randomTokenId(),
+        contract = contract,
+        tokenId = tokenId,
         value = randomLong(),
         timestamp = Instant.now(),
         creator = randomString(),
@@ -147,16 +162,30 @@ fun randomMintActivity(): MintActivity {
     )
 }
 
+fun randomTransferActivity(
+    contract: String = randomString(),
+    tokenId: Long = randomLong()
+): TransferActivity {
+    return TransferActivity(
+        contract = contract,
+        tokenId = tokenId,
+        from = randomString(),
+        to = randomString(),
+        timestamp = Instant.now(),
+    )
+}
+
 fun randomFlowLog(
     blockHash: String = randomString(),
     transactionHash: String = randomString(),
-    eventIndex: Int = randomInt()
+    blockHeight: Long = randomLong(),
+    eventIndex: Int = randomInt(),
 ): FlowLog {
     return FlowLog(
         blockHash = blockHash,
         transactionHash = transactionHash,
         eventIndex = eventIndex,
-        blockHeight = randomLong(),
+        blockHeight = blockHeight,
         eventType = randomString(),
         timestamp = Instant.now(),
     )
