@@ -54,6 +54,7 @@ class CoreConfig(
     )
 
     @Bean
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     fun itemHistoryToDtoConverter(mongo: MongoTemplate): ItemHistoryToDtoConverter = ItemHistoryToDtoConverter(mongo)
 
     @Bean
@@ -61,6 +62,7 @@ class CoreConfig(
     fun protocolEventPublisher(itemHistoryToDtoConverter: ItemHistoryToDtoConverter) = ProtocolEventPublisher(
         GatewayEventsProducers.itemsUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
         GatewayEventsProducers.ownershipsUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
+        GatewayEventsProducers.collectionsUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
         GatewayEventsProducers.ordersUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
         GatewayEventsProducers.activitiesUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
         GatewayEventsProducers.auctionsUpdates(appProperties.environment, appProperties.kafkaReplicaSet),

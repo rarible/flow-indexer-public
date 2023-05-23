@@ -25,6 +25,15 @@ object GatewayEventsProducers {
         )
     }
 
+    fun collectionsUpdates(environment: String, kafkaBootstrapServer: String): RaribleKafkaProducer<FlowCollectionEventDto> {
+        return RaribleKafkaProducer(
+            clientId = "$environment.flow.collection-events-importer",
+            valueSerializerClass = JsonSerializer::class.java,
+            defaultTopic = FlowNftCollectionEventTopicProvider.getTopic(environment),
+            bootstrapServers = kafkaBootstrapServer
+        )
+    }
+
     fun ordersUpdates(environment: String, kafkaBootstrapServer: String): RaribleKafkaProducer<FlowOrderEventDto> {
         return RaribleKafkaProducer(
             clientId = "$environment.flow.order-events-importer",

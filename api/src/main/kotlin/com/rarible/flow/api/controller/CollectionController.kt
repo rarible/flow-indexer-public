@@ -3,6 +3,7 @@ package com.rarible.flow.api.controller
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.api.service.CollectionService
 import com.rarible.flow.api.util.okOr404IfNull
+import com.rarible.flow.core.converter.FlowNftCollectionDtoConverter
 import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.repository.CollectionFilter
 import com.rarible.protocol.dto.FlowNftCollectionDto
@@ -55,13 +56,7 @@ class CollectionController(
 
 
     private fun convert(collection: ItemCollection?) = collection?.let {
-        FlowNftCollectionDto(
-            id = it.id,
-            owner = it.owner.formatted,
-            name = it.name,
-            symbol = it.symbol,
-            features = it.features.map { f -> FlowNftCollectionDto.Features.valueOf(f) }
-        )
+        FlowNftCollectionDtoConverter.convert(it)
     }
 
     private suspend fun convert(collections: Flow<ItemCollection>, size: Int?): FlowNftCollectionsDto {

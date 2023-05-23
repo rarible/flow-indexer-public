@@ -3,6 +3,7 @@ package com.rarible.flow.core.kafka
 import com.rarible.core.kafka.KafkaMessage
 import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.flow.core.converter.AuctionToDtoConverter
+import com.rarible.flow.core.converter.FlowNftCollectionDtoConverter
 import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
 import com.rarible.flow.core.converter.ItemToDtoConverter
 import com.rarible.flow.core.converter.OrderToDtoConverter
@@ -17,6 +18,9 @@ import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.util.Log
 import com.rarible.protocol.dto.FlowActivityDto
 import com.rarible.protocol.dto.FlowAuctionDto
+import com.rarible.protocol.dto.FlowCollectionDeleteEventDto
+import com.rarible.protocol.dto.FlowCollectionEventDto
+import com.rarible.protocol.dto.FlowCollectionUpdateEventDto
 import com.rarible.protocol.dto.FlowEventTimeMarksDto
 import com.rarible.protocol.dto.FlowNftDeletedItemDto
 import com.rarible.protocol.dto.FlowNftItemDeleteEventDto
@@ -33,10 +37,11 @@ import java.util.UUID
 class ProtocolEventPublisher(
     private val items: RaribleKafkaProducer<FlowNftItemEventDto>,
     private val ownerships: RaribleKafkaProducer<FlowOwnershipEventDto>,
+    private val collections: RaribleKafkaProducer<FlowCollectionEventDto>,
     private val orders: RaribleKafkaProducer<FlowOrderEventDto>,
     private val activities: RaribleKafkaProducer<FlowActivityDto>,
     private val auctions: RaribleKafkaProducer<FlowAuctionDto>,
-    private val itemHistoryToDtoConverter: ItemHistoryToDtoConverter
+    private val itemHistoryToDtoConverter: ItemHistoryToDtoConverter,
 ) {
 
     private val logger by Log()
@@ -131,7 +136,27 @@ class ProtocolEventPublisher(
     }
 
     suspend fun onCollection(collection: ItemCollection, marks: FlowEventTimeMarksDto) {
+        val key = collection.id
+        val dto = FlowNftCollectionDtoConverter.convert(collection)
+        val eventId = "$key.${UUID.randomUUID()}"
+        val eventTimeMarks = marks.onIndexerOut()
 
+        val message = if (collection.enabled) {
+            FlowCollectionUpdateEventDto(
+                eventId = eventId,
+                collectionId = key,
+                collection = dto,
+                eventTimeMarks = eventTimeMarks
+            )
+        } else {
+            FlowCollectionDeleteEventDto(
+                eventId = eventId,
+                collectionId = key,
+                collection = dto,
+                eventTimeMarks = eventTimeMarks
+            )
+        }
+        send(collections, key, message)
     }
 
     private suspend fun <V> send(producer: RaribleKafkaProducer<V>, key: String, message: V) {
