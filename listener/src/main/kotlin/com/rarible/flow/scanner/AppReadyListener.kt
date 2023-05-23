@@ -35,9 +35,10 @@ class AppReadyListener(
             supportedCollections
                 .chunked(COLLECTION_HANDLE_BATCH_SIZE)
                 .map { chunk ->
-                    async { chunk.map { addCollection(it) } }
-                }
-                .awaitAll()
+                    chunk.map {
+                        async { addCollection(it)  }
+                    }.awaitAll()
+                }.lastOrNull()
 
             sporkConfigurationService.config()
         }
