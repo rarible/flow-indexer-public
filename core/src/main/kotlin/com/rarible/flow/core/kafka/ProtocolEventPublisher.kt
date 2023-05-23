@@ -18,7 +18,6 @@ import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.util.Log
 import com.rarible.protocol.dto.FlowActivityDto
 import com.rarible.protocol.dto.FlowAuctionDto
-import com.rarible.protocol.dto.FlowCollectionDeleteEventDto
 import com.rarible.protocol.dto.FlowCollectionEventDto
 import com.rarible.protocol.dto.FlowCollectionUpdateEventDto
 import com.rarible.protocol.dto.FlowEventTimeMarksDto
@@ -141,21 +140,12 @@ class ProtocolEventPublisher(
         val eventId = "$key.${UUID.randomUUID()}"
         val eventTimeMarks = marks.onIndexerOut()
 
-        val message = if (collection.enabled) {
-            FlowCollectionUpdateEventDto(
+        val message = FlowCollectionUpdateEventDto(
                 eventId = eventId,
                 collectionId = key,
                 collection = dto,
                 eventTimeMarks = eventTimeMarks
             )
-        } else {
-            FlowCollectionDeleteEventDto(
-                eventId = eventId,
-                collectionId = key,
-                collection = dto,
-                eventTimeMarks = eventTimeMarks
-            )
-        }
         send(collections, key, message)
     }
 
