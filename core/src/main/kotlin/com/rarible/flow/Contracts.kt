@@ -137,8 +137,8 @@ enum class Contracts : Contract {
         override val deployments = mapOf(
             //https://flowscan.org/contract/A.e5bf4d436ca23932.BBxBarbieCard
             FlowChainId.MAINNET to FlowAddress("0xe5bf4d436ca23932"),
-            //https://testnet.flowscan.org/contract/A.eff462cf475a0c02.BBxBarbieCard
-            FlowChainId.TESTNET to FlowAddress("0xeff462cf475a0c02"),
+            //https://testnet.flowscan.org/contract/A.6d0f55821f6b2dbe.BBxBarbieCard
+            FlowChainId.TESTNET to FlowAddress("0x6d0f55821f6b2dbe"),
             FlowChainId.EMULATOR to FlowAddress("0xeff462cf475a0c02"),
         )
     },
