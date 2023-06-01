@@ -16,15 +16,15 @@ abstract class MattelMetaParser {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun parse(json: String, itemId: ItemId, defaultContentType: ItemMetaContent.Type): ItemMeta {
+    fun parse(json: String, itemId: ItemId): ItemMeta {
         val jsonNode = JsonPropertiesParser.parse(itemId, json)
         logger.info("Received json for item {}: {}", itemId, json)
-        return map(itemId, jsonNode, defaultContentType)
+        return map(itemId, jsonNode)
     }
 
     abstract fun getName(map: Map<String, String>, itemId: ItemId): String?
 
-    protected open fun map(itemId: ItemId, node: JsonNode, defaultContentType: ItemMetaContent.Type): ItemMeta {
+    protected open fun map(itemId: ItemId, node: JsonNode): ItemMeta {
         val dictionary = node.get("value")
             .getArray("fields")
             .find { it.getText("name") == "metadata" }
@@ -40,10 +40,10 @@ abstract class MattelMetaParser {
             rights = map.getFirst(*fieldRights),
             content = listOfNotNull(
                 map.getFirst(*fieldImageOriginal)?.let {
-                    ItemMetaContent(it, defaultContentType)
+                    ItemMetaContent(it, ItemMetaContent.Type.IMAGE)
                 }
             ),
-            attributes = map.filter { attributesWhiteList.contains(it.key) }.map {
+            attributes = map.map {
                 ItemMetaAttribute(
                     key = it.key,
                     value = it.value
@@ -79,7 +79,6 @@ abstract class MattelMetaParser {
     abstract val fieldDescription: Array<String>
     abstract val fieldImageOriginal: Array<String>
     abstract val fieldRights: Array<String>
-    abstract val attributesWhiteList: Set<String>
 
     protected fun fields(vararg fields: String): Array<String> {
         return fields.toList().toTypedArray()

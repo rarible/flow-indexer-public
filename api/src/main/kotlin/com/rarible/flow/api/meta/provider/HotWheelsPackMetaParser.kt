@@ -15,13 +15,4 @@ object HotWheelsPackMetaParser : MattelMetaParser() {
     override val fieldImageOriginal = fields("thumbnailCID")
     override val fieldRights = fields()
 
-    override val attributesWhiteList = setOf(
-        // for v1
-        "totalItemCount",
-        // for v2
-        "tokenReleaseDate",
-        "tokenExpireDate",
-        "collectionName",
-        "collectionDescription",
-    )
 }

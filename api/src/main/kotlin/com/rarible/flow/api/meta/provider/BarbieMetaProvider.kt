@@ -1,6 +1,5 @@
 package com.rarible.flow.api.meta.provider
 
-import com.rarible.flow.api.meta.ItemMetaContent
 import com.rarible.flow.api.meta.fetcher.RawOnChainMetaFetcher
 import com.rarible.flow.api.service.meta.BarbieMetaEventTypeProvider
 import com.rarible.flow.core.config.FeatureFlagsProperties
@@ -16,14 +15,7 @@ sealed class BarbieMetaProvider(
     fetcher,
     parser,
     metaEventTypeProvider
-) {
-
-    override val defaultContentType = if (ff.enableBarbieDefaultVideoContentType) {
-        ItemMetaContent.Type.VIDEO
-    } else {
-        ItemMetaContent.Type.IMAGE
-    }
-}
+)
 
 @Component
 class BarbieCardMetaProvider(

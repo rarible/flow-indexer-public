@@ -14,7 +14,7 @@ class HotWheelsCardMetaParserTest {
 
     @Test
     fun `get meta - ok`() = runBlocking<Unit> {
-        val meta = HotWheelsCardMetaParser.parse(json, randomItemId(), ItemMetaContent.Type.IMAGE)!!
+        val meta = HotWheelsCardMetaParser.parse(json, randomItemId())
         val content = meta.content[0]
 
         assertThat(meta.name).isEqualTo("Chevy Silverado Off Road #58")
@@ -35,7 +35,17 @@ class HotWheelsCardMetaParserTest {
             ItemMetaAttribute("mint", "2780"),
             ItemMetaAttribute("totalSupply", "3000"),
             ItemMetaAttribute("cardId", "58"),
-            ItemMetaAttribute("miniCollection", "HW Road Trippin'")
+            ItemMetaAttribute("seriesMint", "90780"),
+            ItemMetaAttribute("seriesTotalSupply", "295750"),
+            ItemMetaAttribute("templateId", "Series_4_58"),
+            ItemMetaAttribute("releaseDate", "2022-12-15"),
+            ItemMetaAttribute("miniCollection", "HW Road Trippin'"),
+            ItemMetaAttribute("licensorLegal", "©Copyright General Motors 2022"),
+            ItemMetaAttribute("serialNumber", "QANFT0002022362"),
+            ItemMetaAttribute("imageCID", "QmNfc1gZfC46MfSBjypqTiXyfRhNMikS9yoiqzzupGgtrw"),
+            ItemMetaAttribute("imageUrl", "https://sfipfs.infura-ipfs.io/ipfs/123"),
+            ItemMetaAttribute("packHash", "0022e32218f30e14d5f67465b49151a88268b8f6f12fb4bb48de1c2d6f158063"),
+            ItemMetaAttribute("carName", "Chevy Silverado Off Road"),
         )
     }
 

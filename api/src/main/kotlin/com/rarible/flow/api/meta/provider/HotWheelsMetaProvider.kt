@@ -1,6 +1,5 @@
 package com.rarible.flow.api.meta.provider
 
-import com.rarible.flow.api.meta.ItemMetaContent
 import com.rarible.flow.api.meta.fetcher.RawOnChainMetaFetcher
 import com.rarible.flow.api.service.meta.HWMetaEventTypeProvider
 import com.rarible.flow.core.config.FeatureFlagsProperties
@@ -16,14 +15,7 @@ sealed class HotWheelsMetaProvider(
     fetcher,
     parser,
     metaEventTypeProvider
-) {
-
-    override val defaultContentType = if (ff.enableHotWheelsDefaultVideoContentType) {
-        ItemMetaContent.Type.VIDEO
-    } else {
-        ItemMetaContent.Type.IMAGE
-    }
-}
+)
 
 @Component
 class HotWheelsCardMetaProvider(
