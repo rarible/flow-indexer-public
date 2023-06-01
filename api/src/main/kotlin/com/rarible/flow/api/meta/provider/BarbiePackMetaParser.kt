@@ -13,10 +13,4 @@ object BarbiePackMetaParser : MattelMetaParser() {
     override val fieldDescription = fields("packDescription")
     override val fieldImageOriginal = fields("thumbnailCID")
     override val fieldRights = fields()
-
-    override val attributesWhiteList = setOf(
-        "type",
-        "totalItemCount",
-        "collectionName"
-    )
 }

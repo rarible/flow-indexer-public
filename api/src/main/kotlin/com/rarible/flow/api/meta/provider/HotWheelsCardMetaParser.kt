@@ -13,16 +13,4 @@ object HotWheelsCardMetaParser : MattelMetaParser() {
     override val fieldImageOriginal = fields("imageUrl")
     override val fieldRights = fields("licensorLegal")
 
-    override val attributesWhiteList = setOf(
-        "seriesName",
-        "releaseYear",
-        "rarity",
-        "redeemable",
-        "type",
-        "mint",
-        "totalSupply",
-        "cardId",
-        "miniCollection"
-    )
-
 }
