@@ -6,7 +6,7 @@ import com.rarible.flow.core.domain.ItemCollection
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.service.SporkConfigurationService
-import com.rarible.protocol.dto.FlowEventTimeMarksDto
+import com.rarible.flow.core.util.offchainEventMarks
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.reactive.awaitFirst
@@ -47,7 +47,7 @@ class AppReadyListener(
     private suspend fun addCollection(itemCollection: ItemCollection) {
         val existed = itemCollectionRepository.findById(itemCollection.id).awaitFirstOrNull()
         if (existed != itemCollection) {
-            eventPublisher.onCollection(itemCollection, FlowEventTimeMarksDto("add-collection"))
+            eventPublisher.onCollection(itemCollection, offchainEventMarks())
             itemCollectionRepository.save(itemCollection).awaitFirst()
         }
     }

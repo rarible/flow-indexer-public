@@ -5,14 +5,13 @@ import com.rarible.core.telemetry.metrics.RegisteredCounter
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.OrderRepository
-import com.rarible.protocol.dto.offchainEventMark
+import com.rarible.flow.core.util.offchainEventMarks
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.reactor.awaitSingle
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.time.Instant
-
 
 @Component
 @ExperimentalCoroutinesApi
@@ -37,10 +36,11 @@ class OrderStartEndCheckerHandler(
             orderRepository.findExpiredOrders(now),
             orderRepository.findNotStartedOrders(now)
         ).collect { order ->
+            val marks = offchainEventMarks()
             val saved = orderRepository.save(order.withUpdatedStatus(now)).awaitSingle()
             if (order.isEnded()) orderExpiredMetric.increment() else orderStartedMetric.increment()
             logger.info("Changed order ${saved.id} status to ${saved.status}")
-            protocolEventPublisher.onOrderUpdate(saved, orderConverter, offchainEventMark("indexer-out_order"))
+            protocolEventPublisher.onOrderUpdate(saved, orderConverter, marks)
         }
     }
 }

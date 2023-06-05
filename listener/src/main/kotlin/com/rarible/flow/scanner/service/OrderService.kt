@@ -2,6 +2,7 @@ package com.rarible.flow.scanner.service
 
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.apm.withSpan
+import com.rarible.core.common.EventTimeMarks
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.EstimatedFee
 import com.rarible.flow.core.domain.FlowAsset
@@ -32,7 +33,6 @@ import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.util.Log
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
-import com.rarible.protocol.dto.FlowEventTimeMarksDto
 import com.rarible.protocol.dto.FlowOrderPlatformDto
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
@@ -42,7 +42,6 @@ import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
-import java.math.RoundingMode
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -380,7 +379,7 @@ class OrderService(
         ownership: Ownership,
         before: Instant,
         needSendToKafka: Boolean,
-        marks: FlowEventTimeMarksDto
+        marks: EventTimeMarks
     ): List<Order> = withSpan("deactivateOrdersByOwnership", "db") {
         orderRepository
             .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
@@ -403,7 +402,7 @@ class OrderService(
         ownership: Ownership,
         before: Instant,
         needSendToKafka: Boolean,
-        marks: FlowEventTimeMarksDto
+        marks: EventTimeMarks
     ): List<Order> = withSpan("restoreOrdersForOwnership", "db") {
         orderRepository
             .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(

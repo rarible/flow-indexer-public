@@ -10,6 +10,7 @@ import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coSaveAll
 import com.rarible.flow.core.util.Log
+import com.rarible.flow.core.util.offchainEventMarks
 import com.rarible.flow.scanner.listener.GeneralFlowLogListener
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.model.Listeners
@@ -48,7 +49,8 @@ class VersusArtEventListener(
                                 history = history,
                                 item = (history.activity as? NFTActivity)?.let { a ->
                                     items.find { it.contract == a.contract && it.tokenId == a.tokenId }
-                                }
+                                },
+                                eventTimeMarks = offchainEventMarks() // TODO send it in right way if activated
                             )
                         )
                         logger.info("Send activity [${history.id}] to kafka!")

@@ -2,15 +2,13 @@ package com.rarible.flow.api.meta.provider
 
 import com.rarible.flow.api.meta.fetcher.RawOnChainMetaFetcher
 import com.rarible.flow.api.service.meta.HWMetaEventTypeProvider
-import com.rarible.flow.core.config.FeatureFlagsProperties
 import com.rarible.flow.core.domain.ItemId
 import org.springframework.stereotype.Component
 
 sealed class HotWheelsMetaProvider(
     fetcher: RawOnChainMetaFetcher,
     parser: MattelMetaParser,
-    metaEventTypeProvider: HWMetaEventTypeProvider,
-    ff: FeatureFlagsProperties
+    metaEventTypeProvider: HWMetaEventTypeProvider
 ) : AbstractMetaProvider(
     fetcher,
     parser,
@@ -20,9 +18,8 @@ sealed class HotWheelsMetaProvider(
 @Component
 class HotWheelsCardMetaProvider(
     fetcher: RawOnChainMetaFetcher,
-    metaEventTypeProvider: HWMetaEventTypeProvider,
-    ff: FeatureFlagsProperties
-) : HotWheelsMetaProvider(fetcher, HotWheelsCardMetaParser, metaEventTypeProvider, ff) {
+    metaEventTypeProvider: HWMetaEventTypeProvider
+) : HotWheelsMetaProvider(fetcher, HotWheelsCardMetaParser, metaEventTypeProvider) {
 
     override fun isSupported(itemId: ItemId): Boolean =
         itemId.contract.endsWith(".HWGarageCard") || itemId.contract.endsWith(".HWGarageCardV2")
@@ -32,9 +29,8 @@ class HotWheelsCardMetaProvider(
 @Component
 class HotWheelsPackMetaProvider(
     fetcher: RawOnChainMetaFetcher,
-    ff: FeatureFlagsProperties,
     metaEventTypeProvider: HWMetaEventTypeProvider,
-) : HotWheelsMetaProvider(fetcher, HotWheelsPackMetaParser, metaEventTypeProvider, ff) {
+) : HotWheelsMetaProvider(fetcher, HotWheelsPackMetaParser, metaEventTypeProvider) {
 
     override fun isSupported(itemId: ItemId): Boolean =
         itemId.contract.endsWith(".HWGaragePack") || itemId.contract.endsWith(".HWGaragePackV2")

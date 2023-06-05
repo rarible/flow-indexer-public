@@ -2,17 +2,18 @@ package com.rarible.flow.scanner.listener.disabled
 
 import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
 import com.rarible.core.application.ApplicationEnvironmentInfo
+import com.rarible.core.common.EventTimeMarks
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.BalanceHistory
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
+import com.rarible.flow.core.util.offchainEventMarks
 import com.rarible.flow.scanner.listener.BalanceFlowLogListener
 import com.rarible.flow.scanner.model.Listeners
 import com.rarible.flow.scanner.model.SubscriberGroups
 import com.rarible.flow.scanner.service.BidService
-import com.rarible.protocol.dto.blockchainEventMark
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import org.slf4j.Logger
@@ -32,16 +33,18 @@ class FungibleLogListener(
 ) {
 
     override suspend fun onLogRecordEvents(events: List<LogRecordEvent>) {
-        events
-            .map { event -> event.record }
-            .filterIsInstance<BalanceHistory>()
-            .forEach { history ->
-                processBalance(history)
+        events.forEach { event ->
+            (event.record as? BalanceHistory)?.let {
+                val marks = event.eventTimeMarks ?: run {
+                    logger.warn("EventTimeMarks not found in FungibleLogEvents")
+                    offchainEventMarks()
+                }
+                processBalance(it, marks)
             }
+        }
     }
 
-    suspend fun processBalance(history: BalanceHistory) {
-        val marks = blockchainEventMark("indexer-in", history.log.timestamp)
+    suspend fun processBalance(history: BalanceHistory, eventTimeMarks: EventTimeMarks) {
         val balance = balanceRepository
             .coFindById(history.balanceId)
 
@@ -68,12 +71,13 @@ class FungibleLogListener(
                 updatedBalance.account.formatted
             )
             updatedBids.forEach { o ->
-                protocolEventPublisher.onOrderUpdate(o, orderConverter, marks)
+                protocolEventPublisher.onOrderUpdate(o, orderConverter, eventTimeMarks)
             }
         }
     }
 
     private companion object {
+
         val logger: Logger = LoggerFactory.getLogger(FungibleLogListener::class.java)
     }
 }
