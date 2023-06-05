@@ -18,13 +18,13 @@ import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepository
+import com.rarible.flow.core.util.offchainEventMarks
 import com.rarible.flow.scanner.eventprocessor.ItemIndexerEventProcessor
 import com.rarible.flow.scanner.eventprocessor.OrderIndexerEventProcessor
 import com.rarible.flow.scanner.model.IndexerEvent
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.Called
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -183,7 +183,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
     }
 
     test("on order close: update transport activity") {
-        val event = IndexerEvent(historyOrderClose, null)
+        val event = IndexerEvent(historyOrderClose, null, offchainEventMarks())
 
         indexerEventService.processEvent(event)
 
@@ -199,7 +199,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
     }
 
     test("on order close event: not found transfer") {
-        val event = IndexerEvent(historyOrderClose.copy(log = anotherLog), null)
+        val event = IndexerEvent(historyOrderClose.copy(log = anotherLog), null, offchainEventMarks())
 
         indexerEventService.processEvent(event)
 
@@ -209,7 +209,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
     }
 
     test("on bid accept: update transport activity") {
-        val event = IndexerEvent(historyAcceptBid, null)
+        val event = IndexerEvent(historyAcceptBid, null, offchainEventMarks())
 
         indexerEventService.processEvent(event)
 
@@ -223,7 +223,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
     }
 
     test("on bid accept: not found transfer") {
-        val event = IndexerEvent(historyAcceptBid, null)
+        val event = IndexerEvent(historyAcceptBid, null, offchainEventMarks())
 
         indexerEventService.processEvent(event)
 
@@ -233,7 +233,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
     }
 
     test("on transport: found order (must be purchased=true)") {
-        val event = IndexerEvent(historyTransfer, null)
+        val event = IndexerEvent(historyTransfer, null, offchainEventMarks())
 
         indexerEventService.processEvent(event)
 
@@ -247,7 +247,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
     }
 
     test("on transport: not found order") {
-        val event = IndexerEvent(historyTransfer, null)
+        val event = IndexerEvent(historyTransfer, null, offchainEventMarks())
 
         indexerEventService.processEvent(event)
 

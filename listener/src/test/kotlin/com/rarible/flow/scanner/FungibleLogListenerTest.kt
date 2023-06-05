@@ -4,12 +4,20 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.application.ApplicationEnvironmentInfo
 import com.rarible.flow.core.converter.OrderToDtoConverter
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.Balance
+import com.rarible.flow.core.domain.BalanceHistory
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderStatus
+import com.rarible.flow.core.domain.OrderType
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
+import com.rarible.flow.core.util.offchainEventMarks
 import com.rarible.flow.scanner.listener.disabled.FungibleLogListener
 import com.rarible.flow.scanner.service.BidService
 import io.kotest.matchers.shouldBe
@@ -24,7 +32,7 @@ import java.time.LocalDateTime
 
 @ExperimentalCoroutinesApi
 @IntegrationTest
-internal class FungibleLogListenerTest: BaseIntegrationTest() {
+internal class FungibleLogListenerTest : BaseIntegrationTest() {
 
     @Autowired
     lateinit var orderRepository: OrderRepository
@@ -88,14 +96,17 @@ internal class FungibleLogListenerTest: BaseIntegrationTest() {
 
         // when
         fungibleLogListener.processBalance(
-            BalanceHistory(initialBalance.id, BigDecimal.ONE.negate(), Instant.now().plusMillis(10000), FlowLog(
-                transactionHash = "tx_hash",
-                eventIndex = 1,
-                eventType = "event_type",
-                Instant.now(),
-                blockHeight = 1000,
-                "block_hash"
-            ))
+            BalanceHistory(
+                initialBalance.id, BigDecimal.ONE.negate(), Instant.now().plusMillis(10000), FlowLog(
+                    transactionHash = "tx_hash",
+                    eventIndex = 1,
+                    eventType = "event_type",
+                    Instant.now(),
+                    blockHeight = 1000,
+                    "block_hash"
+                )
+            ),
+            eventTimeMarks = offchainEventMarks()
         )
 
         // then
@@ -135,14 +146,17 @@ internal class FungibleLogListenerTest: BaseIntegrationTest() {
 
         // when
         fungibleLogListener.processBalance(
-            BalanceHistory(initialBalance.id, BigDecimal.ONE, Instant.now().plusMillis(10000), FlowLog(
-                transactionHash = "tx_hash",
-                eventIndex = 1,
-                eventType = "event_type",
-                Instant.now(),
-                blockHeight = 1000,
-                "block_hash"
-            ))
+            BalanceHistory(
+                initialBalance.id, BigDecimal.ONE, Instant.now().plusMillis(10000), FlowLog(
+                    transactionHash = "tx_hash",
+                    eventIndex = 1,
+                    eventType = "event_type",
+                    Instant.now(),
+                    blockHeight = 1000,
+                    "block_hash"
+                )
+            ),
+            eventTimeMarks = offchainEventMarks()
         )
 
         // then

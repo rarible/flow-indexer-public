@@ -4,8 +4,8 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.util.offchainEventMarks
 import com.rarible.flow.scanner.config.FlowListenerProperties
-import com.rarible.protocol.dto.FlowEventTimeMarksDto
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.stereotype.Component
 
@@ -19,7 +19,7 @@ class ItemCleanupJob(
     override suspend fun cleanup(entity: Item) {
         protocolEventPublisher.onItemDelete(
             itemId = entity.id,
-            marks = FlowEventTimeMarksDto(marks = emptyList(), source = "cleanup")
+            marks = offchainEventMarks()
         )
         itemRepository.delete(entity).awaitFirstOrNull()
         logger.info("Removed item {}", entity.id)

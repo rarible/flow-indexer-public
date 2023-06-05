@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.apm.CaptureSpan
 import com.rarible.core.apm.withSpan
+import com.rarible.core.common.EventTimeMarks
 import com.rarible.core.common.optimisticLock
 import com.rarible.flow.core.domain.BurnActivity
 import com.rarible.flow.core.domain.FlowActivityType
@@ -17,16 +18,16 @@ import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
+import com.rarible.flow.core.util.offchainEventMarks
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.OrderService
-import com.rarible.protocol.dto.FlowEventTimeMarksDto
-import com.rarible.protocol.dto.blockchainEventMark
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import reactor.kotlin.extra.math.max
 import java.time.Instant
@@ -40,6 +41,8 @@ class ItemIndexerEventProcessor(
     private val orderService: OrderService,
 ) : IndexerEventsProcessor {
 
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     private val objectMapper = jacksonObjectMapper()
 
     private val supportedTypes = arrayOf(FlowActivityType.MINT, FlowActivityType.TRANSFER, FlowActivityType.BURN)
@@ -47,7 +50,10 @@ class ItemIndexerEventProcessor(
     override fun isSupported(event: IndexerEvent): Boolean = event.activityType() in supportedTypes
 
     override suspend fun process(event: IndexerEvent) {
-        val marks = blockchainEventMark("indexer-in", event.history.log.timestamp)
+        val marks = event.eventTimeMarks ?: run {
+            logger.warn("EventTimeMarks not found in ItemIndexerEvent")
+            offchainEventMarks()
+        }
         when (event.activityType()) {
             FlowActivityType.MINT -> mintItemEvent(event, marks)
             FlowActivityType.TRANSFER -> transfer(event, marks)
@@ -56,7 +62,7 @@ class ItemIndexerEventProcessor(
         }
     }
 
-    suspend fun mintItemEvent(event: IndexerEvent, marks: FlowEventTimeMarksDto) {
+    suspend fun mintItemEvent(event: IndexerEvent, marks: EventTimeMarks) {
         val mintActivity = event.history.activity as MintActivity
         withSpan(
             "mintItemEvent",
@@ -151,7 +157,7 @@ class ItemIndexerEventProcessor(
         }
     }
 
-    private suspend fun burnItemEvent(event: IndexerEvent, marks: FlowEventTimeMarksDto) {
+    private suspend fun burnItemEvent(event: IndexerEvent, marks: EventTimeMarks) {
         val burn = event.history.activity as BurnActivity
         val item = event.item
         withSpan("burnItemEvent", type = "event", labels = listOf("itemId" to "${burn.contract}:${burn.tokenId}")) {
@@ -193,7 +199,7 @@ class ItemIndexerEventProcessor(
         }
     }
 
-    private suspend fun transfer(event: IndexerEvent, marks: FlowEventTimeMarksDto) {
+    private suspend fun transfer(event: IndexerEvent, marks: EventTimeMarks) {
         val transferActivity = event.history.activity as TransferActivity
 
         val item = event.item

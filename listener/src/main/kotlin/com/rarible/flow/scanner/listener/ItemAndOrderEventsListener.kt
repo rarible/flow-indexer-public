@@ -2,7 +2,9 @@ package com.rarible.flow.scanner.listener
 
 import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
 import com.rarible.core.application.ApplicationEnvironmentInfo
+import com.rarible.core.common.EventTimeMarks
 import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.domain.GeneralFlowLogRecordEvent
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.NFTActivity
@@ -34,18 +36,23 @@ class ItemAndOrderEventsListener(
     environmentInfo = environmentInfo
 ) {
     override suspend fun onLogRecordEvents(events: List<LogRecordEvent>) {
-        val history: MutableList<ItemHistory> = mutableListOf()
-        events
-            .map { event -> event.record }
-            .filterIsInstance<FlowLogEvent>()
-            .groupBy { Pair(it.log.transactionHash, it.event.eventId.collection()) }
+
+        val history: MutableList<ItemHistoryEvent> = mutableListOf()
+        val flowLogRecordsEvents = filterFlowLogRecords(events)
+        val byLog = flowLogRecordsEvents.associateBy { it.record.log }
+
+        flowLogRecordsEvents.groupBy { getKey(it) }
             .forEach { entry ->
-                nftActivityMakers.find { it.isSupportedCollection(entry.key.second) }?.let { maker ->
-                    val activities = maker.activities(entry.value).map { entry ->
-                        ItemHistory(
-                            log = entry.key,
-                            activity = entry.value,
-                            date = entry.value.timestamp
+                nftActivityMakers.find { it.isSupportedCollection(entry.key.collection) }?.let { maker ->
+                    val flowEvents = entry.value.map { it.record }
+                    val activities = maker.activities(flowEvents).map { entry ->
+                        ItemHistoryEvent(
+                            history = ItemHistory(
+                                log = entry.key,
+                                activity = entry.value,
+                                date = entry.value.timestamp
+                            ),
+                            eventTimeMarks = byLog[entry.key]?.eventTimeMarks
                         )
                     }
 
@@ -54,32 +61,67 @@ class ItemAndOrderEventsListener(
                 }
             }
 
-        if (history.isNotEmpty()) {
-            val saved = itemHistoryRepository.coSaveAll(history)
+        if (history.isEmpty()) {
+            return
+        }
 
-            saved.sortedBy { it.date }.groupBy { it.log.transactionHash }.forEach { tx ->
-                tx.value.sortedBy { it.log.eventIndex }.forEach { h ->
-                    logger.info("Send activity [${h.id}] to kafka!")
-                    // Cancel list activity hasn't enough information yet to be published
-                    if (h.activity.isCancelList().not()) {
-                        protocolEventPublisher.activity(h)
-                    }
-                    val item = (h.activity as? NFTActivity)
-                        ?.let { ItemId(it.contract, it.tokenId) }
-                        ?.let { itemRepository.findById(it).awaitFirstOrNull() }
+        itemHistoryRepository.coSaveAll(history.map { it.history })
 
-                    indexerEventService.processEvent(
-                        IndexerEvent(
-                            history = h,
-                            item = item
-                        )
-                    )
+        history.sortedBy { it.history.date }.groupBy { it.history.log.transactionHash }.forEach { tx ->
+            tx.value.sortedBy { it.history.log.eventIndex }.forEach { itemHistoryEvent ->
+                val h = itemHistoryEvent.history
+                logger.info("Send activity [${h.id}] to kafka!")
+                // Cancel list activity hasn't enough information yet to be published
+                if (h.activity.isCancelList().not()) {
+                    protocolEventPublisher.activity(h)
                 }
+                val item = (h.activity as? NFTActivity)
+                    ?.let { ItemId(it.contract, it.tokenId) }
+                    ?.let { itemRepository.findById(it).awaitFirstOrNull() }
+
+                indexerEventService.processEvent(
+                    IndexerEvent(
+                        history = h,
+                        eventTimeMarks = itemHistoryEvent.eventTimeMarks,
+                        item = item
+                    )
+                )
+            }
+        }
+
+    }
+
+    private fun filterFlowLogRecords(events: List<LogRecordEvent>): List<GeneralFlowLogRecordEvent> {
+        return events.mapNotNull { event ->
+            (event.record as? FlowLogEvent)?.let {
+                GeneralFlowLogRecordEvent(
+                    record = it,
+                    reverted = event.reverted,
+                    eventTimeMarks = event.eventTimeMarks
+                )
             }
         }
     }
 
+    private data class ItemHistoryEvent(
+        val history: ItemHistory,
+        val eventTimeMarks: EventTimeMarks?
+    )
+
+    private data class TransactionCollectionKey(
+        val transactionHash: String,
+        val collection: String
+    )
+
+    private fun getKey(event: GeneralFlowLogRecordEvent): TransactionCollectionKey {
+        return TransactionCollectionKey(
+            transactionHash = event.record.log.transactionHash,
+            collection = event.record.event.eventId.collection()
+        )
+    }
+
     private companion object {
+
         val logger: Logger = LoggerFactory.getLogger(ItemAndOrderEventsListener::class.java)
     }
 

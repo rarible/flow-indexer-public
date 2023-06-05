@@ -31,7 +31,7 @@ object ItemMetaConverter : Converter<ItemMeta, FlowMetaDto> {
                     key = it.key, value = it.value, format = it.format, type = it.type
                 )
             },
-            content = source.content?.map(ItemMetaConverter::convert),
+            content = source.content.map(ItemMetaConverter::convert),
             raw = source.raw?.let { Base64.getEncoder().encodeToString(it) },
             status = FlowMetaDto.Status.OK
         )
