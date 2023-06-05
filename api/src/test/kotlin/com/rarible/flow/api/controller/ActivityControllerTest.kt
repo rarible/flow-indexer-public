@@ -10,6 +10,7 @@ import com.rarible.flow.core.domain.BurnActivity
 import com.rarible.flow.core.domain.FlowActivityType
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.FlowNftOrderActivityBid
 import com.rarible.flow.core.domain.FlowNftOrderActivityCancelList
 import com.rarible.flow.core.domain.FlowNftOrderActivityList
 import com.rarible.flow.core.domain.FlowNftOrderActivitySell
@@ -24,9 +25,11 @@ import com.rarible.flow.randomFlowAddress
 import com.rarible.flow.randomLong
 import com.rarible.flow.randomRate
 import com.rarible.protocol.dto.FlowActivitiesDto
+import com.rarible.protocol.dto.FlowActivityDto
 import com.rarible.protocol.dto.FlowBurnDto
 import com.rarible.protocol.dto.FlowNftOrderActivityCancelListDto
 import com.rarible.protocol.dto.FlowNftOrderActivityListDto
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
@@ -42,6 +45,8 @@ import java.math.BigDecimal
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.random.Random
@@ -106,9 +111,14 @@ class ActivityControllerTest {
         val hash = "12345"
         val contract = randomAddress()
 
-        repo.saveAll(listOf(
-            randomItemHistory(date = date, activity = randomBurn().copy(tokenId = tokenId, owner = null, contract = contract), log = randomLog().copy(transactionHash = hash, eventIndex = 2)),
-        )
+        repo.saveAll(
+            listOf(
+                randomItemHistory(
+                    date = date,
+                    activity = randomBurn().copy(tokenId = tokenId, owner = null, contract = contract),
+                    log = randomLog().copy(transactionHash = hash, eventIndex = 2)
+                ),
+            )
         ).then().block()
 
         client.get()
@@ -200,43 +210,45 @@ class ActivityControllerTest {
         val date3 = date1 + Duration.ofMinutes(2)
 
 
-        repo.saveAll(listOf(
-            // mint
-            ItemHistory(
-                date = date1,
-                activity = randomMint().copy(
-                    timestamp = date1,
-                    contract = contract,
-                    tokenId = tokenId,
-                    owner = account1,
+        repo.saveAll(
+            listOf(
+                // mint
+                ItemHistory(
+                    date = date1,
+                    activity = randomMint().copy(
+                        timestamp = date1,
+                        contract = contract,
+                        tokenId = tokenId,
+                        owner = account1,
+                    ),
+                    log = randomLog().copy(eventIndex = 1, transactionHash = "1")
                 ),
-                log = randomLog().copy(eventIndex = 1, transactionHash = "1")
-            ),
-            // transfer
-            ItemHistory(
-                date = date2,
-                activity = TransferActivity(
-                    timestamp = date2,
-                    contract = contract,
-                    tokenId = tokenId,
-                    from = account1,
-                    to = account2,
-                    purchased = false
+                // transfer
+                ItemHistory(
+                    date = date2,
+                    activity = TransferActivity(
+                        timestamp = date2,
+                        contract = contract,
+                        tokenId = tokenId,
+                        from = account1,
+                        to = account2,
+                        purchased = false
+                    ),
+                    log = randomLog().copy(eventIndex = 1, transactionHash = "2")
                 ),
-                log = randomLog().copy(eventIndex = 1, transactionHash = "2")
-            ),
-            // burn
-            ItemHistory(
-                date = date3,
-                activity = randomBurn().copy(
-                    timestamp = date2,
-                    contract = contract,
-                    tokenId = tokenId,
-                    owner = account2,
+                // burn
+                ItemHistory(
+                    date = date3,
+                    activity = randomBurn().copy(
+                        timestamp = date2,
+                        contract = contract,
+                        tokenId = tokenId,
+                        owner = account2,
+                    ),
+                    log = randomLog().copy(eventIndex = 2, transactionHash = "3")
                 ),
-                log = randomLog().copy(eventIndex = 2, transactionHash = "3")
-            ),
-        )).then().block()
+            )
+        ).then().block()
 
         listOf(
             "/v0.1/order/activities/byItem?type=TRANSFER&contract=$contract&tokenId=$tokenId",
@@ -365,7 +377,7 @@ class ActivityControllerTest {
                     Assertions.assertNotNull(activitiesDto)
                     Assertions.assertNotNull(activitiesDto?.items)
                     Assertions.assertTrue(activitiesDto?.items!!.isNotEmpty())
-                    Assertions.assertEquals(2, activitiesDto.items.count() )
+                    Assertions.assertEquals(2, activitiesDto.items.count())
                 }
         }
     }
@@ -440,7 +452,7 @@ class ActivityControllerTest {
                     Assertions.assertNotNull(activitiesDto)
                     Assertions.assertNotNull(activitiesDto?.items)
                     Assertions.assertTrue(activitiesDto?.items!!.isNotEmpty())
-                    Assertions.assertEquals(2, activitiesDto.items.count() )
+                    Assertions.assertEquals(2, activitiesDto.items.count())
                 }
         }
     }
@@ -702,6 +714,129 @@ class ActivityControllerTest {
             }
     }
 
+    @Test
+    fun `sync pagination returns all elements`() {
+        val contract = randomAddress()
+        val tokenId = randomLong()
+        val user = randomAddress()
+        val startDate = OffsetDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC)
+        // 2 entries for each month
+        val history = (1..10)
+            .map { it % 5 }
+            .sorted()
+            .flatMap {
+                listOf(
+                    ItemHistory(
+                        Instant.now(),
+                        FlowNftOrderActivitySell(
+                            type = FlowActivityType.SELL,
+                            contract = contract,
+                            tokenId = tokenId,
+                            timestamp = Instant.now(),
+                            price = BigDecimal(it),
+                            priceUsd = BigDecimal(it),
+                            left = OrderActivityMatchSide(randomAddress(), FlowAssetFungible(contract, BigDecimal.TEN)),
+                            right = OrderActivityMatchSide(user, FlowAssetNFT(contract, BigDecimal.ONE, tokenId)),
+                            hash = it.toString(),
+                            payments = emptyList()
+                        ),
+                        randomLog()
+                    ),
+                    ItemHistory(
+                        Instant.now(),
+                        FlowNftOrderActivityList(
+                            type = FlowActivityType.LIST,
+                            contract = contract,
+                            tokenId = tokenId,
+                            timestamp = Instant.now(),
+                            price = BigDecimal(it),
+                            priceUsd = BigDecimal(it),
+                            make = FlowAssetFungible(contract, BigDecimal.TEN),
+                            take = FlowAssetNFT(contract, BigDecimal.ONE, tokenId),
+                            hash = it.toString(),
+                            maker = user,
+                            estimatedFee = null,
+                            expiry = null
+                        ),
+                        randomLog()
+                    ),
+                    ItemHistory(
+                        Instant.now(),
+                        FlowNftOrderActivityBid(
+                            type = FlowActivityType.BID,
+                            contract = contract,
+                            tokenId = tokenId,
+                            timestamp = Instant.now(),
+                            price = BigDecimal(it),
+                            priceUsd = BigDecimal(it),
+                            make = FlowAssetFungible(contract, BigDecimal.TEN),
+                            take = FlowAssetNFT(contract, BigDecimal.ONE, tokenId),
+                            hash = it.toString(),
+                            maker = user
+                        ),
+                        randomLog()
+                    ),
+                    ItemHistory(
+                        Instant.now(),
+                        MintActivity(
+                            type = FlowActivityType.MINT,
+                            timestamp = Instant.now(),
+                            owner = user,
+                            creator = user,
+                            contract = contract,
+                            tokenId = tokenId,
+                            value = 1,
+                            metadata = mapOf("metaURI" to "ipfs://"),
+                            royalties = emptyList()
+                        ),
+                        randomLog()
+                    ),
+                    ItemHistory(
+                        Instant.now(),
+                        BurnActivity(
+                            type = FlowActivityType.BURN,
+                            timestamp = Instant.now(),
+                            owner = user,
+                            contract = contract,
+                            tokenId = tokenId,
+                            value = 1,
+                        ),
+                        randomLog()
+                    ),
+                    ItemHistory(
+                        Instant.now(),
+                        TransferActivity(
+                            type = FlowActivityType.TRANSFER,
+                            timestamp = Instant.now(),
+                            from = user,
+                            to = user,
+                            contract = contract,
+                            tokenId = tokenId,
+                        ),
+                        randomLog()
+                    ),
+                ).also { list -> list.forEach { ih -> ih.updatedAt = startDate.plusMonths(it.toLong()).toInstant() } }
+            }
+        repo.saveAll(history).then().block()
+        listOf(
+            FlowActivityType.LIST,
+            FlowActivityType.BID,
+            FlowActivityType.SELL,
+            FlowActivityType.MINT,
+            FlowActivityType.BURN,
+            FlowActivityType.TRANSFER,
+        ).forEach { type ->
+            val activitiesAsc = iterateOrderActivitiesSync(type, "EARLIEST_FIRST")
+            val activitiesDesc = iterateOrderActivitiesSync(type, "LATEST_FIRST")
+            assertThat(activitiesAsc)
+                .hasSize(10)
+                .isSortedAccordingTo(Comparator.comparing(FlowActivityDto::updatedAt))
+            assertThat(activitiesDesc)
+                .hasSize(10)
+                .isSortedAccordingTo(Comparator.comparing(FlowActivityDto::updatedAt).reversed())
+        }
+    }
+
     private fun randomMint() = MintActivity(
         type = FlowActivityType.MINT,
         timestamp = Instant.now(Clock.systemUTC()),
@@ -736,5 +871,44 @@ class ActivityControllerTest {
             eventType = "",
             timestamp = Instant.now(Clock.systemUTC()),
             blockHeight = randomLong(),
-            blockHash = "")
+            blockHash = ""
+        )
+
+    private fun iterateOrderActivitiesSync(type: FlowActivityType, sort: String): List<FlowActivityDto> {
+        val res = mutableListOf<FlowActivityDto>()
+        val ids = mutableSetOf<String>()
+        val continuations = mutableSetOf<String>()
+        var currentContinuation: String? = null
+        do {
+            val resp = client.get()
+                .uri { ub ->
+                    val _ub = ub.path("/v0.1/order/activities/sync")
+                        .queryParam("type", type)
+                        .queryParam("size", 1)
+                        .queryParam("sort", sort)
+                    if (currentContinuation != null) {
+                        _ub.queryParam("continuation", currentContinuation)
+                    }
+                    _ub.build()
+                }
+                .exchange()
+                .expectStatus().isOk
+                .expectBody<FlowActivitiesDto>()
+                .returnResult()
+                .responseBody
+            resp.items.forEach {
+                if (ids.contains(it.id)) {
+                    Assertions.fail<Unit>("Duplicated id ${it.id}")
+                }
+                ids.add(it.id)
+            }
+            res.addAll(resp.items)
+            if (continuations.contains(resp.continuation!!)) {
+                Assertions.fail<Unit>("Duplicated continuation ${resp.continuation}")
+            }
+            continuations.add(resp.continuation!!)
+            currentContinuation = resp.continuation
+        } while (!currentContinuation.isNullOrEmpty() && currentContinuation != "null")
+        return res.toList()
+    }
 }
