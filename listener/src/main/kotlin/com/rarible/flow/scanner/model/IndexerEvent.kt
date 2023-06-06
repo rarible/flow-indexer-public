@@ -8,7 +8,7 @@ import com.rarible.flow.core.domain.ItemHistory
 data class IndexerEvent(
     val history: ItemHistory,
     val item: Item? = null,
-    val eventTimeMarks: EventTimeMarks?
+    val eventTimeMarks: EventTimeMarks
 ) {
     fun activityType(): FlowActivityType = history.activity.type
 }

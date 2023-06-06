@@ -1,5 +1,6 @@
 package com.rarible.flow.core.kafka
 
+import com.rarible.blockchain.scanner.framework.util.addOut
 import com.rarible.core.common.EventTimeMarks
 import com.rarible.core.kafka.KafkaMessage
 import com.rarible.core.kafka.RaribleKafkaProducer
@@ -17,7 +18,6 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.util.Log
-import com.rarible.flow.core.util.addOut
 import com.rarible.flow.core.util.toDto
 import com.rarible.protocol.dto.FlowActivityDto
 import com.rarible.protocol.dto.FlowAuctionDto
@@ -95,7 +95,7 @@ class ProtocolEventPublisher(
     suspend fun onOrderUpdate(
         order: Order,
         converter: OrderToDtoConverter,
-        marks: EventTimeMarks
+        marks: EventTimeMarks,
     ) {
         val orderId = order.id
         val key = orderId.toString()
@@ -146,7 +146,7 @@ class ProtocolEventPublisher(
             collectionId = key,
             collection = dto,
             eventTimeMarks = eventTimeMarks
-            )
+        )
         send(collections, key, message)
     }
 

@@ -23,7 +23,7 @@ class AppReadyListener(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val itemCollectionRepository: ItemCollectionRepository,
     private val scannerProperties: FlowBlockchainScannerProperties,
-    private val eventPublisher: ProtocolEventPublisher
+    private val eventPublisher: ProtocolEventPublisher,
 ) : ApplicationListener<ApplicationReadyEvent> {
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
@@ -36,7 +36,7 @@ class AppReadyListener(
                 .chunked(COLLECTION_HANDLE_BATCH_SIZE)
                 .map { chunk ->
                     chunk.map {
-                        async { addCollection(it)  }
+                        async { addCollection(it) }
                     }.awaitAll()
                 }.lastOrNull()
 

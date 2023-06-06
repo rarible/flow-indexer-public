@@ -18,7 +18,6 @@ import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
-import com.rarible.flow.core.util.offchainEventMarks
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.OrderService
 import kotlinx.coroutines.flow.onEach
@@ -50,10 +49,7 @@ class ItemIndexerEventProcessor(
     override fun isSupported(event: IndexerEvent): Boolean = event.activityType() in supportedTypes
 
     override suspend fun process(event: IndexerEvent) {
-        val marks = event.eventTimeMarks ?: run {
-            logger.warn("EventTimeMarks not found in ItemIndexerEvent")
-            offchainEventMarks()
-        }
+        val marks = event.eventTimeMarks
         when (event.activityType()) {
             FlowActivityType.MINT -> mintItemEvent(event, marks)
             FlowActivityType.TRANSFER -> transfer(event, marks)
