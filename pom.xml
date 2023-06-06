@@ -22,13 +22,13 @@
     </repositories>
 
     <properties>
-        <revision>1.50</revision>
+        <revision>1.51</revision>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <rarible.core.version>2.5.20</rarible.core.version>
         <rarible.blockchain.scanner.version>2.6.26</rarible.blockchain.scanner.version>
 
-        <rarible.protocol.flow.version>1.50.1</rarible.protocol.flow.version>
+        <rarible.protocol.flow.version>1.51.0</rarible.protocol.flow.version>
         <rarible.protocol.currency.version>1.38.3</rarible.protocol.currency.version>
 
         <netflix.graphql.version>4.9.7</netflix.graphql.version>
