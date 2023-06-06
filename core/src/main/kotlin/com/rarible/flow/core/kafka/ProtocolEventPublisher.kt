@@ -17,7 +17,7 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.Ownership
 import com.rarible.flow.core.util.Log
-import com.rarible.flow.core.util.addOut
+import com.rarible.flow.core.util.addIndexerOut
 import com.rarible.flow.core.util.toDto
 import com.rarible.protocol.dto.FlowActivityDto
 import com.rarible.protocol.dto.FlowAuctionDto
@@ -52,7 +52,7 @@ class ProtocolEventPublisher(
             eventId = "${item.id}.${UUID.randomUUID()}",
             itemId = key,
             item = ItemToDtoConverter.convert(item),
-            eventTimeMarks = marks.addOut().toDto()
+            eventTimeMarks = marks.addIndexerOut().toDto()
         )
         send(items, key, message)
     }
@@ -63,7 +63,7 @@ class ProtocolEventPublisher(
             eventId = "${ownership.id}.${UUID.randomUUID()}",
             ownershipId = key,
             ownership = OwnershipToDtoConverter.convert(ownership),
-            eventTimeMarks = marks.addOut().toDto()
+            eventTimeMarks = marks.addIndexerOut().toDto()
         )
         send(ownerships, key, message)
     }
@@ -75,7 +75,7 @@ class ProtocolEventPublisher(
                 eventId = "${it.id}.${UUID.randomUUID()}",
                 ownershipId = key,
                 ownership = OwnershipToDtoConverter.convert(it),
-                eventTimeMarks = marks.addOut().toDto()
+                eventTimeMarks = marks.addIndexerOut().toDto()
             )
             send(ownerships, key, message)
         }
@@ -87,7 +87,7 @@ class ProtocolEventPublisher(
             eventId = "${ownership.id}.${UUID.randomUUID()}",
             ownershipId = key,
             ownership = OwnershipToDtoConverter.convert(ownership),
-            eventTimeMarks = marks.addOut().toDto()
+            eventTimeMarks = marks.addIndexerOut().toDto()
         )
         send(ownerships, key, message)
     }
@@ -95,7 +95,7 @@ class ProtocolEventPublisher(
     suspend fun onOrderUpdate(
         order: Order,
         converter: OrderToDtoConverter,
-        marks: EventTimeMarks
+        marks: EventTimeMarks,
     ) {
         val orderId = order.id
         val key = orderId.toString()
@@ -103,7 +103,7 @@ class ProtocolEventPublisher(
             eventId = "$orderId.${UUID.randomUUID()}",
             orderId = key,
             order = converter.convert(order),
-            eventTimeMarks = marks.addOut().toDto()
+            eventTimeMarks = marks.addIndexerOut().toDto()
         )
         send(orders, key, message)
     }
@@ -114,7 +114,7 @@ class ProtocolEventPublisher(
             eventId = "${itemId}.${UUID.randomUUID()}",
             itemId = key,
             item = FlowNftDeletedItemDto(key, itemId.contract, itemId.tokenId),
-            eventTimeMarks = marks.addOut().toDto()
+            eventTimeMarks = marks.addIndexerOut().toDto()
         )
         send(items, key, message)
     }
@@ -139,14 +139,14 @@ class ProtocolEventPublisher(
         val key = collection.id
         val dto = FlowNftCollectionDtoConverter.convert(collection)
         val eventId = "$key.${UUID.randomUUID()}"
-        val eventTimeMarks = marks.addOut().toDto()
+        val eventTimeMarks = marks.addIndexerOut().toDto()
 
         val message = FlowCollectionUpdateEventDto(
             eventId = eventId,
             collectionId = key,
             collection = dto,
             eventTimeMarks = eventTimeMarks
-            )
+        )
         send(collections, key, message)
     }
 

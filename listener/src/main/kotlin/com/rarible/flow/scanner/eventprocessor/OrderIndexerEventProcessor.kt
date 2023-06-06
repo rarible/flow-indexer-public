@@ -15,7 +15,6 @@ import com.rarible.flow.core.domain.FlowNftOrderActivitySell
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
-import com.rarible.flow.core.util.offchainEventMarks
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.service.OrderService
 import org.slf4j.LoggerFactory
@@ -26,7 +25,7 @@ import org.springframework.stereotype.Component
 class OrderIndexerEventProcessor(
     private val orderService: OrderService,
     private val protocolEventPublisher: ProtocolEventPublisher,
-    private val orderConverter: OrderToDtoConverter
+    private val orderConverter: OrderToDtoConverter,
 ) : IndexerEventsProcessor {
 
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -42,10 +41,7 @@ class OrderIndexerEventProcessor(
     override fun isSupported(event: IndexerEvent): Boolean = event.activityType() in supportedTypes
 
     override suspend fun process(event: IndexerEvent) {
-        val marks = event.eventTimeMarks ?: run {
-            logger.warn("EventTimeMarks not found in OrderIndexerEvent")
-            offchainEventMarks()
-        }
+        val marks = event.eventTimeMarks
         when (event.activityType()) {
             FlowActivityType.LIST -> list(event, marks)
             FlowActivityType.SELL -> close(event, marks)

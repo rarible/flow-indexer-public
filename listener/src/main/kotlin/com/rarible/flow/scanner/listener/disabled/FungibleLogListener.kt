@@ -35,11 +35,7 @@ class FungibleLogListener(
     override suspend fun onLogRecordEvents(events: List<LogRecordEvent>) {
         events.forEach { event ->
             (event.record as? BalanceHistory)?.let {
-                val marks = event.eventTimeMarks ?: run {
-                    logger.warn("EventTimeMarks not found in FungibleLogEvents")
-                    offchainEventMarks()
-                }
-                processBalance(it, marks)
+                processBalance(it, event.eventTimeMarks)
             }
         }
     }

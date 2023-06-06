@@ -12,6 +12,7 @@ import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.coSaveAll
+import com.rarible.flow.core.util.offchainEventMarks
 import com.rarible.flow.scanner.model.IndexerEvent
 import com.rarible.flow.scanner.model.Listeners
 import com.rarible.flow.scanner.model.SubscriberGroups
@@ -29,7 +30,7 @@ class ItemAndOrderEventsListener(
     private val indexerEventService: IndexerEventService,
     private val itemRepository: ItemRepository,
     private val protocolEventPublisher: ProtocolEventPublisher,
-    environmentInfo: ApplicationEnvironmentInfo
+    environmentInfo: ApplicationEnvironmentInfo,
 ) : GeneralFlowLogListener(
     name = Listeners.NFT_ORDER,
     flowGroupId = SubscriberGroups.NFT_ORDER_HISTORY,
@@ -52,10 +53,9 @@ class ItemAndOrderEventsListener(
                                 activity = entry.value,
                                 date = entry.value.timestamp
                             ),
-                            eventTimeMarks = byLog[entry.key]?.eventTimeMarks
+                            eventTimeMarks = byLog[entry.key]?.eventTimeMarks ?: offchainEventMarks()
                         )
                     }
-
                     logger.info("{} produced {} activities", maker::class, activities.size)
                     history.addAll(activities)
                 }
@@ -105,12 +105,12 @@ class ItemAndOrderEventsListener(
 
     private data class ItemHistoryEvent(
         val history: ItemHistory,
-        val eventTimeMarks: EventTimeMarks?
+        val eventTimeMarks: EventTimeMarks,
     )
 
     private data class TransactionCollectionKey(
         val transactionHash: String,
-        val collection: String
+        val collection: String,
     )
 
     private fun getKey(event: GeneralFlowLogRecordEvent): TransactionCollectionKey {
