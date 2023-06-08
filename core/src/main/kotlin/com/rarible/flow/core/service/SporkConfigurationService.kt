@@ -32,7 +32,7 @@ class SporkConfigurationService(
             sporkService.replace(
                 FlowChainId.TESTNET, listOf(
                 Spork(
-                    from = 99452067,
+                    from = 105032150,
                     nodeUrl = properties.flowAccessUrl,
                     port = properties.flowAccessPort,
                 )
