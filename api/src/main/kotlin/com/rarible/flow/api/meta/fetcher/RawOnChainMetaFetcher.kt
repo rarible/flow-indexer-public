@@ -2,6 +2,7 @@ package com.rarible.flow.api.meta.fetcher
 
 import com.nftco.flow.sdk.bytesToHex
 import com.nftco.flow.sdk.cadence.Field
+import com.rarible.blockchain.scanner.flow.service.FlowApiFactory
 import com.rarible.blockchain.scanner.flow.service.SporkService
 import com.rarible.flow.api.service.meta.MetaEventType
 import com.rarible.flow.core.config.FeatureFlagsProperties
@@ -24,6 +25,7 @@ class RawOnChainMetaFetcher(
     private val itemHistoryRepository: ItemHistoryRepository,
     private val rawOnChainMetaCacheRepository: RawOnChainMetaCacheRepository,
     private val sporkService: SporkService,
+    private val flowApiFactory: FlowApiFactory,
     private val ff: FeatureFlagsProperties
 ) {
 
@@ -72,12 +74,13 @@ class RawOnChainMetaFetcher(
     ): String? {
         val range = LongRange(blockHeight, blockHeight)
         val blockEvents =
-            sporkService.spork(blockHeight).api.getEventsForHeightRange(metaEventType, range).await().run {
-                if (this.size != 1) {
-                    logger.error("Found $size blocks by height $blockHeight, expected 1")
-                    return null
-                } else single().events
-            }
+            flowApiFactory.getApi(sporkService.spork(blockHeight)).getEventsForHeightRange(metaEventType, range).await()
+                .run {
+                    if (this.size != 1) {
+                        logger.error("Found $size blocks by height $blockHeight, expected 1")
+                        return null
+                    } else single().events
+                }
         val metadataEvent = blockEvents.firstOrNull {
             val id = it.event.get<Field<String>>(idField)?.value?.toLong()
             it.transactionId.bytes.bytesToHex() == transaction && id == tokenId
