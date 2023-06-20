@@ -7,6 +7,7 @@ import com.nftco.flow.sdk.cadence.EventField
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.UInt256NumberField
 import com.nftco.flow.sdk.impl.AsyncFlowAccessApiImpl
+import com.rarible.blockchain.scanner.flow.service.FlowApiFactory
 import com.rarible.blockchain.scanner.flow.service.Spork
 import com.rarible.blockchain.scanner.flow.service.SporkService
 import com.rarible.core.test.data.randomByteArray
@@ -37,6 +38,7 @@ class RawOnChainMetaFetcherTest {
     private val itemHistoryRepository = mockk<ItemHistoryRepository>()
     private val rawOnChainMetaCacheRepository = mockk<RawOnChainMetaCacheRepository>()
     private val spork = mockk<Spork>()
+    private val flowApiFactory = mockk<FlowApiFactory>()
     private val accessApi = mockk<AsyncFlowAccessApiImpl>()
     private val sporkService = mockk<SporkService>()
     private val ff: FeatureFlagsProperties = FeatureFlagsProperties(
@@ -48,6 +50,7 @@ class RawOnChainMetaFetcherTest {
         itemHistoryRepository = itemHistoryRepository,
         sporkService = sporkService,
         rawOnChainMetaCacheRepository = rawOnChainMetaCacheRepository,
+        flowApiFactory = flowApiFactory,
         ff = ff
     )
 
@@ -81,7 +84,7 @@ class RawOnChainMetaFetcherTest {
         every { rawOnChainMetaCacheRepository.findById(itemId.toString()) } returns Mono.empty()
 
         every { sporkService.spork(history.log.blockHeight) } returns spork
-        every { spork.api } returns accessApi
+        every { flowApiFactory.getApi(spork) } returns accessApi
 
         every {
             accessApi.getEventsForHeightRange(
