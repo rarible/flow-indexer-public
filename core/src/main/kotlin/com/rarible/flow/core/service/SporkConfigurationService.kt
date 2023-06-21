@@ -41,23 +41,28 @@ class SporkConfigurationService(
         if (chainId == FlowChainId.MAINNET) {
             val head = listOf(
                 Spork(
-                    from = 47169687,
+                    from = 55114466,
                     nodeUrl = properties.flowAccessUrl,
                     port = properties.flowAccessPort,
                 ),
                 Spork(
-                    from = 44950207,
+                    to = 55114465,
+                    from = 47169687,
+                    nodeUrl = "access-001.mainnet22.nodes.onflow.org",
+                ),
+                Spork(
                     to = 47169686,
+                    from = 44950207,
                     nodeUrl = "access-001.mainnet21.nodes.onflow.org",
                 ),
                 Spork(
-                    from = 40171634,
                     to = 44950206,
+                    from = 40171634,
                     nodeUrl = "access-001.mainnet20.nodes.onflow.org",
                 ),
                 Spork(
-                    from = 35858811L,
                     to = 40171633L,
+                    from = 35858811L,
                     nodeUrl = "access-001.mainnet19.nodes.onflow.org",
                 ),
                 Spork(
