@@ -2,6 +2,7 @@ package com.rarible.flow.scanner.record
 
 import com.rarible.blockchain.scanner.consumer.LogRecordConsumerWorkerFactory
 import com.rarible.core.daemon.sequential.ConsumerWorkerHolder
+import com.rarible.core.kafka.RaribleKafkaConsumerWorker
 import com.rarible.flow.scanner.listener.FlowLogListener
 
 object KafkaLogRecordEventConsumerFactory {
@@ -9,7 +10,7 @@ object KafkaLogRecordEventConsumerFactory {
         factory: LogRecordConsumerWorkerFactory,
         listeners: List<FlowLogListener<*>>,
         workers: Map<String, Int>,
-    ): List<ConsumerWorkerHolder<*>> {
+    ): List<RaribleKafkaConsumerWorker<*>> {
         return listeners.map { create(it, factory, workers) }
     }
 
@@ -17,7 +18,7 @@ object KafkaLogRecordEventConsumerFactory {
         listener: FlowLogListener<T>,
         factory: LogRecordConsumerWorkerFactory,
         workers: Map<String, Int>,
-    ): ConsumerWorkerHolder<T> {
+    ): RaribleKafkaConsumerWorker<T> {
         return factory.create(
             listener = listener,
             logRecordType = listener.eventType,
