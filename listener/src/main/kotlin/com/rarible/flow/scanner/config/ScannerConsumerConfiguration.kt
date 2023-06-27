@@ -5,10 +5,9 @@ import com.rarible.blockchain.scanner.consumer.LogRecordConsumerWorkerFactory
 import com.rarible.blockchain.scanner.consumer.kafka.KafkaLogRecordConsumerWorkerFactory
 import com.rarible.blockchain.scanner.flow.configuration.FlowBlockchainScannerProperties
 import com.rarible.core.application.ApplicationEnvironmentInfo
+import com.rarible.core.kafka.RaribleKafkaConsumerWorker
 import com.rarible.flow.scanner.listener.FlowLogListener
-import com.rarible.flow.scanner.record.ConsumerWorkerHolderGroup
 import com.rarible.flow.scanner.record.KafkaLogRecordEventConsumerFactory
-import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -17,7 +16,6 @@ class ScannerConsumerConfiguration(
     private val flowBlockchainScannerProperties: FlowBlockchainScannerProperties,
     private val flowBlockchainKafkaProperties: KafkaProperties,
     private val flowListenerProperties: FlowListenerProperties,
-    private val meterRegistry: MeterRegistry,
     private val applicationEnvironmentInfo: ApplicationEnvironmentInfo
 ) {
     @Bean
@@ -28,7 +26,6 @@ class ScannerConsumerConfiguration(
             environment = applicationEnvironmentInfo.name,
             properties = flowBlockchainKafkaProperties,
             daemonProperties = flowListenerProperties.scannerLogRecordDaemon,
-            meterRegistry = meterRegistry,
             service = flowBlockchainScannerProperties.service,
         )
     }
@@ -38,13 +35,20 @@ class ScannerConsumerConfiguration(
         properties: FlowListenerProperties,
         factory: LogRecordConsumerWorkerFactory,
         listeners: List<FlowLogListener<*>>,
-    ): ConsumerWorkerHolderGroup {
-        return ConsumerWorkerHolderGroup(
-            KafkaLogRecordEventConsumerFactory.createLogRecordEventConsumers(
-                factory = factory,
-                listeners = listeners,
-                workers = properties.scannerLogRecordListeners
-            )
+    ): RaribleKafkaConsumerWorker<Any> {
+        val consumers = KafkaLogRecordEventConsumerFactory.createLogRecordEventConsumers(
+            factory = factory,
+            listeners = listeners,
+            workers = properties.scannerLogRecordListeners
         )
+        return object : RaribleKafkaConsumerWorker<Any> {
+            override fun close() {
+                consumers.forEach { it.close() }
+            }
+
+            override fun start() {
+                consumers.forEach { it.start() }
+            }
+        }
     }
 }
