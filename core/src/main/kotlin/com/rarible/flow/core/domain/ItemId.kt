@@ -1,5 +1,6 @@
 package com.rarible.flow.core.domain
 
+import com.nftco.flow.sdk.FlowAddress
 import java.io.Serializable
 
 data class ItemId(val contract: String, val tokenId: TokenId, val delimiter: Char = ':') : Serializable {
@@ -15,7 +16,7 @@ data class ItemId(val contract: String, val tokenId: TokenId, val delimiter: Cha
                 listOf(source.substringBeforeLast(delimiter), source.substringAfterLast(delimiter))
             } else source.split(delimiter)
             if (parts.size == 2) {
-                val contract = parts[0]
+                val contract = parts[0].replace("0x","")
                 val tokenId = parts[1].toLong()
                 return ItemId(contract, tokenId)
             } else throw IllegalArgumentException("Failed to parse ItemId from [$source] with delimiter [$delimiter]")
