@@ -11,7 +11,7 @@ object BarbieTokenMetaParser : MattelMetaParser() {
 
     override val fieldName = fields("name")
     override val fieldDescription = fields()
-    override val fieldImageOriginal = fields("imageUrl")
+    override val fieldImageOriginal = fields("tokenImageHash")
     override val fieldRights = fields("licensorLegal")
 
 }
