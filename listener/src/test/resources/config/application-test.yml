@@ -13,6 +13,11 @@ app:
   environment: test
   web-api-url: http://localhost:8080
 
+rarible:
+  core:
+    task:
+      enabled: false
+
 blockchain:
   scanner:
     flow:
