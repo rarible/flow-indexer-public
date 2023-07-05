@@ -11,13 +11,12 @@ abstract class FlowLogListener<T>(
     val eventType: Class<T>,
     val eventMapper: LogRecordMapper<T>,
     val name: String,
-    flowGroupId: String,
-    environmentInfo: ApplicationEnvironmentInfo,
+    flowGroupId: String
 ) : LogRecordEventListener {
 
     override val groupId = flowGroupId
 
-    override val id = LogRecordEventListeners.listenerId(environmentInfo.name, name)
+    override val id = LogRecordEventListeners.listenerId(name)
 }
 
 abstract class BalanceFlowLogListener(
@@ -28,8 +27,7 @@ abstract class BalanceFlowLogListener(
     eventType = BalanceLogRecordEvent::class.java,
     eventMapper = BalanceLogRecordEvent.logRecordMapper(),
     name = name,
-    flowGroupId = flowGroupId,
-    environmentInfo = environmentInfo
+    flowGroupId = flowGroupId
 )
 
 abstract class GeneralFlowLogListener(
@@ -40,6 +38,5 @@ abstract class GeneralFlowLogListener(
     eventType = GeneralFlowLogRecordEvent::class.java,
     eventMapper = GeneralFlowLogRecordEvent.logRecordMapper(),
     name = name,
-    flowGroupId = flowGroupId,
-    environmentInfo = environmentInfo
+    flowGroupId = flowGroupId
 )

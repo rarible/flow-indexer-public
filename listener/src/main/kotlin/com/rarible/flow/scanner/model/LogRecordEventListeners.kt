@@ -2,7 +2,6 @@ package com.rarible.flow.scanner.model
 
 object LogRecordEventListeners {
 
-    fun listenerId(env: String, listenerId: String): String = "${prefix(env)}.$listenerId.listener"
+    fun listenerId(listenerId: String): String = "protocol.flow.scanner.$listenerId.listener"
 
-    private fun prefix(env: String): String = "$env.protocol.flow.scanner"
 }
