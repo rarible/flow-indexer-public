@@ -1,4 +1,4 @@
-*   @rarible/flow-dev-team
+* @rarible/backend-protocol-team
 # devops team configuratin files
 /.github/ @rarible/devops-team
 /cicd/ @rarible/devops-team
