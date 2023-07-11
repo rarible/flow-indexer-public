@@ -45,6 +45,9 @@ class RaribleScannerFt : AbstractIntegrationTest() {
             val ownershipId = OwnershipId(minted.contract, minted.tokenId, minter.address)
             val ownership = ownershipRepository.findById(ownershipId).awaitSingleOrNull()
             assertThat(ownership).isNotNull()
+
+            assertThat(findItemUpdates(minted.id.toString())).hasSize(1)
+            assertThat(findOwnershipUpdates(ownershipId.toString())).hasSize(1)
         }
     }
 
@@ -68,6 +71,12 @@ class RaribleScannerFt : AbstractIntegrationTest() {
             val ownershipId = OwnershipId(burned.contract, burned.tokenId, minter.address)
             val ownership = ownershipRepository.findById(ownershipId).awaitSingleOrNull()
             assertThat(ownership).isNull()
+
+            assertThat(findItemUpdates(burned.id.toString())).hasSize(1)
+            assertThat(findOwnershipUpdates(ownershipId.toString())).hasSize(1)
+
+            assertThat(findItemDeletions(burned.id.toString())).hasSize(1)
+            assertThat(findOwnershipDeletions(ownershipId.toString())).hasSize(1)
         }
     }
 
