@@ -21,8 +21,7 @@ import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.test.Data
-import com.rarible.flow.scanner.BaseIntegrationTest
-import com.rarible.flow.scanner.IntegrationTest
+import com.rarible.flow.scanner.test.AbstractIntegrationTest
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -34,8 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
 import java.util.Date
 
-@IntegrationTest
-internal class CollectionServiceIntegrationTest: BaseIntegrationTest() {
+internal class CollectionServiceIntegrationTest : AbstractIntegrationTest() {
 
     @Autowired
     lateinit var collectionService: CollectionService

@@ -8,15 +8,17 @@ spring:
 app:
   flow-access-url: "access.devnet.nodes.onflow.org"
   flow-access-port: 9000
-  chain-id: TESTNET
+  chain-id: EMULATOR
   kafka-replica-set: ${kafka.hosts}
   environment: test
   web-api-url: http://localhost:8080
-
-rarible:
   core:
     task:
       enabled: false
+
+  feature-flags:
+    enable-rarible-nft: true
+
 
 blockchain:
   scanner:

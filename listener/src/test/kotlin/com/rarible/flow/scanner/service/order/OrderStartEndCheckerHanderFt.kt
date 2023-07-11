@@ -7,8 +7,7 @@ import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.test.Data.createOrder
-import com.rarible.flow.scanner.BaseIntegrationTest
-import com.rarible.flow.scanner.IntegrationTest
+import com.rarible.flow.scanner.test.AbstractIntegrationTest
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -20,8 +19,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant.now
 
-@IntegrationTest
-internal class OrderStartEndCheckerHanderFt : BaseIntegrationTest() {
+internal class OrderStartEndCheckerHanderFt : AbstractIntegrationTest() {
 
     @Autowired
     lateinit var orderRepository: OrderRepository

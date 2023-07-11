@@ -5,19 +5,16 @@ import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.test.randomFlowLogEvent
 import com.rarible.flow.core.util.findAfterEventIndex
 import com.rarible.flow.core.util.findBeforeEventIndex
-import com.rarible.flow.scanner.BaseIntegrationTest
-import com.rarible.flow.scanner.IntegrationTest
+import com.rarible.flow.scanner.test.AbstractIntegrationTest
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
-@IntegrationTest
-class FlowLogRepositoryTest : BaseIntegrationTest() {
+class FlowLogRepositoryIt : AbstractIntegrationTest() {
     @Autowired
     private lateinit var flowLogRepository: FlowLogRepository
-
 
     @Test
     fun `find logs before index`() = runBlocking<Unit> {
