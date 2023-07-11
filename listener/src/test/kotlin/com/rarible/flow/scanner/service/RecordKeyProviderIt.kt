@@ -1,14 +1,13 @@
 package com.rarible.flow.scanner.service
 
 import com.rarible.flow.core.domain.ItemId
-import com.rarible.flow.scanner.BaseIntegrationTest
-import com.rarible.flow.scanner.IntegrationTest
+import com.rarible.flow.scanner.test.AbstractIntegrationTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
-@IntegrationTest
-class RecordKeyProviderTest : BaseIntegrationTest() {
+class RecordKeyProviderIt : AbstractIntegrationTest() {
+
     @Autowired
     private lateinit var provider: RecordKeyProvider
 

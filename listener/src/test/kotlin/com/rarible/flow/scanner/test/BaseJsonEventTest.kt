@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner
+package com.rarible.flow.scanner.test
 
 import com.nftco.flow.sdk.FlowEvent
 import com.nftco.flow.sdk.FlowEventPayload

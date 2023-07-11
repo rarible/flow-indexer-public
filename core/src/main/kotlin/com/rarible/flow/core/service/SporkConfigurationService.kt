@@ -17,17 +17,6 @@ class SporkConfigurationService(
         val chainId = properties.chainId
         logger.info("Config: chainId=$chainId, accessUrl=${properties.flowAccessUrl}")
 
-        if (chainId == FlowChainId.EMULATOR) {
-            sporkService.replace(
-                FlowChainId.EMULATOR, listOf(
-                Spork(
-                    from = 0,
-                    to = Long.MAX_VALUE,
-                    nodeUrl = properties.flowAccessUrl,
-                    port = properties.flowAccessPort,
-                )
-            ))
-        }
         if (chainId == FlowChainId.TESTNET) {
             sporkService.replace(
                 FlowChainId.TESTNET, listOf(

@@ -3,7 +3,6 @@ package com.rarible.flow.scanner.activity.nft
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.AddressField
 import com.nftco.flow.sdk.cadence.OptionalField
-import com.nftco.flow.sdk.cadence.StringField
 import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.repository.FlowLogRepository
@@ -12,10 +11,10 @@ import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
-import com.rarible.flow.scanner.BaseJsonEventTest
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.config.FlowListenerProperties
 import com.rarible.flow.scanner.model.NonFungibleTokenEventType
+import com.rarible.flow.scanner.test.BaseJsonEventTest
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk

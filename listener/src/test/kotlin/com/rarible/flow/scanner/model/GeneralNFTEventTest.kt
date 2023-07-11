@@ -1,8 +1,7 @@
 package com.rarible.flow.scanner.model
 
-import com.rarible.flow.core.test.randomFlowLog
 import com.rarible.flow.core.test.randomFlowLogEvent
-import com.rarible.flow.scanner.BaseJsonEventTest
+import com.rarible.flow.scanner.test.BaseJsonEventTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
