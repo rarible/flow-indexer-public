@@ -20,6 +20,7 @@ import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.util.offchainEventMarks
 import com.rarible.flow.scanner.listener.disabled.FungibleLogListener
 import com.rarible.flow.scanner.service.BidService
+import com.rarible.flow.scanner.test.AbstractIntegrationTest
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -31,8 +32,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 
 @ExperimentalCoroutinesApi
-@IntegrationTest
-internal class FungibleLogListenerTest : BaseIntegrationTest() {
+internal class FungibleLogListenerIt : AbstractIntegrationTest() {
 
     @Autowired
     lateinit var orderRepository: OrderRepository

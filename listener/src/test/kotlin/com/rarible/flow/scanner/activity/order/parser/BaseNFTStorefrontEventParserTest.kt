@@ -4,8 +4,8 @@ import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.core.test.randomFlowLogEvent
-import com.rarible.flow.scanner.BaseJsonEventTest
 import com.rarible.flow.scanner.service.CurrencyService
+import com.rarible.flow.scanner.test.BaseJsonEventTest
 import io.mockk.mockk
 
 abstract class BaseNFTStorefrontEventParserTest : BaseJsonEventTest() {

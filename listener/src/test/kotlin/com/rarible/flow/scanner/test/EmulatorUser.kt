@@ -1,4 +1,4 @@
-package com.rarible.flow.scanner.emulator
+package com.rarible.flow.scanner.test
 
 import com.nftco.flow.sdk.FlowAddress
 

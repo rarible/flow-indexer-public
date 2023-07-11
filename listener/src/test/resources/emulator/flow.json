@@ -6,11 +6,10 @@
 		}
 	},
 	"contracts": {
-		"LicensedNFT": "./contracts/LicensedNFT.cdc",
-		"MetadataViews": "./contracts/flow/MetadataViews.cdc",
-		"RaribleNFTv2": "./contracts/RaribleNFTv2.cdc",
-		"SoftCollection": "./contracts/SoftCollection.cdc"
-	},
+      "LicensedNFT": "./contracts/LicensedNFT.cdc",
+      "MetadataViews": "./contracts/MetadataViews.cdc",
+      "RaribleNFT": "./contracts/RaribleNFT.cdc"
+    },
 	"networks": {
 		"emulator": "127.0.0.1:3569",
 		"mainnet": "access.mainnet.nodes.onflow.org:9000",
@@ -39,8 +38,7 @@
 			"emulator-account": [
 				"MetadataViews",
 				"LicensedNFT",
-				"RaribleNFTv2",
-				"SoftCollection"
+              "RaribleNFT"
 			]
 		}
 	}

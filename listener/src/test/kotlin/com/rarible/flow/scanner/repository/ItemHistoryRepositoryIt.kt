@@ -8,18 +8,15 @@ import com.rarible.flow.core.repository.findItemMint
 import com.rarible.flow.core.test.randomFlowLog
 import com.rarible.flow.core.test.randomItemHistory
 import com.rarible.flow.core.test.randomMintActivity
-import com.rarible.flow.core.test.randomMintItemHistory
 import com.rarible.flow.core.test.randomTransferActivity
-import com.rarible.flow.scanner.BaseIntegrationTest
-import com.rarible.flow.scanner.IntegrationTest
+import com.rarible.flow.scanner.test.AbstractIntegrationTest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
-@IntegrationTest
-class ItemHistoryRepositoryTest : BaseIntegrationTest() {
+class ItemHistoryRepositoryIt : AbstractIntegrationTest() {
 
     @Autowired
     private lateinit var itemHistoryRepository: ItemHistoryRepository

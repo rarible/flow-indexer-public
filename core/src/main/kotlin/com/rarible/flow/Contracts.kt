@@ -58,7 +58,7 @@ enum class Contracts : Contract {
                 FlowChainId.MAINNET to FlowAddress("0xd0bcefdf1e67ea85"),
                 //https://testnet.flowscan.org/contract/A.6f6702697b205c18.HWGarageCardV2
                 FlowChainId.TESTNET to FlowAddress("0x6f6702697b205c18"),
-                FlowChainId.EMULATOR to FlowAddress("0x9f36754d9b38f155"),
+                FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
             )
 
         override val import: String
