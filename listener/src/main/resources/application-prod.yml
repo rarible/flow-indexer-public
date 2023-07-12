@@ -23,6 +23,7 @@ app:
   featureFlags:
     enableHwOtherCard: false
     enableHwOtherCardV2: false
+    enableBarbiePack: false
     enableRaribleCard: false
     enableRaribleCardV2: false
     enableRaribleCardV2Meta: false
