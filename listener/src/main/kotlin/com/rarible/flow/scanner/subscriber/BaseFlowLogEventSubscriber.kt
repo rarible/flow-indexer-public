@@ -37,9 +37,14 @@ abstract class BaseFlowLogEventSubscriber : FlowLogEventSubscriber {
 
     abstract val descriptors: Map<FlowChainId, FlowDescriptor>
 
-    override fun getDescriptor(): FlowDescriptor = when(chainId) {
+    override fun getDescriptor(): FlowDescriptor = when (chainId) {
         FlowChainId.EMULATOR -> descriptors[chainId] ?: EMPTY_DESCRIPTOR
-        else -> descriptors[chainId]!!
+        else -> {
+            descriptors[chainId]
+                ?: throw IllegalArgumentException(
+                    "Cant find descriptor for ${this.javaClass.simpleName} (chain $chainId), available descriptiors are: $descriptors"
+                )
+        }
     }
 
     override suspend fun getEventRecords(
