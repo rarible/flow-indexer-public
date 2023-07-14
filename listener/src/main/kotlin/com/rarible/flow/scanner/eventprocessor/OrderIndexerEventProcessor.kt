@@ -74,7 +74,7 @@ class OrderIndexerEventProcessor(
         }
     }
 
-    private suspend fun orderClose(event: IndexerEvent, marks: EventTimeMarks) {
+    private suspend fun orderClose(event: IndexerEvent, eventTimeMarks: EventTimeMarks) {
         val activity = event.history.activity as FlowNftOrderActivitySell
         withSpan(
             "closeOrderEvent",
@@ -82,18 +82,18 @@ class OrderIndexerEventProcessor(
             labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")
         ) {
             val order = orderService.close(activity)
-            sendUpdate(order, marks)
+            sendUpdate(order, eventTimeMarks)
             orderService.enrichTransfer(event.history.log.transactionHash, activity.left.maker, activity.right.maker)
-                ?.also { sendHistoryUpdate(it) }
+                ?.also { sendHistoryUpdate(it, eventTimeMarks) }
         }
     }
 
-    private suspend fun orderCancelled(event: IndexerEvent, marks: EventTimeMarks) {
+    private suspend fun orderCancelled(event: IndexerEvent, eventTimeMarks: EventTimeMarks) {
         val activity = event.history.activity as FlowNftOrderActivityCancelList
         val enrichedActivity = orderService.enrichCancelList(activity.hash)
         val order = orderService.cancel(activity, event.item)
-        sendUpdate(order, marks)
-        enrichedActivity?.let { sendHistoryUpdate(it) }
+        sendUpdate(order, eventTimeMarks)
+        enrichedActivity?.let { sendHistoryUpdate(it, eventTimeMarks) }
     }
 
     private suspend fun bid(event: IndexerEvent, marks: EventTimeMarks) {
@@ -109,7 +109,7 @@ class OrderIndexerEventProcessor(
         }
     }
 
-    private suspend fun acceptBid(event: IndexerEvent, marks: EventTimeMarks) {
+    private suspend fun acceptBid(event: IndexerEvent, eventTimeMarks: EventTimeMarks) {
         val activity = event.history.activity as FlowNftOrderActivitySell
         withSpan(
             "acceptBidEvent",
@@ -117,9 +117,9 @@ class OrderIndexerEventProcessor(
             labels = listOf("itemId" to "${activity.contract}:${activity.tokenId}")
         ) {
             val order = orderService.closeBid(activity, event.item)
-            sendUpdate(order, marks)
+            sendUpdate(order, eventTimeMarks)
             orderService.enrichTransfer(event.history.log.transactionHash, activity.right.maker, activity.left.maker)
-                ?.also { sendHistoryUpdate(it) }
+                ?.also { sendHistoryUpdate(it, eventTimeMarks) }
         }
     }
 
@@ -132,9 +132,9 @@ class OrderIndexerEventProcessor(
         }
     }
 
-    private suspend fun sendHistoryUpdate(itemHistory: ItemHistory) {
+    private suspend fun sendHistoryUpdate(itemHistory: ItemHistory, eventTimeMarks: EventTimeMarks) {
         withSpan("sendOrderUpdate", "network") {
-            protocolEventPublisher.activity(itemHistory)
+            protocolEventPublisher.activity(itemHistory, false, eventTimeMarks)
         }
     }
 
@@ -143,5 +143,4 @@ class OrderIndexerEventProcessor(
             protocolEventPublisher.onOrderUpdate(order, orderConverter, marks)
         }
     }
-
 }

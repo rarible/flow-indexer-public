@@ -73,7 +73,7 @@ class ItemAndOrderEventsListener(
                 logger.info("Send activity [${h.id}] to kafka!")
                 // Cancel list activity hasn't enough information yet to be published
                 if (h.activity.isCancelList().not()) {
-                    protocolEventPublisher.activity(h)
+                    protocolEventPublisher.activity(h, false, itemHistoryEvent.eventTimeMarks)
                 }
                 val item = (h.activity as? NFTActivity)
                     ?.let { ItemId(it.contract, it.tokenId) }

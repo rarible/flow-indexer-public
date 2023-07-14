@@ -3,6 +3,7 @@ package com.rarible.flow.scanner.job
 import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.TaskItemHistoryRepository
+import com.rarible.flow.core.util.taskEventMarks
 import com.rarible.flow.scanner.config.FlowListenerProperties
 import org.springframework.stereotype.Component
 
@@ -17,7 +18,8 @@ class ActivityCleanupJob(
     override suspend fun cleanup(entity: ItemHistory) {
         protocolEventPublisher.activity(
             history = entity,
-            reverted = true
+            reverted = true,
+            eventTimeMarks = taskEventMarks()
         )
         itemHistoryRepository.delete(entity)
         logger.info("Removed activity {}", entity.id)

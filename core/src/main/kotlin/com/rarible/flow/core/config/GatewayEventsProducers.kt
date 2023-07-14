@@ -2,8 +2,16 @@ package com.rarible.flow.core.config
 
 import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.core.kafka.json.JsonSerializer
-import com.rarible.protocol.dto.*
-
+import com.rarible.protocol.dto.FlowActivityEventDto
+import com.rarible.protocol.dto.FlowActivityEventTopicProvider
+import com.rarible.protocol.dto.FlowCollectionEventDto
+import com.rarible.protocol.dto.FlowNftCollectionEventTopicProvider
+import com.rarible.protocol.dto.FlowNftItemEventDto
+import com.rarible.protocol.dto.FlowNftItemEventTopicProvider
+import com.rarible.protocol.dto.FlowNftOwnershipEventTopicProvider
+import com.rarible.protocol.dto.FlowOrderEventDto
+import com.rarible.protocol.dto.FlowOrderEventTopicProvider
+import com.rarible.protocol.dto.FlowOwnershipEventDto
 
 object GatewayEventsProducers {
 
@@ -43,20 +51,14 @@ object GatewayEventsProducers {
         )
     }
 
-    fun activitiesUpdates(environment: String, kafkaBootstrapServer: String): RaribleKafkaProducer<FlowActivityDto> {
+    fun activitiesUpdates(
+        environment: String,
+        kafkaBootstrapServer: String
+    ): RaribleKafkaProducer<FlowActivityEventDto> {
         return RaribleKafkaProducer(
             clientId = "$environment.flow.activity-events-importer",
             valueSerializerClass = JsonSerializer::class.java,
-            defaultTopic = FlowActivityEventTopicProvider.getTopic(environment),
-            bootstrapServers = kafkaBootstrapServer
-        )
-    }
-
-    fun auctionsUpdates(environment: String, kafkaBootstrapServer: String): RaribleKafkaProducer<FlowAuctionDto> {
-        return RaribleKafkaProducer(
-            clientId = "$environment.flow.auction-events-importer",
-            valueSerializerClass = JsonSerializer::class.java,
-            defaultTopic = FlowActivityEventTopicProvider.getTopic(environment),
+            defaultTopic = FlowActivityEventTopicProvider.getActivityTopic(environment),
             bootstrapServers = kafkaBootstrapServer
         )
     }

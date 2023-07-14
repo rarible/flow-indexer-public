@@ -195,7 +195,7 @@ class ItemIndexerEventProcessor(
         }
     }
 
-    private suspend fun transfer(event: IndexerEvent, marks: EventTimeMarks) {
+    private suspend fun transfer(event: IndexerEvent, eventTimeMarks: EventTimeMarks) {
         val transferActivity = event.history.activity as TransferActivity
 
         val item = event.item
@@ -221,10 +221,10 @@ class ItemIndexerEventProcessor(
                     prevOwnership,
                     transferActivity.timestamp,
                     needSendToKafka,
-                    marks
+                    eventTimeMarks
                 )
                 if (needSendToKafka) {
-                    protocolEventPublisher.onDelete(prevOwnership, marks)
+                    protocolEventPublisher.onDelete(prevOwnership, eventTimeMarks)
                 }
             }
             if (item != null) {
@@ -244,7 +244,7 @@ class ItemIndexerEventProcessor(
                         newOwnership,
                         transferActivity.timestamp,
                         needSendToKafka,
-                        marks
+                        eventTimeMarks
                     )
                     Pair(updatedItem, newOwnership)
                 } else Pair(item, null)
@@ -262,7 +262,7 @@ class ItemIndexerEventProcessor(
                     newOwnership,
                     transferActivity.timestamp,
                     needSendToKafka,
-                    marks
+                    eventTimeMarks
                 )
                 val saved = itemRepository.save(
                     Item(
@@ -281,11 +281,11 @@ class ItemIndexerEventProcessor(
         }
 
         orderService.checkAndEnrichTransfer(event.history.log.transactionHash, prevOwner.formatted, newOwner.formatted)
-            ?.also { sendHistoryUpdate(event, it) }
+            ?.also { sendHistoryUpdate(event, it, eventTimeMarks) }
 
         if (needSendToKafka) {
-            protocolEventPublisher.onItemUpdate(saved, marks)
-            newOwnership?.let { protocolEventPublisher.onUpdate(it, marks) }
+            protocolEventPublisher.onItemUpdate(saved, eventTimeMarks)
+            newOwnership?.let { protocolEventPublisher.onUpdate(it, eventTimeMarks) }
         }
 
     }
@@ -298,10 +298,15 @@ class ItemIndexerEventProcessor(
     private suspend fun sendHistoryUpdate(
         event: IndexerEvent,
         itemHistory: ItemHistory,
+        eventTimeMarks: EventTimeMarks
     ) {
         withSpan("sendOrderUpdate", "network") {
             if (willSendToKafka(event)) {
-                protocolEventPublisher.activity(itemHistory)
+                protocolEventPublisher.activity(
+                    history = itemHistory,
+                    reverted = false,
+                    eventTimeMarks = eventTimeMarks
+                )
             }
         }
     }

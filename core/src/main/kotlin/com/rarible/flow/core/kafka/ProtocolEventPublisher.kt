@@ -3,7 +3,6 @@ package com.rarible.flow.core.kafka
 import com.rarible.core.common.EventTimeMarks
 import com.rarible.core.kafka.KafkaMessage
 import com.rarible.core.kafka.RaribleKafkaProducer
-import com.rarible.flow.core.converter.AuctionToDtoConverter
 import com.rarible.flow.core.converter.FlowNftCollectionDtoConverter
 import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
 import com.rarible.flow.core.converter.ItemToDtoConverter
@@ -16,11 +15,9 @@ import com.rarible.flow.core.domain.ItemHistory
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.Ownership
-import com.rarible.flow.core.util.Log
 import com.rarible.flow.core.util.addIndexerOut
 import com.rarible.flow.core.util.toDto
-import com.rarible.protocol.dto.FlowActivityDto
-import com.rarible.protocol.dto.FlowAuctionDto
+import com.rarible.protocol.dto.FlowActivityEventDto
 import com.rarible.protocol.dto.FlowCollectionEventDto
 import com.rarible.protocol.dto.FlowCollectionUpdateEventDto
 import com.rarible.protocol.dto.FlowNftDeletedItemDto
@@ -32,6 +29,7 @@ import com.rarible.protocol.dto.FlowNftOwnershipUpdateEventDto
 import com.rarible.protocol.dto.FlowOrderEventDto
 import com.rarible.protocol.dto.FlowOrderUpdateEventDto
 import com.rarible.protocol.dto.FlowOwnershipEventDto
+import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class ProtocolEventPublisher(
@@ -39,12 +37,11 @@ class ProtocolEventPublisher(
     private val ownerships: RaribleKafkaProducer<FlowOwnershipEventDto>,
     private val collections: RaribleKafkaProducer<FlowCollectionEventDto>,
     private val orders: RaribleKafkaProducer<FlowOrderEventDto>,
-    private val activities: RaribleKafkaProducer<FlowActivityDto>,
-    private val auctions: RaribleKafkaProducer<FlowAuctionDto>,
+    private val activities: RaribleKafkaProducer<FlowActivityEventDto>,
     private val itemHistoryToDtoConverter: ItemHistoryToDtoConverter,
 ) {
 
-    private val logger by Log()
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun onItemUpdate(item: Item, marks: EventTimeMarks) {
         val key = item.id.toString()
@@ -119,20 +116,29 @@ class ProtocolEventPublisher(
         send(items, key, message)
     }
 
-    suspend fun activity(history: ItemHistory, reverted: Boolean = false) {
+    suspend fun activity(
+        history: ItemHistory,
+        reverted: Boolean = false,
+        eventTimeMarks: EventTimeMarks
+    ) {
+        val message = FlowActivityEventDto(
+            activity = itemHistoryToDtoConverter.convert(history, reverted),
+            eventTimeMarks = eventTimeMarks.addIndexerOut().toDto()
+        )
         send(
             activities,
             "${history.id}:${history.activity.type}-${history.activity.timestamp}",
-            itemHistoryToDtoConverter.convert(history, reverted)
+            message
         )
     }
 
     suspend fun auction(auction: EnglishAuctionLot) {
-        send(
+        // TODO remove it completely?
+        /*send(
             auctions,
             "${auction.id}.${UUID.randomUUID()}",
             AuctionToDtoConverter.convert(auction)
-        )
+        )*/
     }
 
     suspend fun onCollection(collection: ItemCollection, marks: EventTimeMarks) {
