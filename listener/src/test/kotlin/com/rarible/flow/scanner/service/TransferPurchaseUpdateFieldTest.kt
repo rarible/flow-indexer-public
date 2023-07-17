@@ -19,6 +19,7 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.util.offchainEventMarks
+import com.rarible.flow.core.util.stubEventMarks
 import com.rarible.flow.scanner.eventprocessor.ItemIndexerEventProcessor
 import com.rarible.flow.scanner.eventprocessor.OrderIndexerEventProcessor
 import com.rarible.flow.scanner.model.IndexerEvent
@@ -122,7 +123,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
         } returns Unit
         coEvery { onItemUpdate(any(), any()) } returns Unit
         coEvery { onUpdate(any(), any()) } returns Unit
-        coEvery { activity(any()) } returns Unit
+        coEvery { activity(any(), any(), any()) } returns Unit
     }
 
     @Suppress("ReactiveStreamsUnusedPublisher")
@@ -189,7 +190,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
 
         val historySlot = slot<ItemHistory>()
         coVerify {
-            protocolEventPublisher.activity(capture(historySlot))
+            protocolEventPublisher.activity(capture(historySlot), false, any())
         }
 
         historySlot.isCaptured shouldBe true
@@ -204,7 +205,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
         indexerEventService.processEvent(event)
 
         coVerify(exactly = 0) {
-            protocolEventPublisher.activity(any())
+            protocolEventPublisher.activity(any(), any(), any())
         }
     }
 
@@ -214,7 +215,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
         indexerEventService.processEvent(event)
 
         val historySlot = slot<ItemHistory>()
-        coVerify { protocolEventPublisher.activity(capture(historySlot)) }
+        coVerify { protocolEventPublisher.activity(capture(historySlot), false, any()) }
 
         historySlot.isCaptured shouldBe true
         (historySlot.captured.activity as? TransferActivity)?.let {
@@ -228,17 +229,17 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
         indexerEventService.processEvent(event)
 
         coVerify {
-            protocolEventPublisher.activity(any())
+            protocolEventPublisher.activity(any(), false, any())
         }
     }
 
     test("on transport: found order (must be purchased=true)") {
-        val event = IndexerEvent(historyTransfer, null, offchainEventMarks())
+        val event = IndexerEvent(historyTransfer, null, stubEventMarks())
 
         indexerEventService.processEvent(event)
 
         val historySlot = slot<ItemHistory>()
-        coVerify { protocolEventPublisher.activity(capture(historySlot)) }
+        coVerify { protocolEventPublisher.activity(capture(historySlot), false, any()) }
 
         historySlot.isCaptured shouldBe true
         (historySlot.captured.activity as? TransferActivity)?.let {
@@ -247,12 +248,12 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
     }
 
     test("on transport: not found order") {
-        val event = IndexerEvent(historyTransfer, null, offchainEventMarks())
+        val event = IndexerEvent(historyTransfer, null, stubEventMarks())
 
         indexerEventService.processEvent(event)
 
         coVerify {
-            protocolEventPublisher.activity(any())
+            protocolEventPublisher.activity(any(), false, any())
         }
     }
 })

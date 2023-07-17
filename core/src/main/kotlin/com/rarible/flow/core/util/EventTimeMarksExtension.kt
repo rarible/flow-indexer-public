@@ -17,3 +17,7 @@ fun EventTimeMarks.toDto(): FlowEventTimeMarksDto = FlowEventTimeMarksDto(
 )
 
 fun offchainEventMarks() = EventTimeMarks("offchain").add("source").addIndexerIn()
+fun taskEventMarks() = EventTimeMarks("task").add("source").addIndexerIn()
+
+// Just for tests
+fun stubEventMarks() = EventTimeMarks("stub").add("source").addIndexerIn()

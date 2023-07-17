@@ -4,7 +4,12 @@ import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
 import com.rarible.core.apm.withSpan
 import com.rarible.core.application.ApplicationEnvironmentInfo
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.BurnActivity
+import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.domain.FlowLogType
+import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.NFTActivity
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.ItemRepository
@@ -44,17 +49,19 @@ class VersusArtEventListener(
 
                 saved.sortedBy { it.date }.groupBy { it.log.transactionHash }.forEach { (_, histories) ->
                     histories.sortedBy { it.log.eventIndex }.forEach { history ->
+                        val eventTimeMarks = offchainEventMarks()
                         indexerEventService.processEvent(
                             IndexerEvent(
                                 history = history,
                                 item = (history.activity as? NFTActivity)?.let { a ->
                                     items.find { it.contract == a.contract && it.tokenId == a.tokenId }
                                 },
-                                eventTimeMarks = offchainEventMarks() // TODO send it in right way if activated
+                                eventTimeMarks = eventTimeMarks // TODO send it in right way if activated
                             )
                         )
                         logger.info("Send activity [${history.id}] to kafka!")
-                        protocolEventPublisher.activity(history)
+                        // TODO send it in right way if activated
+                        protocolEventPublisher.activity(history, false, eventTimeMarks)
                     }
                 }
             }
