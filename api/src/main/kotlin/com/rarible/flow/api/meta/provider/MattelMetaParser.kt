@@ -16,6 +16,8 @@ abstract class MattelMetaParser {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    private val ignoredContent = setOf("N/A", "null", "undefined", "")
+
     fun parse(json: String, itemId: ItemId): ItemMeta {
         val jsonNode = JsonPropertiesParser.parse(itemId, json)
         logger.info("Received json for item {}: {}", itemId, json)
@@ -39,7 +41,7 @@ abstract class MattelMetaParser {
             description = map.getFirst(*fieldDescription) ?: "",
             rights = map.getFirst(*fieldRights),
             content = listOfNotNull(
-                map.getFirst(*fieldImageOriginal)?.let {
+                map.getFirst(*fieldImageOriginal) { value -> value !in ignoredContent }?.let {
                     ItemMetaContent(it, ItemMetaContent.Type.IMAGE)
                 }
             ),
@@ -83,5 +85,4 @@ abstract class MattelMetaParser {
     protected fun fields(vararg fields: String): Array<String> {
         return fields.toList().toTypedArray()
     }
-
 }

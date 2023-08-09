@@ -49,4 +49,12 @@ class HotWheelsCardMetaParserTest {
         )
     }
 
+    @Test
+    fun `get meta - ok, broken imageUrl`() = runBlocking<Unit> {
+        val jsonWithBrokenImageUrl = json.replace("https://sfipfs.infura-ipfs.io/ipfs/123", "N/A")
+        val meta = HotWheelsCardMetaParser.parse(jsonWithBrokenImageUrl, randomItemId())
+        val content = meta.content[0]
+
+        assertThat(content.url).isEqualTo("QmNfc1gZfC46MfSBjypqTiXyfRhNMikS9yoiqzzupGgtrw")
+    }
 }
