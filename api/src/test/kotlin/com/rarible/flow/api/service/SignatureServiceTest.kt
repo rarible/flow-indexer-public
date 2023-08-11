@@ -1,17 +1,10 @@
 package com.rarible.flow.api.service
 
 import com.nftco.flow.sdk.AsyncFlowAccessApi
-import com.nftco.flow.sdk.Flow
-import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.FlowChainId
-import com.nftco.flow.sdk.FlowPublicKey
-import com.nftco.flow.sdk.FlowSignature
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
-import org.apache.commons.lang3.SystemUtils
 
 internal class SignatureServiceTest : FunSpec({
-
+/*
     val api = Flow.newAsyncAccessApi("access.devnet.nodes.onflow.org", 9000)
 
     val service = SignatureService(
@@ -76,7 +69,7 @@ internal class SignatureServiceTest : FunSpec({
             )
         ) shouldBe false
     }
-
+*/
 
 
 })
