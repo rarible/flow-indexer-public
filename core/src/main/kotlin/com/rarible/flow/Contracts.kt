@@ -88,6 +88,26 @@ enum class Contracts : Contract {
             get() = "HWGPV2"
     },
 
+    HW_GARAGE_TOKEN_V2 {
+
+        override val contractName: String = "HWGarageTokenV2"
+
+        override val deployments: Map<FlowChainId, FlowAddress>
+            get() = mapOf(
+                //https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGarageTokenV2
+                FlowChainId.MAINNET to FlowAddress("0xd0bcefdf1e67ea85"),
+                //https://testnet.flowscan.org/contract/A.6f6702697b205c18.HWGarageTokenV2
+                FlowChainId.TESTNET to FlowAddress("0x6f6702697b205c18"),
+                FlowChainId.EMULATOR to FlowAddress("0x9f36754d9b38f155"),
+            )
+
+        override val import: String
+            get() = "0xHWGARAGETOKENV2"
+
+        override val symbol: String
+            get() = "HWGTV2"
+    },
+
     HW_GARAGE_PM {
 
         override val contractName: String = "HWGaragePM"

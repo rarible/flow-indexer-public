@@ -58,6 +58,15 @@ class HWPackActivityV2(
 }
 
 @Component
+class HWTokenActivityV2(
+    logRepository: FlowLogRepository,
+    txManager: TxManager,
+    properties: FlowListenerProperties,
+) : HWActivityMaker(logRepository, txManager, properties) {
+    override val contractName: String = Contracts.HW_GARAGE_TOKEN_V2.contractName
+}
+
+@Component
 class RaribleCardActivity(
     logRepository: FlowLogRepository,
     txManager: TxManager,
