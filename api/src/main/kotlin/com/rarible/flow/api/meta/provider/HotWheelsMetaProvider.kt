@@ -36,3 +36,13 @@ class HotWheelsPackMetaProvider(
         itemId.contract.endsWith(".HWGaragePack") || itemId.contract.endsWith(".HWGaragePackV2")
 
 }
+
+@Component
+class HotWheelsTokenMetaProvider(
+    fetcher: RawOnChainMetaFetcher,
+    metaEventTypeProvider: HWMetaEventTypeProvider,
+) : HotWheelsMetaProvider(fetcher, HotWheelsPackMetaParser, metaEventTypeProvider) {
+
+    override fun isSupported(itemId: ItemId): Boolean =
+        itemId.contract.endsWith(".HWGarageTokenV2")
+}
