@@ -22,6 +22,9 @@ class HWMetaEventTypeProvider(properties: ApiProperties) : MetaEventTypeProvider
             Contracts.HW_GARAGE_PACK_V2.fqn(chainId) -> {
                 getAdminMintPackMetadataEvent(Contracts.HW_GARAGE_PM_V2)
             }
+            Contracts.HW_GARAGE_TOKEN_V2.fqn(chainId) -> {
+                getAdminMintPackMetadataEvent(Contracts.HW_GARAGE_PM_V2)
+            }
             Contracts.HW_GARAGE_CARD_V2.fqn(chainId) -> {
                 getAdminMintCardMetadataEvent(Contracts.HW_GARAGE_PM_V2)
             }
