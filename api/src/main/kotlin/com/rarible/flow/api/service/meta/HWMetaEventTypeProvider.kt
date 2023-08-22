@@ -23,7 +23,7 @@ class HWMetaEventTypeProvider(properties: ApiProperties) : MetaEventTypeProvider
                 getAdminMintPackMetadataEvent(Contracts.HW_GARAGE_PM_V2)
             }
             Contracts.HW_GARAGE_TOKEN_V2.fqn(chainId) -> {
-                getAdminMintPackMetadataEvent(Contracts.HW_GARAGE_PM_V2)
+                getAdminMintTokenMetadataEvent(Contracts.HW_GARAGE_PM_V2)
             }
             Contracts.HW_GARAGE_CARD_V2.fqn(chainId) -> {
                 getAdminMintCardMetadataEvent(Contracts.HW_GARAGE_PM_V2)
@@ -59,6 +59,10 @@ class HWMetaEventTypeProvider(properties: ApiProperties) : MetaEventTypeProvider
         return MetaEventType("${pmContract.fqn(chainId)}.$ADMIN_MINT_PACK", PACK_V2_ID)
     }
 
+    private fun getAdminMintTokenMetadataEvent(pmContract: Contracts): MetaEventType {
+        return MetaEventType("${pmContract.fqn(chainId)}.$ADMIN_MINT_TOKEN")
+    }
+
     private fun getAdminMintCardMetadataEvent(pmContract: Contracts): MetaEventType {
         return MetaEventType("${pmContract.fqn(chainId)}.$ADMIN_MINT_CARD")
     }
@@ -71,5 +75,6 @@ class HWMetaEventTypeProvider(properties: ApiProperties) : MetaEventTypeProvider
         const val UPDATE_TOKEN_EDITION_METADATA = "UpdateTokenEditionMetadata"
         const val ADMIN_MINT_CARD = "AdminMintCard"
         const val ADMIN_MINT_PACK = "AdminMintPack"
+        const val ADMIN_MINT_TOKEN = "AdminMintToken"
     }
 }
