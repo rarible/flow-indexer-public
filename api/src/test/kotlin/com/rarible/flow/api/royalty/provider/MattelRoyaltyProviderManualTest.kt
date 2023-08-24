@@ -3,7 +3,7 @@ package com.rarible.flow.api.royalty.provider
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
-import com.nftco.flow.sdk.impl.AsyncFlowAccessApiImpl
+import com.rarible.blockchain.scanner.flow.service.AsyncFlowAccessApiImpl
 import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.config.AppProperties
