@@ -1,6 +1,5 @@
 package com.rarible.flow.api.service
 
-import com.nftco.flow.sdk.AsyncFlowAccessApi
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowPublicKey
@@ -9,6 +8,7 @@ import com.nftco.flow.sdk.SignatureAlgorithm
 import com.nftco.flow.sdk.cadence.BooleanField
 import com.nftco.flow.sdk.cadence.marshall
 import com.nftco.flow.sdk.crypto.Crypto
+import com.rarible.blockchain.scanner.flow.service.AsyncFlowAccessApi
 import com.rarible.flow.sdk.simpleScript
 import kotlinx.coroutines.future.await
 

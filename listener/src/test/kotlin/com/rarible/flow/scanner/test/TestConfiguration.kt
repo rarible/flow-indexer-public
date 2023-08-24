@@ -13,7 +13,8 @@ import com.rarible.protocol.dto.FlowNftItemEventTopicProvider
 import com.rarible.protocol.dto.FlowNftOwnershipEventTopicProvider
 import com.rarible.protocol.dto.FlowOwnershipEventDto
 import org.apache.kafka.clients.consumer.OffsetResetStrategy
-import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.beans.factory.config.BeanPostProcessor
+import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Bean
@@ -31,18 +32,21 @@ class TestConfiguration(
     )
 
     @Bean
-    fun appListener(sporkService: SporkService): ApplicationListener<ApplicationReadyEvent> {
-        return ApplicationListener<ApplicationReadyEvent> {
-            sporkService.replace(
-                FlowChainId.EMULATOR, listOf(
-                    Spork(
-                        from = 0L,
-                        to = Long.MAX_VALUE,
-                        nodeUrl = FlowTestContainer.host(),
-                        port = FlowTestContainer.port()
+    fun sporkBeanPostProcessor() = object : BeanPostProcessor {
+        override fun postProcessAfterInitialization(bean: Any, beanName: String): Any? {
+            if (bean.javaClass == SporkService::class.java) {
+                (bean as SporkService).replace(
+                    FlowChainId.EMULATOR, listOf(
+                        Spork(
+                            from = 0L,
+                            to = Long.MAX_VALUE,
+                            nodeUrl = FlowTestContainer.host(),
+                            port = FlowTestContainer.port()
+                        )
                     )
                 )
-            )
+            }
+            return bean
         }
     }
 

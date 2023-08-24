@@ -1,11 +1,11 @@
 package com.rarible.flow.scanner.service.balance
 
-import com.nftco.flow.sdk.AsyncFlowAccessApi
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.ArrayField
 import com.nftco.flow.sdk.cadence.Field
+import com.rarible.blockchain.scanner.flow.service.AsyncFlowAccessApi
 import com.rarible.flow.core.domain.Balance
 import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.core.repository.coSave

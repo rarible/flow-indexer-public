@@ -1,12 +1,12 @@
 package com.rarible.flow.sdk
 
 import com.google.protobuf.UnsafeByteOperations
-import com.nftco.flow.sdk.AsyncFlowAccessApi
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowException
 import com.nftco.flow.sdk.FlowScriptResponse
 import com.nftco.flow.sdk.ScriptBuilder
 import com.nftco.flow.sdk.flowScript
+import com.rarible.blockchain.scanner.flow.service.AsyncFlowAccessApi
 import kotlinx.coroutines.future.await
 
 suspend fun AsyncFlowAccessApi.simpleScript(block: ScriptBuilder.() -> Unit): FlowScriptResponse {
