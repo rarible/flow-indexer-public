@@ -102,5 +102,4 @@ target
 .flattened-pom.xml
 *-local.yml
 
-*~
-
+**/.DS_Store

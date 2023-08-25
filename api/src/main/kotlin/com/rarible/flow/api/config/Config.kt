@@ -2,12 +2,13 @@ package com.rarible.flow.api.config
 
 import com.netflix.graphql.dgs.client.MonoGraphQLClient
 import com.netflix.graphql.dgs.client.WebClientGraphQLClient
-import com.nftco.flow.sdk.AsyncFlowAccessApi
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
-import com.nftco.flow.sdk.impl.AsyncFlowAccessApiImpl
 import com.rarible.blockchain.scanner.flow.EnableFlowBlockchainScanner
+import com.rarible.blockchain.scanner.flow.service.AsyncFlowAccessApi
+import com.rarible.blockchain.scanner.flow.service.FlowApiFactory
+import com.rarible.blockchain.scanner.flow.service.SporkService
 import com.rarible.core.common.safeSplit
 import com.rarible.core.meta.resource.http.DefaultHttpClient
 import com.rarible.core.meta.resource.http.ExternalHttpClient
@@ -26,9 +27,7 @@ import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.protocol.currency.api.client.CurrencyApiClientFactory
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
-import io.grpc.ManagedChannelBuilder
 import io.netty.handler.logging.LogLevel
-import org.onflow.protobuf.access.AccessAPIGrpc
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -45,7 +44,8 @@ import reactor.netty.transport.logging.AdvancedByteBufFormat
 @EnableConfigurationProperties(ApiProperties::class)
 class Config(
     val appProperties: AppProperties,
-    val apiProperties: ApiProperties
+    val apiProperties: ApiProperties,
+    val sporkService: SporkService
 ) {
 
     @Suppress("PrivatePropertyName")
@@ -70,14 +70,7 @@ class Config(
     }
 
     @Bean
-    fun api(): AsyncFlowAccessApi {
-        val channel = ManagedChannelBuilder.forAddress(apiProperties.flowAccessUrl, apiProperties.flowAccessPort)
-            .maxInboundMessageSize(DEFAULT_MESSAGE_SIZE)
-            .usePlaintext()
-            .userAgent(Flow.DEFAULT_USER_AGENT)
-            .build()
-        return AsyncFlowAccessApiImpl(AccessAPIGrpc.newFutureStub(channel))
-    }
+    fun api(flowApiFactory: FlowApiFactory): AsyncFlowAccessApi = flowApiFactory.getApi(sporkService.currentSpork())
 
     @Bean
     fun ipfsClient(): WebClient {

@@ -1,10 +1,10 @@
 package com.rarible.flow.api.service
 
-import com.nftco.flow.sdk.AsyncFlowAccessApi
 import com.nftco.flow.sdk.FlowScriptResponse
 import com.nftco.flow.sdk.ScriptBuilder
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
+import com.rarible.blockchain.scanner.flow.service.AsyncFlowAccessApi
 import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.util.Log
 import com.rarible.flow.sdk.simpleScript

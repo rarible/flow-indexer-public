@@ -1,8 +1,12 @@
 package com.rarible.flow.scanner.config
 
-import com.github.cloudyrock.spring.v5.EnableMongock
-import com.nftco.flow.sdk.*
+import com.nftco.flow.sdk.Flow
+import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.EnableFlowBlockchainScanner
+import com.rarible.blockchain.scanner.flow.service.AsyncFlowAccessApi
+import com.rarible.blockchain.scanner.flow.service.FlowApiFactory
+import com.rarible.blockchain.scanner.flow.service.SporkService
 import com.rarible.core.task.EnableRaribleTask
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.repository.BalanceRepository
@@ -33,7 +37,8 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 @EnableConfigurationProperties(FlowListenerProperties::class)
 @EnableReactiveMongoAuditing
 class Config(
-    private val flowListenerProperties: FlowListenerProperties
+    private val flowListenerProperties: FlowListenerProperties,
+    private val sporkService: SporkService
 ) {
     @Bean
     fun currencyApi(factory: CurrencyApiClientFactory): CurrencyControllerApi {
@@ -59,7 +64,7 @@ class Config(
 
             FlowChainId.MAINNET.let { mainnet ->
                 register("0xFUNGIBLETOKEN", FlowAddress("0xf233dcee88fe0abe"), mainnet)
-                register("0xFLOWTOKEN", FlowAddress("0x1654653399040a61"),  mainnet)
+                register("0xFLOWTOKEN", FlowAddress("0x1654653399040a61"), mainnet)
                 register("0xFUSDTOKEN", FlowAddress("0x3c5959b568896393"), mainnet)
             }
 
@@ -79,21 +84,23 @@ class Config(
     @ExperimentalCoroutinesApi
     @ConditionalOnProperty(
         prefix = "flow-api",
-        name=["start-end-worker.enabled"],
-        havingValue="true"
+        name = ["start-end-worker.enabled"],
+        havingValue = "true"
     )
     fun startEndWorker(
         handler: OrderStartEndCheckerHandler,
         meterRegistry: MeterRegistry,
     ): OrderStartEndCheckerWorker {
-        return OrderStartEndCheckerWorker(handler, flowListenerProperties.startEndWorker, meterRegistry).apply { start() }
+        return OrderStartEndCheckerWorker(
+            handler,
+            flowListenerProperties.startEndWorker,
+            meterRegistry
+        ).apply { start() }
     }
 
     @Bean
-    fun asyncApi(): AsyncFlowAccessApi = Flow.newAsyncAccessApi(flowListenerProperties.flowAccessUrl, flowListenerProperties.flowAccessPort)
-
-    @Bean
-    fun syncApy(): FlowAccessApi = Flow.newAccessApi(flowListenerProperties.flowAccessUrl, flowListenerProperties.flowAccessPort)
+    fun asyncApi(flowApiFactory: FlowApiFactory): AsyncFlowAccessApi =
+        flowApiFactory.getApi(sporkService.currentSpork())
 
     @Bean
     fun taskItemHistoryRepository(mongo: ReactiveMongoTemplate): TaskItemHistoryRepository {

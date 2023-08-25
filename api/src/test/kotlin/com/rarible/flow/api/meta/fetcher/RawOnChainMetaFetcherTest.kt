@@ -6,7 +6,7 @@ import com.nftco.flow.sdk.FlowId
 import com.nftco.flow.sdk.cadence.EventField
 import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.UInt256NumberField
-import com.nftco.flow.sdk.impl.AsyncFlowAccessApiImpl
+import com.rarible.blockchain.scanner.flow.service.AsyncFlowAccessApiImpl
 import com.rarible.blockchain.scanner.flow.service.FlowApiFactory
 import com.rarible.blockchain.scanner.flow.service.Spork
 import com.rarible.blockchain.scanner.flow.service.SporkService
