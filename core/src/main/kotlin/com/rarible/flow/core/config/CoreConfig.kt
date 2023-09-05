@@ -12,6 +12,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Profile
 import org.springframework.core.convert.converter.Converter
 import org.springframework.data.convert.ReadingConverter
@@ -37,6 +38,9 @@ import java.math.BigDecimal
         ServicePackage::class,
     ]
 )
+@Import(
+    GatewayEventsProducers::class,
+)
 class CoreConfig(
     private val appProperties: AppProperties
 ) {
@@ -59,12 +63,15 @@ class CoreConfig(
 
     @Bean
     @Profile("!without-kafka")
-    fun protocolEventPublisher(itemHistoryToDtoConverter: ItemHistoryToDtoConverter) = ProtocolEventPublisher(
-        GatewayEventsProducers.itemsUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
-        GatewayEventsProducers.ownershipsUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
-        GatewayEventsProducers.collectionsUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
-        GatewayEventsProducers.ordersUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
-        GatewayEventsProducers.activitiesUpdates(appProperties.environment, appProperties.kafkaReplicaSet),
+    fun protocolEventPublisher(
+        itemHistoryToDtoConverter: ItemHistoryToDtoConverter,
+        gatewayEventsProducers: GatewayEventsProducers
+    ) = ProtocolEventPublisher(
+        gatewayEventsProducers.itemsUpdates(),
+        gatewayEventsProducers.ownershipsUpdates(),
+        gatewayEventsProducers.collectionsUpdates(),
+        gatewayEventsProducers.ordersUpdates(),
+        gatewayEventsProducers.activitiesUpdates(),
         itemHistoryToDtoConverter
     )
 

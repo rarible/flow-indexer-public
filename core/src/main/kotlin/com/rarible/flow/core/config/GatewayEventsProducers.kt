@@ -12,54 +12,60 @@ import com.rarible.protocol.dto.FlowNftOwnershipEventTopicProvider
 import com.rarible.protocol.dto.FlowOrderEventDto
 import com.rarible.protocol.dto.FlowOrderEventTopicProvider
 import com.rarible.protocol.dto.FlowOwnershipEventDto
+import org.springframework.stereotype.Component
 
-object GatewayEventsProducers {
+@Component
+class GatewayEventsProducers(
+    private val appProperties: AppProperties
+) {
 
-    fun itemsUpdates(environment: String, kafkaBootstrapServer: String): RaribleKafkaProducer<FlowNftItemEventDto> {
+    fun itemsUpdates(): RaribleKafkaProducer<FlowNftItemEventDto> {
         return RaribleKafkaProducer(
-            clientId = "$environment.flow.nft-events-importer",
+            clientId = "${appProperties.environment}.flow.nft-events-importer",
             valueSerializerClass = JsonSerializer::class.java,
-            defaultTopic = FlowNftItemEventTopicProvider.getTopic(environment),
-            bootstrapServers = kafkaBootstrapServer
+            defaultTopic = FlowNftItemEventTopicProvider.getTopic(appProperties.environment),
+            bootstrapServers = appProperties.kafkaReplicaSet,
+            compression = appProperties.compression,
         )
     }
 
-    fun ownershipsUpdates(environment: String, kafkaBootstrapServer: String): RaribleKafkaProducer<FlowOwnershipEventDto> {
+    fun ownershipsUpdates(): RaribleKafkaProducer<FlowOwnershipEventDto> {
         return RaribleKafkaProducer(
-            clientId = "$environment.flow.ownership-events-importer",
+            clientId = "${appProperties.environment}.flow.ownership-events-importer",
             valueSerializerClass = JsonSerializer::class.java,
-            defaultTopic = FlowNftOwnershipEventTopicProvider.getTopic(environment),
-            bootstrapServers = kafkaBootstrapServer
+            defaultTopic = FlowNftOwnershipEventTopicProvider.getTopic(appProperties.environment),
+            bootstrapServers = appProperties.kafkaReplicaSet,
+            compression = appProperties.compression,
         )
     }
 
-    fun collectionsUpdates(environment: String, kafkaBootstrapServer: String): RaribleKafkaProducer<FlowCollectionEventDto> {
+    fun collectionsUpdates(): RaribleKafkaProducer<FlowCollectionEventDto> {
         return RaribleKafkaProducer(
-            clientId = "$environment.flow.collection-events-importer",
+            clientId = "${appProperties.environment}.flow.collection-events-importer",
             valueSerializerClass = JsonSerializer::class.java,
-            defaultTopic = FlowNftCollectionEventTopicProvider.getTopic(environment),
-            bootstrapServers = kafkaBootstrapServer
+            defaultTopic = FlowNftCollectionEventTopicProvider.getTopic(appProperties.environment),
+            bootstrapServers = appProperties.kafkaReplicaSet,
+            compression = appProperties.compression,
         )
     }
 
-    fun ordersUpdates(environment: String, kafkaBootstrapServer: String): RaribleKafkaProducer<FlowOrderEventDto> {
+    fun ordersUpdates(): RaribleKafkaProducer<FlowOrderEventDto> {
         return RaribleKafkaProducer(
-            clientId = "$environment.flow.order-events-importer",
+            clientId = "${appProperties.environment}.flow.order-events-importer",
             valueSerializerClass = JsonSerializer::class.java,
-            defaultTopic = FlowOrderEventTopicProvider.getTopic(environment),
-            bootstrapServers = kafkaBootstrapServer
+            defaultTopic = FlowOrderEventTopicProvider.getTopic(appProperties.environment),
+            bootstrapServers = appProperties.kafkaReplicaSet,
+            compression = appProperties.compression,
         )
     }
 
-    fun activitiesUpdates(
-        environment: String,
-        kafkaBootstrapServer: String
-    ): RaribleKafkaProducer<FlowActivityEventDto> {
+    fun activitiesUpdates(): RaribleKafkaProducer<FlowActivityEventDto> {
         return RaribleKafkaProducer(
-            clientId = "$environment.flow.activity-events-importer",
+            clientId = "${appProperties.environment}.flow.activity-events-importer",
             valueSerializerClass = JsonSerializer::class.java,
-            defaultTopic = FlowActivityEventTopicProvider.getActivityTopic(environment),
-            bootstrapServers = kafkaBootstrapServer
+            defaultTopic = FlowActivityEventTopicProvider.getActivityTopic(appProperties.environment),
+            bootstrapServers = appProperties.kafkaReplicaSet,
+            compression = appProperties.compression,
         )
     }
 }

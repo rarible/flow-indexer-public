@@ -4,6 +4,7 @@ import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowScript
 import com.nftco.flow.sdk.FlowScriptResponse
+import com.rarible.core.kafka.Compression
 import com.rarible.flow.api.mocks
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.config.AppProperties
@@ -93,7 +94,7 @@ class VersusArtMetaProviderTest : FunSpec({
                         executeScriptAtLatestBlock(eq(FlowScript("getContentScript")), any())
                     } throws IllegalStateException()
                 },
-                AppProperties("test", "", 80, "", FlowChainId.EMULATOR, "http://localhost:8080"),
+                AppProperties("test", "", 80, "", Compression.SNAPPY, FlowChainId.EMULATOR, "http://localhost:8080"),
             ),
             mocks.resource("getMetadataScript"),
             mocks.resource("getContentScript"),
