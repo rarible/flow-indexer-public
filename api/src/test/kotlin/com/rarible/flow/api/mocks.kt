@@ -3,6 +3,7 @@ package com.rarible.flow.api
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowScript
 import com.nftco.flow.sdk.FlowScriptResponse
+import com.rarible.core.kafka.Compression
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.config.AppProperties
 import io.kotest.matchers.shouldBe
@@ -30,7 +31,7 @@ object mocks {
                     )
                 }
             },
-            AppProperties("test", "", 80, "", FlowChainId.EMULATOR, "http://localhost:8080")
+            AppProperties("test", "", 80, "", Compression.SNAPPY, FlowChainId.EMULATOR, "http://localhost:8080")
         )
     }
 
@@ -48,7 +49,12 @@ object mocks {
         } returns (fileName ?: scriptExecutorKey)
     }
 
-    fun webClient(expectedPath: String, response: String, status: HttpStatus = HttpStatus.OK, contentType: MediaType = MediaType.APPLICATION_JSON) = WebClient
+    fun webClient(
+        expectedPath: String,
+        response: String,
+        status: HttpStatus = HttpStatus.OK,
+        contentType: MediaType = MediaType.APPLICATION_JSON
+    ) = WebClient
         .builder()
         .exchangeFunction { req ->
             req.url().toString() shouldBe expectedPath
