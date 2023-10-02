@@ -5,11 +5,10 @@ import com.nftco.flow.sdk.FlowEvent
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainBlock
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
-import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.FlowLogType
+import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.OrderRepository
-import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.cadence.BidAvailable
 import com.rarible.flow.scanner.cadence.BidCompleted
@@ -62,11 +61,12 @@ class BidSubscriber(
                 listOf("${it.id}.Withdraw", "${it.id}.Deposit")
             }.toSet()
         }
-        return withSpan("checkBidIsNewEvent", "event") { super.isNewEvent(block, event) && when(EventId.of(event.type).eventName) {
+        return super.isNewEvent(block, event) && when (EventId.of(event.type).eventName) {
             "BidAvailable" -> {
                 val e = event.event.parse<BidAvailable>()
                 collectionRepository.existsById(e.nftType.collection()).awaitSingle()
             }
+
             "BidCompleted" -> {
                 val e = event.event.parse<BidCompleted>()
                 if (nftEvents.isEmpty()) {
@@ -74,7 +74,7 @@ class BidSubscriber(
                         listOf("${it.id}.Withdraw", "${it.id}.Deposit")
                     }.toSet()
                 }
-                return@withSpan if (e.purchased) {
+                return if (e.purchased) {
                     txManager.onTransaction(
                         blockHeight = block.number,
                         transactionId = event.transactionId
@@ -85,8 +85,9 @@ class BidSubscriber(
                     }
                 } else orderRepository.existsById(e.bidId).awaitSingle()
             }
+
             else -> false
-        } }
+        }
     }
 
     @PostConstruct

@@ -17,12 +17,6 @@ logging:
       enabled: false
       destinations: []
 
-rarible:
-  core:
-    apm:
-      annotation:
-        enabled: false
-
 application:
   environment: dev
 

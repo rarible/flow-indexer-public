@@ -2,7 +2,6 @@ package com.rarible.flow.scanner.service
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
-import com.rarible.core.apm.SpanType
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.*
 import com.rarible.flow.core.kafka.ProtocolEventPublisher
@@ -154,7 +153,6 @@ class EnglishAuctionService(
     }
 
     @Scheduled(initialDelay = 30L, fixedDelay = 30L, timeUnit = TimeUnit.SECONDS)
-    @com.rarible.core.apm.CaptureSpan(type = SpanType.KAFKA)
     fun processOngoing() {
         logger.info("Processes ongoing auctions ...")
         runBlocking {

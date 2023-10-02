@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.rarible.core.apm.withSpan
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.meta.ItemMeta
 import com.rarible.flow.api.meta.ItemMetaAttribute
@@ -22,7 +21,7 @@ import java.time.Instant
 class CryptoPiggoMetaProvider(
     private val ipfsClient: WebClient,
     private val appProperties: AppProperties
-): ItemMetaProvider {
+) : ItemMetaProvider {
 
     private val mapper = jacksonObjectMapper().registerModule(JavaTimeModule())
 
@@ -32,37 +31,35 @@ class CryptoPiggoMetaProvider(
         itemId.contract == Contracts.CRYPTOPIGGO.fqn(appProperties.chainId)
 
     override suspend fun getMeta(item: Item): ItemMeta {
-        return withSpan("CryptoPiggoMetaProvider::getMeta", "network") {
-            val piggoMeta = ipfsClient.get().uri(metaUrl, item.tokenId)
-                .retrieve().awaitBodyOrNull<PiggoItem>() ?: return@withSpan emptyMeta(item.id)
+        val piggoMeta = ipfsClient.get().uri(metaUrl, item.tokenId)
+            .retrieve().awaitBodyOrNull<PiggoItem>() ?: return emptyMeta(item.id)
 
-            return@withSpan ItemMeta(
-                itemId = item.id,
-                name = "Cryptopiggo #${item.tokenId}",
-                description = "",
-                attributes = extractAttributes(piggoMeta),
-                contentUrls = listOf(piggoMeta.file.url),
-                content = listOf(
-                    ItemMetaContent(
-                        piggoMeta.file.url,
-                        ItemMetaContent.Type.IMAGE,
-                        ItemMetaContent.Representation.ORIGINAL,
-                    )
-                ),
-                createdAt = piggoMeta.createdAt,
-                originalMetaUri = metaUrl.replace("{id}", item.id.tokenId.toString()),
-            ).apply {
-                raw = mapper.writeValueAsBytes(piggoMeta)
-            }
+        return ItemMeta(
+            itemId = item.id,
+            name = "Cryptopiggo #${item.tokenId}",
+            description = "",
+            attributes = extractAttributes(piggoMeta),
+            contentUrls = listOf(piggoMeta.file.url),
+            content = listOf(
+                ItemMetaContent(
+                    piggoMeta.file.url,
+                    ItemMetaContent.Type.IMAGE,
+                    ItemMetaContent.Representation.ORIGINAL,
+                )
+            ),
+            createdAt = piggoMeta.createdAt,
+            originalMetaUri = metaUrl.replace("{id}", item.id.tokenId.toString()),
+        ).apply {
+            raw = mapper.writeValueAsBytes(piggoMeta)
         }
     }
 
-    private fun resolveRarity(rarity: Int): String = when(rarity) {
+    private fun resolveRarity(rarity: Int): String = when (rarity) {
         1 -> "Mythic"
-        2,3 -> "Legendary"
-        4,5 -> "Ultra Rare"
-        6,7 -> "Rare"
-        8,9 -> "Uncommon"
+        2, 3 -> "Legendary"
+        4, 5 -> "Ultra Rare"
+        6, 7 -> "Rare"
+        8, 9 -> "Uncommon"
         else -> "Common"
     }
 

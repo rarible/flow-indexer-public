@@ -1,7 +1,6 @@
 package com.rarible.flow.scanner.activity.order
 
 import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.core.apm.withSpan
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.BaseActivity
 import com.rarible.flow.core.domain.FlowLogEvent
@@ -19,14 +18,12 @@ abstract class NftStorefrontActivityMaker(
 ) : WithPaymentsActivityMaker() {
 
     override suspend fun activities(events: List<FlowLogEvent>): Map<FlowLog, BaseActivity> {
-        return withSpan("generateOrderActivities", "event") {
-            parsers
-                .map { parser -> parser.parseActivities(events) }
-                .fold(mutableMapOf()) { acc, next ->
-                    acc.putAll(next)
-                    acc
-                }
-        }
+        return parsers
+            .map { parser -> parser.parseActivities(events) }
+            .fold(mutableMapOf()) { acc, next ->
+                acc.putAll(next)
+                acc
+            }
     }
 
     override fun getItemId(event: FlowLogEvent): ItemId? {

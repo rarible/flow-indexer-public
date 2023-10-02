@@ -20,19 +20,6 @@ app:
 application:
   service-name: flow-indexer-api
 
-rarible:
-  core:
-    apm:
-      agent:
-        enabled: true
-        server: http://elk_apm-server:8200
-        packages: org.rarible.flow.api
-      web:
-        filter:
-          enabled: true
-      annotation:
-        enabled: true
-
 blockchain:
   scanner:
     flow:

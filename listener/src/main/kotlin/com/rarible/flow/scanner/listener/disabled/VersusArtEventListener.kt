@@ -2,7 +2,6 @@ package com.rarible.flow.scanner.listener.disabled
 
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
-import com.rarible.core.apm.withSpan
 import com.rarible.core.application.ApplicationEnvironmentInfo
 import com.rarible.flow.core.domain.BurnActivity
 import com.rarible.flow.core.domain.FlowLogEvent
@@ -76,16 +75,16 @@ class VersusArtEventListener(
         val custom = events.filter { it.type == FlowLogType.CUSTOM }
         if (custom.isEmpty()) return emptyList()
 
-        return withSpan("generateNftActivities", "event") {
-            when (custom.first().customType) {
-                "DropDestroyed" -> events
-                    .filter { it.type == FlowLogType.DEPOSIT }
-                    .map { it.burnItemHistory() }
-                "Settle" -> events
-                    .filter { it.type == FlowLogType.DEPOSIT && it.to == it.contractAddress }
-                    .map { it.burnItemHistory() }
-                else -> emptyList()
-            }
+        return when (custom.first().customType) {
+            "DropDestroyed" -> events
+                .filter { it.type == FlowLogType.DEPOSIT }
+                .map { it.burnItemHistory() }
+
+            "Settle" -> events
+                .filter { it.type == FlowLogType.DEPOSIT && it.to == it.contractAddress }
+                .map { it.burnItemHistory() }
+
+            else -> emptyList()
         }
     }
 
