@@ -1,7 +1,6 @@
 package com.rarible.flow.scanner.service
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.core.apm.withSpan
 import com.rarible.core.common.EventTimeMarks
 import com.rarible.flow.core.converter.OrderToDtoConverter
 import com.rarible.flow.core.domain.EstimatedFee
@@ -59,223 +58,210 @@ class OrderService(
     private val logger by Log()
 
     suspend fun openList(activity: FlowNftOrderActivityList, item: Item?): Order {
-        return withSpan("openList", "db") {
-            val status = if (item == null || item.owner?.formatted != activity.maker) OrderStatus.INACTIVE else OrderStatus.ACTIVE
-            val start = activity.expiry?.let { activity.timestamp.epochSecond }
-            val end = activity.expiry?.epochSecond
-            val originalFee = convert(activity.price, activity.estimatedFee)
-            val data = OrderData.withOriginalFees(originalFee)
-            val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
-                itemId = ItemId(activity.make.contract, activity.tokenId),
-                maker = FlowAddress(activity.maker),
-                make = activity.make,
-                take = activity.take,
-                amount = activity.price,
-                createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                collection = activity.contract,
-                makeStock = activity.make.value,
-                lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                type = OrderType.LIST,
-                takePriceUsd = activity.priceUsd,
-                data = data,
-                start = start,
-                end = end
-            ) ?: Order(
-                id = activity.hash.toLong(),
-                status = status,
-                itemId = ItemId(activity.make.contract, activity.tokenId),
-                maker = FlowAddress(activity.maker),
-                make = activity.make,
-                take = activity.take,
-                amount = activity.price,
-                createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                collection = activity.contract,
-                makeStock = activity.make.value,
-                lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                type = OrderType.LIST,
-                takePriceUsd = activity.priceUsd,
-                data = data,
-                start = start,
-                end = end
-            )
-            return@withSpan orderRepository.coSave(order)
-        }
+
+        val status =
+            if (item == null || item.owner?.formatted != activity.maker) OrderStatus.INACTIVE else OrderStatus.ACTIVE
+        val start = activity.expiry?.let { activity.timestamp.epochSecond }
+        val end = activity.expiry?.epochSecond
+        val originalFee = convert(activity.price, activity.estimatedFee)
+        val data = OrderData.withOriginalFees(originalFee)
+        val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
+            itemId = ItemId(activity.make.contract, activity.tokenId),
+            maker = FlowAddress(activity.maker),
+            make = activity.make,
+            take = activity.take,
+            amount = activity.price,
+            createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            collection = activity.contract,
+            makeStock = activity.make.value,
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            type = OrderType.LIST,
+            takePriceUsd = activity.priceUsd,
+            data = data,
+            start = start,
+            end = end
+        ) ?: Order(
+            id = activity.hash.toLong(),
+            status = status,
+            itemId = ItemId(activity.make.contract, activity.tokenId),
+            maker = FlowAddress(activity.maker),
+            make = activity.make,
+            take = activity.take,
+            amount = activity.price,
+            createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            collection = activity.contract,
+            makeStock = activity.make.value,
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            type = OrderType.LIST,
+            takePriceUsd = activity.priceUsd,
+            data = data,
+            start = start,
+            end = end
+        )
+        return orderRepository.coSave(order)
     }
 
     suspend fun openBid(activity: FlowNftOrderActivityBid, item: Item?): Order {
-        return withSpan("openBid", "db") {
-            val status =
-                if (item == null) OrderStatus.INACTIVE else OrderStatus.ACTIVE
-            val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
-                itemId = ItemId(activity.take.contract, activity.tokenId),
-                maker = FlowAddress(activity.maker),
-                make = activity.make,
-                take = activity.take,
-                amount = activity.price,
-                createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                collection = activity.contract,
-                makeStock = activity.make.value,
-                lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                type = OrderType.BID,
-                takePriceUsd = activity.priceUsd,
-                status = status
-            ) ?: Order(
-                id = activity.hash.toLong(),
-                status = status,
-                itemId = ItemId(activity.take.contract, activity.tokenId),
-                maker = FlowAddress(activity.maker),
-                make = activity.make,
-                take = activity.take,
-                amount = activity.price,
-                createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                collection = activity.contract,
-                makeStock = activity.make.value,
-                lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                type = OrderType.BID,
-                takePriceUsd = activity.priceUsd
-            )
-
-            orderRepository.coSave(order)
-        }
+        val status = if (item == null) OrderStatus.INACTIVE else OrderStatus.ACTIVE
+        val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
+            itemId = ItemId(activity.take.contract, activity.tokenId),
+            maker = FlowAddress(activity.maker),
+            make = activity.make,
+            take = activity.take,
+            amount = activity.price,
+            createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            collection = activity.contract,
+            makeStock = activity.make.value,
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            type = OrderType.BID,
+            takePriceUsd = activity.priceUsd,
+            status = status
+        ) ?: Order(
+            id = activity.hash.toLong(),
+            status = status,
+            itemId = ItemId(activity.take.contract, activity.tokenId),
+            maker = FlowAddress(activity.maker),
+            make = activity.make,
+            take = activity.take,
+            amount = activity.price,
+            createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            collection = activity.contract,
+            makeStock = activity.make.value,
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            type = OrderType.BID,
+            takePriceUsd = activity.priceUsd
+        )
+        return orderRepository.coSave(order)
     }
 
     suspend fun close(activity: FlowNftOrderActivitySell): Order {
-        return withSpan("closeOrder", "db") {
-            val originalFee = convert(activity.price, activity.estimatedFee)
-            val data = OrderData.withOriginalFees(originalFee)
-            val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
-                fill = BigDecimal.ONE,
-                makeStock = BigDecimal.ZERO,
-                taker = FlowAddress(activity.right.maker),
-                status = OrderStatus.FILLED,
-                data = data,
-                lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                platform = if (activity.payments.any { it.type == PaymentType.SELLER_FEE }) {
-                    FlowOrderPlatformDto.RARIBLE
-                } else FlowOrderPlatformDto.OTHER
-            ) ?: Order(
-                id = activity.hash.toLong(),
-                fill = BigDecimal.ONE,
-                makeStock = BigDecimal.ZERO,
-                taker = FlowAddress(activity.right.maker),
-                status = OrderStatus.FILLED,
-                createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                maker = FlowAddress(activity.left.maker),
-                itemId = ItemId(activity.left.asset.contract, activity.tokenId),
-                amount = activity.price,
-                collection = activity.contract,
-                make = activity.left.asset,
-                take = activity.right.asset,
-                data = data,
-                lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                type = OrderType.LIST,
-                takePriceUsd = activity.priceUsd,
-                platform = if (activity.payments.any { it.type == PaymentType.SELLER_FEE }) {
-                    FlowOrderPlatformDto.RARIBLE
-                } else FlowOrderPlatformDto.OTHER
-            )
-            orderRepository.coSave(order)
-        }
+        val originalFee = convert(activity.price, activity.estimatedFee)
+        val data = OrderData.withOriginalFees(originalFee)
+        val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
+            fill = BigDecimal.ONE,
+            makeStock = BigDecimal.ZERO,
+            taker = FlowAddress(activity.right.maker),
+            status = OrderStatus.FILLED,
+            data = data,
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            platform = if (activity.payments.any { it.type == PaymentType.SELLER_FEE }) {
+                FlowOrderPlatformDto.RARIBLE
+            } else FlowOrderPlatformDto.OTHER
+        ) ?: Order(
+            id = activity.hash.toLong(),
+            fill = BigDecimal.ONE,
+            makeStock = BigDecimal.ZERO,
+            taker = FlowAddress(activity.right.maker),
+            status = OrderStatus.FILLED,
+            createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            maker = FlowAddress(activity.left.maker),
+            itemId = ItemId(activity.left.asset.contract, activity.tokenId),
+            amount = activity.price,
+            collection = activity.contract,
+            make = activity.left.asset,
+            take = activity.right.asset,
+            data = data,
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            type = OrderType.LIST,
+            takePriceUsd = activity.priceUsd,
+            platform = if (activity.payments.any { it.type == PaymentType.SELLER_FEE }) {
+                FlowOrderPlatformDto.RARIBLE
+            } else FlowOrderPlatformDto.OTHER
+        )
+        return orderRepository.coSave(order)
     }
 
     suspend fun closeBid(activity: FlowNftOrderActivitySell, item: Item?): Order {
-        return withSpan("closeBid", "db") {
-            val order = orderRepository.coFindById(activity.hash.toLong())?.let { order ->
-                order.copy(
-                    fill = order.makeStock!!,
-                    makeStock = BigDecimal.ZERO,
-                    taker = FlowAddress(activity.right.maker),
-                    status = OrderStatus.FILLED,
-                    data = OrderData(
-                        activity.payments.filter {
-                            it.type == PaymentType.REWARD
-                        }.map { Payout(account = FlowAddress(it.address), value = it.amount) },
-                        activity.payments.filter { it.type in arrayOf(PaymentType.SELLER_FEE, PaymentType.BUYER_FEE) }
-                            .map { Payout(account = FlowAddress(it.address), value = it.amount) }),
-                    lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                    platform = if (activity.payments.any { it.type == PaymentType.BUYER_FEE }) {
-                        FlowOrderPlatformDto.RARIBLE
-                    } else FlowOrderPlatformDto.OTHER
-                )
-            } ?: Order(
-                id = activity.hash.toLong(),
-                fill = activity.right.asset.value,
+        val order = orderRepository.coFindById(activity.hash.toLong())?.let { order ->
+            order.copy(
+                fill = order.makeStock!!,
                 makeStock = BigDecimal.ZERO,
                 taker = FlowAddress(activity.right.maker),
                 status = OrderStatus.FILLED,
-                createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                maker = FlowAddress(activity.left.maker),
-                itemId = ItemId(activity.right.asset.contract, activity.tokenId),
-                amount = activity.price,
-                collection = activity.contract,
-                make = activity.right.asset,
-                take = activity.left.asset,
                 data = OrderData(
-                    payouts = activity.payments.filter {
+                    activity.payments.filter {
                         it.type == PaymentType.REWARD
                     }.map { Payout(account = FlowAddress(it.address), value = it.amount) },
-                    originalFees = activity.payments.filter {
-                        it.type in arrayOf(
-                            PaymentType.SELLER_FEE,
-                            PaymentType.BUYER_FEE
-                        )
-                    }.map { Payout(account = FlowAddress(it.address), value = it.amount) }),
+                    activity.payments.filter { it.type in arrayOf(PaymentType.SELLER_FEE, PaymentType.BUYER_FEE) }
+                        .map { Payout(account = FlowAddress(it.address), value = it.amount) }),
                 lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                type = OrderType.BID,
-                takePriceUsd = activity.priceUsd,
                 platform = if (activity.payments.any { it.type == PaymentType.BUYER_FEE }) {
                     FlowOrderPlatformDto.RARIBLE
                 } else FlowOrderPlatformDto.OTHER
             )
+        } ?: Order(
+            id = activity.hash.toLong(),
+            fill = activity.right.asset.value,
+            makeStock = BigDecimal.ZERO,
+            taker = FlowAddress(activity.right.maker),
+            status = OrderStatus.FILLED,
+            createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            maker = FlowAddress(activity.left.maker),
+            itemId = ItemId(activity.right.asset.contract, activity.tokenId),
+            amount = activity.price,
+            collection = activity.contract,
+            make = activity.right.asset,
+            take = activity.left.asset,
+            data = OrderData(
+                payouts = activity.payments.filter {
+                    it.type == PaymentType.REWARD
+                }.map { Payout(account = FlowAddress(it.address), value = it.amount) },
+                originalFees = activity.payments.filter {
+                    it.type in arrayOf(
+                        PaymentType.SELLER_FEE,
+                        PaymentType.BUYER_FEE
+                    )
+                }.map { Payout(account = FlowAddress(it.address), value = it.amount) }),
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            type = OrderType.BID,
+            takePriceUsd = activity.priceUsd,
+            platform = if (activity.payments.any { it.type == PaymentType.BUYER_FEE }) {
+                FlowOrderPlatformDto.RARIBLE
+            } else FlowOrderPlatformDto.OTHER
+        )
 
-            orderRepository.coSave(order)
-        }
+        return orderRepository.coSave(order)
     }
 
     //TODO tests
     suspend fun cancel(activity: FlowNftOrderActivityCancelList, item: Item?): Order {
-        return withSpan("cancelList", "db") {
-            val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
-                cancelled = true,
-                status = OrderStatus.CANCELLED,
-                lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-            ) ?: Order(
-                id = activity.hash.toLong(),
-                cancelled = true,
-                status = OrderStatus.CANCELLED,
-                createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                itemId = item?.id ?: ItemId("", 0L),
-                amount = BigDecimal.ZERO,
-                collection = item?.collection.orEmpty(),
-                maker = item?.owner ?: FlowAddress("0x00"),
-                make = if (item != null) {
-                    FlowAssetNFT(
-                        contract = item.contract,
-                        value = BigDecimal.ONE,
-                        tokenId = item.tokenId
-                    )
-                } else FlowAssetEmpty,
-                take = FlowAssetEmpty,
-                data = OrderData(emptyList(), emptyList()),
-                makeStock = BigDecimal.ZERO,
-                lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                type = OrderType.LIST,
-            )
-
-            orderRepository.coSave(order)
-        }
+        val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
+            cancelled = true,
+            status = OrderStatus.CANCELLED,
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+        ) ?: Order(
+            id = activity.hash.toLong(),
+            cancelled = true,
+            status = OrderStatus.CANCELLED,
+            createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            itemId = item?.id ?: ItemId("", 0L),
+            amount = BigDecimal.ZERO,
+            collection = item?.collection.orEmpty(),
+            maker = item?.owner ?: FlowAddress("0x00"),
+            make = if (item != null) {
+                FlowAssetNFT(
+                    contract = item.contract,
+                    value = BigDecimal.ONE,
+                    tokenId = item.tokenId
+                )
+            } else FlowAssetEmpty,
+            take = FlowAssetEmpty,
+            data = OrderData(emptyList(), emptyList()),
+            makeStock = BigDecimal.ZERO,
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            type = OrderType.LIST,
+        )
+        return orderRepository.coSave(order)
     }
 
     suspend fun enrichTransfer(txHash: String, from: String, to: String): ItemHistory? {
-        return withSpan("enrichTransfer", "db") {
-            itemHistoryRepository.findTransferInTx(txHash, from, to).awaitFirstOrNull()
-                ?.let { transfer ->
-                    (transfer.activity as? TransferActivity)?.let { transferActivity ->
-                        itemHistoryRepository.save(transfer.copy(activity = transferActivity.copy(purchased = true)))
-                            .awaitSingle()
-                    }
+        return itemHistoryRepository.findTransferInTx(txHash, from, to).awaitFirstOrNull()
+            ?.let { transfer ->
+                (transfer.activity as? TransferActivity)?.let { transferActivity ->
+                    itemHistoryRepository.save(transfer.copy(activity = transferActivity.copy(purchased = true)))
+                        .awaitSingle()
                 }
-        }
+            }
     }
 
     suspend fun checkAndEnrichTransfer(txHash: String, from: String, to: String) =
@@ -315,64 +301,58 @@ class OrderService(
     }
 
     suspend fun cancelBid(activity: FlowNftOrderActivityCancelBid, item: Item?): Order {
-        return withSpan("cancelBid", "db") {
-            val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
-                cancelled = true,
-                status = OrderStatus.CANCELLED,
-                lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-            ) ?: Order(
-                id = activity.hash.toLong(),
-                cancelled = true,
-                status = OrderStatus.CANCELLED,
-                createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                itemId = item?.id ?: ItemId("", 0L),
-                amount = BigDecimal.ZERO,
-                collection = item?.collection.orEmpty(),
-                maker = item?.owner ?: FlowAddress("0x00"),
-                make = FlowAssetEmpty,
-                take = if (item != null) {
-                    FlowAssetNFT(
-                        contract = item.contract,
-                        value = BigDecimal.ONE,
-                        tokenId = item.tokenId
-                    )
-                } else FlowAssetEmpty,
-                data = OrderData(emptyList(), emptyList()),
-                makeStock = BigDecimal.ZERO,
-                lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
-                type = OrderType.BID
-            )
-
-            orderRepository.coSave(order)
-        }
-
+        val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
+            cancelled = true,
+            status = OrderStatus.CANCELLED,
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+        ) ?: Order(
+            id = activity.hash.toLong(),
+            cancelled = true,
+            status = OrderStatus.CANCELLED,
+            createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            itemId = item?.id ?: ItemId("", 0L),
+            amount = BigDecimal.ZERO,
+            collection = item?.collection.orEmpty(),
+            maker = item?.owner ?: FlowAddress("0x00"),
+            make = FlowAssetEmpty,
+            take = if (item != null) {
+                FlowAssetNFT(
+                    contract = item.contract,
+                    value = BigDecimal.ONE,
+                    tokenId = item.tokenId
+                )
+            } else FlowAssetEmpty,
+            data = OrderData(emptyList(), emptyList()),
+            makeStock = BigDecimal.ZERO,
+            lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
+            type = OrderType.BID
+        )
+        return orderRepository.coSave(order)
     }
 
     suspend fun enrichCancelBid(orderId: String) {
-        withSpan("enrichCancelBid", "db") {
-            val h = itemHistoryRepository
-                .findOrderActivity("CANCEL_BID", orderId).awaitFirstOrNull()
-                ?: return@withSpan
+        val h = itemHistoryRepository
+            .findOrderActivity("CANCEL_BID", orderId).awaitFirstOrNull()
+            ?: return
 
-            val openActivity = itemHistoryRepository
-                .findOrderActivity("BID", orderId).awaitFirstOrNull()
-                ?.let { it.activity as? FlowNftOrderActivityBid }
-                ?: return@withSpan
+        val openActivity = itemHistoryRepository
+            .findOrderActivity("BID", orderId).awaitFirstOrNull()
+            ?.let { it.activity as? FlowNftOrderActivityBid }
+            ?: return
 
-            val closeActivity = h.activity as? FlowNftOrderActivityCancelBid
-                ?: return@withSpan
+        val closeActivity = h.activity as? FlowNftOrderActivityCancelBid
+            ?: return
 
-            val newActivity = closeActivity.copy(
-                price = openActivity.price,
-                priceUsd = openActivity.priceUsd,
-                tokenId = openActivity.tokenId,
-                contract = openActivity.contract,
-                maker = openActivity.maker,
-                make = openActivity.make,
-                take = openActivity.take,
-            )
-            itemHistoryRepository.save(h.copy(activity = newActivity)).awaitSingle()
-        }
+        val newActivity = closeActivity.copy(
+            price = openActivity.price,
+            priceUsd = openActivity.priceUsd,
+            tokenId = openActivity.tokenId,
+            contract = openActivity.contract,
+            maker = openActivity.maker,
+            make = openActivity.make,
+            take = openActivity.take,
+        )
+        itemHistoryRepository.save(h.copy(activity = newActivity)).awaitSingle()
     }
 
     suspend fun deactivateOrdersByOwnership(
@@ -380,8 +360,8 @@ class OrderService(
         before: Instant,
         needSendToKafka: Boolean,
         marks: EventTimeMarks
-    ): List<Order> = withSpan("deactivateOrdersByOwnership", "db") {
-        orderRepository
+    ): List<Order> {
+        return orderRepository
             .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
                 FlowAssetNFT(ownership.contract, BigDecimal.ONE, ownership.tokenId),
                 ownership.owner,
@@ -403,8 +383,8 @@ class OrderService(
         before: Instant,
         needSendToKafka: Boolean,
         marks: EventTimeMarks
-    ): List<Order> = withSpan("restoreOrdersForOwnership", "db") {
-        orderRepository
+    ): List<Order> {
+        return orderRepository
             .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
                 FlowAssetNFT(ownership.contract, BigDecimal.ONE, ownership.tokenId),
                 ownership.owner,
@@ -422,52 +402,46 @@ class OrderService(
     }
 
     suspend fun deactivateOrdersByItem(item: Item, before: LocalDateTime): List<Order> {
-        return withSpan("deactivateOrdersByItem", "db") {
-            orderRepository
-                .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
-                    FlowAssetNFT(item.contract, BigDecimal.ONE, item.tokenId),
-                    item.owner!!,
-                    OrderStatus.ACTIVE,
-                    before,
-                )
-                .flatMap {
-                    orderRepository.save(it.copy(status = OrderStatus.INACTIVE))
-                }
-                .asFlow().toList()
-        }
+        return orderRepository
+            .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
+                FlowAssetNFT(item.contract, BigDecimal.ONE, item.tokenId),
+                item.owner!!,
+                OrderStatus.ACTIVE,
+                before,
+            )
+            .flatMap {
+                orderRepository.save(it.copy(status = OrderStatus.INACTIVE))
+            }
+            .asFlow().toList()
     }
 
     suspend fun restoreOrdersForItem(item: Item, before: LocalDateTime): List<Order> =
-        withSpan("restoreOrdersForItem", "db") {
-            orderRepository
-                .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
-                    FlowAssetNFT(item.contract, BigDecimal.ONE, item.tokenId),
-                    item.owner!!,
-                    OrderStatus.INACTIVE,
-                    before
-                )
-                .flatMap {
-                    orderRepository.save(it.copy(status = OrderStatus.ACTIVE))
-                }
-                .asFlow().toList()
-        }
+        orderRepository
+            .findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
+                FlowAssetNFT(item.contract, BigDecimal.ONE, item.tokenId),
+                item.owner!!,
+                OrderStatus.INACTIVE,
+                before
+            )
+            .flatMap {
+                orderRepository.save(it.copy(status = OrderStatus.ACTIVE))
+            }
+            .asFlow().toList()
 
     suspend fun updateOrdersPrices() {
-        withSpan("updateOrdersPrices", "db") {
-            orderRepository
-                .findAllByStatus(OrderStatus.ACTIVE)
-                .subscribe { order ->
-                    val take = order.take
-                    getRate(take).subscribe { rate ->
-                        val takePriceUsd = take.value * rate
-                        orderRepository.save(
-                            order.copy(takePriceUsd = takePriceUsd)
-                        ).subscribe {
-                            logger.info("Order's [{}] takePriceUsd is updated to {}", order.id, takePriceUsd)
-                        }
+        orderRepository
+            .findAllByStatus(OrderStatus.ACTIVE)
+            .subscribe { order ->
+                val take = order.take
+                getRate(take).subscribe { rate ->
+                    val takePriceUsd = take.value * rate
+                    orderRepository.save(
+                        order.copy(takePriceUsd = takePriceUsd)
+                    ).subscribe {
+                        logger.info("Order's [{}] takePriceUsd is updated to {}", order.id, takePriceUsd)
                     }
                 }
-        }
+            }
     }
 
     private fun getRate(take: FlowAsset): Mono<BigDecimal> {

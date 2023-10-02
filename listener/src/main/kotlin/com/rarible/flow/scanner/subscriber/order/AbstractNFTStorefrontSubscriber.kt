@@ -5,11 +5,10 @@ import com.nftco.flow.sdk.FlowEvent
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainBlock
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
-import com.rarible.core.apm.withSpan
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
-import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.event.EventId
+import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.scanner.cadence.ListingAvailable
 import com.rarible.flow.scanner.cadence.ListingCompleted
 import com.rarible.flow.scanner.model.NFTStorefrontEventType
@@ -22,7 +21,7 @@ import kotlinx.coroutines.reactor.awaitSingle
 abstract class AbstractNFTStorefrontSubscriber(
     supportedNftCollectionProvider: SupportedNftCollectionProvider,
     private val orderRepository: OrderRepository
-): BaseFlowLogEventSubscriber() {
+) : BaseFlowLogEventSubscriber() {
 
     private val events = NFTStorefrontEventType.EVENT_NAMES
     protected abstract val name: String
@@ -38,18 +37,20 @@ abstract class AbstractNFTStorefrontSubscriber(
     }
 
     override suspend fun isNewEvent(block: FlowBlockchainBlock, event: FlowEvent): Boolean {
-        return withSpan("checkOrderIsNewEvent", "event") { super.isNewEvent(block, event) && when (convertToLogType(event)) {
+        return super.isNewEvent(block, event) && when (convertToLogType(event)) {
             FlowLogType.LISTING_AVAILABLE -> {
                 val e = event.event.parse<ListingAvailable>()
                 e.nftCollection() in nftCollections
             }
+
             FlowLogType.LISTING_COMPLETED -> {
                 val e = event.event.parse<ListingCompleted>()
                 val orderExists = orderRepository.existsById(e.listingResourceID).awaitSingle()
                 orderExists || e.nftCollection() in nftCollections
             }
+
             else -> false
-        } }
+        }
     }
 
     private fun createDescriptors(): Map<FlowChainId, FlowDescriptor> {

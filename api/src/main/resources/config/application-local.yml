@@ -23,9 +23,3 @@ logging:
 app:
   kafka-replica-set: PLAINTEXT://localhost:29092
   web-api-url: http://localhost:8080
-
-rarible:
-  core:
-    apm:
-      annotation:
-        enabled: false

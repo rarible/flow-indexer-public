@@ -26,12 +26,6 @@ app:
   environment: test
   web-api-url: http://localhost:8080
 
-rarible:
-  core:
-    apm:
-      agent:
-        enabled: false
-
 blockchain:
   scanner:
     kafka:

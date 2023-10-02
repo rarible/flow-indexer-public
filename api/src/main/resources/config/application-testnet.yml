@@ -15,9 +15,6 @@ rarible:
     filter:
       cors:
         enabled: true
-    apm:
-      agent:
-        enabled: false
 
 flow-indexer-api:
   flow-access-url: "access.devnet.nodes.onflow.org"

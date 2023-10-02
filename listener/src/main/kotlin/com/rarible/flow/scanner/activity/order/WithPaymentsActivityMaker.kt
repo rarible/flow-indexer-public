@@ -5,7 +5,6 @@ import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowId
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
-import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.PaymentType
 import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.core.repository.ItemCollectionRepository
@@ -65,17 +64,15 @@ abstract class WithPaymentsActivityMaker : ActivityMaker {
         collection.substringAfterLast(".").lowercase() == contractName.lowercase()
 
     protected suspend fun readEvents(blockHeight: Long, txId: FlowId): List<EventMessage> {
-        return withSpan("readEventsFromOrderTx", "network") {
-            txManager.onTransaction(
-                blockHeight = blockHeight,
-                transactionId = txId
-            ) { transactionResult ->
-                transactionResult.events.map { Flow.unmarshall(EventMessage::class, it.event) }
-            }
+        return txManager.onTransaction(
+            blockHeight = blockHeight,
+            transactionId = txId
+        ) { transactionResult ->
+            transactionResult.events.map { Flow.unmarshall(EventMessage::class, it.event) }
         }
     }
 
-    protected suspend fun usdRate(contract: String, timestamp: Long): BigDecimal? = withSpan("usdRate", "network") {
+    protected suspend fun usdRate(contract: String, timestamp: Long): BigDecimal? =
         try {
             withTimeout(10_000L) {
                 currencyApi.getCurrencyRate(BlockchainDto.FLOW, contract, timestamp).awaitSingle().rate
@@ -84,7 +81,6 @@ abstract class WithPaymentsActivityMaker : ActivityMaker {
             logger.warn("Unable to fetch USD price rate from currency api: ${e.message}", e)
             null
         }
-    }
 
     protected fun paymentType(address: String): PaymentType {
         return pTypes[chainId]!!.firstNotNullOfOrNull { if (it.value == address) it.key else null } ?: PaymentType.OTHER
@@ -103,7 +99,10 @@ abstract class WithPaymentsActivityMaker : ActivityMaker {
                     val address = cadenceParser.optional(msg.fields["to"]!!) {
                         address(it)
                     }
-                    address != null && address != Flow.DEFAULT_ADDRESS_REGISTRY.addressOf(FLOW_FEES, chainId)!!.formatted
+                    address != null && address != Flow.DEFAULT_ADDRESS_REGISTRY.addressOf(
+                        FLOW_FEES,
+                        chainId
+                    )!!.formatted
                 }
 
             var feeFounded = false

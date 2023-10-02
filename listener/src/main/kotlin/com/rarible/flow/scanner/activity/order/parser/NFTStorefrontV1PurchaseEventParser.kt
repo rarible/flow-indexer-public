@@ -4,7 +4,6 @@ import com.nftco.flow.sdk.AddressRegistry
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowId
-import com.rarible.core.apm.withSpan
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.FlowLogEvent
@@ -105,7 +104,6 @@ class NftStorefrontV1PurchaseEventParser(
         currencies[chainId]!!.flatMap { listOf("${it}.TokensDeposited", "${it}.TokensWithdrawn") }.toSet()
     }
 
-
     protected fun payInfos(
         currencyEvents: List<EventMessage>,
         sellerAddress: String
@@ -119,7 +117,10 @@ class NftStorefrontV1PurchaseEventParser(
                     val address = cadenceParser.optional(msg.fields["to"]!!) {
                         address(it)
                     }
-                    address != null && address != Flow.DEFAULT_ADDRESS_REGISTRY.addressOf(AddressRegistry.FLOW_FEES, chainId)!!.formatted
+                    address != null && address != Flow.DEFAULT_ADDRESS_REGISTRY.addressOf(
+                        AddressRegistry.FLOW_FEES,
+                        chainId
+                    )!!.formatted
                 }
 
             var feeFounded = false
@@ -159,13 +160,11 @@ class NftStorefrontV1PurchaseEventParser(
     }
 
     protected suspend fun readEvents(blockHeight: Long, txId: FlowId): List<EventMessage> {
-        return withSpan("readEventsFromOrderTx", "network") {
-            txManager.onTransaction(
-                blockHeight = blockHeight,
-                transactionId = txId
-            ) { transactionResult ->
-                transactionResult.events.map { Flow.unmarshall(EventMessage::class, it.event) }
-            }
+        return txManager.onTransaction(
+            blockHeight = blockHeight,
+            transactionId = txId
+        ) { transactionResult ->
+            transactionResult.events.map { Flow.unmarshall(EventMessage::class, it.event) }
         }
     }
 
