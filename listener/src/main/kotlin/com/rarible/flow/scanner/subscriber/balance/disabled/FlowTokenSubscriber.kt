@@ -5,7 +5,7 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import com.rarible.flow.scanner.subscriber.balance.AbstractFungibleTokenSubscriber
 
-class FlowTokenSubscriber: AbstractFungibleTokenSubscriber() {
+class FlowTokenSubscriber : AbstractFungibleTokenSubscriber() {
 
     private val events = supportedEvents()
     private val name = "flow"
@@ -27,7 +27,7 @@ class FlowTokenSubscriber: AbstractFungibleTokenSubscriber() {
                 name = name,
             ),
             FlowChainId.EMULATOR to DescriptorFactory.flowBalanceDescriptor(
-                address = "f8d6e0586b0a20c7", //TODO paste correct address
+                address = "f8d6e0586b0a20c7", // TODO paste correct address
                 contract = "FlowToken",
                 events = events,
                 dbCollection = dbCollection,

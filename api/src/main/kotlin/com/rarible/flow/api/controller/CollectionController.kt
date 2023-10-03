@@ -50,10 +50,10 @@ class CollectionController(
     ): ResponseEntity<FlowNftCollectionsDto> {
         return convert(
             service
-                .searchByOwner(FlowAddress(owner), continuation, size), size
+                .searchByOwner(FlowAddress(owner), continuation, size),
+            size
         ).okOr404IfNull()
     }
-
 
     private fun convert(collection: ItemCollection?) = collection?.let {
         FlowNftCollectionDtoConverter.convert(it)
@@ -61,7 +61,7 @@ class CollectionController(
 
     private suspend fun convert(collections: Flow<ItemCollection>, size: Int?): FlowNftCollectionsDto {
         val data: List<ItemCollection> = collections.toList()
-        return if(data.isEmpty()) {
+        return if (data.isEmpty()) {
             FlowNftCollectionsDto(null, emptyList())
         } else {
             FlowNftCollectionsDto(
@@ -69,6 +69,5 @@ class CollectionController(
                 data.map { convert(it)!! }
             )
         }
-
     }
 }

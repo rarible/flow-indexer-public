@@ -22,5 +22,4 @@ class MetricsCountersConfiguration(
     fun orderExpiredMetric(): RegisteredCounter {
         return OrderMetric(appProperties.metricRootPath, "expired").bind(meterRegistry)
     }
-
 }

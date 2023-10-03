@@ -53,5 +53,4 @@ class SignatureController(
 
         return result.okOr404IfNull()
     }
-
 }

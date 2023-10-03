@@ -183,7 +183,8 @@ class OrderService(
                         it.type == PaymentType.REWARD
                     }.map { Payout(account = FlowAddress(it.address), value = it.amount) },
                     activity.payments.filter { it.type in arrayOf(PaymentType.SELLER_FEE, PaymentType.BUYER_FEE) }
-                        .map { Payout(account = FlowAddress(it.address), value = it.amount) }),
+                        .map { Payout(account = FlowAddress(it.address), value = it.amount) }
+                ),
                 lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
                 platform = if (activity.payments.any { it.type == PaymentType.BUYER_FEE }) {
                     FlowOrderPlatformDto.RARIBLE
@@ -211,7 +212,8 @@ class OrderService(
                         PaymentType.SELLER_FEE,
                         PaymentType.BUYER_FEE
                     )
-                }.map { Payout(account = FlowAddress(it.address), value = it.amount) }),
+                }.map { Payout(account = FlowAddress(it.address), value = it.amount) }
+            ),
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
             type = OrderType.BID,
             takePriceUsd = activity.priceUsd,
@@ -223,7 +225,7 @@ class OrderService(
         return orderRepository.coSave(order)
     }
 
-    //TODO tests
+    // TODO tests
     suspend fun cancel(activity: FlowNftOrderActivityCancelList, item: Item?): Order {
         val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
             cancelled = true,

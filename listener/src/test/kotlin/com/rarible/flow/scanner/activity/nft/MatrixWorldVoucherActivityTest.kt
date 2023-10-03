@@ -18,7 +18,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
-internal class MatrixWorldVoucherActivityTest: AbstractNftActivityTest() {
+internal class MatrixWorldVoucherActivityTest : AbstractNftActivityTest() {
 
     val activityMaker = MatrixWorldVoucherActivity(logRepository, txManager, properties)
 
@@ -105,6 +105,6 @@ internal class MatrixWorldVoucherActivityTest: AbstractNftActivityTest() {
             ),
             type = FlowLogType.MINT,
 
-            )
+        )
     }
 }

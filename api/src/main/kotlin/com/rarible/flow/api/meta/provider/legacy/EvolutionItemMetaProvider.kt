@@ -20,7 +20,7 @@ class EvolutionItemMetaProvider(
     @Value("classpath:script/evo_meta.cdc")
     private val scriptFile: Resource,
     private val scriptExecutor: ScriptExecutor
-): ItemMetaProvider {
+) : ItemMetaProvider {
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains(Contracts.EVOLUTION.contractName)
 
@@ -28,9 +28,9 @@ class EvolutionItemMetaProvider(
         if (item.meta.isNullOrEmpty()) return null
         val meta = JacksonJsonParser().parseMap(item.meta)
         val data: Map<String, Field<*>> = scriptExecutor.executeFile(scriptFile, {
-            arg {uint32(meta["itemId"].toString())}
-            arg {uint32(meta["setId"].toString())}
-            arg {uint32(meta["serialNumber"].toString())}
+            arg { uint32(meta["itemId"].toString()) }
+            arg { uint32(meta["setId"].toString()) }
+            arg { uint32(meta["serialNumber"].toString()) }
         }, { json ->
             optional(json) {
                 dictionaryMap(it) { k, v -> string(k) to v }
@@ -41,7 +41,7 @@ class EvolutionItemMetaProvider(
 
         val attributes = listOf(
             ItemMetaAttribute(
-                key =  "hash",
+                key = "hash",
                 value = data["Hash"]?.let { jsonCadenceParser.optional(it) { string(it) } }
             ),
             ItemMetaAttribute(
@@ -71,7 +71,7 @@ class EvolutionItemMetaProvider(
         )
 
         val contents = listOf(
-            "https://storage.viv3.com/0xf4264ac8f3256818/${meta["itemId"].toString()}"
+            "https://storage.viv3.com/0xf4264ac8f3256818/${meta["itemId"]}"
         )
         return ItemMeta(
             itemId = item.id,
@@ -90,5 +90,4 @@ class EvolutionItemMetaProvider(
             raw = toString().toByteArray(Charsets.UTF_8)
         }
     }
-
 }

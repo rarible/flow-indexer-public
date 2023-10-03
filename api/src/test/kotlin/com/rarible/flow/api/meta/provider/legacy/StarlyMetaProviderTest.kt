@@ -78,7 +78,6 @@ internal class StarlyMetaProviderTest : FunSpec({
             script
         ).getMeta(imageItem) shouldNotBe ItemMeta.empty(imageItemId)
     }
-
 }) {
     companion object {
         val META = """

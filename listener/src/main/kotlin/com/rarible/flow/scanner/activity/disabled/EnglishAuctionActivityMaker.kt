@@ -7,7 +7,20 @@ import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.NumberField
 import com.nftco.flow.sdk.cadence.OptionalField
 import com.rarible.blockchain.scanner.flow.model.FlowLog
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.AuctionActivityBidClosed
+import com.rarible.flow.core.domain.AuctionActivityBidIncreased
+import com.rarible.flow.core.domain.AuctionActivityBidOpened
+import com.rarible.flow.core.domain.AuctionActivityLot
+import com.rarible.flow.core.domain.AuctionActivityLotCanceled
+import com.rarible.flow.core.domain.AuctionActivityLotCleaned
+import com.rarible.flow.core.domain.AuctionActivityLotEndTimeChanged
+import com.rarible.flow.core.domain.AuctionActivityLotHammered
+import com.rarible.flow.core.domain.BaseActivity
+import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.domain.FlowLogType
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.PaymentType
+import com.rarible.flow.core.domain.Payout
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.activity.order.WithPaymentsActivityMaker
 import org.springframework.stereotype.Component
@@ -25,7 +38,7 @@ class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
     override suspend fun activities(events: List<FlowLogEvent>): Map<FlowLog, BaseActivity> {
         try {
             return events.map {
-                val activity = when(it.type) {
+                val activity = when (it.type) {
                     FlowLogType.LOT_AVAILABLE -> lotAvailableActivity(it)
                     FlowLogType.OPEN_BID -> openBidActivity(it)
                     FlowLogType.LOT_END_TIME_CHANGED -> changeEndTime(it)
@@ -175,7 +188,7 @@ class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
         }
     }
 
-    private fun resolveTimeAt(timeField: Field<*>): Instant? = when(timeField) {
+    private fun resolveTimeAt(timeField: Field<*>): Instant? = when (timeField) {
         is OptionalField -> cadenceParser.optional(timeField) {
             Instant.ofEpochSecond(bigDecimal(it).longValueExact())
         }

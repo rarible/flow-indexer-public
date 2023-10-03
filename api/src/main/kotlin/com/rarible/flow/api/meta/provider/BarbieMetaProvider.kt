@@ -23,7 +23,6 @@ class BarbieCardMetaProvider(
 
     override fun isSupported(itemId: ItemId): Boolean =
         itemId.contract.endsWith(".BBxBarbieCard")
-
 }
 
 @Component
@@ -34,7 +33,6 @@ class BarbiePackMetaProvider(
 
     override fun isSupported(itemId: ItemId): Boolean =
         itemId.contract.endsWith(".BBxBarbiePack")
-
 }
 
 @Component
@@ -45,5 +43,4 @@ class BarbieTokenMetaProvider(
 
     override fun isSupported(itemId: ItemId): Boolean =
         itemId.contract.endsWith(".BBxBarbieToken")
-
 }

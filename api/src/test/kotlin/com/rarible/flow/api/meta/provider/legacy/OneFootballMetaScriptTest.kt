@@ -7,7 +7,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
-internal class OneFootballMetaScriptTest: FunSpec({
+internal class OneFootballMetaScriptTest : FunSpec({
 
     val scriptExecutor = mocks.scriptExecutor(
         "null" to data.CADENCE_NULL,
@@ -27,5 +27,4 @@ internal class OneFootballMetaScriptTest: FunSpec({
             mocks.resource("result")
         ).call(FlowAddress("0x01"), 1000) shouldNotBe null
     }
-
 })

@@ -88,6 +88,6 @@ internal class OneFootballActivityTest : AbstractNftActivityTest() {
             ),
             type = FlowLogType.MINT,
 
-            )
+        )
     }
 }

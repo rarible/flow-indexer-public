@@ -38,7 +38,7 @@ class ItemHistoryRepositoryIt : AbstractIntegrationTest() {
             log = randomFlowLog(blockHeight = 2, eventIndex = 0),
             activity = randomTransferActivity(contract = contract, tokenId = tokenId)
         )
-        listOf(transfer1, transfer2, transfer3).shuffled().forEach { itemHistoryRepository.save(it).awaitFirst()  }
+        listOf(transfer1, transfer2, transfer3).shuffled().forEach { itemHistoryRepository.save(it).awaitFirst() }
 
         val firstTransfer = itemHistoryRepository.findItemFirstTransfer(contract, tokenId)
         assertThat(firstTransfer).isNotNull
@@ -63,7 +63,7 @@ class ItemHistoryRepositoryIt : AbstractIntegrationTest() {
             log = randomFlowLog(blockHeight = 1, eventIndex = 1),
             activity = randomTransferActivity(contract = contract, tokenId = tokenId)
         )
-        listOf(otherMint, mint, transfer).shuffled().forEach { itemHistoryRepository.save(it).awaitFirst()  }
+        listOf(otherMint, mint, transfer).shuffled().forEach { itemHistoryRepository.save(it).awaitFirst() }
 
         val history = itemHistoryRepository.findItemMint(contract, tokenId).firstOrNull()
         assertThat(history).isNotNull

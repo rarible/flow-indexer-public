@@ -2,7 +2,12 @@ package com.rarible.flow.api.meta.provider.legacy
 
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.cadence.*
+import com.nftco.flow.sdk.cadence.CadenceNamespace
+import com.nftco.flow.sdk.cadence.Field
+import com.nftco.flow.sdk.cadence.JsonCadenceConversion
+import com.nftco.flow.sdk.cadence.JsonCadenceConverter
+import com.nftco.flow.sdk.cadence.OptionalField
+import com.nftco.flow.sdk.cadence.unmarshall
 import com.rarible.flow.core.domain.Part
 
 @JsonCadenceConversion(MotoGPNFTConverter::class)
@@ -33,7 +38,6 @@ data class MotoGPMeta(
     val imageUrl: String,
     val data: Map<String, String>
 )
-
 
 class MotoGPMetaConverter : JsonCadenceConverter<MotoGPMeta> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): MotoGPMeta =
@@ -130,7 +134,7 @@ data class DisruptArtNFT(
     val metaData: Map<String, String>
 )
 
-class DisruptArtNFTConversion: JsonCadenceConverter<DisruptArtNFT> {
+class DisruptArtNFTConversion : JsonCadenceConverter<DisruptArtNFT> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): DisruptArtNFT = com.nftco.flow.sdk.cadence.unmarshall(value) {
         DisruptArtNFT(
             id = long(compositeValue.getRequiredField("id")),

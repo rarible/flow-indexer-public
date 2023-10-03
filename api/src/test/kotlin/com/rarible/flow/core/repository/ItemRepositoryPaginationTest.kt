@@ -22,13 +22,15 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 @MongoTest
-@DataMongoTest(properties = [
-    "application.environment = dev",
-    "spring.cloud.service-registry.auto-registration.enabled = false",
-    "spring.cloud.discovery.enabled = false",
-    "spring.cloud.consul.config.enabled = false",
-    "logging.logstash.tcp-socket.enabled = false"
-])
+@DataMongoTest(
+    properties = [
+        "application.environment = dev",
+        "spring.cloud.service-registry.auto-registration.enabled = false",
+        "spring.cloud.discovery.enabled = false",
+        "spring.cloud.consul.config.enabled = false",
+        "logging.logstash.tcp-socket.enabled = false"
+    ]
+)
 @ContextConfiguration(classes = [CoreConfig::class, TestPropertiesConfiguration::class])
 @ActiveProfiles("test")
 internal class ItemRepositoryPaginationTest(
@@ -54,7 +56,7 @@ internal class ItemRepositoryPaginationTest(
         itemRepository.coSave(item1Owner2)
         log.info("Set up items.")
 
-        //owner1 - read the latest
+        // owner1 - read the latest
         var read = itemRepository.search(
             ItemFilter.ByOwner(item1Owner1.owner!!),
             null,
@@ -68,7 +70,7 @@ internal class ItemRepositoryPaginationTest(
         }
         log.info("Step 1 done")
 
-        //owner1 - read next and the last
+        // owner1 - read next and the last
         read = itemRepository.search(
             ItemFilter.ByOwner(item1Owner1.owner!!),
             "${item2Owner1.mintedAt.toEpochMilli()}_${item2Owner1.id}",
@@ -82,18 +84,18 @@ internal class ItemRepositoryPaginationTest(
         }
         log.info("Step 2 done")
 
-        //owner1 - try to read more
+        // owner1 - try to read more
         read = itemRepository.search(
             ItemFilter.ByOwner(item1Owner1.owner!!),
             "${item1Owner1.mintedAt.toEpochMilli()}_${item1Owner1.id}",
             1,
-                ItemFilter.Sort.LAST_UPDATE
+            ItemFilter.Sort.LAST_UPDATE
         ).asFlow()
         log.info("Search done")
         read.count() shouldBe 0
         log.info("Step 3 done")
 
-        //another owner
+        // another owner
         read = itemRepository.search(
             ItemFilter.ByOwner(item1Owner2.owner!!),
             null,
@@ -121,7 +123,7 @@ internal class ItemRepositoryPaginationTest(
         itemRepository.coSave(anotherCreator)
         log.info("Set up items.")
 
-        //owner1 - read the latest
+        // owner1 - read the latest
         var read = itemRepository
             .search(ItemFilter.ByCreator(item1.creator), null, 1, ItemFilter.Sort.LAST_UPDATE)
             .asFlow()
@@ -130,7 +132,7 @@ internal class ItemRepositoryPaginationTest(
             it.id shouldBe item2.id
         }
 
-        //creator1 - read next and the last
+        // creator1 - read next and the last
         read = itemRepository
             .search(ItemFilter.ByCreator(item1.creator), "${item2.mintedAt.toEpochMilli()}_${item2.id}", 1, ItemFilter.Sort.LAST_UPDATE)
             .asFlow()
@@ -139,13 +141,13 @@ internal class ItemRepositoryPaginationTest(
             it.id shouldBe item1.id
         }
 
-        //creator1 - try to read more
+        // creator1 - try to read more
         read = itemRepository
             .search(ItemFilter.ByCreator(item1.creator), "${item1.mintedAt.toEpochMilli()}_${item1.id}", 1, ItemFilter.Sort.LAST_UPDATE)
             .asFlow()
         read.count() shouldBe 0
 
-        //another creator
+        // another creator
         read = itemRepository
             .search(ItemFilter.ByCreator(anotherCreator.creator), null, 100, ItemFilter.Sort.LAST_UPDATE)
             .asFlow()
@@ -166,8 +168,7 @@ internal class ItemRepositoryPaginationTest(
         val item3 = createItem(44).copy(owner = null)
         itemRepository.coSave(item3)
 
-
-        //read the latest
+        // read the latest
         var read = itemRepository
             .search(ItemFilter.All(), null, 1, ItemFilter.Sort.LAST_UPDATE)
             .asFlow()
@@ -177,7 +178,7 @@ internal class ItemRepositoryPaginationTest(
         }
         log.info("Step 1 done")
 
-        //read next and the last
+        // read next and the last
         read = itemRepository
             .search(ItemFilter.All(), "${item2.mintedAt.toEpochMilli()}_${item2.id}", 1, ItemFilter.Sort.LAST_UPDATE)
             .asFlow()
@@ -187,7 +188,7 @@ internal class ItemRepositoryPaginationTest(
         }
         log.info("Step 2 done")
 
-        //try to read more
+        // try to read more
         read = itemRepository
             .search(ItemFilter.All(), "${item1.mintedAt.toEpochMilli()}_${item1.id}", 1, ItemFilter.Sort.LAST_UPDATE)
             .asFlow()

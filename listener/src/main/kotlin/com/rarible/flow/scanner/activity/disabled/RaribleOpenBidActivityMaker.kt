@@ -43,7 +43,6 @@ class RaribleOpenBidActivityMaker(
                 hash = orderId.toString(),
                 timestamp = it.log.timestamp
             )
-
         }
 
         openedBids.forEach {

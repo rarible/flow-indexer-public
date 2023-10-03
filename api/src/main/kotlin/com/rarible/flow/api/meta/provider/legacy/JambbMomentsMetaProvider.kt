@@ -13,7 +13,9 @@ import com.rarible.flow.api.meta.ItemMetaAttribute
 import com.rarible.flow.api.meta.ItemMetaContent
 import com.rarible.flow.api.meta.provider.ItemMetaProvider
 import com.rarible.flow.api.service.ScriptExecutor
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.TokenId
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -44,7 +46,7 @@ class JambbMomentsMetaScript(
 class JambbMomentsMetaProvider(
     private val script: JambbMomentsMetaScript,
     private val apiProperties: ApiProperties
-): ItemMetaProvider {
+) : ItemMetaProvider {
     override fun isSupported(itemId: ItemId): Boolean =
         itemId.contract == Contracts.JAMBB_MOMENTS.fqn(apiProperties.chainId)
 
@@ -64,7 +66,7 @@ data class JambbMomentsMeta(
     val setName: String,
     val retired: Boolean,
     val rarity: String,
-): MetaBody {
+) : MetaBody {
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         return ItemMeta(
             itemId = itemId,
@@ -97,7 +99,7 @@ data class JambbMomentsMeta(
     }
 }
 
-class JambbMomentsMetaConverter: JsonCadenceConverter<JambbMomentsMeta> {
+class JambbMomentsMetaConverter : JsonCadenceConverter<JambbMomentsMeta> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): JambbMomentsMeta {
         return com.nftco.flow.sdk.cadence.unmarshall(value) {
             JambbMomentsMeta(

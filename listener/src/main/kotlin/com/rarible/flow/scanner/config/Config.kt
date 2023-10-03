@@ -31,7 +31,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 @FlowPreview
-//@EnableMongock
+// @EnableMongock
 @EnableRaribleTask
 @EnableFlowBlockchainScanner
 @EnableConfigurationProperties(FlowListenerProperties::class)
@@ -67,8 +67,6 @@ class Config(
                 register("0xFLOWTOKEN", FlowAddress("0x1654653399040a61"), mainnet)
                 register("0xFUSDTOKEN", FlowAddress("0x3c5959b568896393"), mainnet)
             }
-
-
         }
 
         Flow.configureDefaults(chainId = flowListenerProperties.chainId)

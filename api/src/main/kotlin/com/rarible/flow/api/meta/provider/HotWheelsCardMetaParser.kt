@@ -12,5 +12,4 @@ object HotWheelsCardMetaParser : MattelMetaParser() {
     override val fieldDescription = fields()
     override val fieldImageOriginal = fields("imageUrl", "imageCID")
     override val fieldRights = fields("licensorLegal")
-
 }

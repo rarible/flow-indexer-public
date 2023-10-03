@@ -34,7 +34,7 @@ internal class OrderFilterTest : FunSpec({
     test("should make filter - by item id") {
         OrderFilter.ByItemId(ItemId("ABC", 1337L)) shouldMakeCriteria (
             Order::itemId isEqualTo ItemId("ABC", 1337L)
-        )
+            )
     }
 
     test("should make filter - by currency - null") {
@@ -43,8 +43,8 @@ internal class OrderFilterTest : FunSpec({
 
     test("should make filter - by currency") {
         OrderFilter.BySellingCurrency("A.1234.FUSD") shouldMakeCriteria (
-                (Order::take / FlowAsset::contract).isEqualTo("A.1234.FUSD")
-                )
+            (Order::take / FlowAsset::contract).isEqualTo("A.1234.FUSD")
+            )
     }
 
     test("should make filter - by maker - null") {
@@ -53,8 +53,8 @@ internal class OrderFilterTest : FunSpec({
 
     test("should make filter - by maker") {
         OrderFilter.ByMaker(FlowAddress("0x02")) shouldMakeCriteria (
-                Order::maker isEqualTo FlowAddress("0x02")
-                )
+            Order::maker isEqualTo FlowAddress("0x02")
+            )
     }
 
     test("should make filter - by makers - null") {
@@ -76,8 +76,8 @@ internal class OrderFilterTest : FunSpec({
             *OrderStatus.values()
         ) { status ->
             OrderFilter.ByStatus(status) shouldMakeCriteria (
-                    Order::status inValues listOf(status)
-                    )
+                Order::status inValues listOf(status)
+                )
         }
     }
 
@@ -86,16 +86,16 @@ internal class OrderFilterTest : FunSpec({
             OrderStatus.FILLED,
             OrderStatus.CANCELLED
         ) shouldMakeCriteria (
-                Order::status inValues listOf(
-                    OrderStatus.FILLED,
-                    OrderStatus.CANCELLED
-                )
-                )
+            Order::status inValues listOf(
+                OrderStatus.FILLED,
+                OrderStatus.CANCELLED
+            )
+            )
     }
 
     test("should multiply filters") {
         OrderFilter.ByMaker(FlowAddress("0x01")) *
-                OrderFilter.BySellingCurrency("A.1234.Flow") shouldMakeCriteria Criteria().andOperator(
+            OrderFilter.BySellingCurrency("A.1234.Flow") shouldMakeCriteria Criteria().andOperator(
             Order::maker isEqualTo FlowAddress("0x01"),
             Order::take / FlowAsset::contract isEqualTo "A.1234.Flow"
         )
@@ -105,14 +105,16 @@ internal class OrderFilterTest : FunSpec({
         table(
             Headers2("OrderFilter.Sort", "Spring sort"),
             row(
-                OrderFilter.Sort.LATEST_FIRST, Sort.by(
+                OrderFilter.Sort.LATEST_FIRST,
+                Sort.by(
                     Sort.Order.desc(Order::lastUpdatedAt.name),
                     Sort.Order.desc(Order::id.name)
                 )
             ),
 
             row(
-                OrderFilter.Sort.EARLIEST_FIRST, Sort.by(
+                OrderFilter.Sort.EARLIEST_FIRST,
+                Sort.by(
                     Sort.Order.asc(Order::lastUpdatedAt.name),
                     Sort.Order.asc(Order::id.name)
                 )
@@ -122,7 +124,8 @@ internal class OrderFilterTest : FunSpec({
 
             val dateTime = LocalDateTime.parse("2021-11-09T10:00:00")
             val entities = flowOf<Order>(
-                mockk(), mockk() {
+                mockk(),
+                mockk() {
                     every { lastUpdatedAt } returns dateTime
                     every { id } returns 1000
                 }
@@ -131,7 +134,6 @@ internal class OrderFilterTest : FunSpec({
             sort.nextPage(entities, 2) shouldBe "${dateTime.toInstant(ZoneOffset.UTC).toEpochMilli()}_1000"
             sort.nextPageSafe(null) shouldBe null
         }
-
     }
 
     test("should make filter - by make value") {
@@ -142,14 +144,12 @@ internal class OrderFilterTest : FunSpec({
             {"make.value": {${'$'}lte: NumberDecimal(10)}}
         """.trimIndent()
 
-
         OrderFilter.ByMakeValue(
             OrderFilter.ByMakeValue.Comparator.GT,
             BigDecimal.TEN
-        ) shouldMakeCriteria  """
+        ) shouldMakeCriteria """
             {"make.value": {${'$'}gt: NumberDecimal(10)}}
         """.trimIndent()
-
     }
 
     test("should make filter - by selling currency") {
@@ -159,11 +159,10 @@ internal class OrderFilterTest : FunSpec({
     }
 
     test("should make filter - by bidding currency") {
-        OrderFilter.ByBiddingCurrency("FLOW") shouldMakeCriteria  """
+        OrderFilter.ByBiddingCurrency("FLOW") shouldMakeCriteria """
                 {"make.contract": "FLOW"}
-            """.trimIndent()
+        """.trimIndent()
     }
-
 }) {
     companion object {
         fun shouldBeEmpty(filter: OrderFilter) {

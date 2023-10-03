@@ -88,7 +88,7 @@ class ItemIndexerEventProcessor(
                 protocolEventPublisher.onItemUpdate(saved, marks)
             }
             if (saved.updatedAt <= mintActivity.timestamp) {
-                //we should not have ownership records yet
+                // we should not have ownership records yet
                 val deleted = ownershipRepository.deleteAllByContractAndTokenId(
                     forSave.contract, forSave.tokenId
                 ).asFlow().toList()
@@ -268,7 +268,6 @@ class ItemIndexerEventProcessor(
             ).awaitSingle()
             Pair(saved, newOwnership)
         }
-
 
         orderService.checkAndEnrichTransfer(
             event.history.log.transactionHash,

@@ -53,7 +53,6 @@ class BarbieMetaEventTypeProvider(properties: ApiProperties) : MetaEventTypeProv
         return MetaEventType("${pmContract.fqn(chainId)}.$ADMIN_MINT_TOKEN")
     }
 
-
     private companion object {
         const val ADMIN_MINT_CARD = "AdminMintCard"
         const val ADMIN_MINT_PACK = "AdminMintPack"

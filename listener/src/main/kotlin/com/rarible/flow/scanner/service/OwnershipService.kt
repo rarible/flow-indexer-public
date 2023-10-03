@@ -48,7 +48,7 @@ class OwnershipService(
 
     suspend fun <T> withOwnership(ownershipId: OwnershipId, fn: suspend (Ownership) -> T): T? {
         val ownership = ownershipRepository.coFindById(ownershipId)
-        return if(ownership == null) {
+        return if (ownership == null) {
             null
         } else {
             fn(ownership)

@@ -13,8 +13,7 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.reflect.KProperty
 
-
-//todo try to get rid
+// todo try to get rid
 data class ActivityContinuation(val beforeDate: Instant, val beforeId: String) {
 
     override fun toString(): String = "${beforeDate.toEpochMilli()}_$beforeId"
@@ -119,8 +118,10 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
         }
 
         inline fun <reified P1, reified P2> scrollAsc(
-            criteria: Criteria, continuation: String?,
-            primary: KProperty<P1>, secondary: KProperty<P2>,
+            criteria: Criteria,
+            continuation: String?,
+            primary: KProperty<P1>,
+            secondary: KProperty<P2>,
         ): Criteria {
             return if (continuation == null) {
                 criteria
@@ -130,8 +131,10 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
         }
 
         inline fun <reified P1, reified P2> scrollDesc(
-            criteria: Criteria, continuation: String?,
-            primary: KProperty<P1>, secondary: KProperty<P2>,
+            criteria: Criteria,
+            continuation: String?,
+            primary: KProperty<P1>,
+            secondary: KProperty<P2>,
         ): Criteria {
             return if (continuation == null) {
                 criteria
@@ -141,7 +144,8 @@ sealed class Cont<P1, P2>(open val primary: P1, open val secondary: P2) {
         }
 
         inline fun <reified P1, reified P2> toString(
-            primary: P1, secondary: P2,
+            primary: P1,
+            secondary: P2,
         ): String {
             return toString(primary) + "_" + toString(secondary)
         }

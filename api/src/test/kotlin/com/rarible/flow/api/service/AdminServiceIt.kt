@@ -131,7 +131,6 @@ internal class AdminServiceIt : BaseIntegrationTest() {
 
         val itemHistories = itemHistoryRepository.findByItemId(item.contract, item.tokenId).collectList().awaitFirst()
         assertTrue(itemHistories.isEmpty())
-
     }
 
     private fun createOwnership(item: Item, owner: FlowAddress) =

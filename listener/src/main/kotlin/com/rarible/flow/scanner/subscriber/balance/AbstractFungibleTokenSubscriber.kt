@@ -11,11 +11,11 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.blockchain.scanner.flow.model.FlowLogRecord
 import com.rarible.blockchain.scanner.flow.subscriber.FlowLogEventSubscriber
 import com.rarible.flow.core.domain.BalanceId
-import com.rarible.flow.core.repository.BalanceRepository
-import com.rarible.flow.core.util.safeOf
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
+import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.core.util.Log
+import com.rarible.flow.core.util.safeOf
 import com.rarible.flow.scanner.subscriber.balanceHistory
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,7 +24,6 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.isEqualTo
-
 
 abstract class AbstractFungibleTokenSubscriber : FlowLogEventSubscriber {
 

@@ -101,7 +101,7 @@ class NftStorefrontV1PurchaseEventParser(
     }
 
     private val currenciesEvents: Set<String> by lazy {
-        currencies[chainId]!!.flatMap { listOf("${it}.TokensDeposited", "${it}.TokensWithdrawn") }.toSet()
+        currencies[chainId]!!.flatMap { listOf("$it.TokensDeposited", "$it.TokensWithdrawn") }.toSet()
     }
 
     protected fun payInfos(

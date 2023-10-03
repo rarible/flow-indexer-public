@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 class NFTStorefrontV1Subscriber(
     supportedNftCollectionProvider: SupportedNftCollectionProvider,
     orderRepository: OrderRepository
-): AbstractNFTStorefrontSubscriber(supportedNftCollectionProvider, orderRepository) {
+) : AbstractNFTStorefrontSubscriber(supportedNftCollectionProvider, orderRepository) {
 
     override val name = "nft_storefront"
     override val contract = Contracts.NFT_STOREFRONT

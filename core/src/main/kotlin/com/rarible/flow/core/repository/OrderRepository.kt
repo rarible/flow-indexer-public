@@ -28,22 +28,26 @@ import reactor.core.publisher.Flux
 import java.time.Instant
 import java.time.LocalDateTime
 
-interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepositoryCustom {
+interface OrderRepository : ReactiveMongoRepository<Order, Long>, OrderRepositoryCustom {
 
     fun findAllByIdIn(ids: List<Long>): Flux<Order>
 
-    @Query("""
+    @Query(
+        """
         {"make.contract": ?0, "make.tokenId": ?1}
-    """)
+    """
+    )
     fun findAllByMake(contract: String, tokenId: Long): Flux<Order>
 
     fun findByItemId(itemId: ItemId): Flux<Order>
 
     fun deleteByItemId(itemId: ItemId): Flux<Order>
 
-    @Query("""
+    @Query(
+        """
         {"take.contract": ?0, "take.tokenId": ?1}
-    """)
+    """
+    )
     fun findAllByTake(contract: String, tokenId: Long): Flux<Order>
 
     fun findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(
@@ -56,7 +60,7 @@ interface OrderRepository: ReactiveMongoRepository<Order, Long>, OrderRepository
     fun findAllByStatus(status: OrderStatus): Flux<Order>
 }
 
-interface OrderRepositoryCustom: ScrollingRepository<Order> {
+interface OrderRepositoryCustom : ScrollingRepository<Order> {
 
     suspend fun update(filter: OrderFilter, updateDefinition: UpdateDefinition): UpdateResult
     fun findExpiredOrders(now: Instant): Flow<Order>
@@ -64,7 +68,7 @@ interface OrderRepositoryCustom: ScrollingRepository<Order> {
 }
 
 @Suppress("unused")
-class OrderRepositoryCustomImpl(val mongo: ReactiveMongoTemplate): OrderRepositoryCustom {
+class OrderRepositoryCustomImpl(val mongo: ReactiveMongoTemplate) : OrderRepositoryCustom {
     override fun defaultSort(): ScrollingSort<Order> {
         return OrderFilter.Sort.LATEST_FIRST
     }

@@ -59,8 +59,6 @@ class VersusArtMetaProvider(
             logger.error("Can't get content for $${item.id}", it)
         }
 
-
-
         val meta = listOf(
             ItemMetaAttribute("uuid", "${nft.uuid}"),
             ItemMetaAttribute("id", "${nft.id}"),
@@ -82,7 +80,7 @@ class VersusArtMetaProvider(
                 "ipfs/image", "ipfs/video" -> "ipfs://ipfs/$it"
                 else -> {
                     base64 = it
-                    "${webApiUrl}/v0.1/items/${item.id}/image"
+                    "$webApiUrl/v0.1/items/${item.id}/image"
                 }
             }
         }

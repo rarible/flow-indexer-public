@@ -27,4 +27,3 @@ interface WithdrawEvent : NFTEvent {
     val from: String
     val optionalFrom: String?
 }
-

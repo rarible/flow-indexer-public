@@ -6,7 +6,7 @@ interface BuildsCriteria {
     fun criteria(): Criteria
 }
 
-interface CriteriaProduct<T: CriteriaProduct<T>>: BuildsCriteria {
+interface CriteriaProduct<T : CriteriaProduct<T>> : BuildsCriteria {
 
     fun byCriteria(criteria: Criteria): T
 
@@ -14,11 +14,11 @@ interface CriteriaProduct<T: CriteriaProduct<T>>: BuildsCriteria {
         val empty = Criteria()
 
         @Suppress("ReplaceCallWithBinaryOperator")
-        val finalCriteria = if(this.criteria().equals(empty) && other.criteria().equals(empty)) {
+        val finalCriteria = if (this.criteria().equals(empty) && other.criteria().equals(empty)) {
             empty
         } else if (this.criteria().equals(empty)) {
             other.criteria()
-        } else if (other.criteria().equals(empty)){
+        } else if (other.criteria().equals(empty)) {
             this.criteria()
         } else {
             Criteria().andOperator(

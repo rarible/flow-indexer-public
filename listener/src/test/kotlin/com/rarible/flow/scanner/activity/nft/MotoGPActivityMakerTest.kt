@@ -81,6 +81,6 @@ internal class MotoGPActivityMakerTest : AbstractNftActivityTest() {
                 )
             ),
             type = FlowLogType.MINT,
-            )
+        )
     }
 }

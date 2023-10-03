@@ -28,13 +28,15 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 @MongoTest
-@DataMongoTest(properties = [
-    "application.environment = dev",
-    "spring.cloud.service-registry.auto-registration.enabled = false",
-    "spring.cloud.discovery.enabled = false",
-    "spring.cloud.consul.config.enabled = false",
-    "logging.logstash.tcp-socket.enabled = false"
-])
+@DataMongoTest(
+    properties = [
+        "application.environment = dev",
+        "spring.cloud.service-registry.auto-registration.enabled = false",
+        "spring.cloud.discovery.enabled = false",
+        "spring.cloud.consul.config.enabled = false",
+        "logging.logstash.tcp-socket.enabled = false"
+    ]
+)
 @ContextConfiguration(classes = [CoreConfig::class, TestPropertiesConfiguration::class])
 @ActiveProfiles("test")
 class ItemRepositoryTestOld {

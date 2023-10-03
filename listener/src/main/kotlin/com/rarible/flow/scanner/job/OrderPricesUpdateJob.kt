@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
-@ConditionalOnProperty(prefix = "jobs.orderPriceUpdate", name = ["enabled"], havingValue = "true", matchIfMissing = false )
+@ConditionalOnProperty(prefix = "jobs.orderPriceUpdate", name = ["enabled"], havingValue = "true", matchIfMissing = false)
 class OrderPricesUpdateJob(
     private val orderService: OrderService,
 ) {

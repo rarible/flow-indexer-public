@@ -4,11 +4,11 @@ import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.ItemId
 import org.springframework.http.ResponseEntity
 
-class IncorrectTokenId(override val message: String, override val cause: Throwable?): Exception(message, cause)
+class IncorrectTokenId(override val message: String, override val cause: Throwable?) : Exception(message, cause)
 
-class IncorrectAddress(override val message: String, override val cause: Throwable?): Exception(message, cause)
+class IncorrectAddress(override val message: String, override val cause: Throwable?) : Exception(message, cause)
 
-class IncorrectItemId(override val message: String, override val cause: Throwable?): Exception(message, cause)
+class IncorrectItemId(override val message: String, override val cause: Throwable?) : Exception(message, cause)
 
 fun <T> T?.okOr404IfNull(): ResponseEntity<T> = if (this == null) {
     ResponseEntity.status(404).build()
@@ -34,7 +34,7 @@ fun String.tokenId(): Long {
 
 fun String?.flowAddress(): FlowAddress? {
     try {
-        return if(this == null) {
+        return if (this == null) {
             null
         } else {
             FlowAddress(this)

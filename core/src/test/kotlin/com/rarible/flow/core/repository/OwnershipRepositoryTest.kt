@@ -6,9 +6,6 @@ import com.rarible.flow.core.TestBeanConfiguration
 import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Ownership
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
-import java.time.Instant
-import java.util.Locale
-import kotlin.random.Random
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
@@ -20,7 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
+import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.Locale
+import kotlin.random.Random
 
 @MongoTest
 @DataMongoTest(
@@ -62,7 +62,6 @@ internal class OwnershipRepositoryTest {
                 it shouldBeEqualToComparingFields o1
             }
         }
-
     }
 
     @Test

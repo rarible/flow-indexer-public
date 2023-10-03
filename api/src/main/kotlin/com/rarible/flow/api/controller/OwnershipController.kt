@@ -59,7 +59,6 @@ class OwnershipController(
         return convert(ownerships, size, sort).okOr404IfNull()
     }
 
-
     private suspend fun convert(
         flow: Flow<Ownership>,
         size: Int?,

@@ -4,12 +4,10 @@ import com.rarible.flow.core.repository.filters.DbFilter
 import com.rarible.flow.core.repository.filters.ScrollingSort
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.fold
-import kotlinx.coroutines.flow.reduce
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
-
 
 suspend fun <T : Any> ReactiveMongoRepository<T, *>.coSave(entity: T): T =
     this.save(entity).awaitSingle()
@@ -26,14 +24,13 @@ suspend fun <T : Any> ReactiveMongoRepository<T, *>.coSaveAll(entities: Collecti
 suspend fun <T : Any> ReactiveMongoRepository<T, *>.coSaveAll(vararg entities: T): List<T> =
     this.coSaveAll(entities.toList())
 
-
 suspend fun <T : Any, ID : Any, R> ReactiveMongoRepository<T, ID>.withEntity(id: ID, fn: suspend (T) -> R): R? {
     return this.coFindById(id)?.let {
         fn(it)
     }
 }
 
-suspend fun <T: Any> ScrollingRepository<T>.forEach(
+suspend fun <T : Any> ScrollingRepository<T>.forEach(
     filter: DbFilter<T>,
     continuation: String?,
     size: Int?,
@@ -45,7 +42,7 @@ suspend fun <T: Any> ScrollingRepository<T>.forEach(
         fn(value)
         (count + 1) to value
     }
-    if(pageSize < ScrollingSort.pageSize(size) || last == null) {
+    if (pageSize < ScrollingSort.pageSize(size) || last == null) {
         return
     } else {
         return this.forEach(filter, sort.nextPage(last), size, sort, fn)

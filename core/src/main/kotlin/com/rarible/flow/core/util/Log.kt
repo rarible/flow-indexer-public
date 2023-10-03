@@ -7,8 +7,8 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.full.companionObject
 
 class Log<in R : Any> : ReadOnlyProperty<R, Logger> {
-    override fun getValue(thisRef: R, property: KProperty<*>): Logger
-        = LoggerFactory.getLogger(getClassForLogging(thisRef.javaClass))
+    override fun getValue(thisRef: R, property: KProperty<*>): Logger =
+        LoggerFactory.getLogger(getClassForLogging(thisRef.javaClass))
 
     private fun <T : Any> getClassForLogging(javaClass: Class<T>): Class<*> {
         return javaClass.enclosingClass?.takeIf {

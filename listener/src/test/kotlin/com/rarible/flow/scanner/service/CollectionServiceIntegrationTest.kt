@@ -55,21 +55,23 @@ internal class CollectionServiceIntegrationTest : AbstractIntegrationTest() {
 
     val eventType = "${Contracts.KICKS.fqn(FlowChainId.MAINNET)}.SneakerCreated"
     val flowLog = FlowLog(
-        "tx",  0, eventType, Instant.now(), 1000, "block"
+        "tx", 0, eventType, Instant.now(), 1000, "block"
     )
 
     @Test
     fun `should restart descriptor`(): Unit = runBlocking {
-        taskRepository.save(Task(
-            type = "RECONCILIATION",
-            param = "StarlyCardDescriptor",
-            state = 23778634,
-            running = false,
-            lastStatus = TaskStatus.COMPLETED,
-            lastFinishDate = Date(),
-            lastUpdateDate = Date(),
-            sample = 5000
-        )).awaitSingle()
+        taskRepository.save(
+            Task(
+                type = "RECONCILIATION",
+                param = "StarlyCardDescriptor",
+                state = 23778634,
+                running = false,
+                lastStatus = TaskStatus.COMPLETED,
+                lastFinishDate = Date(),
+                lastUpdateDate = Date(),
+                sample = 5000
+            )
+        ).awaitSingle()
 
         collectionService.restartDescriptor(Contracts.STARLY_CARD, 18133134L)
 
@@ -82,12 +84,14 @@ internal class CollectionServiceIntegrationTest : AbstractIntegrationTest() {
 
     @Test
     fun `should purge flow_log_event`(): Unit = runBlocking {
-        flowLogEventRepository.saveAll( listOf(
+        flowLogEventRepository.saveAll(
+            listOf(
                 FlowLogEvent(
                     log = flowLog,
                     "id01",
                     EventMessage(
-                        EventId.of(eventType), mapOf(
+                        EventId.of(eventType),
+                        mapOf(
                             "id" to UInt64NumberField("42")
                         )
                     ),
@@ -97,7 +101,8 @@ internal class CollectionServiceIntegrationTest : AbstractIntegrationTest() {
                     log = flowLog.copy(eventIndex = 1),
                     "id02",
                     EventMessage(
-                        EventId.of("A.1234.MotoGP.Deposit"), mapOf(
+                        EventId.of("A.1234.MotoGP.Deposit"),
+                        mapOf(
                             "id" to UInt64NumberField("42")
                         )
                     ),
@@ -165,5 +170,4 @@ internal class CollectionServiceIntegrationTest : AbstractIntegrationTest() {
 
         ownershipRepository.count().awaitSingle() shouldBe 1
     }
-
 }

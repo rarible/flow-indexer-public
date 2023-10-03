@@ -11,4 +11,3 @@ class BarbiePackSubscriber : NonFungibleTokenSubscriber() {
     override val name = "barbie_pack"
     override val contract = Contracts.BARBIE_PACK
 }
-

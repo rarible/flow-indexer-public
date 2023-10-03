@@ -5,5 +5,4 @@ import com.rarible.flow.core.domain.ItemId
 interface MetaEventTypeProvider {
 
     fun getMetaEventType(itemId: ItemId): MetaEventType?
-
 }

@@ -8,7 +8,7 @@ import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
-import java.util.*
+import java.util.Locale
 
 class MotoGPSubscriber : BaseFlowLogEventSubscriber() {
 

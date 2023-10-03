@@ -6,14 +6,14 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.scanner.TxManager
-import com.rarible.flow.scanner.config.FlowListenerProperties
 import com.rarible.flow.scanner.activity.nft.NFTActivityMaker
+import com.rarible.flow.scanner.config.FlowListenerProperties
 
 class MatrixWorldVoucherActivity(
     flowLogRepository: FlowLogRepository,
     txManager: TxManager,
     properties: FlowListenerProperties,
-): NFTActivityMaker(flowLogRepository,txManager, properties) {
+) : NFTActivityMaker(flowLogRepository, txManager, properties) {
 
     override val contractName: String = Contracts.MATRIX_WORLD_VOUCHER.contractName
 

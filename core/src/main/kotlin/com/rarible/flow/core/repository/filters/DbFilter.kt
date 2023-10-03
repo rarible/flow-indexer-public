@@ -1,3 +1,3 @@
 package com.rarible.flow.core.repository.filters
 
-interface DbFilter<T>: BuildsCriteria
+interface DbFilter<T> : BuildsCriteria

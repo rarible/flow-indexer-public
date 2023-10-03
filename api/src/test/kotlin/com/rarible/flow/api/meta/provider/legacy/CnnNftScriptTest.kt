@@ -6,7 +6,7 @@ import com.rarible.flow.api.mocks
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class CnnNftScriptTest: FunSpec({
+internal class CnnNftScriptTest : FunSpec({
 
     val scriptExecutor = mocks.scriptExecutor(
         "cnn_nft" to CNN_NFT,
@@ -28,7 +28,6 @@ internal class CnnNftScriptTest: FunSpec({
             2909, 4, 903
         )
     }
-
 }) {
     companion object {
         val CNN_NFT = """

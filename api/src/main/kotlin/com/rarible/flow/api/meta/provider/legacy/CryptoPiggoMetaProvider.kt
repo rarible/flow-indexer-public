@@ -134,9 +134,15 @@ data class PiggoItem(
 )
 
 data class PiggoFile(
-    val id: String, val createdAt: Instant, val key: String, val url: String
+    val id: String,
+    val createdAt: Instant,
+    val key: String,
+    val url: String
 )
 
 data class PiggoStatus(
-    val id: Long, val createdAt: Instant, val updatedAt: Instant, val status: String
+    val id: Long,
+    val createdAt: Instant,
+    val updatedAt: Instant,
+    val status: String
 )

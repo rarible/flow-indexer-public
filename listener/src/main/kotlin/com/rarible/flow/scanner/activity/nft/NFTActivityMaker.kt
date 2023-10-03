@@ -11,7 +11,6 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TransferActivity
-import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.core.util.findAfterEventIndex
 import com.rarible.flow.core.util.findBeforeEventIndex
 import com.rarible.flow.scanner.TxManager

@@ -6,7 +6,7 @@ import com.rarible.core.kafka.KafkaSendResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 
-class SuccessfulProducer<T>: KafkaProducer<T> {
+class SuccessfulProducer<T> : KafkaProducer<T> {
     private val result = KafkaSendResult.Success("1")
 
     override suspend fun send(message: KafkaMessage<T>): KafkaSendResult {
@@ -32,7 +32,4 @@ class SuccessfulProducer<T>: KafkaProducer<T> {
     override fun send(messages: Flow<KafkaMessage<T>>, topic: String): Flow<KafkaSendResult> {
         return listOf(result).asFlow()
     }
-
 }
-
-

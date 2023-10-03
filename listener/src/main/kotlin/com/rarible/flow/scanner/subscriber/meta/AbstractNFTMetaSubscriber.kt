@@ -6,7 +6,7 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
 
-abstract class AbstractNFTMetaSubscriber: BaseFlowLogEventSubscriber() {
+abstract class AbstractNFTMetaSubscriber : BaseFlowLogEventSubscriber() {
 
     abstract val events: Set<String>
     protected abstract val name: String

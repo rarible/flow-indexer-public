@@ -6,10 +6,14 @@ import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.UInt64NumberField
 import com.rarible.core.application.ApplicationEnvironmentInfo
 import com.rarible.flow.Contracts
-import com.rarible.flow.core.domain.*
-import com.rarible.flow.core.repository.ItemCollectionRepository
+import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.domain.FlowLogType
+import com.rarible.flow.core.domain.ItemCollection
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
+import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.scanner.listener.disabled.SoftCollectionEventsListener
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -39,13 +43,15 @@ internal class SoftCollectionEventsListenerTest : FunSpec({
         val repo = mockk<ItemCollectionRepository>() {
             every {
                 findById("$collectionId")
-            } returns Mono.just(ItemCollection(
-                name = "initial",
-                owner = FlowAddress("0x01"),
-                id = collectionId.toString(),
-                symbol = "INIT",
-                royalties = emptyList(),
-            ))
+            } returns Mono.just(
+                ItemCollection(
+                    name = "initial",
+                    owner = FlowAddress("0x01"),
+                    id = collectionId.toString(),
+                    symbol = "INIT",
+                    royalties = emptyList(),
+                )
+            )
 
             every {
                 save(any())
@@ -59,14 +65,15 @@ internal class SoftCollectionEventsListenerTest : FunSpec({
 
         verify {
             repo.findById(collectionId.toString())
-            repo.save( withArg { updated ->
-                updated.royalties shouldContainExactly listOf(Part(FlowAddress("0x4895ce5fb8a40f47"), 0.55))
-                updated.name shouldBe "kfkkf_22"
-            })
+            repo.save(
+                withArg { updated ->
+                    updated.royalties shouldContainExactly listOf(Part(FlowAddress("0x4895ce5fb8a40f47"), 0.55))
+                    updated.name shouldBe "kfkkf_22"
+                }
+            )
         }
     }
 }) {
-
 
     companion object {
 

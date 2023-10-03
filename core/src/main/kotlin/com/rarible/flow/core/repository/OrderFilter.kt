@@ -110,7 +110,6 @@ sealed class OrderFilter : DbFilter<Order>, CriteriaProduct<OrderFilter> {
             override fun nextPage(entity: Order) =
                 Cont.toString(entity.dbUpdatedAt, entity.id)
         },
-
     }
 
     override fun byCriteria(criteria: Criteria): OrderFilter {

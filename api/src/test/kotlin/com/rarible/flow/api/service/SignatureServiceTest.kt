@@ -70,7 +70,6 @@ internal class SignatureServiceTest : FunSpec({
         ) shouldBe false
     }
 */
-
 })
 
 fun apiAvailable(api: AsyncFlowAccessApi) = try {

@@ -52,8 +52,10 @@ class VersusArtActivityMakerTest : AbstractNftActivityTest() {
                             CompositeAttribute("name", StringField("Transcendence")),
                             CompositeAttribute("artist", StringField("ekaitza")),
                             CompositeAttribute("artistAddress", AddressField("0xd21cfcf820f27c42")),
-                            CompositeAttribute("description",
-                                StringField("We are complex individuals that have to often pull from our strengths and weaknesses in order to transcend. 3500x 3500 pixels, rendered at 350 ppi")),
+                            CompositeAttribute(
+                                "description",
+                                StringField("We are complex individuals that have to often pull from our strengths and weaknesses in order to transcend. 3500x 3500 pixels, rendered at 350 ppi")
+                            ),
                             CompositeAttribute("type", StringField("png")),
                             CompositeAttribute("edition", UInt64NumberField("1")),
                             CompositeAttribute("maxEdition", UInt64NumberField("1")),

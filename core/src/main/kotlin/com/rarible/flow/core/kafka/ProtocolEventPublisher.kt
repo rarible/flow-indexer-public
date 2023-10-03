@@ -108,7 +108,7 @@ class ProtocolEventPublisher(
     suspend fun onItemDelete(itemId: ItemId, marks: EventTimeMarks) {
         val key = itemId.toString()
         val message = FlowNftItemDeleteEventDto(
-            eventId = "${itemId}.${UUID.randomUUID()}",
+            eventId = "$itemId.${UUID.randomUUID()}",
             itemId = key,
             item = FlowNftDeletedItemDto(key, itemId.contract, itemId.tokenId),
             eventTimeMarks = marks.addIndexerOut().toDto()

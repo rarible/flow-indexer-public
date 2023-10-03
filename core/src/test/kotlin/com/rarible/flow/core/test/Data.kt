@@ -11,10 +11,26 @@ import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.core.common.nowMillis
 import com.rarible.core.test.data.randomInt
 import com.rarible.core.test.data.randomString
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.BaseActivity
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.domain.FlowLogType
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemHistory
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.MintActivity
+import com.rarible.flow.core.domain.Order
+import com.rarible.flow.core.domain.OrderData
+import com.rarible.flow.core.domain.OrderType
+import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.domain.OwnershipId
+import com.rarible.flow.core.domain.Part
+import com.rarible.flow.core.domain.Payout
+import com.rarible.flow.core.domain.TokenId
+import com.rarible.flow.core.domain.TransferActivity
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
-import kotlinx.coroutines.reactive.publishInternal
 import org.apache.activemq.artemis.utils.RandomUtil.randomLong
 import org.apache.activemq.artemis.utils.RandomUtil.randomPositiveLong
 import java.math.BigDecimal
@@ -203,7 +219,7 @@ fun randomEventId(): EventId {
 fun randomEventMessage(): EventMessage {
     return EventMessage(
         eventId = randomEventId(),
-        fields =  emptyMap()
+        fields = emptyMap()
     )
 }
 
@@ -212,7 +228,7 @@ fun randomFlowLogEvent(
     transactionHash: String = randomString(),
     eventIndex: Int = randomInt(),
     event: EventMessage = randomEventMessage()
-): FlowLogEvent  {
+): FlowLogEvent {
     return FlowLogEvent(
         log = randomFlowLog(
             blockHash = blockHash,
@@ -251,7 +267,6 @@ fun randomFlowEvent(): FlowEvent {
         transactionId = FlowId("0x"),
         transactionIndex = 0,
         eventIndex = 0,
-        payload =  FlowEventPayload(ByteArray(0))
+        payload = FlowEventPayload(ByteArray(0))
     )
 }
-

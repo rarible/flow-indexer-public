@@ -75,7 +75,6 @@ class OwnershipsControllerTest(
         } returns listOf(ownership1, ownership2).asFlow()
     }
 
-
     @Test
     internal fun `should return ownership by id`() {
         client.get()

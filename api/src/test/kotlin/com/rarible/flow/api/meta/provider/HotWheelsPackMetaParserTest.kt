@@ -63,5 +63,4 @@ class HotWheelsPackMetaParserTest {
             ItemMetaAttribute("tokenSerial", "QANFT0002229625"),
         )
     }
-
 }

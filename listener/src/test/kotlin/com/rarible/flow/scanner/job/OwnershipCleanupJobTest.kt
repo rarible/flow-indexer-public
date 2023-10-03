@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Mono
 
@@ -34,7 +33,6 @@ class OwnershipCleanupJobTest {
             listOf(ownership1).forEach { emit(it) }
         }
         every { ownershipRepository.find(ownership1.id, cleanup.batchSize) } returns flow {
-
         }
         coEvery { ownershipRepository.delete(ownership1) } returns Mono.empty()
         coEvery { protocolEventPublisher.onDelete(ownership1, any()) } returns Unit

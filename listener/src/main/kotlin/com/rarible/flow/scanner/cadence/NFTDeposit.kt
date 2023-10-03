@@ -1,6 +1,11 @@
 package com.rarible.flow.scanner.cadence
 
-import com.nftco.flow.sdk.cadence.*
+import com.nftco.flow.sdk.cadence.CadenceNamespace
+import com.nftco.flow.sdk.cadence.Field
+import com.nftco.flow.sdk.cadence.JsonCadenceConversion
+import com.nftco.flow.sdk.cadence.JsonCadenceConverter
+import com.nftco.flow.sdk.cadence.JsonCadenceParser
+import com.nftco.flow.sdk.cadence.unmarshall
 
 @JsonCadenceConversion(NFTDepositConverter::class)
 data class NFTDeposit(

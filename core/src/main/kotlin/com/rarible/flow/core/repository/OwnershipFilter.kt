@@ -8,9 +8,9 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.domain.Sort as SpringSort
 
-sealed class OwnershipFilter: DbFilter<Ownership> {
+sealed class OwnershipFilter : DbFilter<Ownership> {
 
-    enum class Sort: ScrollingSort<Ownership> {
+    enum class Sort : ScrollingSort<Ownership> {
         LATEST_FIRST;
 
         override fun springSort(): SpringSort {
@@ -29,11 +29,11 @@ sealed class OwnershipFilter: DbFilter<Ownership> {
         }
     }
 
-    object All: OwnershipFilter() {
+    object All : OwnershipFilter() {
         override fun criteria(): Criteria = Criteria()
     }
 
-    data class ByItem(val itemId: ItemId): OwnershipFilter() {
+    data class ByItem(val itemId: ItemId) : OwnershipFilter() {
         override fun criteria(): Criteria {
             return Criteria().andOperator(
                 Ownership::contract isEqualTo itemId.contract,

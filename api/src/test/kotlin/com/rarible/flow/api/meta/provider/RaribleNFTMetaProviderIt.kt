@@ -85,5 +85,4 @@ class RaribleNFTMetaProviderIt {
     fun `supports - ok, false`() = runBlocking<Unit> {
         assertThat(provider.isSupported(ItemId("abc", 123L))).isFalse()
     }
-
 }

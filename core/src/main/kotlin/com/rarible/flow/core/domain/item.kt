@@ -14,7 +14,7 @@ import java.time.Instant
 typealias TokenId = Long
 
 @Document
-data class Item (
+data class Item(
     val contract: String,
     val tokenId: TokenId,
     val creator: FlowAddress,
@@ -74,4 +74,3 @@ data class ItemCollection(
     val url: String? = null,
     val enabled: Boolean = true
 )
-

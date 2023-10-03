@@ -68,7 +68,7 @@ class VersusArtMetaProviderTest : FunSpec({
         provider.getMeta(item) should { meta ->
             meta!!.itemId shouldBe itemId
             meta.name shouldBe "JOYWORLD Portal, Sandstone Headland"
-            meta.contentUrls.first() shouldBe "http://localhost:8080/v0.1/items/${itemId}/image"
+            meta.contentUrls.first() shouldBe "http://localhost:8080/v0.1/items/$itemId/image"
         }
     }
 

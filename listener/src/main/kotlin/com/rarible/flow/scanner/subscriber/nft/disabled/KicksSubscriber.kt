@@ -9,7 +9,7 @@ import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
 
-class KicksSubscriber: BaseFlowLogEventSubscriber() {
+class KicksSubscriber : BaseFlowLogEventSubscriber() {
 
     private val events = setOf("SneakerCreated", "SneakerBurned", "Withdraw", "Deposit")
     private val name = "kicks"
@@ -41,11 +41,11 @@ class KicksSubscriber: BaseFlowLogEventSubscriber() {
         )
 
     override suspend fun eventType(log: FlowBlockchainLog): FlowLogType =
-        when(EventId.of(log.event.type).eventName) {
+        when (EventId.of(log.event.type).eventName) {
             "Withdraw" -> FlowLogType.WITHDRAW
             "Deposit" -> FlowLogType.DEPOSIT
             "SneakerCreated" -> FlowLogType.MINT
             "SneakerBurned" -> FlowLogType.BURN
-            else ->  throw IllegalStateException("Unsupported event type: ${log.event.type}")
+            else -> throw IllegalStateException("Unsupported event type: ${log.event.type}")
         }
 }

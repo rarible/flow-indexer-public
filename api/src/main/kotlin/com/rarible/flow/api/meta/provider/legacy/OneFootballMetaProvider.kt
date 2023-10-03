@@ -2,14 +2,20 @@ package com.rarible.flow.api.meta.provider.legacy
 
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.cadence.*
+import com.nftco.flow.sdk.cadence.CadenceNamespace
+import com.nftco.flow.sdk.cadence.Field
+import com.nftco.flow.sdk.cadence.JsonCadenceConversion
+import com.nftco.flow.sdk.cadence.JsonCadenceConverter
+import com.nftco.flow.sdk.cadence.OptionalField
 import com.rarible.flow.Contracts
 import com.rarible.flow.api.meta.ItemMeta
 import com.rarible.flow.api.meta.ItemMetaAttribute
 import com.rarible.flow.api.meta.ItemMetaContent
 import com.rarible.flow.api.meta.provider.ItemMetaProvider
 import com.rarible.flow.api.service.ScriptExecutor
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.ItemRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
@@ -42,14 +48,13 @@ class OneFootballMetaScript(
 class OneFootballMetaProvider(
     val itemRepository: ItemRepository,
     val metaScript: OneFootballMetaScript
-): ItemMetaProvider {
+) : ItemMetaProvider {
 
     override fun isSupported(itemId: ItemId): Boolean = Contracts.ONE_FOOTBALL.supports(itemId)
 
     override suspend fun getMeta(item: Item): ItemMeta? {
         return metaScript.call(item.owner ?: item.creator, item.tokenId)
             ?.toItemMeta(item.id)
-
     }
 }
 
@@ -63,7 +68,7 @@ data class OneFootballMeta(
     val preview: String,
     val media: String,
     val data: Map<String, String>,
-): MetaBody {
+) : MetaBody {
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         return ItemMeta(
             itemId = itemId,
@@ -91,7 +96,7 @@ data class OneFootballMeta(
     }
 }
 
-class OneFootballMetaConverter: JsonCadenceConverter<OneFootballMeta> {
+class OneFootballMetaConverter : JsonCadenceConverter<OneFootballMeta> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): OneFootballMeta {
         return com.nftco.flow.sdk.cadence.unmarshall(value) {
             OneFootballMeta(
@@ -109,4 +114,3 @@ class OneFootballMetaConverter: JsonCadenceConverter<OneFootballMeta> {
         }
     }
 }
-

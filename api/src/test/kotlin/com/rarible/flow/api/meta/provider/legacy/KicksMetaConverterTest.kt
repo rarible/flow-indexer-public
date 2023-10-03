@@ -5,7 +5,7 @@ import com.nftco.flow.sdk.cadence.OptionalField
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class KicksMetaConverterTest: FunSpec({
+internal class KicksMetaConverterTest : FunSpec({
 
     test("should convert kicks meta") {
         Flow.unmarshall(
@@ -13,7 +13,6 @@ internal class KicksMetaConverterTest: FunSpec({
             (Flow.decodeJsonCadence(JSON) as OptionalField).value!!
         ) shouldBe META
     }
-
 }) {
 
     companion object {

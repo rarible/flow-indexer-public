@@ -41,7 +41,6 @@ data class ItemMeta(
             contentUrls = emptyList()
         )
     }
-
 }
 
 data class ItemMetaAttribute(

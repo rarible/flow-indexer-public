@@ -92,4 +92,3 @@ abstract class AbstractMattelRoyaltyProvider(
         const val SCRIPT_FILE = "get_nft_metadata_mattel.cdc"
     }
 }
-

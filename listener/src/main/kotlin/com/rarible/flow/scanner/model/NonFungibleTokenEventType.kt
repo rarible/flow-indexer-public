@@ -8,7 +8,7 @@ enum class NonFungibleTokenEventType(val eventName: String) {
     ;
 
     fun full(contract: String): String {
-        return "$contract.${eventName}"
+        return "$contract.$eventName"
     }
 
     companion object {

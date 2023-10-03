@@ -8,10 +8,14 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import org.springframework.data.domain.Sort
-import org.springframework.data.mongodb.core.query.*
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.exists
+import org.springframework.data.mongodb.core.query.gte
+import org.springframework.data.mongodb.core.query.lt
+import org.springframework.data.mongodb.core.query.ne
 import java.time.Instant
 
-internal class ItemFilterTest: FunSpec({
+internal class ItemFilterTest : FunSpec({
 
     val now = Instant.now()
 
@@ -29,7 +33,7 @@ internal class ItemFilterTest: FunSpec({
 
         ItemFilter.ByLastUpdatedTo(now).criteria() shouldBe (
             Item::updatedAt lt now
-        )
+            )
     }
 
     test("ByLastUpdatedFrom") {
@@ -37,7 +41,7 @@ internal class ItemFilterTest: FunSpec({
 
         ItemFilter.ByLastUpdatedFrom(now).criteria() shouldBe (
             Item::updatedAt gte now
-        )
+            )
     }
 
     test("item filter - sort ") {
@@ -48,7 +52,8 @@ internal class ItemFilterTest: FunSpec({
         )
 
         val entities = flowOf<Item>(
-            mockk(), mockk() {
+            mockk(),
+            mockk() {
                 every { updatedAt } returns now
                 every { id } returns ItemId("ABC", 1000)
             }
@@ -57,8 +62,4 @@ internal class ItemFilterTest: FunSpec({
         sort.nextPage(entities, 2) shouldBe "${now.toEpochMilli()}_ABC:1000"
         sort.nextPageSafe(null) shouldBe null
     }
-
-
-
-
 })

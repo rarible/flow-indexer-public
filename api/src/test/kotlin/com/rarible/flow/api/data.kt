@@ -35,7 +35,6 @@ fun createOrder(id: Long = randomLong()) = Order(
 
 object data {
     val CADENCE_NULL = """{"type":"Optional","value":null}"""
-
 }
 
 fun randomApiProperties(): ApiProperties {

@@ -17,7 +17,7 @@ import io.mockk.every
 import io.mockk.mockk
 import reactor.core.publisher.Mono
 
-internal class ChainmonstersMetaProviderTest: FunSpec({
+internal class ChainmonstersMetaProviderTest : FunSpec({
     val item = mockk<Item> {
         every { id } returns ItemId("A.93615d25d14fa337.ChainmonstersRewards", 1337)
         every { owner } returns FlowAddress("0x01")

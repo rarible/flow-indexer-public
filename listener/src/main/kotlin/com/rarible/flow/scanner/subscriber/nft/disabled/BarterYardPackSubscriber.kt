@@ -9,7 +9,7 @@ import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
 
-class BarterYardPackSubscriber: BaseFlowLogEventSubscriber() {
+class BarterYardPackSubscriber : BaseFlowLogEventSubscriber() {
 
     private val events = setOf("Mint", "Withdraw", "Deposit", "Burn")
 
@@ -31,7 +31,7 @@ class BarterYardPackSubscriber: BaseFlowLogEventSubscriber() {
         )
     )
 
-    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when(EventId.of(log.event.type).eventName) {
+    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when (EventId.of(log.event.type).eventName) {
         "Mint" -> FlowLogType.MINT
         "Withdraw" -> FlowLogType.WITHDRAW
         "Deposit" -> FlowLogType.DEPOSIT

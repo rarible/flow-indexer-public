@@ -5,18 +5,17 @@ import org.springframework.core.convert.converter.Converter
 import org.springframework.data.convert.ReadingConverter
 import org.springframework.data.convert.WritingConverter
 
-
-object ItemIdConversions: Iterable<Converter<*, *>> {
+object ItemIdConversions : Iterable<Converter<*, *>> {
 
     @ReadingConverter
-    object Read: Converter<String, ItemId> {
+    object Read : Converter<String, ItemId> {
         override fun convert(source: String): ItemId? {
             return ItemId.parse(source)
         }
     }
 
     @WritingConverter
-    object Write: Converter<ItemId, String> {
+    object Write : Converter<ItemId, String> {
         override fun convert(source: ItemId): String? {
             return source.toString()
         }

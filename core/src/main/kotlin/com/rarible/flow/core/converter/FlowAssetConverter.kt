@@ -10,9 +10,9 @@ import com.rarible.protocol.dto.FlowAssetNFTDto
 import org.springframework.core.convert.converter.Converter
 import java.math.BigDecimal
 
-object FlowAssetConverter: Converter<FlowAsset, FlowAssetDto> {
+object FlowAssetConverter : Converter<FlowAsset, FlowAssetDto> {
     override fun convert(source: FlowAsset): FlowAssetDto {
-        return when(source) {
+        return when (source) {
             is FlowAssetNFT -> FlowAssetNFTDto(
                 contract = source.contract,
                 value = source.value,

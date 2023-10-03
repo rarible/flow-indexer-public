@@ -16,9 +16,8 @@ class CnnNFTSubscriber : BaseFlowLogEventSubscriber() {
     val events = setOf("Minted", "Withdraw", "Deposit", "NFTDestroyed")
     private val name = "cnn_nft"
 
-
     override val descriptors: Map<FlowChainId, FlowDescriptor>
-        get() =  mapOf(
+        get() = mapOf(
             FlowChainId.MAINNET to DescriptorFactory.flowNftOrderDescriptor(
                 contract = Contracts.CNN,
                 chainId = FlowChainId.MAINNET,
@@ -43,11 +42,11 @@ class CnnNFTSubscriber : BaseFlowLogEventSubscriber() {
             ),
         )
 
-    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when(EventId.of(log.event.type).eventName) {
+    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when (EventId.of(log.event.type).eventName) {
         "Withdraw" -> FlowLogType.WITHDRAW
         "Deposit" -> FlowLogType.DEPOSIT
         "Minted" -> FlowLogType.MINT
         "NFTDestroyed" -> FlowLogType.BURN
-        else ->  throw IllegalStateException("Unsupported event type: ${log.event.type}")
+        else -> throw IllegalStateException("Unsupported event type: ${log.event.type}")
     }
 }

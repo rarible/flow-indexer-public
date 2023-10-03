@@ -9,7 +9,6 @@ import com.rarible.flow.core.kafka.ProtocolEventPublisher
 import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
-import com.rarible.flow.core.util.offchainEventMarks
 import com.rarible.flow.scanner.listener.BalanceFlowLogListener
 import com.rarible.flow.scanner.model.Listeners
 import com.rarible.flow.scanner.model.SubscriberGroups

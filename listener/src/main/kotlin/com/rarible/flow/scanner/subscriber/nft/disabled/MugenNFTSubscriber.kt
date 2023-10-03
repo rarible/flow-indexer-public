@@ -41,10 +41,10 @@ class MugenNFTSubscriber : BaseFlowLogEventSubscriber() {
             ),
         )
 
-    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when(EventId.of(log.event.type).eventName) {
+    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when (EventId.of(log.event.type).eventName) {
         "Withdraw" -> FlowLogType.WITHDRAW
         "Deposit" -> FlowLogType.DEPOSIT
         "Minted" -> FlowLogType.MINT
-        else ->  throw IllegalStateException("Unsupported event type: ${log.event.type}")
+        else -> throw IllegalStateException("Unsupported event type: ${log.event.type}")
     }
 }

@@ -66,7 +66,5 @@ internal class CryptoControllerTest {
                 FlowAddress("0x01"), FlowPublicKey(pk)
             )
         }
-
     }
-
 }

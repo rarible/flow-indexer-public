@@ -5,7 +5,6 @@ import com.nftco.flow.sdk.cadence.Field
 import com.nftco.flow.sdk.cadence.JsonCadenceConversion
 import com.nftco.flow.sdk.cadence.JsonCadenceConverter
 
-
 @JsonCadenceConversion(MatrixWorldFlowFestNftMetaConverter::class)
 data class MatrixWorldFlowFestNftMeta(
     val name: String,
@@ -14,7 +13,7 @@ data class MatrixWorldFlowFestNftMeta(
     val type: String
 )
 
-class MatrixWorldFlowFestNftMetaConverter: JsonCadenceConverter<MatrixWorldFlowFestNftMeta> {
+class MatrixWorldFlowFestNftMetaConverter : JsonCadenceConverter<MatrixWorldFlowFestNftMeta> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): MatrixWorldFlowFestNftMeta {
         return com.nftco.flow.sdk.cadence.unmarshall(value) {
             MatrixWorldFlowFestNftMeta(

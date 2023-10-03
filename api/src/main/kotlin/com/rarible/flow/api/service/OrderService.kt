@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.Instant
 
-
 @Service
 class OrderService(
     private val orderRepository: OrderRepository
@@ -145,8 +144,8 @@ class OrderService(
                 OrderFilter.ByStatus(status),
                 OrderFilter.ByBiddingCurrency(currency)
                 // TODO there is no start/end in flow orders
-                //OrderFilter.ByDateAfter(Order::createdAt, startDate),
-                //OrderFilter.ByDateBefore(Order::createdAt, endDate)
+                // OrderFilter.ByDateAfter(Order::createdAt, startDate),
+                // OrderFilter.ByDateBefore(Order::createdAt, endDate)
             ),
             continuation,
             size,
@@ -169,8 +168,8 @@ class OrderService(
                 OrderFilter.ByMakers(makerAddresses),
                 OrderFilter.ByStatus(status),
                 // TODO there is no start/end in flow orders
-                //OrderFilter.ByDateAfter(Order::createdAt, startDate),
-                //OrderFilter.ByDateBefore(Order::createdAt, endDate)
+                // OrderFilter.ByDateAfter(Order::createdAt, startDate),
+                // OrderFilter.ByDateBefore(Order::createdAt, endDate)
             ),
             continuation,
             size,

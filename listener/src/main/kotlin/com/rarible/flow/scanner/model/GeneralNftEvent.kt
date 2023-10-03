@@ -37,4 +37,3 @@ class GeneralWithdrawEvent(event: FlowLogEvent) : GeneralNftEvent(event), Withdr
 
     override val optionalFrom = CadenceParser.parser.optional(event.event.fields["from"]!!) { address(it) }
 }
-

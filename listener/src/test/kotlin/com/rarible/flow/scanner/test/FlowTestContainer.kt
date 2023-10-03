@@ -45,7 +45,6 @@ object FlowTestContainer {
             .withCommand("flow emulator")
             .waitingFor(Wait.forHttp("/").forPort(8080).forStatusCode(500))
 
-
         flowEmulator.start()
 
         logger.info("Flow emulator is up!")

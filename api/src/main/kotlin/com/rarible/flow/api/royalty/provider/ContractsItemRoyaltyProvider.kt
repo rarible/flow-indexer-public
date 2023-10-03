@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 @Order
 class ContractsItemRoyaltyProvider(
     private val appProperties: AppProperties
-): ItemRoyaltyProvider {
+) : ItemRoyaltyProvider {
     override fun isSupported(itemId: ItemId): Boolean = Contracts.values().any { it.supports(itemId) }
 
     override suspend fun getRoyalties(item: Item): List<Royalty> {

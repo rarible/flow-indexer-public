@@ -11,11 +11,10 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 
-internal class JambbMomentsMetaProviderTest: FunSpec({
+internal class JambbMomentsMetaProviderTest : FunSpec({
     val notExisting = mockk<Item> {
         every { id } returns ItemId("A.d4ad4740ee426334.Moments", 2)
         every { tokenId } returns 2
-
     }
     val existing = mockk<Item> {
         every { id } returns ItemId("A.d4ad4740ee426334.Moments", 1)
@@ -62,5 +61,4 @@ internal class JambbMomentsMetaProviderTest: FunSpec({
             metaScript, properties
         ).isSupported(ItemId("A.1234.MotoGP", 1000)) shouldBe false
     }
-
 })

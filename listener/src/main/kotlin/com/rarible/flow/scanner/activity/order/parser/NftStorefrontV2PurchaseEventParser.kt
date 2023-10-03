@@ -39,7 +39,6 @@ class NftStorefrontV2PurchaseEventParser(
         val seller = transfer.from
         val buyer = transfer.to
 
-
         return FlowNftOrderActivitySell(
             price = listing.price,
             priceUsd = listing.priceUsd,
@@ -83,7 +82,7 @@ class NftStorefrontV2PurchaseEventParser(
     private fun getEstimatedFee(event: EventMessage): EstimatedFee? {
         val receiver = getCommissionReceiver(event)
         val amount = delegate.getCommissionAmount(event)
-        return if (receiver == null || amount == BigDecimal.ZERO)  null else EstimatedFee(listOf(receiver), amount)
+        return if (receiver == null || amount == BigDecimal.ZERO) null else EstimatedFee(listOf(receiver), amount)
     }
 
     private fun getCommissionReceiver(event: EventMessage): String? {
@@ -103,12 +102,12 @@ class NftStorefrontV2PurchaseEventParser(
     ): NftTransfer {
         val from = events.events.single {
             it.id == NonFungibleTokenEventType.WITHDRAW.full(asset.contract) &&
-            getTokenId(it) == asset.tokenId
+                getTokenId(it) == asset.tokenId
         }.let { getOptionalAddress(it, "from")!! }
 
         val to = events.events.single {
             it.id == NonFungibleTokenEventType.DEPOSIT.full(asset.contract) &&
-            getTokenId(it) == asset.tokenId
+                getTokenId(it) == asset.tokenId
         }.let { getOptionalAddress(it, "to")!! }
 
         return NftTransfer(from = from, to = to)

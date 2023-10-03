@@ -66,4 +66,3 @@ abstract class AbstractNftStorefrontListingEventParser(
 
     internal abstract fun getCurrencyContract(event: EventMessage): String
 }
-

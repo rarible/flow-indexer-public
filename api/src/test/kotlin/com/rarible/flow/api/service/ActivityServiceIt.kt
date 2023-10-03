@@ -89,7 +89,6 @@ internal class ActivityServiceIt : BaseIntegrationTest() {
             )
         )
 
-
         itemHistoryRepository.coSaveAll(activity1, activity2)
         val sort = "EARLIEST_FIRST"
         val cursor1 = "1614231562000_1903e78154fb70a7fd410e980fa6aaa07199226c5855e743d73b85cd19dcfd62.0"
@@ -103,7 +102,6 @@ internal class ActivityServiceIt : BaseIntegrationTest() {
 
         val res2 = activitiesService.getNftOrderAllActivities(types, res1.continuation, 1, sort)
 
-
         res2.continuation shouldBe cursor2
         res2.items.count() shouldBe 1
 
@@ -111,7 +109,6 @@ internal class ActivityServiceIt : BaseIntegrationTest() {
 
         res3.continuation shouldBe "null"
         res3.items.isEmpty() shouldBe true
-
     }
 
     @Test
@@ -159,7 +156,6 @@ internal class ActivityServiceIt : BaseIntegrationTest() {
                 blockHash = "0954c38a1189717a26fe16afce2f06c257dee03e2224496be5aa01b59545c7d0",
             )
         )
-
 
         itemHistoryRepository.coSaveAll(activity1, activity2)
         activitiesService.getActivitiesByIds(listOf(activity1.id)).items.map { it.id } shouldContainExactly listOf(activity1.id)
@@ -254,7 +250,6 @@ internal class ActivityServiceIt : BaseIntegrationTest() {
                 )
             )
 
-
             val first = itemHistoryRepository.coSave(activity1)
             delay(500)
             val second = itemHistoryRepository.coSave(activity2)
@@ -277,7 +272,6 @@ internal class ActivityServiceIt : BaseIntegrationTest() {
 
             res3.continuation shouldBe "null"
             res3.items shouldHaveSize 0
-
         }
     }
 

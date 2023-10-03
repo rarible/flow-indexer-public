@@ -5,7 +5,6 @@ import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.MintActivity
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.domain.TransferActivity
-import com.rarible.flow.scanner.model.NFTEvent
 import io.mockk.coEvery
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow

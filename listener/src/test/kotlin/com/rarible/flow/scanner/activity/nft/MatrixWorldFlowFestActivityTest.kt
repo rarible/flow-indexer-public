@@ -100,6 +100,6 @@ internal class MatrixWorldFlowFestActivityTest : AbstractNftActivityTest() {
             ),
             type = FlowLogType.MINT,
 
-            )
+        )
     }
 }

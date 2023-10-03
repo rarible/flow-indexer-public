@@ -11,7 +11,6 @@ import com.rarible.flow.core.repository.BalanceRepository
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.sdk.simpleScript
 
-
 class FlowBalanceService(
     private val chainId: FlowChainId,
     private val flowAccessApi: AsyncFlowAccessApi,
@@ -42,12 +41,9 @@ class FlowBalanceService(
                         accounts.map { acc -> address(acc.bytes) }
                     }
                 }
-
             }.jsonCadence
         )
     }
-
-
 
     companion object {
         fun convert(jsonCadence: Field<*>): List<Balance> {

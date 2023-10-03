@@ -6,7 +6,7 @@ package com.rarible.flow.core.util
  * @return enum value, or default value (null if default is not passed)
  */
 inline fun <reified T : Enum<T>> safeOf(value: String?, default: T? = null): T? {
-    return if(value == null) {
+    return if (value == null) {
         return default
     } else try {
         java.lang.Enum.valueOf(T::class.java, value)
@@ -31,5 +31,5 @@ inline fun <reified T : Enum<T>> safeOf(values: Collection<String>, default: Lis
  * Returns `true` if enum T contains an entry with the specified name.
  */
 inline fun <reified T : Enum<T>> enumContains(name: String): Boolean {
-    return enumValues<T>().any { it.name == name}
+    return enumValues<T>().any { it.name == name }
 }

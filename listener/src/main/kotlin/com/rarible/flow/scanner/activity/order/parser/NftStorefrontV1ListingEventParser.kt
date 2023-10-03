@@ -21,7 +21,7 @@ class NftStorefrontV1ListingEventParser(
     supportedNftCollectionProvider: SupportedNftCollectionProvider,
     properties: FlowListenerProperties,
     private val txManager: TxManager,
-): AbstractNftStorefrontListingEventParser(currencyService, supportedNftCollectionProvider) {
+) : AbstractNftStorefrontListingEventParser(currencyService, supportedNftCollectionProvider) {
 
     private val chainId = properties.chainId
 

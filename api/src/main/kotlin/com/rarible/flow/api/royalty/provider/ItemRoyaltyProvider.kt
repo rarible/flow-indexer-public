@@ -7,7 +7,7 @@ import java.math.BigDecimal
 
 // todo refactor com.rarible.flow.core.domain.Part::fee Double -> BigDecimal, then replace
 data class Royalty(val address: String, val fee: BigDecimal) {
-    constructor(part: Part): this(
+    constructor(part: Part) : this(
         address = part.address.formatted,
         fee = part.fee.toBigDecimal()
     )

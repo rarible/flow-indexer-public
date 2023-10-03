@@ -39,7 +39,6 @@ class DisruptArtMetaProviderTest : FunSpec({
         owner = FlowAddress("0xcd946ef9b13804c6")
     )
 
-
     val item2 = Item(
         contract = "A.cd946ef9b13804c6.DisruptArt",
         tokenId = 1L,
@@ -119,12 +118,14 @@ class DisruptArtMetaProviderTest : FunSpec({
         )
 
         verify {
-            itemRepository.save(withArg {
-                it.royalties shouldContainExactly listOf(
-                    Part(FlowAddress("0x4e96267cf76199ef"), 0.1),
-                    Part(FlowAddress("0x420f47f16a214100"), 0.05)
-                )
-            })
+            itemRepository.save(
+                withArg {
+                    it.royalties shouldContainExactly listOf(
+                        Part(FlowAddress("0x4e96267cf76199ef"), 0.1),
+                        Part(FlowAddress("0x420f47f16a214100"), 0.05)
+                    )
+                }
+            )
         }
     }
 

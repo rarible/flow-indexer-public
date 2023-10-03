@@ -15,5 +15,4 @@ data class RawOnChainMeta(
 
         const val COLLECTION = "raw_on_chain_meta_cache"
     }
-
 }

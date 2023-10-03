@@ -6,7 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
-internal class JambbMomentsMetaScriptTest: FunSpec({
+internal class JambbMomentsMetaScriptTest : FunSpec({
 
     val scriptExecutor = mocks.scriptExecutor(
         "null" to data.CADENCE_NULL,

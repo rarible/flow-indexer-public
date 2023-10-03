@@ -1,7 +1,6 @@
 package com.rarible.flow.scanner.record
 
 import com.rarible.blockchain.scanner.consumer.LogRecordConsumerWorkerFactory
-import com.rarible.core.daemon.sequential.ConsumerWorkerHolder
 import com.rarible.core.kafka.RaribleKafkaConsumerWorker
 import com.rarible.flow.scanner.listener.FlowLogListener
 

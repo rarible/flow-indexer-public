@@ -9,7 +9,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 
-internal class MatrixWorldFlowFestMetaProviderTest: FunSpec({
+internal class MatrixWorldFlowFestMetaProviderTest : FunSpec({
 
     val mockScript = mockk<MatrixWorldFlowFestMetaScript> {
         coEvery { call(eq(FlowAddress("0x01")), 42) } returns MatrixWorldFlowFestNftMeta(
@@ -57,5 +57,4 @@ internal class MatrixWorldFlowFestMetaProviderTest: FunSpec({
             }
         ) shouldBe null
     }
-
 })

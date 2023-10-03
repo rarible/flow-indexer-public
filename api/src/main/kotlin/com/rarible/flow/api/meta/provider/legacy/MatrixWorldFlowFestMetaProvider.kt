@@ -35,7 +35,7 @@ class MatrixWorldFlowFestMetaScript(
                 arg { uint64(tokenId) }
             },
             { json ->
-                if(json.value == null) null
+                if (json.value == null) null
                 else Flow.unmarshall(MatrixWorldFlowFestNftMeta::class, json.value as StructField)
             }
         )
@@ -45,7 +45,7 @@ class MatrixWorldFlowFestMetaScript(
 @Component
 class MatrixWorldFlowFestMetaProvider(
     private val matrixWorldFlowFestMetaScript: MatrixWorldFlowFestMetaScript,
-): ItemMetaProvider {
+) : ItemMetaProvider {
 
     override suspend fun getMeta(item: Item): ItemMeta? {
         return matrixWorldFlowFestMetaScript
@@ -54,7 +54,6 @@ class MatrixWorldFlowFestMetaProvider(
     }
 
     override fun isSupported(itemId: ItemId): Boolean = Contracts.MATRIX_WORLD_FLOW_FEST.supports(itemId)
-
 }
 
 @JsonCadenceConversion(MatrixWorldFlowFestNftMetaConverter::class)
@@ -63,7 +62,7 @@ data class MatrixWorldFlowFestNftMeta(
     val description: String,
     val animationUrl: String,
     val type: String
-): MetaBody {
+) : MetaBody {
 
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         return ItemMeta(
@@ -88,7 +87,7 @@ data class MatrixWorldFlowFestNftMeta(
     }
 }
 
-class MatrixWorldFlowFestNftMetaConverter: JsonCadenceConverter<MatrixWorldFlowFestNftMeta> {
+class MatrixWorldFlowFestNftMetaConverter : JsonCadenceConverter<MatrixWorldFlowFestNftMeta> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): MatrixWorldFlowFestNftMeta {
         return unmarshall(value) {
             MatrixWorldFlowFestNftMeta(

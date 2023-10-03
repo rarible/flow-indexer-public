@@ -14,7 +14,7 @@ import java.time.Instant
 class NftStorefrontV2ListingEventParser(
     currencyService: CurrencyService,
     supportedCollectionService: SupportedNftCollectionProvider,
-): AbstractNftStorefrontListingEventParser(currencyService, supportedCollectionService) {
+) : AbstractNftStorefrontListingEventParser(currencyService, supportedCollectionService) {
 
     override fun getEstimatedFee(event: EventMessage): EstimatedFee? {
         val receivers = cadenceParser.optional(event.fields["commissionReceivers"]!!) {

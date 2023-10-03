@@ -19,13 +19,15 @@ class SporkConfigurationService(
 
         if (chainId == FlowChainId.TESTNET) {
             sporkService.replace(
-                FlowChainId.TESTNET, listOf(
-                Spork(
-                    from = 105032150,
-                    nodeUrl = properties.flowAccessUrl,
-                    port = properties.flowAccessPort,
+                FlowChainId.TESTNET,
+                listOf(
+                    Spork(
+                        from = 105032150,
+                        nodeUrl = properties.flowAccessUrl,
+                        port = properties.flowAccessPort,
+                    )
                 )
-            ))
+            )
         }
         if (chainId == FlowChainId.MAINNET) {
             val head = listOf(

@@ -4,7 +4,7 @@ import com.nftco.flow.sdk.Flow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class OneFootballMetaConverterTest: FunSpec({
+internal class OneFootballMetaConverterTest : FunSpec({
 
     test("should unmarshall meta data") {
         Flow.unmarshall(
@@ -12,7 +12,6 @@ internal class OneFootballMetaConverterTest: FunSpec({
             Flow.decodeJsonCadence(JSON)
         ) shouldBe META
     }
-
 }) {
     companion object {
         val JSON = """
@@ -54,7 +53,7 @@ internal class OneFootballMetaConverterTest: FunSpec({
                     ]
                 }
             }
-            """.trimIndent()
+        """.trimIndent()
 
         val META = OneFootballMeta(
             id = 1,

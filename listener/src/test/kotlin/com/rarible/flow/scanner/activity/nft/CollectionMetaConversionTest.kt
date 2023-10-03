@@ -7,16 +7,15 @@ import com.rarible.flow.scanner.model.parse
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class CollectionMetaConversionTest: FunSpec({
+internal class CollectionMetaConversionTest : FunSpec({
 
     test("should parse meta from CHANGE event") {
         Flow
             .decodeJsonCadence<StructField>(META)
             .parse<CollectionMeta>() shouldBe CollectionMeta(
-                "coll_02_03_01", "coll_02_03_01", null, null, null
-            )
+            "coll_02_03_01", "coll_02_03_01", null, null, null
+        )
     }
-
 }) {
 
     companion object {

@@ -46,7 +46,7 @@ class KicksMetaScript(
 @Component
 class KicksMetaProvider(
     private val metaScript: KicksMetaScript
-): ItemMetaProvider {
+) : ItemMetaProvider {
 
     override fun isSupported(itemId: ItemId): Boolean = Contracts.KICKS.supports(itemId)
 
@@ -66,7 +66,7 @@ data class KicksMeta(
     val redeemed: Boolean,
     val size: String?,
     val taggedTopShot: String?
-): MetaBody {
+) : MetaBody {
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         val attributes = listOfNotNull(
             ItemMetaAttribute("redeemed", redeemed.toString()),
@@ -98,14 +98,14 @@ data class KicksMeta(
     }
 }
 
-class KicksMetaConverter: JsonCadenceConverter<KicksMeta> {
+class KicksMetaConverter : JsonCadenceConverter<KicksMeta> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): KicksMeta {
         return com.nftco.flow.sdk.cadence.unmarshall(value) {
             val meta: Map<String, String> = dictionaryMap("metadata") { k, v ->
                 val key = string(k)
-                if(listOf("video", "image", "size").contains(key)) {
+                if (listOf("video", "image", "size").contains(key)) {
                     key to string(v)
-                } else if(key == "redeemed") {
+                } else if (key == "redeemed") {
                     key to boolean(v).toString()
                 } else key to ""
             }.filterValues { it != "" }
@@ -122,4 +122,3 @@ class KicksMetaConverter: JsonCadenceConverter<KicksMeta> {
         }
     }
 }
-

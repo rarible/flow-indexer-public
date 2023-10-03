@@ -84,7 +84,7 @@ class CollectionControllerTest(
 
         coEvery {
             service.byIds(any())
-        } answers  { all.filter { arg<List<String>>(0).contains(it.id) }.asFlow() }
+        } answers { all.filter { arg<List<String>>(0).contains(it.id) }.asFlow() }
     }
 
     @Test

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory
 import java.math.BigDecimal
 import java.time.Instant
 
-abstract class AbstractNftStorefrontEventParser<T: BaseActivity>(
+abstract class AbstractNftStorefrontEventParser<T : BaseActivity>(
     private val currencyService: CurrencyService,
     supportedNftCollectionProvider: SupportedNftCollectionProvider
 ) : NftStorefrontEventParser<T> {
