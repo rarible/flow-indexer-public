@@ -18,5 +18,4 @@ abstract class AbstractMetaProvider(
 
         return parser.parse(json, item.id)
     }
-
 }

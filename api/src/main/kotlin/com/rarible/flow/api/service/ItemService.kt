@@ -141,5 +141,4 @@ class ItemService(
         val toSave = royalties.map { Part(FlowAddress(it.address), it.fee.toDouble()) }
         return itemRepository.coSave(item.copy(royalties = toSave))
     }
-
 }

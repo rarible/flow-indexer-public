@@ -37,25 +37,32 @@ interface ItemHistoryRepository : ReactiveMongoRepository<ItemHistory, String> {
     @DeleteQuery(
         """
             {"activity.contract": ?0, "activity.tokenId": ?1}
-        """)
+        """
+    )
     fun deleteByItemId(contract: String, tokenId: Long): Flux<ItemHistory>
 
-    @Query("""
+    @Query(
+        """
             {"activity.contract": ?0, "activity.tokenId": ?1}
-        """)
+        """
+    )
     fun findByItemId(contract: String, tokenId: Long): Flux<ItemHistory>
 
-    @Query("""
+    @Query(
+        """
             {"log.transactionHash": ?0, "activity.type": "SELL"}, ${"$"}or: [
                 { "activity.left.maker": ?1, "activity.right.maker": ?2 },
                 { "activity.left.maker": ?2, "activity.right.maker": ?1 }
             ] }
-        """)
+        """
+    )
     fun findOrderInTx(txHash: String, from: String, to: String): Flux<ItemHistory>
 
-    @Query("""
+    @Query(
+        """
             {"log.transactionHash": ?0, "activity.type": "TRANSFER", "activity.from": ?1, "activity.to": ?2}
-        """)
+        """
+    )
     fun findTransferInTx(txHash: String, from: String, to: String): Flux<ItemHistory>
 
     @Query(

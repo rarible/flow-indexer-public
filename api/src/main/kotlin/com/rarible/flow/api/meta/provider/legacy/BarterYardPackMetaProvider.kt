@@ -26,14 +26,13 @@ class BarterYardPackMetaProvider(
     @Value("\${app.chain-id}")
     private val chainId: FlowChainId,
     private val script: BarterYardScript
-): ItemMetaProvider {
+) : ItemMetaProvider {
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract == Contracts.BARTER_YARD_PACK.fqn(chainId)
 
     override suspend fun getMeta(item: Item): ItemMeta? {
         return script.call(item.tokenId, item.owner!!)?.toItemMeta(item.id)
     }
 }
-
 
 @Component
 class BarterYardScript(
@@ -67,7 +66,7 @@ data class Pass(
     val ipfsCID: String,
     val ipfsURI: String,
     val owner: String
-): MetaBody {
+) : MetaBody {
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         val raw = jacksonObjectMapper().writeValueAsBytes(this)
         return ItemMeta(
@@ -94,7 +93,7 @@ data class Pass(
     }
 }
 
-class PassConverter: JsonCadenceConverter<Pass> {
+class PassConverter : JsonCadenceConverter<Pass> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): Pass = unmarshall(value) {
         Pass(
             id = long("id"),

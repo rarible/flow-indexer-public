@@ -6,7 +6,7 @@ import com.nftco.flow.sdk.cadence.OptionalField
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class CnnNFTConverterTest: FunSpec({
+internal class CnnNFTConverterTest : FunSpec({
 
     val expected = CnnNFT(id = 31689, setId = 8, editionNum = 230)
 

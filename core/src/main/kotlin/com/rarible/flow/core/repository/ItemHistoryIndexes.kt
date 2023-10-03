@@ -126,6 +126,5 @@ object ItemHistoryIndexes {
         TX_TYPE_LEFT_MAKER_RIGHT_MAKER,
         TX_TYPE_FROM_TO,
         ACTIVITY_BY_TYPE_CONTRACT_TOKEN_ID_INDEX,
-        )
-
+    )
 }

@@ -26,7 +26,7 @@ data class ItemHistory(
     override val log: FlowLog,
     @MongoId(FieldType.STRING)
     val id: String = "${log.transactionHash}.${log.eventIndex}",
-): FlowLogRecord() {
+) : FlowLogRecord() {
 
     @LastModifiedDate
     @Field(targetType = FieldType.DATE_TIME)
@@ -39,4 +39,3 @@ data class ItemHistory(
         const val COLLECTION = "item_history"
     }
 }
-

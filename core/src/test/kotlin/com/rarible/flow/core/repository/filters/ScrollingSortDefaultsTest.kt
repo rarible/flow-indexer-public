@@ -5,8 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
 
-
-class ScrollingSortDefaultsTest: FunSpec({
+class ScrollingSortDefaultsTest : FunSpec({
 
     test("should provide page size") {
         listOf(
@@ -19,5 +18,4 @@ class ScrollingSortDefaultsTest: FunSpec({
             ScrollingSort.pageSize(input) shouldBe output
         }
     }
-
 })

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @EnableRaribleNft
-class RaribleNFTSubscriber: NonFungibleTokenSubscriber() {
+class RaribleNFTSubscriber : NonFungibleTokenSubscriber() {
     override val events = RaribleNftEventType.EVENT_NAMES
     override val name = "rarible_nft"
     override val contract = Contracts.RARIBLE_NFT
@@ -28,4 +28,3 @@ class RaribleNFTSubscriber: NonFungibleTokenSubscriber() {
         }
     }
 }
-

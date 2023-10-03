@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.time.Instant
 
-internal class ContinuationsTest: FunSpec({
+internal class ContinuationsTest : FunSpec({
 
     test("should parse CNN continuations") {
         val primary = Instant.ofEpochMilli(1628787662840)
@@ -34,5 +34,4 @@ internal class ContinuationsTest: FunSpec({
             secondary
         )
     }
-
 })

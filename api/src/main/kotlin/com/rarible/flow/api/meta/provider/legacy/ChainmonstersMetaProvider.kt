@@ -39,7 +39,8 @@ class ChainmonstersMetaProvider(
             }?.let { response ->
                 if (response.hasErrors()) {
                     logger.warn(
-                        "Failed to fetch metadata for {}: {}", item.id, response.errors.joinToString(";") {
+                        "Failed to fetch metadata for {}: {}", item.id,
+                        response.errors.joinToString(";") {
                             it.message
                         }
                     )
@@ -51,7 +52,6 @@ class ChainmonstersMetaProvider(
                         .reward
                 }
             }?.toItemMeta(item.id)
-
     }
 
     companion object {

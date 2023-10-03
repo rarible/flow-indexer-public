@@ -37,7 +37,6 @@ class MatrixWorldMetaProvider(
             null
         }
     }
-
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -49,7 +48,7 @@ data class MatrixWorldMetaBody(
 
     @get:JsonProperty("animation_url")
     val animationUrl: String? = null
-): MetaBody {
+) : MetaBody {
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         return ItemMeta(
             itemId = itemId,

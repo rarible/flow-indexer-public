@@ -1,7 +1,12 @@
 package com.rarible.flow.scanner.cadence
 
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.cadence.*
+import com.nftco.flow.sdk.cadence.CadenceNamespace
+import com.nftco.flow.sdk.cadence.CapabilityField
+import com.nftco.flow.sdk.cadence.Field
+import com.nftco.flow.sdk.cadence.JsonCadenceConversion
+import com.nftco.flow.sdk.cadence.JsonCadenceConverter
+import com.nftco.flow.sdk.cadence.unmarshall
 import com.rarible.flow.core.domain.PaymentType
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.event.EventId
@@ -97,7 +102,7 @@ data class SaleCut(
     val amount: BigDecimal
 )
 
-class ListingDetailsConverter: JsonCadenceConverter<ListingDetails> {
+class ListingDetailsConverter : JsonCadenceConverter<ListingDetails> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): ListingDetails = unmarshall(value) {
         ListingDetails(
             storefrontID = long("storefrontID"),
@@ -115,7 +120,7 @@ class ListingDetailsConverter: JsonCadenceConverter<ListingDetails> {
     }
 }
 
-class ListingAvailableConverter: JsonCadenceConverter<ListingAvailable> {
+class ListingAvailableConverter : JsonCadenceConverter<ListingAvailable> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): ListingAvailable = unmarshall(value) {
         ListingAvailable(
             storefrontAddress = FlowAddress(address("storefrontAddress")),
@@ -126,7 +131,7 @@ class ListingAvailableConverter: JsonCadenceConverter<ListingAvailable> {
     }
 }
 
-class ListingCompletedConverter: JsonCadenceConverter<ListingCompleted> {
+class ListingCompletedConverter : JsonCadenceConverter<ListingCompleted> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): ListingCompleted = unmarshall(value) {
         ListingCompleted(
             listingResourceID = long("listingResourceID"),
@@ -211,15 +216,13 @@ data class BidAvailable(
     val cuts: Map<FlowAddress, BigDecimal>,
 )
 
-
 @JsonCadenceConversion(OpenBidClosedConverter::class)
 data class BidCompleted(
     val bidId: Long,
     val purchased: Boolean,
 )
 
-
-class OpenBidAvailableConverter: JsonCadenceConverter<BidAvailable> {
+class OpenBidAvailableConverter : JsonCadenceConverter<BidAvailable> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): BidAvailable = unmarshall(value) {
         BidAvailable(
             bidAddress = FlowAddress(address("bidAddress")),
@@ -236,7 +239,7 @@ class OpenBidAvailableConverter: JsonCadenceConverter<BidAvailable> {
     }
 }
 
-class OpenBidClosedConverter: JsonCadenceConverter<BidCompleted> {
+class OpenBidClosedConverter : JsonCadenceConverter<BidCompleted> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): BidCompleted = unmarshall(value) {
         BidCompleted(
             bidId = long("bidId"),

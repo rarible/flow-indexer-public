@@ -1,11 +1,19 @@
 package com.rarible.flow.core.converter
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.FlowAssetFungible
+import com.rarible.flow.core.domain.FlowAssetNFT
+import com.rarible.flow.core.domain.OrderData
+import com.rarible.flow.core.domain.OrderStatus
+import com.rarible.flow.core.domain.Payout
 import com.rarible.flow.core.repository.data
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.CurrencyRateDto
-import com.rarible.protocol.dto.*
+import com.rarible.protocol.dto.FlowAssetFungibleDto
+import com.rarible.protocol.dto.FlowAssetNFTDto
+import com.rarible.protocol.dto.FlowOrderDataDto
+import com.rarible.protocol.dto.FlowOrderStatusDto
+import com.rarible.protocol.dto.PayInfoDto
 import io.kotest.core.datatest.forAll
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
@@ -15,10 +23,9 @@ import io.mockk.every
 import io.mockk.mockk
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.time.Instant
 
-internal class OrderToDtoConverterTest: FunSpec({
+internal class OrderToDtoConverterTest : FunSpec({
 
     val currencyApi = mockk<CurrencyControllerApi>() {
         every { getCurrencyRate(any(), any(), any()) } returns Mono.just(
@@ -40,7 +47,7 @@ internal class OrderToDtoConverterTest: FunSpec({
         forAll(
             *OrderStatus.values()
         ) { status ->
-            converter.convert(status) shouldBe when(status) {
+            converter.convert(status) shouldBe when (status) {
                 OrderStatus.ACTIVE -> FlowOrderStatusDto.ACTIVE
                 OrderStatus.FILLED -> FlowOrderStatusDto.FILLED
                 OrderStatus.HISTORICAL -> FlowOrderStatusDto.HISTORICAL
@@ -100,7 +107,7 @@ internal class OrderToDtoConverterTest: FunSpec({
         }
     }
 
-    //TODO we should not put taker to our orders
+    // TODO we should not put taker to our orders
     test("should convert order with taker") {
         val order = data.createOrder().copy(taker = FlowAddress("0x1337"))
 
@@ -112,5 +119,4 @@ internal class OrderToDtoConverterTest: FunSpec({
             o.priceUsd shouldBe 100.toBigDecimal()
         }
     }
-
 })

@@ -21,7 +21,7 @@ data class EventId(
     companion object {
         fun of(str: String): EventId {
             val parts = str.split('.')
-            if(parts.size == 4) {
+            if (parts.size == 4) {
                 return EventId(
                     parts[0],
                     FlowAddress(parts[1]),

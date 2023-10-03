@@ -36,7 +36,7 @@ class ScriptExecutor(
         resourcePath: String,
         args: ScriptBuilder.() -> Unit,
         parse: JsonCadenceParser.(Field<*>) -> T,
-        processResponse: FlowScriptResponse.() -> FlowScriptResponse = {this}
+        processResponse: FlowScriptResponse.() -> FlowScriptResponse = { this }
     ): T {
         return executeFile(ClassPathResource(resourcePath), args, parse)
     }
@@ -59,7 +59,7 @@ class ScriptExecutor(
         code: String,
         args: ScriptBuilder.() -> Unit,
         parse: JsonCadenceParser.(Field<*>) -> T,
-        processResponse: FlowScriptResponse.() -> FlowScriptResponse = {this}
+        processResponse: FlowScriptResponse.() -> FlowScriptResponse = { this }
     ): T {
         val response = api.simpleScript {
             script(code, appProperties.chainId)
@@ -72,5 +72,4 @@ class ScriptExecutor(
     companion object {
         val logger by Log()
     }
-
 }

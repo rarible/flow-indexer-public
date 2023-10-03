@@ -26,7 +26,7 @@ class SomePlaceCollectibleMetaProvider(
     @Value("classpath:script/spc_meta.cdc")
     private val script: Resource,
     private val scriptExecutor: ScriptExecutor
-): ItemMetaProvider {
+) : ItemMetaProvider {
     override fun isSupported(itemId: ItemId): Boolean =
         itemId.contract == Contracts.SOME_PLACE_COLLECTIBLE.fqn(chainId)
 
@@ -54,7 +54,7 @@ class SomePlaceCollectibleMetaProvider(
         val description: String,
         val mediaUrl: String,
         val attributes: Map<String, String>,
-    ): MetaBody {
+    ) : MetaBody {
         override fun toItemMeta(itemId: ItemId): ItemMeta {
             return ItemMeta(
                 itemId = itemId,
@@ -76,7 +76,7 @@ class SomePlaceCollectibleMetaProvider(
         }
     }
 
-    internal class MetaParser: JsonCadenceConverter<Meta> {
+    internal class MetaParser : JsonCadenceConverter<Meta> {
         override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): Meta = com.nftco.flow.sdk.cadence.unmarshall(value) {
             Meta(
                 id = long("id"),

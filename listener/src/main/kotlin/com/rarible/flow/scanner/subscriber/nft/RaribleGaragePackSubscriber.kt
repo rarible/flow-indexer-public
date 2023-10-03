@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @EnableRariblePack
-class RaribleGaragePackSubscriber: NonFungibleTokenSubscriber() {
+class RaribleGaragePackSubscriber : NonFungibleTokenSubscriber() {
     override val name = "rarible_pack"
     override val contract = Contracts.RARIBLE_GARAGE_PACK
 }

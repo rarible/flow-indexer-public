@@ -35,7 +35,7 @@ abstract class WithPaymentsActivityMaker : ActivityMaker {
     }
 
     protected val currenciesEvents: Set<String> by lazy {
-        currencies[chainId]!!.flatMap { listOf("${it}.TokensDeposited", "${it}.TokensWithdrawn") }.toSet()
+        currencies[chainId]!!.flatMap { listOf("$it.TokensDeposited", "$it.TokensWithdrawn") }.toSet()
     }
 
     protected val logger by Log()
@@ -149,4 +149,3 @@ abstract class WithPaymentsActivityMaker : ActivityMaker {
         )
     )
 }
-

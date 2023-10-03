@@ -10,18 +10,17 @@ import org.springframework.stereotype.Repository
 import reactor.core.publisher.Flux
 
 @Repository
-interface ItemCollectionRepository: ReactiveMongoRepository<ItemCollection, String>, ItemCollectionRepositoryCustom
+interface ItemCollectionRepository : ReactiveMongoRepository<ItemCollection, String>, ItemCollectionRepositoryCustom
 
-interface ItemCollectionRepositoryCustom: ScrollingRepository<ItemCollection>
+interface ItemCollectionRepositoryCustom : ScrollingRepository<ItemCollection>
 
 @Suppress("unused")
 class ItemCollectionRepositoryCustomImpl(
     private val mongo: ReactiveMongoTemplate
-): ItemCollectionRepositoryCustom {
+) : ItemCollectionRepositoryCustom {
     override fun defaultSort(): ScrollingSort<ItemCollection> {
         return CollectionFilter.Sort.BY_ID
     }
-
 
     override fun findByQuery(query: Query): Flux<ItemCollection> {
         return mongo.find(query)

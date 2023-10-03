@@ -12,7 +12,6 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
-import org.springframework.data.mongodb.core.indexOps
 
 @ChangeLog(order = "99998")
 class ChangeLog99998DropIndexes {

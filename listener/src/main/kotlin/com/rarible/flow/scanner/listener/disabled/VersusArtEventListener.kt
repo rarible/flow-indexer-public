@@ -76,13 +76,15 @@ class VersusArtEventListener(
         if (custom.isEmpty()) return emptyList()
 
         return when (custom.first().customType) {
-            "DropDestroyed" -> events
-                .filter { it.type == FlowLogType.DEPOSIT }
-                .map { it.burnItemHistory() }
+            "DropDestroyed" ->
+                events
+                    .filter { it.type == FlowLogType.DEPOSIT }
+                    .map { it.burnItemHistory() }
 
-            "Settle" -> events
-                .filter { it.type == FlowLogType.DEPOSIT && it.to == it.contractAddress }
-                .map { it.burnItemHistory() }
+            "Settle" ->
+                events
+                    .filter { it.type == FlowLogType.DEPOSIT && it.to == it.contractAddress }
+                    .map { it.burnItemHistory() }
 
             else -> emptyList()
         }

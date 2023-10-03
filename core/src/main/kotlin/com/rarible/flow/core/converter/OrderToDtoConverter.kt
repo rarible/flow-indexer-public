@@ -15,16 +15,15 @@ import com.rarible.protocol.dto.FlowOrderDto
 import com.rarible.protocol.dto.FlowOrderStatusDto
 import com.rarible.protocol.dto.FlowOrdersPaginationDto
 import com.rarible.protocol.dto.PayInfoDto
-import java.math.BigDecimal
-import java.math.BigInteger
-import java.time.Instant
-import java.time.ZoneOffset
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.awaitSingle
-
+import java.math.BigDecimal
+import java.math.BigInteger
+import java.time.Instant
+import java.time.ZoneOffset
 
 class OrderToDtoConverter(
     private val currencyApi: CurrencyControllerApi
@@ -88,7 +87,7 @@ class OrderToDtoConverter(
     )
 
     fun convert(status: OrderStatus): FlowOrderStatusDto {
-        return when(status) {
+        return when (status) {
             OrderStatus.ACTIVE -> FlowOrderStatusDto.ACTIVE
             OrderStatus.FILLED -> FlowOrderStatusDto.FILLED
             OrderStatus.HISTORICAL -> FlowOrderStatusDto.HISTORICAL
@@ -98,7 +97,7 @@ class OrderToDtoConverter(
     }
 
     fun makeStock(order: Order): BigInteger {
-        return when(order.make) {
+        return when (order.make) {
             FlowAssetEmpty -> order.makeStock!!
             is FlowAssetFungible -> order.makeStock!!
             is FlowAssetNFT -> order.makeStock!!
@@ -106,7 +105,7 @@ class OrderToDtoConverter(
     }
 
     suspend fun page(orders: Flow<Order>, sort: OrderFilter.Sort, size: Int?): FlowOrdersPaginationDto {
-        return if(orders.count() == 0) {
+        return if (orders.count() == 0) {
             FlowOrdersPaginationDto(emptyList())
         } else {
             FlowOrdersPaginationDto(

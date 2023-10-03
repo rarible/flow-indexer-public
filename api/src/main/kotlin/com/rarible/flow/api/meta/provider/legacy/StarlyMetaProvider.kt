@@ -8,7 +8,9 @@ import com.rarible.flow.api.meta.ItemMetaAttribute
 import com.rarible.flow.api.meta.ItemMetaContent
 import com.rarible.flow.api.meta.provider.ItemMetaProvider
 import com.rarible.flow.api.service.ScriptExecutor
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.TokenId
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -41,7 +43,7 @@ class StarlyMetaScript(
 class StarlyMetaProvider(
     private val ipfsClient: WebClient,
     private val script: StarlyMetaScript
-): ItemMetaProvider {
+) : ItemMetaProvider {
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.contains("StarlyCard")
 
     override suspend fun getMeta(item: Item): ItemMeta? {
@@ -70,7 +72,7 @@ data class StarlyMeta(
     val edition: String,
     val editions: String,
 
-    ) : MetaBody {
+) : MetaBody {
 
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         return ItemMeta(

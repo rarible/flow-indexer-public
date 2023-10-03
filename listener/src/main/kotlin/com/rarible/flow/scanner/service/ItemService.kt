@@ -13,11 +13,10 @@ class ItemService(
 
     suspend fun <T> withItem(itemId: ItemId, fn: suspend (Item) -> T): T? {
         val item = itemRepository.coFindById(itemId)
-        return if(item == null) {
+        return if (item == null) {
             null
         } else {
             fn(item)
         }
     }
-
 }

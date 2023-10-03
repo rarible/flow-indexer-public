@@ -45,7 +45,7 @@ interface OwnershipRepositoryCustom : ScrollingRepository<Ownership> {
 }
 
 @Suppress("unused")
-class OwnershipRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate): OwnershipRepositoryCustom {
+class OwnershipRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate) : OwnershipRepositoryCustom {
 
     override fun defaultSort(): ScrollingSort<Ownership> {
         return OwnershipFilter.Sort.LATEST_FIRST

@@ -4,7 +4,6 @@ import com.nftco.flow.sdk.FlowId
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.FlowLogType
-import com.rarible.flow.core.domain.PaymentType
 import com.rarible.flow.core.test.randomFlowTransactionResult
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
@@ -47,10 +46,12 @@ class NFTStorefrontPurchaseV2EventParserTest : BaseNFTStorefrontEventParserTest(
             value = BigDecimal("10.00000000"),
         )
 
-        coEvery { txManager.getTransactionEvents(
-            blockHeight = purchaseLogEvent.log.blockHeight,
-            transactionId = FlowId(purchaseLogEvent.log.transactionHash)
-        ) } returns randomFlowTransactionResult(events = listOf(withdrawLogEvent, depositLogEvent))
+        coEvery {
+            txManager.getTransactionEvents(
+                blockHeight = purchaseLogEvent.log.blockHeight,
+                transactionId = FlowId(purchaseLogEvent.log.transactionHash)
+            )
+        } returns randomFlowTransactionResult(events = listOf(withdrawLogEvent, depositLogEvent))
 
         coEvery {
             currencyService.getUsdRate(expectedCurrencyAsset.contract, purchaseLogEvent.log.timestamp)
@@ -84,10 +85,12 @@ class NFTStorefrontPurchaseV2EventParserTest : BaseNFTStorefrontEventParserTest(
         val withdrawLogEvent = getFlowEvent("/json/nft_withdraw.json")
         val expectedRate = BigDecimal("0.1")
 
-        coEvery { txManager.getTransactionEvents(
-            blockHeight = any(),
-            transactionId = any()
-        ) } returns randomFlowTransactionResult(events = listOf(withdrawLogEvent, depositLogEvent))
+        coEvery {
+            txManager.getTransactionEvents(
+                blockHeight = any(),
+                transactionId = any()
+            )
+        } returns randomFlowTransactionResult(events = listOf(withdrawLogEvent, depositLogEvent))
 
         coEvery {
             currencyService.getUsdRate("A.7e60df042a9c0868.FlowToken", purchaseLogEvent.log.timestamp)

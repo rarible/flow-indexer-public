@@ -11,7 +11,7 @@ import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 
 @ConditionalOnProperty(name = ["blockchain.scanner.flow.chainId"], havingValue = "MAINNET")
-class DisruptArtSubscriber: BaseFlowLogEventSubscriber() {
+class DisruptArtSubscriber : BaseFlowLogEventSubscriber() {
 
     private val events = setOf("Mint", "Withdraw", "Deposit", "GroupMint")
     private val name = "disrupt_art"
@@ -43,10 +43,10 @@ class DisruptArtSubscriber: BaseFlowLogEventSubscriber() {
         )
 
     override suspend fun eventType(log: FlowBlockchainLog): FlowLogType =
-        when(EventId.of(log.event.type).eventName) {
+        when (EventId.of(log.event.type).eventName) {
             "Withdraw" -> FlowLogType.WITHDRAW
             "Deposit" -> FlowLogType.DEPOSIT
             "Mint", "GroupMint" -> FlowLogType.MINT
-            else ->  throw IllegalStateException("Unsupported event type: ${log.event.type}")
+            else -> throw IllegalStateException("Unsupported event type: ${log.event.type}")
         }
 }

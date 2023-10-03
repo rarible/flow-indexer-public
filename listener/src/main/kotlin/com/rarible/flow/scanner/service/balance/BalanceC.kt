@@ -24,7 +24,7 @@ data class BalanceC(
     }
 
     companion object {
-        class CadenceConverter: JsonCadenceConverter<BalanceC> {
+        class CadenceConverter : JsonCadenceConverter<BalanceC> {
             override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): BalanceC = com.nftco.flow.sdk.cadence.unmarshall(value) {
                 BalanceC(
                     FlowAddress(address("account")),
@@ -35,4 +35,3 @@ data class BalanceC(
         }
     }
 }
-

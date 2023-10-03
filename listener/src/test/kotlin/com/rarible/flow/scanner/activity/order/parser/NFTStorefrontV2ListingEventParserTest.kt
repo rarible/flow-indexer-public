@@ -22,7 +22,8 @@ class NFTStorefrontV2ListingEventParserTest : BaseNFTStorefrontEventParserTest()
     fun `parse - ok`() = runBlocking<Unit> {
         val flowLogEvent = getFlowLogEvent(
             json = "/json/nft_storefront_v2_listing.json",
-            type = FlowLogType.LISTING_AVAILABLE)
+            type = FlowLogType.LISTING_AVAILABLE
+        )
 
         val expectedNftAsset = FlowAssetNFT(
             contract = "A.80102bce1de42dc4.HWGaragePack",
@@ -58,7 +59,8 @@ class NFTStorefrontV2ListingEventParserTest : BaseNFTStorefrontEventParserTest()
     fun `parse - ok, with seconds in expiry`() = runBlocking<Unit> {
         val flowLogEvent = getFlowLogEvent(
             json = "/json/nft_storefront_v2_listing_with_second_expire.json",
-            type = FlowLogType.LISTING_AVAILABLE)
+            type = FlowLogType.LISTING_AVAILABLE
+        )
 
         coEvery {
             currencyService.getUsdRate(any(), any())
@@ -73,7 +75,8 @@ class NFTStorefrontV2ListingEventParserTest : BaseNFTStorefrontEventParserTest()
     fun `parse - ok, with estimated fee`() = runBlocking<Unit> {
         val flowLogEvent = getFlowLogEvent(
             json = "/json/nft_storefront_v2_listing_with_fee.json",
-            type = FlowLogType.LISTING_AVAILABLE)
+            type = FlowLogType.LISTING_AVAILABLE
+        )
 
         coEvery { currencyService.getUsdRate(any(), any()) } returns BigDecimal("0.1")
 

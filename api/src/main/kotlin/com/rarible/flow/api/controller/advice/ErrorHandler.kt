@@ -19,7 +19,7 @@ data class HttpError(val status: Int, val code: String = "UNKNOWN", val message:
 
 @Configuration
 @Order(-2)
-class ErrorHandler: ErrorWebExceptionHandler {
+class ErrorHandler : ErrorWebExceptionHandler {
 
     private val log by Log()
 

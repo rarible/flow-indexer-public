@@ -49,7 +49,7 @@ object DescriptorFactory {
     ): FlowDescriptor {
         val address = contract.fqn(chainId)
         val eventsSet = events.map { "${contract.fqn(chainId)}.$it" }.toSet()
-        val additionalSet = additionalEvents.map { "A.${address}.$it" }
+        val additionalSet = additionalEvents.map { "A.$address.$it" }
         return FlowDescriptor(
             groupId = groupId,
             entityType = FlowLogRecord::class.java,
@@ -173,7 +173,6 @@ object DescriptorFactory {
         name = name,
     )
 }
-
 
 fun Contracts.flowDescriptorName() = "${this.contractName}Descriptor"
 

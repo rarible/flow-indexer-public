@@ -15,8 +15,8 @@ class NftStorefrontCancelEventParser(
 
     override fun isSupported(logEvent: FlowLogEvent): Boolean {
         return logEvent.type == FlowLogType.LISTING_COMPLETED &&
-               !wasPurchased(logEvent.event) &&
-               super.isSupported(logEvent)
+            !wasPurchased(logEvent.event) &&
+            super.isSupported(logEvent)
     }
 
     override suspend fun parseActivity(logEvent: FlowLogEvent): FlowNftOrderActivityCancelList {
@@ -26,4 +26,3 @@ class NftStorefrontCancelEventParser(
         )
     }
 }
-

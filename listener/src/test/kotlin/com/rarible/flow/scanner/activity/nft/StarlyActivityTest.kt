@@ -18,7 +18,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
-internal class StarlyActivityTest: AbstractNftActivityTest() {
+internal class StarlyActivityTest : AbstractNftActivityTest() {
 
     val activityMaker = StarlyActivity(logRepository, txManager, properties)
 
@@ -88,6 +88,6 @@ internal class StarlyActivityTest: AbstractNftActivityTest() {
             ),
             type = FlowLogType.MINT,
 
-            )
+        )
     }
 }

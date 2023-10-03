@@ -8,7 +8,7 @@ import com.nftco.flow.sdk.cadence.StructField
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.scanner.model.RaribleNftMint
 
-class RaribleNftMintConverter: JsonCadenceConverter<RaribleNftMint> {
+class RaribleNftMintConverter : JsonCadenceConverter<RaribleNftMint> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): RaribleNftMint =
         com.nftco.flow.sdk.cadence.unmarshall(value) {
             RaribleNftMint(

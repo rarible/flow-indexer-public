@@ -49,9 +49,11 @@ internal class OrderStartEndCheckerHanderFt : AbstractIntegrationTest() {
         )
 
         val expiredOrder = orderRepository.save(
-            createOrder().copy(status = OrderStatus.ACTIVE, end = now().minusSeconds(100L).epochSecond)).awaitSingle()
+            createOrder().copy(status = OrderStatus.ACTIVE, end = now().minusSeconds(100L).epochSecond)
+        ).awaitSingle()
         val notStartedOrder = orderRepository.save(
-            createOrder().copy(status = OrderStatus.INACTIVE, start = now().minusSeconds(100L).epochSecond)).awaitSingle()
+            createOrder().copy(status = OrderStatus.INACTIVE, start = now().minusSeconds(100L).epochSecond)
+        ).awaitSingle()
         val normalOrder = orderRepository.save(createOrder().copy(status = OrderStatus.ACTIVE)).awaitSingle()
 
         handler.handle()
@@ -69,5 +71,4 @@ internal class OrderStartEndCheckerHanderFt : AbstractIntegrationTest() {
         val fetched = orderRepository.findById(order.id).awaitSingle()
         assertThat(fetched.status).isEqualTo(status)
     }
-
 }

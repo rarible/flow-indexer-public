@@ -16,4 +16,3 @@ class HWGarageCardV2RoyaltyProvider(
     scriptExecutor,
     properties,
 )
-

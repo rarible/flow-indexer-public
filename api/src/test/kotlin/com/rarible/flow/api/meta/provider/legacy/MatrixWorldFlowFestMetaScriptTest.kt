@@ -7,7 +7,7 @@ import com.rarible.flow.api.mocks.scriptExecutor
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class MatrixWorldFlowFestMetaScriptTest: FunSpec({
+internal class MatrixWorldFlowFestMetaScriptTest : FunSpec({
 
     val scripts = scriptExecutor(
         "no_meta" to data.CADENCE_NULL,
@@ -34,5 +34,4 @@ internal class MatrixWorldFlowFestMetaScriptTest: FunSpec({
             type = "common"
         )
     }
-
 })

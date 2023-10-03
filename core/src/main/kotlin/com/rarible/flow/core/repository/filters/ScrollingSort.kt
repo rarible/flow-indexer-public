@@ -18,7 +18,7 @@ interface ScrollingSort<T> {
     fun nextPage(entity: T): String
 
     fun nextPageSafe(entity: T?): String? {
-        return if(entity == null) {
+        return if (entity == null) {
             null
         } else {
             nextPage(entity)
@@ -27,14 +27,14 @@ interface ScrollingSort<T> {
 
     suspend fun nextPage(entities: Flow<T>, limit: Int?): String? {
         val expectedCount = pageSize(limit)
-        return if(entities.count() < expectedCount) {
-             null
+        return if (entities.count() < expectedCount) {
+            null
         } else nextPageSafe(entities.lastOrNull())
     }
 
     fun nextPage(entities: Collection<T>, limit: Int?): String? {
         val expectedCount = pageSize(limit)
-        return if(entities.count() < expectedCount) {
+        return if (entities.count() < expectedCount) {
             null
         } else nextPageSafe(entities.lastOrNull())
     }

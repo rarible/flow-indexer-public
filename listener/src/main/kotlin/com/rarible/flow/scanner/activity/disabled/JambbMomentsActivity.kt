@@ -21,7 +21,7 @@ class JambbMomentsActivity(
     flowLogRepository: FlowLogRepository,
     txManager: TxManager,
     properties: FlowListenerProperties,
-): NFTActivityMaker(flowLogRepository, txManager, properties) {
+) : NFTActivityMaker(flowLogRepository, txManager, properties) {
 
     override val contractName: String = Contracts.JAMBB_MOMENTS.contractName
 

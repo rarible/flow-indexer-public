@@ -77,7 +77,8 @@ data class GeniaceNFT(
                 representation = ItemMetaContent.Representation.PREVIEW,
                 type = ItemMetaContent.Type.IMAGE,
             )
-        }, ItemMetaContent(
+        },
+        ItemMetaContent(
             url = metadata.imageUrl,
             representation = ItemMetaContent.Representation.ORIGINAL,
             type = metadata.data["mimetype"].let {
@@ -94,9 +95,9 @@ data class GeniaceNFT(
     )
 
     private fun media() = listOf(metadata.imageUrl) +
-            metadata.data.filterKeys { it.startsWith("gallery") }.entries
-                .sortedBy { (key, _) -> key }
-                .map { (_, value) -> value }
+        metadata.data.filterKeys { it.startsWith("gallery") }.entries
+            .sortedBy { (key, _) -> key }
+            .map { (_, value) -> value }
 
     private fun attributes() = listOf(
         ItemMetaAttribute("celebrityName", metadata.celebrityName),

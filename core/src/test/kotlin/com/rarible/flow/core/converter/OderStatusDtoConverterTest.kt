@@ -7,20 +7,21 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 
-internal class OderStatusDtoConverterTest: FunSpec({
+internal class OderStatusDtoConverterTest : FunSpec({
     test("should convert all statuses") {
         forAll(
             *FlowOrderStatusDto.values()
-        ) {  dto  ->
-            OderStatusDtoConverter.convert(dto) shouldBe (when(dto) {
-                FlowOrderStatusDto.ACTIVE -> OrderStatus.ACTIVE
-                FlowOrderStatusDto.FILLED -> OrderStatus.FILLED
-                FlowOrderStatusDto.HISTORICAL -> OrderStatus.HISTORICAL
-                FlowOrderStatusDto.INACTIVE -> OrderStatus.INACTIVE
-                FlowOrderStatusDto.CANCELLED -> OrderStatus.CANCELLED
-            })
+        ) { dto ->
+            OderStatusDtoConverter.convert(dto) shouldBe (
+                when (dto) {
+                    FlowOrderStatusDto.ACTIVE -> OrderStatus.ACTIVE
+                    FlowOrderStatusDto.FILLED -> OrderStatus.FILLED
+                    FlowOrderStatusDto.HISTORICAL -> OrderStatus.HISTORICAL
+                    FlowOrderStatusDto.INACTIVE -> OrderStatus.INACTIVE
+                    FlowOrderStatusDto.CANCELLED -> OrderStatus.CANCELLED
+                }
+                )
         }
-
     }
 
     test("should convert null list") {
@@ -36,6 +37,4 @@ internal class OderStatusDtoConverterTest: FunSpec({
             listOf(FlowOrderStatusDto.ACTIVE, FlowOrderStatusDto.FILLED)
         ) shouldContainAll listOf(OrderStatus.ACTIVE, OrderStatus.FILLED)
     }
-
-
 })

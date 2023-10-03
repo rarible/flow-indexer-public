@@ -54,4 +54,3 @@ class NftStorefrontV2ActivityMaker(
     contractName = Contracts.NFT_STOREFRONT_V2.contractName,
     parsers = listOf(cancelParser, listParser, purchaseParser)
 )
-

@@ -11,7 +11,7 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
 
-internal class OwnershipToDtoConverterTest: FunSpec({
+internal class OwnershipToDtoConverterTest : FunSpec({
 
     test("should convert ownership to dto") {
         OwnershipToDtoConverter.convert(

@@ -54,6 +54,4 @@ internal class CnnNFTMetaProviderTest : FunSpec({
             mockMeta.toItemMeta(itemId)
         }
     }
-
-
 })

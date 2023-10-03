@@ -13,5 +13,4 @@ object BarbieCardMetaParser : MattelMetaParser() {
     override val fieldDescription = fields()
     override val fieldImageOriginal = fields("imageUrl")
     override val fieldRights = fields("eula")
-
 }

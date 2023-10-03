@@ -21,7 +21,7 @@ class OrderStartEndCheckerHandler(
     private val protocolEventPublisher: ProtocolEventPublisher,
     private val orderStartedMetric: RegisteredCounter,
     private val orderExpiredMetric: RegisteredCounter
-): JobHandler {
+) : JobHandler {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 

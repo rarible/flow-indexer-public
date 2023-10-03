@@ -10,7 +10,7 @@ data class EventMessage(
     val fields: Map<String, com.nftco.flow.sdk.cadence.Field<*>>
 )
 
-class EventMessageCadenceConverter: JsonCadenceConverter<EventMessage> {
+class EventMessageCadenceConverter : JsonCadenceConverter<EventMessage> {
     override fun unmarshall(value: com.nftco.flow.sdk.cadence.Field<*>, namespace: CadenceNamespace) = convert(value)
 
     companion object {

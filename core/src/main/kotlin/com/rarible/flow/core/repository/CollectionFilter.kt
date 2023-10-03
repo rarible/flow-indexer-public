@@ -10,10 +10,9 @@ import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.data.mongodb.core.query.where
 import org.springframework.data.domain.Sort as SpringSort
 
+sealed class CollectionFilter : DbFilter<ItemCollection> {
 
-sealed class CollectionFilter: DbFilter<ItemCollection> {
-
-    enum class Sort: ScrollingSort<ItemCollection> {
+    enum class Sort : ScrollingSort<ItemCollection> {
         BY_ID {
             override fun springSort(): org.springframework.data.domain.Sort {
                 return SpringSort.by(
@@ -35,7 +34,6 @@ sealed class CollectionFilter: DbFilter<ItemCollection> {
                     } else {
                         criteria.and(ItemCollection::id).lt(continuation).and(ItemCollection::isSoft).isEqualTo(false)
                     }
-
                 }
             }
 
@@ -45,15 +43,13 @@ sealed class CollectionFilter: DbFilter<ItemCollection> {
         }
     }
 
-    object All: CollectionFilter() {
+    object All : CollectionFilter() {
         override fun criteria(): Criteria = Criteria()
     }
 
-    data class ByOwner(val owner: FlowAddress): CollectionFilter() {
+    data class ByOwner(val owner: FlowAddress) : CollectionFilter() {
         override fun criteria(): Criteria {
             return ItemCollection::owner isEqualTo this.owner
         }
     }
-
-
 }

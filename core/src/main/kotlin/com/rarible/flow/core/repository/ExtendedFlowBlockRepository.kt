@@ -5,8 +5,7 @@ import com.rarible.blockchain.scanner.block.BlockStatus
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import reactor.core.publisher.Mono
 
-
-interface ExtendedFlowBlockRepository: ReactiveCrudRepository<Block, Long> {
+interface ExtendedFlowBlockRepository : ReactiveCrudRepository<Block, Long> {
 
     fun findFirstByOrderByIdAsc(): Mono<Block>
 

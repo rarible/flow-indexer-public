@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @EnableRaribleCard
-class RaribleGarageCardSubscriber: NonFungibleTokenSubscriber() {
+class RaribleGarageCardSubscriber : NonFungibleTokenSubscriber() {
     override val name = "rarible_card"
     override val contract = Contracts.RARIBLE_GARAGE_CARD
 }

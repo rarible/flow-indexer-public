@@ -14,9 +14,7 @@ import com.rarible.protocol.dto.FlowNftOwnershipEventTopicProvider
 import com.rarible.protocol.dto.FlowOwnershipEventDto
 import org.apache.kafka.clients.consumer.OffsetResetStrategy
 import org.springframework.beans.factory.config.BeanPostProcessor
-import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Bean
 
 @TestConfiguration
@@ -36,7 +34,8 @@ class TestConfiguration(
         override fun postProcessAfterInitialization(bean: Any, beanName: String): Any? {
             if (bean.javaClass == SporkService::class.java) {
                 (bean as SporkService).replace(
-                    FlowChainId.EMULATOR, listOf(
+                    FlowChainId.EMULATOR,
+                    listOf(
                         Spork(
                             from = 0L,
                             to = Long.MAX_VALUE,

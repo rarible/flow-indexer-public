@@ -1,6 +1,5 @@
 package com.rarible.flow.core.domain
 
-
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.core.common.nowMillis
 import com.rarible.protocol.dto.FlowOrderPlatformDto
@@ -127,7 +126,8 @@ data class OrderData(
 ) {
     companion object {
         fun withOriginalFees(value: List<Payout>): OrderData {
-            return OrderData(originalFees = value, payouts = emptyList()
+            return OrderData(
+                originalFees = value, payouts = emptyList()
             )
         }
     }

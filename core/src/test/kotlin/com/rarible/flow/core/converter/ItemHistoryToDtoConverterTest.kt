@@ -15,7 +15,7 @@ import io.mockk.mockk
 import java.math.BigInteger
 import java.time.Instant
 
-internal class ItemHistoryToDtoConverterTest: FunSpec({
+internal class ItemHistoryToDtoConverterTest : FunSpec({
     val converter = ItemHistoryToDtoConverter(mockk())
 
     val date = Instant.now()
@@ -57,7 +57,6 @@ internal class ItemHistoryToDtoConverterTest: FunSpec({
             false
         )
     }
-
 })
 
 private fun createItemHistory(date: Instant, activity: BaseActivity): ItemHistory {

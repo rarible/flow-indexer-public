@@ -21,7 +21,9 @@ data class Ownership(
 ) : Serializable {
 
     constructor(
-        id: OwnershipId, creator: FlowAddress, date: Instant = Instant.now(Clock.systemUTC())
+        id: OwnershipId,
+        creator: FlowAddress,
+        date: Instant = Instant.now(Clock.systemUTC())
     ) : this(id.contract, id.tokenId, id.owner, creator, date)
 
     @get:Id

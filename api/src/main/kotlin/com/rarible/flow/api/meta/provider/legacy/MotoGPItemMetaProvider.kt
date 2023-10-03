@@ -7,7 +7,9 @@ import com.rarible.flow.api.meta.ItemMetaAttribute
 import com.rarible.flow.api.meta.ItemMetaContent
 import com.rarible.flow.api.meta.provider.ItemMetaProvider
 import com.rarible.flow.api.service.ScriptExecutor
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.Item
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.TokenId
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -54,7 +56,7 @@ class MotoGpCardScript(
 data class MotoGpMetaBody(
     val nft: MotoGPNFT,
     val meta: MotoGPMeta
-): MetaBody {
+) : MetaBody {
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         val attributes = meta.data.filterNot { "videoUrl" == it.key }.map { e ->
             ItemMetaAttribute(

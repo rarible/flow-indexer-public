@@ -18,7 +18,8 @@ class NFTStorefrontCancelEventParserTest : BaseNFTStorefrontEventParserTest() {
     fun `parse - ok`() = runBlocking<Unit> {
         val flowLogEvent = getFlowLogEvent(
             json = "/json/nft_storefront_v2_cancel.json",
-            type = FlowLogType.LISTING_COMPLETED)
+            type = FlowLogType.LISTING_COMPLETED
+        )
 
         val activities = parser.parseActivities(listOf(flowLogEvent))
         Assertions.assertThat(activities).hasSize(1)

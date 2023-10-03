@@ -1,12 +1,11 @@
 package com.rarible.flow.core.domain
 
-
-import com.rarible.protocol.dto.FlowOrderPlatformDto
-import java.math.BigDecimal
-import java.time.Instant
 import com.nftco.flow.sdk.FlowAddress
+import com.rarible.protocol.dto.FlowOrderPlatformDto
 import org.springframework.data.mongodb.core.mapping.Field
 import org.springframework.data.mongodb.core.mapping.FieldType
+import java.math.BigDecimal
+import java.time.Instant
 
 sealed interface FlowActivity
 
@@ -119,7 +118,6 @@ data class FlowNftOrderActivityCancelBid(
 ) : BaseActivity() {
     override fun getKey() = hash
 }
-
 
 data class FlowNftOrderPayment(
     val type: PaymentType,
@@ -298,4 +296,4 @@ data class AuctionActivityBidIncreased(
     override val lotId: Long,
     val bidder: String,
     val amount: BigDecimal
-): AuctionActivity()
+) : AuctionActivity()

@@ -12,7 +12,6 @@ import com.rarible.blockchain.scanner.flow.service.AsyncFlowAccessApi
 import com.rarible.flow.sdk.simpleScript
 import kotlinx.coroutines.future.await
 
-
 class SignatureService(
     private val chainId: FlowChainId,
     private val flowAccessApi: AsyncFlowAccessApi

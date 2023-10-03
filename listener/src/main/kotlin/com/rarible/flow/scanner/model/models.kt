@@ -29,7 +29,7 @@ data class MotoGPCardNFT(
     val cardID: Long
 )
 
-class MotoGPMetadataConverter: JsonCadenceConverter<MotoGPCardMetadata> {
+class MotoGPMetadataConverter : JsonCadenceConverter<MotoGPCardMetadata> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): MotoGPCardMetadata =
         com.nftco.flow.sdk.cadence.unmarshall(value.value as Field<*>) {
             MotoGPCardMetadata(
@@ -44,7 +44,7 @@ class MotoGPMetadataConverter: JsonCadenceConverter<MotoGPCardMetadata> {
         }
 }
 
-class MotoGPCardNftConverter: JsonCadenceConverter<MotoGPCardNFT> {
+class MotoGPCardNftConverter : JsonCadenceConverter<MotoGPCardNFT> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): MotoGPCardNFT =
         com.nftco.flow.sdk.cadence.unmarshall(value.value as Field<*>) {
             MotoGPCardNFT(
@@ -55,4 +55,3 @@ class MotoGPCardNftConverter: JsonCadenceConverter<MotoGPCardNFT> {
             )
         }
 }
-

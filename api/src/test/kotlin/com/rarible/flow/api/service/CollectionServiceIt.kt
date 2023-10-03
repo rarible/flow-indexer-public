@@ -39,14 +39,14 @@ internal class CollectionServiceIt : BaseIntegrationTest() {
             delay(5)
         }
 
-        shouldReadAllByOne({ cont ->
-            collectionService.searchAll(cont, 1).toList()
-        },
+        shouldReadAllByOne(
+            { cont ->
+                collectionService.searchAll(cont, 1).toList()
+            },
             9, 0, cmp = Comparator.comparing(ItemCollection::createdDate).reversed(),
             sort = { CollectionFilter.Sort.BY_ID }
         )
     }
-
 
     suspend fun <T, S : ScrollingSort<T>> shouldReadAllByOne(
         fn: suspend (continuation: String?) -> List<T>,
@@ -56,7 +56,7 @@ internal class CollectionServiceIt : BaseIntegrationTest() {
         last: T? = null,
         cmp: Comparator<T>? = null,
         sort: () -> S
-    ): Unit {
+    ) {
         val result = fn(continuation)
         if (result.isEmpty()) {
             currentIteration shouldBe expectedCount
@@ -69,5 +69,4 @@ internal class CollectionServiceIt : BaseIntegrationTest() {
             shouldReadAllByOne(fn, expectedCount, currentIteration + 1, cont, result[0], cmp, sort)
         }
     }
-
 }

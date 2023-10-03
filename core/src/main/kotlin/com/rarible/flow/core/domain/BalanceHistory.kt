@@ -16,9 +16,7 @@ data class BalanceHistory(
     override val log: FlowLog,
     @MongoId(FieldType.STRING)
     val id: String = "${log.transactionHash}.${log.eventIndex}"
-): FlowLogRecord() {
+) : FlowLogRecord() {
     fun withLog(log: FlowLog): FlowLogRecord = copy(log = log)
     override fun getKey() = balanceId.toString()
 }
-
-

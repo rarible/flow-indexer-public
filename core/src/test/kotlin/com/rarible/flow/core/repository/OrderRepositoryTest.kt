@@ -33,9 +33,7 @@ import java.math.BigDecimal
 )
 @ContextConfiguration(classes = [CoreConfig::class, TestBeanConfiguration::class])
 @ActiveProfiles("test")
-internal class OrderRepositoryTest(
-
-) {
+internal class OrderRepositoryTest() {
     @Autowired
     lateinit var orderRepository: OrderRepository
 
@@ -101,5 +99,4 @@ internal class OrderRepositoryTest(
         val skipped = orderRepository.search(OrderFilter.OnlySell, null, null).asFlow().first()
         skipped.makeStock shouldBe BigDecimal.ONE
     }
-
 }

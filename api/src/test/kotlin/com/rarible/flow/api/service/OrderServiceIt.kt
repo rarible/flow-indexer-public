@@ -126,7 +126,7 @@ internal class OrderServiceIt : BaseIntegrationTest() {
             )
         }
 
-        //Add one bid
+        // Add one bid
         orderRepository.coSave(
             createOrder().copy(
                 itemId = ItemId("A", 1),
@@ -200,5 +200,4 @@ internal class OrderServiceIt : BaseIntegrationTest() {
             shouldReadAllByOne(fn, expectedCount, currentIteration + 1, cont, result[0], cmp, sort)
         }
     }
-
 }

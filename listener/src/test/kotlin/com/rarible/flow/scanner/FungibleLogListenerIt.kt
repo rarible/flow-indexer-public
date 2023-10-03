@@ -97,7 +97,8 @@ internal class FungibleLogListenerIt : AbstractIntegrationTest() {
         // when
         fungibleLogListener.processBalance(
             BalanceHistory(
-                initialBalance.id, BigDecimal.ONE.negate(), Instant.now().plusMillis(10000), FlowLog(
+                initialBalance.id, BigDecimal.ONE.negate(), Instant.now().plusMillis(10000),
+                FlowLog(
                     transactionHash = "tx_hash",
                     eventIndex = 1,
                     eventType = "event_type",
@@ -147,7 +148,8 @@ internal class FungibleLogListenerIt : AbstractIntegrationTest() {
         // when
         fungibleLogListener.processBalance(
             BalanceHistory(
-                initialBalance.id, BigDecimal.ONE, Instant.now().plusMillis(10000), FlowLog(
+                initialBalance.id, BigDecimal.ONE, Instant.now().plusMillis(10000),
+                FlowLog(
                     transactionHash = "tx_hash",
                     eventIndex = 1,
                     eventType = "event_type",
@@ -166,5 +168,4 @@ internal class FungibleLogListenerIt : AbstractIntegrationTest() {
             bid.makeStock shouldBe bid.make.value
         }
     }
-
 }

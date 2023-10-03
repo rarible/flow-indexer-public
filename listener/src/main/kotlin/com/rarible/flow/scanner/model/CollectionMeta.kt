@@ -15,7 +15,7 @@ data class CollectionMeta(
     val url: String?
 )
 
-class CollectionMetaConversion: JsonCadenceConverter<CollectionMeta> {
+class CollectionMetaConversion : JsonCadenceConverter<CollectionMeta> {
     override fun unmarshall(value: Field<*>, namespace: CadenceNamespace): CollectionMeta =
         com.nftco.flow.sdk.cadence.unmarshall(value) {
             CollectionMeta(
@@ -27,4 +27,3 @@ class CollectionMetaConversion: JsonCadenceConverter<CollectionMeta> {
             )
         }
 }
-

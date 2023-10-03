@@ -2,11 +2,18 @@ package com.rarible.flow.scanner.listener.disabled
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
-import com.nftco.flow.sdk.cadence.*
+import com.nftco.flow.sdk.cadence.ArrayField
+import com.nftco.flow.sdk.cadence.Field
+import com.nftco.flow.sdk.cadence.JsonCadenceParser
+import com.nftco.flow.sdk.cadence.OptionalField
 import com.rarible.blockchain.scanner.framework.data.LogRecordEvent
 import com.rarible.core.application.ApplicationEnvironmentInfo
 import com.rarible.flow.Contracts
-import com.rarible.flow.core.domain.*
+import com.rarible.flow.core.domain.FlowLogEvent
+import com.rarible.flow.core.domain.FlowLogType
+import com.rarible.flow.core.domain.ItemCollection
+import com.rarible.flow.core.domain.ItemId
+import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.repository.ItemCollectionRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
@@ -40,11 +47,13 @@ class SoftCollectionEventsListener(
         events
             .filterIsInstance<FlowLogEvent>()
             .filter {
-                it.type in setOf(FlowLogType.COLLECTION_MINT,
+                it.type in setOf(
+                    FlowLogType.COLLECTION_MINT,
                     FlowLogType.COLLECTION_WITHDRAW,
                     FlowLogType.COLLECTION_DEPOSIT,
                     FlowLogType.COLLECTION_CHANGE,
-                    FlowLogType.COLLECTION_BURN)
+                    FlowLogType.COLLECTION_BURN
+                )
             }.forEach { event ->
                 when (event.type) {
                     FlowLogType.COLLECTION_MINT -> createSoftCollection(event)
@@ -140,22 +149,19 @@ class SoftCollectionEventsListener(
         val collectionId = "${ItemId(Contracts.SOFT_COLLECTION.fqn(chainId), parser.long(id), idDelimiter)}"
         val entity = itemCollectionRepository.coFindById(collectionId) ?: throw IllegalStateException("Collection with id [$collectionId] not found")
 
-        itemCollectionRepository.coSave(entity.copy(
-            name = collectionMeta.name,
-            symbol = collectionMeta.symbol,
-            icon = collectionMeta.icon,
-            description = collectionMeta.description,
-            url = collectionMeta.url,
-            royalties = royalties ?: entity.royalties,
-        ))
+        itemCollectionRepository.coSave(
+            entity.copy(
+                name = collectionMeta.name,
+                symbol = collectionMeta.symbol,
+                icon = collectionMeta.icon,
+                description = collectionMeta.description,
+                url = collectionMeta.url,
+                royalties = royalties ?: entity.royalties,
+            )
+        )
     }
-
 
     private companion object {
         val logger: Logger = LoggerFactory.getLogger(SoftCollectionEventsListener::class.java)
     }
 }
-
-
-
-

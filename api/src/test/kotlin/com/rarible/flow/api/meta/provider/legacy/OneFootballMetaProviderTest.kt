@@ -11,7 +11,7 @@ import io.mockk.every
 import io.mockk.mockk
 import reactor.core.publisher.Mono
 
-internal class OneFootballMetaProviderTest: FunSpec({
+internal class OneFootballMetaProviderTest : FunSpec({
 
     val notExisting = mockk<Item> {
         every { id } returns ItemId("A.6831760534292098.OneFootballCollectible", 3)
@@ -53,5 +53,4 @@ internal class OneFootballMetaProviderTest: FunSpec({
     test("should return filled meta") {
         provider.getMeta(existing) shouldBe OneFootballMetaConverterTest.META.toItemMeta(existing.id)
     }
-
 })

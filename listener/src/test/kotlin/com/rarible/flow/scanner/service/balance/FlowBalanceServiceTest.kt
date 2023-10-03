@@ -18,7 +18,6 @@ import reactor.core.publisher.Mono
 import java.math.BigDecimal
 import java.util.concurrent.CompletableFuture
 
-
 internal class FlowBalanceServiceTest : FunSpec({
 
     val balanceResponse = Flow.decodeJsonCadence<Field<*>>(
@@ -53,16 +52,20 @@ internal class FlowBalanceServiceTest : FunSpec({
         )
 
         verify {
-            flowApiMock.executeScriptAtLatestBlock(any(), withArg { args ->
-                logger.info("Verifying flowApiMock.executeScriptAtLatestBlock args: {}", args)
-            })
+            flowApiMock.executeScriptAtLatestBlock(
+                any(),
+                withArg { args ->
+                    logger.info("Verifying flowApiMock.executeScriptAtLatestBlock args: {}", args)
+                }
+            )
 
-            balanceRepository.save( withArg {
-                it.account shouldBe FlowAddress("0x1c0a1528f6966cb8")
-                it.token shouldBe "A.1654653399040a61.FlowToken"
-                it.balance shouldBe BigDecimal("0.01000000")
-            })
-
+            balanceRepository.save(
+                withArg {
+                    it.account shouldBe FlowAddress("0x1c0a1528f6966cb8")
+                    it.token shouldBe "A.1654653399040a61.FlowToken"
+                    it.balance shouldBe BigDecimal("0.01000000")
+                }
+            )
         }
     }
 
@@ -83,7 +86,6 @@ internal class FlowBalanceServiceTest : FunSpec({
             ),
         )
     }
-
 }) {
     companion object {
         val logger by Log()

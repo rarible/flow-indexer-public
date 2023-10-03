@@ -38,5 +38,4 @@ class UrlService(
 
     // Used to build url exposed to the DB cache or API responses
     fun resolvePublicHttpUrl(resource: UrlResource): String = urlResolver.resolvePublicUrl(resource)
-
 }

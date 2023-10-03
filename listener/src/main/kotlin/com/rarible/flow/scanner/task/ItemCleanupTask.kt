@@ -24,4 +24,3 @@ class ItemCleanupTask(
         return job.execute(itemId).map { it.toString() }
     }
 }
-

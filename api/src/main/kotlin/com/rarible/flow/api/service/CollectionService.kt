@@ -30,8 +30,6 @@ class CollectionService(
     }
 
     fun byIds(ids: List<String>): Flow<ItemCollection> {
-       return repo.findAllById(ids).asFlow()
+        return repo.findAllById(ids).asFlow()
     }
-
-
 }

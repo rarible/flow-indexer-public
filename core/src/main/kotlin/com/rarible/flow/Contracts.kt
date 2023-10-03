@@ -14,9 +14,9 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGarageCard
+                // https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGarageCard
                 FlowChainId.MAINNET to FlowAddress("0xd0bcefdf1e67ea85"),
-                //https://testnet.flowscan.org/contract/A.6f6702697b205c18.HWGarageCard
+                // https://testnet.flowscan.org/contract/A.6f6702697b205c18.HWGarageCard
                 FlowChainId.TESTNET to FlowAddress("0x6f6702697b205c18"),
                 FlowChainId.EMULATOR to FlowAddress("0x9f36754d9b38f155"),
             )
@@ -34,9 +34,9 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGaragePack
+                // https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGaragePack
                 FlowChainId.MAINNET to FlowAddress("0xd0bcefdf1e67ea85"),
-                //https://testnet.flowscan.org/contract/A.6f6702697b205c18.HWGaragePack
+                // https://testnet.flowscan.org/contract/A.6f6702697b205c18.HWGaragePack
                 FlowChainId.TESTNET to FlowAddress("0x6f6702697b205c18"),
                 FlowChainId.EMULATOR to FlowAddress("0x9f36754d9b38f155"),
             )
@@ -54,9 +54,9 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGarageCardV2
+                // https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGarageCardV2
                 FlowChainId.MAINNET to FlowAddress("0xd0bcefdf1e67ea85"),
-                //https://testnet.flowscan.org/contract/A.6f6702697b205c18.HWGarageCardV2
+                // https://testnet.flowscan.org/contract/A.6f6702697b205c18.HWGarageCardV2
                 FlowChainId.TESTNET to FlowAddress("0x6f6702697b205c18"),
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
             )
@@ -74,9 +74,9 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGaragePackV2
+                // https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGaragePackV2
                 FlowChainId.MAINNET to FlowAddress("0xd0bcefdf1e67ea85"),
-                //https://testnet.flowscan.org/contract/A.6f6702697b205c18.HWGaragePackV2
+                // https://testnet.flowscan.org/contract/A.6f6702697b205c18.HWGaragePackV2
                 FlowChainId.TESTNET to FlowAddress("0x6f6702697b205c18"),
                 FlowChainId.EMULATOR to FlowAddress("0x9f36754d9b38f155"),
             )
@@ -94,9 +94,9 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGarageTokenV2
+                // https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGarageTokenV2
                 FlowChainId.MAINNET to FlowAddress("0xd0bcefdf1e67ea85"),
-                //https://testnet.flowscan.org/contract/A.6f6702697b205c18.HWGarageTokenV2
+                // https://testnet.flowscan.org/contract/A.6f6702697b205c18.HWGarageTokenV2
                 FlowChainId.TESTNET to FlowAddress("0x6f6702697b205c18"),
                 FlowChainId.EMULATOR to FlowAddress("0x9f36754d9b38f155"),
             )
@@ -114,9 +114,9 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGaragePM
+                // https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGaragePM
                 FlowChainId.MAINNET to FlowAddress("0xd0bcefdf1e67ea85"),
-                //https://testnet.flowscan.org/contract/A.6f6702697b205c18.HWGaragePM
+                // https://testnet.flowscan.org/contract/A.6f6702697b205c18.HWGaragePM
                 FlowChainId.TESTNET to FlowAddress("0x6f6702697b205c18"),
                 FlowChainId.EMULATOR to FlowAddress("0x9f36754d9b38f155"),
             )
@@ -134,9 +134,9 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGaragePMV2
+                // https://flowscan.org/contract/A.d0bcefdf1e67ea85.HWGaragePMV2
                 FlowChainId.MAINNET to FlowAddress("0xd0bcefdf1e67ea85"),
-                //https://testnet.flowscan.org/contract/A.6f6702697b205c18.HWGaragePMV2
+                // https://testnet.flowscan.org/contract/A.6f6702697b205c18.HWGaragePMV2
                 FlowChainId.TESTNET to FlowAddress("0x6f6702697b205c18"),
                 FlowChainId.EMULATOR to FlowAddress("0x9f36754d9b38f155"),
             )
@@ -155,9 +155,9 @@ enum class Contracts : Contract {
         override val symbol = "BBBC"
 
         override val deployments = mapOf(
-            //https://flowscan.org/contract/A.e5bf4d436ca23932.BBxBarbieCard
+            // https://flowscan.org/contract/A.e5bf4d436ca23932.BBxBarbieCard
             FlowChainId.MAINNET to FlowAddress("0xe5bf4d436ca23932"),
-            //https://testnet.flowscan.org/contract/A.6d0f55821f6b2dbe.BBxBarbieCard
+            // https://testnet.flowscan.org/contract/A.6d0f55821f6b2dbe.BBxBarbieCard
             FlowChainId.TESTNET to FlowAddress("0x6d0f55821f6b2dbe"),
             FlowChainId.EMULATOR to FlowAddress("0xeff462cf475a0c02"),
         )
@@ -170,9 +170,9 @@ enum class Contracts : Contract {
         override val symbol = "BBBP"
 
         override val deployments = mapOf(
-            //https://flowscan.org/contract/A.e5bf4d436ca23932.BBxBarbiePack
+            // https://flowscan.org/contract/A.e5bf4d436ca23932.BBxBarbiePack
             FlowChainId.MAINNET to FlowAddress("0xe5bf4d436ca23932"),
-            //https://testnet.flowscan.org/contract/A.6d0f55821f6b2dbe.BBxBarbiePack
+            // https://testnet.flowscan.org/contract/A.6d0f55821f6b2dbe.BBxBarbiePack
             FlowChainId.TESTNET to FlowAddress("0x6d0f55821f6b2dbe"),
             FlowChainId.EMULATOR to FlowAddress("0xeff462cf475a0c02"),
         )
@@ -185,9 +185,9 @@ enum class Contracts : Contract {
         override val symbol = "BBBT"
 
         override val deployments = mapOf(
-            //https://flowscan.org/contract/A.e5bf4d436ca23932.BBxBarbieToken
+            // https://flowscan.org/contract/A.e5bf4d436ca23932.BBxBarbieToken
             FlowChainId.MAINNET to FlowAddress("0xe5bf4d436ca23932"),
-            //https://testnet.flowscan.org/contract/A.6d0f55821f6b2dbe.BBxBarbieToken
+            // https://testnet.flowscan.org/contract/A.6d0f55821f6b2dbe.BBxBarbieToken
             FlowChainId.TESTNET to FlowAddress("0x6d0f55821f6b2dbe"),
             FlowChainId.EMULATOR to FlowAddress("0xeff462cf475a0c02"),
         )
@@ -200,9 +200,9 @@ enum class Contracts : Contract {
         override val nft = false
 
         override val deployments = mapOf(
-            //https://flowscan.org/contract/A.e5bf4d436ca23932.BBxBarbiePM
+            // https://flowscan.org/contract/A.e5bf4d436ca23932.BBxBarbiePM
             FlowChainId.MAINNET to FlowAddress("0xe5bf4d436ca23932"),
-            //https://testnet.flowscan.org/contract/A.6d0f55821f6b2dbe.BBxBarbiePM
+            // https://testnet.flowscan.org/contract/A.6d0f55821f6b2dbe.BBxBarbiePM
             FlowChainId.TESTNET to FlowAddress("0x6d0f55821f6b2dbe"),
             FlowChainId.EMULATOR to FlowAddress("0xeff462cf475a0c02"),
         )
@@ -214,9 +214,9 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://flowscan.org/contract/A.01ab36aaf654a13e.RaribleNFT
+                // https://flowscan.org/contract/A.01ab36aaf654a13e.RaribleNFT
                 FlowChainId.MAINNET to FlowAddress("0x01ab36aaf654a13e"),
-                //https://flowscan.org/contract/A.ebf4ae01d1284af8.RaribleNFT
+                // https://flowscan.org/contract/A.ebf4ae01d1284af8.RaribleNFT
                 FlowChainId.TESTNET to FlowAddress("0xebf4ae01d1284af8"),
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
             )
@@ -240,7 +240,7 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGarageCard
+                // https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGarageCard
                 FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
                 FlowChainId.EMULATOR to FlowAddress("0x80102bce1de42dc4"),
             )
@@ -258,7 +258,7 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGaragePack
+                // https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGaragePack
                 FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
                 FlowChainId.EMULATOR to FlowAddress("0x80102bce1de42dc4"),
             )
@@ -276,7 +276,7 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGarageCardV2
+                // https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGarageCardV2
                 FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
                 FlowChainId.EMULATOR to FlowAddress("0x80102bce1de42dc4"),
             )
@@ -294,7 +294,7 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGaragePackV2
+                // https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGaragePackV2
                 FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
                 FlowChainId.EMULATOR to FlowAddress("0x80102bce1de42dc4"),
             )
@@ -312,7 +312,7 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGaragePM
+                // https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGaragePM
                 FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
                 FlowChainId.MAINNET to FlowAddress("0x80102bce1de42dc4"),
                 FlowChainId.EMULATOR to FlowAddress("0x80102bce1de42dc4"),
@@ -331,7 +331,7 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGaragePMV2
+                // https://testnet.flowscan.org/contract/A.80102bce1de42dc4.HWGaragePMV2
                 FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
                 FlowChainId.EMULATOR to FlowAddress("0x80102bce1de42dc4"),
             )
@@ -393,7 +393,7 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://flowscan.org/contract/A.4eb8a10cb9f87357.NFTStorefront
+                // https://flowscan.org/contract/A.4eb8a10cb9f87357.NFTStorefront
                 FlowChainId.MAINNET to FlowAddress("0x4eb8a10cb9f87357"),
                 FlowChainId.TESTNET to FlowAddress("0x94b06cfca1d8a476"),
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
@@ -411,9 +411,9 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://flowscan.org/contract/A.4eb8a10cb9f87357.NFTStorefrontV2
+                // https://flowscan.org/contract/A.4eb8a10cb9f87357.NFTStorefrontV2
                 FlowChainId.MAINNET to FlowAddress("0x4eb8a10cb9f87357"),
-                //https://testnet.flowscan.org/contract/A.80102bce1de42dc4.NFTStorefrontV2
+                // https://testnet.flowscan.org/contract/A.80102bce1de42dc4.NFTStorefrontV2
                 FlowChainId.TESTNET to FlowAddress("0x80102bce1de42dc4"),
             )
         override val import: String
@@ -429,9 +429,9 @@ enum class Contracts : Contract {
 
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                //https://flowscan.org/contract/A.1d7e57aa55817448.MetadataViews
+                // https://flowscan.org/contract/A.1d7e57aa55817448.MetadataViews
                 FlowChainId.MAINNET to FlowAddress("0x1d7e57aa55817448"),
-                //https://testnet.flowscan.org/contract/A.631e88ae7f1d7c20.MetadataViews
+                // https://testnet.flowscan.org/contract/A.631e88ae7f1d7c20.MetadataViews
                 FlowChainId.TESTNET to FlowAddress("0x631e88ae7f1d7c20"),
             )
         override val import: String
@@ -441,7 +441,7 @@ enum class Contracts : Contract {
             get() = false
     },
 
-    //=========== Disabled contracts
+    // =========== Disabled contracts
     ONE_FOOTBALL {
 
         override val import: String
@@ -900,7 +900,7 @@ enum class Contracts : Contract {
             get() = "EnglishAuction"
         override val deployments: Map<FlowChainId, FlowAddress>
             get() = mapOf(
-                FlowChainId.MAINNET to FlowAddress("0x01"), //todo fill after deploy to mainnet
+                FlowChainId.MAINNET to FlowAddress("0x01"), // todo fill after deploy to mainnet
                 FlowChainId.TESTNET to FlowAddress("0xebf4ae01d1284af8"),
                 FlowChainId.EMULATOR to FlowAddress("0xf8d6e0586b0a20c7"),
             )
@@ -1066,4 +1066,3 @@ enum class Contracts : Contract {
             get() = "Mugen"
     }
 }
-

@@ -1,6 +1,5 @@
 package com.rarible.flow.scanner.service
 
-
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.core.domain.Balance
 import com.rarible.flow.core.domain.OrderStatus
@@ -18,7 +17,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @ExperimentalCoroutinesApi
-internal class BidServiceTest: FunSpec({
+internal class BidServiceTest : FunSpec({
     val order1 = Data.createOrder()
     val order2 = Data.createOrder()
 
@@ -59,10 +58,12 @@ internal class BidServiceTest: FunSpec({
         coVerify {
             repository.search(any(), null, 1000, OrderFilter.Sort.LATEST_FIRST)
             repository.search(any(), OrderFilter.Sort.LATEST_FIRST.nextPage(order1), 1000, OrderFilter.Sort.LATEST_FIRST)
-            repository.save(withArg {
-                it.makeStock shouldBe 11.3.toBigDecimal()
-                it.status shouldBe OrderStatus.INACTIVE
-            })
+            repository.save(
+                withArg {
+                    it.makeStock shouldBe 11.3.toBigDecimal()
+                    it.status shouldBe OrderStatus.INACTIVE
+                }
+            )
         }
     }
 
@@ -77,11 +78,12 @@ internal class BidServiceTest: FunSpec({
         coVerify {
             repository.search(any(), null, 1000, OrderFilter.Sort.LATEST_FIRST)
             repository.search(any(), OrderFilter.Sort.LATEST_FIRST.nextPage(order1), 1000, OrderFilter.Sort.LATEST_FIRST)
-            repository.save(withArg {
-                it.makeStock shouldBe it.make.value
-                it.status shouldBe OrderStatus.ACTIVE
-            })
+            repository.save(
+                withArg {
+                    it.makeStock shouldBe it.make.value
+                    it.status shouldBe OrderStatus.ACTIVE
+                }
+            )
         }
     }
-
 })

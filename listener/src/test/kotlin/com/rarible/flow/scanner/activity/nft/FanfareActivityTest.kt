@@ -18,7 +18,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
-internal class FanfareActivityTest: AbstractNftActivityTest() {
+internal class FanfareActivityTest : AbstractNftActivityTest() {
 
     val activityMaker = FanfareActivity(logRepository, txManager, properties)
 
@@ -83,13 +83,15 @@ internal class FanfareActivityTest: AbstractNftActivityTest() {
                 EventId.of("A.4c44f3b1e4e70b20.FanfareNFTContract.Minted"),
                 mapOf(
                     "id" to UInt64NumberField("1337"),
-                    "metadata" to StringField("""
+                    "metadata" to StringField(
+                        """
                         SOME_BIG_JSON
-                    """.trimIndent())
+                        """.trimIndent()
+                    )
                 )
             ),
             type = FlowLogType.MINT,
 
-            )
+        )
     }
 }

@@ -128,16 +128,18 @@ class TopShotMomentItemMetaProvider(
                             }
                         }
                     }
-                """.trimIndent(),
+            """.trimIndent(),
             variables = mapOf("playID" to mapOf("playID" to innerId))
         ).awaitSingleOrNull() ?: return Pair(description, emptyList())
         val videos = urlsResp.extractValueAsObject(
             "data.getPlay.play.assets.videos",
-            object : TypeRef<List<Map<String, String>>>() {}).mapNotNull { it["url"] }
+            object : TypeRef<List<Map<String, String>>>() {}
+        ).mapNotNull { it["url"] }
 
         val images = urlsResp.extractValueAsObject(
             "data.getPlay.play.assets.images",
-            object : TypeRef<List<Map<String, String>>>() {}).mapNotNull { it["url"] }
+            object : TypeRef<List<Map<String, String>>>() {}
+        ).mapNotNull { it["url"] }
 
         return Pair(description, staticNames.map { "${assetPrefix}$it" } + images + videos)
     }

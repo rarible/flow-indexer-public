@@ -88,7 +88,6 @@ class ItemAndOrderEventsListener(
                 )
             }
         }
-
     }
 
     private fun filterFlowLogRecords(events: List<LogRecordEvent>): List<GeneralFlowLogRecordEvent> {
@@ -124,5 +123,4 @@ class ItemAndOrderEventsListener(
 
         val logger: Logger = LoggerFactory.getLogger(ItemAndOrderEventsListener::class.java)
     }
-
 }

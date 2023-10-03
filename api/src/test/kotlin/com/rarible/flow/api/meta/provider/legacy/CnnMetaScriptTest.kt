@@ -5,7 +5,7 @@ import com.rarible.flow.api.mocks
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class CnnMetaScriptTest: FunSpec({
+internal class CnnMetaScriptTest : FunSpec({
 
     val goodResultKey = "ok"
     val nullResultKey = "null"
@@ -36,7 +36,6 @@ internal class CnnMetaScriptTest: FunSpec({
             setId = 4
         )
     }
-
 }) {
     companion object {
         val METADATA = """

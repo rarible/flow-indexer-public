@@ -10,7 +10,7 @@ data class OwnershipId(
 ) : Serializable {
 
     override fun toString(): String {
-        return "${contract}:$tokenId:${owner.formatted}"
+        return "$contract:$tokenId:${owner.formatted}"
     }
 
     companion object {

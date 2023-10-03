@@ -5,7 +5,7 @@ import com.rarible.blockchain.scanner.flow.model.FlowDescriptor
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import com.rarible.flow.scanner.subscriber.balance.AbstractFungibleTokenSubscriber
 
-class FusdSubscriber: AbstractFungibleTokenSubscriber() {
+class FusdSubscriber : AbstractFungibleTokenSubscriber() {
 
     private val events = supportedEvents()
     private val name = "fusd"

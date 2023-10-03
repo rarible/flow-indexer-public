@@ -5,12 +5,10 @@ import com.rarible.flow.core.config.CoreConfig
 import org.junit.jupiter.api.Test
 import org.springframework.context.annotation.Import
 
-
 @IntegrationTest
 @Import(Config::class, CoreConfig::class)
-class ApiContextLoadTest: BaseIntegrationTest() {
+class ApiContextLoadTest : BaseIntegrationTest() {
 
     @Test
     fun contextLoads() {}
-
 }

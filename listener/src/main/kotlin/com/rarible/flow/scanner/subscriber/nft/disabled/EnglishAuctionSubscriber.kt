@@ -11,7 +11,7 @@ import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 
 @ConditionalOnExpression("false")
-class EnglishAuctionSubscriber: BaseFlowLogEventSubscriber() {
+class EnglishAuctionSubscriber : BaseFlowLogEventSubscriber() {
 
     private val contractName = Contracts.ENGLISH_AUCTION.contractName
 
@@ -29,7 +29,7 @@ class EnglishAuctionSubscriber: BaseFlowLogEventSubscriber() {
             ),
         )
 
-    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when(EventId.of(log.event.type).eventName) {
+    override suspend fun eventType(log: FlowBlockchainLog): FlowLogType = when (EventId.of(log.event.type).eventName) {
         "LotAvailable" -> FlowLogType.LOT_AVAILABLE
         "LotCompleted" -> FlowLogType.LOT_COMPLETED
         "LotEndTimeChanged" -> FlowLogType.LOT_END_TIME_CHANGED

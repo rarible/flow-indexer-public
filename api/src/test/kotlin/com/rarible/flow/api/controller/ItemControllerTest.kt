@@ -89,7 +89,6 @@ internal class ItemControllerTest {
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 2
-
     }
 
     @Test
@@ -206,7 +205,6 @@ internal class ItemControllerTest {
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 0
-
     }
 
     @Test
@@ -251,7 +249,6 @@ internal class ItemControllerTest {
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         respose.items shouldHaveSize 0
-
     }
 
     @Test
@@ -296,7 +293,6 @@ internal class ItemControllerTest {
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 0
-
     }
 
     @Test
@@ -344,7 +340,6 @@ internal class ItemControllerTest {
             .expectBody<FlowNftItemsDto>()
             .returnResult().responseBody!!
         response.items shouldHaveSize 2
-
     }
 
     @Test
@@ -427,9 +422,13 @@ internal class ItemControllerTest {
         }
 
         val testIds = ids.shuffled().take(Random.nextInt(3, 10))
-        client.post().uri("/v0.1/items/byIds").body(BodyInserters.fromValue(FlowItemIdsDto(
-            ids = testIds.map { "$it" }
-        ))).exchange().expectStatus().isOk
+        client.post().uri("/v0.1/items/byIds").body(
+            BodyInserters.fromValue(
+                FlowItemIdsDto(
+                    ids = testIds.map { "$it" }
+                )
+            )
+        ).exchange().expectStatus().isOk
             .expectBody<FlowNftItemsDto>().consumeWith { res ->
                 res.responseBody shouldNotBe null
                 res.responseBody?.let { body ->

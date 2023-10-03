@@ -49,7 +49,7 @@ class Config(
 ) {
 
     @Suppress("PrivatePropertyName")
-    private val DEFAULT_MESSAGE_SIZE: Int = 33554432 //32 Mb in bites
+    private val DEFAULT_MESSAGE_SIZE: Int = 33554432 // 32 Mb in bites
 
     @Bean
     fun ipfsProperties(): IpfsProperties {
@@ -108,7 +108,7 @@ class Config(
         val httpClientProperties = apiProperties.httpClient
         val proxyProperties = httpClientProperties.proxy
 
-        val followRedirect = true  // TODO Move to properties?
+        val followRedirect = true // TODO Move to properties?
 
         val defaultHeaders = HttpHeaders()
         defaultHeaders.set(HttpHeaders.USER_AGENT, "rarible-protocol")

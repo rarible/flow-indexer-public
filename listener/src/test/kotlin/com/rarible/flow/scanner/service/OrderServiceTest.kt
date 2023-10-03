@@ -28,7 +28,7 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDateTime
 
-internal class OrderServiceTest: FunSpec({
+internal class OrderServiceTest : FunSpec({
 
     val mockRate = 2.3.toBigDecimal()
 
@@ -49,7 +49,6 @@ internal class OrderServiceTest: FunSpec({
             findOrderActivity(any(), any())
         } returns Flux.empty()
     }
-
 
     test("should list order") {
         val orderRepository = mockk<OrderRepository>("orderRepository") {
@@ -96,7 +95,7 @@ internal class OrderServiceTest: FunSpec({
             .deactivateOrdersByItem(Data.createItem(), LocalDateTime.now())
             .count() shouldBe 0
 
-        verify (exactly = 0) {
+        verify(exactly = 0) {
             orderRepository.save(any())
         }
     }
@@ -143,12 +142,11 @@ internal class OrderServiceTest: FunSpec({
 
         verifySequence {
             orderRepository.findAllByStatus(eq(OrderStatus.ACTIVE))
-            orderRepository.save( withArg { it.takePriceUsd shouldBe 2.3.toBigDecimal() } )
-            orderRepository.save( withArg { it.takePriceUsd shouldBe 4.6.toBigDecimal() } )
-            orderRepository.save( withArg { it.takePriceUsd shouldBe 6.9.toBigDecimal() } )
-            orderRepository.save( withArg { it.takePriceUsd shouldBe 9.2.toBigDecimal() } )
-            orderRepository.save( withArg { it.takePriceUsd shouldBe 11.5.toBigDecimal() } )
+            orderRepository.save(withArg { it.takePriceUsd shouldBe 2.3.toBigDecimal() })
+            orderRepository.save(withArg { it.takePriceUsd shouldBe 4.6.toBigDecimal() })
+            orderRepository.save(withArg { it.takePriceUsd shouldBe 6.9.toBigDecimal() })
+            orderRepository.save(withArg { it.takePriceUsd shouldBe 9.2.toBigDecimal() })
+            orderRepository.save(withArg { it.takePriceUsd shouldBe 11.5.toBigDecimal() })
         }
     }
-
 })

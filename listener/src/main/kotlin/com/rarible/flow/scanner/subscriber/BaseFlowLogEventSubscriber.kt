@@ -14,7 +14,6 @@ import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.core.repository.FlowLogEventRepository
 import com.rarible.flow.core.util.Log
 import com.rarible.flow.scanner.service.RecordKeyProvider
-import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value

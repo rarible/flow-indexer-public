@@ -6,4 +6,3 @@ object Listeners {
     const val SOFT_COLLECTION = "soft-collection"
     const val VERSUS_ART = "versus-art"
 }
-

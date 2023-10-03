@@ -23,7 +23,6 @@ class HotWheelsCardMetaProvider(
 
     override fun isSupported(itemId: ItemId): Boolean =
         itemId.contract.endsWith(".HWGarageCard") || itemId.contract.endsWith(".HWGarageCardV2")
-
 }
 
 @Component
@@ -34,7 +33,6 @@ class HotWheelsPackMetaProvider(
 
     override fun isSupported(itemId: ItemId): Boolean =
         itemId.contract.endsWith(".HWGaragePack") || itemId.contract.endsWith(".HWGaragePackV2")
-
 }
 
 @Component

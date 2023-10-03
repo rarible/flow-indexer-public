@@ -47,7 +47,6 @@ class ItemRepositoryTest {
         val now = Instant.now(Clock.systemUTC())
         val tokenId = randomLong()
 
-
         val items = mutableMapOf<Long, Item>()
         for (i in tokenId..tokenId + 2) {
             items[i] =
@@ -113,4 +112,3 @@ class ItemRepositoryTest {
             .verifyComplete()
     }
 }
-

@@ -254,10 +254,10 @@ class ActivityService(
                     )
                 else ->
                     criteria.andOperator(
-                       Criteria().orOperator(
-                           Criteria.where(continuationDateFieldName).lt(cont.beforeDate),
-                           Criteria.where(continuationDateFieldName).isEqualTo(cont.beforeDate).and(ItemHistory::id).lt(cont.beforeId)
-                       )
+                        Criteria().orOperator(
+                            Criteria.where(continuationDateFieldName).lt(cont.beforeDate),
+                            Criteria.where(continuationDateFieldName).isEqualTo(cont.beforeDate).and(ItemHistory::id).lt(cont.beforeId)
+                        )
                     )
             }
             // PT-617 sometimes we have the same entities in response un union service
@@ -276,5 +276,4 @@ class ActivityService(
     private fun answerContinuation(items: List<FlowActivityDto>, limit: Int, dateField: KProperty<Instant>): ActivityContinuation? =
         if (items.size < limit) null
         else ActivityContinuation(beforeDate = dateField.call(items.last()), beforeId = items.last().id)
-
 }

@@ -14,9 +14,8 @@ import org.springframework.data.mongodb.core.query.ne
 import java.time.Instant
 import org.springframework.data.domain.Sort as SpringSort
 
-
 sealed class ItemFilter(open val sort: Sort = Sort.LAST_UPDATE) : DbFilter<Item>, CriteriaProduct<ItemFilter> {
-    enum class Sort: ScrollingSort<Item> {
+    enum class Sort : ScrollingSort<Item> {
         LAST_UPDATE {
             override fun springSort(): SpringSort =
                 SpringSort.by(
@@ -26,7 +25,6 @@ sealed class ItemFilter(open val sort: Sort = Sort.LAST_UPDATE) : DbFilter<Item>
 
             override fun scroll(criteria: Criteria, continuation: String?): Criteria =
                 Cont.scrollDesc(criteria, continuation, Item::updatedAt, Item::id)
-
 
             override fun nextPage(entity: Item): String =
                 Cont.toString(entity.updatedAt, entity.id)
@@ -86,7 +84,7 @@ sealed class ItemFilter(open val sort: Sort = Sort.LAST_UPDATE) : DbFilter<Item>
                 ByShowDeleted(showDeleted) *
                     ByLastUpdatedFrom(lastUpdatedFrom) *
                     ByLastUpdatedTo(lastUpdatedTo)
-            ).criteria()
+                ).criteria()
         }
     }
 
@@ -111,5 +109,4 @@ sealed class ItemFilter(open val sort: Sort = Sort.LAST_UPDATE) : DbFilter<Item>
             )
         }
     }
-
 }

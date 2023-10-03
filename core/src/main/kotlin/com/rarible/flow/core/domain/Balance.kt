@@ -13,7 +13,7 @@ import java.time.Instant
 data class BalanceId(
     val account: FlowAddress,
     val token: String
-): Serializable {
+) : Serializable {
 
     override fun toString(): String {
         return "$token:${account.formatted}"

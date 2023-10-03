@@ -92,7 +92,8 @@ class ActivityController(private val service: ActivityService) : FlowNftOrderAct
             from?.let { Instant.ofEpochMilli(from) },
             to?.let { Instant.ofEpochMilli(to) },
             size,
-            sort ?: defaultSort)
+            sort ?: defaultSort
+        )
     )
 
     override suspend fun getNftOrderActivitiesSync(

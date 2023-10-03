@@ -91,4 +91,3 @@ class RawOnChainMetaFetcher(
         return metadataEvent.payload.stringValue
     }
 }
-

@@ -16,11 +16,9 @@ class OpenApiController() {
     )
     fun openapiYaml(): InputStreamResource = InputStreamResource(FlowOpenapiReader.getOpenapi())
 
-
     @GetMapping(
         value = ["/doc"],
         produces = ["text/html"]
     )
     fun doc(): InputStreamResource = InputStreamResource(OpenApiController::class.java.getResourceAsStream("/redoc.html")!!)
-
 }

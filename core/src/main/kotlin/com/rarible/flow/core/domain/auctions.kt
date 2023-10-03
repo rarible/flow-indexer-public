@@ -68,7 +68,7 @@ data class EnglishAuctionLot(
     val ongoing: Boolean = false,
     @Indexed
     val contract: String? = null
-): AuctionLot
+) : AuctionLot
 
 data class Bid(
     @Field(targetType = FieldType.DECIMAL128)

@@ -129,7 +129,7 @@ data class MugenNFTMetaBody(
     val name: String,
     @get:JsonProperty("image_blocto")
     val imageBlocto: String?,
-): MetaBody {
+) : MetaBody {
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         return ItemMeta(
             itemId = itemId,

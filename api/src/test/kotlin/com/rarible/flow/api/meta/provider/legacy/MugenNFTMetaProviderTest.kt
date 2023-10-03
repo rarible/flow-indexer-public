@@ -55,7 +55,6 @@ internal class MugenNFTMetaProviderTest : FunSpec({
     test("should not support given item") {
         MugenNFTMetaProvider(WebClient.create()).isSupported(ItemId("A.1234.MotoGP", 1234)) shouldBe false
     }
-
 }) {
 
     companion object {

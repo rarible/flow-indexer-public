@@ -8,7 +8,12 @@ import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.util.Log
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.stereotype.Component
 
@@ -50,7 +55,7 @@ class BidService(
     ): Flow<Order> {
         logger.debug("Searching bids by filter: {}; cursor: {}", filter.criteria().criteriaObject, cursor)
         val orders = search(filter, cursor)
-        return if(orders.count() == 0) {
+        return if (orders.count() == 0) {
             logger.debug("Returning bids for filter: {}", filter.criteria().criteriaObject)
             collected
         } else {
@@ -61,11 +66,13 @@ class BidService(
     }
 
     private fun match(
-        status: OrderStatus, balance: Balance, comparison: OrderFilter.ByMakeValue.Comparator
+        status: OrderStatus,
+        balance: Balance,
+        comparison: OrderFilter.ByMakeValue.Comparator
     ): OrderFilter {
         return OrderFilter.OnlyBid *
-                OrderFilter.ByStatus(status) *
-                OrderFilter.ByMaker(balance.account) *
-                OrderFilter.ByMakeValue(comparison, balance.balance)
+            OrderFilter.ByStatus(status) *
+            OrderFilter.ByMaker(balance.account) *
+            OrderFilter.ByMakeValue(comparison, balance.balance)
     }
 }

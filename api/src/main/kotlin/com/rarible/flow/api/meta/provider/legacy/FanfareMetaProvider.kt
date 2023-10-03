@@ -63,7 +63,7 @@ data class FanfareMeta(
     @get:JsonProperty("total_copies") val totalCopies: Int,
     val edition: Int,
 
-    ) : MetaBody {
+) : MetaBody {
     override fun toItemMeta(itemId: ItemId): ItemMeta {
         return ItemMeta(
             itemId = itemId,
