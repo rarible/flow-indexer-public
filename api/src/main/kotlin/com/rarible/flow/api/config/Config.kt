@@ -185,12 +185,16 @@ class Config(
             register("0xMUGENNFT", FlowAddress("0xebf4ae01d1284af8"), FlowChainId.TESTNET)
             register("0xVERSUSART", FlowAddress("0x99ca04281098b33d"), FlowChainId.TESTNET)
             register("0xMETADATAVIEWS", FlowAddress("0x631e88ae7f1d7c20"), FlowChainId.TESTNET)
+            register("0xNFTCATALOG", FlowAddress("0x324c34e1c517e4db"), FlowChainId.TESTNET)
+            register("0xNFTRETRIEVAL", FlowAddress("0x324c34e1c517e4db"), FlowChainId.TESTNET)
 
             register("0xRARIBLETOKEN", FlowAddress("0x01ab36aaf654a13e"), FlowChainId.MAINNET)
             register("0xTOPSHOTROYALTIES", FlowAddress("0xbd69b6abdfcf4539"), FlowChainId.MAINNET)
             register("0xMUGENNFT", FlowAddress("0x2cd46d41da4ce262"), FlowChainId.MAINNET)
             register("0xVERSUSART", FlowAddress("0xd796ff17107bbff6"), FlowChainId.MAINNET)
             register("0xMETADATAVIEWS", FlowAddress("0x1d7e57aa55817448"), FlowChainId.MAINNET)
+            register("0xNFTCATALOG", FlowAddress("0x49a7cda3a1eecc29"), FlowChainId.MAINNET)
+            register("0xNFTRETRIEVAL", FlowAddress("0x49a7cda3a1eecc29"), FlowChainId.MAINNET)
         }
 
         Flow.configureDefaults(chainId = appProperties.chainId)

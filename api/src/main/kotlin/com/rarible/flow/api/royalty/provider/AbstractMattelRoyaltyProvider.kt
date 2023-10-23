@@ -15,7 +15,6 @@ import com.rarible.flow.core.domain.TokenId
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ClassPathResource
-import java.lang.IllegalArgumentException
 
 abstract class AbstractMattelRoyaltyProvider(
     private val contract: Contract,
@@ -89,6 +88,6 @@ abstract class AbstractMattelRoyaltyProvider(
     }
 
     companion object {
-        const val SCRIPT_FILE = "get_nft_metadata_mattel.cdc"
+        const val SCRIPT_FILE = "get_mattel_royalties.cdc"
     }
 }

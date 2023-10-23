@@ -208,6 +208,21 @@ enum class Contracts : Contract {
         )
     },
 
+    GAMISODES {
+
+        override val contractName: String = "Gamisodes"
+        override val import = "GAMISODES"
+        override val symbol = "GMSD"
+
+        override val deployments = mapOf(
+            // https://flowscan.org/contract/A.09e04bdbcccde6ca.Gamisodes
+            FlowChainId.MAINNET to FlowAddress("0x09e04bdbcccde6ca"),
+            // https://testnet.flowscan.org/contract/A.371ebe4bc55f8925.Gamisodes
+            FlowChainId.TESTNET to FlowAddress("0x371ebe4bc55f8925"),
+            FlowChainId.EMULATOR to FlowAddress("0x371ebe4bc55f8925")
+        )
+    },
+
     RARIBLE_NFT {
 
         override val contractName: String = "RaribleNFT"

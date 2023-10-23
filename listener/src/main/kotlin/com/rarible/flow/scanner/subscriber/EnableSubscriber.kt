@@ -9,11 +9,6 @@ annotation class EnableRaribleCard
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-@ConditionalOnProperty(name = ["app.feature-flags.enable-rarible-card-v2-meta"], havingValue = "true")
-annotation class EnableRaribleCardV2Meta
-
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
 @ConditionalOnProperty(
     name = ["app.feature-flags.enable-rarible-card-v2"],
     havingValue = "true",
@@ -73,10 +68,9 @@ annotation class EnableBarbieToken
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-@ConditionalOnProperty(name = ["app.feature-flags.enable-hw-other-card"], havingValue = "true", matchIfMissing = false)
-annotation class EnableHWOtherCard
-
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-@ConditionalOnProperty(name = ["app.feature-flags.enable-hw-other-card-v2"], havingValue = "true", matchIfMissing = false)
-annotation class EnableHWOtherCardV2
+@ConditionalOnProperty(
+    name = ["app.feature-flags.enable-gamisodes-token"],
+    havingValue = "true",
+    matchIfMissing = false
+)
+annotation class EnableGamisodesToken
