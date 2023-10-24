@@ -1,0 +1,738 @@
+{
+  "value": [
+    {
+      "key": {
+        "value": "A.1d7e57aa55817448.MetadataViews.Editions",
+        "type": "String"
+      },
+      "value": {
+        "value": {
+          "value": {
+            "id": "A.1d7e57aa55817448.MetadataViews.Editions",
+            "fields": [
+              {
+                "value": {
+                  "value": [
+                    {
+                      "value": {
+                        "id": "A.1d7e57aa55817448.MetadataViews.Edition",
+                        "fields": [
+                          {
+                            "value": {
+                              "value": {
+                                "value": "Arms",
+                                "type": "String"
+                              },
+                              "type": "Optional"
+                            },
+                            "name": "name"
+                          },
+                          {
+                            "value": {
+                              "value": "14250",
+                              "type": "UInt64"
+                            },
+                            "name": "number"
+                          },
+                          {
+                            "value": {
+                              "value": {
+                                "value": "27906",
+                                "type": "UInt64"
+                              },
+                              "type": "Optional"
+                            },
+                            "name": "max"
+                          }
+                        ]
+                      },
+                      "type": "Struct"
+                    }
+                  ],
+                  "type": "Array"
+                },
+                "name": "infoList"
+              }
+            ]
+          },
+          "type": "Struct"
+        },
+        "type": "Optional"
+      }
+    },
+    {
+      "key": {
+        "value": "A.1d7e57aa55817448.MetadataViews.Display",
+        "type": "String"
+      },
+      "value": {
+        "value": {
+          "value": {
+            "id": "A.1d7e57aa55817448.MetadataViews.Display",
+            "fields": [
+              {
+                "value": {
+                  "value": "Arms",
+                  "type": "String"
+                },
+                "name": "name"
+              },
+              {
+                "value": {
+                  "value": "Go Go Gadget Arms",
+                  "type": "String"
+                },
+                "name": "description"
+              },
+              {
+                "value": {
+                  "value": {
+                    "id": "A.1d7e57aa55817448.MetadataViews.HTTPFile",
+                    "fields": [
+                      {
+                        "value": {
+                          "value": "https://storage.googleapis.com/gamisodes_inspector_gadget_trading_cards/Arms_1_1_Thumbnail.png",
+                          "type": "String"
+                        },
+                        "name": "url"
+                      }
+                    ]
+                  },
+                  "type": "Struct"
+                },
+                "name": "thumbnail"
+              }
+            ]
+          },
+          "type": "Struct"
+        },
+        "type": "Optional"
+      }
+    },
+    {
+      "key": {
+        "value": "A.1d7e57aa55817448.MetadataViews.ExternalURL",
+        "type": "String"
+      },
+      "value": {
+        "value": {
+          "value": {
+            "id": "A.1d7e57aa55817448.MetadataViews.ExternalURL",
+            "fields": [
+              {
+                "value": {
+                  "value": "https://gamisodes.com",
+                  "type": "String"
+                },
+                "name": "url"
+              }
+            ]
+          },
+          "type": "Struct"
+        },
+        "type": "Optional"
+      }
+    },
+    {
+      "key": {
+        "value": "A.1d7e57aa55817448.MetadataViews.Royalties",
+        "type": "String"
+      },
+      "value": {
+        "value": {
+          "value": {
+            "id": "A.1d7e57aa55817448.MetadataViews.Royalties",
+            "fields": [
+              {
+                "value": {
+                  "value": [
+                    {
+                      "value": {
+                        "id": "A.1d7e57aa55817448.MetadataViews.Royalty",
+                        "fields": [
+                          {
+                            "value": {
+                              "value": {
+                                "path": {
+                                  "value": {
+                                    "domain": "public",
+                                    "identifier": "dapperUtilityCoinReceiver"
+                                  },
+                                  "type": "Path"
+                                },
+                                "borrowType": {
+                                  "type": {
+                                    "kind": "Restriction",
+                                    "typeID": "AnyResource{A.f233dcee88fe0abe.FungibleToken.Receiver}",
+                                    "type": {
+                                      "kind": "AnyResource"
+                                    },
+                                    "restrictions": [
+                                      {
+                                        "type": "",
+                                        "kind": "ResourceInterface",
+                                        "typeID": "A.f233dcee88fe0abe.FungibleToken.Receiver",
+                                        "fields": [
+                                          {
+                                            "type": {
+                                              "kind": "UInt64"
+                                            },
+                                            "id": "uuid"
+                                          }
+                                        ],
+                                        "initializers": []
+                                      }
+                                    ]
+                                  },
+                                  "kind": "Reference",
+                                  "authorized": false
+                                },
+                                "address": "0xb780208cb751b1ae"
+                              },
+                              "type": "Capability"
+                            },
+                            "name": "receiver"
+                          },
+                          {
+                            "value": {
+                              "value": "0.02500000",
+                              "type": "UFix64"
+                            },
+                            "name": "cut"
+                          },
+                          {
+                            "value": {
+                              "value": "MINT",
+                              "type": "String"
+                            },
+                            "name": "description"
+                          }
+                        ]
+                      },
+                      "type": "Struct"
+                    },
+                    {
+                      "value": {
+                        "id": "A.1d7e57aa55817448.MetadataViews.Royalty",
+                        "fields": [
+                          {
+                            "value": {
+                              "value": {
+                                "path": {
+                                  "value": {
+                                    "domain": "public",
+                                    "identifier": "dapperUtilityCoinReceiver"
+                                  },
+                                  "type": "Path"
+                                },
+                                "borrowType": {
+                                  "type": {
+                                    "kind": "Restriction",
+                                    "typeID": "AnyResource{A.f233dcee88fe0abe.FungibleToken.Receiver}",
+                                    "type": {
+                                      "kind": "AnyResource"
+                                    },
+                                    "restrictions": [
+                                      {
+                                        "type": "",
+                                        "kind": "ResourceInterface",
+                                        "typeID": "A.f233dcee88fe0abe.FungibleToken.Receiver",
+                                        "fields": [
+                                          {
+                                            "type": {
+                                              "kind": "UInt64"
+                                            },
+                                            "id": "uuid"
+                                          }
+                                        ],
+                                        "initializers": []
+                                      }
+                                    ]
+                                  },
+                                  "kind": "Reference",
+                                  "authorized": false
+                                },
+                                "address": "0xa83a288bd044926e"
+                              },
+                              "type": "Capability"
+                            },
+                            "name": "receiver"
+                          },
+                          {
+                            "value": {
+                              "value": "0.02500000",
+                              "type": "UFix64"
+                            },
+                            "name": "cut"
+                          },
+                          {
+                            "value": {
+                              "value": "Gamisodes",
+                              "type": "String"
+                            },
+                            "name": "description"
+                          }
+                        ]
+                      },
+                      "type": "Struct"
+                    }
+                  ],
+                  "type": "Array"
+                },
+                "name": "cutInfos"
+              }
+            ]
+          },
+          "type": "Struct"
+        },
+        "type": "Optional"
+      }
+    },
+    {
+      "key": {
+        "value": "A.1d7e57aa55817448.MetadataViews.Traits",
+        "type": "String"
+      },
+      "value": {
+        "value": {
+          "value": {
+            "id": "A.1d7e57aa55817448.MetadataViews.Traits",
+            "fields": [
+              {
+                "value": {
+                  "value": [
+                    {
+                      "value": {
+                        "id": "A.1d7e57aa55817448.MetadataViews.Trait",
+                        "fields": [
+                          {
+                            "value": {
+                              "value": "mimetype",
+                              "type": "String"
+                            },
+                            "name": "name"
+                          },
+                          {
+                            "value": {
+                              "value": "image/png",
+                              "type": "String"
+                            },
+                            "name": "value"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "displayType"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "rarity"
+                          }
+                        ]
+                      },
+                      "type": "Struct"
+                    },
+                    {
+                      "value": {
+                        "id": "A.1d7e57aa55817448.MetadataViews.Trait",
+                        "fields": [
+                          {
+                            "value": {
+                              "value": "mediaURL",
+                              "type": "String"
+                            },
+                            "name": "name"
+                          },
+                          {
+                            "value": {
+                              "value": "https://storage.googleapis.com/gamisodes_inspector_gadget_trading_cards/Arms_1_1.png",
+                              "type": "String"
+                            },
+                            "name": "value"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "displayType"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "rarity"
+                          }
+                        ]
+                      },
+                      "type": "Struct"
+                    },
+                    {
+                      "value": {
+                        "id": "A.1d7e57aa55817448.MetadataViews.Trait",
+                        "fields": [
+                          {
+                            "value": {
+                              "value": "nftType",
+                              "type": "String"
+                            },
+                            "name": "name"
+                          },
+                          {
+                            "value": {
+                              "value": "Type A",
+                              "type": "String"
+                            },
+                            "name": "value"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "displayType"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "rarity"
+                          }
+                        ]
+                      },
+                      "type": "Struct"
+                    },
+                    {
+                      "value": {
+                        "id": "A.1d7e57aa55817448.MetadataViews.Trait",
+                        "fields": [
+                          {
+                            "value": {
+                              "value": "platform",
+                              "type": "String"
+                            },
+                            "name": "name"
+                          },
+                          {
+                            "value": {
+                              "value": "Gamisodes",
+                              "type": "String"
+                            },
+                            "name": "value"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "displayType"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "rarity"
+                          }
+                        ]
+                      },
+                      "type": "Struct"
+                    },
+                    {
+                      "value": {
+                        "id": "A.1d7e57aa55817448.MetadataViews.Trait",
+                        "fields": [
+                          {
+                            "value": {
+                              "value": "mintLevel",
+                              "type": "String"
+                            },
+                            "name": "name"
+                          },
+                          {
+                            "value": {
+                              "value": "1",
+                              "type": "String"
+                            },
+                            "name": "value"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "displayType"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "rarity"
+                          }
+                        ]
+                      },
+                      "type": "Struct"
+                    },
+                    {
+                      "value": {
+                        "id": "A.1d7e57aa55817448.MetadataViews.Trait",
+                        "fields": [
+                          {
+                            "value": {
+                              "value": "rank",
+                              "type": "String"
+                            },
+                            "name": "name"
+                          },
+                          {
+                            "value": {
+                              "value": "1",
+                              "type": "String"
+                            },
+                            "name": "value"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "displayType"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "rarity"
+                          }
+                        ]
+                      },
+                      "type": "Struct"
+                    },
+                    {
+                      "value": {
+                        "id": "A.1d7e57aa55817448.MetadataViews.Trait",
+                        "fields": [
+                          {
+                            "value": {
+                              "value": "level",
+                              "type": "String"
+                            },
+                            "name": "name"
+                          },
+                          {
+                            "value": {
+                              "value": "1",
+                              "type": "String"
+                            },
+                            "name": "value"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "displayType"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "rarity"
+                          }
+                        ]
+                      },
+                      "type": "Struct"
+                    },
+                    {
+                      "value": {
+                        "id": "A.1d7e57aa55817448.MetadataViews.Trait",
+                        "fields": [
+                          {
+                            "value": {
+                              "value": "property",
+                              "type": "String"
+                            },
+                            "name": "name"
+                          },
+                          {
+                            "value": {
+                              "value": "Inspector Gadget",
+                              "type": "String"
+                            },
+                            "name": "value"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "displayType"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "rarity"
+                          }
+                        ]
+                      },
+                      "type": "Struct"
+                    },
+                    {
+                      "value": {
+                        "id": "A.1d7e57aa55817448.MetadataViews.Trait",
+                        "fields": [
+                          {
+                            "value": {
+                              "value": "series",
+                              "type": "String"
+                            },
+                            "name": "name"
+                          },
+                          {
+                            "value": {
+                              "value": "Gadgets",
+                              "type": "String"
+                            },
+                            "name": "value"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "displayType"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "rarity"
+                          }
+                        ]
+                      },
+                      "type": "Struct"
+                    },
+                    {
+                      "value": {
+                        "id": "A.1d7e57aa55817448.MetadataViews.Trait",
+                        "fields": [
+                          {
+                            "value": {
+                              "value": "decentralizedMediaFiles",
+                              "type": "String"
+                            },
+                            "name": "name"
+                          },
+                          {
+                            "value": {
+                              "value": "https://cf-ipfs.com/ipfs/QmYdtHThthkMLZTyfNoyhPZZtzMagRbGoaE6jDyTYoKaxQ",
+                              "type": "String"
+                            },
+                            "name": "value"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "displayType"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "rarity"
+                          }
+                        ]
+                      },
+                      "type": "Struct"
+                    },
+                    {
+                      "value": {
+                        "id": "A.1d7e57aa55817448.MetadataViews.Trait",
+                        "fields": [
+                          {
+                            "value": {
+                              "value": "rarity",
+                              "type": "String"
+                            },
+                            "name": "name"
+                          },
+                          {
+                            "value": {
+                              "value": "Common",
+                              "type": "String"
+                            },
+                            "name": "value"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "displayType"
+                          },
+                          {
+                            "value": {
+                              "value": null,
+                              "type": "Optional"
+                            },
+                            "name": "rarity"
+                          }
+                        ]
+                      },
+                      "type": "Struct"
+                    }
+                  ],
+                  "type": "Array"
+                },
+                "name": "traits"
+              }
+            ]
+          },
+          "type": "Struct"
+        },
+        "type": "Optional"
+      }
+    },
+    {
+      "key": {
+        "value": "A.1d7e57aa55817448.MetadataViews.Serial",
+        "type": "String"
+      },
+      "value": {
+        "value": {
+          "value": {
+            "id": "A.1d7e57aa55817448.MetadataViews.Serial",
+            "fields": [
+              {
+                "value": {
+                  "value": "14250",
+                  "type": "UInt64"
+                },
+                "name": "number"
+              }
+            ]
+          },
+          "type": "Struct"
+        },
+        "type": "Optional"
+      }
+    }
+  ],
+  "type": "Dictionary"
+}
