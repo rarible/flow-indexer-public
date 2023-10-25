@@ -9,7 +9,7 @@ sealed class HotWheelsMetaProvider(
     fetcher: RawOnChainMetaFetcher,
     parser: MattelMetaParser,
     metaEventTypeProvider: HWMetaEventTypeProvider
-) : AbstractMetaProvider(
+) : AbstractMattelMetaProvider(
     fetcher,
     parser,
     metaEventTypeProvider

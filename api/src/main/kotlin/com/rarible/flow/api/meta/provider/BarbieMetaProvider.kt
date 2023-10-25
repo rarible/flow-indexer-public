@@ -9,7 +9,7 @@ sealed class BarbieMetaProvider(
     fetcher: RawOnChainMetaFetcher,
     parser: MattelMetaParser,
     metaEventTypeProvider: BarbieMetaEventTypeProvider
-) : AbstractMetaProvider(
+) : AbstractMattelMetaProvider(
     fetcher,
     parser,
     metaEventTypeProvider

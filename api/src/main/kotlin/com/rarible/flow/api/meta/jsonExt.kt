@@ -2,6 +2,7 @@ package com.rarible.flow.api.meta
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.NullNode
 
 fun JsonNode.getText(vararg paths: List<String>): String? {
     for (path in paths) {
@@ -41,6 +42,14 @@ fun JsonNode.getArray(vararg paths: List<String>): List<JsonNode> {
         }
     }
     return emptyList()
+}
+
+fun JsonNode.getNested(vararg paths: List<String>): JsonNode {
+    for (path in paths) {
+        val current = path.fold(this) { node, subPath -> node.path(subPath) }
+        return current
+    }
+    return NullNode.getInstance()
 }
 
 fun <K, V> Map<K, V>.getFirst(vararg paths: K, filter: (value: V) -> Boolean = { true }): V? {

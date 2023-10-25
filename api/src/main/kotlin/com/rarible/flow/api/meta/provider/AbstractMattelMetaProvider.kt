@@ -6,7 +6,7 @@ import com.rarible.flow.api.meta.fetcher.RawOnChainMetaFetcher
 import com.rarible.flow.api.service.meta.MetaEventTypeProvider
 import com.rarible.flow.core.domain.Item
 
-abstract class AbstractMetaProvider(
+abstract class AbstractMattelMetaProvider(
     private val fetcher: RawOnChainMetaFetcher,
     private val parser: MattelMetaParser,
     private val metaEventTypeProvider: MetaEventTypeProvider,
