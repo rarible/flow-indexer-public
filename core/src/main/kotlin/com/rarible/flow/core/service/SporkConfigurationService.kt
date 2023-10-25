@@ -22,7 +22,7 @@ class SporkConfigurationService(
                 FlowChainId.TESTNET,
                 listOf(
                     Spork(
-                        from = 105032150,
+                        from = 127720466,
                         nodeUrl = properties.flowAccessUrl,
                         port = properties.flowAccessPort,
                     )
