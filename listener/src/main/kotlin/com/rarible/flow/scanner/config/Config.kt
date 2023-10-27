@@ -1,5 +1,6 @@
 package com.rarible.flow.scanner.config
 
+import com.github.cloudyrock.spring.v5.EnableMongock
 import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
@@ -31,7 +32,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 @FlowPreview
-// @EnableMongock
+@EnableMongock
 @EnableRaribleTask
 @EnableFlowBlockchainScanner
 @EnableConfigurationProperties(FlowListenerProperties::class)

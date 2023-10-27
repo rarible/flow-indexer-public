@@ -7,8 +7,10 @@ spring:
 
 
 mongock:
+  enabled: true
   change-logs-scan-package:
     - com.rarible.flow.scanner.migrations
+    - com.rarible.blockchain.scanner.flow.migration
 
 jobs:
   order-price-update:
