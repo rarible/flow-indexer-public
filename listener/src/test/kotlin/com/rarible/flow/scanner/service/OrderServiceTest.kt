@@ -53,7 +53,7 @@ internal class OrderServiceTest : FunSpec({
     test("should list order") {
         val orderRepository = mockk<OrderRepository>("orderRepository") {
             every {
-                findById(any<Long>())
+                findById(any<String>())
             } returns Mono.empty()
 
             every {
@@ -81,7 +81,7 @@ internal class OrderServiceTest : FunSpec({
         }
 
         verify {
-            orderRepository.findById(1001L)
+            orderRepository.findById("1001")
         }
     }
 

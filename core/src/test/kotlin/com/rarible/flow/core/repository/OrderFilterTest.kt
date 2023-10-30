@@ -127,7 +127,7 @@ internal class OrderFilterTest : FunSpec({
                 mockk(),
                 mockk() {
                     every { lastUpdatedAt } returns dateTime
-                    every { id } returns 1000
+                    every { id } returns "1000"
                 }
             )
             sort.nextPage(entities, 3) shouldBe null

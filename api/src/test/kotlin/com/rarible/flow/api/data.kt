@@ -12,11 +12,10 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.domain.OrderData
 import com.rarible.flow.core.domain.OrderType
-import com.rarible.flow.randomLong
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
-fun createOrder(id: Long = randomLong()) = Order(
+fun createOrder(id: String = randomString()) = Order(
     id = id,
     itemId = ItemId(FlowAddress("0x01").formatted, 1),
     maker = FlowAddress("0x1000"),

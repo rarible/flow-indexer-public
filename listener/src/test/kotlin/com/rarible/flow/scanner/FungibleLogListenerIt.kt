@@ -72,7 +72,7 @@ internal class FungibleLogListenerIt : AbstractIntegrationTest() {
         // given
         val maker = FlowAddress("0x4895ce5fb8a40f47")
         val order = Order(
-            id = 24327471,
+            id = "24327471",
             itemId = ItemId.parse("A.ebf4ae01d1284af8.RaribleNFT:1183"),
             maker = maker,
             make = FlowAssetFungible("A.7e60df042a9c0868.FlowToken", BigDecimal.TEN),
@@ -123,7 +123,7 @@ internal class FungibleLogListenerIt : AbstractIntegrationTest() {
         // given
         val maker = FlowAddress("0x4895ce5fb8a40f47")
         val order = Order(
-            id = 24327471,
+            id = "24327471",
             itemId = ItemId.parse("A.ebf4ae01d1284af8.RaribleNFT:1183"),
             maker = maker,
             make = FlowAssetFungible("A.7e60df042a9c0868.FlowToken", BigDecimal.TEN),

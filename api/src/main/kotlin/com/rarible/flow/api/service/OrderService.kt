@@ -21,7 +21,7 @@ class OrderService(
     private val orderRepository: OrderRepository
 ) {
 
-    suspend fun orderById(orderId: Long): Order? {
+    suspend fun orderById(orderId: String): Order? {
         return orderRepository.coFindById(orderId)
     }
 
@@ -70,7 +70,7 @@ class OrderService(
         ).asFlow()
     }
 
-    fun ordersByIds(ids: List<Long>): Flow<Order> {
+    fun ordersByIds(ids: List<String>): Flow<Order> {
         return orderRepository.findAllByIdIn(ids).asFlow()
     }
 

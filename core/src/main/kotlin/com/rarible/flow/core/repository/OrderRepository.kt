@@ -28,9 +28,9 @@ import reactor.core.publisher.Flux
 import java.time.Instant
 import java.time.LocalDateTime
 
-interface OrderRepository : ReactiveMongoRepository<Order, Long>, OrderRepositoryCustom {
+interface OrderRepository : ReactiveMongoRepository<Order, String>, OrderRepositoryCustom {
 
-    fun findAllByIdIn(ids: List<Long>): Flux<Order>
+    fun findAllByIdIn(ids: List<String>): Flux<Order>
 
     @Query(
         """

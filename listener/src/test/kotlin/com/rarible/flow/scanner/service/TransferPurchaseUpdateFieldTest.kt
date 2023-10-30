@@ -74,7 +74,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
     )
 
     val order = Order(
-        id = 42L,
+        id = "42",
         itemId = itemId,
         maker = FlowAddress(maker),
         make = takeSide.asset,
@@ -128,7 +128,7 @@ internal class TransferPurchaseUpdateFieldTest : FunSpec({
 
     @Suppress("ReactiveStreamsUnusedPublisher")
     val orderRepository = mockk<OrderRepository> {
-        every { findById(any<Long>()) } returns Mono.just(order)
+        every { findById(any<String>()) } returns Mono.just(order)
         every {
             findAllByMakeAndMakerAndStatusAndLastUpdatedAtIsBefore(any(), any(), any(), any())
         } returns Flux.empty()
