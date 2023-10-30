@@ -6,7 +6,6 @@ import com.rarible.flow.core.domain.OrderStatus
 import com.rarible.flow.core.repository.OrderFilter
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coSave
-import com.rarible.flow.core.util.Log
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.count
@@ -15,6 +14,7 @@ import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.reactive.asFlow
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @ExperimentalCoroutinesApi
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component
 class BidService(
     private val orderRepository: OrderRepository
 ) {
-    val logger by Log()
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun deactivateBidsByBalance(balance: Balance): Flow<Order> {
         return updateByFilter(

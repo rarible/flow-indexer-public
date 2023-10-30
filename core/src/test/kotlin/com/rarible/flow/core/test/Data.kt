@@ -57,7 +57,7 @@ object Data {
     fun createOrder(tokenId: Long = randomLong()): Order {
         val itemId = ItemId("0x1a2b3c4d", tokenId)
         val order = Order(
-            id = randomPositiveLong(),
+            id = randomString(),
             itemId = itemId,
             maker = FlowAddress("0x01"),
             make = FlowAssetNFT(

@@ -29,7 +29,6 @@ import com.rarible.flow.core.repository.ItemHistoryRepository
 import com.rarible.flow.core.repository.OrderRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
-import com.rarible.flow.core.util.Log
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import com.rarible.protocol.currency.dto.BlockchainDto
 import com.rarible.protocol.dto.FlowOrderPlatformDto
@@ -38,6 +37,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
@@ -55,7 +55,7 @@ class OrderService(
     private val currencyApi: CurrencyControllerApi,
 ) {
 
-    private val logger by Log()
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun openList(activity: FlowNftOrderActivityList, item: Item?): Order {
 
@@ -65,7 +65,7 @@ class OrderService(
         val end = activity.expiry?.epochSecond
         val originalFee = convert(activity.price, activity.estimatedFee)
         val data = OrderData.withOriginalFees(originalFee)
-        val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
+        val order = orderRepository.coFindById(activity.hash)?.copy(
             itemId = ItemId(activity.make.contract, activity.tokenId),
             maker = FlowAddress(activity.maker),
             make = activity.make,
@@ -81,7 +81,7 @@ class OrderService(
             start = start,
             end = end
         ) ?: Order(
-            id = activity.hash.toLong(),
+            id = activity.hash,
             status = status,
             itemId = ItemId(activity.make.contract, activity.tokenId),
             maker = FlowAddress(activity.maker),
@@ -103,7 +103,7 @@ class OrderService(
 
     suspend fun openBid(activity: FlowNftOrderActivityBid, item: Item?): Order {
         val status = if (item == null) OrderStatus.INACTIVE else OrderStatus.ACTIVE
-        val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
+        val order = orderRepository.coFindById(activity.hash)?.copy(
             itemId = ItemId(activity.take.contract, activity.tokenId),
             maker = FlowAddress(activity.maker),
             make = activity.make,
@@ -117,7 +117,7 @@ class OrderService(
             takePriceUsd = activity.priceUsd,
             status = status
         ) ?: Order(
-            id = activity.hash.toLong(),
+            id = activity.hash,
             status = status,
             itemId = ItemId(activity.take.contract, activity.tokenId),
             maker = FlowAddress(activity.maker),
@@ -137,7 +137,7 @@ class OrderService(
     suspend fun close(activity: FlowNftOrderActivitySell): Order {
         val originalFee = convert(activity.price, activity.estimatedFee)
         val data = OrderData.withOriginalFees(originalFee)
-        val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
+        val order = orderRepository.coFindById(activity.hash)?.copy(
             fill = BigDecimal.ONE,
             makeStock = BigDecimal.ZERO,
             taker = FlowAddress(activity.right.maker),
@@ -148,7 +148,7 @@ class OrderService(
                 FlowOrderPlatformDto.RARIBLE
             } else FlowOrderPlatformDto.OTHER
         ) ?: Order(
-            id = activity.hash.toLong(),
+            id = activity.hash,
             fill = BigDecimal.ONE,
             makeStock = BigDecimal.ZERO,
             taker = FlowAddress(activity.right.maker),
@@ -172,7 +172,7 @@ class OrderService(
     }
 
     suspend fun closeBid(activity: FlowNftOrderActivitySell, item: Item?): Order {
-        val order = orderRepository.coFindById(activity.hash.toLong())?.let { order ->
+        val order = orderRepository.coFindById(activity.hash)?.let { order ->
             order.copy(
                 fill = order.makeStock!!,
                 makeStock = BigDecimal.ZERO,
@@ -191,7 +191,7 @@ class OrderService(
                 } else FlowOrderPlatformDto.OTHER
             )
         } ?: Order(
-            id = activity.hash.toLong(),
+            id = activity.hash,
             fill = activity.right.asset.value,
             makeStock = BigDecimal.ZERO,
             taker = FlowAddress(activity.right.maker),
@@ -227,12 +227,12 @@ class OrderService(
 
     // TODO tests
     suspend fun cancel(activity: FlowNftOrderActivityCancelList, item: Item?): Order {
-        val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
+        val order = orderRepository.coFindById(activity.hash)?.copy(
             cancelled = true,
             status = OrderStatus.CANCELLED,
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
         ) ?: Order(
-            id = activity.hash.toLong(),
+            id = activity.hash,
             cancelled = true,
             status = OrderStatus.CANCELLED,
             createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
@@ -303,12 +303,12 @@ class OrderService(
     }
 
     suspend fun cancelBid(activity: FlowNftOrderActivityCancelBid, item: Item?): Order {
-        val order = orderRepository.coFindById(activity.hash.toLong())?.copy(
+        val order = orderRepository.coFindById(activity.hash)?.copy(
             cancelled = true,
             status = OrderStatus.CANCELLED,
             lastUpdatedAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),
         ) ?: Order(
-            id = activity.hash.toLong(),
+            id = activity.hash,
             cancelled = true,
             status = OrderStatus.CANCELLED,
             createdAt = LocalDateTime.ofInstant(activity.timestamp, ZoneOffset.UTC),

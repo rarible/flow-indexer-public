@@ -34,11 +34,9 @@ class OrderController(
 ) : FlowOrderControllerApi, FlowBidOrderControllerApi {
 
     override suspend fun getOrderByOrderId(orderId: String): ResponseEntity<FlowOrderDto> =
-        service.orderById(
-            orderId.toLong()
-        )?.let {
-            converter.convert(it)
-        }.okOr404IfNull()
+        service.orderById(orderId)
+            ?.let { converter.convert(it) }
+            .okOr404IfNull()
 
     override suspend fun getOrdersAll(
         origin: String?,
