@@ -16,13 +16,13 @@ abstract class NonFungibleTokenSubscriber : BaseFlowLogEventSubscriber() {
     protected abstract val name: String
     protected abstract val contract: Contracts
 
+    protected open fun fromEventName(eventName: String) = NonFungibleTokenEventType.fromEventName(eventName)
+
     override val descriptors: Map<FlowChainId, FlowDescriptor>
         get() = createDescriptors()
 
     override suspend fun eventType(log: FlowBlockchainLog): FlowLogType {
-        val eventType = NonFungibleTokenEventType.fromEventName(
-            EventId.of(log.event.id).eventName
-        )
+        val eventType = fromEventName(EventId.of(log.event.id).eventName)
         return when (eventType) {
             NonFungibleTokenEventType.WITHDRAW -> FlowLogType.WITHDRAW
             NonFungibleTokenEventType.DEPOSIT -> FlowLogType.DEPOSIT
