@@ -10,14 +10,21 @@ import org.springframework.stereotype.Component
 class GamisodesTokenSubscriber : NonFungibleTokenSubscriber() {
 
     private val mintEventName = "NFTMinted"
+    private val burnEventName = "NFTBurned"
 
-    override val events = super.events - NonFungibleTokenEventType.MINT.eventName + mintEventName
+    override val events = setOf(
+        mintEventName,
+        NonFungibleTokenEventType.DEPOSIT.eventName,
+        NonFungibleTokenEventType.WITHDRAW.eventName,
+        burnEventName
+    )
     override val name = "gamisodes"
     override val contract = Contracts.GAMISODES
 
     override fun fromEventName(eventName: String) =
         when (eventName) {
             mintEventName -> NonFungibleTokenEventType.MINT
+            burnEventName -> NonFungibleTokenEventType.BURN
             else -> super.fromEventName(eventName)
         }
 }
