@@ -26,7 +26,9 @@ class GamisodesActivityMaker(
         val deposit = deposit(event)
         val events = findBefore(deposit, listOf(FlowLogType.WITHDRAW, FlowLogType.MINT))
         if (events.size > 1) {
-            logger.info("Found more then 1 event coupled with deposit: tx=${event.log.transactionHash}, index=${event.log.eventIndex}")
+            logger.info(
+                "Found more then 1 event coupled with deposit: tx=${event.log.transactionHash}, index=${event.log.eventIndex}, get last ${events.firstOrNull()?.eventIndex}"
+            )
         }
         val withdraw = when (val nftEvent = events.firstOrNull()) {
             is WithdrawEvent -> nftEvent
