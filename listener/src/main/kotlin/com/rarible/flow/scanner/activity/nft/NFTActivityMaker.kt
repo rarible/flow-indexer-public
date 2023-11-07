@@ -96,7 +96,7 @@ abstract class NFTActivityMaker(
         )
     }
 
-    private suspend fun getDepositTransferActivity(event: FlowLogEvent): TransferActivity? {
+    protected open suspend fun getDepositTransferActivity(event: FlowLogEvent): TransferActivity? {
         val deposit = deposit(event)
         val events = findBefore(deposit, listOf(FlowLogType.WITHDRAW, FlowLogType.MINT))
         require(events.size <= 1) {
@@ -153,7 +153,7 @@ abstract class NFTActivityMaker(
         }
     }
 
-    private suspend fun findBefore(event: NFTEvent, types: List<FlowLogType>): List<NFTEvent> {
+    protected suspend fun findBefore(event: NFTEvent, types: List<FlowLogType>): List<NFTEvent> {
         return findNftEvent(event, types) { tx, index ->
             flowLogRepository.findBeforeEventIndex(tx, index)
         }
