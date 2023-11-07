@@ -82,10 +82,14 @@ class GamisodesMetaProvider(
         val owner = item.owner ?: return null
         val tokenId = item.tokenId
 
+        // This could be different for different items
+        val storagePath = "cl9bquwn300010hkzt0td7pec_Gamisodes_nft_collection"
+
         val result = safeExecute(
             script = preparedScript,
             owner = owner,
-            tokenId = tokenId
+            tokenId = tokenId,
+            storagePath = storagePath
         ) ?: return null
         return String(result.bytes)
     }
@@ -93,14 +97,16 @@ class GamisodesMetaProvider(
     private suspend fun safeExecute(
         script: String,
         owner: FlowAddress,
-        tokenId: TokenId
+        tokenId: TokenId,
+        storagePath: String
     ): FlowScriptResponse? {
         return try {
             scriptExecutor.execute(
                 code = script,
                 args = mutableListOf(
                     builder.address(owner.formatted),
-                    builder.uint64(tokenId)
+                    builder.uint64(tokenId),
+                    builder.string(storagePath)
                 ),
             )
         } catch (e: FlowException) {
