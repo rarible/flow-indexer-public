@@ -15,6 +15,10 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.RawOnChainMetaCacheRepository
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -82,15 +86,18 @@ class GamisodesMetaProvider(
         val owner = item.owner ?: return null
         val tokenId = item.tokenId
 
-        // This could be different for different items
-        val storagePath = "cl9bquwn300010hkzt0td7pec_Gamisodes_nft_collection"
-
-        val result = safeExecute(
-            script = preparedScript,
-            owner = owner,
-            tokenId = tokenId,
-            storagePath = storagePath
-        ) ?: return null
+        val result = STORAGES.asFlow().map { path ->
+            val meta = safeExecute(
+                script = preparedScript,
+                owner = owner,
+                tokenId = tokenId,
+                storagePath = path
+            )
+            if (meta == null) {
+                logger.warn("Meta for ${item.tokenId} from $path is empty")
+            }
+            meta
+        }.filterNotNull().firstOrNull() ?: return null
         return String(result.bytes)
     }
 
@@ -119,5 +126,9 @@ class GamisodesMetaProvider(
         val metaViewAddress = Contracts.METADATA_VIEWS.deployments[chainId] ?: return null
         return script
             .replace(Contracts.METADATA_VIEWS.import, metaViewAddress.formatted)
+    }
+
+    companion object {
+        val STORAGES = listOf("cl9bquwn300010hkzt0td7pec_Gamisodes_nft_collection", "GamisodesCollection")
     }
 }

@@ -76,7 +76,6 @@ class GamisodesMetaMt {
         assertThat(meta).isNotNull
     }
 
-    // TODO works with 'GamisodesCollection'
     @Test
     fun `fetch meta - somewhere in the middle`() = runBlocking<Unit> {
         val item = Item(
