@@ -15,6 +15,10 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.RawOnChainMetaCacheRepository
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -82,25 +86,34 @@ class GamisodesMetaProvider(
         val owner = item.owner ?: return null
         val tokenId = item.tokenId
 
-        val result = safeExecute(
-            script = preparedScript,
-            owner = owner,
-            tokenId = tokenId
-        ) ?: return null
+        val result = STORAGES.asFlow().map { path ->
+            val meta = safeExecute(
+                script = preparedScript,
+                owner = owner,
+                tokenId = tokenId,
+                storagePath = path
+            )
+            if (meta == null) {
+                logger.warn("Meta for ${item.tokenId} from $path is empty")
+            }
+            meta
+        }.filterNotNull().firstOrNull() ?: return null
         return String(result.bytes)
     }
 
     private suspend fun safeExecute(
         script: String,
         owner: FlowAddress,
-        tokenId: TokenId
+        tokenId: TokenId,
+        storagePath: String
     ): FlowScriptResponse? {
         return try {
             scriptExecutor.execute(
                 code = script,
                 args = mutableListOf(
                     builder.address(owner.formatted),
-                    builder.uint64(tokenId)
+                    builder.uint64(tokenId),
+                    builder.string(storagePath)
                 ),
             )
         } catch (e: FlowException) {
@@ -113,5 +126,9 @@ class GamisodesMetaProvider(
         val metaViewAddress = Contracts.METADATA_VIEWS.deployments[chainId] ?: return null
         return script
             .replace(Contracts.METADATA_VIEWS.import, metaViewAddress.formatted)
+    }
+
+    companion object {
+        val STORAGES = listOf("cl9bquwn300010hkzt0td7pec_Gamisodes_nft_collection", "GamisodesCollection")
     }
 }
