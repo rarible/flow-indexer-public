@@ -15,10 +15,6 @@ import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.TokenId
 import com.rarible.flow.core.repository.RawOnChainMetaCacheRepository
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -86,7 +82,7 @@ class GamisodesMetaProvider(
         val owner = item.owner ?: return null
         val tokenId = item.tokenId
 
-        val result = STORAGES.asFlow().map { path ->
+        val result = STORAGES.firstNotNullOfOrNull { path ->
             val meta = safeExecute(
                 script = preparedScript,
                 owner = owner,
@@ -97,7 +93,7 @@ class GamisodesMetaProvider(
                 logger.warn("Meta for ${item.tokenId} from $path is empty")
             }
             meta
-        }.filterNotNull().firstOrNull() ?: return null
+        } ?: return null
         return String(result.bytes)
     }
 
@@ -129,6 +125,10 @@ class GamisodesMetaProvider(
     }
 
     companion object {
-        val STORAGES = listOf("cl9bquwn300010hkzt0td7pec_Gamisodes_nft_collection", "GamisodesCollection")
+        val STORAGES = listOf(
+            "cl9bquwn300010hkzt0td7pec_Gamisodes_nft_collection",
+            "GamisodesCollection",
+            "cl9bqlj3600000ilb44ugzei6_Gamisodes_nft_collection"
+        )
     }
 }
