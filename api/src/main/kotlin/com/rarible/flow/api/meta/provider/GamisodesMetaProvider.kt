@@ -1,6 +1,7 @@
 package com.rarible.flow.api.meta.provider
 
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowException
 import com.nftco.flow.sdk.FlowScriptResponse
 import com.rarible.flow.Contract
@@ -82,7 +83,13 @@ class GamisodesMetaProvider(
         val owner = item.owner ?: return null
         val tokenId = item.tokenId
 
-        val result = STORAGES.firstNotNullOfOrNull { path ->
+        val storages = when (chainId) {
+            FlowChainId.MAINNET -> STORAGES_PROD
+            FlowChainId.TESTNET -> STORAGES_TESTNET
+            else -> throw RuntimeException("Doesn't supported for $chainId")
+        }
+
+        val result = storages.firstNotNullOfOrNull { path ->
             val meta = safeExecute(
                 script = preparedScript,
                 owner = owner,
@@ -125,10 +132,7 @@ class GamisodesMetaProvider(
     }
 
     companion object {
-        val STORAGES = listOf(
-            "cl9bquwn300010hkzt0td7pec_Gamisodes_nft_collection",
-            "GamisodesCollection",
-            "cl9bqlj3600000ilb44ugzei6_Gamisodes_nft_collection"
-        )
+        val STORAGES_PROD = listOf("cl9bquwn300010hkzt0td7pec_Gamisodes_nft_collection", "GamisodesCollection")
+        val STORAGES_TESTNET = listOf("cl9bqlj3600000ilb44ugzei6_Gamisodes_nft_collection")
     }
 }
