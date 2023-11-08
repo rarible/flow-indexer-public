@@ -21,7 +21,7 @@ import java.time.Instant
 
 // For manual test only
 @Disabled
-class GamisodesMetaIt {
+class GamisodesMetaMt {
 
     val spork = Spork(from = 19050753L, nodeUrl = "access.mainnet.nodes.onflow.org")
     val client = FlowApiFactoryImpl(
@@ -45,7 +45,7 @@ class GamisodesMetaIt {
     val collection = FlowAddress("09e04bdbcccde6ca")
 
     @Test
-    fun `fetch meta from on old item`() = runBlocking<Unit> {
+    fun `fetch meta - old item`() = runBlocking<Unit> {
         val item = Item(
             contract = collection.formatted,
             tokenId = 5L,
@@ -61,7 +61,7 @@ class GamisodesMetaIt {
     }
 
     @Test
-    fun `fetch meta from a new one`() = runBlocking<Unit> {
+    fun `fetch meta - latest item`() = runBlocking<Unit> {
         val item = Item(
             contract = collection.formatted,
             tokenId = 928233L,
@@ -69,6 +69,23 @@ class GamisodesMetaIt {
             creator = collection,
             royalties = emptyList(),
             owner = FlowAddress("0x0b2ac77dbfe92266"),
+            mintedAt = Instant.now(),
+            updatedAt = Instant.now()
+        )
+        val meta = provider.getMeta(item)
+        assertThat(meta).isNotNull
+    }
+
+    // TODO works with 'GamisodesCollection'
+    @Test
+    fun `fetch meta - somewhere in the middle`() = runBlocking<Unit> {
+        val item = Item(
+            contract = collection.formatted,
+            tokenId = 756378L,
+            owner = FlowAddress("0xbd31f13c8e3b2a48"),
+            collection = "A.09e04bdbcccde6ca.Gamisodes",
+            creator = collection,
+            royalties = emptyList(),
             mintedAt = Instant.now(),
             updatedAt = Instant.now()
         )
