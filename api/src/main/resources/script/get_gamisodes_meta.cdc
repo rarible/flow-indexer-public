@@ -1,7 +1,7 @@
 import MetadataViews from 0xMETADATAVIEWS
 
-pub fun main(address: Address, uuid: UInt64) : AnyStruct {
-    let obj = getAuthAccount(address).borrow<auth &AnyResource>(from: StoragePath(identifier: "GamisodesCollection")!)!
+pub fun main(address: Address, uuid: UInt64, storagePath: String) : AnyStruct {
+    let obj = getAuthAccount(address).borrow<auth &AnyResource>(from: StoragePath(identifier: storagePath)!)!
     let meta = obj as? &AnyResource{MetadataViews.ResolverCollection}
 
     let results : {String:AnyStruct} = {}
