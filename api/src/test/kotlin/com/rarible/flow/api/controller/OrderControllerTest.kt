@@ -2,7 +2,6 @@ package com.rarible.flow.api.controller
 
 import com.nftco.flow.sdk.FlowAddress
 import com.ninjasquad.springmockk.MockkBean
-import com.rarible.core.test.data.randomString
 import com.rarible.flow.api.TestPropertiesConfiguration
 import com.rarible.flow.api.http.shouldGetBadRequest
 import com.rarible.flow.api.http.shouldGetPaginatedResult
@@ -110,7 +109,7 @@ class OrderControllerTest {
 
         client.post()
             .uri("/v0.1/orders/byIds")
-            .bodyValue(FlowOrderIdsDto((1L..10L).map { it.toString() }.toList()))
+            .bodyValue(FlowOrderIdsDto((1L..10L).toList()))
             .exchange()
             .expectStatus().isOk
     }
@@ -353,7 +352,7 @@ class OrderControllerTest {
     private fun createOrder(tokenId: Long = randomLong()): Order {
         val itemId = ItemId("0x1a2b3c4d", tokenId)
         return Order(
-            id = randomString(),
+            id = randomLong().toString(),
             itemId = itemId,
             maker = randomFlowAddress(),
             make = FlowAssetNFT(
@@ -381,7 +380,7 @@ class OrderControllerTest {
     private fun createBidOrder(tokenId: Long = randomLong()): Order {
         val itemId = ItemId("0x1a2b3c4d", tokenId)
         return Order(
-            id = randomString(),
+            id = randomLong().toString(),
             itemId = itemId,
             maker = randomFlowAddress(),
             make = FlowAssetFungible(

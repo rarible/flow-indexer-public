@@ -44,7 +44,7 @@ class OrderToDtoConverter(
             }
 
             return FlowOrderDto(
-                id = source.id,
+                id = source.id.toLong(),
                 itemId = "${source.itemId}",
                 maker = source.maker.formatted,
                 taker = null,
