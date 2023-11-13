@@ -1,7 +1,6 @@
 package com.rarible.flow.core.repository
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.core.test.data.randomString
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.FlowNftOrderActivitySell
@@ -42,7 +41,7 @@ object data {
         makeStock = BigDecimal.ONE
     )
 
-    fun createOrder(id: String = randomString()) = Order(
+    fun createOrder(id: String = randomLong().toString()) = Order(
         id = id,
         itemId = ItemId(FlowAddress("0x01").formatted, 1),
         maker = FlowAddress("0x1000"),
