@@ -99,7 +99,7 @@ internal class OrderToDtoConverterTest : FunSpec({
         val order = data.createOrder()
 
         converter.convert(order) should { o ->
-            o.id shouldBe order.id
+            o.id shouldBe order.id.toLong()
             o.itemId shouldBe "0x0000000000000001:1"
             o.taker shouldBe null
             o.fill shouldBe 13.37.toBigDecimal()
@@ -112,7 +112,7 @@ internal class OrderToDtoConverterTest : FunSpec({
         val order = data.createOrder().copy(taker = FlowAddress("0x1337"))
 
         converter.convert(order) should { o ->
-            o.id shouldBe order.id
+            o.id shouldBe order.id.toLong()
             o.itemId shouldBe "0x0000000000000001:1"
             o.taker shouldBe null
             o.fill shouldBe 13.37.toBigDecimal()
