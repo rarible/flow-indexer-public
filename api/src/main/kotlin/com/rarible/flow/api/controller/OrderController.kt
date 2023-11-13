@@ -65,7 +65,7 @@ class OrderController(
     }
 
     override fun getOrdersByIds(flowOrderIdsDto: FlowOrderIdsDto): ResponseEntity<Flow<FlowOrderDto>> {
-        return service.ordersByIds(flowOrderIdsDto.ids).map {
+        return service.ordersByIds(flowOrderIdsDto.ids.map { it.toString() }).map {
             converter.convert(it)
         }.okOr404IfNull()
     }

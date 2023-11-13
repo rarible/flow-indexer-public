@@ -96,10 +96,10 @@ internal class OrderToDtoConverterTest : FunSpec({
     }
 
     test("should convert order without taker") {
-        val order = data.createOrder()
+        val order = data.createOrder().copy(id = "1")
 
         converter.convert(order) should { o ->
-            o.id shouldBe order.id
+            o.id shouldBe order.id.toLong()
             o.itemId shouldBe "0x0000000000000001:1"
             o.taker shouldBe null
             o.fill shouldBe 13.37.toBigDecimal()
@@ -109,10 +109,10 @@ internal class OrderToDtoConverterTest : FunSpec({
 
     // TODO we should not put taker to our orders
     test("should convert order with taker") {
-        val order = data.createOrder().copy(taker = FlowAddress("0x1337"))
+        val order = data.createOrder().copy(taker = FlowAddress("0x1337"), id = "1")
 
         converter.convert(order) should { o ->
-            o.id shouldBe order.id
+            o.id shouldBe order.id.toLong()
             o.itemId shouldBe "0x0000000000000001:1"
             o.taker shouldBe null
             o.fill shouldBe 13.37.toBigDecimal()
