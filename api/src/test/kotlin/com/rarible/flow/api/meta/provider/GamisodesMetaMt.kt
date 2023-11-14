@@ -44,6 +44,8 @@ class GamisodesMetaMt {
             )
             val meta = provider.getMeta(item)
             assertThat(meta).isNotNull
+            assertThat(meta!!.name).isEqualTo("Legs")
+            assertThat(meta!!.attributes).hasSize(11)
         }
     }
 
@@ -57,7 +59,7 @@ class GamisodesMetaMt {
         )
 
         @Test
-        fun `get meta for random item`() = runBlocking<Unit> {
+        fun `fetch meta - first item`() = runBlocking<Unit> {
             val provider = prod()
             val item = item(
                 contract = FlowAddress("09e04bdbcccde6ca"),
@@ -67,6 +69,7 @@ class GamisodesMetaMt {
             )
             val meta = provider.getMeta(item)
             assertThat(meta).isNotNull
+            assertThat(meta!!.name).isEqualTo("Gamisodes Founding Logo")
         }
 
         @Test
@@ -80,6 +83,8 @@ class GamisodesMetaMt {
             )
             val meta = provider.getMeta(item)
             assertThat(meta).isNotNull
+            assertThat(meta!!.name).isEqualTo("Left Leg")
+            assertThat(meta!!.attributes).hasSize(11)
         }
 
         @Test
@@ -89,10 +94,12 @@ class GamisodesMetaMt {
                 contract = FlowAddress("09e04bdbcccde6ca"),
                 collection = "A.09e04bdbcccde6ca.Gamisodes",
                 tokenId = 756378L,
-                owner = "0xbd31f13c8e3b2a48"
+                owner = "0x0b2ac77dbfe92266"
             )
             val meta = provider.getMeta(item)
             assertThat(meta).isNotNull
+            assertThat(meta!!.name).isEqualTo("Left Cuff")
+            assertThat(meta!!.attributes).hasSize(11)
         }
     }
 
