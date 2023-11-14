@@ -11,7 +11,6 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.util.offchainEventMarks
 import com.rarible.flow.scanner.flowty.FlowtyClient
-import com.rarible.flow.scanner.job.ItemCleanupJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.flow
@@ -25,7 +24,6 @@ import java.util.concurrent.atomic.AtomicReference
 
 @Component
 class MigrateGamisodesFromFlowtyTask(
-    private val job: ItemCleanupJob,
     private val flowtyClient: FlowtyClient,
     private val itemRepository: ItemRepository,
     private val ownershipRepository: OwnershipRepository,
