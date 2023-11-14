@@ -3,7 +3,7 @@ package com.rarible.flow.scanner.flowty
 import com.rarible.flow.scanner.config.FlowListenerProperties
 import io.netty.channel.ChannelOption
 import io.netty.channel.epoll.EpollChannelOption
-import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.http.client.reactive.ClientHttpConnector
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Component
@@ -23,12 +23,12 @@ class FlowtyClient(
         properties.flowty.proxy?.let { URI.create(it) }
     )
 
-    suspend fun getGamisodesToken(tokenId: Long): GamisodesToken {
+    suspend fun getGamisodesToken(tokenId: Long): GamisodesToken? {
         return transport.get()
             .uri("nft/0x09e04bdbcccde6ca/Gamisodes/$tokenId")
             .retrieve()
             .bodyToMono<GamisodesToken>()
-            .awaitFirst()
+            .awaitFirstOrNull()
     }
 
     private fun initTransport(endpoint: URI, proxy: URI?): WebClient {
