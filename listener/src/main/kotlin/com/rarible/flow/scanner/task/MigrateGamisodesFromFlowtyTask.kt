@@ -100,14 +100,14 @@ class MigrateGamisodesFromFlowtyTask(
                 owner = owner,
                 updatedAt = Instant.now(),
             )
-            log("Updating tokenId $tokenId, previous owner ${item.owner}, new owner $owner")
+            log("Updating tokenId $tokenId, previous owner ${item.owner?.formatted}, new owner ${owner.formatted}")
             itemRepository.save(updatedItem).awaitLast()
         }
 
         val ownerships = ownershipRepository.findAllByContractAndTokenId(contract, tokenId).collectList().awaitFirst()
         when {
             ownerships.singleOrNull()?.owner == owner -> {
-                log("Ownership already right: $tokenId, $owner")
+                log("Ownership already right: $tokenId, ${owner.formatted}")
             }
             else -> {
                 ownerships.forEach {
@@ -115,8 +115,8 @@ class MigrateGamisodesFromFlowtyTask(
                         ownership = it,
                         marks = offchainEventMarks()
                     )
-                    ownershipRepository.deleteById(it.id).awaitFirst()
-                    log("Remove ownership: $tokenId, ${it.owner}")
+                    ownershipRepository.deleteById(it.id).awaitFirstOrNull()
+                    log("Remove ownership: $tokenId, ${it.owner.formatted}")
                 }
 
                 val ownership = Ownership(
@@ -131,7 +131,7 @@ class MigrateGamisodesFromFlowtyTask(
                     marks = offchainEventMarks()
                 )
                 ownershipRepository.save(ownership).awaitFirst()
-                log("Save ownership: $tokenId, $owner")
+                log("Save ownership: $tokenId, ${owner.formatted}")
             }
         }
         return tokenId
