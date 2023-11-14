@@ -37,13 +37,14 @@ class MigrateGamisodesFromFlowtyTask(
         return true
     }
 
-    override fun runLongTask(from: String?, param: String) = flow<String> {
-        val lastTokenId = AtomicReference(from?.toLong() ?: -1)
+    override fun runLongTask(from: String?, param: String) = flow {
+        val lastTokenId = AtomicReference(from?.toLong() ?: 0)
+        log("Start migration from ${lastTokenId.get()}")
         coroutineScope {
             while (true) {
                 val currentTokenId = lastTokenId.get() ?: break
 
-                (1..BATCH_SIZE).map { offset ->
+                (0..BATCH_SIZE).map { offset ->
                     async {
                         val migratingToken = currentTokenId + offset
                         try {
