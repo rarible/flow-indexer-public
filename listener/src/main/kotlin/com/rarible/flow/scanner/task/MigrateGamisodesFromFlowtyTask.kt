@@ -143,7 +143,7 @@ class MigrateGamisodesFromFlowtyTask(
 
     private companion object {
         private val logger = LoggerFactory.getLogger(MigrateGamisodesFromFlowtyTask::class.java)
-        const val BATCH_SIZE = 50
+        const val BATCH_SIZE = 10
         const val LOG_PREFIX = "[Flowty]"
     }
 }
