@@ -1,6 +1,7 @@
 package com.rarible.flow.scanner.task
 
 import com.nftco.flow.sdk.FlowAddress
+import com.rarible.core.common.ifNotBlank
 import com.rarible.core.task.TaskHandler
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
@@ -38,13 +39,14 @@ class MigrateGamisodesFromFlowtyTask(
     }
 
     override fun runLongTask(from: String?, param: String) = flow {
+        val batch = param.ifNotBlank()?.toInt() ?: BATCH_SIZE
         val lastTokenId = AtomicReference(from?.toLong() ?: 0)
         log("Start migration from ${lastTokenId.get()}")
         coroutineScope {
             while (true) {
                 val currentTokenId = lastTokenId.get() ?: break
 
-                (0..BATCH_SIZE).map { offset ->
+                (0..batch).map { offset ->
                     async {
                         val migratingToken = currentTokenId + offset
                         try {
