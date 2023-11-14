@@ -18,6 +18,7 @@ object GamisodesMetaParser {
     private const val SECTION_EXTERNAL_URL = "ExternalURL"
     private const val SECTION_ROYALTIES = "Royalties"
     private const val SECTION_TRAITS = "Traits"
+    private const val SECTION_NFT = "NFT"
 
     private const val VALUE = "value"
     private const val NAME = "name"
@@ -25,6 +26,7 @@ object GamisodesMetaParser {
 
     private val root = listOf(VALUE, VALUE, VALUE)
     private val nested = listOf(VALUE, VALUE)
+    private val attrs = listOf("platform", "mintLevel", "collection", "rank", "type", "property", "editionSize", "series", "artist", "mimeType", "mediaUrl", "posterUrl")
 
     fun parse(json: String, itemId: ItemId): GamisodesMeta {
         val jsonNode = JsonPropertiesParser.parse(itemId, json)
@@ -62,12 +64,28 @@ object GamisodesMetaParser {
             imagePreview = sections[SECTION_DISPLAY]?.get("thumbnail")?.getFields()?.getFieldText("url"),
             imageOriginal = traits.find { it.key == "decentralizedMediaFiles" }?.value,
             attributes = traits + extraTraits,
-            royalties = royalties ?: emptyList()
+            royalties = royalties ?: emptyList(),
+            setId = sections[SECTION_NFT]?.getFieldText("setId"),
+            templateId = sections[SECTION_NFT]?.getFieldText("templateId")
         )
     }
 
+    fun parseAttributes(json: String, itemId: ItemId): List<ItemMetaAttribute> {
+        val jsonNode = JsonPropertiesParser.parse(itemId, json)
+        val dict = jsonNode.getArray("value")
+            .associateBy({ it.at("/key").getText("value") }, { it.at("/value").getText("value") })
+            .filterKeys { attrs.contains(it) }
+
+        return dict.mapNotNull { (key, value) ->
+            key?.let {
+                ItemMetaAttribute(key, value)
+            } ?: null
+        }
+    }
+
     private fun getSectionNode(node: JsonNode): Pair<String, Map<String, JsonNode>>? {
-        val sectionNode = node.getNested(root)
+        val section = node.getNested(root)
+        val sectionNode = if (section.isEmpty) node.getNested(nested) else section
         val sectionName = sectionNode.getText(ID)?.substringAfterLast(".") ?: return null
         return sectionName to sectionNode.getFields()
     }
@@ -104,4 +122,6 @@ data class GamisodesMeta(
     val imagePreview: String?,
     val attributes: List<ItemMetaAttribute> = emptyList(),
     val royalties: List<Royalty> = emptyList(),
+    val setId: String? = null,
+    val templateId: String? = null,
 )

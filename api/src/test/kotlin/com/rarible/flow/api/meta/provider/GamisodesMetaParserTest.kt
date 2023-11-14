@@ -9,11 +9,12 @@ import org.junit.jupiter.api.Test
 
 class GamisodesMetaParserTest {
 
-    private val json = this.javaClass.getResourceAsStream("/json/gamisodes_meta.json")!!
+    fun json(path: String) = this.javaClass.getResourceAsStream(path)!!
         .bufferedReader().use { it.readText() }
 
     @Test
     fun `parse meta - ok`() = runBlocking<Unit> {
+        val json = json("/json/gamisodes_meta.json")
         val meta = GamisodesMetaParser.parse(json, randomItemId())!!
 
         assertThat(meta.name).isEqualTo("Arms")
@@ -45,6 +46,28 @@ class GamisodesMetaParserTest {
         assertThat(meta.royalties).containsExactlyInAnyOrder(
             Royalty(address = "0xb780208cb751b1ae", fee = "0.02500000".toBigDecimal()),
             Royalty(address = "0xa83a288bd044926e", fee = "0.02500000".toBigDecimal())
+        )
+        assertThat(meta.setId).isEqualTo("15")
+        assertThat(meta.templateId).isEqualTo("0")
+    }
+
+    @Test
+    fun `parse attributes - ok`() = runBlocking<Unit> {
+        val json = json("/json/gamisodes_meta_attr.json")
+
+        val attributes = GamisodesMetaParser.parseAttributes(json, randomItemId())
+        assertThat(attributes).containsExactlyInAnyOrder(
+            ItemMetaAttribute(key = "platform", value = "Gamisodes"),
+            ItemMetaAttribute(key = "mintLevel", value = "1"),
+            ItemMetaAttribute(key = "collection", value = "Gadgets"),
+            ItemMetaAttribute(key = "rank", value = "1"),
+            ItemMetaAttribute(key = "type", value = "Trading Card"),
+            ItemMetaAttribute(key = "property", value = "Inspector Gadget"),
+            ItemMetaAttribute(key = "editionSize", value = "72"),
+            ItemMetaAttribute(key = "artist", value = "Bayu Sadewo"),
+            ItemMetaAttribute(key = "series", value = "1"),
+            ItemMetaAttribute(key = "mediaUrl", value = "ipfs://bafybeie33roqkg2otsf2f2n5vrsymn6ckvnqnwu677jvj6yoxhn27unw2e/GadgetsToothpaste_1_1.png"),
+            ItemMetaAttribute(key = "posterUrl", value = "ipfs://bafybeig2d4vr45iycb6s5i24t4amk2k3qx63dqhqtsvks7u3jfslhxsjni/GadgetsToothpaste_1_1_Thumbnail.png")
         )
     }
 }

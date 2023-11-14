@@ -732,6 +732,55 @@
         },
         "type": "Optional"
       }
+    },
+    {
+      "key": {
+        "value": "view.nftview",
+        "type": "String"
+      },
+      "value": {
+        "value": {
+          "id": "A.371ebe4bc55f8925.Gamisodes.NFT",
+          "fields": [
+            {
+              "value": {
+                "value": "175929588",
+                "type": "UInt64"
+              },
+              "name": "uuid"
+            },
+            {
+              "value": {
+                "value": "64202",
+                "type": "UInt64"
+              },
+              "name": "id"
+            },
+            {
+              "value": {
+                "value": "15",
+                "type": "Int"
+              },
+              "name": "setId"
+            },
+            {
+              "value": {
+                "value": "0",
+                "type": "Int"
+              },
+              "name": "templateId"
+            },
+            {
+              "value": {
+                "value": "500",
+                "type": "UInt64"
+              },
+              "name": "serial"
+            }
+          ]
+        },
+        "type": "Resource"
+      }
     }
   ],
   "type": "Dictionary"
