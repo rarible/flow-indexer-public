@@ -20,6 +20,7 @@ pub fun main(address: Address, uuid: UInt64, storagePath: String) : AnyStruct {
             }
             results[metadataType.identifier] = view?.resolveView(metadataType)
         }
-    }       
+    }
+    results["view.nftview"] = view
     return results
 }

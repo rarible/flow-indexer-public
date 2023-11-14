@@ -1,6 +1,7 @@
 package com.rarible.flow.scanner.task
 
 import com.nftco.flow.sdk.FlowAddress
+import com.rarible.core.common.ifNotBlank
 import com.rarible.core.task.TaskHandler
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
@@ -10,7 +11,6 @@ import com.rarible.flow.core.repository.ItemRepository
 import com.rarible.flow.core.repository.OwnershipRepository
 import com.rarible.flow.core.util.offchainEventMarks
 import com.rarible.flow.scanner.flowty.FlowtyClient
-import com.rarible.flow.scanner.job.ItemCleanupJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.flow
@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicReference
 
 @Component
 class MigrateGamisodesFromFlowtyTask(
-    private val job: ItemCleanupJob,
     private val flowtyClient: FlowtyClient,
     private val itemRepository: ItemRepository,
     private val ownershipRepository: OwnershipRepository,
@@ -37,31 +36,40 @@ class MigrateGamisodesFromFlowtyTask(
         return true
     }
 
-    override fun runLongTask(from: String?, param: String) = flow<String> {
-        val lastTokenId = AtomicReference(from?.toLong() ?: 0)
+    override fun runLongTask(from: String?, param: String) = flow {
+        val batch = param.ifNotBlank()?.toInt() ?: BATCH_SIZE
+        val lastTokenId = AtomicReference<Long>(from?.toLong() ?: 0)
+        log("Start migration from ${lastTokenId.get()}")
         coroutineScope {
-            while (true) {
-                val currentTokenId = lastTokenId.get() ?: break
+            while (lastTokenId.get() < 1_254_556) {
+                val currentTokenId = lastTokenId.get()
 
-                (1..BATCH_SIZE).map { offset ->
+                (0..batch).map { offset ->
                     async {
-                        migrateToken(currentTokenId + offset)
+                        val migratingToken = currentTokenId + offset
+                        try {
+                            migrateToken(migratingToken)
+                        } catch (ex: Throwable) {
+                            logger.error("$LOG_PREFIX Error while migrating token $migratingToken", ex)
+                            throw ex
+                        }
                     }
                 }.onEach {
                     val tokenId = it.await()
-                    if (tokenId != null) {
-                        emit(tokenId.toString())
-                    }
                     lastTokenId.set(tokenId)
+                    emit(tokenId.toString())
                 }
             }
         }
     }
 
-    private suspend fun migrateToken(tokenId: Long): Long? {
-        val token = flowtyClient.getGamisodesToken(tokenId)
-        log("Externally get token $tokenId, owner ${token.owner}")
-        if (token.owner.isBlank()) return null
+    private suspend fun migrateToken(tokenId: Long): Long {
+        val token = flowtyClient.getGamisodesToken(tokenId) ?: run {
+            log("External token $tokenId not found")
+            return tokenId
+        }
+        log("Get external token $tokenId, owner ${token.owner}")
+        if (token.owner.isBlank()) return tokenId
 
         val creator = FlowAddress("0x09e04bdbcccde6ca")
         val owner = FlowAddress(token.owner)
@@ -91,14 +99,14 @@ class MigrateGamisodesFromFlowtyTask(
                 owner = owner,
                 updatedAt = Instant.now(),
             )
-            log("Updating tokenId $tokenId, previous owner ${item.owner}, new owner $owner")
+            log("Updating tokenId $tokenId, previous owner ${item.owner?.formatted}, new owner ${owner.formatted}")
             itemRepository.save(updatedItem).awaitLast()
         }
 
         val ownerships = ownershipRepository.findAllByContractAndTokenId(contract, tokenId).collectList().awaitFirst()
         when {
             ownerships.singleOrNull()?.owner == owner -> {
-                log("Ownership already right: $tokenId, $owner")
+                log("Ownership already right: $tokenId, ${owner.formatted}")
             }
             else -> {
                 ownerships.forEach {
@@ -106,8 +114,8 @@ class MigrateGamisodesFromFlowtyTask(
                         ownership = it,
                         marks = offchainEventMarks()
                     )
-                    ownershipRepository.deleteById(it.id).awaitFirst()
-                    log("Remove ownership: $tokenId, ${it.owner}")
+                    ownershipRepository.deleteById(it.id).awaitFirstOrNull()
+                    log("Remove ownership: $tokenId, ${it.owner.formatted}")
                 }
 
                 val ownership = Ownership(
@@ -122,7 +130,7 @@ class MigrateGamisodesFromFlowtyTask(
                     marks = offchainEventMarks()
                 )
                 ownershipRepository.save(ownership).awaitFirst()
-                log("Save ownership: $tokenId, $owner")
+                log("Save ownership: $tokenId, ${owner.formatted}")
             }
         }
         return tokenId
@@ -134,7 +142,7 @@ class MigrateGamisodesFromFlowtyTask(
 
     private companion object {
         private val logger = LoggerFactory.getLogger(MigrateGamisodesFromFlowtyTask::class.java)
-        const val BATCH_SIZE = 500
+        const val BATCH_SIZE = 10
         const val LOG_PREFIX = "[Flowty]"
     }
 }

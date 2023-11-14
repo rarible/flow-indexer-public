@@ -19,6 +19,6 @@ class FlowtyClientTest {
         }
         val client = FlowtyClient(properties)
         val token = client.getGamisodesToken(0)
-        assertThat(token.owner).isNotBlank()
+        assertThat(token?.owner).isNotBlank()
     }
 }
