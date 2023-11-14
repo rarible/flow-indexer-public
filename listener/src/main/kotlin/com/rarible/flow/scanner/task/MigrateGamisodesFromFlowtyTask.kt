@@ -38,11 +38,11 @@ class MigrateGamisodesFromFlowtyTask(
 
     override fun runLongTask(from: String?, param: String) = flow {
         val batch = param.ifNotBlank()?.toInt() ?: BATCH_SIZE
-        val lastTokenId = AtomicReference(from?.toLong() ?: 0)
+        val lastTokenId = AtomicReference<Long>(from?.toLong() ?: 0)
         log("Start migration from ${lastTokenId.get()}")
         coroutineScope {
-            while (true) {
-                val currentTokenId = lastTokenId.get() ?: break
+            while (lastTokenId.get() < 1_254_556) {
+                val currentTokenId = lastTokenId.get()
 
                 (0..batch).map { offset ->
                     async {
@@ -56,22 +56,20 @@ class MigrateGamisodesFromFlowtyTask(
                     }
                 }.onEach {
                     val tokenId = it.await()
-                    if (tokenId != null) {
-                        emit(tokenId.toString())
-                    }
                     lastTokenId.set(tokenId)
+                    emit(tokenId.toString())
                 }
             }
         }
     }
 
-    private suspend fun migrateToken(tokenId: Long): Long? {
+    private suspend fun migrateToken(tokenId: Long): Long {
         val token = flowtyClient.getGamisodesToken(tokenId) ?: run {
             log("External token $tokenId not found")
             return tokenId
         }
         log("Get external token $tokenId, owner ${token.owner}")
-        if (token.owner.isBlank()) return null
+        if (token.owner.isBlank()) return tokenId
 
         val creator = FlowAddress("0x09e04bdbcccde6ca")
         val owner = FlowAddress(token.owner)
