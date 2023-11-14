@@ -17,7 +17,8 @@ data class FlowListenerProperties(
     val scannerLogRecordDaemon: DaemonWorkerProperties = DaemonWorkerProperties(),
     val scannerLogRecordListeners: Map<String, Int> = emptyMap(),
     val cleanup: CleanUpProperties = CleanUpProperties(),
-    val startEndWorker: StartEndWorkerProperties = StartEndWorkerProperties()
+    val startEndWorker: StartEndWorkerProperties = StartEndWorkerProperties(),
+    val flowty: FlowtyProperties = FlowtyProperties(),
 )
 
 data class FlowNetworkServiceAccount(
@@ -34,4 +35,10 @@ data class StartEndWorkerProperties(
     val enabled: Boolean = true,
     val pollingPeriod: Duration = Duration.ofMinutes(1),
     val errorDelay: Duration = Duration.ofMinutes(2)
+)
+
+data class FlowtyProperties(
+    val enabled: Boolean = false,
+    val endpoint: String = "https://api2.flowty.io",
+    val proxy: String? = null,
 )
