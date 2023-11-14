@@ -26,6 +26,7 @@ object GamisodesMetaParser {
 
     private val root = listOf(VALUE, VALUE, VALUE)
     private val nested = listOf(VALUE, VALUE)
+    private val attrs = listOf("platform", "mintLevel", "collection", "rank", "type", "property", "editionSize", "series", "artist", "mimeType", "mediaUrl", "posterUrl")
 
     fun parse(json: String, itemId: ItemId): GamisodesMeta {
         val jsonNode = JsonPropertiesParser.parse(itemId, json)
@@ -73,7 +74,7 @@ object GamisodesMetaParser {
         val jsonNode = JsonPropertiesParser.parse(itemId, json)
         val dict = jsonNode.getArray("value")
             .associateBy({ it.at("/key").getText("value")!! }, { it.at("/value").getText("value") })
-            .filterKeys { listOf("platform", "mintLevel", "collection", "rank", "type", "property", "editionSize", "series", "artist", "mimeType", "mediaUrl", "posterUrl").contains(it) }
+            .filterKeys { attrs.contains(it) }
 
         return dict.map { (key, value) ->
             ItemMetaAttribute(key, value)
