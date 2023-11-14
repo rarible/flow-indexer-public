@@ -73,11 +73,13 @@ object GamisodesMetaParser {
     fun parseAttributes(json: String, itemId: ItemId): List<ItemMetaAttribute> {
         val jsonNode = JsonPropertiesParser.parse(itemId, json)
         val dict = jsonNode.getArray("value")
-            .associateBy({ it.at("/key").getText("value")!! }, { it.at("/value").getText("value") })
+            .associateBy({ it.at("/key").getText("value") }, { it.at("/value").getText("value") })
             .filterKeys { attrs.contains(it) }
 
-        return dict.map { (key, value) ->
-            ItemMetaAttribute(key, value)
+        return dict.mapNotNull { (key, value) ->
+            key?.let {
+                ItemMetaAttribute(key, value)
+            } ?: null
         }
     }
 

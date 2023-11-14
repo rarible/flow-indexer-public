@@ -89,7 +89,13 @@ class GamisodesMetaProvider(
         val owner = item.owner ?: return null
         val tokenId = item.tokenId
 
-        val result = storage(chainId).firstNotNullOfOrNull { path ->
+        val params = when (chainId) {
+            FlowChainId.MAINNET -> Params.MAINNET
+            FlowChainId.TESTNET -> Params.TESTNET
+            else -> throw RuntimeException("Doesn't supported for $chainId")
+        }
+
+        val result = params.storages.firstNotNullOfOrNull { path ->
             val meta = safeExecute(
                 script = preparedScript,
                 owner = owner,
@@ -103,13 +109,17 @@ class GamisodesMetaProvider(
         } ?: return null
         val raw = String(result.bytes)
         val meta = GamisodesMetaParser.parse(raw, item.id)
+        if (meta.setId == null || meta.templateId == null) {
+            logger.warn("Meta attributes setId or templateId for ${item.tokenId} from is empty")
+            return null
+        }
 
         val attributes = safeExecuteFinal(
             script = preparedScriptAttr,
-            registryAddress = registry(chainId),
-            brand = brand(chainId),
-            setId = meta.setId!!,
-            templateId = meta.templateId!!
+            registryAddress = params.registry,
+            brand = params.brand,
+            setId = meta.setId,
+            templateId = meta.templateId
         )
         if (attributes == null) {
             logger.warn("Meta attributes for ${item.tokenId} from is empty")
@@ -183,21 +193,16 @@ class GamisodesMetaProvider(
         return script.replace("REGISTRY_ADDRESS", registry)
     }
 
-    private fun storage(chainId: FlowChainId) = when (chainId) {
-        FlowChainId.MAINNET -> listOf("cl9bquwn300010hkzt0td7pec_Gamisodes_nft_collection", "GamisodesCollection")
-        FlowChainId.TESTNET -> listOf("cl9bqlj3600000ilb44ugzei6_Gamisodes_nft_collection")
-        else -> throw RuntimeException("Doesn't supported for $chainId")
-    }
-
-    private fun registry(chainId: FlowChainId) = when (chainId) {
-        FlowChainId.MAINNET -> "0x32d62d5c43ad1038"
-        FlowChainId.TESTNET -> "0x6085ae87e78e1433"
-        else -> throw RuntimeException("Doesn't supported for $chainId")
-    }
-
-    private fun brand(chainId: FlowChainId) = when (chainId) {
-        FlowChainId.MAINNET -> "cl9bquwn300010hkzt0td7pec_Gamisodes"
-        FlowChainId.TESTNET -> "cl9bqlj3600000ilb44ugzei6_Gamisodes"
-        else -> throw RuntimeException("Doesn't supported for $chainId")
+    enum class Params(val storages: List<String>, val registry: String, val brand: String) {
+        TESTNET(
+            storages = listOf("cl9bqlj3600000ilb44ugzei6_Gamisodes_nft_collection"),
+            registry = "0x6085ae87e78e1433",
+            brand = "cl9bqlj3600000ilb44ugzei6_Gamisodes"
+        ),
+        MAINNET(
+            storages = listOf("cl9bquwn300010hkzt0td7pec_Gamisodes_nft_collection", "GamisodesCollection"),
+            registry = "0x32d62d5c43ad1038",
+            brand = "cl9bquwn300010hkzt0td7pec_Gamisodes"
+        );
     }
 }
