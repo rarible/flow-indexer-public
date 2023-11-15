@@ -87,6 +87,7 @@ class ItemController(
     }
 
     override suspend fun resetItemMeta(itemId: String): ResponseEntity<String> {
+        itemService.resetMeta(itemId)
         return ResponseEntity.ok().build()
     }
 

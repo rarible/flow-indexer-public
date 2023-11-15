@@ -11,6 +11,7 @@ import com.rarible.flow.core.domain.ItemId
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.core.repository.ItemFilter
 import com.rarible.flow.core.repository.ItemRepository
+import com.rarible.flow.core.repository.RawOnChainMetaCacheRepository
 import com.rarible.flow.core.repository.coFindById
 import com.rarible.flow.core.repository.coSave
 import com.rarible.flow.core.repository.withEntity
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -30,6 +32,7 @@ class ItemService(
     private val itemRepository: ItemRepository,
     private val royaltyProviders: List<ItemRoyaltyProvider>,
     private val metaProviders: List<ItemMetaProvider>,
+    private val rawOnChainMetaCacheRepository: RawOnChainMetaCacheRepository
 ) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -69,6 +72,10 @@ class ItemService(
             ?: throw IllegalArgumentException("No meta provider found for item $itemId")
 
         return provider.getMeta(item)
+    }
+
+    suspend fun resetMeta(itemId: String) {
+        rawOnChainMetaCacheRepository.deleteById(itemId).awaitFirstOrNull()
     }
 
     suspend fun byCollectionRaw(collection: String, continuation: String?, size: Int?): Flow<Item> {
