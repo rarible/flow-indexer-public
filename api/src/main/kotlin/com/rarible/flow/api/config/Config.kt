@@ -25,6 +25,7 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.api.service.SignatureService
 import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.converter.OrderToDtoConverter
+import com.rarible.flow.core.service.SporkConfigurationService
 import com.rarible.protocol.currency.api.client.CurrencyApiClientFactory
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import io.netty.handler.logging.LogLevel
@@ -70,7 +71,13 @@ class Config(
     }
 
     @Bean
-    fun api(flowApiFactory: FlowApiFactory): AsyncFlowAccessApi = flowApiFactory.getApi(sporkService.currentSpork())
+    fun api(
+        flowApiFactory: FlowApiFactory,
+        sporkConfigurationService: SporkConfigurationService
+    ): AsyncFlowAccessApi {
+        sporkConfigurationService.config()
+        return flowApiFactory.getApi(sporkService.currentSpork())
+    }
 
     @Bean
     fun ipfsClient(): WebClient {
@@ -202,6 +209,7 @@ class Config(
     }
 
     @Bean
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     fun orderToDtoConverter(currencyApi: CurrencyControllerApi): OrderToDtoConverter {
         return OrderToDtoConverter(currencyApi)
     }
