@@ -29,6 +29,7 @@ import com.rarible.flow.core.service.SporkConfigurationService
 import com.rarible.protocol.currency.api.client.CurrencyApiClientFactory
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import io.netty.handler.logging.LogLevel
+import org.slf4j.LoggerFactory
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -48,6 +49,7 @@ class Config(
     val apiProperties: ApiProperties,
     val sporkService: SporkService
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Suppress("PrivatePropertyName")
     private val DEFAULT_MESSAGE_SIZE: Int = 33554432 // 32 Mb in bites
@@ -76,7 +78,9 @@ class Config(
         sporkConfigurationService: SporkConfigurationService
     ): AsyncFlowAccessApi {
         sporkConfigurationService.config()
-        return flowApiFactory.getApi(sporkService.currentSpork())
+        val spork = sporkService.currentSpork()
+        logger.info("Current spork: ${spork.nodeUrl}")
+        return flowApiFactory.getApi(spork)
     }
 
     @Bean
