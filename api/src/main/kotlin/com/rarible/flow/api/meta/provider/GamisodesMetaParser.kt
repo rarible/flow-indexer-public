@@ -1,7 +1,10 @@
 package com.rarible.flow.api.meta.provider
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.nftco.flow.sdk.FlowAddress
 import com.rarible.flow.api.meta.ItemMetaAttribute
 import com.rarible.flow.api.meta.JsonPropertiesParser
@@ -10,6 +13,8 @@ import com.rarible.flow.api.meta.getNested
 import com.rarible.flow.api.meta.getText
 import com.rarible.flow.api.royalty.provider.Royalty
 import com.rarible.flow.core.domain.ItemId
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 object GamisodesMetaParser {
 
@@ -23,10 +28,14 @@ object GamisodesMetaParser {
     private const val VALUE = "value"
     private const val NAME = "name"
     private const val ID = "id"
+    private const val TRAITS = "traits"
 
     private val root = listOf(VALUE, VALUE, VALUE)
     private val nested = listOf(VALUE, VALUE)
-    private val attrs = listOf("platform", "mintLevel", "collection", "rank", "type", "property", "editionSize", "series", "artist", "mimeType", "mediaUrl", "posterUrl")
+    private val attrs = listOf("platform", "mintLevel", "collection", "rank", "type", "property", "editionSize", "series", "artist", "mimeType", "mediaUrl", "posterUrl", "traits")
+
+    private val objectMapper = jacksonObjectMapper()
+    private val logger: Logger = LoggerFactory.getLogger(javaClass)
 
     fun parse(json: String, itemId: ItemId): GamisodesMeta {
         val jsonNode = JsonPropertiesParser.parse(itemId, json)
@@ -75,11 +84,25 @@ object GamisodesMetaParser {
         val dict = jsonNode.getArray("value")
             .associateBy({ it.at("/key").getText("value") }, { it.at("/value").getText("value") })
             .filterKeys { attrs.contains(it) }
-
-        return dict.mapNotNull { (key, value) ->
+        val traits = getTraits(dict[TRAITS])
+        return dict.filter { it.key != TRAITS }.mapNotNull { (key, value) ->
             key?.let {
                 ItemMetaAttribute(key, value)
             } ?: null
+        } + traits
+    }
+
+    private fun getTraits(value: String?): List<ItemMetaAttribute> {
+        if (null == value) return emptyList()
+
+        return try {
+            val list: List<GamisodesMetaTrait> = objectMapper.readValue(value)
+            list.map {
+                ItemMetaAttribute(it.traitType, it.value)
+            }
+        } catch (e: Exception) {
+            logger.warn("Failed to read traits from: $value", e)
+            return emptyList()
         }
     }
 
@@ -124,4 +147,12 @@ data class GamisodesMeta(
     val royalties: List<Royalty> = emptyList(),
     val setId: String? = null,
     val templateId: String? = null,
+)
+
+data class GamisodesMetaTrait(
+
+    @JsonProperty("trait_type")
+    val traitType: String,
+
+    val value: String,
 )
