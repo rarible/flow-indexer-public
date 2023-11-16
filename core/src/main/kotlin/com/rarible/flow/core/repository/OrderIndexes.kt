@@ -96,6 +96,11 @@ object OrderIndexes {
         .on("${Order::make.name}.${FlowAssetNFT::tokenId.name}", Sort.Direction.ASC)
         .background()
 
+    private val BY_TAKE: Index = Index()
+        .on("${Order::take.name}.${FlowAssetNFT::contract.name}", Sort.Direction.ASC)
+        .on("${Order::take.name}.${FlowAssetNFT::tokenId.name}", Sort.Direction.ASC)
+        .background()
+
     private val ALL_INDEXES = listOf(
         BY_UPDATED_AT,
         BY_DB_UPDATE_AT,
@@ -106,6 +111,7 @@ object OrderIndexes {
         SELL_BY_ITEM_PRICE,
         SELL_BY_ITEM_STATUS_CURRENCY_PRICE,
         BY_MAKE,
+        BY_TAKE,
 
         BID_BY_ITEM_PRICE,
         BID_BY_ITEM_STATUS_CURRENCY_PRICE,
