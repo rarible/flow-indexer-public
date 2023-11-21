@@ -32,7 +32,6 @@ object GamisodesMetaParser {
     private const val TRAITS = "traits"
 
     private val root = listOf(VALUE, VALUE)
-    private val nested = listOf(VALUE, VALUE)
     private val attrs = setOf(
         "platform",
         "collection",
@@ -153,7 +152,7 @@ object GamisodesMetaParser {
                 // Optional values are nested in another "value" object
                 val valueNode = it.get(VALUE)
                 if (valueNode.getText("type") == "Optional") {
-                    valueNode.getNested(nested)
+                    valueNode.getNested(root)
                 } else {
                     valueNode.get(VALUE)
                 }
