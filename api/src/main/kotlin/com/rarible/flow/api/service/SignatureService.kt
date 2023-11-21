@@ -70,6 +70,7 @@ class SignatureService(
             )
 
             arg { publicKeys }
+            arg { enum(algorithm) }
             arg { weights }
             arg { signatures }
             arg { string(message) }
