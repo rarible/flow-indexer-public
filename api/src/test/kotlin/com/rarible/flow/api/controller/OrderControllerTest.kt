@@ -109,7 +109,7 @@ class OrderControllerTest {
 
         client.post()
             .uri("/v0.1/orders/byIds")
-            .bodyValue(FlowOrderIdsDto((1L..10L).toList()))
+            .bodyValue(FlowOrderIdsDto((1L..10L).toList().map { it.toString() }))
             .exchange()
             .expectStatus().isOk
     }

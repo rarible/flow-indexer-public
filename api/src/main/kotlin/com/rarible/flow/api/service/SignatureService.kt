@@ -17,15 +17,33 @@ class SignatureService(
     private val flowAccessApi: AsyncFlowAccessApi
 ) {
 
-    suspend fun verify(publicKey: FlowPublicKey, signature: FlowSignature, message: String): Boolean {
-        return verify(publicKey.base16Value, signature.base16Value, message)
+    suspend fun verify(
+        publicKey: FlowPublicKey,
+        signature: FlowSignature,
+        message: String,
+        algorithm: SignatureAlgorithm,
+        weights: Int = 1000 // One day may become a query param
+    ): Boolean {
+        return verify(
+            publicKey = publicKey.base16Value,
+            signature = signature.base16Value,
+            message = message,
+            algorithm = algorithm,
+            weight = weights
+        )
     }
 
-    suspend fun verify(publicKey: String, signature: String, message: String): Boolean {
+    private suspend fun verify(
+        publicKey: String,
+        signature: String,
+        message: String,
+        algorithm: SignatureAlgorithm,
+        weight: Int
+    ): Boolean {
         val publicKeys = marshall {
             array {
                 listOf(
-                    string(Crypto.decodePublicKey(publicKey, SignatureAlgorithm.ECDSA_SECP256k1).hex)
+                    string(Crypto.decodePublicKey(publicKey, algorithm).hex)
                 )
             }
         }
@@ -33,7 +51,7 @@ class SignatureService(
         val weights = marshall {
             array {
                 listOf(
-                    ufix64(1000)
+                    ufix64(weight)
                 )
             }
         }
@@ -52,6 +70,7 @@ class SignatureService(
             )
 
             arg { publicKeys }
+            arg { enum(algorithm) }
             arg { weights }
             arg { signatures }
             arg { string(message) }

@@ -1,13 +1,13 @@
 import Crypto
 
-pub fun main(rawPublicKeys: [String], weights: [UFix64], signatures: [String], signedData: String): Bool {
+pub fun main(rawPublicKeys: [String], algorithm: SignatureAlgorithm, weights: [UFix64], signatures: [String], signedData: String): Bool {
   let keyList = Crypto.KeyList()
   var i = 0
   for rawPublicKey in rawPublicKeys {
     keyList.add(
       PublicKey(
         publicKey: rawPublicKey.decodeHex(),
-        signatureAlgorithm: SignatureAlgorithm.ECDSA_secp256k1 //SignatureAlgorithm.ECDSA_P256
+        signatureAlgorithm: algorithm
       ),
       hashAlgorithm: HashAlgorithm.SHA3_256,
       weight: weights[i],
