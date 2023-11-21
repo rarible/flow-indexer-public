@@ -51,7 +51,8 @@ class GamisodesMetaProvider(
 
     override suspend fun parse(raw: String, item: Item): ItemMeta? {
         val gamisodesMeta: GamisodesMeta = try {
-            objectMapper.readValue(raw)
+            GamisodesMetaParser.parse(raw, item.id)
+//            objectMapper.readValue(raw)
         } catch (e: Exception) {
             throw MetaException(
                 message = "Corrupted Json of metadata for Item ${item.id}: ${e.message}",
@@ -84,61 +85,41 @@ class GamisodesMetaProvider(
     }
 
     override suspend fun fetchRawMeta(item: Item): String? {
-        val preparedScript = prepare(script) ?: return null
-        val preparedScriptAttr = prepareAttr(scriptAttr) ?: return null
-        val owner = item.owner ?: return null
-        val tokenId = item.tokenId
-
         val params = when (chainId) {
             FlowChainId.MAINNET -> Params.MAINNET
             FlowChainId.TESTNET -> Params.TESTNET
             else -> throw RuntimeException("Doesn't supported for $chainId")
         }
 
+        val preparedScript = prepare(script, params.registryAddress) ?: return null
+        val owner = item.owner ?: return null
+        val tokenId = item.tokenId
+
         val result = params.storages.firstNotNullOfOrNull { path ->
-            val meta = safeExecute(
+            val meta = safeExecute2(
                 script = preparedScript,
                 owner = owner,
                 tokenId = tokenId,
-                storagePath = path
+                storagePath = path,
+                registryAddress = params.registry,
+                brand = params.brand
             )
             if (meta == null) {
                 logger.warn("Meta for ${item.tokenId} from $path is empty")
             }
             meta
         } ?: return null
-        val raw = String(result.bytes)
-        val meta = GamisodesMetaParser.parse(raw, item.id)
-        if (meta.setId == null || meta.templateId == null) {
-            logger.warn("Meta attributes setId or templateId for ${item.tokenId} from is empty")
-            return null
-        }
 
-        val attributes = safeExecuteAttr(
-            script = preparedScriptAttr,
-            registryAddress = params.registry,
-            brand = params.brand,
-            setId = meta.setId,
-            templateId = meta.templateId
-        )
-        if (attributes == null) {
-            logger.warn("Meta attributes for ${item.tokenId} from is empty")
-            return null
-        }
-        val enriched = enrichWithAttributes(item.id, meta, String(attributes.bytes))
-        return objectMapper.writeValueAsString(enriched)
+        return String(result.bytes)
     }
 
-    private fun enrichWithAttributes(itemId: ItemId, meta: GamisodesMeta, traits: String): GamisodesMeta {
-        val attrs = GamisodesMetaParser.parseAttributes(traits, itemId)
-        return meta.copy(attributes = (meta.attributes + attrs).distinct())
-    }
-
-    private suspend fun safeExecute(
+    private suspend fun safeExecute2(
         script: String,
         owner: FlowAddress,
         tokenId: TokenId,
-        storagePath: String
+        storagePath: String,
+        registryAddress: String,
+        brand: String
     ): FlowScriptResponse? {
         return try {
             scriptExecutor.execute(
@@ -146,7 +127,9 @@ class GamisodesMetaProvider(
                 args = mutableListOf(
                     builder.address(owner.formatted),
                     builder.uint64(tokenId),
-                    builder.string(storagePath)
+                    builder.string(storagePath),
+                    builder.address(registryAddress),
+                    builder.string(brand),
                 ),
             )
         } catch (e: FlowException) {
@@ -155,53 +138,24 @@ class GamisodesMetaProvider(
         }
     }
 
-    private suspend fun safeExecuteAttr(
-        script: String,
-        registryAddress: String,
-        brand: String,
-        setId: String,
-        templateId: String
-    ): FlowScriptResponse? {
-        return try {
-            scriptExecutor.execute(
-                code = script,
-                args = mutableListOf(
-                    builder.address(registryAddress),
-                    builder.string(brand),
-                    builder.int(setId),
-                    builder.int(templateId),
-                ),
-            )
-        } catch (e: FlowException) {
-            logger.error("Can't execute script to get meta attributes", e)
-            null
-        }
-    }
-
-    private fun prepare(script: String): String? {
+    private fun prepare(script: String, registry: String): String? {
         val metaViewAddress = Contracts.METADATA_VIEWS.deployments[chainId] ?: return null
         return script
             .replace(Contracts.METADATA_VIEWS.import, metaViewAddress.formatted)
+            .replace("REGISTRY_ADDRESS", registry)
     }
 
-    private fun prepareAttr(script: String): String? {
-        val registry = when (chainId) {
-            FlowChainId.MAINNET -> "7ec1f607f0872a9e"
-            FlowChainId.TESTNET -> "04f74f0252479aed"
-            else -> throw RuntimeException("Doesn't supported for $chainId")
-        }
-        return script.replace("REGISTRY_ADDRESS", registry)
-    }
-
-    enum class Params(val storages: List<String>, val registry: String, val brand: String) {
+    enum class Params(val storages: List<String>, val registry: String, val registryAddress: String, val brand: String) {
         TESTNET(
             storages = listOf("cl9bqlj3600000ilb44ugzei6_Gamisodes_nft_collection"),
             registry = "0x6085ae87e78e1433",
+            registryAddress = "04f74f0252479aed",
             brand = "cl9bqlj3600000ilb44ugzei6_Gamisodes"
         ),
         MAINNET(
             storages = listOf("cl9bquwn300010hkzt0td7pec_Gamisodes_nft_collection", "GamisodesCollection"),
             registry = "0x32d62d5c43ad1038",
+            registryAddress = "7ec1f607f0872a9e",
             brand = "cl9bquwn300010hkzt0td7pec_Gamisodes"
         );
     }
