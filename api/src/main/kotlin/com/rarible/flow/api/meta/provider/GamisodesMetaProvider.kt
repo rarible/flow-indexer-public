@@ -114,7 +114,7 @@ class GamisodesMetaProvider(
             return null
         }
 
-        val attributes = safeExecuteFinal(
+        val attributes = safeExecuteAttr(
             script = preparedScriptAttr,
             registryAddress = params.registry,
             brand = params.brand,
@@ -150,12 +150,12 @@ class GamisodesMetaProvider(
                 ),
             )
         } catch (e: FlowException) {
-            logger.error("Can't execute script to get royalty", e)
+            logger.error("Can't execute script to get meta", e)
             null
         }
     }
 
-    private suspend fun safeExecuteFinal(
+    private suspend fun safeExecuteAttr(
         script: String,
         registryAddress: String,
         brand: String,
@@ -173,7 +173,7 @@ class GamisodesMetaProvider(
                 ),
             )
         } catch (e: FlowException) {
-            logger.error("Can't execute script to get royalty", e)
+            logger.error("Can't execute script to get meta attributes", e)
             null
         }
     }

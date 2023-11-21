@@ -13,7 +13,7 @@ class SporkConfigurationService(
     private val sporkService: SporkService,
     private val properties: AppProperties
 ) {
-    suspend fun config() {
+    fun config() {
         val chainId = properties.chainId
         logger.info("Config: chainId=$chainId, accessUrl=${properties.flowAccessUrl}")
 

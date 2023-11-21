@@ -78,12 +78,12 @@ class GamisodesMetaMt {
             val item = item(
                 contract = FlowAddress("09e04bdbcccde6ca"),
                 collection = "A.09e04bdbcccde6ca.Gamisodes",
-                tokenId = 928233L,
-                owner = "0x0b2ac77dbfe92266"
+                tokenId = 183336L,
+                owner = "0x245c5f29132a2a91"
             )
             val meta = provider.getMeta(item)
             assertThat(meta).isNotNull
-            assertThat(meta!!.name).isEqualTo("Left Leg")
+            assertThat(meta!!.name).isEqualTo("Arms")
             assertThat(meta!!.attributes).hasSize(11)
         }
 
@@ -93,13 +93,13 @@ class GamisodesMetaMt {
             val item = item(
                 contract = FlowAddress("09e04bdbcccde6ca"),
                 collection = "A.09e04bdbcccde6ca.Gamisodes",
-                tokenId = 756378L,
-                owner = "0x0b2ac77dbfe92266"
+                tokenId = 995L,
+                owner = "0xd5e1381ffbdb936d"
             )
             val meta = provider.getMeta(item)
             assertThat(meta).isNotNull
-            assertThat(meta!!.name).isEqualTo("Left Cuff")
-            assertThat(meta!!.attributes).hasSize(11)
+            assertThat(meta!!.name).isEqualTo("Brain Train Ticket - Series 1")
+            assertThat(meta!!.attributes).hasSize(10)
         }
     }
 

@@ -25,9 +25,11 @@ import com.rarible.flow.Contracts
 import com.rarible.flow.api.service.SignatureService
 import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.converter.OrderToDtoConverter
+import com.rarible.flow.core.service.SporkConfigurationService
 import com.rarible.protocol.currency.api.client.CurrencyApiClientFactory
 import com.rarible.protocol.currency.api.client.CurrencyControllerApi
 import io.netty.handler.logging.LogLevel
+import org.slf4j.LoggerFactory
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -47,6 +49,7 @@ class Config(
     val apiProperties: ApiProperties,
     val sporkService: SporkService
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Suppress("PrivatePropertyName")
     private val DEFAULT_MESSAGE_SIZE: Int = 33554432 // 32 Mb in bites
@@ -70,7 +73,15 @@ class Config(
     }
 
     @Bean
-    fun api(flowApiFactory: FlowApiFactory): AsyncFlowAccessApi = flowApiFactory.getApi(sporkService.currentSpork())
+    fun api(
+        flowApiFactory: FlowApiFactory,
+        sporkConfigurationService: SporkConfigurationService
+    ): AsyncFlowAccessApi {
+        sporkConfigurationService.config()
+        val spork = sporkService.currentSpork()
+        logger.info("Current spork: ${spork.nodeUrl}")
+        return flowApiFactory.getApi(spork)
+    }
 
     @Bean
     fun ipfsClient(): WebClient {
@@ -202,6 +213,7 @@ class Config(
     }
 
     @Bean
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     fun orderToDtoConverter(currencyApi: CurrencyControllerApi): OrderToDtoConverter {
         return OrderToDtoConverter(currencyApi)
     }
