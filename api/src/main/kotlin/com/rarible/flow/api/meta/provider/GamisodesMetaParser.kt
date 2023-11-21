@@ -66,17 +66,8 @@ object GamisodesMetaParser {
             Royalty(address = address.formatted, fee = part)
         }
 
-        val traits = sections[SECTION_TRAITS]?.mapNotNull { it.key to it.value.getText("value") }
-            ?.filter { it.first in attrs }
-            ?.map { (key, value) ->
-                when (key) {
-                    TRAITS -> getTraits(value).map { it.traitType to it.value }
-                    else -> listOf(key to value)
-                }.toList()
-            }?.flatten()
-            ?.filterNot { it.second?.isNullOrBlank() == true }
-            ?.map { (key, value) ->
-            ItemMetaAttribute(key = key, value = value)
+        val traits = sections[SECTION_TRAITS]?.let {
+            getLegacyAttributes(it) + getAttributes(it)
         } ?: emptyList()
 
         val infoList = sections[SECTION_EDITIONS]?.getFieldArray("infoList")
@@ -102,7 +93,31 @@ object GamisodesMetaParser {
         )
     }
 
-    private fun getTraits(value: String?): List<GamisodesMetaTrait> {
+    private fun getLegacyAttributes(section: Map<String, JsonNode>): List<ItemMetaAttribute> {
+        return section.getFieldArray("traits")?.mapNotNull { traitNode ->
+            val fields = traitNode.getFields()
+            fields.getFieldText(NAME)?.let { key ->
+                ItemMetaAttribute(key = key, value = fields.getFieldText(VALUE))
+            }
+        }
+    }
+
+    private fun getAttributes(section: Map<String, JsonNode>): List<ItemMetaAttribute> {
+        return section.mapNotNull { it.key to it.value.getText("value") }
+            ?.filter { it.first in attrs }
+            ?.map { (key, value) ->
+                when (key) {
+                    TRAITS -> getNestedTraits(value).map { it.traitType to it.value }
+                    else -> listOf(key to value)
+                }.toList()
+            }?.flatten()
+            ?.filterNot { it.second?.isNullOrBlank() == true }
+            ?.map { (key, value) ->
+                ItemMetaAttribute(key = key, value = value)
+            }
+    }
+
+    private fun getNestedTraits(value: String?): List<GamisodesMetaTrait> {
         if (null == value) return emptyList()
         return try {
             val list: List<GamisodesMetaTrait> = objectMapper.readValue(value)

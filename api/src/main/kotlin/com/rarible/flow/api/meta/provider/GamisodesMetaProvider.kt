@@ -1,7 +1,5 @@
 package com.rarible.flow.api.meta.provider
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowException
@@ -38,21 +36,17 @@ class GamisodesMetaProvider(
 
     private val contract: Contract = Contracts.GAMISODES
     private val script: String = getScript("get_gamisodes_meta.cdc")
-    private val scriptAttr: String = getScript("get_gamisodes_meta_attr.cdc")
-
-    private val objectMapper = jacksonObjectMapper()
 
     override fun isSupported(itemId: ItemId): Boolean = itemId.contract.endsWith(".${contract.contractName}")
 
     suspend fun getGamisodesMeta(item: Item): GamisodesMeta? {
         val raw = fetchRawMeta(item) ?: return null
-        return objectMapper.readValue(raw)
+        return GamisodesMetaParser.parse(raw, item.id)
     }
 
     override suspend fun parse(raw: String, item: Item): ItemMeta? {
         val gamisodesMeta: GamisodesMeta = try {
             GamisodesMetaParser.parse(raw, item.id)
-//            objectMapper.readValue(raw)
         } catch (e: Exception) {
             throw MetaException(
                 message = "Corrupted Json of metadata for Item ${item.id}: ${e.message}",
@@ -96,7 +90,7 @@ class GamisodesMetaProvider(
         val tokenId = item.tokenId
 
         val result = params.storages.firstNotNullOfOrNull { path ->
-            val meta = safeExecute2(
+            val meta = safeExecute(
                 script = preparedScript,
                 owner = owner,
                 tokenId = tokenId,
@@ -113,7 +107,7 @@ class GamisodesMetaProvider(
         return String(result.bytes)
     }
 
-    private suspend fun safeExecute2(
+    private suspend fun safeExecute(
         script: String,
         owner: FlowAddress,
         tokenId: TokenId,
