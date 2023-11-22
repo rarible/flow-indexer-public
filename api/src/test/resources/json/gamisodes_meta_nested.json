@@ -1,0 +1,195 @@
+{
+  "value": [
+    {
+      "key": {
+        "value": "A.1d7e57aa55817448.MetadataViews.Display",
+        "type": "String"
+      },
+      "value": {
+        "value": {
+          "id": "A.1d7e57aa55817448.MetadataViews.Display",
+          "fields": [
+            {
+              "value": {
+                "value": "Brain Train Ticket - Series 1",
+                "type": "String"
+              },
+              "name": "name"
+            },
+            {
+              "value": {
+                "value": "The Brain Train is the premier ride to the Gamisodes Inspector Gadget metaverse. Each Brain Train Ticket depicts Brain wearing a unique outfit using costume elements featured in Season 1 of the 1980s animated show.",
+                "type": "String"
+              },
+              "name": "description"
+            },
+            {
+              "value": {
+                "value": {
+                  "id": "A.1d7e57aa55817448.MetadataViews.HTTPFile",
+                  "fields": [
+                    {
+                      "value": {
+                        "value": "https://cloudflare-ipfs.com/ipfs/bafybeieobsljwbuv3cqlqaolwvoiblosblgcnfkjffyjrr2nwoj5fbwbe4/Brain%20Train%20Ticket%20-%20Series%201",
+                        "type": "String"
+                      },
+                      "name": "url"
+                    }
+                  ]
+                },
+                "type": "Struct"
+              },
+              "name": "thumbnail"
+            }
+          ]
+        },
+        "type": "Struct"
+      }
+    },
+    {
+      "key": {
+        "value": "Traits",
+        "type": "String"
+      },
+      "value": {
+        "value": [
+          {
+            "key": {
+              "value": "edition",
+              "type": "String"
+            },
+            "value": {
+              "value": "387",
+              "type": "String"
+            }
+          },
+          {
+            "key": {
+              "value": "mediaType",
+              "type": "String"
+            },
+            "value": {
+              "value": "",
+              "type": "String"
+            }
+          },
+          {
+            "key": {
+              "value": "traits",
+              "type": "String"
+            },
+            "value": {
+              "value": "[{\"value\":\"Generative\",\"trait_type\":\"Costume Type\"},{\"value\":\"Blue Beret\",\"trait_type\":\"Head Piece\"},{\"value\":\"Angry\",\"trait_type\":\"Eyes\"},{\"value\":\"Neutral Left\",\"trait_type\":\"Mouth\"},{\"value\":\"In\",\"trait_type\":\"Coms\"},{\"value\":\"Flight Attendant\",\"trait_type\":\"Outfit\"},{\"value\":\"Orange\",\"trait_type\":\"Background Color\"},{\"value\":\"Cross Hatch\",\"trait_type\":\"Background Pattern\"}]",
+              "type": "String"
+            }
+          },
+          {
+            "key": {
+              "value": "mediaUrl",
+              "type": "String"
+            },
+            "value": {
+              "value": "ipfs://bafybeieobsljwbuv3cqlqaolwvoiblosblgcnfkjffyjrr2nwoj5fbwbe4/Brain%20Train%20Ticket%20-%20Series%201",
+              "type": "String"
+            }
+          },
+          {
+            "key": {
+              "value": "description",
+              "type": "String"
+            },
+            "value": {
+              "value": "The Brain Train is the premier ride to the Gamisodes Inspector Gadget metaverse. Each Brain Train Ticket depicts Brain wearing a unique outfit using costume elements featured in Season 1 of the 1980s animated show.",
+              "type": "String"
+            }
+          },
+          {
+            "key": {
+              "value": "posterUrl",
+              "type": "String"
+            },
+            "value": {
+              "value": "ipfs://bafybeieobsljwbuv3cqlqaolwvoiblosblgcnfkjffyjrr2nwoj5fbwbe4/Brain%20Train%20Ticket%20-%20Series%201",
+              "type": "String"
+            }
+          },
+          {
+            "key": {
+              "value": "title",
+              "type": "String"
+            },
+            "value": {
+              "value": "Brain Train Ticket - Series 1",
+              "type": "String"
+            }
+          }
+        ],
+        "type": "Dictionary"
+      }
+    },
+    {
+      "key": {
+        "value": "A.1d7e57aa55817448.MetadataViews.ExternalURL",
+        "type": "String"
+      },
+      "value": {
+        "value": {
+          "id": "A.1d7e57aa55817448.MetadataViews.ExternalURL",
+          "fields": [
+            {
+              "value": {
+                "value": "https://gamisodes.com",
+                "type": "String"
+              },
+              "name": "url"
+            }
+          ]
+        },
+        "type": "Struct"
+      }
+    },
+    {
+      "key": {
+        "value": "A.1d7e57aa55817448.MetadataViews.Royalties",
+        "type": "String"
+      },
+      "value": {
+        "value": {
+          "id": "A.1d7e57aa55817448.MetadataViews.Royalties",
+          "fields": [
+            {
+              "value": {
+                "value": [],
+                "type": "Array"
+              },
+              "name": "cutInfos"
+            }
+          ]
+        },
+        "type": "Struct"
+      }
+    },
+    {
+      "key": {
+        "value": "A.1d7e57aa55817448.MetadataViews.Serial",
+        "type": "String"
+      },
+      "value": {
+        "value": {
+          "id": "A.1d7e57aa55817448.MetadataViews.Serial",
+          "fields": [
+            {
+              "value": {
+                "value": "1",
+                "type": "UInt64"
+              },
+              "name": "number"
+            }
+          ]
+        },
+        "type": "Struct"
+      }
+    }
+  ],
+  "type": "Dictionary"
+}

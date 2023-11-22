@@ -94,7 +94,7 @@ class RawOnChainMetaFetcherTest {
         } returns CompletableFuture.completedFuture(listOf(eventResult))
 
         val rawMeta = RawOnChainMeta(itemId.toString(), expectedMeta.stringValue)
-        every { rawOnChainMetaCacheRepository.save(rawMeta) } returns Mono.just(rawMeta)
+        every { rawOnChainMetaCacheRepository.save(any()) } returns Mono.just(rawMeta)
 
         val meta = fetcher.getContent(itemId, eventType)
         assertThat(meta).isEqualTo(expectedMeta.stringValue)

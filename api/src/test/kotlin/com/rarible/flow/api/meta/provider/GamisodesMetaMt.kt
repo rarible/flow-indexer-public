@@ -6,6 +6,7 @@ import com.rarible.blockchain.scanner.flow.configuration.FlowBlockchainScannerPr
 import com.rarible.blockchain.scanner.flow.service.FlowApiFactoryImpl
 import com.rarible.blockchain.scanner.flow.service.Spork
 import com.rarible.blockchain.scanner.monitoring.BlockchainMonitor
+import com.rarible.flow.api.meta.ItemMetaAttribute
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.config.FeatureFlagsProperties
@@ -45,7 +46,7 @@ class GamisodesMetaMt {
             val meta = provider.getMeta(item)
             assertThat(meta).isNotNull
             assertThat(meta!!.name).isEqualTo("Legs")
-            assertThat(meta!!.attributes).hasSize(11)
+            assertThat(meta!!.attributes).hasSize(13)
         }
     }
 
@@ -70,6 +71,7 @@ class GamisodesMetaMt {
             val meta = provider.getMeta(item)
             assertThat(meta).isNotNull
             assertThat(meta!!.name).isEqualTo("Gamisodes Founding Logo")
+            assertThat(meta!!.attributes).hasSize(4)
         }
 
         @Test
@@ -84,11 +86,27 @@ class GamisodesMetaMt {
             val meta = provider.getMeta(item)
             assertThat(meta).isNotNull
             assertThat(meta!!.name).isEqualTo("Arms")
-            assertThat(meta!!.attributes).hasSize(11)
+            assertThat(meta!!.attributes).hasSize(10)
         }
 
         @Test
-        fun `fetch meta - somewhere in the middle`() = runBlocking<Unit> {
+        fun `fetch meta - somewhere in the beginning`() = runBlocking<Unit> {
+            val provider = prod()
+            val item = item(
+                contract = FlowAddress("09e04bdbcccde6ca"),
+                collection = "A.09e04bdbcccde6ca.Gamisodes",
+                tokenId = 999L,
+                owner = "0xd5e1381ffbdb936d"
+            )
+            val meta = provider.getMeta(item)
+            assertThat(meta).isNotNull
+            assertThat(meta!!.name).isEqualTo("Brain Train Live Draw")
+            assertThat(meta!!.attributes).hasSize(11)
+            assertThat(meta!!.attributes).contains(ItemMetaAttribute("serialNumber", "91"))
+        }
+
+        @Test
+        fun `fetch meta - parse nested traits`() = runBlocking<Unit> {
             val provider = prod()
             val item = item(
                 contract = FlowAddress("09e04bdbcccde6ca"),
@@ -99,7 +117,22 @@ class GamisodesMetaMt {
             val meta = provider.getMeta(item)
             assertThat(meta).isNotNull
             assertThat(meta!!.name).isEqualTo("Brain Train Ticket - Series 1")
-            assertThat(meta!!.attributes).hasSize(10)
+            assertThat(meta!!.attributes).hasSize(11)
+        }
+
+        @Test
+        fun `fetch meta - somewhere in the middle`() = runBlocking<Unit> {
+            val provider = prod()
+            val item = item(
+                contract = FlowAddress("09e04bdbcccde6ca"),
+                collection = "A.09e04bdbcccde6ca.Gamisodes",
+                tokenId = 756378L,
+                owner = "0x0b2ac77dbfe92266"
+            )
+            val meta = provider.getMeta(item)
+            assertThat(meta).isNotNull
+            assertThat(meta!!.name).isEqualTo("Left Cuff")
+            assertThat(meta!!.attributes).hasSize(12)
         }
     }
 
