@@ -22,7 +22,7 @@ class SignatureService(
         signature: FlowSignature,
         message: String,
         algorithm: SignatureAlgorithm,
-        weights: Int = 1000 // One day may become a query param
+        weights: Int
     ): Boolean {
         return verify(
             publicKey = publicKey.base16Value,
