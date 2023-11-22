@@ -39,7 +39,7 @@ internal class CryptoControllerTest {
     @Test
     fun `should respond true`() = runBlocking<Unit> {
         coEvery {
-            flowSignatureService.verify(any<FlowPublicKey>(), any<FlowSignature>(), any(), any())
+            flowSignatureService.verify(any<FlowPublicKey>(), any<FlowSignature>(), any(), any(), any())
         } returns true
 
         coEvery {
@@ -60,7 +60,7 @@ internal class CryptoControllerTest {
 
         coVerify(exactly = 1) {
             flowSignatureService.verify(
-                FlowPublicKey(pk), FlowSignature(signature), message, SignatureAlgorithm.ECDSA_SECP256k1
+                FlowPublicKey(pk), FlowSignature(signature), message, SignatureAlgorithm.ECDSA_SECP256k1, 1000
             )
 
             flowSignatureService.checkPublicKey(
