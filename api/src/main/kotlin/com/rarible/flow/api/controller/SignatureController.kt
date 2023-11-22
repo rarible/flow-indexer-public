@@ -28,7 +28,8 @@ class SignatureController(
         signerAddress: String,
         signature: String,
         message: String,
-        algorithm: String?
+        algorithm: String?,
+        weight: Int?
     ): ResponseEntity<Boolean> {
         val pk = FlowPublicKey(publicKey)
         val sig = FlowSignature(signature)
@@ -37,7 +38,8 @@ class SignatureController(
                 publicKey = pk,
                 signature = sig,
                 message = message,
-                algorithm = algorithm.toAlgorithm()
+                algorithm = algorithm.toAlgorithm(),
+                weights = weight ?: 1000
             )
             val accountCheck = signatureService.checkPublicKey(
                 signerAddress.flowAddress()!!,
