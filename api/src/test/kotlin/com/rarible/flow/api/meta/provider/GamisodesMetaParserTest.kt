@@ -3,7 +3,6 @@ package com.rarible.flow.api.meta.provider
 import com.rarible.flow.api.meta.ItemMetaAttribute
 import com.rarible.flow.api.royalty.provider.Royalty
 import com.rarible.flow.core.test.randomItemId
-import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -13,7 +12,7 @@ class GamisodesMetaParserTest {
         .bufferedReader().use { it.readText() }
 
     @Test
-    fun `parse meta - ok`() = runBlocking<Unit> {
+    fun `parse meta - ok`() {
         val json = json("/json/gamisodes_meta.json")
         val meta = GamisodesMetaParser.parse(json, randomItemId())!!
 
@@ -42,32 +41,45 @@ class GamisodesMetaParserTest {
                 key = "mediaURL",
                 value = "https://storage.googleapis.com/gamisodes_inspector_gadget_trading_cards/Arms_1_1.png"
             ),
+            ItemMetaAttribute(
+                key = "serialNumber",
+                value = "14250"
+            ),
         )
         assertThat(meta.royalties).containsExactlyInAnyOrder(
             Royalty(address = "0xb780208cb751b1ae", fee = "0.02500000".toBigDecimal()),
             Royalty(address = "0xa83a288bd044926e", fee = "0.02500000".toBigDecimal())
         )
-        assertThat(meta.setId).isEqualTo("15")
-        assertThat(meta.templateId).isEqualTo("0")
     }
 
     @Test
-    fun `parse attributes - ok`() = runBlocking<Unit> {
-        val json = json("/json/gamisodes_meta_attr.json")
+    fun `parse meta with nested traits - ok`() {
+        val json = json("/json/gamisodes_meta_nested.json")
+        val meta = GamisodesMetaParser.parse(json, randomItemId())!!
 
-        val attributes = GamisodesMetaParser.parseAttributes(json, randomItemId())
-        assertThat(attributes).containsExactlyInAnyOrder(
-            ItemMetaAttribute(key = "platform", value = "Gamisodes"),
-            ItemMetaAttribute(key = "mintLevel", value = "1"),
-            ItemMetaAttribute(key = "collection", value = "Gadgets"),
-            ItemMetaAttribute(key = "rank", value = "1"),
-            ItemMetaAttribute(key = "type", value = "Trading Card"),
-            ItemMetaAttribute(key = "property", value = "Inspector Gadget"),
-            ItemMetaAttribute(key = "editionSize", value = "72"),
-            ItemMetaAttribute(key = "artist", value = "Bayu Sadewo"),
-            ItemMetaAttribute(key = "series", value = "1"),
-            ItemMetaAttribute(key = "mediaUrl", value = "ipfs://bafybeie33roqkg2otsf2f2n5vrsymn6ckvnqnwu677jvj6yoxhn27unw2e/GadgetsToothpaste_1_1.png"),
-            ItemMetaAttribute(key = "posterUrl", value = "ipfs://bafybeig2d4vr45iycb6s5i24t4amk2k3qx63dqhqtsvks7u3jfslhxsjni/GadgetsToothpaste_1_1_Thumbnail.png")
+        assertThat(meta.attributes).hasSize(11)
+        assertThat(meta.attributes).containsExactlyInAnyOrder(
+            ItemMetaAttribute(key = "Costume Type", value = "Generative", type = null, format = null),
+            ItemMetaAttribute(key = "Head Piece", value = "Blue Beret", type = null, format = null),
+            ItemMetaAttribute(key = "Eyes", value = "Angry", type = null, format = null),
+            ItemMetaAttribute(key = "Mouth", value = "Neutral Left", type = null, format = null),
+            ItemMetaAttribute(key = "Coms", value = "In", type = null, format = null),
+            ItemMetaAttribute(key = "Outfit", value = "Flight Attendant", type = null, format = null),
+            ItemMetaAttribute(key = "Background Color", value = "Orange", type = null, format = null),
+            ItemMetaAttribute(key = "Background Pattern", value = "Cross Hatch", type = null, format = null),
+            ItemMetaAttribute(
+                key = "mediaUrl",
+                value = "ipfs://bafybeieobsljwbuv3cqlqaolwvoiblosblgcnfkjffyjrr2nwoj5fbwbe4/Brain%20Train%20Ticket%20-%20Series%201",
+                type = null,
+                format = null
+            ),
+            ItemMetaAttribute(
+                key = "posterUrl",
+                value = "ipfs://bafybeieobsljwbuv3cqlqaolwvoiblosblgcnfkjffyjrr2nwoj5fbwbe4/Brain%20Train%20Ticket%20-%20Series%201",
+                type = null,
+                format = null
+            ),
+            ItemMetaAttribute(key = "serialNumber", value = "1", type = null, format = null)
         )
     }
 }
