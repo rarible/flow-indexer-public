@@ -82,4 +82,14 @@ class GamisodesMetaParserTest {
             ItemMetaAttribute(key = "serialNumber", value = "1", type = null, format = null)
         )
     }
+
+    @Test
+    fun `parse meta with rarity - ok`() {
+        val json = json("/json/gamisodes_meta_with_rarity.json")
+        val meta = GamisodesMetaParser.parse(json, randomItemId())!!
+
+        assertThat(meta.attributes).contains(
+            ItemMetaAttribute(key = "rarity", value = "Uncommon", type = null, format = null),
+        )
+    }
 }
