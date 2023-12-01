@@ -91,7 +91,7 @@ class ActivityService(
         size: Int?,
         sort: String,
     ): FlowActivitiesDto {
-        val types = if (type.isEmpty()) queryTypes else safeOf(type)
+        val types = if (type.isEmpty()) queryTypes else safeOf<FlowActivityType>(type)
         if (types.isEmpty()) return emptyActivities
 
         val criteria = defaultCriteria(types)
@@ -110,7 +110,7 @@ class ActivityService(
         size: Int?,
         sort: String,
     ): FlowActivitiesDto {
-        val types = if (type.isEmpty()) queryTypes + userCriteria.keys else safeOf(type)
+        val types = if (type.isEmpty()) queryTypes + userCriteria.keys else safeOf<FlowActivityType>(type)
         if (types.isEmpty()) return emptyActivities
 
         val arrayOfCriteria = types.map { t ->
@@ -131,7 +131,7 @@ class ActivityService(
         size: Int?,
         sort: String,
     ): FlowActivitiesDto {
-        val types = if (type.isEmpty()) queryTypes else safeOf(type)
+        val types = if (type.isEmpty()) queryTypes else safeOf<FlowActivityType>(type)
         if (types.isEmpty()) return emptyActivities
 
         val criteria = defaultCriteria(types)
@@ -146,7 +146,7 @@ class ActivityService(
         size: Int?,
         sort: String,
     ): FlowActivitiesDto {
-        val types = if (type.isEmpty()) queryTypes else safeOf(type)
+        val types = if (type.isEmpty()) queryTypes else safeOf<FlowActivityType>(type)
         if (types.isEmpty()) return emptyActivities
 
         val criteria = defaultCriteria(types)
@@ -162,7 +162,7 @@ class ActivityService(
         size: Int?,
         sort: String,
     ): FlowActivitiesDto {
-        val types = if (type.isEmpty()) queryTypes else safeOf(type)
+        val types = if (type.isEmpty()) queryTypes else safeOf<FlowActivityType>(type)
         if (types.isEmpty()) return emptyActivities
 
         val criteria = defaultCriteria(types)
@@ -181,7 +181,7 @@ class ActivityService(
     }
 
     suspend fun syncActivities(type: List<String>, size: Int?, continuation: String?, sort: String): FlowActivitiesDto {
-        val types = if (type.isEmpty()) queryTypes else safeOf(type)
+        val types = if (type.isEmpty()) queryTypes else safeOf<FlowActivityType>(type)
         return getActivities(defaultCriteria(types), continuation, size, sort, FlowActivityDto::updatedAt)
     }
 
@@ -194,7 +194,7 @@ class ActivityService(
         size: Int?,
         sort: String,
     ): FlowActivitiesDto? {
-        val types = if (type.isEmpty()) queryTypes else safeOf(type)
+        val types = if (type.isEmpty()) queryTypes else safeOf<FlowActivityType>(type)
         if (types.isEmpty()) return emptyActivities
 
         val criteria = defaultCriteria(types).andOperator(

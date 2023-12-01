@@ -46,6 +46,7 @@ object GamisodesMetaParser {
         "mimeType",
         "mediaUrl",
         "posterUrl",
+        "rarity",
         TRAITS,
     )
 
