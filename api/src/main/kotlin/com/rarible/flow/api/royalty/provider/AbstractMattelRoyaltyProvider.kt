@@ -2,12 +2,12 @@ package com.rarible.flow.api.royalty.provider
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowException
 import com.nftco.flow.sdk.FlowScriptResponse
 import com.nftco.flow.sdk.cadence.JsonCadenceBuilder
 import com.rarible.flow.Contract
 import com.rarible.flow.Contracts
-import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
@@ -19,13 +19,12 @@ import org.springframework.core.io.ClassPathResource
 abstract class AbstractMattelRoyaltyProvider(
     private val contract: Contract,
     private val scriptExecutor: ScriptExecutor,
-    properties: ApiProperties,
+    private val chainId: FlowChainId,
     scriptFile: String = SCRIPT_FILE,
 ) : ItemRoyaltyProvider {
 
     private val builder = JsonCadenceBuilder()
     private val script: String = ClassPathResource("script/$scriptFile").inputStream.bufferedReader().use { it.readText() }
-    private val chainId = properties.chainId
     private val nftMetadataViews = Contracts.METADATA_VIEWS
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
 

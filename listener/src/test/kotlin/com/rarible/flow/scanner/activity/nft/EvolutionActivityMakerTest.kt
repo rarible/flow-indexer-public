@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test
 import java.time.Instant
 
 internal class EvolutionActivityMakerTest : AbstractNftActivityTest() {
-    val activityMaker = EvolutionActivityMaker(logRepository, txManager, properties)
+    val activityMaker = EvolutionActivityMaker(logRepository, txManager, chainId)
 
     @Test
     fun `should mint item`() = runBlocking<Unit> {

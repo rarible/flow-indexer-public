@@ -11,7 +11,7 @@ import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class CnnNFTSubscriber : BaseFlowLogEventSubscriber() {
+class CnnNFTSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     val events = setOf("Minted", "Withdraw", "Deposit", "NFTDestroyed")
     private val name = "cnn_nft"

@@ -1,10 +1,5 @@
-spring:
-  application:
-    name: flow-indexer-listener
-  data:
-    mongodb:
-      auto-index-creation: false
-
+application:
+  serviceName: "flow-indexer-listener"
 
 mongock:
   enabled: true
@@ -37,8 +32,6 @@ app:
 
 blockchain:
   scanner:
-    kafka:
-      numberOfPartitionsPerLogGroup: 18
     flow:
       optimisticLockRetries: 5
       retry-policy:

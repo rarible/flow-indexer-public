@@ -20,7 +20,7 @@ import java.time.Instant
 
 internal class FanfareActivityTest : AbstractNftActivityTest() {
 
-    val activityMaker = FanfareActivity(logRepository, txManager, properties)
+    val activityMaker = FanfareActivity(logRepository, txManager, chainId)
 
     @Test
     fun `mint item - ok`() = runBlocking<Unit> {

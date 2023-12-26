@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component
 
 @Component
 class BarterYardPackMetaProvider(
-    @Value("\${app.chain-id}")
     private val chainId: FlowChainId,
     private val script: BarterYardScript
 ) : ItemMetaProvider {

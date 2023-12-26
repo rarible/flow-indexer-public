@@ -12,11 +12,9 @@ import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.TxManager
-import com.rarible.flow.scanner.config.FlowListenerProperties
 import com.rarible.flow.scanner.model.NonFungibleTokenEventType
 import com.rarible.flow.scanner.test.BaseJsonEventTest
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.emptyFlow
 import java.time.Instant
@@ -28,21 +26,19 @@ abstract class AbstractNftActivityTest : BaseJsonEventTest() {
         coEvery { findAfterEventIndex(any(), any(), any(), any()) } returns emptyFlow()
         coEvery { findBeforeEventIndex(any(), any(), any(), any()) } returns emptyFlow()
     }
-    protected val properties = mockk<FlowListenerProperties> {
-        every { chainId } returns FlowChainId.MAINNET
-    }
+    protected val chainId = FlowChainId.MAINNET
 
     protected val transactionHash = "aa8386f6aaaf74f7e949903c09d685e706130c6dcfd15aa5bc40d2d958efc29c"
     protected val blockHash = "85992a4b68aae43d7743cc68c5bf622655242dd841a036910230ca29fa96da49"
 
     protected val contractSpec = Contracts.HW_GARAGE_CARD
-    protected val contract = contractSpec.fqn(properties.chainId)
-    protected val contractAddress = contractSpec.deployments[properties.chainId]!!.formatted
+    protected val contract = contractSpec.fqn(chainId)
+    protected val contractAddress = contractSpec.deployments[chainId]!!.formatted
     protected val collection = contract
-    protected val mintEventType = NonFungibleTokenEventType.MINT.full(contractSpec.fqn(properties.chainId))
-    protected val burnEventType = NonFungibleTokenEventType.BURN.full(contractSpec.fqn(properties.chainId))
-    protected val depositEventType = NonFungibleTokenEventType.DEPOSIT.full(contractSpec.fqn(properties.chainId))
-    protected val withdrawEventType = NonFungibleTokenEventType.WITHDRAW.full(contractSpec.fqn(properties.chainId))
+    protected val mintEventType = NonFungibleTokenEventType.MINT.full(contractSpec.fqn(chainId))
+    protected val burnEventType = NonFungibleTokenEventType.BURN.full(contractSpec.fqn(chainId))
+    protected val depositEventType = NonFungibleTokenEventType.DEPOSIT.full(contractSpec.fqn(chainId))
+    protected val withdrawEventType = NonFungibleTokenEventType.WITHDRAW.full(contractSpec.fqn(chainId))
     protected val timestamp = Instant.now()
     protected val blockHeight = 19683033L
 

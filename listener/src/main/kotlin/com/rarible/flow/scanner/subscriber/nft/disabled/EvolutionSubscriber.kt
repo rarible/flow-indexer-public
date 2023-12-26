@@ -9,7 +9,7 @@ import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
 
-class EvolutionSubscriber : BaseFlowLogEventSubscriber() {
+class EvolutionSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     private val events = "Withdraw,Deposit,CollectibleMinted,CollectibleDestroyed".split(",")
     private val name = "evolution"

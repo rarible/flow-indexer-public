@@ -1,38 +1,21 @@
 package com.rarible.flow.core.repository
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.core.test.ext.MongoTest
-import com.rarible.flow.core.TestBeanConfiguration
-import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.repository.data.randomAddress
 import com.rarible.flow.core.repository.data.randomLong
+import com.rarible.flow.core.test.IntegrationTest
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
 import reactor.test.StepVerifier
 import java.time.Clock
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-@MongoTest
-@DataMongoTest(
-    properties = [
-        "application.environment = dev",
-        "spring.cloud.service-registry.auto-registration.enabled = false",
-        "spring.cloud.discovery.enabled = false",
-        "spring.cloud.consul.config.enabled = false",
-        "logging.logstash.tcp-socket.enabled = false",
-        "spring.data.mongodb.auto-index-creation = true"
-    ]
-)
-@ContextConfiguration(classes = [CoreConfig::class, TestBeanConfiguration::class])
-@ActiveProfiles("test")
-class ItemRepositoryTest {
+@IntegrationTest
+class ItemRepositoryIt {
 
     @Autowired
     private lateinit var itemRepository: ItemRepository

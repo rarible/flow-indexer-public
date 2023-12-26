@@ -22,7 +22,6 @@ import com.rarible.flow.core.util.Log
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.and
@@ -37,7 +36,6 @@ import java.util.concurrent.TimeUnit
 @Service
 class EnglishAuctionService(
     private val repo: EnglishAuctionLotRepository,
-    @Value("\${blockchain.scanner.flow.chainId}")
     private val chainId: FlowChainId,
     private val publisher: ProtocolEventPublisher,
     private val mongo: ReactiveMongoTemplate

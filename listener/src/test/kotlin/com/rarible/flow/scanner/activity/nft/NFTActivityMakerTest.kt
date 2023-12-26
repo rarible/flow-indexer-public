@@ -14,7 +14,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class NFTActivityMakerTest : AbstractNftActivityTest() {
-    private val generalActivityMaker = object : NFTActivityMaker(logRepository, txManager, properties) {
+    private val generalActivityMaker = object : NFTActivityMaker(logRepository, txManager, chainId) {
         override val contractName: String
             get() = contractSpec.contractName
 

@@ -13,7 +13,6 @@ import com.rarible.flow.core.domain.OrderActivityMatchSide
 import com.rarible.flow.core.domain.PaymentType
 import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.TxManager
-import com.rarible.flow.scanner.config.FlowListenerProperties
 import com.rarible.flow.scanner.model.PayInfo
 import com.rarible.flow.scanner.service.CurrencyService
 import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
@@ -25,11 +24,10 @@ class NftStorefrontV1PurchaseEventParser(
     private val txManager: TxManager,
     currencyService: CurrencyService,
     supportedCollectionService: SupportedNftCollectionProvider,
-    properties: FlowListenerProperties
+    private val chainId: FlowChainId,
 ) : AbstractNftStorefrontPurchaseEventParser(currencyService, supportedCollectionService) {
 
-    private val chainId = properties.chainId
-    private val nftCollectionEvents = supportedCollectionService.getEvents(properties.chainId)
+    private val nftCollectionEvents = supportedCollectionService.getEvents(chainId)
 
     override suspend fun parseActivity(logEvent: FlowLogEvent): FlowNftOrderActivitySell? {
         val event = logEvent.event

@@ -9,7 +9,7 @@ import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
 
-class RaribleNFTv2Subscriber : BaseFlowLogEventSubscriber() {
+class RaribleNFTv2Subscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     private val events = setOf("Minted", "Withdraw", "Deposit", "Burned")
     private val name = "rarible_nft_v2"

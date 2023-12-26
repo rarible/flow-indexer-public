@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component
 
 @Component
 class SomePlaceCollectibleMetaProvider(
-    @Value("\${app.chain-id}")
     private val chainId: FlowChainId,
     @Value("classpath:script/spc_meta.cdc")
     private val script: Resource,

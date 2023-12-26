@@ -19,7 +19,7 @@ import java.time.Instant
 
 internal class OneFootballActivityTest : AbstractNftActivityTest() {
 
-    val activityMaker = OneFootballActivity(logRepository, txManager, properties)
+    val activityMaker = OneFootballActivity(logRepository, txManager, chainId)
 
     @Test
     fun `mint item - ok`() = runBlocking<Unit> {

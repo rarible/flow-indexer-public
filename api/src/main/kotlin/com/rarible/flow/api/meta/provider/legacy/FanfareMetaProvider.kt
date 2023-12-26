@@ -7,7 +7,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.cadence.StringField
 import com.rarible.flow.Contracts
-import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.meta.ItemMeta
 import com.rarible.flow.api.meta.ItemMetaAttribute
 import com.rarible.flow.api.meta.ItemMetaContent
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Component
 
 @Component
 class FanfareMetaProvider(
-    private val apiProperties: ApiProperties,
     private val scriptExecutor: ScriptExecutor,
 ) : ItemMetaProvider {
 

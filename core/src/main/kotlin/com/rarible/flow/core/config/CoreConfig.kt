@@ -1,5 +1,6 @@
 package com.rarible.flow.core.config
 
+import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.mongo.FlowFieldConverter
 import com.rarible.flow.core.converter.FlowConversions
 import com.rarible.flow.core.converter.ItemHistoryToDtoConverter
@@ -44,6 +45,9 @@ import java.math.BigDecimal
 class CoreConfig(
     private val appProperties: AppProperties
 ) {
+
+    @Bean
+    fun chainId(): FlowChainId = appProperties.chainId
 
     @Bean
     fun mongoCustomConversions(): MongoCustomConversions {

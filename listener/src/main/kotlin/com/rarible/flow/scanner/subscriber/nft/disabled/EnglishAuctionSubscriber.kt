@@ -11,11 +11,12 @@ import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 
 @ConditionalOnExpression("false")
-class EnglishAuctionSubscriber : BaseFlowLogEventSubscriber() {
+class EnglishAuctionSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     private val contractName = Contracts.ENGLISH_AUCTION.contractName
 
-    private val events = setOf("LotAvailable", "LotCompleted", "LotEndTimeChanged", "LotCleaned", "OpenBid", "CloseBid", "IncreaseBid")
+    private val events =
+        setOf("LotAvailable", "LotCompleted", "LotEndTimeChanged", "LotCleaned", "OpenBid", "CloseBid", "IncreaseBid")
     private val name = "english_auction"
 
     override val descriptors: Map<FlowChainId, FlowDescriptor>

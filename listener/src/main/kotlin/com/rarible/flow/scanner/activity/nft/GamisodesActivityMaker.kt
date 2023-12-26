@@ -1,12 +1,12 @@
 package com.rarible.flow.scanner.activity.nft
 
+import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.repository.FlowLogRepository
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.FlowLogType
 import com.rarible.flow.core.domain.TransferActivity
 import com.rarible.flow.scanner.TxManager
-import com.rarible.flow.scanner.config.FlowListenerProperties
 import com.rarible.flow.scanner.model.WithdrawEvent
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component
 class GamisodesActivityMaker(
     flowLogRepository: FlowLogRepository,
     txManager: TxManager,
-    properties: FlowListenerProperties,
-) : NFTActivityMaker(flowLogRepository, txManager, properties) {
+    chainId: FlowChainId,
+) : NFTActivityMaker(flowLogRepository, txManager, chainId) {
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> = emptyMap()
 

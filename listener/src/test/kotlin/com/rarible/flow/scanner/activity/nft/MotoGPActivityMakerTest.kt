@@ -19,7 +19,7 @@ import java.time.Instant
 
 internal class MotoGPActivityMakerTest : AbstractNftActivityTest() {
 
-    val activityMaker = MotoGPActivityMaker(logRepository, txManager, properties)
+    val activityMaker = MotoGPActivityMaker(logRepository, txManager, chainId)
 
     @Test
     fun `mint item - ok`() = runBlocking<Unit> {

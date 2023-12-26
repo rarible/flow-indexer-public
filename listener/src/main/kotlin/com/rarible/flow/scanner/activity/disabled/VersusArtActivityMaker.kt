@@ -1,19 +1,19 @@
 package com.rarible.flow.scanner.activity.disabled
 
 import com.nftco.flow.sdk.Flow
+import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.repository.FlowLogRepository
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.event.VersusArtMetadata
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.activity.nft.NFTActivityMaker
-import com.rarible.flow.scanner.config.FlowListenerProperties
 
 class VersusArtActivityMaker(
     flowLogRepository: FlowLogRepository,
     txManager: TxManager,
-    properties: FlowListenerProperties,
-) : NFTActivityMaker(flowLogRepository, txManager, properties) {
+    chainId: FlowChainId,
+) : NFTActivityMaker(flowLogRepository, txManager, chainId) {
 
     override val contractName = Contracts.VERSUS_ART.contractName
 

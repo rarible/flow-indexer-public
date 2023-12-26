@@ -1,5 +1,6 @@
 package com.rarible.flow.core.config
 
+import com.rarible.core.application.ApplicationEnvironmentInfo
 import com.rarible.core.kafka.RaribleKafkaProducer
 import com.rarible.core.kafka.json.JsonSerializer
 import com.rarible.protocol.dto.FlowActivityEventDto
@@ -16,14 +17,17 @@ import org.springframework.stereotype.Component
 
 @Component
 class GatewayEventsProducers(
-    private val appProperties: AppProperties
+    private val appProperties: AppProperties,
+    applicationEnvironmentInfo: ApplicationEnvironmentInfo
 ) {
+
+    private val env = applicationEnvironmentInfo.name
 
     fun itemsUpdates(): RaribleKafkaProducer<FlowNftItemEventDto> {
         return RaribleKafkaProducer(
-            clientId = "${appProperties.environment}.flow.nft-events-importer",
+            clientId = "$env.flow.nft-events-importer",
             valueSerializerClass = JsonSerializer::class.java,
-            defaultTopic = FlowNftItemEventTopicProvider.getTopic(appProperties.environment),
+            defaultTopic = FlowNftItemEventTopicProvider.getTopic(env),
             bootstrapServers = appProperties.kafkaReplicaSet,
             compression = appProperties.compression,
         )
@@ -31,9 +35,9 @@ class GatewayEventsProducers(
 
     fun ownershipsUpdates(): RaribleKafkaProducer<FlowOwnershipEventDto> {
         return RaribleKafkaProducer(
-            clientId = "${appProperties.environment}.flow.ownership-events-importer",
+            clientId = "$env.flow.ownership-events-importer",
             valueSerializerClass = JsonSerializer::class.java,
-            defaultTopic = FlowNftOwnershipEventTopicProvider.getTopic(appProperties.environment),
+            defaultTopic = FlowNftOwnershipEventTopicProvider.getTopic(env),
             bootstrapServers = appProperties.kafkaReplicaSet,
             compression = appProperties.compression,
         )
@@ -41,9 +45,9 @@ class GatewayEventsProducers(
 
     fun collectionsUpdates(): RaribleKafkaProducer<FlowCollectionEventDto> {
         return RaribleKafkaProducer(
-            clientId = "${appProperties.environment}.flow.collection-events-importer",
+            clientId = "$env.flow.collection-events-importer",
             valueSerializerClass = JsonSerializer::class.java,
-            defaultTopic = FlowNftCollectionEventTopicProvider.getTopic(appProperties.environment),
+            defaultTopic = FlowNftCollectionEventTopicProvider.getTopic(env),
             bootstrapServers = appProperties.kafkaReplicaSet,
             compression = appProperties.compression,
         )
@@ -51,9 +55,9 @@ class GatewayEventsProducers(
 
     fun ordersUpdates(): RaribleKafkaProducer<FlowOrderEventDto> {
         return RaribleKafkaProducer(
-            clientId = "${appProperties.environment}.flow.order-events-importer",
+            clientId = "$env.flow.order-events-importer",
             valueSerializerClass = JsonSerializer::class.java,
-            defaultTopic = FlowOrderEventTopicProvider.getTopic(appProperties.environment),
+            defaultTopic = FlowOrderEventTopicProvider.getTopic(env),
             bootstrapServers = appProperties.kafkaReplicaSet,
             compression = appProperties.compression,
         )
@@ -61,9 +65,9 @@ class GatewayEventsProducers(
 
     fun activitiesUpdates(): RaribleKafkaProducer<FlowActivityEventDto> {
         return RaribleKafkaProducer(
-            clientId = "${appProperties.environment}.flow.activity-events-importer",
+            clientId = "$env.flow.activity-events-importer",
             valueSerializerClass = JsonSerializer::class.java,
-            defaultTopic = FlowActivityEventTopicProvider.getActivityTopic(appProperties.environment),
+            defaultTopic = FlowActivityEventTopicProvider.getActivityTopic(env),
             bootstrapServers = appProperties.kafkaReplicaSet,
             compression = appProperties.compression,
         )

@@ -10,7 +10,7 @@ import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class MugenNFTSubscriber : BaseFlowLogEventSubscriber() {
+class MugenNFTSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     private val events = setOf("Minted", "Withdraw", "Deposit")
     private val name = "mugen_nft"

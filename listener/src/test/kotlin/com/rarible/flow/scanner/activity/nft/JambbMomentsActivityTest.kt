@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test
 import java.time.Instant
 
 internal class JambbMomentsActivityTest : AbstractNftActivityTest() {
-    val activityMaker = JambbMomentsActivity(logRepository, txManager, properties)
+    val activityMaker = JambbMomentsActivity(logRepository, txManager, chainId)
 
     @Test
     fun `mint item - ok`() = runBlocking<Unit> {

@@ -1,24 +1,26 @@
 package com.rarible.flow.api.service.meta
 
+import com.nftco.flow.sdk.FlowChainId
 import com.rarible.flow.Contracts
-import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.core.domain.ItemId
 import org.springframework.stereotype.Component
 
 @Component
 @Suppress("SameParameterValue")
-class HWMetaEventTypeProvider(properties: ApiProperties) : MetaEventTypeProvider {
-
-    private val chainId = properties.chainId
+class HWMetaEventTypeProvider(
+    private val chainId: FlowChainId
+) : MetaEventTypeProvider {
 
     override fun getMetaEventType(itemId: ItemId): MetaEventType? {
         return when (itemId.contract) {
             Contracts.HW_GARAGE_PACK.fqn(chainId) -> {
                 getPackMetadataEvent(Contracts.HW_GARAGE_PM)
             }
+
             Contracts.HW_GARAGE_CARD.fqn(chainId) -> {
                 getCardMetadataEvent(Contracts.HW_GARAGE_PM)
             }
+
             Contracts.HW_GARAGE_PACK_V2.fqn(chainId) -> {
                 getAdminMintPackMetadataEvent(Contracts.HW_GARAGE_PM_V2)
             }

@@ -11,7 +11,7 @@ import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class JambbMomentsSubscriber : BaseFlowLogEventSubscriber() {
+class JambbMomentsSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     private val events = setOf("MomentMinted", "Withdraw", "Deposit", "MomentDestroyed")
     private val name = "jambb_moments"

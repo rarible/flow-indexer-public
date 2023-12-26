@@ -20,8 +20,9 @@ import kotlinx.coroutines.reactor.awaitSingle
 
 abstract class AbstractNFTStorefrontSubscriber(
     supportedNftCollectionProvider: SupportedNftCollectionProvider,
-    private val orderRepository: OrderRepository
-) : BaseFlowLogEventSubscriber() {
+    private val orderRepository: OrderRepository,
+    chainId: FlowChainId,
+) : BaseFlowLogEventSubscriber(chainId) {
 
     private val events = NFTStorefrontEventType.EVENT_NAMES
     protected abstract val name: String

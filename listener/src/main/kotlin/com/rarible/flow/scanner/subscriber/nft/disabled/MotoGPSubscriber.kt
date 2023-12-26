@@ -10,7 +10,7 @@ import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import java.util.Locale
 
-class MotoGPSubscriber : BaseFlowLogEventSubscriber() {
+class MotoGPSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     private val events = setOf("Mint", "Withdraw", "Deposit", "Burn")
     private val name = "moto_gp"

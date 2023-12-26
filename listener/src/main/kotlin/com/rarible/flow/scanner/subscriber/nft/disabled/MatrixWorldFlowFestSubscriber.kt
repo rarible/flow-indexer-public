@@ -11,7 +11,7 @@ import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class MatrixWorldFlowFestSubscriber : BaseFlowLogEventSubscriber() {
+class MatrixWorldFlowFestSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     private val events = setOf("Minted", "Withdraw", "Deposit")
     private val name = "matrix_world_flow_fest"

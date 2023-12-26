@@ -149,11 +149,9 @@ class GamisodesMetaMt {
 
         val appProperties = AppProperties(
             chainId = chainId,
-            environment = "",
             flowAccessPort = 1,
             flowAccessUrl = "",
             kafkaReplicaSet = "",
-            webApiUrl = ""
         )
 
         val ff = FeatureFlagsProperties().copy(enableRawOnChainMetaCacheRead = false, enableRawOnChainMetaCacheWrite = false)

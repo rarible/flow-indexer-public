@@ -1,8 +1,6 @@
 package com.rarible.flow.api.meta.provider.legacy
 
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.FlowChainId
-import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.meta.ItemMeta
 import com.rarible.flow.api.meta.ItemMetaAttribute
 import com.rarible.flow.api.meta.ItemMetaContent
@@ -62,10 +60,6 @@ internal class FanfareMetaProviderTest : FunSpec({
     val metaString =
         """{"metadata":"{\"artist_name\":\"Fanfare\",\"title\":\"ETH Denver 2022\",\"description\":\"An NFT commemorating ETH Denver 2022! Music generated from the Fanfare wallet address.\",\"genre\":\"\",\"external_url\":\"https://www.fanfare.fm\",\"image_url\":\"https://nftfm-videos.s3.us-west-1.amazonaws.com/Comp_1.mp4\",\"audio_url\":\"https://fanfare-songs.s3.us-west-1.amazonaws.com/6f5fff865d4a4ce1dea4f149b3b0837e.wav\",\"is_music_video\":false,\"total_copies\":1,\"edition\":1}"}"""
 
-    val apiProperties = mockk<ApiProperties> {
-        every { chainId } returns FlowChainId.MAINNET
-    }
-
     val itemWithMeta = mockk<Item> {
         every { id } returns existing
         every { owner } returns FlowAddress("0x00")
@@ -81,7 +75,6 @@ internal class FanfareMetaProviderTest : FunSpec({
 
     test("should return empty meta for non existing item") {
         FanfareMetaProvider(
-            apiProperties,
             mockk {
                 coEvery<String?> { executeFile(any<String>(), any(), any()) } returns null
             },
@@ -90,14 +83,12 @@ internal class FanfareMetaProviderTest : FunSpec({
 
     test("should return proper meta from item") {
         FanfareMetaProvider(
-            apiProperties,
             mocks.scriptExecutor(),
         ).getMeta(itemWithMeta) shouldBe properMeta
     }
 
     test("should return proper meta from flow") {
         FanfareMetaProvider(
-            apiProperties,
             mockk {
                 coEvery<String> { executeFile(any<String>(), any(), any()) } returns metaString
             }

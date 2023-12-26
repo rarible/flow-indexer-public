@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: ${application.serviceName}
+  data:
+    mongodb:
+      uri: mongodb://${mongodb.hosts}
+      database: ${mongodb.database}
+      auto-index-creation: false
+
+blockchain:
+  scanner:
+    kafka:
+      brokerReplicaSet: ${kafka.hosts}
+    flow:
+      chainId: ${app.chainId}
+
+app:
+  kafkaReplicaSet: ${kafka.hosts}

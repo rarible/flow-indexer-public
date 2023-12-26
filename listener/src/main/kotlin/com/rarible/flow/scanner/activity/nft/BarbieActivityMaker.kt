@@ -1,18 +1,18 @@
 package com.rarible.flow.scanner.activity.nft
 
+import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.repository.FlowLogRepository
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.scanner.TxManager
-import com.rarible.flow.scanner.config.FlowListenerProperties
 import org.springframework.stereotype.Component
 
 sealed class BarbieActivityMaker(
     flowLogRepository: FlowLogRepository,
     txManager: TxManager,
-    properties: FlowListenerProperties,
-) : NFTActivityMaker(flowLogRepository, txManager, properties) {
+    chainId: FlowChainId,
+) : NFTActivityMaker(flowLogRepository, txManager, chainId) {
 
     override fun meta(logEvent: FlowLogEvent): Map<String, String> = emptyMap()
 
@@ -25,8 +25,8 @@ sealed class BarbieActivityMaker(
 class BarbieCardActivity(
     logRepository: FlowLogRepository,
     txManager: TxManager,
-    properties: FlowListenerProperties,
-) : BarbieActivityMaker(logRepository, txManager, properties) {
+    chainId: FlowChainId,
+) : BarbieActivityMaker(logRepository, txManager, chainId) {
 
     override val contractName: String = Contracts.BARBIE_CARD.contractName
 }
@@ -35,8 +35,8 @@ class BarbieCardActivity(
 class BarbiePackActivity(
     logRepository: FlowLogRepository,
     txManager: TxManager,
-    properties: FlowListenerProperties,
-) : BarbieActivityMaker(logRepository, txManager, properties) {
+    chainId: FlowChainId,
+) : BarbieActivityMaker(logRepository, txManager, chainId) {
 
     override val contractName: String = Contracts.BARBIE_PACK.contractName
 }
@@ -45,8 +45,8 @@ class BarbiePackActivity(
 class BarbieTokenActivity(
     logRepository: FlowLogRepository,
     txManager: TxManager,
-    properties: FlowListenerProperties,
-) : BarbieActivityMaker(logRepository, txManager, properties) {
+    chainId: FlowChainId,
+) : BarbieActivityMaker(logRepository, txManager, chainId) {
 
     override val contractName: String = Contracts.BARBIE_TOKEN.contractName
 }
@@ -55,8 +55,8 @@ class BarbieTokenActivity(
 class RaribleBarbieCardActivity(
     logRepository: FlowLogRepository,
     txManager: TxManager,
-    properties: FlowListenerProperties,
-) : BarbieActivityMaker(logRepository, txManager, properties) {
+    chainId: FlowChainId,
+) : BarbieActivityMaker(logRepository, txManager, chainId) {
 
     override val contractName: String = Contracts.RARIBLE_BARBIE_CARD.contractName
 }
@@ -65,8 +65,8 @@ class RaribleBarbieCardActivity(
 class RaribleBarbiePackActivity(
     logRepository: FlowLogRepository,
     txManager: TxManager,
-    properties: FlowListenerProperties,
-) : BarbieActivityMaker(logRepository, txManager, properties) {
+    chainId: FlowChainId,
+) : BarbieActivityMaker(logRepository, txManager, chainId) {
 
     override val contractName: String = Contracts.RARIBLE_BARBIE_PACK.contractName
 }
@@ -75,8 +75,8 @@ class RaribleBarbiePackActivity(
 class RaribleBarbieTokenActivity(
     logRepository: FlowLogRepository,
     txManager: TxManager,
-    properties: FlowListenerProperties,
-) : BarbieActivityMaker(logRepository, txManager, properties) {
+    chainId: FlowChainId,
+) : BarbieActivityMaker(logRepository, txManager, chainId) {
 
     override val contractName: String = Contracts.RARIBLE_BARBIE_TOKEN.contractName
 }

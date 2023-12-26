@@ -1,15 +1,14 @@
 package com.rarible.flow.api.service
 
 import com.nftco.flow.sdk.FlowChainId
-import com.rarible.flow.api.randomApiProperties
 import com.rarible.flow.api.service.meta.HWMetaEventTypeProvider
 import com.rarible.flow.core.test.randomItemId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class HWMetaEventTypeProviderTest {
-    private val properties = randomApiProperties().copy(chainId = FlowChainId.TESTNET)
-    private val provider = HWMetaEventTypeProvider(properties)
+
+    private val provider = HWMetaEventTypeProvider(FlowChainId.TESTNET)
 
     @Test
     fun `provide - ok, pack`() {

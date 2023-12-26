@@ -8,7 +8,6 @@ import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.flow.core.domain.PaymentType
 import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.core.repository.ItemCollectionRepository
-import com.rarible.flow.core.util.Log
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.activity.ActivityMaker
 import com.rarible.flow.scanner.model.PayInfo
@@ -19,11 +18,13 @@ import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import java.math.BigDecimal
 
-abstract class WithPaymentsActivityMaker : ActivityMaker {
+abstract class WithPaymentsActivityMaker(
+    protected val chainId: FlowChainId
+) : ActivityMaker {
 
     abstract val contractName: String
 
@@ -38,10 +39,7 @@ abstract class WithPaymentsActivityMaker : ActivityMaker {
         currencies[chainId]!!.flatMap { listOf("$it.TokensDeposited", "$it.TokensWithdrawn") }.toSet()
     }
 
-    protected val logger by Log()
-
-    @Value("\${blockchain.scanner.flow.chainId}")
-    protected lateinit var chainId: FlowChainId
+    protected val logger = LoggerFactory.getLogger(javaClass)
 
     protected val cadenceParser: JsonCadenceParser = JsonCadenceParser()
 
