@@ -1,21 +1,21 @@
 package com.rarible.flow.scanner.activity.nft
 
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.StructField
 import com.rarible.blockchain.scanner.flow.repository.FlowLogRepository
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogEvent
 import com.rarible.flow.core.domain.Part
 import com.rarible.flow.scanner.TxManager
-import com.rarible.flow.scanner.config.FlowListenerProperties
 import org.springframework.stereotype.Component
 
 @Component
 class RaribleNFTActivityMaker(
     logRepository: FlowLogRepository,
     txManager: TxManager,
-    properties: FlowListenerProperties,
-) : NFTActivityMaker(logRepository, txManager, properties) {
+    chainId: FlowChainId,
+) : NFTActivityMaker(logRepository, txManager, chainId) {
 
     override val contractName: String = Contracts.RARIBLE_NFT.contractName
 

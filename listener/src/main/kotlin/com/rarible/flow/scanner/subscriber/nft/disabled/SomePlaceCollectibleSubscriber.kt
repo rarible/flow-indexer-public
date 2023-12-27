@@ -9,7 +9,7 @@ import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
 
-class SomePlaceCollectibleSubscriber : BaseFlowLogEventSubscriber() {
+class SomePlaceCollectibleSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     private val events = listOf("Mint", "Deposit", "Withdraw", "Burn")
     private val name = "some_place_collection"

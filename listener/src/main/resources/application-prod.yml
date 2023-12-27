@@ -1,25 +1,10 @@
-application:
-  environment: prod
-
 blockchain:
   scanner:
     flow:
-      chainId: MAINNET
       poller:
         delay: 100
-      job:
-        reconciliation:
-          batchSize: 250
-      retryPolicy:
-        scan:
-          maxProcessTime: 10m
+
 app:
-  flow-access-url: "access.mainnet.nodes.onflow.org"
-  flow-access-port: 9000
-  environment: prod
-  kafka-replica-set: ${kafka.hosts}
-  chain-id: MAINNET
-  web-api-url: ${web-api-url}
   featureFlags:
     enableHwOtherCard: false
     enableHwOtherCardV2: false
@@ -35,23 +20,6 @@ app:
     enableRaribleBarbieToken: false
     enableStorefrontV1: false
 
-spring:
-  data:
-    mongodb:
-      uri: mongodb://${mongodb.user}:${mongodb.password}@${mongodb.hosts}
-      database: ${mongodb.database}
-management:
-  endpoint:
-    metrics:
-      enabled: true
-
-logging:
-  level:
-    com.rarible.flow: DEBUG
-
 flow-api:
-  flow-access-url: "access.mainnet.nodes.onflow.org"
-  flow-access-port: 9000
-  chain-id: MAINNET
   cleanup:
     enabled: true

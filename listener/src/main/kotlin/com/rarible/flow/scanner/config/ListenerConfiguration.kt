@@ -37,7 +37,8 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 @EnableFlowBlockchainScanner
 @EnableConfigurationProperties(FlowListenerProperties::class)
 @EnableReactiveMongoAuditing
-class Config(
+class ListenerConfiguration(
+    private val chainId: FlowChainId,
     private val flowListenerProperties: FlowListenerProperties,
     private val sporkService: SporkService
 ) {
@@ -70,10 +71,10 @@ class Config(
             }
         }
 
-        Flow.configureDefaults(chainId = flowListenerProperties.chainId)
+        Flow.configureDefaults(chainId = chainId)
 
         return FlowBalanceService(
-            flowListenerProperties.chainId,
+            chainId,
             api,
             balanceRepository
         )

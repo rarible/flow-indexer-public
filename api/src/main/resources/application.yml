@@ -1,0 +1,24 @@
+application:
+  serviceName: flow-indexer-api
+
+rarible:
+  core:
+    filter:
+      cors:
+        enabled: true
+
+flow-indexer-api:
+  ipfs:
+    internalGateway: "https://ipfs.io"
+    publicGateway: "https://ipfs.io"
+
+blockchain:
+  scanner:
+    flow:
+      scan:
+        enabled: false
+      monitoring:
+        enabled: false
+      task:
+        reindex:
+          enabled: false

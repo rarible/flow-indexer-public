@@ -20,7 +20,7 @@ import java.time.Instant
 
 internal class StarlyActivityTest : AbstractNftActivityTest() {
 
-    val activityMaker = StarlyActivity(logRepository, txManager, properties)
+    val activityMaker = StarlyActivity(logRepository, txManager, chainId)
 
     @Test
     fun `mint item - ok`() = runBlocking<Unit> {

@@ -20,7 +20,7 @@ import java.time.Instant
 
 internal class MatrixWorldFlowFestActivityTest : AbstractNftActivityTest() {
 
-    val activityMaker = MatrixWorldFlowFestNFTActivity(logRepository, txManager, properties)
+    val activityMaker = MatrixWorldFlowFestNFTActivity(logRepository, txManager, chainId)
 
     @Test
     fun `mint item - ok`() = runBlocking<Unit> {

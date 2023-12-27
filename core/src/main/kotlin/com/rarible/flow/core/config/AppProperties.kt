@@ -10,13 +10,11 @@ import org.springframework.context.annotation.Profile
 @ConfigurationProperties(prefix = "app")
 @Profile("!without-kafka")
 data class AppProperties(
-    val environment: String,
-    val flowAccessUrl: String,
-    val flowAccessPort: Int,
+    val flowAccessUrl: String = "",
+    val flowAccessPort: Int = 0,
     val kafkaReplicaSet: String,
     val compression: Compression = Compression.SNAPPY,
     val chainId: FlowChainId,
-    val webApiUrl: String,
     val featureFlags: FeatureFlagsProperties = FeatureFlagsProperties(),
     val metricRootPath: String = "protocol.flow.indexer"
 )

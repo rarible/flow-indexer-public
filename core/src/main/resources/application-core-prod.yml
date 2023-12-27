@@ -1,0 +1,15 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://${mongodb.user}:${mongodb.password}@${mongodb.hosts}
+      database: ${mongodb.database}
+
+management:
+  endpoint:
+    metrics:
+      enabled: true
+
+app:
+  flowAccessUrl: "access.mainnet.nodes.onflow.org"
+  flowAccessPort: 9000
+  chainId: "MAINNET"

@@ -51,17 +51,9 @@ class Config(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Suppress("PrivatePropertyName")
-    private val DEFAULT_MESSAGE_SIZE: Int = 33554432 // 32 Mb in bites
-
     @Bean
     fun ipfsProperties(): IpfsProperties {
         return apiProperties.ipfs
-    }
-
-    @Bean
-    fun featureFlags(): FeatureFlags {
-        return apiProperties.featureFlags
     }
 
     @Bean

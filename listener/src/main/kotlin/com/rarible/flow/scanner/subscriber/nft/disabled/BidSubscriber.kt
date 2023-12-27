@@ -25,7 +25,8 @@ class BidSubscriber(
     private val collectionRepository: ItemCollectionRepository,
     private val txManager: TxManager,
     private val orderRepository: OrderRepository,
-) : BaseFlowLogEventSubscriber() {
+    chainId: FlowChainId,
+) : BaseFlowLogEventSubscriber(chainId) {
 
     private val name = "bid"
 

@@ -1,11 +1,7 @@
 package com.rarible.flow.api
 
 import com.nftco.flow.sdk.FlowAddress
-import com.nftco.flow.sdk.FlowChainId
-import com.rarible.core.test.data.randomInt
 import com.rarible.core.test.data.randomString
-import com.rarible.flow.api.config.ApiProperties
-import com.rarible.flow.api.config.IpfsProperties
 import com.rarible.flow.core.domain.FlowAssetFungible
 import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.ItemId
@@ -34,14 +30,4 @@ fun createOrder(id: String = randomString()) = Order(
 
 object data {
     val CADENCE_NULL = """{"type":"Optional","value":null}"""
-}
-
-fun randomApiProperties(): ApiProperties {
-    return ApiProperties(
-        flowAccessUrl = randomString(),
-        flowAccessPort = randomInt(),
-        chainId = FlowChainId.values().random(),
-        alchemyApiKey = randomString(),
-        ipfs = IpfsProperties(randomString(), randomString()),
-    )
 }

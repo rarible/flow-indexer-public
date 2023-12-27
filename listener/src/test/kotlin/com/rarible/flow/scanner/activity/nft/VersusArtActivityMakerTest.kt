@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test
 import java.time.ZonedDateTime
 
 class VersusArtActivityMakerTest : AbstractNftActivityTest() {
-    private val activityMaker = VersusArtActivityMaker(logRepository, txManager, properties)
+    private val activityMaker = VersusArtActivityMaker(logRepository, txManager, chainId)
 
     private val versusMint = FlowLogEvent(
         type = FlowLogType.MINT,

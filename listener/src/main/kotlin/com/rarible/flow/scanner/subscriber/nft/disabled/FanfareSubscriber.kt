@@ -11,7 +11,7 @@ import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class FanfareSubscriber : BaseFlowLogEventSubscriber() {
+class FanfareSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     private val events = setOf("Minted", "Withdraw", "Deposit")
     private val name = "fanfare"

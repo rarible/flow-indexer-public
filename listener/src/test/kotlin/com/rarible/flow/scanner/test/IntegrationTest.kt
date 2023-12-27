@@ -26,7 +26,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
         "logging.logjson.enabled = false"
     ]
 )
-@ActiveProfiles("test")
+@ActiveProfiles("core", "test")
 @Import(TestConfiguration::class)
 @Testcontainers
 annotation class IntegrationTest

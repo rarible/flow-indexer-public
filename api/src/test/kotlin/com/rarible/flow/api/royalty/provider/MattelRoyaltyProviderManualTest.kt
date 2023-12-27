@@ -4,7 +4,6 @@ import com.nftco.flow.sdk.Flow
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.service.AsyncFlowAccessApiImpl
-import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.config.AppProperties
 import com.rarible.flow.core.domain.Item
@@ -33,9 +32,7 @@ class MattelRoyaltyProviderManualTest {
     private val appProperties = mockk<AppProperties> {
         every { chainId } returns FlowChainId.MAINNET
     }
-    private val apiProperties = mockk<ApiProperties> {
-        every { chainId } returns FlowChainId.MAINNET
-    }
+
     private val executor = ScriptExecutor(
         api = api,
         appProperties = appProperties
@@ -44,7 +41,7 @@ class MattelRoyaltyProviderManualTest {
     @Test
     fun `get royalties - pack V2`() = runBlocking<Unit> {
         val provider = HWGaragePackV2RoyaltyProvider(
-            apiProperties,
+            FlowChainId.MAINNET,
             executor
         )
         val item = mockk<Item> {
@@ -60,7 +57,7 @@ class MattelRoyaltyProviderManualTest {
     @Test
     fun `get royalties - pack`() = runBlocking<Unit> {
         val provider = HWGaragePackRoyaltyProvider(
-            apiProperties,
+            FlowChainId.MAINNET,
             executor
         )
         val item = mockk<Item> {
@@ -76,7 +73,7 @@ class MattelRoyaltyProviderManualTest {
     @Test
     fun `get royalties - card`() = runBlocking<Unit> {
         val provider = HWGarageCardRoyaltyProvider(
-            apiProperties,
+            FlowChainId.MAINNET,
             executor
         )
         val item = mockk<Item> {
@@ -92,7 +89,7 @@ class MattelRoyaltyProviderManualTest {
     @Test
     fun `get royalties - card V2`() = runBlocking<Unit> {
         val provider = HWGarageCardV2RoyaltyProvider(
-            apiProperties,
+            FlowChainId.MAINNET,
             executor
         )
         val item = mockk<Item> {
@@ -108,7 +105,7 @@ class MattelRoyaltyProviderManualTest {
     @Test
     fun `get royalties - barbie card`() = runBlocking<Unit> {
         val provider = BarbieCardRoyaltyProvider(
-            apiProperties,
+            FlowChainId.MAINNET,
             executor
         )
         val item = mockk<Item> {
@@ -124,7 +121,7 @@ class MattelRoyaltyProviderManualTest {
     @Test
     fun `get royalties - barbie pack`() = runBlocking<Unit> {
         val provider = BarbiePackRoyaltyProvider(
-            apiProperties,
+            FlowChainId.MAINNET,
             executor
         )
         val item = mockk<Item> {

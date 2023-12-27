@@ -7,7 +7,7 @@ flow-indexer-api:
   environments:
     APPLICATION_ENVIRONMENT: '{{ include "app.env" $ }}'
     CONSUL_ROOT_PATH: '{{ include "app.env" $ }}/flow-indexer'
-    SPRING_PROFILES_ACTIVE: 'consul,{{ include "app.env" $ }}'
+    SPRING_PROFILES_ACTIVE: 'core,core-{{ include "app.env" $ }},{{ include "app.env" $ }}'
   resources:
     jvm:
       xmx_megabytes: 368
@@ -20,7 +20,7 @@ flow-indexer-listener:
   environments:
     APPLICATION_ENVIRONMENT: '{{ include "app.env" $ }}'
     CONSUL_ROOT_PATH: '{{ include "app.env" $ }}/flow-indexer'
-    SPRING_PROFILES_ACTIVE: 'consul,{{ include "app.env" $ }}'
+    SPRING_PROFILES_ACTIVE: 'core,core-{{ include "app.env" $ }},{{ include "app.env" $ }}'
   priorityClassName: high
   resources:
     jvm:

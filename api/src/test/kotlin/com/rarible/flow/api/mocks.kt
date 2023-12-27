@@ -31,7 +31,13 @@ object mocks {
                     )
                 }
             },
-            AppProperties("test", "", 80, "", Compression.SNAPPY, FlowChainId.EMULATOR, "http://localhost:8080")
+            AppProperties(
+                flowAccessUrl = "",
+                flowAccessPort = 80,
+                kafkaReplicaSet = "",
+                compression = Compression.SNAPPY,
+                chainId = FlowChainId.EMULATOR,
+            )
         )
     }
 

@@ -13,7 +13,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 
 @ExperimentalCoroutinesApi
 @ConditionalOnProperty(name = ["blockchain.scanner.flow.chainId"], havingValue = "MAINNET")
-class StarlyCardSubscriber : BaseFlowLogEventSubscriber() {
+class StarlyCardSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     val events = setOf("Minted", "Withdraw", "Deposit", "Burned")
     private val name = "starly_card"

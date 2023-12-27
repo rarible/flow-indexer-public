@@ -9,7 +9,7 @@ import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
 
-class SoftCollectionSubscriber : BaseFlowLogEventSubscriber() {
+class SoftCollectionSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     private val events = setOf("Withdraw", "Deposit", "Minted", "Burned", "Changed")
     private val name = "soft_collection"

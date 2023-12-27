@@ -1,5 +1,6 @@
 package com.rarible.flow.scanner.activity.nft
 
+import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.cadence.JsonCadenceParser
 import com.rarible.blockchain.scanner.flow.model.FlowLog
 import com.rarible.blockchain.scanner.flow.repository.FlowLogRepository
@@ -15,7 +16,6 @@ import com.rarible.flow.core.util.findAfterEventIndex
 import com.rarible.flow.core.util.findBeforeEventIndex
 import com.rarible.flow.scanner.TxManager
 import com.rarible.flow.scanner.activity.ActivityMaker
-import com.rarible.flow.scanner.config.FlowListenerProperties
 import com.rarible.flow.scanner.model.BurnEvent
 import com.rarible.flow.scanner.model.DepositEvent
 import com.rarible.flow.scanner.model.GeneralBurnEvent
@@ -31,14 +31,12 @@ import kotlinx.coroutines.flow.toList
 abstract class NFTActivityMaker(
     private val flowLogRepository: FlowLogRepository,
     private val txManager: TxManager,
-    properties: FlowListenerProperties,
+    protected val chainId: FlowChainId,
 ) : ActivityMaker {
 
     abstract val contractName: String
 
     protected val cadenceParser: JsonCadenceParser = JsonCadenceParser()
-
-    protected val chainId = properties.chainId
 
     fun <T> parse(fn: JsonCadenceParser.() -> T): T {
         return fn(cadenceParser)

@@ -2,7 +2,6 @@ package com.rarible.flow.api.meta.provider.legacy
 
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
-import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
 import io.kotest.core.spec.style.FunSpec
@@ -32,33 +31,33 @@ internal class JambbMomentsMetaProviderTest : FunSpec({
         } returns null
     }
 
-    val properties = mockk<ApiProperties> {
-        every { chainId } returns FlowChainId.MAINNET
-    }
+    val chainId = FlowChainId.MAINNET
 
     test("should return empty meta if script returned null") {
         JambbMomentsMetaProvider(
             metaScript,
-            properties
+            chainId
         ).getMeta(notExisting) shouldBe null
     }
 
     test("should return filled meta") {
         JambbMomentsMetaProvider(
             metaScript,
-            properties
+            chainId
         ).getMeta(existing) shouldBe JambbMomentsMetaConverterTest.META.toItemMeta(existing.id)
     }
 
     test("isSupported is true") {
         JambbMomentsMetaProvider(
-            metaScript, properties
+            metaScript,
+            chainId
         ).isSupported(existing.id) shouldBe true
     }
 
     test("isSupported is false") {
         JambbMomentsMetaProvider(
-            metaScript, properties
+            metaScript,
+            chainId
         ).isSupported(ItemId("A.1234.MotoGP", 1000)) shouldBe false
     }
 })

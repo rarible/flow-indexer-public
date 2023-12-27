@@ -1,10 +1,8 @@
 package com.rarible.flow.core.repository
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.core.test.ext.MongoTest
-import com.rarible.flow.core.TestBeanConfiguration
-import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Ownership
+import com.rarible.flow.core.test.IntegrationTest
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -14,27 +12,14 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 import kotlin.random.Random
 
-@MongoTest
-@DataMongoTest(
-    properties = [
-        "application.environment = dev",
-        "spring.cloud.service-registry.auto-registration.enabled = false",
-        "spring.cloud.discovery.enabled = false",
-        "spring.cloud.consul.config.enabled = false",
-        "logging.logstash.tcp-socket.enabled = false"
-    ]
-)
-@ContextConfiguration(classes = [CoreConfig::class, TestBeanConfiguration::class])
-@ActiveProfiles("test")
-internal class OwnershipRepositoryTest {
+@IntegrationTest
+internal class OwnershipRepositoryIt {
+
     @Autowired
     private lateinit var ownershipRepository: OwnershipRepository
 

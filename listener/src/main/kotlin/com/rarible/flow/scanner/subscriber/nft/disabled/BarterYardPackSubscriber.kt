@@ -9,7 +9,7 @@ import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
 
-class BarterYardPackSubscriber : BaseFlowLogEventSubscriber() {
+class BarterYardPackSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     private val events = setOf("Mint", "Withdraw", "Deposit", "Burn")
 

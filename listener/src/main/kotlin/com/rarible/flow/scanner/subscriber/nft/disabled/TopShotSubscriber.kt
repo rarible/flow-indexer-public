@@ -9,7 +9,7 @@ import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
 
-class TopShotSubscriber : BaseFlowLogEventSubscriber() {
+class TopShotSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     private val events = "Withdraw,Deposit,MomentMinted,MomentDestroyed".split(",")
     private val name = "top_shot"

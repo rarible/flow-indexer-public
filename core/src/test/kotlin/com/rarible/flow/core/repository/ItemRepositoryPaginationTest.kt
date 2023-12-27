@@ -1,11 +1,9 @@
 package com.rarible.flow.core.repository
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.core.test.ext.MongoTest
-import com.rarible.flow.api.TestPropertiesConfiguration
-import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.TokenId
+import com.rarible.flow.core.test.IntegrationTest
 import com.rarible.flow.core.util.Log
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.count
@@ -14,28 +12,15 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
 import java.time.Clock
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-@MongoTest
-@DataMongoTest(
-    properties = [
-        "application.environment = dev",
-        "spring.cloud.service-registry.auto-registration.enabled = false",
-        "spring.cloud.discovery.enabled = false",
-        "spring.cloud.consul.config.enabled = false",
-        "logging.logstash.tcp-socket.enabled = false"
-    ]
-)
-@ContextConfiguration(classes = [CoreConfig::class, TestPropertiesConfiguration::class])
-@ActiveProfiles("test")
-internal class ItemRepositoryPaginationTest(
-    @Autowired val itemRepository: ItemRepository
-) {
+@IntegrationTest
+class ItemRepositoryPaginationTest {
+
+    @Autowired
+    lateinit var itemRepository: ItemRepository
 
     @BeforeEach
     fun beforeEach() {
@@ -134,7 +119,10 @@ internal class ItemRepositoryPaginationTest(
 
         // creator1 - read next and the last
         read = itemRepository
-            .search(ItemFilter.ByCreator(item1.creator), "${item2.mintedAt.toEpochMilli()}_${item2.id}", 1, ItemFilter.Sort.LAST_UPDATE)
+            .search(
+                ItemFilter.ByCreator(item1.creator), "${item2.mintedAt.toEpochMilli()}_${item2.id}", 1,
+                ItemFilter.Sort.LAST_UPDATE
+            )
             .asFlow()
         read.count() shouldBe 1
         read.collect {
@@ -143,7 +131,10 @@ internal class ItemRepositoryPaginationTest(
 
         // creator1 - try to read more
         read = itemRepository
-            .search(ItemFilter.ByCreator(item1.creator), "${item1.mintedAt.toEpochMilli()}_${item1.id}", 1, ItemFilter.Sort.LAST_UPDATE)
+            .search(
+                ItemFilter.ByCreator(item1.creator), "${item1.mintedAt.toEpochMilli()}_${item1.id}", 1,
+                ItemFilter.Sort.LAST_UPDATE
+            )
             .asFlow()
         read.count() shouldBe 0
 

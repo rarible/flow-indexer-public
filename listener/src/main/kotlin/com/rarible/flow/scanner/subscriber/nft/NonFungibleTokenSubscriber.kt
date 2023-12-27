@@ -10,7 +10,7 @@ import com.rarible.flow.scanner.model.NonFungibleTokenEventType
 import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
 
-abstract class NonFungibleTokenSubscriber : BaseFlowLogEventSubscriber() {
+abstract class NonFungibleTokenSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
     protected open val events = NonFungibleTokenEventType.EVENT_NAMES
 
     protected abstract val name: String

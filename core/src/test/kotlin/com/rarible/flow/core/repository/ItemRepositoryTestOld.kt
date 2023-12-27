@@ -1,18 +1,15 @@
 package com.rarible.flow.core.repository
 
 import com.nftco.flow.sdk.FlowAddress
-import com.rarible.core.test.ext.MongoTest
-import com.rarible.flow.api.TestPropertiesConfiguration
-import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.TokenId
+import com.rarible.flow.core.test.IntegrationTest
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -20,25 +17,11 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
 import java.time.Clock
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-@MongoTest
-@DataMongoTest(
-    properties = [
-        "application.environment = dev",
-        "spring.cloud.service-registry.auto-registration.enabled = false",
-        "spring.cloud.discovery.enabled = false",
-        "spring.cloud.consul.config.enabled = false",
-        "logging.logstash.tcp-socket.enabled = false"
-    ]
-)
-@ContextConfiguration(classes = [CoreConfig::class, TestPropertiesConfiguration::class])
-@ActiveProfiles("test")
+@IntegrationTest
 class ItemRepositoryTestOld {
 
     @Autowired

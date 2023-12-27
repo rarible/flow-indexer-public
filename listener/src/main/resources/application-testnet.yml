@@ -1,37 +1,6 @@
-application:
-  environment: testnet
-
-logging:
-  level:
-    com.rarible.flow: DEBUG
-
 blockchain:
   scanner:
     flow:
       enableHttpClient: true
       httpApiClient:
-        endpoint: https://rest-testnet.onflow.org
-
-      chainId: TESTNET
-      poller:
-        delay: 100
-      job:
-        reconciliation:
-          batchSize: 25
-        retryPolicy:
-          scan:
-            maxProcessTime: 1m
-app:
-  flow-access-url: "access.devnet.nodes.onflow.org"
-  flow-access-port: 9000
-  environment: testnet
-  kafka-replica-set: ${kafka.hosts}
-  chain-id: TESTNET
-  web-api-url: ${web-api-url}
-
-flow-api:
-  flow-access-url: "access.devnet.nodes.onflow.org"
-  flow-access-port: 9000
-  chain-id: TESTNET
-
-
+        endpoint: "https://rest-testnet.onflow.org"

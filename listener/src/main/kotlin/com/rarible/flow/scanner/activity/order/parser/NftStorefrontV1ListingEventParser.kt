@@ -8,7 +8,6 @@ import com.rarible.flow.core.domain.FlowNftOrderActivityList
 import com.rarible.flow.core.event.EventId
 import com.rarible.flow.core.event.EventMessage
 import com.rarible.flow.scanner.TxManager
-import com.rarible.flow.scanner.config.FlowListenerProperties
 import com.rarible.flow.scanner.service.CurrencyService
 import com.rarible.flow.scanner.service.SupportedNftCollectionProvider
 import org.springframework.stereotype.Component
@@ -19,11 +18,9 @@ import java.time.Instant
 class NftStorefrontV1ListingEventParser(
     currencyService: CurrencyService,
     supportedNftCollectionProvider: SupportedNftCollectionProvider,
-    properties: FlowListenerProperties,
+    private val chainId: FlowChainId,
     private val txManager: TxManager,
 ) : AbstractNftStorefrontListingEventParser(currencyService, supportedNftCollectionProvider) {
-
-    private val chainId = properties.chainId
 
     private val raribleOrderAddress = mapOf(
         FlowChainId.MAINNET to "01ab36aaf654a13e",

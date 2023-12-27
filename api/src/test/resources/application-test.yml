@@ -1,0 +1,4 @@
+app:
+  flowAccessUrl: "access.devnet.nodes.onflow.org"
+  flowAccessPort: 9000
+  chainId: TESTNET

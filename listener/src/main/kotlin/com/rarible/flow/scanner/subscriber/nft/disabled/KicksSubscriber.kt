@@ -9,7 +9,7 @@ import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
 
-class KicksSubscriber : BaseFlowLogEventSubscriber() {
+class KicksSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     private val events = setOf("SneakerCreated", "SneakerBurned", "Withdraw", "Deposit")
     private val name = "kicks"

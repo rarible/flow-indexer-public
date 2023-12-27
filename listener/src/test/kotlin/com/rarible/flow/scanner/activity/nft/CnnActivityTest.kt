@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test
 import java.time.Instant
 
 internal class CnnActivityTest : AbstractNftActivityTest() {
-    val activityMaker = CnnActivity(logRepository, txManager, properties)
+    val activityMaker = CnnActivity(logRepository, txManager, chainId)
 
     @Test
     fun `should mint ite`() = runBlocking<Unit> {

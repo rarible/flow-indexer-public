@@ -3,8 +3,8 @@ package com.rarible.flow.api.meta.provider.legacy
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.netflix.graphql.dgs.client.WebClientGraphQLClient
+import com.nftco.flow.sdk.FlowChainId
 import com.rarible.flow.Contracts
-import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.config.Config
 import com.rarible.flow.api.meta.ItemMeta
 import com.rarible.flow.api.meta.ItemMetaAttribute
@@ -22,13 +22,13 @@ import org.springframework.stereotype.Component
 class ChainmonstersMetaProvider(
     private val itemRepository: ItemRepository,
     private val chainMonstersGraphQl: WebClientGraphQLClient,
-    private val apiProperties: ApiProperties
+    private val chainId: FlowChainId
 ) : ItemMetaProvider {
 
     private val objectMapper = jacksonObjectMapper()
 
     override fun isSupported(itemId: ItemId): Boolean =
-        itemId.contract == Contracts.CHAINMONSTERS.fqn(apiProperties.chainId)
+        itemId.contract == Contracts.CHAINMONSTERS.fqn(chainId)
 
     override suspend fun getMeta(item: Item): ItemMeta? {
         return item.meta

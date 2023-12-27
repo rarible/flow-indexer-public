@@ -16,13 +16,9 @@ import com.rarible.flow.core.util.Log
 import com.rarible.flow.scanner.service.RecordKeyProvider
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import java.time.Instant
 
-abstract class BaseFlowLogEventSubscriber : FlowLogEventSubscriber {
-
-    @Value("\${blockchain.scanner.flow.chainId}")
-    protected lateinit var chainId: FlowChainId
+abstract class BaseFlowLogEventSubscriber(val chainId: FlowChainId) : FlowLogEventSubscriber {
 
     protected val collection = "flow_log_event"
 
@@ -36,12 +32,12 @@ abstract class BaseFlowLogEventSubscriber : FlowLogEventSubscriber {
 
     abstract val descriptors: Map<FlowChainId, FlowDescriptor>
 
-    override fun getDescriptor(): FlowDescriptor = when (chainId) {
-        FlowChainId.EMULATOR -> descriptors[chainId] ?: EMPTY_DESCRIPTOR
+    override fun getDescriptor(): FlowDescriptor = when (this.chainId) {
+        FlowChainId.EMULATOR -> descriptors[this.chainId] ?: EMPTY_DESCRIPTOR
         else -> {
-            descriptors[chainId]
+            descriptors[this.chainId]
                 ?: throw IllegalArgumentException(
-                    "Cant find descriptor for ${this.javaClass.simpleName} (chain $chainId), available descriptiors are: $descriptors"
+                    "Cant find descriptor for ${this.javaClass.simpleName} (chain ${this.chainId}), available descriptiors are: $descriptors"
                 )
         }
     }

@@ -1,6 +1,7 @@
 package com.rarible.flow.scanner.activity.disabled
 
 import com.nftco.flow.sdk.FlowAddress
+import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowId
 import com.nftco.flow.sdk.cadence.AddressField
 import com.nftco.flow.sdk.cadence.Field
@@ -28,7 +29,9 @@ import java.math.BigDecimal
 import java.time.Instant
 
 @Component
-class EnglishAuctionActivityMaker : WithPaymentsActivityMaker() {
+class EnglishAuctionActivityMaker(
+    chainId: FlowChainId
+) : WithPaymentsActivityMaker(chainId) {
 
     override val contractName: String = "EnglishAuction"
     override fun getItemId(event: FlowLogEvent): ItemId? {

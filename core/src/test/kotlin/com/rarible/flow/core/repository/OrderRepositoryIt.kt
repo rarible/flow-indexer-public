@@ -1,12 +1,10 @@
 package com.rarible.flow.core.repository
 
-import com.rarible.core.test.ext.MongoTest
-import com.rarible.flow.core.TestBeanConfiguration
-import com.rarible.flow.core.config.CoreConfig
 import com.rarible.flow.core.domain.FlowAssetNFT
 import com.rarible.flow.core.domain.Order
 import com.rarible.flow.core.repository.data.createLegacyOrder
 import com.rarible.flow.core.repository.data.createOrder
+import com.rarible.flow.core.test.IntegrationTest
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
@@ -18,25 +16,11 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.data.mongodb.core.query.Update
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
 import java.math.BigDecimal
 
-@MongoTest
-@DataMongoTest(
-    properties = [
-        "application.environment = dev",
-        "spring.cloud.service-registry.auto-registration.enabled = false",
-        "spring.cloud.discovery.enabled = false",
-        "spring.cloud.consul.config.enabled = false",
-        "logging.logstash.tcp-socket.enabled = false"
-    ]
-)
-@ContextConfiguration(classes = [CoreConfig::class, TestBeanConfiguration::class])
-@ActiveProfiles("test")
-internal class OrderRepositoryTest() {
+@IntegrationTest
+internal class OrderRepositoryIt {
 
     @Autowired
     lateinit var orderRepository: OrderRepository

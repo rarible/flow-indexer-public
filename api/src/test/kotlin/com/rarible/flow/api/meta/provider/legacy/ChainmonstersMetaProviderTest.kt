@@ -4,7 +4,6 @@ import com.netflix.graphql.dgs.client.GraphQLResponse
 import com.netflix.graphql.dgs.client.WebClientGraphQLClient
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
-import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.meta.ItemMetaAttribute
 import com.rarible.flow.core.domain.Item
 import com.rarible.flow.core.domain.ItemId
@@ -29,9 +28,7 @@ internal class ChainmonstersMetaProviderTest : FunSpec({
         every { findById(any<ItemId>()) } returns Mono.just(item)
     }
 
-    val apiProperties = mockk<ApiProperties> {
-        every { chainId } returns FlowChainId.MAINNET
-    }
+    val chainId = FlowChainId.MAINNET
 
     val graphQl = mockk<WebClientGraphQLClient> {
         every {
@@ -47,7 +44,7 @@ internal class ChainmonstersMetaProviderTest : FunSpec({
     val provider = ChainmonstersMetaProvider(
         itemRepository,
         graphQl,
-        apiProperties
+        chainId
     )
 
     test("should support ChainmonstersRewards") {
@@ -62,7 +59,7 @@ internal class ChainmonstersMetaProviderTest : FunSpec({
         ChainmonstersMetaProvider(
             itemRepository,
             graphQl,
-            apiProperties
+            chainId
         ).getMeta(
             item
         ) should { meta ->
@@ -81,7 +78,7 @@ internal class ChainmonstersMetaProviderTest : FunSpec({
         ChainmonstersMetaProvider(
             itemRepository,
             graphQlErr,
-            apiProperties
+            chainId
         ).getMeta(
             item
         ) shouldBe null

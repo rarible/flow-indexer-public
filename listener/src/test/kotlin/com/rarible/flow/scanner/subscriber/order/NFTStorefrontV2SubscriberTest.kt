@@ -16,7 +16,8 @@ class NFTStorefrontV2SubscriberTest {
     }
     private val storefrontV2 = NFTStorefrontV2Subscriber(
         supportedNftCollectionProvider = supportedNftCollectionProvider,
-        orderRepository = orderRepository
+        orderRepository = orderRepository,
+        chainId = FlowChainId.MAINNET
     )
 
     @Test

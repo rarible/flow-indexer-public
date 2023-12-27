@@ -11,7 +11,7 @@ import com.rarible.flow.scanner.subscriber.DescriptorFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 
 @ConditionalOnProperty(name = ["blockchain.scanner.flow.chainId"], havingValue = "MAINNET")
-class DisruptArtSubscriber : BaseFlowLogEventSubscriber() {
+class DisruptArtSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     private val events = setOf("Mint", "Withdraw", "Deposit", "GroupMint")
     private val name = "disrupt_art"

@@ -1,5 +1,6 @@
 package com.rarible.flow.scanner.subscriber.nft
 
+import com.nftco.flow.sdk.FlowChainId
 import com.rarible.blockchain.scanner.flow.client.FlowBlockchainLog
 import com.rarible.flow.Contracts
 import com.rarible.flow.core.domain.FlowLogType
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @EnableRaribleNft
-class RaribleNFTSubscriber : NonFungibleTokenSubscriber() {
+class RaribleNFTSubscriber(chainId: FlowChainId) : NonFungibleTokenSubscriber(chainId) {
     override val events = RaribleNftEventType.EVENT_NAMES
     override val name = "rarible_nft"
     override val contract = Contracts.RARIBLE_NFT

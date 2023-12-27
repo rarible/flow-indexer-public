@@ -9,7 +9,7 @@ import com.rarible.flow.core.event.EventId
 import com.rarible.flow.scanner.subscriber.BaseFlowLogEventSubscriber
 import com.rarible.flow.scanner.subscriber.DescriptorFactory
 
-class VersusArtSubscriber : BaseFlowLogEventSubscriber() {
+class VersusArtSubscriber(chainId: FlowChainId) : BaseFlowLogEventSubscriber(chainId) {
 
     private val events = setOf("Created", "Withdraw", "Deposit")
     private val additionalEvents = setOf(

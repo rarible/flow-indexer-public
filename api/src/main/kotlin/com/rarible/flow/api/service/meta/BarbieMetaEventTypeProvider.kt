@@ -1,15 +1,15 @@
 package com.rarible.flow.api.service.meta
 
+import com.nftco.flow.sdk.FlowChainId
 import com.rarible.flow.Contracts
-import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.core.domain.ItemId
 import org.springframework.stereotype.Component
 
 @Component
 @Suppress("SameParameterValue")
-class BarbieMetaEventTypeProvider(properties: ApiProperties) : MetaEventTypeProvider {
-
-    private val chainId = properties.chainId
+class BarbieMetaEventTypeProvider(
+    private val chainId: FlowChainId
+) : MetaEventTypeProvider {
 
     override fun getMetaEventType(itemId: ItemId): MetaEventType? {
         return when (itemId.contract) {

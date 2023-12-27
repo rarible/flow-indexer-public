@@ -23,7 +23,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 )
 @MongoTest
 @MongoCleanup
-@ActiveProfiles("test")
+@ActiveProfiles("core", "test")
 @Testcontainers
 @Import(TestPropertiesConfiguration::class)
 annotation class IntegrationTest

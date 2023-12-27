@@ -3,7 +3,6 @@ package com.rarible.flow.api.royalty.provider
 import com.nftco.flow.sdk.FlowAddress
 import com.nftco.flow.sdk.FlowChainId
 import com.nftco.flow.sdk.FlowScriptResponse
-import com.rarible.flow.api.config.ApiProperties
 import com.rarible.flow.api.service.ScriptExecutor
 import com.rarible.flow.core.domain.Item
 import io.mockk.coEvery
@@ -15,12 +14,10 @@ import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
 class BarbieCardRoyaltyProviderTest {
-    private val apiProperties = mockk<ApiProperties> {
-        every { chainId } returns FlowChainId.MAINNET
-    }
+
     private val executor = mockk<ScriptExecutor>()
 
-    private val provider = BarbieCardRoyaltyProvider(apiProperties, executor)
+    private val provider = BarbieCardRoyaltyProvider(FlowChainId.MAINNET, executor)
 
     @Test
     fun `get royalty - ok`() = runBlocking<Unit> {
